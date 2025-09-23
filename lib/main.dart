@@ -76,6 +76,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _databaseTotalLength = 0;
+  List<String> _booksByAuthor = [];
 
   @override
   void initState() {
@@ -86,11 +87,31 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> databaseData() async {
     final db = await _getDatabase();
     final result = await db.rawQuery('select count(*) as count from book;');
-    print(result);
+    //print(result);
     final count = result.first['count'] as int;
 
     setState(() {
       _databaseTotalLength = count;
+    });
+  }
+
+  Future<void> _searchAuthor(String textInput) async {
+    final db = await _getDatabase();
+    final List<Map<String, dynamic>> result = await db.rawQuery(
+      '''
+      select b.name from book b 
+      left join books_by_author bba on b.book_id = bba.book_id 
+      left join author a on bba.author_id = a.author_id 
+      where a.name like ?
+      ''',
+      ['%$textInput%'],
+    );
+    print(result);
+    final List<String> booksNames =
+        result.map((row) => row['name'] as String).toList();
+
+    setState(() {
+      _booksByAuthor = booksNames;
     });
   }
 
@@ -122,6 +143,11 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_databaseTotalLength',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
+            AuthorTextField(onSearch: _searchAuthor),
+            //AuthorListView(booksByAuthor: _booksByAuthor),
+            _booksByAuthor.isNotEmpty
+                ? Text('$_booksByAuthor')
+                : const SizedBox.shrink(),
           ],
         ),
       ),
@@ -131,6 +157,54 @@ class _MyHomePageState extends State<MyHomePage> {
         tooltip: 'Add',
         child: const Icon(Icons.add),
       ),*/
+    );
+  }
+}
+
+/// An example of the outlined text field type.
+///
+/// A Outlined [TextField] with default settings matching the spec:
+/// https://m3.material.io/components/text-fields/specs#68b00bd6-ab40-4b4f-93d9-ed1fbbc5d06e
+class AuthorTextField extends StatelessWidget {
+  final Function(String) onSearch;
+
+  const AuthorTextField({super.key, required this.onSearch});
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      decoration: const InputDecoration(
+        prefixIcon: Icon(Icons.search),
+        suffixIcon: Icon(Icons.clear),
+        labelText: 'Auth@r',
+        hintText: 'Enter auth@r',
+        border: OutlineInputBorder(),
+      ),
+      onSubmitted: onSearch,
+    );
+  }
+}
+
+class AuthorListView extends StatelessWidget {
+  final List<String> booksByAuthor;
+
+  const AuthorListView({super.key, required this.booksByAuthor});
+
+  @override
+  Widget build(BuildContext context) {
+    if (booksByAuthor.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(8),
+      itemCount: booksByAuthor.length,
+      itemBuilder: (BuildContext context, int index) {
+        return SizedBox(
+          height: 50,
+          child: Center(child: Text('Entry ${booksByAuthor[index]}')),
+        );
+      },
     );
   }
 }
