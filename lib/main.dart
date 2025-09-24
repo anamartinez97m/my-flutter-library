@@ -135,19 +135,46 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
           children: <Widget>[
-            const Text('The database contains the following number of books:'),
-            Text(
-              '$_databaseTotalLength',
-              style: Theme.of(context).textTheme.headlineMedium,
+            Row(
+              spacing: 50,
+              children: <Widget>[
+                SizedBox(
+                  child: const Center(
+                    child: Text(
+                      'The database contains the \nfollowing number of books:',
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  child: Center(
+                    child: Text(
+                      '$_databaseTotalLength',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            AuthorTextField(onSearch: _searchAuthor),
-            //AuthorListView(booksByAuthor: _booksByAuthor),
-            _booksByAuthor.isNotEmpty
-                ? Text('$_booksByAuthor')
-                : const SizedBox.shrink(),
+            SizedBox(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 25, bottom: 25),
+                child: Center(
+                  child: AuthorTextField(onSearch: _searchAuthor),
+                  //AuthorListView(booksByAuthor: _booksByAuthor),
+                ),
+              ),
+            ),
+            SizedBox(
+              child: Center(
+                child:
+                    _booksByAuthor.isNotEmpty
+                        ? Text('$_booksByAuthor')
+                        : const SizedBox.shrink(),
+              ),
+            ),
           ],
         ),
       ),
@@ -167,18 +194,23 @@ class _MyHomePageState extends State<MyHomePage> {
 /// https://m3.material.io/components/text-fields/specs#68b00bd6-ab40-4b4f-93d9-ed1fbbc5d06e
 class AuthorTextField extends StatelessWidget {
   final Function(String) onSearch;
+  final _authorController = TextEditingController();
 
-  const AuthorTextField({super.key, required this.onSearch});
+  AuthorTextField({super.key, required this.onSearch});
 
   @override
   Widget build(BuildContext context) {
     return TextField(
-      decoration: const InputDecoration(
-        prefixIcon: Icon(Icons.search),
-        suffixIcon: Icon(Icons.clear),
+      controller: _authorController,
+      decoration: InputDecoration(
+        prefixIcon: const Icon(Icons.search),
+        suffixIcon: IconButton(
+          onPressed: _authorController.clear,
+          icon: const Icon(Icons.clear),
+        ),
         labelText: 'Auth@r',
         hintText: 'Enter auth@r',
-        border: OutlineInputBorder(),
+        border: const OutlineInputBorder(),
       ),
       onSubmitted: onSearch,
     );
