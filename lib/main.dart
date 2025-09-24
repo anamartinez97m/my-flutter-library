@@ -58,16 +58,6 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -96,15 +86,17 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _searchAuthor(String textInput) async {
+    String input = textInput.trim();
     final db = await _getDatabase();
     final List<Map<String, dynamic>> result = await db.rawQuery(
       '''
       select b.name from book b 
       left join books_by_author bba on b.book_id = bba.book_id 
       left join author a on bba.author_id = a.author_id 
-      where a.name like ?
+      where lower(a.name) like ?
+      order by b.name
       ''',
-      ['%$textInput%'],
+      ['%${input.toLowerCase()}%'],
     );
     print(result);
     final List<String> booksNames =
@@ -123,59 +115,51 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Center(
-        child: ListView(
+      body: SafeArea(
+        child: Padding(
           padding: const EdgeInsets.all(16),
-          children: <Widget>[
-            Row(
-              spacing: 50,
-              children: <Widget>[
-                SizedBox(
-                  child: const Center(
-                    child: Text(
-                      'The database contains the \nfollowing number of books:',
+          child: Column(
+            children: <Widget>[
+              Row(
+                spacing: 50,
+                children: <Widget>[
+                  SizedBox(
+                    child: const Center(
+                      child: Text(
+                        'The database contains the \nfollowing number of books:',
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(
+                  SizedBox(
+                    child: Center(
+                      child: Text(
+                        '$_databaseTotalLength',
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 25, bottom: 25),
                   child: Center(
-                    child: Text(
-                      '$_databaseTotalLength',
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    ),
+                    child: AuthorTextField(onSearch: _searchAuthor),
                   ),
                 ),
-              ],
-            ),
-            SizedBox(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 25, bottom: 25),
-                child: Center(
-                  child: AuthorTextField(onSearch: _searchAuthor),
-                  //AuthorListView(booksByAuthor: _booksByAuthor),
-                ),
               ),
-            ),
-            SizedBox(
-              child: Center(
-                child:
-                    _booksByAuthor.isNotEmpty
-                        ? Text('$_booksByAuthor')
-                        : const SizedBox.shrink(),
-              ),
-            ),
-          ],
+              _booksByAuthor.isNotEmpty
+                  ? Expanded(
+                    child: AuthorListView(booksByAuthor: _booksByAuthor),
+                  )
+                  : const SizedBox.shrink(),
+            ],
+          ),
         ),
       ),
       /*floatingActionButton: FloatingActionButton(
@@ -188,10 +172,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-/// An example of the outlined text field type.
-///
-/// A Outlined [TextField] with default settings matching the spec:
-/// https://m3.material.io/components/text-fields/specs#68b00bd6-ab40-4b4f-93d9-ed1fbbc5d06e
 class AuthorTextField extends StatelessWidget {
   final Function(String) onSearch;
   final _authorController = TextEditingController();
@@ -208,7 +188,7 @@ class AuthorTextField extends StatelessWidget {
           onPressed: _authorController.clear,
           icon: const Icon(Icons.clear),
         ),
-        labelText: 'Auth@r',
+        labelText: 'Search auth@r',
         hintText: 'Enter auth@r',
         border: const OutlineInputBorder(),
       ),
@@ -224,17 +204,12 @@ class AuthorListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (booksByAuthor.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
     return ListView.builder(
-      padding: const EdgeInsets.all(8),
       itemCount: booksByAuthor.length,
       itemBuilder: (BuildContext context, int index) {
         return SizedBox(
-          height: 50,
-          child: Center(child: Text('Entry ${booksByAuthor[index]}')),
+          height: 30,
+          child: Center(child: Text(booksByAuthor[index])),
         );
       },
     );
