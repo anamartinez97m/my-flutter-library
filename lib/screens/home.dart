@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mylibrary/model/book.dart';
+import 'package:mylibrary/repository/bookRepository.dart';
 import 'package:mylibrary/widgets/booklist.dart';
 import 'dart:async';
 import 'package:path/path.dart' as path;
@@ -23,15 +25,22 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _databaseTotalLength = 0;
-  List<String> _books = [];
+  List<Book> _books = [];
+  late final repo;
 
   @override
   void initState() {
     super.initState();
-    databaseData();
+    getDatabase();
+    databaseDataCount();
   }
 
-  Future<void> databaseData() async {
+  Future<void> getDatabase() async {
+    final db = await _getDatabase();
+    repo = BookRepository(db);
+  }
+
+  Future<void> databaseDataCount() async {
     final db = await _getDatabase();
     final result = await db.rawQuery('select count(*) as count from book;');
     //print(result);
@@ -43,24 +52,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _search(String textInput) async {
-    String input = textInput.trim();
-    final db = await _getDatabase();
-    final List<Map<String, dynamic>> result = await db.rawQuery(
-      '''
-      select b.name from book b 
-      left join books_by_author bba on b.book_id = bba.book_id 
-      left join author a on bba.author_id = a.author_id 
-      where lower(a.name) like ? or (b.isbn) like ? or lower(b.name) like ?
-      order by b.name
-      ''',
-      ['%${input.toLowerCase()}%', '%$input%', '%${input.toLowerCase()}%'],
-    );
-    print(result);
-    final List<String> booksNames =
-        result.map((row) => row['name'] as String).toList();
+    final books = await repo.searchBooks(textInput.trim());
 
     setState(() {
-      _books = booksNames;
+      _books = books;
     });
   }
 

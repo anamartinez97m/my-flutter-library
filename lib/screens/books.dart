@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mylibrary/model/book.dart';
+import 'package:mylibrary/repository/bookRepository.dart';
 import 'package:mylibrary/widgets/booklist.dart';
 import 'package:path/path.dart' as path;
 import 'package:sqflite/sqflite.dart' as sql;
@@ -21,7 +23,7 @@ class BooksScreen extends StatefulWidget {
 }
 
 class _BooksScreenState extends State<BooksScreen> {
-  List<String> _books = [];
+  List<Book> _books = [];
 
   @override
   void initState() {
@@ -31,15 +33,11 @@ class _BooksScreenState extends State<BooksScreen> {
 
   Future<void> getBooks() async {
     final db = await _getDatabase();
-    final result = await db.rawQuery(
-      'select * from book b where b.name <> "" order by b.name;',
-    );
-
-    final List<String> booksNames =
-        result.map((row) => row['name'] as String).toList();
+    final repo = BookRepository(db);
+    final books = await repo.getAllBooks();
 
     setState(() {
-      _books = booksNames;
+      _books = books;
     });
   }
 
