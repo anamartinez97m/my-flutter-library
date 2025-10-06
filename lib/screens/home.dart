@@ -27,26 +27,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       body: Column(
         children: <Widget>[
-          Row(
-            spacing: 50,
-            children: <Widget>[
-              SizedBox(
-                child: const Center(
-                  child: Text(
-                    'The database contains the \nfollowing number of books:',
-                  ),
-                ),
-              ),
-              SizedBox(
-                child: Center(
-                  child: Text(
-                    '$totalCount',
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                ),
-              ),
-            ],
-          ),
           SizedBox(
             child: Padding(
               padding: const EdgeInsets.only(top: 25, bottom: 25),

@@ -1,8 +1,8 @@
 class Book {
-  final int bookId;
-  final int statusId = 0;
-  final String statusValue;
-  final String name;
+  final int? bookId;
+  final int? statusId = 0;
+  final String? statusValue;
+  final String? name;
   final int? editorialId = 0;
   final String? editorialValue;
   final String? saga;
@@ -41,8 +41,8 @@ class Book {
 
   factory Book.fromMap(Map<String, dynamic> map) {
     return Book(
-      bookId: map['book_id'] as int,
-      name: map['name'] as String,
+      bookId: map['book_id'] as int?,
+      name: map['name'] as String?,
       saga: map['saga'] as String?,
       nSaga: map['n_saga'] as String?,
       formatSagaValue: map['formatSagaValue'] as String?,
@@ -58,7 +58,7 @@ class Book {
                 map['original_publication_year']?.toString() ?? '',
               ),
       loaned: map['loaned'],
-      statusValue: map['statusValue'] as String,
+      statusValue: map['statusValue'] as String?,
       editorialValue: map['editorialValue'] as String?,
       languageValue: map['languageValue'] as String?,
       placeValue: map['placeValue'] as String?,

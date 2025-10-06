@@ -59,6 +59,21 @@ class BookRepository {
     return result.map((row) => Book.fromMap(row)).toList();
   }
 
+  Future<String?> getLatestBookAdded() async {
+    final result = await db.rawQuery('''
+      select b.name
+      from book b 
+      order by b.created_at desc 
+      limit 1;
+      ''');
+
+    if (result.isNotEmpty) {
+      return result.first['name']?.toString();
+    } else {
+      return null;
+    }
+  }
+
   // Future<void> insertBook(Book book) async {
   //   await db.insert('book', book.toMap(),
   //       conflictAlgorithm: ConflictAlgorithm.replace);

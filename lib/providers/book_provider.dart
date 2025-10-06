@@ -6,9 +6,11 @@ import '../repositories/book_repository.dart';
 class BookProvider extends ChangeNotifier {
   late BookRepository _repo;
   List<Book> _books = [];
+  String? _latestBookAdded = '';
   bool _isLoading = false;
 
   List<Book> get books => _books;
+  String? get latestBookAdded => _latestBookAdded;
   bool get isLoading => _isLoading;
 
   static Future<BookProvider> create() async {
@@ -22,6 +24,7 @@ class BookProvider extends ChangeNotifier {
 
   Future<void> _loadBooks() async {
     _books = await _repo.getAllBooks();
+    _latestBookAdded = await _repo.getLatestBookAdded();
     _isLoading = false;
     notifyListeners();
   }

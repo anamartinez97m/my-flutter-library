@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mylibrary/screens/addBook.dart';
-import 'package:mylibrary/screens/books.dart';
 import 'package:mylibrary/screens/home.dart';
 import 'package:mylibrary/screens/random.dart';
 import 'package:mylibrary/screens/settings.dart';
+import 'package:mylibrary/screens/statistics.dart';
 
 class NavigationScreen extends StatefulWidget {
   const NavigationScreen({super.key});
@@ -17,7 +17,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
 
   final List<Widget> widgetOptions = const [
     HomeScreen(),
-    BooksScreen(),
+    StatisticsScreen(),
     AddBookScreen(),
     RandomScreen(),
     SettingsScreen(),
@@ -49,7 +49,10 @@ class _NavigationScreenState extends State<NavigationScreen> {
             icon: Icon(Icons.cottage_outlined),
             label: 'Home',
           ),
-          NavigationDestination(icon: Icon(Icons.menu_book), label: 'All'),
+          NavigationDestination(
+            icon: Icon(Icons.donut_large_outlined),
+            label: 'Statistics/Facts',
+          ),
           NavigationDestination(icon: Icon(Icons.add_outlined), label: 'Add'),
           NavigationDestination(
             icon: Icon(Icons.shuffle_outlined),
