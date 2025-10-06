@@ -1,52 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:mylibrary/model/book.dart';
-import 'package:mylibrary/repository/bookRepository.dart';
+import 'package:mylibrary/providers/book_provider.dart';
 import 'package:mylibrary/widgets/booklist.dart';
-import 'package:path/path.dart' as path;
-import 'package:sqflite/sqflite.dart' as sql;
-import 'package:sqflite/sqlite_api.dart';
+import 'package:provider/provider.dart';
 
-Future<Database> _getDatabase() async {
-  final dbPath = await sql.getDatabasesPath();
-  final db = await sql.openDatabase(
-    path.join(dbPath, 'my_library.db'),
-    version: 1,
-  );
-  return db;
-}
-
-class BooksScreen extends StatefulWidget {
+class BooksScreen extends StatelessWidget {
   const BooksScreen({super.key});
 
   @override
-  State<BooksScreen> createState() => _BooksScreenState();
-}
-
-class _BooksScreenState extends State<BooksScreen> {
-  List<Book> _books = [];
-
-  @override
-  void initState() {
-    super.initState();
-    getBooks();
-  }
-
-  Future<void> getBooks() async {
-    final db = await _getDatabase();
-    final repo = BookRepository(db);
-    final books = await repo.getAllBooks();
-
-    setState(() {
-      _books = books;
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<BookProvider?>(context);
+
+    if (provider == null || provider.isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     return Column(
       children: <Widget>[
-        _books.isNotEmpty
-            ? Expanded(child: BookListView(books: _books))
+        provider.books.isNotEmpty
+            ? Expanded(child: BookListView(books: provider.books))
             : const SizedBox.shrink(),
       ],
     );

@@ -1,20 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mylibrary/model/book.dart';
-import 'package:mylibrary/repository/bookRepository.dart';
+import 'package:mylibrary/providers/book_provider.dart';
 import 'package:mylibrary/widgets/booklist.dart';
-import 'dart:async';
-import 'package:path/path.dart' as path;
-import 'package:sqflite/sqflite.dart' as sql;
-import 'package:sqflite/sqlite_api.dart';
-
-Future<Database> _getDatabase() async {
-  final dbPath = await sql.getDatabasesPath();
-  final db = await sql.openDatabase(
-    path.join(dbPath, 'my_library.db'),
-    version: 1,
-  );
-  return db;
-}
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -24,49 +11,19 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _databaseTotalLength = 0;
-  List<Book> _books = [];
-  late final repo;
-
-  @override
-  void initState() {
-    super.initState();
-    getDatabase();
-    databaseDataCount();
-  }
-
-  Future<void> getDatabase() async {
-    final db = await _getDatabase();
-    repo = BookRepository(db);
-  }
-
-  Future<void> databaseDataCount() async {
-    final db = await _getDatabase();
-    final result = await db.rawQuery('select count(*) as count from book;');
-    //print(result);
-    final count = result.first['count'] as int;
-
-    setState(() {
-      _databaseTotalLength = count;
-    });
-  }
-
-  Future<void> _search(String textInput) async {
-    final books = await repo.searchBooks(textInput.trim());
-
-    setState(() {
-      _books = books;
-    });
-  }
-
-  /*void addBook() {
-    setState(() {
-      
-    });
-  }*/
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<BookProvider?>(context);
+
+    if (provider == null || provider.isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    final books = provider.books;
+    final totalCount = books.length;
+
     return Scaffold(
       body: Column(
         children: <Widget>[
@@ -83,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
               SizedBox(
                 child: Center(
                   child: Text(
-                    '$_databaseTotalLength',
+                    '$totalCount',
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                 ),
@@ -93,11 +50,18 @@ class _HomeScreenState extends State<HomeScreen> {
           SizedBox(
             child: Padding(
               padding: const EdgeInsets.only(top: 25, bottom: 25),
-              child: Center(child: SearchTextField(onSearch: _search)),
+              child: Center(
+                child: SearchTextField(
+                  controller: _searchController,
+                  onSearch: (text) async {
+                    await provider.searchBooks(text.trim());
+                  },
+                ),
+              ),
             ),
           ),
-          _books.isNotEmpty
-              ? Expanded(child: BookListView(books: _books))
+          books.isNotEmpty
+              ? Expanded(child: BookListView(books: books))
               : const SizedBox.shrink(),
         ],
       ),
@@ -107,18 +71,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
 class SearchTextField extends StatelessWidget {
   final Function(String) onSearch;
-  final _authorController = TextEditingController();
+  final TextEditingController controller;
 
-  SearchTextField({super.key, required this.onSearch});
+  const SearchTextField({
+    super.key,
+    required this.onSearch,
+    required this.controller,
+  });
 
   @override
   Widget build(BuildContext context) {
     return TextField(
-      controller: _authorController,
+      controller: controller,
       decoration: InputDecoration(
         prefixIcon: const Icon(Icons.search),
         suffixIcon: IconButton(
-          onPressed: _authorController.clear,
+          onPressed: controller.clear,
           icon: const Icon(Icons.clear),
         ),
         labelText: 'Title, ISBN or auth@r',
