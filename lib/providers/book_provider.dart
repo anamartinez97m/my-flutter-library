@@ -29,7 +29,7 @@ class BookProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> searchBooks(String query) async {
+  Future<void> searchBooks(String query, {required int searchIndex}) async {
     if (query.isEmpty) {
       await _loadBooks();
       return;
@@ -37,7 +37,7 @@ class BookProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    _books = await _repo.searchBooks(query);
+    _books = await _repo.searchBooks(query, searchIndex);
     _isLoading = false;
     notifyListeners();
   }

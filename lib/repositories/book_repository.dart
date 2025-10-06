@@ -6,12 +6,29 @@ class BookRepository {
 
   BookRepository(this.db);
 
-  Future<List<Book>> searchBooks(String input) async {
+  Future<List<Book>> searchBooks(String input, int searchIndex) async {
+    String column;
+    switch (searchIndex) {
+      case 0:
+        column = 'b.name'; // Title
+        break;
+      case 1:
+        column = 'b.isbn'; // ISBN
+        break;
+      case 2:
+        column = 'a.name'; // Auth@r
+        break;
+      default:
+        column = 'b.name';
+    }
+
     final result = await db.rawQuery(
       '''
-      select b.book_id as bookId, s.value as statusValue, b.name, e.name as editorialValue, 
-        b.saga, b.n_saga as nSaga, b.isbn, l.name as languageValue, 
-        p.name as placeValue, f.value as formatValue
+      select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
+        b.saga, b.n_saga, b.isbn, l.name as languageValue, 
+        p.name as placeValue, f.value as formatValue,
+        fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
+        b.pages, b.created_at
       from book b 
       left join books_by_author bba on b.book_id = bba.book_id 
       left join author a on bba.author_id = a.author_id 
@@ -20,10 +37,10 @@ class BookRepository {
       left join language l on b.language_id = l.language_id 
       left join place p on b.place_id = p.place_id  
       left join format f on b.format_id = f.format_id
-      where lower(a.name) like ? or (b.isbn) like ? or lower(b.name) like ?
+      where lower($column) like ?
       order by b.name
       ''',
-      ['%${input.toLowerCase()}%', '%$input%', '%${input.toLowerCase()}%'],
+      ['%${input.toLowerCase()}%'],
     );
 
     return result.map((row) => Book.fromMap(row)).toList();
