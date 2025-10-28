@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:mylibrary/providers/book_provider.dart';
 import 'package:mylibrary/widgets/booklist.dart';
@@ -18,46 +16,66 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<BookProvider?>(context);
+    final BookProvider? provider = Provider.of<BookProvider?>(context);
 
     if (provider == null || provider.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final books = provider.books;
-
     return Scaffold(
       body: Column(
         children: <Widget>[
-          SearchButtonsWidget(
-            titles: const ['Title', 'ISBN', 'Auth@r'],
-            onSelectionChanged: (index) {
-              setState(() {
-                _selectedSearchButtonIndex = index;
-              });
-            },
-          ),
-          SizedBox(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 25, bottom: 25),
-              child: Center(
-                child: SearchTextField(
-                  controller: _searchController,
-                  onSearch: (text) async {
-                    await provider.searchBooks(
-                      text.trim(),
+          Padding(
+            padding: const EdgeInsets.only(top: 16, bottom: 8),
+            child: SearchButtonsWidget(
+              titles: const ['Title', 'ISBN', 'Auth@r'],
+              initialSelectedIndex: _selectedSearchButtonIndex,
+              onSelectionChanged: (index) {
+                setState(() {
+                  _selectedSearchButtonIndex = index;
+
+                  // If there's existing text, re-run the search with the new category.
+                  if (_searchController.text.trim().isNotEmpty) {
+                    provider.searchBooks(
+                      _searchController.text.trim(),
                       searchIndex: _selectedSearchButtonIndex,
                     );
-                  },
-                ),
-              ),
+                  } else {
+                    // If no text, simply ensure all books are displayed.
+                    provider.searchBooks(
+                      '',
+                      searchIndex: _selectedSearchButtonIndex,
+                    );
+                  }
+                });
+              },
             ),
           ),
-          Expanded(
-            child:
-                provider.books.isNotEmpty
-                    ? BookListView(books: provider.books)
-                    : const Center(child: Text('No books found')),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: SearchTextField(
+              controller: _searchController,
+              onSearch: (String text) async {
+                if (text == '') {
+                  await provider.loadBooks();
+                } else {
+                  await provider.searchBooks(
+                    _searchController.text.trim(),
+                    searchIndex: _selectedSearchButtonIndex,
+                  );
+                }
+              },
+            ),
+          ),
+          Consumer<BookProvider>(
+            builder: (context, provider, child) {
+              return Expanded(
+                child:
+                    provider.isLoading == false && provider.books.isNotEmpty
+                        ? BookListView(books: provider.books)
+                        : const Center(child: Text('No books found')),
+              );
+            },
           ),
         ],
       ),
@@ -80,39 +98,36 @@ class SearchTextField extends StatefulWidget {
 }
 
 class _SearchTextFieldState extends State<SearchTextField> {
-  Timer? _debounce;
-
   void _onChanged(String value) {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 300), () {
-      widget.onSearch(value.trim());
-    });
-  }
-
-  @override
-  void dispose() {
-    _debounce?.cancel();
-    super.dispose();
+    widget.onSearch(value.trim());
   }
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: widget.controller,
-      decoration: InputDecoration(
-        prefixIcon: const Icon(Icons.search),
-        suffixIcon: IconButton(
-          onPressed: () {
-            widget.controller.clear();
-            widget.onSearch('');
-          },
-          icon: const Icon(Icons.clear),
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: TextField(
+          controller: widget.controller,
+          decoration: InputDecoration(
+            prefixIcon: Icon(Icons.search, color: Colors.deepPurple),
+            suffixIcon: IconButton(
+              onPressed: () {
+                widget.controller.clear();
+                widget.onSearch('');
+              },
+              icon: const Icon(Icons.clear),
+            ),
+            labelText: 'Search',
+            hintText: 'Search for books...',
+            border: InputBorder.none,
+            contentPadding: const EdgeInsets.symmetric(vertical: 16.0),
+          ),
+          onChanged: _onChanged,
         ),
-        labelText: 'Search',
-        hintText: 'Search',
-        border: const OutlineInputBorder(),
       ),
-      onChanged: _onChanged,
     );
   }
 }
@@ -120,10 +135,13 @@ class _SearchTextFieldState extends State<SearchTextField> {
 class SearchButtonsWidget extends StatefulWidget {
   final List<String> titles;
   final ValueChanged<int> onSelectionChanged;
+  final int initialSelectedIndex;
+
   const SearchButtonsWidget({
     super.key,
     required this.titles,
     required this.onSelectionChanged,
+    this.initialSelectedIndex = 0,
   });
 
   @override
@@ -131,34 +149,39 @@ class SearchButtonsWidget extends StatefulWidget {
 }
 
 class _SearchButtonsWidgetState extends State<SearchButtonsWidget> {
-  int _selectedIndex = 0;
-
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(widget.titles.length, (index) {
-        final isSelected = _selectedIndex == index;
+        final isSelected = widget.initialSelectedIndex == index;
 
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: TextButton(
             style: TextButton.styleFrom(
+              backgroundColor:
+                  isSelected
+                      ? Colors.deepPurple.withValues(alpha: (255.0 * 0.1))
+                      : null,
               shape: RoundedRectangleBorder(
-                borderRadius: const BorderRadius.all(Radius.circular(8)),
+                borderRadius: const BorderRadius.all(Radius.circular(12)),
                 side: BorderSide(
-                  color: Colors.deepPurpleAccent,
+                  color:
+                      isSelected ? Colors.deepPurple : Colors.deepPurpleAccent,
                   width: isSelected ? 2 : 1,
                 ),
               ),
             ),
             onPressed: () {
-              setState(() {
-                _selectedIndex = index;
-              });
               widget.onSelectionChanged(index);
             },
-            child: Text(widget.titles[index]),
+            child: Text(
+              widget.titles[index],
+              style: TextStyle(
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
           ),
         );
       }),

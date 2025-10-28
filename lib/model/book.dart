@@ -20,6 +20,8 @@ class Book {
   final int? formatId = 0;
   final String? formatValue;
   final String? createdAt;
+  final String? author;
+  final String? genre;
 
   Book({
     required this.bookId,
@@ -37,6 +39,8 @@ class Book {
     required this.placeValue,
     required this.formatValue,
     required this.createdAt,
+    this.author,
+    this.genre,
   });
 
   factory Book.fromMap(Map<String, dynamic> map) {
@@ -64,6 +68,8 @@ class Book {
       placeValue: map['placeValue'] as String?,
       formatValue: map['formatValue'] as String?,
       createdAt: map['created_at'] as String?,
+      author: map['author'] as String?,
+      genre: map['genre'] as String?,
     );
   }
 
@@ -84,6 +90,13 @@ class Book {
       'placeValue': placeValue,
       'formatValue': formatValue,
       'createdAt': createdAt,
+      'author': author,
+      'genre': genre,
     };
+  }
+
+  @override
+  String toString() {
+    return 'Book(bookId: $bookId, name: $name, author: $author, genre: $genre, saga: $saga, nSaga: $nSaga, formatSagaValue: $formatSagaValue, isbn: $isbn, pages: $pages, originalPublicationYear: $originalPublicationYear, loaned: $loaned, statusValue: $statusValue, editorialValue: $editorialValue, languageValue: $languageValue, placeValue: $placeValue, formatValue: $formatValue, createdAt: $createdAt)';
   }
 }
