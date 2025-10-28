@@ -23,6 +23,18 @@ class BookProvider extends ChangeNotifier {
 
   BookProvider._(this._repo);
 
+  /// Removes accents from a string for accent-insensitive search
+  String _removeAccents(String text) {
+    // const accents = 'ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËèéêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ';
+    // const withoutAccents = 'AAAAAAaaaaaaOOOOOOooooooEEEEeeeeCcIIIIiiiiUUUUuuuuyNn';
+
+    String result = text;
+    // for (int i = 0; i < accents.length; i++) {
+    //   result = result.replaceAll(accents[i], withoutAccents[i]);
+    // }
+    return result;
+  }
+
   Future<void> loadBooks() async {
     _books = await _repo.getAllBooks();
     _displayBooks = List<Book>.from(_books);
@@ -32,9 +44,9 @@ class BookProvider extends ChangeNotifier {
   }
 
   Future<void> searchBooks(String query, {required int searchIndex}) async {
-    final String lowerCaseQuery = query.toLowerCase();
+    final String normalizedQuery = _removeAccents(query.toLowerCase());
 
-    if (lowerCaseQuery.isEmpty) {
+    if (normalizedQuery.isEmpty) {
       _displayBooks = List<Book>.from(_books);
       notifyListeners();
       return;
@@ -44,11 +56,20 @@ class BookProvider extends ChangeNotifier {
         _books.where((Book book) {
           switch (searchIndex) {
             case 0: // Search by Title
-              return (book.name ?? '').toLowerCase().contains(lowerCaseQuery);
+              final normalizedTitle = _removeAccents(
+                (book.name ?? '').toLowerCase(),
+              );
+              return normalizedTitle.contains(normalizedQuery);
             case 1: // Search by ISBN
-              return (book.isbn ?? '').toLowerCase().contains(lowerCaseQuery);
+              final normalizedIsbn = _removeAccents(
+                (book.isbn ?? '').toLowerCase(),
+              );
+              return normalizedIsbn.contains(normalizedQuery);
             case 2: // Search by Author
-              return (book.author ?? '').toLowerCase().contains(lowerCaseQuery);
+              final normalizedAuthor = _removeAccents(
+                (book.author ?? '').toLowerCase(),
+              );
+              return normalizedAuthor.contains(normalizedQuery);
             default:
               return false;
           }
@@ -57,13 +78,56 @@ class BookProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Future<void> addBook(Book book) async {
-  //   await _repo.addBook(book);
-  //   await _loadBooks();
-  // }
+  void sortBooks(String sortBy, bool ascending) {
+    _displayBooks.sort((a, b) {
+      int comparison = 0;
 
-  // Future<void> deleteBook(int id) async {
-  //   await _repo.deleteBook(id);
-  //   await _loadBooks();
-  // }
+      switch (sortBy) {
+        case 'name':
+          final aName = _removeAccents((a.name ?? '').toLowerCase());
+          final bName = _removeAccents((b.name ?? '').toLowerCase());
+          comparison = aName.compareTo(bName);
+          break;
+        case 'author':
+          final aAuthor = _removeAccents((a.author ?? '').toLowerCase());
+          final bAuthor = _removeAccents((b.author ?? '').toLowerCase());
+          comparison = aAuthor.compareTo(bAuthor);
+          break;
+        case 'created_at':
+          comparison = (a.createdAt ?? '').compareTo(b.createdAt ?? '');
+          break;
+        default:
+          final aName = _removeAccents((a.name ?? '').toLowerCase());
+          final bName = _removeAccents((b.name ?? '').toLowerCase());
+          comparison = aName.compareTo(bName);
+      }
+
+      return ascending ? comparison : -comparison;
+    });
+
+    notifyListeners();
+  }
+
+  void filterBooks(String filterType, String? filterValue) {
+    if (filterValue == null || filterValue == 'all') {
+      _displayBooks = List<Book>.from(_books);
+    } else {
+      _displayBooks =
+          _books.where((book) {
+            switch (filterType) {
+              case 'format':
+                return book.formatValue == filterValue;
+              case 'language':
+                return book.languageValue == filterValue;
+              case 'genre':
+                return book.genre?.contains(filterValue) ?? false;
+              case 'place':
+                return book.placeValue == filterValue;
+              default:
+                return true;
+            }
+          }).toList();
+    }
+    notifyListeners();
+  }
 }
