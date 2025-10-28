@@ -37,6 +37,7 @@ class BookRepository {
       left join language l on b.language_id = l.language_id 
       left join place p on b.place_id = p.place_id  
       left join format f on b.format_id = f.format_id
+      left join format_saga fs on b.format_saga = fs.format_id
       where lower($column) like ?
       order by b.name
       ''',
