@@ -5,22 +5,19 @@ import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  runApp(
-    FutureProvider<BookProvider?>(
-      create: (_) async {
-        try {
-          return await BookProvider.create();
-        } catch (e, stack) {
-          debugPrint('❌ Error al crear BookProvider: $e');
-          debugPrint('$stack');
-          return null;
-        }
-      },
-      initialData: null,
-      child: const MyApp(),
-    ),
-  );
+  try {
+    final bookProvider = await BookProvider.create();
+    runApp(
+      ChangeNotifierProvider<BookProvider>.value(
+        value: bookProvider,
+        child: const MyApp(),
+      ),
+    );
+  } catch (e, stack) {
+    debugPrint('❌ Error al crear BookProvider: $e');
+    debugPrint('$stack');
+    runApp(const MyApp());
+  }
 }
 
 class MyApp extends StatelessWidget {

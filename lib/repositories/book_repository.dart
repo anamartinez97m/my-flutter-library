@@ -28,10 +28,14 @@ class BookRepository {
         b.saga, b.n_saga, b.isbn, l.name as languageValue, 
         p.name as placeValue, f.value as formatValue,
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
-        b.pages, b.created_at
+        b.pages, b.created_at,
+        GROUP_CONCAT(DISTINCT a.name) as author,
+        GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
       left join books_by_author bba on b.book_id = bba.book_id 
       left join author a on bba.author_id = a.author_id 
+      left join books_by_genre bbg on b.book_id = bbg.book_id 
+      left join genre g on bbg.genre_id = g.genre_id
       left join status s on b.status_id = s.status_id 
       left join editorial e on b.editorial_id = e.editorial_id
       left join language l on b.language_id = l.language_id 
@@ -39,6 +43,7 @@ class BookRepository {
       left join format f on b.format_id = f.format_id
       left join format_saga fs on b.format_saga = fs.format_id
       where lower($column) like ?
+      group by b.book_id
       order by b.name
       ''',
       ['%${input.toLowerCase()}%'],
@@ -62,8 +67,14 @@ class BookRepository {
         b.saga, b.n_saga, b.isbn, l.name as languageValue, 
         p.name as placeValue, f.value as formatValue,
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
-        b.pages, b.created_at
+        b.pages, b.created_at,
+        GROUP_CONCAT(DISTINCT a.name) as author,
+        GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
+      left join books_by_author bba on b.book_id = bba.book_id 
+      left join author a on bba.author_id = a.author_id
+      left join books_by_genre bbg on b.book_id = bbg.book_id 
+      left join genre g on bbg.genre_id = g.genre_id
       left join status s on b.status_id = s.status_id 
       left join editorial e on b.editorial_id = e.editorial_id
       left join language l on b.language_id = l.language_id 
@@ -71,6 +82,7 @@ class BookRepository {
       left join format f on b.format_id = f.format_id
       left join format_saga fs on b.format_saga_id = fs.format_id
       where b.name <> "" 
+      group by b.book_id
       order by b.name;
       ''');
 
