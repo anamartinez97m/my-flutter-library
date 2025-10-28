@@ -6,27 +6,29 @@ import 'package:mylibrary/providers/book_provider.dart';
 import 'package:mylibrary/repositories/book_repository.dart';
 import 'package:provider/provider.dart';
 
-class AddBookScreen extends StatefulWidget {
-  const AddBookScreen({super.key});
+class EditBookScreen extends StatefulWidget {
+  final Book book;
+
+  const EditBookScreen({super.key, required this.book});
 
   @override
-  State<AddBookScreen> createState() => _AddBookScreenState();
+  State<EditBookScreen> createState() => _EditBookScreenState();
 }
 
-class _AddBookScreenState extends State<AddBookScreen> {
+class _EditBookScreenState extends State<EditBookScreen> {
   final _formKey = GlobalKey<FormState>();
-  
+
   // Text controllers
-  final _nameController = TextEditingController();
-  final _isbnController = TextEditingController();
-  final _authorController = TextEditingController();
-  final _sagaController = TextEditingController();
-  final _nSagaController = TextEditingController();
-  final _pagesController = TextEditingController();
-  final _publicationYearController = TextEditingController();
-  final _editorialController = TextEditingController();
-  final _genreController = TextEditingController();
-  
+  late TextEditingController _nameController;
+  late TextEditingController _isbnController;
+  late TextEditingController _authorController;
+  late TextEditingController _sagaController;
+  late TextEditingController _nSagaController;
+  late TextEditingController _pagesController;
+  late TextEditingController _publicationYearController;
+  late TextEditingController _editorialController;
+  late TextEditingController _genreController;
+
   // Dropdown values
   int? _selectedStatusId;
   int? _selectedFormatSagaId;
@@ -34,39 +36,91 @@ class _AddBookScreenState extends State<AddBookScreen> {
   int? _selectedPlaceId;
   int? _selectedFormatId;
   String? _selectedLoaned;
-  
+
   // Lookup table data
   List<Map<String, dynamic>> _statusList = [];
   List<Map<String, dynamic>> _formatSagaList = [];
   List<Map<String, dynamic>> _languageList = [];
   List<Map<String, dynamic>> _placeList = [];
   List<Map<String, dynamic>> _formatList = [];
-  
+
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
+    _initializeControllers();
     _loadDropdownData();
+  }
+
+  void _initializeControllers() {
+    _nameController = TextEditingController(text: widget.book.name);
+    _isbnController = TextEditingController(text: widget.book.isbn);
+    _authorController = TextEditingController(text: widget.book.author);
+    _sagaController = TextEditingController(text: widget.book.saga);
+    _nSagaController = TextEditingController(text: widget.book.nSaga);
+    _pagesController = TextEditingController(
+      text: widget.book.pages?.toString() ?? '',
+    );
+    _publicationYearController = TextEditingController(
+      text: widget.book.originalPublicationYear?.toString() ?? '',
+    );
+    _editorialController =
+        TextEditingController(text: widget.book.editorialValue);
+    _genreController = TextEditingController(text: widget.book.genre);
+    _selectedLoaned = widget.book.loaned;
   }
 
   Future<void> _loadDropdownData() async {
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
-      
+
       final status = await repository.getLookupValues('status');
       final formatSaga = await repository.getLookupValues('format_saga');
       final language = await repository.getLookupValues('language');
       final place = await repository.getLookupValues('place');
       final format = await repository.getLookupValues('format');
-      
+
       setState(() {
         _statusList = status;
         _formatSagaList = formatSaga;
         _languageList = language;
         _placeList = place;
         _formatList = format;
+
+        // Set selected dropdown values based on book data
+        _selectedStatusId = _findIdByValue(
+          _statusList,
+          'status_id',
+          'value',
+          widget.book.statusValue,
+        );
+        _selectedFormatSagaId = _findIdByValue(
+          _formatSagaList,
+          'format_id',
+          'value',
+          widget.book.formatSagaValue,
+        );
+        _selectedLanguageId = _findIdByValue(
+          _languageList,
+          'language_id',
+          'name',
+          widget.book.languageValue,
+        );
+        _selectedPlaceId = _findIdByValue(
+          _placeList,
+          'place_id',
+          'name',
+          widget.book.placeValue,
+        );
+        _selectedFormatId = _findIdByValue(
+          _formatList,
+          'format_id',
+          'value',
+          widget.book.formatValue,
+        );
+
         _isLoading = false;
       });
     } catch (e) {
@@ -77,7 +131,22 @@ class _AddBookScreenState extends State<AddBookScreen> {
     }
   }
 
-  Future<void> _saveBook() async {
+  int? _findIdByValue(
+    List<Map<String, dynamic>> list,
+    String idColumn,
+    String valueColumn,
+    String? value,
+  ) {
+    if (value == null || value.isEmpty) return null;
+    try {
+      final item = list.firstWhere((item) => item[valueColumn] == value);
+      return item[idColumn] as int?;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<void> _updateBook() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -85,86 +154,94 @@ class _AddBookScreenState extends State<AddBookScreen> {
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
-      
+
       // Get the actual values from IDs
       String? statusValue = _selectedStatusId != null
-          ? _statusList.firstWhere((s) => s['status_id'] == _selectedStatusId)['value'] as String?
+          ? _statusList
+              .firstWhere((s) => s['status_id'] == _selectedStatusId)['value']
+              as String?
           : null;
       String? formatSagaValue = _selectedFormatSagaId != null
-          ? _formatSagaList.firstWhere((f) => f['format_id'] == _selectedFormatSagaId)['value'] as String?
+          ? _formatSagaList.firstWhere(
+              (f) => f['format_id'] == _selectedFormatSagaId)['value'] as String?
           : null;
       String? languageValue = _selectedLanguageId != null
-          ? _languageList.firstWhere((l) => l['language_id'] == _selectedLanguageId)['name'] as String?
+          ? _languageList.firstWhere(
+              (l) => l['language_id'] == _selectedLanguageId)['name'] as String?
           : null;
       String? placeValue = _selectedPlaceId != null
-          ? _placeList.firstWhere((p) => p['place_id'] == _selectedPlaceId)['name'] as String?
+          ? _placeList
+              .firstWhere((p) => p['place_id'] == _selectedPlaceId)['name']
+              as String?
           : null;
       String? formatValue = _selectedFormatId != null
-          ? _formatList.firstWhere((f) => f['format_id'] == _selectedFormatId)['value'] as String?
+          ? _formatList
+              .firstWhere((f) => f['format_id'] == _selectedFormatId)['value']
+              as String?
           : null;
-      
-      final book = Book(
-        bookId: null,
-        name: _nameController.text.trim().isEmpty ? null : _nameController.text.trim(),
-        isbn: _isbnController.text.trim().isEmpty ? null : _isbnController.text.trim(),
-        author: _authorController.text.trim().isEmpty ? null : _authorController.text.trim(),
-        saga: _sagaController.text.trim().isEmpty ? null : _sagaController.text.trim(),
-        nSaga: _nSagaController.text.trim().isEmpty ? null : _nSagaController.text.trim(),
-        pages: _pagesController.text.trim().isEmpty ? null : int.tryParse(_pagesController.text.trim()),
-        originalPublicationYear: _publicationYearController.text.trim().isEmpty 
-            ? null 
+
+      final updatedBook = Book(
+        bookId: widget.book.bookId,
+        name: _nameController.text.trim().isEmpty
+            ? null
+            : _nameController.text.trim(),
+        isbn: _isbnController.text.trim().isEmpty
+            ? null
+            : _isbnController.text.trim(),
+        author: _authorController.text.trim().isEmpty
+            ? null
+            : _authorController.text.trim(),
+        saga: _sagaController.text.trim().isEmpty
+            ? null
+            : _sagaController.text.trim(),
+        nSaga: _nSagaController.text.trim().isEmpty
+            ? null
+            : _nSagaController.text.trim(),
+        pages: _pagesController.text.trim().isEmpty
+            ? null
+            : int.tryParse(_pagesController.text.trim()),
+        originalPublicationYear: _publicationYearController.text.trim().isEmpty
+            ? null
             : int.tryParse(_publicationYearController.text.trim()),
-        loaned: _selectedLoaned ?? 'no', // Default to "no" if not selected
+        loaned: _selectedLoaned ?? 'no',
         statusValue: statusValue,
-        editorialValue: _editorialController.text.trim().isEmpty ? null : _editorialController.text.trim(),
+        editorialValue: _editorialController.text.trim().isEmpty
+            ? null
+            : _editorialController.text.trim(),
         languageValue: languageValue,
         placeValue: placeValue,
         formatValue: formatValue,
         formatSagaValue: formatSagaValue,
-        createdAt: DateTime.now().toIso8601String(),
-        genre: _genreController.text.trim().isEmpty ? null : _genreController.text.trim(),
+        createdAt: widget.book.createdAt,
+        genre: _genreController.text.trim().isEmpty
+            ? null
+            : _genreController.text.trim(),
       );
-      
-      await repository.addBook(book);
-      
+
+      // Delete and re-add (simpler than updating with all relationships)
+      await repository.deleteBook(widget.book.bookId!);
+      await repository.addBook(updatedBook);
+
       // Reload books in provider
       if (mounted) {
         final provider = Provider.of<BookProvider?>(context, listen: false);
         await provider?.loadBooks();
-        
+
+        Navigator.pop(context); // Go back to detail screen
+        Navigator.pop(context); // Go back to list
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Book added successfully!'),
+            content: Text('Book updated successfully!'),
             backgroundColor: Colors.green,
           ),
         );
-        
-        // Clear form
-        _formKey.currentState!.reset();
-        _nameController.clear();
-        _isbnController.clear();
-        _authorController.clear();
-        _sagaController.clear();
-        _nSagaController.clear();
-        _pagesController.clear();
-        _publicationYearController.clear();
-        _editorialController.clear();
-        _genreController.clear();
-        
-        setState(() {
-          _selectedStatusId = null;
-          _selectedFormatSagaId = null;
-          _selectedLanguageId = null;
-          _selectedPlaceId = null;
-          _selectedFormatId = null;
-          _selectedLoaned = null;
-        });
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error adding book: $e'),
+            content: Text('Error updating book: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -195,24 +272,20 @@ class _AddBookScreenState extends State<AddBookScreen> {
     }
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Edit Book'),
+        backgroundColor: Colors.deepPurple,
+        foregroundColor: Colors.white,
+      ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 16),
-              Text(
-                'Add New Book',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.deepPurple,
-                    ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              
+
               // Name field
               TextFormField(
                 controller: _nameController,
@@ -223,7 +296,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // ISBN field
               TextFormField(
                 controller: _isbnController,
@@ -235,7 +308,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 16),
-              
+
               // Author field
               TextFormField(
                 controller: _authorController,
@@ -256,7 +329,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Editorial field
               TextFormField(
                 controller: _editorialController,
@@ -267,7 +340,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Genre field
               TextFormField(
                 controller: _genreController,
@@ -288,7 +361,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Saga field
               TextFormField(
                 controller: _sagaController,
@@ -299,7 +372,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // N Saga field
               TextFormField(
                 controller: _nSagaController,
@@ -310,7 +383,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Pages field
               TextFormField(
                 controller: _pagesController,
@@ -323,7 +396,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               ),
               const SizedBox(height: 16),
-              
+
               // Publication Year field
               TextFormField(
                 controller: _publicationYearController,
@@ -336,7 +409,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               ),
               const SizedBox(height: 16),
-              
+
               // Status dropdown (required)
               DropdownButtonFormField<int>(
                 value: _selectedStatusId,
@@ -364,7 +437,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              
+
               // Format Saga dropdown
               DropdownButtonFormField<int>(
                 value: _selectedFormatSagaId,
@@ -386,7 +459,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              
+
               // Language dropdown
               DropdownButtonFormField<int>(
                 value: _selectedLanguageId,
@@ -408,7 +481,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              
+
               // Place dropdown
               DropdownButtonFormField<int>(
                 value: _selectedPlaceId,
@@ -430,7 +503,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              
+
               // Format dropdown
               DropdownButtonFormField<int>(
                 value: _selectedFormatId,
@@ -452,7 +525,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              
+
               // Loaned dropdown
               DropdownButtonFormField<String>(
                 value: _selectedLoaned,
@@ -472,10 +545,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 },
               ),
               const SizedBox(height: 32),
-              
-              // Save button
+
+              // Update button
               ElevatedButton(
-                onPressed: _saveBook,
+                onPressed: _updateBook,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.deepPurple,
                   foregroundColor: Colors.white,
@@ -485,11 +558,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   ),
                 ),
                 child: const Text(
-                  'Add Book',
+                  'Update Book',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24), // Bottom margin
             ],
           ),
         ),
