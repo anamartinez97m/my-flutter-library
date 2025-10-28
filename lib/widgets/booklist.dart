@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mylibrary/model/book.dart';
+import 'package:mylibrary/screens/book_detail.dart';
 
 class BookListView extends StatelessWidget {
   final List<Book> books;
@@ -16,9 +17,19 @@ class BookListView extends StatelessWidget {
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           elevation: 2,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => BookDetailScreen(book: book),
+                ),
+              );
+            },
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
@@ -70,6 +81,7 @@ class BookListView extends StatelessWidget {
                 ),
               ],
             ),
+          ),
           ),
         );
       },
