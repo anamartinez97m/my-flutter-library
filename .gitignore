@@ -12,6 +12,7 @@
 .swiftpm/
 migrate_working_dir/
 assets/my_library.db
+pubspec.lock
 
 # IntelliJ related
 *.iml
