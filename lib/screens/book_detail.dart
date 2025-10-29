@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:mylibrary/db/database_helper.dart';
-import 'package:mylibrary/model/book.dart';
-import 'package:mylibrary/providers/book_provider.dart';
-import 'package:mylibrary/repositories/book_repository.dart';
-import 'package:mylibrary/screens/edit_book.dart';
+import 'package:myrandomlibrary/config/app_theme.dart';
+import 'package:myrandomlibrary/db/database_helper.dart';
+import 'package:myrandomlibrary/model/book.dart';
+import 'package:myrandomlibrary/providers/book_provider.dart';
+import 'package:myrandomlibrary/repositories/book_repository.dart';
+import 'package:myrandomlibrary/screens/edit_book.dart';
 import 'package:provider/provider.dart';
 
 class BookDetailScreen extends StatelessWidget {
@@ -11,27 +12,38 @@ class BookDetailScreen extends StatelessWidget {
 
   const BookDetailScreen({super.key, required this.book});
 
+  String _formatDateTime(String isoString) {
+    try {
+      final dateTime = DateTime.parse(isoString);
+      return '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} '
+          '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+    } catch (e) {
+      return isoString.split('T')[0]; // Fallback to date only
+    }
+  }
+
   Future<void> _deleteBook(BuildContext context) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirm Delete'),
-        content: Text('Are you sure you want to delete "${book.name}"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Confirm Delete'),
+            content: Text('Are you sure you want to delete "${book.name}"?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Delete'),
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
     );
 
     if (confirmed == true && book.bookId != null) {
@@ -103,11 +115,7 @@ class BookDetailScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.book,
-                      size: 60,
-                      color: Colors.grey,
-                    ),
+                    Icon(Icons.book, size: 60, color: Colors.grey),
                     SizedBox(height: 6),
                     Text(
                       'Image coming soon',
@@ -126,12 +134,12 @@ class BookDetailScreen extends StatelessWidget {
                   Text(
                     book.name ?? 'Unknown Title',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.deepPurple,
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.deepPurple,
+                    ),
                   ),
-                  const SizedBox(height: 16),
-                  
+                  AppTheme.verticalSpaceLarge,
+
                   // Description (from API - future implementation)
                   Container(
                     padding: const EdgeInsets.all(12),
@@ -145,20 +153,31 @@ class BookDetailScreen extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.description, size: 16, color: Colors.grey[600]),
+                            Icon(
+                              Icons.description,
+                              size: 16,
+                              color: Colors.grey[600],
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               'Description',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Colors.grey[600],
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                              style: Theme.of(
+                                context,
+                              ).textTheme.bodySmall?.copyWith(
+                                color: Colors.grey[600],
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                             const SizedBox(width: 4),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
-                                color: Colors.deepPurple.withOpacity(0.1),
+                                color: Colors.deepPurple.withValues(
+                                  alpha: 255.0 * 0.1,
+                                ),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
@@ -175,15 +194,17 @@ class BookDetailScreen extends StatelessWidget {
                         const SizedBox(height: 8),
                         Text(
                           'This is a placeholder for the book description that will be fetched from an external API in future development. The description will provide a summary of the book\'s content, themes, and other relevant information.',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Colors.grey[700],
-                                fontStyle: FontStyle.italic,
-                              ),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodySmall?.copyWith(
+                            color: Colors.grey[700],
+                            fontStyle: FontStyle.italic,
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  AppTheme.verticalSpaceXLarge,
 
                   // Details in cards
                   if (book.author != null && book.author!.isNotEmpty)
@@ -272,17 +293,170 @@ class BookDetailScreen extends StatelessWidget {
                     _DetailCard(
                       icon: Icons.access_time,
                       label: 'Created',
-                      value: book.createdAt!.split('T')[0],
+                      value: _formatDateTime(book.createdAt!),
+                    ),
+
+                  // New fields
+                  if (book.myRating != null && book.myRating! > 0)
+                    _RatingCard(label: 'My Rating', rating: book.myRating!),
+                  if (book.readCount != null && book.readCount! > 0)
+                    _DetailCard(
+                      icon: Icons.add_circle_outline,
+                      label: 'Times Read',
+                      value: '${book.readCount}+',
+                    ),
+                  if (book.dateReadInitial != null &&
+                      book.dateReadInitial!.isNotEmpty)
+                    _DetailCard(
+                      icon: Icons.event,
+                      label: 'Date Started Reading',
+                      value: book.dateReadInitial!.split('T')[0],
+                    ),
+                  if (book.dateReadFinal != null &&
+                      book.dateReadFinal!.isNotEmpty)
+                    _DetailCard(
+                      icon: Icons.event_available,
+                      label: 'Date Finished Reading',
+                      value: book.dateReadFinal!.split('T')[0],
+                    ),
+                  if (book.myReview != null && book.myReview!.isNotEmpty)
+                    Card(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      elevation: 1,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: AppTheme.cardPadding,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.rate_review,
+                                  color: Colors.deepPurple,
+                                  size: 24,
+                                ),
+                                AppTheme.horizontalSpaceLarge,
+                                Text(
+                                  'My Review',
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.titleMedium?.copyWith(
+                                    color: Colors.grey[600],
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            AppTheme.verticalSpaceMedium,
+                            Text(
+                              book.myReview!,
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                 ],
               ),
             ),
-            const SizedBox(height: 24), // Bottom margin
+            AppTheme.verticalSpaceXXLarge, // Bottom margin
           ],
         ),
       ),
     );
   }
+}
+
+class _RatingCard extends StatelessWidget {
+  final String label;
+  final double rating;
+
+  const _RatingCard({required this.label, required this.rating});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: 1,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: List.generate(5, (index) {
+                final heartValue = index + 1;
+                final isFilled = rating >= heartValue;
+                final isPartial =
+                    !isFilled && rating > index && rating < heartValue;
+
+                return Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: _buildHeart(isFilled, isPartial),
+                );
+              }),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeart(bool isFilled, bool isPartial) {
+    if (isFilled) {
+      return const Icon(
+        Icons.favorite,
+        color: Colors.red,
+        size: 28,
+      );
+    } else if (isPartial) {
+      return Stack(
+        children: [
+          Icon(
+            Icons.favorite_border,
+            color: Colors.grey[400],
+            size: 28,
+          ),
+          ClipRect(
+            clipper: _HalfClipper(),
+            child: const Icon(
+              Icons.favorite,
+              color: Colors.red,
+              size: 28,
+            ),
+          ),
+        ],
+      );
+    } else {
+      return Icon(
+        Icons.favorite_border,
+        color: Colors.grey[400],
+        size: 28,
+      );
+    }
+  }
+}
+
+class _HalfClipper extends CustomClipper<Rect> {
+  @override
+  Rect getClip(Size size) {
+    return Rect.fromLTWH(0, 0, size.width / 2, size.height);
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Rect> oldClipper) => false;
 }
 
 class _DetailCard extends StatelessWidget {
@@ -316,15 +490,12 @@ class _DetailCard extends StatelessWidget {
                   Text(
                     label,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
-                          fontWeight: FontWeight.w500,
-                        ),
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    value,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
+                  Text(value, style: Theme.of(context).textTheme.bodyLarge),
                 ],
               ),
             ),

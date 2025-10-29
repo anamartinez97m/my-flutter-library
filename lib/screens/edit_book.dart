@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mylibrary/db/database_helper.dart';
-import 'package:mylibrary/model/book.dart';
-import 'package:mylibrary/providers/book_provider.dart';
-import 'package:mylibrary/repositories/book_repository.dart';
+import 'package:myrandomlibrary/db/database_helper.dart';
+import 'package:myrandomlibrary/model/book.dart';
+import 'package:myrandomlibrary/providers/book_provider.dart';
+import 'package:myrandomlibrary/repositories/book_repository.dart';
+import 'package:myrandomlibrary/widgets/heart_rating_input.dart';
 import 'package:provider/provider.dart';
 
 class EditBookScreen extends StatefulWidget {
@@ -28,6 +29,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
   late TextEditingController _publicationYearController;
   late TextEditingController _editorialController;
   late TextEditingController _genreController;
+  late TextEditingController _myReviewController;
+  late double _myRating;
+  late int _readCount;
+  DateTime? _dateReadInitial;
+  DateTime? _dateReadFinal;
 
   // Dropdown values
   int? _selectedStatusId;
@@ -65,10 +71,30 @@ class _EditBookScreenState extends State<EditBookScreen> {
     _publicationYearController = TextEditingController(
       text: widget.book.originalPublicationYear?.toString() ?? '',
     );
-    _editorialController =
-        TextEditingController(text: widget.book.editorialValue);
+    _editorialController = TextEditingController(
+      text: widget.book.editorialValue,
+    );
     _genreController = TextEditingController(text: widget.book.genre);
+    _myReviewController = TextEditingController(text: widget.book.myReview);
+    _myRating = widget.book.myRating ?? 0.0;
+    _readCount = widget.book.readCount ?? 0;
     _selectedLoaned = widget.book.loaned;
+
+    // Parse dates
+    if (widget.book.dateReadInitial != null) {
+      try {
+        _dateReadInitial = DateTime.parse(widget.book.dateReadInitial!);
+      } catch (e) {
+        _dateReadInitial = null;
+      }
+    }
+    if (widget.book.dateReadFinal != null) {
+      try {
+        _dateReadFinal = DateTime.parse(widget.book.dateReadFinal!);
+      } catch (e) {
+        _dateReadFinal = null;
+      }
+    }
   }
 
   Future<void> _loadDropdownData() async {
@@ -156,66 +182,95 @@ class _EditBookScreenState extends State<EditBookScreen> {
       final repository = BookRepository(db);
 
       // Get the actual values from IDs
-      String? statusValue = _selectedStatusId != null
-          ? _statusList
-              .firstWhere((s) => s['status_id'] == _selectedStatusId)['value']
-              as String?
-          : null;
-      String? formatSagaValue = _selectedFormatSagaId != null
-          ? _formatSagaList.firstWhere(
-              (f) => f['format_id'] == _selectedFormatSagaId)['value'] as String?
-          : null;
-      String? languageValue = _selectedLanguageId != null
-          ? _languageList.firstWhere(
-              (l) => l['language_id'] == _selectedLanguageId)['name'] as String?
-          : null;
-      String? placeValue = _selectedPlaceId != null
-          ? _placeList
-              .firstWhere((p) => p['place_id'] == _selectedPlaceId)['name']
-              as String?
-          : null;
-      String? formatValue = _selectedFormatId != null
-          ? _formatList
-              .firstWhere((f) => f['format_id'] == _selectedFormatId)['value']
-              as String?
-          : null;
+      String? statusValue =
+          _selectedStatusId != null
+              ? _statusList.firstWhere(
+                    (s) => s['status_id'] == _selectedStatusId,
+                  )['value']
+                  as String?
+              : null;
+      String? formatSagaValue =
+          _selectedFormatSagaId != null
+              ? _formatSagaList.firstWhere(
+                    (f) => f['format_id'] == _selectedFormatSagaId,
+                  )['value']
+                  as String?
+              : null;
+      String? languageValue =
+          _selectedLanguageId != null
+              ? _languageList.firstWhere(
+                    (l) => l['language_id'] == _selectedLanguageId,
+                  )['name']
+                  as String?
+              : null;
+      String? placeValue =
+          _selectedPlaceId != null
+              ? _placeList.firstWhere(
+                    (p) => p['place_id'] == _selectedPlaceId,
+                  )['name']
+                  as String?
+              : null;
+      String? formatValue =
+          _selectedFormatId != null
+              ? _formatList.firstWhere(
+                    (f) => f['format_id'] == _selectedFormatId,
+                  )['value']
+                  as String?
+              : null;
 
       final updatedBook = Book(
         bookId: widget.book.bookId,
-        name: _nameController.text.trim().isEmpty
-            ? null
-            : _nameController.text.trim(),
-        isbn: _isbnController.text.trim().isEmpty
-            ? null
-            : _isbnController.text.trim(),
-        author: _authorController.text.trim().isEmpty
-            ? null
-            : _authorController.text.trim(),
-        saga: _sagaController.text.trim().isEmpty
-            ? null
-            : _sagaController.text.trim(),
-        nSaga: _nSagaController.text.trim().isEmpty
-            ? null
-            : _nSagaController.text.trim(),
-        pages: _pagesController.text.trim().isEmpty
-            ? null
-            : int.tryParse(_pagesController.text.trim()),
-        originalPublicationYear: _publicationYearController.text.trim().isEmpty
-            ? null
-            : int.tryParse(_publicationYearController.text.trim()),
+        name:
+            _nameController.text.trim().isEmpty
+                ? null
+                : _nameController.text.trim(),
+        isbn:
+            _isbnController.text.trim().isEmpty
+                ? null
+                : _isbnController.text.trim(),
+        author:
+            _authorController.text.trim().isEmpty
+                ? null
+                : _authorController.text.trim(),
+        saga:
+            _sagaController.text.trim().isEmpty
+                ? null
+                : _sagaController.text.trim(),
+        nSaga:
+            _nSagaController.text.trim().isEmpty
+                ? null
+                : _nSagaController.text.trim(),
+        pages:
+            _pagesController.text.trim().isEmpty
+                ? null
+                : int.tryParse(_pagesController.text.trim()),
+        originalPublicationYear:
+            _publicationYearController.text.trim().isEmpty
+                ? null
+                : int.tryParse(_publicationYearController.text.trim()),
         loaned: _selectedLoaned ?? 'no',
         statusValue: statusValue,
-        editorialValue: _editorialController.text.trim().isEmpty
-            ? null
-            : _editorialController.text.trim(),
+        editorialValue:
+            _editorialController.text.trim().isEmpty
+                ? null
+                : _editorialController.text.trim(),
         languageValue: languageValue,
         placeValue: placeValue,
         formatValue: formatValue,
         formatSagaValue: formatSagaValue,
         createdAt: widget.book.createdAt,
-        genre: _genreController.text.trim().isEmpty
-            ? null
-            : _genreController.text.trim(),
+        genre:
+            _genreController.text.trim().isEmpty
+                ? null
+                : _genreController.text.trim(),
+        dateReadInitial: _dateReadInitial?.toIso8601String(),
+        dateReadFinal: _dateReadFinal?.toIso8601String(),
+        readCount: _readCount,
+        myRating: _myRating > 0 ? _myRating : null,
+        myReview:
+            _myReviewController.text.trim().isEmpty
+                ? null
+                : _myReviewController.text.trim(),
       );
 
       // Delete and re-add (simpler than updating with all relationships)
@@ -228,7 +283,6 @@ class _EditBookScreenState extends State<EditBookScreen> {
         await provider?.loadBooks();
 
         Navigator.pop(context); // Go back to detail screen
-        Navigator.pop(context); // Go back to list
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -266,9 +320,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -323,9 +375,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 child: Text(
                   'For multiple authors, separate with commas: author1, author2',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                        fontStyle: FontStyle.italic,
-                      ),
+                    color: Colors.grey[600],
+                    fontStyle: FontStyle.italic,
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -355,9 +407,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 child: Text(
                   'For multiple genres, separate with commas: genre1, genre2',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                        fontStyle: FontStyle.italic,
-                      ),
+                    color: Colors.grey[600],
+                    fontStyle: FontStyle.italic,
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -418,12 +470,13 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.check_circle),
                 ),
-                items: _statusList.map((status) {
-                  return DropdownMenuItem<int>(
-                    value: status['status_id'] as int,
-                    child: Text(status['value'] as String),
-                  );
-                }).toList(),
+                items:
+                    _statusList.map((status) {
+                      return DropdownMenuItem<int>(
+                        value: status['status_id'] as int,
+                        child: Text(status['value'] as String),
+                      );
+                    }).toList(),
                 onChanged: (value) {
                   setState(() {
                     _selectedStatusId = value;
@@ -446,12 +499,13 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.format_shapes),
                 ),
-                items: _formatSagaList.map((format) {
-                  return DropdownMenuItem<int>(
-                    value: format['format_id'] as int,
-                    child: Text(format['value'] as String),
-                  );
-                }).toList(),
+                items:
+                    _formatSagaList.map((format) {
+                      return DropdownMenuItem<int>(
+                        value: format['format_id'] as int,
+                        child: Text(format['value'] as String),
+                      );
+                    }).toList(),
                 onChanged: (value) {
                   setState(() {
                     _selectedFormatSagaId = value;
@@ -468,12 +522,13 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.language),
                 ),
-                items: _languageList.map((lang) {
-                  return DropdownMenuItem<int>(
-                    value: lang['language_id'] as int,
-                    child: Text(lang['name'] as String),
-                  );
-                }).toList(),
+                items:
+                    _languageList.map((lang) {
+                      return DropdownMenuItem<int>(
+                        value: lang['language_id'] as int,
+                        child: Text(lang['name'] as String),
+                      );
+                    }).toList(),
                 onChanged: (value) {
                   setState(() {
                     _selectedLanguageId = value;
@@ -490,12 +545,13 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.place),
                 ),
-                items: _placeList.map((place) {
-                  return DropdownMenuItem<int>(
-                    value: place['place_id'] as int,
-                    child: Text(place['name'] as String),
-                  );
-                }).toList(),
+                items:
+                    _placeList.map((place) {
+                      return DropdownMenuItem<int>(
+                        value: place['place_id'] as int,
+                        child: Text(place['name'] as String),
+                      );
+                    }).toList(),
                 onChanged: (value) {
                   setState(() {
                     _selectedPlaceId = value;
@@ -512,12 +568,13 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.import_contacts),
                 ),
-                items: _formatList.map((format) {
-                  return DropdownMenuItem<int>(
-                    value: format['format_id'] as int,
-                    child: Text(format['value'] as String),
-                  );
-                }).toList(),
+                items:
+                    _formatList.map((format) {
+                      return DropdownMenuItem<int>(
+                        value: format['format_id'] as int,
+                        child: Text(format['value'] as String),
+                      );
+                    }).toList(),
                 onChanged: (value) {
                   setState(() {
                     _selectedFormatId = value;
@@ -546,6 +603,177 @@ class _EditBookScreenState extends State<EditBookScreen> {
               ),
               const SizedBox(height: 32),
 
+              // New fields section
+              Text(
+                'Reading Information (Optional)',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.deepPurple,
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // My Rating with hearts
+              HeartRatingInput(
+                initialRating: _myRating,
+                onRatingChanged: (rating) {
+                  setState(() {
+                    _myRating = rating;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // Read Count with - and + buttons
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Times Read',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.grey[700],
+                          fontWeight: FontWeight.w500,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      // Minus button
+                      IconButton(
+                        onPressed: _readCount > 0
+                            ? () {
+                                setState(() {
+                                  _readCount--;
+                                });
+                              }
+                            : null,
+                        icon: const Icon(Icons.remove),
+                        style: IconButton.styleFrom(
+                          backgroundColor: Colors.deepPurple.withOpacity(0.1),
+                          foregroundColor: Colors.deepPurple,
+                          disabledBackgroundColor: Colors.grey[200],
+                          disabledForegroundColor: Colors.grey[400],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey[400]!),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          '$_readCount',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      // Plus button
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _readCount++;
+                          });
+                        },
+                        icon: const Icon(Icons.add),
+                        style: IconButton.styleFrom(
+                          backgroundColor: Colors.deepPurple,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Date Started Reading
+              InkWell(
+                onTap: () async {
+                  final date = await showDatePicker(
+                    context: context,
+                    initialDate: _dateReadInitial ?? DateTime.now(),
+                    firstDate: DateTime(1900),
+                    lastDate: DateTime.now(),
+                  );
+                  if (date != null) {
+                    setState(() {
+                      _dateReadInitial = date;
+                    });
+                  }
+                },
+                child: InputDecorator(
+                  decoration: const InputDecoration(
+                    labelText: 'Date Started Reading',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.event),
+                  ),
+                  child: Text(
+                    _dateReadInitial != null
+                        ? '${_dateReadInitial!.year}-${_dateReadInitial!.month.toString().padLeft(2, '0')}-${_dateReadInitial!.day.toString().padLeft(2, '0')}'
+                        : 'Select date',
+                    style: TextStyle(
+                      color: _dateReadInitial != null ? null : Colors.grey[600],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Date Finished Reading
+              InkWell(
+                onTap: () async {
+                  final date = await showDatePicker(
+                    context: context,
+                    initialDate: _dateReadFinal ?? DateTime.now(),
+                    firstDate: DateTime(1900),
+                    lastDate: DateTime.now(),
+                  );
+                  if (date != null) {
+                    setState(() {
+                      _dateReadFinal = date;
+                      // Auto-increment read count when finishing a book
+                      _readCount++;
+                    });
+                  }
+                },
+                child: InputDecorator(
+                  decoration: const InputDecoration(
+                    labelText: 'Date Finished Reading',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.event_available),
+                  ),
+                  child: Text(
+                    _dateReadFinal != null
+                        ? '${_dateReadFinal!.year}-${_dateReadFinal!.month.toString().padLeft(2, '0')}-${_dateReadFinal!.day.toString().padLeft(2, '0')}'
+                        : 'Select date',
+                    style: TextStyle(
+                      color: _dateReadFinal != null ? null : Colors.grey[600],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // My Review field
+              TextFormField(
+                controller: _myReviewController,
+                decoration: const InputDecoration(
+                  labelText: 'My Review',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.rate_review),
+                  hintText: 'Write your thoughts about this book...',
+                ),
+                maxLines: 5,
+                keyboardType: TextInputType.multiline,
+              ),
+              const SizedBox(height: 32),
+
               // Update button
               ElevatedButton(
                 onPressed: _updateBook,
@@ -562,7 +790,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
-              const SizedBox(height: 24), // Bottom margin
+              const SizedBox(height: 50), // Bottom margin
             ],
           ),
         ),

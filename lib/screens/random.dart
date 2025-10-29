@@ -1,10 +1,10 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:mylibrary/db/database_helper.dart';
-import 'package:mylibrary/model/book.dart';
-import 'package:mylibrary/providers/book_provider.dart';
-import 'package:mylibrary/repositories/book_repository.dart';
-import 'package:mylibrary/screens/book_detail.dart';
+import 'package:myrandomlibrary/db/database_helper.dart';
+import 'package:myrandomlibrary/model/book.dart';
+import 'package:myrandomlibrary/providers/book_provider.dart';
+import 'package:myrandomlibrary/repositories/book_repository.dart';
+import 'package:myrandomlibrary/screens/book_detail.dart';
 import 'package:provider/provider.dart';
 
 class RandomScreen extends StatefulWidget {
@@ -20,13 +20,23 @@ class _RandomScreenState extends State<RandomScreen> {
   String? _filterLanguage;
   String? _filterGenre;
   String? _filterPlace;
-  
+  String? _filterStatus;
+  String? _filterEditorial;
+  String? _filterFormatSaga;
+  String? _filterPages;
+  String? _filterYear;
+  String? _filterAuthor;
+
   // Dropdown options
   List<Map<String, dynamic>> _formatList = [];
   List<Map<String, dynamic>> _languageList = [];
   List<Map<String, dynamic>> _genreList = [];
   List<Map<String, dynamic>> _placeList = [];
-  
+  List<Map<String, dynamic>> _statusList = [];
+  List<Map<String, dynamic>> _editorialList = [];
+  List<Map<String, dynamic>> _formatSagaList = [];
+  List<Map<String, dynamic>> _authorList = [];
+
   // Random book
   Book? _randomBook;
   bool _isLoading = true;
@@ -41,17 +51,25 @@ class _RandomScreenState extends State<RandomScreen> {
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
-      
+
       final format = await repository.getLookupValues('format');
       final language = await repository.getLookupValues('language');
       final genre = await repository.getLookupValues('genre');
       final place = await repository.getLookupValues('place');
-      
+      final status = await repository.getLookupValues('status');
+      final editorial = await repository.getLookupValues('editorial');
+      final formatSaga = await repository.getLookupValues('format_saga');
+      final author = await repository.getLookupValues('author');
+
       setState(() {
         _formatList = format;
         _languageList = language;
         _genreList = genre;
         _placeList = place;
+        _statusList = status;
+        _editorialList = editorial;
+        _formatSagaList = formatSaga;
+        _authorList = author;
         _isLoading = false;
       });
     } catch (e) {
@@ -66,21 +84,71 @@ class _RandomScreenState extends State<RandomScreen> {
     final provider = Provider.of<BookProvider?>(context, listen: false);
     if (provider == null) return;
 
-    List<Book> filtered = provider.books.where((book) {
-      if (_filterFormat != null && book.formatValue != _filterFormat) {
-        return false;
-      }
-      if (_filterLanguage != null && book.languageValue != _filterLanguage) {
-        return false;
-      }
-      if (_filterGenre != null && !(book.genre?.contains(_filterGenre!) ?? false)) {
-        return false;
-      }
-      if (_filterPlace != null && book.placeValue != _filterPlace) {
-        return false;
-      }
-      return true;
-    }).toList();
+    List<Book> filtered =
+        provider.books.where((book) {
+          // Status filter (optional)
+          if (_filterStatus != null && book.statusValue != _filterStatus) {
+            return false;
+          }
+          
+          if (_filterFormat != null && book.formatValue != _filterFormat) {
+            return false;
+          }
+          if (_filterLanguage != null &&
+              book.languageValue != _filterLanguage) {
+            return false;
+          }
+          if (_filterGenre != null &&
+              !(book.genre?.contains(_filterGenre!) ?? false)) {
+            return false;
+          }
+          if (_filterPlace != null && book.placeValue != _filterPlace) {
+            return false;
+          }
+          if (_filterEditorial != null && book.editorialValue != _filterEditorial) {
+            return false;
+          }
+          if (_filterFormatSaga != null && book.formatSagaValue != _filterFormatSaga) {
+            return false;
+          }
+          if (_filterAuthor != null && !(book.author?.contains(_filterAuthor!) ?? false)) {
+            return false;
+          }
+          
+          // Pages filter with ranges
+          if (_filterPages != null && book.pages != null) {
+            final pages = book.pages!;
+            switch (_filterPages) {
+              case '0-200':
+                if (pages < 0 || pages > 200) return false;
+                break;
+              case '200-400':
+                if (pages < 200 || pages > 400) return false;
+                break;
+              case '400-600':
+                if (pages < 400 || pages > 600) return false;
+                break;
+              case '600-900':
+                if (pages < 600 || pages > 900) return false;
+                break;
+              case '900+':
+                if (pages < 900) return false;
+                break;
+            }
+          }
+          
+          // Year filter with decades
+          if (_filterYear != null && book.originalPublicationYear != null) {
+            final year = book.originalPublicationYear!;
+            final decade = (year ~/ 10) * 10;
+            final filterDecade = int.tryParse(_filterYear!);
+            if (filterDecade != null && decade != filterDecade) {
+              return false;
+            }
+          }
+          
+          return true;
+        }).toList();
 
     if (filtered.isEmpty) {
       setState(() {
@@ -104,6 +172,12 @@ class _RandomScreenState extends State<RandomScreen> {
       _filterLanguage = null;
       _filterGenre = null;
       _filterPlace = null;
+      _filterStatus = null;
+      _filterEditorial = null;
+      _filterFormatSaga = null;
+      _filterPages = null;
+      _filterYear = null;
+      _filterAuthor = null;
       _randomBook = null;
     });
   }
@@ -124,21 +198,21 @@ class _RandomScreenState extends State<RandomScreen> {
             Text(
               'Random Book Picker',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.deepPurple,
-                  ),
+                fontWeight: FontWeight.bold,
+                color: Colors.deepPurple,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               'Apply filters and get a random book suggestion',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
-            
+
             // Filters
             Card(
               elevation: 2,
@@ -153,18 +227,21 @@ class _RandomScreenState extends State<RandomScreen> {
                     Text(
                       'Filters',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Format filter
                     DropdownButtonFormField<String>(
                       value: _filterFormat,
                       decoration: const InputDecoration(
                         labelText: 'Format',
                         border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                       ),
                       items: [
                         const DropdownMenuItem(value: null, child: Text('Any')),
@@ -173,7 +250,7 @@ class _RandomScreenState extends State<RandomScreen> {
                             value: format['value'] as String,
                             child: Text(format['value'] as String),
                           );
-                        }).toList(),
+                        }),
                       ],
                       onChanged: (value) {
                         setState(() {
@@ -182,14 +259,17 @@ class _RandomScreenState extends State<RandomScreen> {
                       },
                     ),
                     const SizedBox(height: 12),
-                    
+
                     // Language filter
                     DropdownButtonFormField<String>(
                       value: _filterLanguage,
                       decoration: const InputDecoration(
                         labelText: 'Language',
                         border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                       ),
                       items: [
                         const DropdownMenuItem(value: null, child: Text('Any')),
@@ -198,7 +278,7 @@ class _RandomScreenState extends State<RandomScreen> {
                             value: lang['name'] as String,
                             child: Text(lang['name'] as String),
                           );
-                        }).toList(),
+                        }),
                       ],
                       onChanged: (value) {
                         setState(() {
@@ -207,14 +287,17 @@ class _RandomScreenState extends State<RandomScreen> {
                       },
                     ),
                     const SizedBox(height: 12),
-                    
+
                     // Genre filter
                     DropdownButtonFormField<String>(
                       value: _filterGenre,
                       decoration: const InputDecoration(
                         labelText: 'Genre',
                         border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                       ),
                       items: [
                         const DropdownMenuItem(value: null, child: Text('Any')),
@@ -223,7 +306,7 @@ class _RandomScreenState extends State<RandomScreen> {
                             value: genre['name'] as String,
                             child: Text(genre['name'] as String),
                           );
-                        }).toList(),
+                        }),
                       ],
                       onChanged: (value) {
                         setState(() {
@@ -232,14 +315,17 @@ class _RandomScreenState extends State<RandomScreen> {
                       },
                     ),
                     const SizedBox(height: 12),
-                    
+
                     // Place filter
                     DropdownButtonFormField<String>(
                       value: _filterPlace,
                       decoration: const InputDecoration(
                         labelText: 'Place',
                         border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                       ),
                       items: [
                         const DropdownMenuItem(value: null, child: Text('Any')),
@@ -248,7 +334,7 @@ class _RandomScreenState extends State<RandomScreen> {
                             value: place['name'] as String,
                             child: Text(place['name'] as String),
                           );
-                        }).toList(),
+                        }),
                       ],
                       onChanged: (value) {
                         setState(() {
@@ -256,8 +342,182 @@ class _RandomScreenState extends State<RandomScreen> {
                         });
                       },
                     ),
+                    const SizedBox(height: 12),
+
+                    // Status filter
+                    DropdownButtonFormField<String>(
+                      value: _filterStatus,
+                      decoration: const InputDecoration(
+                        labelText: 'Status',
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                      ),
+                      items: [
+                        const DropdownMenuItem(value: null, child: Text('Any')),
+                        ..._statusList.map((status) {
+                          return DropdownMenuItem<String>(
+                            value: status['value'] as String,
+                            child: Text(status['value'] as String),
+                          );
+                        }),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          _filterStatus = value;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Editorial filter
+                    DropdownButtonFormField<String>(
+                      value: _filterEditorial,
+                      decoration: const InputDecoration(
+                        labelText: 'Editorial',
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                      ),
+                      items: [
+                        const DropdownMenuItem(value: null, child: Text('Any')),
+                        ..._editorialList.map((editorial) {
+                          return DropdownMenuItem<String>(
+                            value: editorial['name'] as String,
+                            child: Text(editorial['name'] as String),
+                          );
+                        }),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          _filterEditorial = value;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Format Saga filter
+                    DropdownButtonFormField<String>(
+                      value: _filterFormatSaga,
+                      decoration: const InputDecoration(
+                        labelText: 'Format Saga',
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                      ),
+                      items: [
+                        const DropdownMenuItem(value: null, child: Text('Any')),
+                        ..._formatSagaList.map((formatSaga) {
+                          return DropdownMenuItem<String>(
+                            value: formatSaga['value'] as String,
+                            child: Text(formatSaga['value'] as String),
+                          );
+                        }),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          _filterFormatSaga = value;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Pages filter (ranges)
+                    DropdownButtonFormField<String>(
+                      value: _filterPages,
+                      decoration: const InputDecoration(
+                        labelText: 'Pages',
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                      ),
+                      items: const [
+                        DropdownMenuItem(value: null, child: Text('Any')),
+                        DropdownMenuItem(value: '0-200', child: Text('0-200')),
+                        DropdownMenuItem(value: '200-400', child: Text('200-400')),
+                        DropdownMenuItem(value: '400-600', child: Text('400-600')),
+                        DropdownMenuItem(value: '600-900', child: Text('600-900')),
+                        DropdownMenuItem(value: '900+', child: Text('900+')),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          _filterPages = value;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Year filter (decades)
+                    DropdownButtonFormField<String>(
+                      value: _filterYear,
+                      decoration: const InputDecoration(
+                        labelText: 'Publication Year (by decade)',
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                      ),
+                      items: const [
+                        DropdownMenuItem(value: null, child: Text('Any')),
+                        DropdownMenuItem(value: '1900', child: Text('1900s')),
+                        DropdownMenuItem(value: '1910', child: Text('1910s')),
+                        DropdownMenuItem(value: '1920', child: Text('1920s')),
+                        DropdownMenuItem(value: '1930', child: Text('1930s')),
+                        DropdownMenuItem(value: '1940', child: Text('1940s')),
+                        DropdownMenuItem(value: '1950', child: Text('1950s')),
+                        DropdownMenuItem(value: '1960', child: Text('1960s')),
+                        DropdownMenuItem(value: '1970', child: Text('1970s')),
+                        DropdownMenuItem(value: '1980', child: Text('1980s')),
+                        DropdownMenuItem(value: '1990', child: Text('1990s')),
+                        DropdownMenuItem(value: '2000', child: Text('2000s')),
+                        DropdownMenuItem(value: '2010', child: Text('2010s')),
+                        DropdownMenuItem(value: '2020', child: Text('2020s')),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          _filterYear = value;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Author filter
+                    DropdownButtonFormField<String>(
+                      value: _filterAuthor,
+                      decoration: const InputDecoration(
+                        labelText: 'Author',
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                      ),
+                      items: [
+                        const DropdownMenuItem(value: null, child: Text('Any')),
+                        ..._authorList.map((author) {
+                          return DropdownMenuItem<String>(
+                            value: author['name'] as String,
+                            child: Text(author['name'] as String),
+                          );
+                        }),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          _filterAuthor = value;
+                        });
+                      },
+                    ),
                     const SizedBox(height: 16),
-                    
+
                     Row(
                       children: [
                         Expanded(
@@ -276,7 +536,10 @@ class _RandomScreenState extends State<RandomScreen> {
                         ElevatedButton(
                           onPressed: _clearFilters,
                           style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 12,
+                              horizontal: 16,
+                            ),
                           ),
                           child: const Text('Clear'),
                         ),
@@ -287,7 +550,7 @@ class _RandomScreenState extends State<RandomScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            
+
             // Random Book Result
             if (_randomBook != null)
               Card(
@@ -300,7 +563,8 @@ class _RandomScreenState extends State<RandomScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => BookDetailScreen(book: _randomBook!),
+                        builder:
+                            (context) => BookDetailScreen(book: _randomBook!),
                       ),
                     );
                   },
@@ -317,10 +581,12 @@ class _RandomScreenState extends State<RandomScreen> {
                         const SizedBox(height: 16),
                         Text(
                           _randomBook!.name ?? 'Unknown',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.deepPurple,
-                              ),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.deepPurple,
+                          ),
                           textAlign: TextAlign.center,
                         ),
                         if (_randomBook!.author != null)
@@ -345,10 +611,12 @@ class _RandomScreenState extends State<RandomScreen> {
                         const SizedBox(height: 8),
                         Text(
                           'Tap card to view details',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Colors.grey[600],
-                                fontStyle: FontStyle.italic,
-                              ),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodySmall?.copyWith(
+                            color: Colors.grey[600],
+                            fontStyle: FontStyle.italic,
+                          ),
                         ),
                       ],
                     ),
