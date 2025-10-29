@@ -5,7 +5,7 @@ enum AppThemeMode { light, dark, system }
 
 class ThemeProvider with ChangeNotifier {
   AppThemeMode _themeMode = AppThemeMode.system;
-  
+
   AppThemeMode get themeMode => _themeMode;
 
   ThemeProvider() {
@@ -25,14 +25,17 @@ class ThemeProvider with ChangeNotifier {
   Future<void> setThemeMode(AppThemeMode mode) async {
     _themeMode = mode;
     notifyListeners();
-    
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('theme_mode', mode.toString().split('.').last);
   }
 
   ThemeData get lightTheme {
     return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.light,
       colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
     );
   }
 
@@ -44,10 +47,7 @@ class ThemeProvider with ChangeNotifier {
         seedColor: Colors.deepPurple,
         brightness: Brightness.dark,
       ),
-      appBarTheme: const AppBarTheme(
-        centerTitle: true,
-        elevation: 0,
-      ),
+      appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
     );
   }
 }
