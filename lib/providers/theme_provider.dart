@@ -33,9 +33,33 @@ class ThemeProvider with ChangeNotifier {
   ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: Colors.deepPurple,
+        brightness: Brightness.light,
+      ),
       brightness: Brightness.light,
-      colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
+      textTheme: const TextTheme(
+        displayLarge: TextStyle(color: Colors.black87),
+        displayMedium: TextStyle(color: Colors.black87),
+        displaySmall: TextStyle(color: Colors.black87),
+        headlineLarge: TextStyle(color: Colors.black87),
+        headlineMedium: TextStyle(color: Colors.black87),
+        headlineSmall: TextStyle(color: Colors.black87),
+        titleLarge: TextStyle(color: Colors.black87),
+        titleMedium: TextStyle(color: Colors.black87),
+        titleSmall: TextStyle(color: Colors.black87),
+        bodyLarge: TextStyle(color: Colors.black87),
+        bodyMedium: TextStyle(color: Colors.black87),
+        bodySmall: TextStyle(color: Colors.black87),
+        labelLarge: TextStyle(color: Colors.black87),
+        labelMedium: TextStyle(color: Colors.black87),
+        labelSmall: TextStyle(color: Colors.black87),
+      ),
+      appBarTheme: const AppBarTheme(
+        centerTitle: true,
+        elevation: 0,
+        foregroundColor: Colors.white,
+      ),
     );
   }
 
