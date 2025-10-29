@@ -1,0 +1,86 @@
+{
+  "@@locale": "es",
+  
+  "appTitle": "Mi Biblioteca Aleatoria",
+  "@appTitle": {
+    "description": "El título de la aplicación"
+  },
+  
+  "home": "Inicio",
+  "statistics": "Estadísticas",
+  "random": "Aleatorio",
+  "settings": "Ajustes",
+  
+  "searchByTitle": "Título",
+  "searchByISBN": "ISBN",
+  "searchByAuthor": "Autor",
+  
+  "addBook": "Añadir Libro",
+  "editBook": "Editar Libro",
+  "deleteBook": "Eliminar Libro",
+  
+  "bookName": "Nombre del Libro",
+  "isbn": "ISBN",
+  "author": "Autor",
+  "saga": "Saga",
+  "sagaNumber": "Número de Saga",
+  "pages": "Páginas",
+  "publicationYear": "Año de Publicación",
+  "editorial": "Editorial",
+  "genre": "Género",
+  "language": "Idioma",
+  "place": "Lugar",
+  "format": "Formato",
+  "formatSaga": "Formato Saga",
+  "status": "Estado",
+  "loaned": "Prestado",
+  
+  "myRating": "Mi Valoración",
+  "timesRead": "Veces Leído",
+  "dateStartedReading": "Fecha de Inicio de Lectura",
+  "dateFinishedReading": "Fecha de Finalización de Lectura",
+  "myReview": "Mi Reseña",
+  
+  "save": "Guardar",
+  "cancel": "Cancelar",
+  "clear": "Limpiar",
+  "apply": "Aplicar",
+  "delete": "Eliminar",
+  
+  "importCSV": "Importar desde CSV",
+  "exportCSV": "Exportar a CSV",
+  "createBackup": "Crear Copia de Seguridad",
+  "importBackup": "Importar Copia de Seguridad",
+  "deleteAllData": "Eliminar Todos los Datos",
+  
+  "theme": "Tema",
+  "themeLight": "Claro",
+  "themeDark": "Oscuro",
+  "themeSystem": "Sistema",
+  
+  "language": "Idioma",
+  "english": "Inglés",
+  "spanish": "Español",
+  
+  "totalBooks": "Total de Libros",
+  "booksByStatus": "Libros por Estado",
+  "booksByLanguage": "Libros por Idioma",
+  
+  "getRandomBook": "Obtener Libro Aleatorio",
+  "filters": "Filtros",
+  "any": "Cualquiera",
+  
+  "confirmDelete": "¿Estás seguro de que quieres eliminar este libro?",
+  "confirmDeleteAll": "Esto eliminará permanentemente TODOS los libros de tu biblioteca. ¡Esta acción no se puede deshacer!\\n\\n¿Estás seguro de que quieres continuar?",
+  
+  "bookAddedSuccessfully": "¡Libro añadido con éxito!",
+  "bookUpdatedSuccessfully": "¡Libro actualizado con éxito!",
+  "bookDeletedSuccessfully": "¡Libro eliminado con éxito!",
+  
+  "noBooksFound": "No se encontraron libros",
+  "noData": "Sin datos",
+  
+  "readingInformation": "Información de Lectura (Opcional)",
+  "addRead": "Añadir Lectura",
+  "tapHeartsToRate": "Toca los corazones para valorar (toca de nuevo para medio)"
+}
