@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mylibrary/db/database_helper.dart';
-import 'package:mylibrary/repositories/book_repository.dart';
+import 'package:myrandomlibrary/db/database_helper.dart';
+import 'package:myrandomlibrary/repositories/book_repository.dart';
 
 class ManageDropdownsScreen extends StatefulWidget {
   const ManageDropdownsScreen({super.key});
@@ -55,31 +55,32 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
 
     final result = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Add ${_tableLabels[_selectedTable]}'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Value',
-            border: OutlineInputBorder(),
-          ),
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.deepPurple,
-              foregroundColor: Colors.white,
+      builder:
+          (context) => AlertDialog(
+            title: Text('Add ${_tableLabels[_selectedTable]}'),
+            content: TextField(
+              controller: controller,
+              decoration: const InputDecoration(
+                labelText: 'Value',
+                border: OutlineInputBorder(),
+              ),
+              autofocus: true,
             ),
-            child: const Text('Add'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, controller.text.trim()),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Add'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
 
     if (result != null && result.isNotEmpty) {
@@ -116,31 +117,32 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
 
     final result = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Edit ${_tableLabels[_selectedTable]}'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Value',
-            border: OutlineInputBorder(),
-          ),
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.deepPurple,
-              foregroundColor: Colors.white,
+      builder:
+          (context) => AlertDialog(
+            title: Text('Edit ${_tableLabels[_selectedTable]}'),
+            content: TextField(
+              controller: controller,
+              decoration: const InputDecoration(
+                labelText: 'Value',
+                border: OutlineInputBorder(),
+              ),
+              autofocus: true,
             ),
-            child: const Text('Save'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, controller.text.trim()),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Save'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
 
     if (result != null && result.isNotEmpty && result != currentValue) {
@@ -175,24 +177,25 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
   Future<void> _deleteValue(int id, String value) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirm Delete'),
-        content: Text('Are you sure you want to delete "$value"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Confirm Delete'),
+            content: Text('Are you sure you want to delete "$value"?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Delete'),
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
     );
 
     if (confirmed == true) {
@@ -242,12 +245,13 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                 labelText: 'Select Category',
                 border: OutlineInputBorder(),
               ),
-              items: _tableLabels.entries.map((entry) {
-                return DropdownMenuItem(
-                  value: entry.key,
-                  child: Text(entry.value),
-                );
-              }).toList(),
+              items:
+                  _tableLabels.entries.map((entry) {
+                    return DropdownMenuItem(
+                      value: entry.key,
+                      child: Text(entry.value),
+                    );
+                  }).toList(),
               onChanged: (value) {
                 if (value != null) {
                   setState(() {
@@ -259,9 +263,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
             ),
           ),
           if (_isLoading)
-            const Expanded(
-              child: Center(child: CircularProgressIndicator()),
-            )
+            const Expanded(child: Center(child: CircularProgressIndicator()))
           else
             Expanded(
               child: ListView.builder(
@@ -269,9 +271,10 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                 itemBuilder: (context, index) {
                   final item = _values[index];
                   // format_saga table uses 'format_id' not 'format_saga_id'
-                  final idColumn = _selectedTable == 'format_saga' 
-                      ? 'format_id' 
-                      : '${_selectedTable}_id';
+                  final idColumn =
+                      _selectedTable == 'format_saga'
+                          ? 'format_id'
+                          : '${_selectedTable}_id';
                   final valueColumn =
                       _selectedTable == 'status' ||
                               _selectedTable == 'format' ||
@@ -283,8 +286,10 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                   final value = item[valueColumn] as String;
 
                   return Card(
-                    margin:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 4,
+                    ),
                     child: ListTile(
                       title: Text(value),
                       trailing: Row(

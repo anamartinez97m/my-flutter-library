@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:mylibrary/db/database_helper.dart';
-import 'package:mylibrary/providers/book_provider.dart';
-import 'package:mylibrary/repositories/book_repository.dart';
-import 'package:mylibrary/widgets/booklist.dart';
+import 'package:myrandomlibrary/db/database_helper.dart';
+import 'package:myrandomlibrary/providers/book_provider.dart';
+import 'package:myrandomlibrary/repositories/book_repository.dart';
+import 'package:myrandomlibrary/widgets/booklist.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -17,17 +17,19 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedSearchButtonIndex = 0;
   String _sortBy = 'name';
   bool _ascending = true;
-  
+
   // Filter dropdowns
   List<Map<String, dynamic>> _formatList = [];
   List<Map<String, dynamic>> _languageList = [];
   List<Map<String, dynamic>> _genreList = [];
   List<Map<String, dynamic>> _placeList = [];
-  
+  List<Map<String, dynamic>> _statusList = [];
+
   String? _selectedFormat;
   String? _selectedLanguage;
   String? _selectedGenre;
   String? _selectedPlace;
+  String? _selectedStatus;
 
   @override
   void initState() {
@@ -39,17 +41,19 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
-      
+
       final format = await repository.getLookupValues('format');
       final language = await repository.getLookupValues('language');
       final genre = await repository.getLookupValues('genre');
       final place = await repository.getLookupValues('place');
-      
+      final status = await repository.getLookupValues('status');
+
       setState(() {
         _formatList = format;
         _languageList = language;
         _genreList = genre;
         _placeList = place;
+        _statusList = status;
       });
     } catch (e) {
       debugPrint('Error loading filter options: $e');
@@ -60,209 +64,288 @@ class _HomeScreenState extends State<HomeScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) => Padding(
-          padding: EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 16,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-              Text('Sort & Filter',
-                  style: Theme.of(context).textTheme.titleMedium),
-              const Divider(),
-              ListTile(
-                leading: const Icon(Icons.sort),
-                title: DropdownButton<String>(
-                  value: _sortBy,
-                  isExpanded: true,
-                  underline: const SizedBox(),
-                  items: const [
-                    DropdownMenuItem(value: 'name', child: Text('Name')),
-                    DropdownMenuItem(value: 'author', child: Text('Author')),
-                    DropdownMenuItem(value: 'created_at', child: Text('Date')),
-                  ],
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() => _sortBy = value);
-                      provider.sortBooks(_sortBy, _ascending);
-                      setModalState(() {});
-                    }
-                  },
-                ),
-                trailing: IconButton(
-                  icon: Icon(_ascending ? Icons.arrow_upward : Icons.arrow_downward),
-                  onPressed: () {
-                    setState(() => _ascending = !_ascending);
-                    provider.sortBooks(_sortBy, _ascending);
-                    setModalState(() {});
-                  },
-                ),
-              ),
-              const Divider(height: 24),
-              Text('Filters',
-                  style: Theme.of(context).textTheme.titleSmall),
-              const SizedBox(height: 12),
-              // Format filter
-              DropdownButtonFormField<String>(
-                value: _selectedFormat,
-                decoration: const InputDecoration(
-                  labelText: 'Format',
-                  border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  isDense: true,
-                ),
-                items: [
-                  const DropdownMenuItem(value: null, child: Text('All')),
-                  ..._formatList.map((item) {
-                    return DropdownMenuItem<String>(
-                      value: item['value'] as String,
-                      child: Text(item['value'] as String),
-                    );
-                  }).toList(),
-                ],
-                onChanged: (value) {
-                  setState(() => _selectedFormat = value);
-                  if (value != null) {
-                    provider.filterBooks('format', value);
-                  } else {
-                    provider.filterBooks('all', null);
-                  }
-                  setModalState(() {});
-                },
-              ),
-              const SizedBox(height: 12),
-              // Language filter
-              DropdownButtonFormField<String>(
-                value: _selectedLanguage,
-                decoration: const InputDecoration(
-                  labelText: 'Language',
-                  border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  isDense: true,
-                ),
-                items: [
-                  const DropdownMenuItem(value: null, child: Text('All')),
-                  ..._languageList.map((item) {
-                    return DropdownMenuItem<String>(
-                      value: item['name'] as String,
-                      child: Text(item['name'] as String),
-                    );
-                  }).toList(),
-                ],
-                onChanged: (value) {
-                  setState(() => _selectedLanguage = value);
-                  if (value != null) {
-                    provider.filterBooks('language', value);
-                  } else {
-                    provider.filterBooks('all', null);
-                  }
-                  setModalState(() {});
-                },
-              ),
-              const SizedBox(height: 12),
-              // Genre filter
-              DropdownButtonFormField<String>(
-                value: _selectedGenre,
-                decoration: const InputDecoration(
-                  labelText: 'Genre',
-                  border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  isDense: true,
-                ),
-                items: [
-                  const DropdownMenuItem(value: null, child: Text('All')),
-                  ..._genreList.map((item) {
-                    return DropdownMenuItem<String>(
-                      value: item['name'] as String,
-                      child: Text(item['name'] as String),
-                    );
-                  }).toList(),
-                ],
-                onChanged: (value) {
-                  setState(() => _selectedGenre = value);
-                  if (value != null) {
-                    provider.filterBooks('genre', value);
-                  } else {
-                    provider.filterBooks('all', null);
-                  }
-                  setModalState(() {});
-                },
-              ),
-              const SizedBox(height: 12),
-              // Place filter
-              DropdownButtonFormField<String>(
-                value: _selectedPlace,
-                decoration: const InputDecoration(
-                  labelText: 'Place',
-                  border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  isDense: true,
-                ),
-                items: [
-                  const DropdownMenuItem(value: null, child: Text('All')),
-                  ..._placeList.map((item) {
-                    return DropdownMenuItem<String>(
-                      value: item['name'] as String,
-                      child: Text(item['name'] as String),
-                    );
-                  }).toList(),
-                ],
-                onChanged: (value) {
-                  setState(() => _selectedPlace = value);
-                  if (value != null) {
-                    provider.filterBooks('place', value);
-                  } else {
-                    provider.filterBooks('all', null);
-                  }
-                  setModalState(() {});
-                },
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          _selectedFormat = null;
-                          _selectedLanguage = null;
-                          _selectedGenre = null;
-                          _selectedPlace = null;
-                        });
-                        provider.filterBooks('all', null);
-                        setModalState(() {});
-                      },
-                      child: const Text('Clear'),
+      builder:
+          (context) => StatefulBuilder(
+            builder:
+                (context, setModalState) => Padding(
+                  padding: EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 16,
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 50,
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Sort & Filter',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const Divider(),
+                        ListTile(
+                          leading: const Icon(Icons.sort),
+                          title: DropdownButton<String>(
+                            value: _sortBy,
+                            isExpanded: true,
+                            underline: const SizedBox(),
+                            items: const [
+                              DropdownMenuItem(
+                                value: 'name',
+                                child: Text('Name'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'author',
+                                child: Text('Author'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'created_at',
+                                child: Text('Date'),
+                              ),
+                            ],
+                            onChanged: (value) {
+                              if (value != null) {
+                                setState(() => _sortBy = value);
+                                provider.sortBooks(_sortBy, _ascending);
+                                setModalState(() {});
+                              }
+                            },
+                          ),
+                          trailing: IconButton(
+                            icon: Icon(
+                              _ascending
+                                  ? Icons.arrow_upward
+                                  : Icons.arrow_downward,
+                            ),
+                            onPressed: () {
+                              setState(() => _ascending = !_ascending);
+                              provider.sortBooks(_sortBy, _ascending);
+                              setModalState(() {});
+                            },
+                          ),
+                        ),
+                        const Divider(height: 24),
+                        Text(
+                          'Filters',
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                        const SizedBox(height: 12),
+                        // Format filter
+                        DropdownButtonFormField<String>(
+                          value: _selectedFormat,
+                          decoration: const InputDecoration(
+                            labelText: 'Format',
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            isDense: true,
+                          ),
+                          items: [
+                            const DropdownMenuItem(
+                              value: null,
+                              child: Text('All'),
+                            ),
+                            ..._formatList.map((item) {
+                              return DropdownMenuItem<String>(
+                                value: item['value'] as String,
+                                child: Text(item['value'] as String),
+                              );
+                            }),
+                          ],
+                          onChanged: (value) {
+                            setState(() => _selectedFormat = value);
+                            if (value != null) {
+                              provider.filterBooks('format', value);
+                            } else {
+                              provider.filterBooks('all', null);
+                            }
+                            setModalState(() {});
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        // Language filter
+                        DropdownButtonFormField<String>(
+                          value: _selectedLanguage,
+                          decoration: const InputDecoration(
+                            labelText: 'Language',
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            isDense: true,
+                          ),
+                          items: [
+                            const DropdownMenuItem(
+                              value: null,
+                              child: Text('All'),
+                            ),
+                            ..._languageList.map((item) {
+                              return DropdownMenuItem<String>(
+                                value: item['name'] as String,
+                                child: Text(item['name'] as String),
+                              );
+                            }),
+                          ],
+                          onChanged: (value) {
+                            setState(() => _selectedLanguage = value);
+                            if (value != null) {
+                              provider.filterBooks('language', value);
+                            } else {
+                              provider.filterBooks('all', null);
+                            }
+                            setModalState(() {});
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        // Genre filter
+                        DropdownButtonFormField<String>(
+                          value: _selectedGenre,
+                          decoration: const InputDecoration(
+                            labelText: 'Genre',
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            isDense: true,
+                          ),
+                          items: [
+                            const DropdownMenuItem(
+                              value: null,
+                              child: Text('All'),
+                            ),
+                            ..._genreList.map((item) {
+                              return DropdownMenuItem<String>(
+                                value: item['name'] as String,
+                                child: Text(item['name'] as String),
+                              );
+                            }),
+                          ],
+                          onChanged: (value) {
+                            setState(() => _selectedGenre = value);
+                            if (value != null) {
+                              provider.filterBooks('genre', value);
+                            } else {
+                              provider.filterBooks('all', null);
+                            }
+                            setModalState(() {});
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        // Place filter
+                        DropdownButtonFormField<String>(
+                          value: _selectedPlace,
+                          decoration: const InputDecoration(
+                            labelText: 'Place',
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            isDense: true,
+                          ),
+                          items: [
+                            const DropdownMenuItem(
+                              value: null,
+                              child: Text('All'),
+                            ),
+                            ..._placeList.map((item) {
+                              return DropdownMenuItem<String>(
+                                value: item['name'] as String,
+                                child: Text(item['name'] as String),
+                              );
+                            }),
+                          ],
+                          onChanged: (value) {
+                            setState(() => _selectedPlace = value);
+                            if (value != null) {
+                              provider.filterBooks('place', value);
+                            } else {
+                              provider.filterBooks('all', null);
+                            }
+                            setModalState(() {});
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        // Status filter
+                        DropdownButtonFormField<String>(
+                          value: _selectedStatus,
+                          decoration: const InputDecoration(
+                            labelText: 'Status',
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            isDense: true,
+                          ),
+                          items: [
+                            const DropdownMenuItem(
+                              value: null,
+                              child: Text('All'),
+                            ),
+                            ..._statusList.map((item) {
+                              return DropdownMenuItem<String>(
+                                value: item['value'] as String,
+                                child: Text(item['value'] as String),
+                              );
+                            }),
+                          ],
+                          onChanged: (value) {
+                            setState(() => _selectedStatus = value);
+                            if (value != null) {
+                              provider.filterBooks('status', value);
+                            } else {
+                              provider.filterBooks('all', null);
+                            }
+                            setModalState(() {});
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedFormat = null;
+                                    _selectedLanguage = null;
+                                    _selectedGenre = null;
+                                    _selectedPlace = null;
+                                    _selectedStatus = null;
+                                  });
+                                  provider.filterBooks('all', null);
+                                  setModalState(() {});
+                                },
+                                child: const Text('Clear'),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              flex: 2,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.deepPurple,
+                                  foregroundColor: Colors.white,
+                                ),
+                                child: const Text('Apply Filters'),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    flex: 2,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.deepPurple,
-                        foregroundColor: Colors.white,
-                      ),
-                      child: const Text('Apply Filters'),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-            ],
-            ),
+                ),
           ),
-        ),
-      ),
     );
   }
 
