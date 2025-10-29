@@ -1,4 +1,5 @@
-import 'package:mylibrary/model/book.dart';
+import 'package:flutter/foundation.dart';
+import 'package:myrandomlibrary/model/book.dart';
 import 'package:sqflite/sqflite.dart';
 
 class BookRepository {
@@ -28,7 +29,8 @@ class BookRepository {
         b.saga, b.n_saga, b.isbn, l.name as languageValue, 
         p.name as placeValue, f.value as formatValue,
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
-        b.pages, b.created_at,
+        b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
+        b.read_count, b.my_rating, b.my_review,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -58,7 +60,8 @@ class BookRepository {
         b.saga, b.n_saga, b.isbn, l.name as languageValue, 
         p.name as placeValue, f.value as formatValue,
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
-        b.pages, b.created_at,
+        b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
+        b.read_count, b.my_rating, b.my_review,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -98,8 +101,9 @@ class BookRepository {
   /// Removes accents from a string for case-insensitive comparison
   String _removeAccents(String text) {
     const accents = 'ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËèéêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ';
-    const withoutAccents = 'AAAAAAaaaaaaOOOOOOooooooEEEEeeeeCcIIIIiiiiUUUUuuuuyNn';
-    
+    const withoutAccents =
+        'AAAAAAaaaaaaOOOOOOooooooEEEEeeeeCcIIIIiiiiUUUUuuuuyNn';
+
     String result = text;
     for (int i = 0; i < accents.length; i++) {
       result = result.replaceAll(accents[i], withoutAccents[i]);
@@ -138,7 +142,8 @@ class BookRepository {
     if (result.isNotEmpty) {
       // Return existing ID
       // format_saga table uses 'format_id' not 'format_saga_id'
-      final idColumn = tableName == 'format_saga' ? 'format_id' : '${tableName}_id';
+      final idColumn =
+          tableName == 'format_saga' ? 'format_id' : '${tableName}_id';
       return result.first[idColumn] as int?;
     }
 
@@ -202,37 +207,52 @@ class BookRepository {
   /// Get all values from a lookup table
   Future<List<Map<String, dynamic>>> getLookupValues(String tableName) async {
     // format_saga table uses 'format_id' not 'format_saga_id'
-    final idColumn = tableName == 'format_saga' ? 'format_id' : '${tableName}_id';
-    final valueColumn = tableName == 'status' || tableName == 'format' || tableName == 'format_saga' 
-        ? 'value' 
-        : 'name';
-    
+    final idColumn =
+        tableName == 'format_saga' ? 'format_id' : '${tableName}_id';
+    final valueColumn =
+        tableName == 'status' ||
+                tableName == 'format' ||
+                tableName == 'format_saga'
+            ? 'value'
+            : 'name';
+
     final result = await db.query(
       tableName,
       columns: [idColumn, valueColumn],
       orderBy: valueColumn,
     );
-    
+
     return result;
   }
 
   /// Add a new value to a lookup table
   Future<int> addLookupValue(String tableName, String value) async {
-    final valueColumn = tableName == 'status' || tableName == 'format' || tableName == 'format_saga' 
-        ? 'value' 
-        : 'name';
-    
+    final valueColumn =
+        tableName == 'status' ||
+                tableName == 'format' ||
+                tableName == 'format_saga'
+            ? 'value'
+            : 'name';
+
     return await db.insert(tableName, {valueColumn: value});
   }
 
   /// Update a value in a lookup table
-  Future<int> updateLookupValue(String tableName, int id, String newValue) async {
+  Future<int> updateLookupValue(
+    String tableName,
+    int id,
+    String newValue,
+  ) async {
     // format_saga table uses 'format_id' not 'format_saga_id'
-    final idColumn = tableName == 'format_saga' ? 'format_id' : '${tableName}_id';
-    final valueColumn = tableName == 'status' || tableName == 'format' || tableName == 'format_saga' 
-        ? 'value' 
-        : 'name';
-    
+    final idColumn =
+        tableName == 'format_saga' ? 'format_id' : '${tableName}_id';
+    final valueColumn =
+        tableName == 'status' ||
+                tableName == 'format' ||
+                tableName == 'format_saga'
+            ? 'value'
+            : 'name';
+
     return await db.update(
       tableName,
       {valueColumn: newValue},
@@ -244,23 +264,118 @@ class BookRepository {
   /// Delete a value from a lookup table
   Future<int> deleteLookupValue(String tableName, int id) async {
     // format_saga table uses 'format_id' not 'format_saga_id'
-    final idColumn = tableName == 'format_saga' ? 'format_id' : '${tableName}_id';
-    
-    return await db.delete(
-      tableName,
-      where: '$idColumn = ?',
-      whereArgs: [id],
-    );
+    final idColumn =
+        tableName == 'format_saga' ? 'format_id' : '${tableName}_id';
+
+    return await db.delete(tableName, where: '$idColumn = ?', whereArgs: [id]);
   }
 
   /// Delete a book and its relationships
   Future<void> deleteBook(int bookId) async {
     // Delete from junction tables first
-    await db.delete('books_by_author', where: 'book_id = ?', whereArgs: [bookId]);
-    await db.delete('books_by_genre', where: 'book_id = ?', whereArgs: [bookId]);
-    
+    await db.delete(
+      'books_by_author',
+      where: 'book_id = ?',
+      whereArgs: [bookId],
+    );
+    await db.delete(
+      'books_by_genre',
+      where: 'book_id = ?',
+      whereArgs: [bookId],
+    );
+
     // Delete the book
     await db.delete('book', where: 'book_id = ?', whereArgs: [bookId]);
+  }
+
+  /// Check if a book already exists in the database
+  /// Returns the book_id if found, null otherwise
+  /// Logic: If ISBN exists, check by ISBN+place. If ISBN empty, check by name. If name also empty, check by status+author+saga+nSaga
+  Future<int?> findDuplicateBook(Book book) async {
+    // Check by ISBN+place if ISBN exists and is not empty
+    if (book.isbn != null && book.isbn!.isNotEmpty) {
+      // Get place_id if place exists
+      int? placeId;
+      if (book.placeValue != null && book.placeValue!.isNotEmpty) {
+        placeId = await _getOrInsertLookupId('place', 'name', book.placeValue);
+      }
+      
+      final result = await db.query(
+        'book',
+        columns: ['book_id', 'name'],
+        where: placeId != null ? 'isbn = ? AND place_id = ?' : 'isbn = ? AND place_id IS NULL',
+        whereArgs: placeId != null ? [book.isbn, placeId] : [book.isbn],
+        limit: 1,
+      );
+      if (result.isNotEmpty) {
+        debugPrint('  → Duplicate by ISBN+place: "${book.isbn}" (${book.placeValue ?? 'no place'}) matches "${result.first['name']}"');
+        return result.first['book_id'] as int?;
+      }
+      // If ISBN exists but no match found, this is NOT a duplicate (even if name matches)
+      debugPrint('  → ISBN "${book.isbn}" with place "${book.placeValue ?? 'no place'}" not found, book is unique');
+      return null;
+    }
+
+    // Only check by name if ISBN is empty
+    if (book.name != null && book.name!.isNotEmpty) {
+      final result = await db.query(
+        'book',
+        columns: ['book_id', 'isbn'],
+        where: 'LOWER(name) = ?',
+        whereArgs: [book.name!.toLowerCase()],
+        limit: 1,
+      );
+      if (result.isNotEmpty) {
+        debugPrint('  → Duplicate by NAME: "${book.name}" matches book with ISBN "${result.first['isbn']}"');
+        return result.first['book_id'] as int?;
+      }
+      // If name exists but no match, continue to TBReleased check
+    }
+
+    // If no name match and status is 'TBReleased', check by status+author+saga+nSaga
+    if (book.statusValue != null && 
+        book.statusValue!.toLowerCase() == 'tbreleased' &&
+        book.author != null && 
+        book.author!.isNotEmpty) {
+      
+      debugPrint('  → Checking TBReleased: author="${book.author}", saga="${book.saga}", nSaga="${book.nSaga}"');
+      
+      // Get status_id
+      final statusId = await _getOrInsertLookupId(
+        'status',
+        'value',
+        book.statusValue,
+      );
+      
+      // For TBReleased books, we need to check author, saga, and nSaga combination
+      final result = await db.rawQuery(
+        '''
+        SELECT DISTINCT b.book_id, b.name, b.saga, b.n_saga, s.value as status
+        FROM book b
+        LEFT JOIN books_by_author bba ON b.book_id = bba.book_id
+        LEFT JOIN author a ON bba.author_id = a.author_id
+        LEFT JOIN status s ON b.status_id = s.status_id
+        WHERE b.status_id = ?
+          AND LOWER(a.name) = ?
+          AND LOWER(COALESCE(b.saga, '')) = ?
+          AND LOWER(COALESCE(b.n_saga, '')) = ?
+        LIMIT 1
+        ''',
+        [
+          statusId,
+          book.author!.toLowerCase(),
+          (book.saga ?? '').toLowerCase(),
+          (book.nSaga ?? '').toLowerCase(),
+        ],
+      );
+      
+      if (result.isNotEmpty) {
+        debugPrint('  → Duplicate by TBReleased combo: matches book_id ${result.first['book_id']} (${result.first['saga']} #${result.first['n_saga']}) with status="${result.first['status']}"');
+        return result.first['book_id'] as int?;
+      }
+    }
+
+    return null;
   }
 
   Future<int> addBook(Book book) async {
@@ -312,6 +427,11 @@ class BookRepository {
       'format_id': formatId,
       'format_saga_id': formatSagaId,
       'created_at': book.createdAt ?? DateTime.now().toIso8601String(),
+      'date_read_initial': book.dateReadInitial,
+      'date_read_final': book.dateReadFinal,
+      'read_count': book.readCount ?? 0,
+      'my_rating': book.myRating,
+      'my_review': book.myReview,
     }, conflictAlgorithm: ConflictAlgorithm.replace);
 
     // Link authors (many-to-many relationship)

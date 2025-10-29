@@ -1,16 +1,17 @@
 import 'package:flutter/foundation.dart';
-import 'package:mylibrary/model/book.dart';
+import 'package:myrandomlibrary/model/book.dart';
 import '../db/database_helper.dart';
 import '../repositories/book_repository.dart';
 
 class BookProvider extends ChangeNotifier {
-  late final BookRepository _repo;
+  late BookRepository _repo;
   List<Book> _books = [];
   List<Book> _displayBooks = <Book>[];
   String? _latestBookAdded = '';
   bool _isLoading = false;
 
   List<Book> get books => _displayBooks;
+  List<Book> get allBooks => _books; // Unfiltered list for statistics
   String? get latestBookAdded => _latestBookAdded;
   bool get isLoading => _isLoading;
 
@@ -36,6 +37,10 @@ class BookProvider extends ChangeNotifier {
   }
 
   Future<void> loadBooks() async {
+    // Get fresh database instance in case it was closed/reopened
+    final db = await DatabaseHelper.instance.database;
+    _repo = BookRepository(db);
+    
     _books = await _repo.getAllBooks();
     _displayBooks = List<Book>.from(_books);
     _latestBookAdded = await _repo.getLatestBookAdded();
@@ -70,6 +75,11 @@ class BookProvider extends ChangeNotifier {
                 (book.author ?? '').toLowerCase(),
               );
               return normalizedAuthor.contains(normalizedQuery);
+            case 3: // Search by Status
+              final normalizedStatus = _removeAccents(
+                (book.statusValue ?? '').toLowerCase(),
+              );
+              return normalizedStatus.contains(normalizedQuery);
             default:
               return false;
           }
@@ -123,6 +133,8 @@ class BookProvider extends ChangeNotifier {
                 return book.genre?.contains(filterValue) ?? false;
               case 'place':
                 return book.placeValue == filterValue;
+              case 'status':
+                return book.statusValue == filterValue;
               default:
                 return true;
             }
