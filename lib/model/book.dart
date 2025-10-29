@@ -22,6 +22,11 @@ class Book {
   final String? createdAt;
   final String? author;
   final String? genre;
+  final String? dateReadInitial;
+  final String? dateReadFinal;
+  final int? readCount;
+  final double? myRating;
+  final String? myReview;
 
   Book({
     required this.bookId,
@@ -41,6 +46,11 @@ class Book {
     required this.createdAt,
     this.author,
     this.genre,
+    this.dateReadInitial,
+    this.dateReadFinal,
+    this.readCount,
+    this.myRating,
+    this.myReview,
   });
 
   factory Book.fromMap(Map<String, dynamic> map) {
@@ -70,6 +80,15 @@ class Book {
       createdAt: map['created_at'] as String?,
       author: map['author'] as String?,
       genre: map['genre'] as String?,
+      dateReadInitial: map['date_read_initial'] as String?,
+      dateReadFinal: map['date_read_final'] as String?,
+      readCount: map['read_count'] is int
+          ? map['read_count'] as int
+          : int.tryParse(map['read_count']?.toString() ?? ''),
+      myRating: map['my_rating'] is double
+          ? map['my_rating'] as double
+          : double.tryParse(map['my_rating']?.toString() ?? ''),
+      myReview: map['my_review'] as String?,
     );
   }
 
@@ -92,11 +111,16 @@ class Book {
       'createdAt': createdAt,
       'author': author,
       'genre': genre,
+      'dateReadInitial': dateReadInitial,
+      'dateReadFinal': dateReadFinal,
+      'readCount': readCount,
+      'myRating': myRating,
+      'myReview': myReview,
     };
   }
 
   @override
   String toString() {
-    return 'Book(bookId: $bookId, name: $name, author: $author, genre: $genre, saga: $saga, nSaga: $nSaga, formatSagaValue: $formatSagaValue, isbn: $isbn, pages: $pages, originalPublicationYear: $originalPublicationYear, loaned: $loaned, statusValue: $statusValue, editorialValue: $editorialValue, languageValue: $languageValue, placeValue: $placeValue, formatValue: $formatValue, createdAt: $createdAt)';
+    return 'Book(bookId: $bookId, name: $name, author: $author, genre: $genre, saga: $saga, nSaga: $nSaga, formatSagaValue: $formatSagaValue, isbn: $isbn, pages: $pages, originalPublicationYear: $originalPublicationYear, loaned: $loaned, statusValue: $statusValue, editorialValue: $editorialValue, languageValue: $languageValue, placeValue: $placeValue, formatValue: $formatValue, createdAt: $createdAt, dateReadInitial: $dateReadInitial, dateReadFinal: $dateReadFinal, readCount: $readCount, myRating: $myRating, myReview: $myReview)';
   }
 }
