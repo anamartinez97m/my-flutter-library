@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mylibrary/model/book.dart';
-import 'package:mylibrary/screens/book_detail.dart';
+import 'package:myrandomlibrary/model/book.dart';
+import 'package:myrandomlibrary/screens/book_detail.dart';
 
 class BookListView extends StatelessWidget {
   final List<Book> books;
@@ -16,7 +16,9 @@ class BookListView extends StatelessWidget {
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: InkWell(
             onTap: () {
               Navigator.push(
@@ -30,58 +32,58 @@ class BookListView extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  book.name ?? 'Unknown Title',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.deepPurple,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                if (book.author != null && book.author!.isNotEmpty)
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
                   Text(
-                    'Author: ${book.author}',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
+                    book.name ?? 'Unknown Title',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.deepPurple,
                     ),
                   ),
-                if (book.author != null && book.author!.isNotEmpty)
-                  const SizedBox(height: 4),
-                if (book.genre != null && book.genre!.isNotEmpty)
-                  Text(
-                    'Genre: ${book.genre}',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[700],
-                      fontStyle: FontStyle.italic,
+                  const SizedBox(height: 8),
+                  if (book.author != null && book.author!.isNotEmpty)
+                    Text(
+                      'Author: ${book.author}',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  ),
-                if (book.genre != null && book.genre!.isNotEmpty)
-                  const SizedBox(height: 4),
-                if (book.saga != null && book.saga!.isNotEmpty)
+                  if (book.author != null && book.author!.isNotEmpty)
+                    const SizedBox(height: 4),
+                  if (book.genre != null && book.genre!.isNotEmpty)
+                    Text(
+                      'Genre: ${book.genre}',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.grey[700],
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  if (book.genre != null && book.genre!.isNotEmpty)
+                    const SizedBox(height: 4),
+                  if (book.saga != null && book.saga!.isNotEmpty)
+                    Text(
+                      'Saga: ${book.saga}${book.nSaga != null ? ' #${book.nSaga}' : ''}',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  if (book.saga != null && book.saga!.isNotEmpty)
+                    const SizedBox(height: 4),
                   Text(
-                    'Saga: ${book.saga}${book.nSaga != null ? ' #${book.nSaga}' : ''}',
-                    style: Theme.of(context).textTheme.bodyMedium,
+                    'ISBN: ${book.isbn ?? 'N/A'}',
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                   ),
-                if (book.saga != null && book.saga!.isNotEmpty)
                   const SizedBox(height: 4),
-                Text(
-                  'ISBN: ${book.isbn ?? 'N/A'}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
+                  Text(
+                    'Format: ${book.formatValue ?? 'N/A'} • Language: ${book.languageValue ?? 'N/A'}',
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Format: ${book.formatValue ?? 'N/A'} • Language: ${book.languageValue ?? 'N/A'}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
           ),
         );
       },
