@@ -1,0 +1,86 @@
+{
+  "@@locale": "en",
+  
+  "appTitle": "My Random Library",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  
+  "home": "Home",
+  "statistics": "Statistics",
+  "random": "Random",
+  "settings": "Settings",
+  
+  "searchByTitle": "Title",
+  "searchByISBN": "ISBN",
+  "searchByAuthor": "Author",
+  
+  "addBook": "Add Book",
+  "editBook": "Edit Book",
+  "deleteBook": "Delete Book",
+  
+  "bookName": "Book Name",
+  "isbn": "ISBN",
+  "author": "Author",
+  "saga": "Saga",
+  "sagaNumber": "Saga Number",
+  "pages": "Pages",
+  "publicationYear": "Publication Year",
+  "editorial": "Editorial",
+  "genre": "Genre",
+  "language": "Language",
+  "place": "Place",
+  "format": "Format",
+  "formatSaga": "Format Saga",
+  "status": "Status",
+  "loaned": "Loaned",
+  
+  "myRating": "My Rating",
+  "timesRead": "Times Read",
+  "dateStartedReading": "Date Started Reading",
+  "dateFinishedReading": "Date Finished Reading",
+  "myReview": "My Review",
+  
+  "save": "Save",
+  "cancel": "Cancel",
+  "clear": "Clear",
+  "apply": "Apply",
+  "delete": "Delete",
+  
+  "importCSV": "Import from CSV",
+  "exportCSV": "Export to CSV",
+  "createBackup": "Create Backup",
+  "importBackup": "Import Backup",
+  "deleteAllData": "Delete All Data",
+  
+  "theme": "Theme",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "themeSystem": "System",
+  
+  "language": "Language",
+  "english": "English",
+  "spanish": "Spanish",
+  
+  "totalBooks": "Total Books",
+  "booksByStatus": "Books by Status",
+  "booksByLanguage": "Books by Language",
+  
+  "getRandomBook": "Get Random Book",
+  "filters": "Filters",
+  "any": "Any",
+  
+  "confirmDelete": "Are you sure you want to delete this book?",
+  "confirmDeleteAll": "This will permanently delete ALL books from your library. This action cannot be undone!\\n\\nAre you sure you want to continue?",
+  
+  "bookAddedSuccessfully": "Book added successfully!",
+  "bookUpdatedSuccessfully": "Book updated successfully!",
+  "bookDeletedSuccessfully": "Book deleted successfully!",
+  
+  "noBooksFound": "No books found",
+  "noData": "No data",
+  
+  "readingInformation": "Reading Information (Optional)",
+  "addRead": "Add Read",
+  "tapHeartsToRate": "Tap hearts to rate (tap again for half)"
+}
