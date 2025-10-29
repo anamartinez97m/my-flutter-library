@@ -1,16 +1,16 @@
-# mylibrary
+# My Random Library
 
-A flutter library project.
+Aplicación desarrollada por **Ana Martínez Montañez** como proyecto personal.  
+© 2025 Ana Martínez Montañez. Todos los derechos reservados.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 📱 Descripción
+*My Random Library* es una aplicación desarrollada con [Flutter/Dart](https://docs.flutter.dev/) que convierte tu biblioteca personal en algo más dinámico. No solo te permite registrar los libros que tienes o deseas leer, sino que también te recomienda cuál podría ser tu próxima lectura según tus gustos y filtros personalizados (género, autor, número de páginas, etc.).
 
-A few resources to get you started if this is your first Flutter project:
+## ⚙️ Estado del proyecto
+En desarrollo — versión 1.0.0+1
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 👩‍💻 Autor
+**Ana Martínez Montañez**  
+[GitHub](https://github.com/anamartinez97m) · [LinkedIn](https://www.linkedin.com/in/ana-m-2b8a528b/)
