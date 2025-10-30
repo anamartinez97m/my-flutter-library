@@ -10,10 +10,20 @@ class NavigationScreen extends StatefulWidget {
 
   @override
   State<NavigationScreen> createState() => _NavigationScreenState();
+  
+  static _NavigationScreenState? of(BuildContext context) {
+    return context.findAncestorStateOfType<_NavigationScreenState>();
+  }
 }
 
 class _NavigationScreenState extends State<NavigationScreen> {
   int _selectedIndex = 0;
+  
+  void switchToTab(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   final List<Widget> widgetOptions = const [
     HomeScreen(),
@@ -27,8 +37,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text('My Library'),
+        title: const Text('My Library'),
       ),
       body: SafeArea(
         child: Padding(

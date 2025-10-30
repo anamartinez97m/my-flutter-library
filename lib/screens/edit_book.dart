@@ -273,16 +273,42 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 : _myReviewController.text.trim(),
       );
 
-      // Delete and re-add (simpler than updating with all relationships)
+      // Update the book (delete and re-add with same ID)
       await repository.deleteBook(widget.book.bookId!);
-      await repository.addBook(updatedBook);
+      // Preserve the original book ID by creating a new book with the same ID
+      final bookToAdd = Book(
+        bookId: widget.book.bookId,
+        name: updatedBook.name,
+        isbn: updatedBook.isbn,
+        author: updatedBook.author,
+        saga: updatedBook.saga,
+        nSaga: updatedBook.nSaga,
+        pages: updatedBook.pages,
+        originalPublicationYear: updatedBook.originalPublicationYear,
+        statusValue: updatedBook.statusValue,
+        formatSagaValue: updatedBook.formatSagaValue,
+        languageValue: updatedBook.languageValue,
+        placeValue: updatedBook.placeValue,
+        formatValue: updatedBook.formatValue,
+        editorialValue: updatedBook.editorialValue,
+        genre: updatedBook.genre,
+        loaned: updatedBook.loaned,
+        createdAt: updatedBook.createdAt,
+        myRating: updatedBook.myRating,
+        readCount: updatedBook.readCount,
+        dateReadInitial: updatedBook.dateReadInitial,
+        dateReadFinal: updatedBook.dateReadFinal,
+        myReview: updatedBook.myReview,
+      );
+      await repository.addBook(bookToAdd);
 
       // Reload books in provider
       if (mounted) {
         final provider = Provider.of<BookProvider?>(context, listen: false);
         await provider?.loadBooks();
 
-        Navigator.pop(context); // Go back to detail screen
+        // Return the book with preserved ID to the detail screen
+        Navigator.pop(context, bookToAdd);
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -326,8 +352,6 @@ class _EditBookScreenState extends State<EditBookScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Book'),
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
@@ -346,6 +370,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.book),
                 ),
+                textCapitalization: TextCapitalization.words,
               ),
               const SizedBox(height: 16),
 
@@ -369,6 +394,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.person),
                 ),
+                textCapitalization: TextCapitalization.words,
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 12, top: 4),
@@ -390,6 +416,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.business),
                 ),
+                textCapitalization: TextCapitalization.words,
               ),
               const SizedBox(height: 16),
 
@@ -401,6 +428,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.category),
                 ),
+                textCapitalization: TextCapitalization.words,
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 12, top: 4),
@@ -422,6 +450,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.collections_bookmark),
                 ),
+                textCapitalization: TextCapitalization.words,
               ),
               const SizedBox(height: 16),
 
@@ -608,7 +637,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 'Reading Information (Optional)',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Colors.deepPurple,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
               const SizedBox(height: 16),
@@ -649,8 +678,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
                             : null,
                         icon: const Icon(Icons.remove),
                         style: IconButton.styleFrom(
-                          backgroundColor: Colors.deepPurple.withOpacity(0.1),
-                          foregroundColor: Colors.deepPurple,
+                          backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                          foregroundColor: Theme.of(context).colorScheme.primary,
                           disabledBackgroundColor: Colors.grey[200],
                           disabledForegroundColor: Colors.grey[400],
                         ),
@@ -682,8 +711,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
                         },
                         icon: const Icon(Icons.add),
                         style: IconButton.styleFrom(
-                          backgroundColor: Colors.deepPurple,
-                          foregroundColor: Colors.white,
+                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          foregroundColor: Theme.of(context).colorScheme.onPrimary,
                         ),
                       ),
                     ],
@@ -771,6 +800,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 ),
                 maxLines: 5,
                 keyboardType: TextInputType.multiline,
+                textCapitalization: TextCapitalization.sentences,
               ),
               const SizedBox(height: 32),
 
@@ -778,8 +808,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
               ElevatedButton(
                 onPressed: _updateBook,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
-                  foregroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
