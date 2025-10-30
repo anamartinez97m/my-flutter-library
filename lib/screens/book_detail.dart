@@ -7,10 +7,23 @@ import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/screens/edit_book.dart';
 import 'package:provider/provider.dart';
 
-class BookDetailScreen extends StatelessWidget {
+class BookDetailScreen extends StatefulWidget {
   final Book book;
 
   const BookDetailScreen({super.key, required this.book});
+
+  @override
+  State<BookDetailScreen> createState() => _BookDetailScreenState();
+}
+
+class _BookDetailScreenState extends State<BookDetailScreen> {
+  late Book _currentBook;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentBook = widget.book;
+  }
 
   String _formatDateTime(String isoString) {
     try {
@@ -28,7 +41,7 @@ class BookDetailScreen extends StatelessWidget {
       builder:
           (context) => AlertDialog(
             title: const Text('Confirm Delete'),
-            content: Text('Are you sure you want to delete "${book.name}"?'),
+            content: Text('Are you sure you want to delete "${_currentBook.name}"?'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
@@ -46,11 +59,11 @@ class BookDetailScreen extends StatelessWidget {
           ),
     );
 
-    if (confirmed == true && book.bookId != null) {
+    if (confirmed == true && _currentBook.bookId != null) {
       try {
         final db = await DatabaseHelper.instance.database;
         final repository = BookRepository(db);
-        await repository.deleteBook(book.bookId!);
+        await repository.deleteBook(_currentBook.bookId!);
 
         if (context.mounted) {
           final provider = Provider.of<BookProvider?>(context, listen: false);
@@ -83,18 +96,21 @@ class BookDetailScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Book Details'),
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              final updatedBook = await Navigator.push<Book>(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => EditBookScreen(book: book),
+                  builder: (context) => EditBookScreen(book: _currentBook),
                 ),
               );
+              if (updatedBook != null && mounted) {
+                setState(() {
+                  _currentBook = updatedBook;
+                });
+              }
             },
           ),
           IconButton(
@@ -132,10 +148,10 @@ class BookDetailScreen extends StatelessWidget {
                 children: [
                   // Title
                   Text(
-                    book.name ?? 'Unknown Title',
+                    _currentBook.name ?? 'Unknown Title',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: Colors.deepPurple,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                   AppTheme.verticalSpaceLarge,
@@ -175,16 +191,14 @@ class BookDetailScreen extends StatelessWidget {
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.deepPurple.withValues(
-                                  alpha: 255.0 * 0.1,
-                                ),
+                                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
                                 'API',
                                 style: TextStyle(
                                   fontSize: 9,
-                                  color: Colors.deepPurple[700],
+                                  color: Theme.of(context).colorScheme.primary,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -207,119 +221,119 @@ class BookDetailScreen extends StatelessWidget {
                   AppTheme.verticalSpaceXLarge,
 
                   // Details in cards
-                  if (book.author != null && book.author!.isNotEmpty)
+                  if (_currentBook.author != null && _currentBook.author!.isNotEmpty)
                     _DetailCard(
                       icon: Icons.person,
                       label: 'Author(s)',
-                      value: book.author!,
+                      value: _currentBook.author!,
                     ),
-                  if (book.isbn != null && book.isbn!.isNotEmpty)
+                  if (_currentBook.isbn != null && _currentBook.isbn!.isNotEmpty)
                     _DetailCard(
                       icon: Icons.numbers,
                       label: 'ISBN',
-                      value: book.isbn!,
+                      value: _currentBook.isbn!,
                     ),
-                  if (book.editorialValue != null &&
-                      book.editorialValue!.isNotEmpty)
+                  if (_currentBook.editorialValue != null &&
+                      _currentBook.editorialValue!.isNotEmpty)
                     _DetailCard(
                       icon: Icons.business,
                       label: 'Editorial',
-                      value: book.editorialValue!,
+                      value: _currentBook.editorialValue!,
                     ),
-                  if (book.genre != null && book.genre!.isNotEmpty)
+                  if (_currentBook.genre != null && _currentBook.genre!.isNotEmpty)
                     _DetailCard(
                       icon: Icons.category,
                       label: 'Genre(s)',
-                      value: book.genre!,
+                      value: _currentBook.genre!,
                     ),
-                  if (book.saga != null && book.saga!.isNotEmpty)
+                  if (_currentBook.saga != null && _currentBook.saga!.isNotEmpty)
                     _DetailCard(
                       icon: Icons.collections_bookmark,
                       label: 'Saga',
                       value:
-                          '${book.saga}${book.nSaga != null ? ' #${book.nSaga}' : ''}',
+                          '${_currentBook.saga}${_currentBook.nSaga != null ? ' #${_currentBook.nSaga}' : ''}',
                     ),
-                  if (book.pages != null)
+                  if (_currentBook.pages != null)
                     _DetailCard(
                       icon: Icons.description,
                       label: 'Pages',
-                      value: book.pages.toString(),
+                      value: _currentBook.pages.toString(),
                     ),
-                  if (book.originalPublicationYear != null)
+                  if (_currentBook.originalPublicationYear != null)
                     _DetailCard(
                       icon: Icons.calendar_today,
                       label: 'Publication Year',
-                      value: book.originalPublicationYear.toString(),
+                      value: _currentBook.originalPublicationYear.toString(),
                     ),
-                  if (book.statusValue != null && book.statusValue!.isNotEmpty)
+                  if (_currentBook.statusValue != null && _currentBook.statusValue!.isNotEmpty)
                     _DetailCard(
                       icon: Icons.check_circle,
                       label: 'Status',
-                      value: book.statusValue!,
+                      value: _currentBook.statusValue!,
                     ),
-                  if (book.formatSagaValue != null &&
-                      book.formatSagaValue!.isNotEmpty)
+                  if (_currentBook.formatSagaValue != null &&
+                      _currentBook.formatSagaValue!.isNotEmpty)
                     _DetailCard(
                       icon: Icons.format_shapes,
                       label: 'Format Saga',
-                      value: book.formatSagaValue!,
+                      value: _currentBook.formatSagaValue!,
                     ),
-                  if (book.languageValue != null &&
-                      book.languageValue!.isNotEmpty)
+                  if (_currentBook.languageValue != null &&
+                      _currentBook.languageValue!.isNotEmpty)
                     _DetailCard(
                       icon: Icons.language,
                       label: 'Language',
-                      value: book.languageValue!,
+                      value: _currentBook.languageValue!,
                     ),
-                  if (book.placeValue != null && book.placeValue!.isNotEmpty)
+                  if (_currentBook.placeValue != null && _currentBook.placeValue!.isNotEmpty)
                     _DetailCard(
                       icon: Icons.place,
                       label: 'Place',
-                      value: book.placeValue!,
+                      value: _currentBook.placeValue!,
                     ),
-                  if (book.formatValue != null && book.formatValue!.isNotEmpty)
+                  if (_currentBook.formatValue != null && _currentBook.formatValue!.isNotEmpty)
                     _DetailCard(
                       icon: Icons.import_contacts,
                       label: 'Format',
-                      value: book.formatValue!,
+                      value: _currentBook.formatValue!,
                     ),
-                  if (book.loaned != null && book.loaned!.isNotEmpty)
+                  if (_currentBook.loaned != null && _currentBook.loaned!.isNotEmpty)
                     _DetailCard(
                       icon: Icons.swap_horiz,
                       label: 'Loaned',
-                      value: book.loaned!,
+                      value: _currentBook.loaned!,
                     ),
-                  if (book.createdAt != null && book.createdAt!.isNotEmpty)
+                  if (_currentBook.createdAt != null && _currentBook.createdAt!.isNotEmpty)
                     _DetailCard(
                       icon: Icons.access_time,
                       label: 'Created',
-                      value: _formatDateTime(book.createdAt!),
+                      value: _formatDateTime(_currentBook.createdAt!),
                     ),
 
                   // New fields
-                  if (book.myRating != null && book.myRating! > 0)
-                    _RatingCard(label: 'My Rating', rating: book.myRating!),
-                  if (book.readCount != null && book.readCount! > 0)
+                  if (_currentBook.myRating != null && _currentBook.myRating! > 0)
+                    _RatingCard(label: 'My Rating', rating: _currentBook.myRating!),
+                  if (_currentBook.readCount != null && _currentBook.readCount! > 0)
                     _DetailCard(
                       icon: Icons.add_circle_outline,
                       label: 'Times Read',
-                      value: '${book.readCount}+',
+                      value: '${_currentBook.readCount}+',
                     ),
-                  if (book.dateReadInitial != null &&
-                      book.dateReadInitial!.isNotEmpty)
+                  if (_currentBook.dateReadInitial != null &&
+                      _currentBook.dateReadInitial!.isNotEmpty)
                     _DetailCard(
                       icon: Icons.event,
                       label: 'Date Started Reading',
-                      value: book.dateReadInitial!.split('T')[0],
+                      value: _currentBook.dateReadInitial!.split('T')[0],
                     ),
-                  if (book.dateReadFinal != null &&
-                      book.dateReadFinal!.isNotEmpty)
+                  if (_currentBook.dateReadFinal != null &&
+                      _currentBook.dateReadFinal!.isNotEmpty)
                     _DetailCard(
                       icon: Icons.event_available,
                       label: 'Date Finished Reading',
-                      value: book.dateReadFinal!.split('T')[0],
+                      value: _currentBook.dateReadFinal!.split('T')[0],
                     ),
-                  if (book.myReview != null && book.myReview!.isNotEmpty)
+                  if (_currentBook.myReview != null && _currentBook.myReview!.isNotEmpty)
                     Card(
                       margin: const EdgeInsets.only(bottom: 12),
                       elevation: 1,
@@ -333,9 +347,9 @@ class BookDetailScreen extends StatelessWidget {
                           children: [
                             Row(
                               children: [
-                                const Icon(
+                                Icon(
                                   Icons.rate_review,
-                                  color: Colors.deepPurple,
+                                  color: Theme.of(context).colorScheme.primary,
                                   size: 24,
                                 ),
                                 AppTheme.horizontalSpaceLarge,
@@ -352,7 +366,7 @@ class BookDetailScreen extends StatelessWidget {
                             ),
                             AppTheme.verticalSpaceMedium,
                             Text(
-                              book.myReview!,
+                              _currentBook.myReview!,
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
                           ],
@@ -481,7 +495,7 @@ class _DetailCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: Colors.deepPurple, size: 24),
+            Icon(icon, color: Theme.of(context).colorScheme.primary, size: 24),
             const SizedBox(width: 16),
             Expanded(
               child: Column(

@@ -6,9 +6,12 @@ import '../repositories/book_repository.dart';
 class BookProvider extends ChangeNotifier {
   late BookRepository _repo;
   List<Book> _books = [];
-  List<Book> _displayBooks = <Book>[];
+  List<Book> _filteredBooks = <Book>[]; // Books after filter
+  List<Book> _displayBooks = <Book>[]; // Books after filter + search
   String? _latestBookAdded = '';
   bool _isLoading = false;
+  String _currentSearchQuery = '';
+  int _currentSearchIndex = 0;
 
   List<Book> get books => _displayBooks;
   List<Book> get allBooks => _books; // Unfiltered list for statistics
@@ -42,24 +45,30 @@ class BookProvider extends ChangeNotifier {
     _repo = BookRepository(db);
     
     _books = await _repo.getAllBooks();
+    _filteredBooks = List<Book>.from(_books);
     _displayBooks = List<Book>.from(_books);
     _latestBookAdded = await _repo.getLatestBookAdded();
     _isLoading = false;
+    
+    // Reapply search if there was one
+    if (_currentSearchQuery.isNotEmpty) {
+      _applySearch();
+    }
+    
     notifyListeners();
   }
 
-  Future<void> searchBooks(String query, {required int searchIndex}) async {
-    final String normalizedQuery = _removeAccents(query.toLowerCase());
+  void _applySearch() {
+    final String normalizedQuery = _removeAccents(_currentSearchQuery.toLowerCase());
 
     if (normalizedQuery.isEmpty) {
-      _displayBooks = List<Book>.from(_books);
-      notifyListeners();
+      _displayBooks = List<Book>.from(_filteredBooks);
       return;
     }
 
     _displayBooks =
-        _books.where((Book book) {
-          switch (searchIndex) {
+        _filteredBooks.where((Book book) {
+          switch (_currentSearchIndex) {
             case 0: // Search by Title
               final normalizedTitle = _removeAccents(
                 (book.name ?? '').toLowerCase(),
@@ -84,7 +93,12 @@ class BookProvider extends ChangeNotifier {
               return false;
           }
         }).toList();
+  }
 
+  Future<void> searchBooks(String query, {required int searchIndex}) async {
+    _currentSearchQuery = query;
+    _currentSearchIndex = searchIndex;
+    _applySearch();
     notifyListeners();
   }
 
@@ -120,9 +134,9 @@ class BookProvider extends ChangeNotifier {
 
   void filterBooks(String filterType, String? filterValue) {
     if (filterValue == null || filterValue == 'all') {
-      _displayBooks = List<Book>.from(_books);
+      _filteredBooks = List<Book>.from(_books);
     } else {
-      _displayBooks =
+      _filteredBooks =
           _books.where((book) {
             switch (filterType) {
               case 'format':
@@ -140,6 +154,9 @@ class BookProvider extends ChangeNotifier {
             }
           }).toList();
     }
+    
+    // Reapply search on the filtered list
+    _applySearch();
     notifyListeners();
   }
 }

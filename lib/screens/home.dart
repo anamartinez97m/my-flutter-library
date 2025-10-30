@@ -391,14 +391,10 @@ class _HomeScreenState extends State<HomeScreen> {
             child: SearchTextField(
               controller: _searchController,
               onSearch: (String text) async {
-                if (text == '') {
-                  await provider.loadBooks();
-                } else {
-                  await provider.searchBooks(
-                    _searchController.text.trim(),
-                    searchIndex: _selectedSearchButtonIndex,
-                  );
-                }
+                await provider.searchBooks(
+                  text.trim(),
+                  searchIndex: _selectedSearchButtonIndex,
+                );
               },
             ),
           ),
@@ -452,7 +448,7 @@ class _SearchTextFieldState extends State<SearchTextField> {
         child: TextField(
           controller: widget.controller,
           decoration: InputDecoration(
-            prefixIcon: Icon(Icons.search, color: Colors.deepPurple),
+            prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.primary),
             suffixIcon: IconButton(
               onPressed: () {
                 widget.controller.clear();
@@ -463,6 +459,10 @@ class _SearchTextFieldState extends State<SearchTextField> {
             labelText: 'Search',
             hintText: 'Search for books...',
             border: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            focusedBorder: InputBorder.none,
+            errorBorder: InputBorder.none,
+            disabledBorder: InputBorder.none,
             contentPadding: const EdgeInsets.symmetric(vertical: 16.0),
           ),
           onChanged: _onChanged,

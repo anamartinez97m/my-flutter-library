@@ -558,6 +558,157 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildLightThemeGrid(BuildContext context, ThemeProvider themeProvider) {
+    return GridView.count(
+      crossAxisCount: 2,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      mainAxisSpacing: 12,
+      crossAxisSpacing: 12,
+      childAspectRatio: 1.5,
+      children: [
+        _buildThemePreview(
+          context,
+          'Warm Earth',
+          [const Color(0xFFa36361), const Color(0xFFd3a29d), const Color(0xFFe8b298)],
+          themeProvider.lightThemeVariant == LightThemeVariant.warmEarth,
+          () => themeProvider.setLightThemeVariant(LightThemeVariant.warmEarth),
+        ),
+        _buildThemePreview(
+          context,
+          'Vibrant Sunset',
+          [const Color(0xFFef476f), const Color(0xFFf78c6b), const Color(0xFFffd166)],
+          themeProvider.lightThemeVariant == LightThemeVariant.vibrantSunset,
+          () => themeProvider.setLightThemeVariant(LightThemeVariant.vibrantSunset),
+        ),
+        _buildThemePreview(
+          context,
+          'Soft Pastel',
+          [const Color(0xFFc8a8e9), const Color(0xFFe3aadd), const Color(0xFFf5bcba)],
+          themeProvider.lightThemeVariant == LightThemeVariant.softPastel,
+          () => themeProvider.setLightThemeVariant(LightThemeVariant.softPastel),
+        ),
+        _buildThemePreview(
+          context,
+          'Deep Ocean',
+          [const Color(0xFF14919b), const Color(0xFF0ad1c8), const Color(0xFF45dfb1)],
+          themeProvider.lightThemeVariant == LightThemeVariant.deepOcean,
+          () => themeProvider.setLightThemeVariant(LightThemeVariant.deepOcean),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDarkThemeGrid(BuildContext context, ThemeProvider themeProvider) {
+    return GridView.count(
+      crossAxisCount: 2,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      mainAxisSpacing: 12,
+      crossAxisSpacing: 12,
+      childAspectRatio: 1.5,
+      children: [
+        _buildThemePreview(
+          context,
+          'Mystic Purple',
+          [const Color(0xFF854f6c), const Color(0xFF522b5b), const Color(0xFFdfb6b2)],
+          themeProvider.darkThemeVariant == DarkThemeVariant.mysticPurple,
+          () => themeProvider.setDarkThemeVariant(DarkThemeVariant.mysticPurple),
+        ),
+        _buildThemePreview(
+          context,
+          'Deep Sea',
+          [const Color(0xFF0c7075), const Color(0xFF0f969c), const Color(0xFF6da5c0)],
+          themeProvider.darkThemeVariant == DarkThemeVariant.deepSea,
+          () => themeProvider.setDarkThemeVariant(DarkThemeVariant.deepSea),
+        ),
+        _buildThemePreview(
+          context,
+          'Warm Autumn',
+          [const Color(0xFF662549), const Color(0xFFae445a), const Color(0xFFf39f5a)],
+          themeProvider.darkThemeVariant == DarkThemeVariant.warmAutumn,
+          () => themeProvider.setDarkThemeVariant(DarkThemeVariant.warmAutumn),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildThemePreview(
+    BuildContext context,
+    String name,
+    List<Color> colors,
+    bool isSelected,
+    VoidCallback onTap,
+  ) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey[300]!,
+            width: isSelected ? 3 : 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            Expanded(
+              child: Row(
+                children: colors.map((color) {
+                  return Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: colors.indexOf(color) == 0
+                            ? const BorderRadius.only(
+                                topLeft: Radius.circular(10),
+                              )
+                            : colors.indexOf(color) == colors.length - 1
+                                ? const BorderRadius.only(
+                                    topRight: Radius.circular(10),
+                                  )
+                                : null,
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(10),
+                  bottomRight: Radius.circular(10),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (isSelected)
+                    Icon(
+                      Icons.check_circle,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 16,
+                    ),
+                  if (isSelected) const SizedBox(width: 4),
+                  Text(
+                    name,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          color: isSelected ? Theme.of(context).colorScheme.primary : Colors.black87,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -583,7 +734,7 @@ class SettingsScreen extends StatelessWidget {
                       Icon(
                         Icons.backup_outlined,
                         size: 36,
-                        color: Colors.deepPurple,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                       const SizedBox(height: 12),
                       Text(
@@ -622,7 +773,7 @@ class SettingsScreen extends StatelessWidget {
                       Icon(
                         Icons.cloud_download_outlined,
                         size: 36,
-                        color: Colors.deepPurple,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                       const SizedBox(height: 12),
                       Text(
@@ -661,7 +812,7 @@ class SettingsScreen extends StatelessWidget {
                       Icon(
                         Icons.upload_file,
                         size: 36,
-                        color: Colors.deepPurple,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                       const SizedBox(height: 12),
                       Text(
@@ -746,7 +897,7 @@ class SettingsScreen extends StatelessWidget {
                       Icon(
                         Icons.settings_outlined,
                         size: 36,
-                        color: Colors.deepPurple,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                       const SizedBox(height: 12),
                       Text(
@@ -821,61 +972,79 @@ class SettingsScreen extends StatelessWidget {
               ),
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+                child: Consumer<ThemeProvider>(
+                  builder: (context, themeProvider, _) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.palette, color: Colors.deepPurple),
-                        const SizedBox(width: 12),
+                        Row(
+                          children: [
+                            Icon(Icons.palette, color: Theme.of(context).colorScheme.primary),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Theme Mode',
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        RadioListTile<AppThemeMode>(
+                          title: const Text('Light'),
+                          value: AppThemeMode.light,
+                          groupValue: themeProvider.themeMode,
+                          onChanged: (value) {
+                            if (value != null) {
+                              themeProvider.setThemeMode(value);
+                            }
+                          },
+                        ),
+                        RadioListTile<AppThemeMode>(
+                          title: const Text('Dark'),
+                          value: AppThemeMode.dark,
+                          groupValue: themeProvider.themeMode,
+                          onChanged: (value) {
+                            if (value != null) {
+                              themeProvider.setThemeMode(value);
+                            }
+                          },
+                        ),
+                        RadioListTile<AppThemeMode>(
+                          title: const Text('System'),
+                          value: AppThemeMode.system,
+                          groupValue: themeProvider.themeMode,
+                          onChanged: (value) {
+                            if (value != null) {
+                              themeProvider.setThemeMode(value);
+                            }
+                          },
+                        ),
+                        const Divider(height: 32),
+                        
+                        // Light theme variants
                         Text(
-                          'Theme',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          'Light Theme Colors',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.w600,
                               ),
                         ),
+                        const SizedBox(height: 16),
+                        _buildLightThemeGrid(context, themeProvider),
+                        const SizedBox(height: 24),
+                        
+                        // Dark theme variants
+                        Text(
+                          'Dark Theme Colors',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
+                        const SizedBox(height: 16),
+                        _buildDarkThemeGrid(context, themeProvider),
                       ],
-                    ),
-                    const SizedBox(height: 16),
-                    Consumer<ThemeProvider>(
-                      builder: (context, themeProvider, _) {
-                        return Column(
-                          children: [
-                            RadioListTile<AppThemeMode>(
-                              title: const Text('Light'),
-                              value: AppThemeMode.light,
-                              groupValue: themeProvider.themeMode,
-                              onChanged: (value) {
-                                if (value != null) {
-                                  themeProvider.setThemeMode(value);
-                                }
-                              },
-                            ),
-                            RadioListTile<AppThemeMode>(
-                              title: const Text('Dark'),
-                              value: AppThemeMode.dark,
-                              groupValue: themeProvider.themeMode,
-                              onChanged: (value) {
-                                if (value != null) {
-                                  themeProvider.setThemeMode(value);
-                                }
-                              },
-                            ),
-                            RadioListTile<AppThemeMode>(
-                              title: const Text('System'),
-                              value: AppThemeMode.system,
-                              groupValue: themeProvider.themeMode,
-                              onChanged: (value) {
-                                if (value != null) {
-                                  themeProvider.setThemeMode(value);
-                                }
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ),
             ),
@@ -894,7 +1063,7 @@ class SettingsScreen extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.language, color: Colors.deepPurple),
+                        Icon(Icons.language, color: Theme.of(context).colorScheme.primary),
                         const SizedBox(width: 12),
                         Text(
                           'Language',

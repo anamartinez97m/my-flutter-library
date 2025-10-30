@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:myrandomlibrary/config/app_theme.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
-import 'package:myrandomlibrary/widgets/heart_rating_input.dart';
+import 'package:myrandomlibrary/screens/navigation.dart';
 import 'package:provider/provider.dart';
+import 'package:myrandomlibrary/widgets/heart_rating_input.dart';
 
 class AddBookScreen extends StatefulWidget {
   const AddBookScreen({super.key});
@@ -82,6 +82,77 @@ class _AddBookScreenState extends State<AddBookScreen> {
         _isLoading = false;
       });
     }
+  }
+
+  void _showSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (BuildContext dialogContext) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.check_circle,
+                    color: Colors.green,
+                    size: 64,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'Book Added Successfully!',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'What would you like to do next?',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+            actions: [
+              TextButton.icon(
+                onPressed: () {
+                  Navigator.of(dialogContext).pop();
+                  // Stay on add book screen to add another
+                },
+                icon: const Icon(Icons.add),
+                label: const Text('Add Another'),
+                style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.primary),
+              ),
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.of(dialogContext).pop();
+                  // Switch to home tab (index 0)
+                  NavigationScreen.of(context)?.switchToTab(0);
+                },
+                icon: const Icon(Icons.home),
+                label: const Text('Go to Home'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                ),
+              ),
+            ],
+            actionsAlignment: MainAxisAlignment.spaceEvenly,
+          ),
+    );
   }
 
   Future<void> _saveBook() async {
@@ -192,14 +263,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         final provider = Provider.of<BookProvider?>(context, listen: false);
         await provider?.loadBooks();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Book added successfully!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-
-        // Clear form
+        // Clear form first
         _formKey.currentState!.reset();
         _nameController.clear();
         _isbnController.clear();
@@ -226,6 +290,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
           _dateReadInitial = null;
           _dateReadFinal = null;
         });
+
+        // Show success dialog
+        _showSuccessDialog(context);
       }
     } catch (e) {
       if (mounted) {
@@ -256,10 +323,17 @@ class _AddBookScreenState extends State<AddBookScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Center(child: CircularProgressIndicator());
     }
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Add Book'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_outlined),
+          onPressed: () => NavigationScreen.of(context)?.switchToTab(0),
+        ),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -272,7 +346,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 'Add New Book',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Colors.deepPurple,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -286,6 +360,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.book),
                 ),
+                textCapitalization: TextCapitalization.words,
               ),
               const SizedBox(height: 16),
 
@@ -309,6 +384,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.person),
                 ),
+                textCapitalization: TextCapitalization.words,
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 12, top: 4),
@@ -330,6 +406,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.business),
                 ),
+                textCapitalization: TextCapitalization.words,
               ),
               const SizedBox(height: 16),
 
@@ -341,6 +418,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.category),
                 ),
+                textCapitalization: TextCapitalization.words,
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 12, top: 4),
@@ -362,6 +440,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.collections_bookmark),
                 ),
+                textCapitalization: TextCapitalization.words,
               ),
               const SizedBox(height: 16),
 
@@ -548,7 +627,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 'Reading Information (Optional)',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Colors.deepPurple,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
               const SizedBox(height: 16),
@@ -590,8 +669,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
                                 : null,
                         icon: const Icon(Icons.remove),
                         style: IconButton.styleFrom(
-                          backgroundColor: Colors.deepPurple.withOpacity(0.1),
-                          foregroundColor: Colors.deepPurple,
+                          backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                          foregroundColor: Theme.of(context).colorScheme.primary,
                           disabledBackgroundColor: Colors.grey[200],
                           disabledForegroundColor: Colors.grey[400],
                         ),
@@ -622,8 +701,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
                         },
                         icon: const Icon(Icons.add),
                         style: IconButton.styleFrom(
-                          backgroundColor: Colors.deepPurple,
-                          foregroundColor: Colors.white,
+                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          foregroundColor: Theme.of(context).colorScheme.onPrimary,
                         ),
                       ),
                     ],
@@ -711,6 +790,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 ),
                 maxLines: 5,
                 keyboardType: TextInputType.multiline,
+                textCapitalization: TextCapitalization.sentences,
               ),
               const SizedBox(height: 32),
 
@@ -718,8 +798,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
               ElevatedButton(
                 onPressed: _saveBook,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
-                  foregroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
