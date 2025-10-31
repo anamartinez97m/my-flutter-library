@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/screens/book_detail.dart';
 
@@ -35,7 +36,7 @@ class BookListView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    book.name ?? 'Unknown Title',
+                    book.name ?? AppLocalizations.of(context)!.unknown_title,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Colors.deepPurple,
@@ -44,7 +45,9 @@ class BookListView extends StatelessWidget {
                   const SizedBox(height: 8),
                   if (book.author != null && book.author!.isNotEmpty)
                     Text(
-                      'Author: ${book.author}',
+                      AppLocalizations.of(
+                        context,
+                      )!.author_with_colon(book.author ?? ''),
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w500,
                       ),
@@ -53,7 +56,9 @@ class BookListView extends StatelessWidget {
                     const SizedBox(height: 4),
                   if (book.genre != null && book.genre!.isNotEmpty)
                     Text(
-                      'Genre: ${book.genre}',
+                      AppLocalizations.of(
+                        context,
+                      )!.genre_with_colon(book.genre ?? ''),
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Colors.grey[700],
                         fontStyle: FontStyle.italic,
@@ -63,20 +68,30 @@ class BookListView extends StatelessWidget {
                     const SizedBox(height: 4),
                   if (book.saga != null && book.saga!.isNotEmpty)
                     Text(
-                      'Saga: ${book.saga}${book.nSaga != null ? ' #${book.nSaga}' : ''}',
+                      AppLocalizations.of(
+                        context,
+                      )!.saga_with_colon(book.saga ?? ''),
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   if (book.saga != null && book.saga!.isNotEmpty)
                     const SizedBox(height: 4),
                   Text(
-                    'ISBN: ${book.isbn ?? 'N/A'}',
+                    AppLocalizations.of(
+                      context,
+                    )!.isbn_with_colon(book.isbn ?? 'N/A'),
                     style: Theme.of(
                       context,
                     ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Format: ${book.formatValue ?? 'N/A'} • Language: ${book.languageValue ?? 'N/A'}',
+                    AppLocalizations.of(
+                          context,
+                        )!.format_with_colon(book.formatValue ?? 'N/A') +
+                        ' • ' +
+                        AppLocalizations.of(
+                          context,
+                        )!.language_with_colon(book.languageValue ?? 'N/A'),
                     style: Theme.of(
                       context,
                     ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),

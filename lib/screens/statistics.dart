@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -71,20 +72,23 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     }
 
     // Sort and get top entries
-    final top5Genres = (genreCounts.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value)))
-        .take(5)
-        .toList();
+    final top5Genres =
+        (genreCounts.entries.toList()
+              ..sort((a, b) => b.value.compareTo(a.value)))
+            .take(5)
+            .toList();
 
-    final top10Editorials = (editorialCounts.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value)))
-        .take(10)
-        .toList();
+    final top10Editorials =
+        (editorialCounts.entries.toList()
+              ..sort((a, b) => b.value.compareTo(a.value)))
+            .take(10)
+            .toList();
 
-    final top10Authors = (authorCounts.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value)))
-        .take(10)
-        .toList();
+    final top10Authors =
+        (authorCounts.entries.toList()
+              ..sort((a, b) => b.value.compareTo(a.value)))
+            .take(10)
+            .toList();
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -110,7 +114,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Total Books in Library',
+                      AppLocalizations.of(context)!.total_books,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w500,
@@ -148,7 +152,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Latest Book Added',
+                      AppLocalizations.of(context)!.latest_book_added,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w500,
@@ -158,7 +162,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     Text(
                       latestBookName != null && latestBookName.isNotEmpty
                           ? latestBookName
-                          : 'No books in the database',
+                          : AppLocalizations.of(context)!.no_books_in_database,
                       style: Theme.of(
                         context,
                       ).textTheme.headlineSmall?.copyWith(
@@ -187,10 +191,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Books by Status',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                          AppLocalizations.of(context)!.books_by_status,
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                         Row(
                           children: [
@@ -215,7 +218,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       height: 230,
                       child:
                           statusCounts.isEmpty
-                              ? const Center(child: Text('No data'))
+                              ? Center(
+                                child: Text(
+                                  AppLocalizations.of(context)!.no_data,
+                                ),
+                              )
                               : PieChart(
                                 PieChartData(
                                   sections:
@@ -321,70 +328,77 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 child: Column(
                   children: [
                     Text(
-                      'Books by Language',
+                      AppLocalizations.of(context)!.books_by_language,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 16),
                     if (languageCounts.isEmpty)
-                      const Center(child: Text('No data'))
+                      Center(child: Text(AppLocalizations.of(context)!.no_data))
                     else
                       ...(languageCounts.entries.toList()
                             ..sort((a, b) => b.value.compareTo(a.value)))
                           .map((entry) {
-                        final maxValue = languageCounts.values.reduce((a, b) => a > b ? a : b);
-                        final percentage = (entry.value / maxValue);
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 80,
-                                child: Text(
-                                  entry.key,
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Stack(
-                                  children: [
-                                    Container(
-                                      height: 24,
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[200],
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
+                            final maxValue = languageCounts.values.reduce(
+                              (a, b) => a > b ? a : b,
+                            );
+                            final percentage = (entry.value / maxValue);
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Row(
+                                children: [
+                                  SizedBox(
+                                    width: 80,
+                                    child: Text(
+                                      entry.key,
+                                      style:
+                                          Theme.of(context).textTheme.bodySmall,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                    FractionallySizedBox(
-                                      widthFactor: percentage,
-                                      child: Container(
-                                        height: 24,
-                                        decoration: BoxDecoration(
-                                          color: Colors.deepPurple,
-                                          borderRadius: BorderRadius.circular(4),
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            '${entry.value}',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.bold,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Stack(
+                                      children: [
+                                        Container(
+                                          height: 24,
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey[200],
+                                            borderRadius: BorderRadius.circular(
+                                              4,
                                             ),
                                           ),
                                         ),
-                                      ),
+                                        FractionallySizedBox(
+                                          widthFactor: percentage,
+                                          child: Container(
+                                            height: 24,
+                                            decoration: BoxDecoration(
+                                              color: Colors.deepPurple,
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                '${entry.value}',
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
+                            );
+                          })
+                          .toList(),
                   ],
                 ),
               ),
@@ -405,10 +419,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Books by Format',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                          AppLocalizations.of(context)!.books_by_format,
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                         Row(
                           children: [
@@ -431,85 +444,102 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     const SizedBox(height: 20),
                     SizedBox(
                       height: 230,
-                      child: formatCounts.isEmpty
-                          ? const Center(child: Text('No data'))
-                          : PieChart(
-                              PieChartData(
-                                sections: formatCounts.entries.map((entry) {
-                                  final colors = [
-                                    Colors.blue,
-                                    Colors.cyan,
-                                    Colors.teal,
-                                    Colors.lightBlue,
-                                  ];
-                                  final index = formatCounts.keys.toList().indexOf(entry.key);
-                                  final percentage = (entry.value / totalCount) * 100;
-                                  return PieChartSectionData(
-                                    value: entry.value.toDouble(),
-                                    title: '',
-                                    radius: 50,
-                                    color: colors[index % colors.length],
-                                    badgeWidget: Container(
-                                      padding: const EdgeInsets.all(6),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(4),
-                                        border: Border.all(
+                      child:
+                          formatCounts.isEmpty
+                              ? Center(
+                                child: Text(
+                                  AppLocalizations.of(context)!.no_data,
+                                ),
+                              )
+                              : PieChart(
+                                PieChartData(
+                                  sections:
+                                      formatCounts.entries.map((entry) {
+                                        final colors = [
+                                          Colors.blue,
+                                          Colors.cyan,
+                                          Colors.teal,
+                                          Colors.lightBlue,
+                                        ];
+                                        final index = formatCounts.keys
+                                            .toList()
+                                            .indexOf(entry.key);
+                                        final percentage =
+                                            (entry.value / totalCount) * 100;
+                                        return PieChartSectionData(
+                                          value: entry.value.toDouble(),
+                                          title: '',
+                                          radius: 50,
                                           color: colors[index % colors.length],
-                                          width: 2,
-                                        ),
-                                      ),
-                                      child: Text(
-                                        _showFormatAsPercentage
-                                            ? '${percentage.toStringAsFixed(1)}%'
-                                            : '${entry.value}',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.bold,
-                                          color: colors[index % colors.length],
-                                        ),
-                                      ),
-                                    ),
-                                    badgePositionPercentageOffset: 1.4,
-                                  );
-                                }).toList(),
-                                sectionsSpace: 2,
-                                centerSpaceRadius: 45,
+                                          badgeWidget: Container(
+                                            padding: const EdgeInsets.all(6),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                              border: Border.all(
+                                                color:
+                                                    colors[index %
+                                                        colors.length],
+                                                width: 2,
+                                              ),
+                                            ),
+                                            child: Text(
+                                              _showFormatAsPercentage
+                                                  ? '${percentage.toStringAsFixed(1)}%'
+                                                  : '${entry.value}',
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.bold,
+                                                color:
+                                                    colors[index %
+                                                        colors.length],
+                                              ),
+                                            ),
+                                          ),
+                                          badgePositionPercentageOffset: 1.4,
+                                        );
+                                      }).toList(),
+                                  sectionsSpace: 2,
+                                  centerSpaceRadius: 45,
+                                ),
                               ),
-                            ),
                     ),
                     const SizedBox(height: 16),
                     Wrap(
                       spacing: 20,
                       runSpacing: 12,
                       alignment: WrapAlignment.center,
-                      children: formatCounts.entries.map((entry) {
-                        final colors = [
-                          Colors.blue,
-                          Colors.cyan,
-                          Colors.teal,
-                          Colors.lightBlue,
-                        ];
-                        final index = formatCounts.keys.toList().indexOf(entry.key);
-                        return Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 12,
-                              height: 12,
-                              decoration: BoxDecoration(
-                                color: colors[index % colors.length],
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
+                      children:
+                          formatCounts.entries.map((entry) {
+                            final colors = [
+                              Colors.blue,
+                              Colors.cyan,
+                              Colors.teal,
+                              Colors.lightBlue,
+                            ];
+                            final index = formatCounts.keys.toList().indexOf(
                               entry.key,
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ],
-                        );
-                      }).toList(),
+                            );
+                            return Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 12,
+                                  height: 12,
+                                  decoration: BoxDecoration(
+                                    color: colors[index % colors.length],
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  entry.key,
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ],
+                            );
+                          }).toList(),
                     ),
                   ],
                 ),
@@ -528,14 +558,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 child: Column(
                   children: [
                     Text(
-                      'Top 5 Genres',
+                      AppLocalizations.of(context)!.top_5_genres,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 16),
                     if (top5Genres.isEmpty)
-                      const Center(child: Text('No data'))
+                      Center(child: Text(AppLocalizations.of(context)!.no_data))
                     else
                       ...top5Genres.map((entry) {
                         final maxValue = top5Genres.first.value;
@@ -569,7 +599,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                         height: 24,
                                         decoration: BoxDecoration(
                                           color: Colors.green,
-                                          borderRadius: BorderRadius.circular(4),
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
                                         ),
                                         child: Center(
                                           child: Text(
@@ -607,7 +639,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 child: Column(
                   children: [
                     Text(
-                      'Top 10 Editorials',
+                      AppLocalizations.of(context)!.top_10_editorials,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
@@ -683,7 +715,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 child: Column(
                   children: [
                     Text(
-                      'Top 10 Authors',
+                      AppLocalizations.of(context)!.top_10_authors,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),

@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
@@ -225,7 +226,7 @@ class _RandomScreenState extends State<RandomScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Filters',
+                      AppLocalizations.of(context)!.filters,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
@@ -235,8 +236,9 @@ class _RandomScreenState extends State<RandomScreen> {
                     // Format filter
                     DropdownButtonFormField<String>(
                       value: _filterFormat,
-                      decoration: const InputDecoration(
-                        labelText: 'Format',
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.format,
                         border: OutlineInputBorder(),
                         contentPadding: EdgeInsets.symmetric(
                           horizontal: 12,
@@ -244,7 +246,7 @@ class _RandomScreenState extends State<RandomScreen> {
                         ),
                       ),
                       items: [
-                        const DropdownMenuItem(value: null, child: Text('Any')),
+                        DropdownMenuItem(value: null, child: Text(AppLocalizations.of(context)!.any)),
                         ..._formatList.map((format) {
                           return DropdownMenuItem<String>(
                             value: format['value'] as String,
@@ -263,8 +265,9 @@ class _RandomScreenState extends State<RandomScreen> {
                     // Language filter
                     DropdownButtonFormField<String>(
                       value: _filterLanguage,
-                      decoration: const InputDecoration(
-                        labelText: 'Language',
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.language,
                         border: OutlineInputBorder(),
                         contentPadding: EdgeInsets.symmetric(
                           horizontal: 12,
@@ -272,7 +275,7 @@ class _RandomScreenState extends State<RandomScreen> {
                         ),
                       ),
                       items: [
-                        const DropdownMenuItem(value: null, child: Text('Any')),
+                        DropdownMenuItem(value: null, child: Text(AppLocalizations.of(context)!.any)),
                         ..._languageList.map((lang) {
                           return DropdownMenuItem<String>(
                             value: lang['name'] as String,
@@ -291,8 +294,9 @@ class _RandomScreenState extends State<RandomScreen> {
                     // Genre filter
                     DropdownButtonFormField<String>(
                       value: _filterGenre,
-                      decoration: const InputDecoration(
-                        labelText: 'Genre',
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.genre,
                         border: OutlineInputBorder(),
                         contentPadding: EdgeInsets.symmetric(
                           horizontal: 12,
@@ -300,7 +304,7 @@ class _RandomScreenState extends State<RandomScreen> {
                         ),
                       ),
                       items: [
-                        const DropdownMenuItem(value: null, child: Text('Any')),
+                        DropdownMenuItem(value: null, child: Text(AppLocalizations.of(context)!.any)),
                         ..._genreList.map((genre) {
                           return DropdownMenuItem<String>(
                             value: genre['name'] as String,
@@ -319,8 +323,9 @@ class _RandomScreenState extends State<RandomScreen> {
                     // Place filter
                     DropdownButtonFormField<String>(
                       value: _filterPlace,
-                      decoration: const InputDecoration(
-                        labelText: 'Place',
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.place,
                         border: OutlineInputBorder(),
                         contentPadding: EdgeInsets.symmetric(
                           horizontal: 12,
@@ -328,7 +333,7 @@ class _RandomScreenState extends State<RandomScreen> {
                         ),
                       ),
                       items: [
-                        const DropdownMenuItem(value: null, child: Text('Any')),
+                        DropdownMenuItem(value: null, child: Text(AppLocalizations.of(context)!.any)),
                         ..._placeList.map((place) {
                           return DropdownMenuItem<String>(
                             value: place['name'] as String,
@@ -347,8 +352,9 @@ class _RandomScreenState extends State<RandomScreen> {
                     // Status filter
                     DropdownButtonFormField<String>(
                       value: _filterStatus,
-                      decoration: const InputDecoration(
-                        labelText: 'Status',
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.status,
                         border: OutlineInputBorder(),
                         contentPadding: EdgeInsets.symmetric(
                           horizontal: 12,
@@ -356,7 +362,7 @@ class _RandomScreenState extends State<RandomScreen> {
                         ),
                       ),
                       items: [
-                        const DropdownMenuItem(value: null, child: Text('Any')),
+                        DropdownMenuItem(value: null, child: Text(AppLocalizations.of(context)!.any)),
                         ..._statusList.map((status) {
                           return DropdownMenuItem<String>(
                             value: status['value'] as String,
@@ -375,8 +381,9 @@ class _RandomScreenState extends State<RandomScreen> {
                     // Editorial filter
                     DropdownButtonFormField<String>(
                       value: _filterEditorial,
-                      decoration: const InputDecoration(
-                        labelText: 'Editorial',
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.editorial,
                         border: OutlineInputBorder(),
                         contentPadding: EdgeInsets.symmetric(
                           horizontal: 12,
@@ -384,7 +391,7 @@ class _RandomScreenState extends State<RandomScreen> {
                         ),
                       ),
                       items: [
-                        const DropdownMenuItem(value: null, child: Text('Any')),
+                        DropdownMenuItem(value: null, child: Text(AppLocalizations.of(context)!.any)),
                         ..._editorialList.map((editorial) {
                           return DropdownMenuItem<String>(
                             value: editorial['name'] as String,
@@ -403,8 +410,9 @@ class _RandomScreenState extends State<RandomScreen> {
                     // Format Saga filter
                     DropdownButtonFormField<String>(
                       value: _filterFormatSaga,
-                      decoration: const InputDecoration(
-                        labelText: 'Format Saga',
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.format_saga,
                         border: OutlineInputBorder(),
                         contentPadding: EdgeInsets.symmetric(
                           horizontal: 12,
@@ -412,7 +420,7 @@ class _RandomScreenState extends State<RandomScreen> {
                         ),
                       ),
                       items: [
-                        const DropdownMenuItem(value: null, child: Text('Any')),
+                        DropdownMenuItem(value: null, child: Text(AppLocalizations.of(context)!.any)),
                         ..._formatSagaList.map((formatSaga) {
                           return DropdownMenuItem<String>(
                             value: formatSaga['value'] as String,
@@ -431,8 +439,9 @@ class _RandomScreenState extends State<RandomScreen> {
                     // Pages filter (ranges)
                     DropdownButtonFormField<String>(
                       value: _filterPages,
-                      decoration: const InputDecoration(
-                        labelText: 'Pages',
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.pages,
                         border: OutlineInputBorder(),
                         contentPadding: EdgeInsets.symmetric(
                           horizontal: 12,
@@ -458,6 +467,7 @@ class _RandomScreenState extends State<RandomScreen> {
                     // Year filter (decades)
                     DropdownButtonFormField<String>(
                       value: _filterYear,
+                      isExpanded: true,
                       decoration: const InputDecoration(
                         labelText: 'Publication Year (by decade)',
                         border: OutlineInputBorder(),
@@ -493,8 +503,9 @@ class _RandomScreenState extends State<RandomScreen> {
                     // Author filter
                     DropdownButtonFormField<String>(
                       value: _filterAuthor,
-                      decoration: const InputDecoration(
-                        labelText: 'Author',
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.author,
                         border: OutlineInputBorder(),
                         contentPadding: EdgeInsets.symmetric(
                           horizontal: 12,
@@ -502,7 +513,7 @@ class _RandomScreenState extends State<RandomScreen> {
                         ),
                       ),
                       items: [
-                        const DropdownMenuItem(value: null, child: Text('Any')),
+                        DropdownMenuItem(value: null, child: Text(AppLocalizations.of(context)!.any)),
                         ..._authorList.map((author) {
                           return DropdownMenuItem<String>(
                             value: author['name'] as String,
@@ -524,7 +535,7 @@ class _RandomScreenState extends State<RandomScreen> {
                           child: ElevatedButton.icon(
                             onPressed: _getRandomBook,
                             icon: const Icon(Icons.casino),
-                            label: const Text('Get Random Book'),
+                            label: Text(AppLocalizations.of(context)!.get_random_book),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.deepPurple,
                               foregroundColor: Colors.white,
@@ -541,7 +552,7 @@ class _RandomScreenState extends State<RandomScreen> {
                               horizontal: 16,
                             ),
                           ),
-                          child: const Text('Clear'),
+                          child: Text(AppLocalizations.of(context)!.clear),
                         ),
                       ],
                     ),

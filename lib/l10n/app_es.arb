@@ -1,8 +1,8 @@
 {
   "@@locale": "es",
   
-  "appTitle": "My Random Library",
-  "@appTitle": {
+  "app_title": "My Random Library",
+  "@app_title": {
     "description": "My Random Library"
   },
   
@@ -11,35 +11,80 @@
   "random": "Aleatorio",
   "settings": "Ajustes",
   
-  "searchByTitle": "Título",
-  "searchByISBN": "ISBN",
-  "searchByAuthor": "Autor",
+  "search_by_title": "Título",
+  "search_by_isbn": "ISBN",
+  "search_by_author": "Autor",
+  "search_label": "Buscar",
+  "search_hint": "Buscar libros...",
   
-  "addBook": "Añadir Libro",
-  "editBook": "Editar Libro",
-  "deleteBook": "Eliminar Libro",
+  "add_book": "Añadir Libro",
+  "edit_book": "Editar Libro",
+  "delete_book": "Eliminar Libro",
   
-  "bookName": "Nombre del Libro",
+  "unknown_title": "Título Desconocido",
+  "book_name": "Nombre",
   "isbn": "ISBN",
+  "isbn_with_colon": "ISBN: {isbn}",
+  "@isbn_with_colon": {
+    "description": "ISBN con dos puntos",
+    "placeholders": {
+      "isbn": {}
+    }
+  },
   "author": "Autor",
+  "author_with_colon": "Autor: {author}",
+  "@author_with_colon": {
+    "description": "Autor con dos puntos",
+    "placeholders": {
+      "author": {}
+    }
+  },
   "saga": "Saga",
-  "sagaNumber": "Número de Saga",
+  "saga_with_colon": "Saga: {saga}",
+  "@saga_with_colon": {
+    "description": "Saga con dos puntos",
+    "placeholders": {
+      "saga": {}
+    }
+  },
+  "saga_number": "Número de Saga",
   "pages": "Páginas",
-  "publicationYear": "Año de Publicación",
+  "publication_year": "Año de Publicación",
   "editorial": "Editorial",
   "genre": "Género",
-  "language": "Idioma",
+  "genre_with_colon": "Género: {genre}",
+  "@genre_with_colon": {
+    "description": "Género con dos puntos",
+    "placeholders": {
+      "genre": {}
+    }
+  },
   "place": "Lugar",
   "format": "Formato",
-  "formatSaga": "Formato Saga",
+  "format_with_colon": "Formato: {format}",
+  "@format_with_colon": {
+    "description": "Formato con dos puntos",
+    "placeholders": {
+      "format": {}
+    }
+  },
+  "format_saga": "Formato Saga",
   "status": "Estado",
   "loaned": "Prestado",
+  "date_created": "Fecha de Creación",
+  "language_with_colon": "Idioma: {language}",
+  "@language_with_colon": {
+    "description": "Idioma con dos puntos",
+    "placeholders": {
+      "language": {}
+    }
+  },
   
-  "myRating": "Mi Valoración",
-  "timesRead": "Veces Leído",
-  "dateStartedReading": "Fecha de Inicio de Lectura",
-  "dateFinishedReading": "Fecha de Finalización de Lectura",
-  "myReview": "Mi Reseña",
+  "my_rating": "Mi Valoración",
+  "times_read": "Veces Leído",
+  "date_started_reading": "Fecha de Inicio de Lectura",
+  "date_finished_reading": "Fecha de Finalización de Lectura",
+  "my_review": "Mi Reseña",
   
   "save": "Guardar",
   "cancel": "Cancelar",
@@ -47,44 +92,162 @@
   "apply": "Aplicar",
   "delete": "Eliminar",
   
-  "importCSV": "Importar desde CSV",
-  "exportCSV": "Exportar a CSV",
-  "createBackup": "Crear Copia de Seguridad",
-  "importBackup": "Importar Copia de Seguridad",
-  "deleteAllData": "Eliminar Todos los Datos",
-  "creatingBackup": "Creando Copia de Seguridad...",
-  "importingBooks": "Importando Libros...",
-  "importingBackup": "Importando Copia de Seguridad...",
-  "deletingAllData": "Eliminando Todos los Datos...",
+  "import_csv": "Importar desde CSV",
+  "export_csv": "Exportar a CSV",
+  "create_backup": "Crear Copia de Seguridad",
+  "backup_canceled": "Copia de Seguridad Cancelada",
+  "backup_created_successfully": "Copia de Seguridad Creada Exitosamente!\n {backup_path}",
+  "@backup_created_successfully": {
+    "description": "Backup created successfully",
+    "placeholders": {
+      "backup_path": {}
+    }
+  },
+  "replace_database": "Reemplazar Base de Datos",
+  "database_restored_successfully": "Base de Datos Restaurada Exitosamente!",
+  "@database_restored_successfully": {
+    "description": "Database restored successfully",
+    "placeholders": {
+      "backup_path": {}
+    }
+  },
+  "import_backup_error": "Error importando copia de seguridad: {error}",
+  "@import_backup_error": {
+    "description": "Error importing backup",
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "error_importing_backup": "Error importando copia de seguridad: {error}",
+  "@error_importing_backup": {
+    "description": "Error importing backup",
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "import_backup": "Importar Copia de Seguridad",
+  "import_database_backup": "Importar Base de Datos",
+  "import_backup_confirmation": "Esta acción reemplazará tu base de datos actual con la copia de seguridad. Todos los datos actuales se perderán. ¿Estás seguro?",
+  "select_backup_file": "Seleccionar archivo de copia de seguridad",
+  "delete_all_data": "Eliminar Todos los Datos",
+  "creating_backup": "Creando Copia de Seguridad...",
+  "importing_books": "Importando Libros...",
+  "importing_backup": "Importando Copia de Seguridad...",
+  "deleting_all_data": "Eliminando Todos los Datos...",
+  "delete_all_data_confirmation": "Esta acción eliminará permanentemente todos los libros de tu biblioteca. Esta acción no se puede deshacer!\n\n¿Estás seguro de que quieres continuar?",
+  "deleted_books": "Eliminados {count} libros exitosamente",
+  "@deleted_books": {
+    "description": "Deleted books",
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "error_creating_backup": "Error al crear la copia de seguridad: {error}",
+  "@error_creating_backup": {
+    "description": "Error al crear la copia de seguridad",
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "error_importing_csv": "Error al importar CSV: {error}",
+  "@error_importing_csv": {
+    "description": "Error al importar CSV",
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "error_deleting_data": "Error al eliminar los datos: {error}",
+  "@error_deleting_data": {
+    "description": "Error al eliminar los datos",
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "import_completed": "Importación completada!\nImportados: {importedCount} libros\nSaltados: {skippedCount} filas",
+  "@import_completed": {
+    "description": "Import completed",
+    "placeholders": {
+      "importedCount": {},
+      "skippedCount": {}
+    }
+  },
+  "import_completed_with_duplicates": "Importación completada con duplicados!",
+  "imported_books": "Importados: {importedCount} libros",
+  "@imported_books": {
+    "description": "Imported books",
+    "placeholders": {
+      "importedCount": {}
+    }
+  },
+  "skipped_rows": "Saltados: {skippedCount} filas",
+  "@skipped_rows": {
+    "description": "Skipped rows",
+    "placeholders": {
+      "skippedCount": {}
+    }
+  },
+  "duplicates_found": "Duplicados encontrados: {duplicateCount} libros",
+  "@duplicates_found": {
+    "description": "Duplicates found",
+    "placeholders": {
+      "duplicateCount": {}
+    }
+  },
+  "duplicate_books_not_imported": "Libros duplicados (no importados):",
+  "books_already_exist": "Estos libros ya existen en tu biblioteca. Puedes añadirlos manualmente si lo deseas.",
+  "more_books": "... y {count} más",
+  "ok": "OK",
+  "permanently_delete_all_books_from_the_database": "Eliminar permanentemente todos los libros de la base de datos",
+  "light_theme_colors": "Colores de Tema Claro",
+  "dark_theme_colors": "Colores de Tema Oscuro",
+  "theme_mode": "Modo de Tema",
+  "create_database_backup": "Crear Copia de Seguridad",
+  "save_a_copy_of_your_library_database": "Guardar una copia de tu base de datos de biblioteca",
+  "manage_dropdown_values": "Gestionar valores de desplegable",
+  "manage_dropdown_values_hint": "Gestionar valores de desplegable para estado, idioma, lugar, formato y formato saga.",
+  "import_from_csv_hint": "Columnas esperadas: read, title, author, publisher, genre, saga, n_saga, format_saga, isbn13, number of pages, original publication year, language, place, binding, loaned",
+  "import_from_csv_tbreleased": "Para libros no publicados use estado TBReleased",
+  "import_from_csv": "Importar libro desde CSV",
+  "import_from_csv_file": "Importar libros desde un archivo CSV",
+  "restore_a_copy_of_your_library_database": "Restaurar una copia de tu base de datos de biblioteca",
   
   "theme": "Tema",
-  "themeLight": "Claro",
-  "themeDark": "Oscuro",
-  "themeSystem": "Sistema",
+  "theme_light": "Claro",
+  "theme_dark": "Oscuro",
+  "theme_system": "Sistema",
   
   "language": "Idioma",
   "english": "Inglés",
   "spanish": "Español",
   
-  "totalBooks": "Total de Libros",
-  "booksByStatus": "Libros por Estado",
-  "booksByLanguage": "Libros por Idioma",
+  "total_books": "Total de Libros",
+  "latest_book_added": "Último Libro Añadido",
+  "books_by_status": "Libros por Estado",
+  "books_by_language": "Libros por Idioma",
+  "books_by_format": "Libros por Formato",
+  "no_books_in_database": "No hay libros en la base de datos",
+  "top_10_editorials": "Top 10 Editoriales",
+  "top_10_authors": "Top 10 Autores",
   
-  "getRandomBook": "Obtener Libro Aleatorio",
+  "get_random_book": "Obtener Libro Aleatorio",
   "filters": "Filtros",
   "any": "Cualquiera",
   
-  "confirmDelete": "¿Estás seguro de que quieres eliminar este libro?",
-  "confirmDeleteAll": "Esto eliminará permanentemente TODOS los libros de tu biblioteca. ¡Esta acción no se puede deshacer!\\n\\n¿Estás seguro de que quieres continuar?",
+  "confirm_delete": "¿Estás seguro de que quieres eliminar este libro?",
+  "confirm_delete_all": "Esto eliminará permanentemente TODOS los libros de tu biblioteca. ¡Esta acción no se puede deshacer!\\n\\n¿Estás seguro de que quieres continuar?",
   
-  "bookAddedSuccessfully": "¡Libro añadido con éxito!",
-  "bookUpdatedSuccessfully": "¡Libro actualizado con éxito!",
-  "bookDeletedSuccessfully": "¡Libro eliminado con éxito!",
+  "book_added_successfully": "¡Libro añadido con éxito!",
+  "book_updated_successfully": "¡Libro actualizado con éxito!",
+  "book_deleted_successfully": "¡Libro eliminado con éxito!",
   
-  "noBooksFound": "No se encontraron libros",
-  "noData": "Sin datos",
+  "no_books_found": "No se encontraron libros",
+  "no_data": "Sin datos",
   
-  "readingInformation": "Información de Lectura (Opcional)",
-  "addRead": "Añadir Lectura",
-  "tapHeartsToRate": "Toca los corazones para valorar (toca de nuevo para medio corazón)"
+  "reading_information": "Información de Lectura (Opcional)",
+  "add_read": "Añadir Lectura",
+  "tap_hearts_to_rate": "Toca los corazones para valorar (toca de nuevo para medio corazón)",
+  
+  "top_5_genres": "Top 5 Géneros",
+
+  "about_box_children": "Aplicación desarrollada con Flutter/Dart.\n Permite gestionar tu biblioteca personal y recibir recomendaciones de lectura personalizadas."
 }
