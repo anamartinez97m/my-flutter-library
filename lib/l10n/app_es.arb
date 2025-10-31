@@ -1,9 +1,9 @@
 {
   "@@locale": "es",
   
-  "appTitle": "Mi Biblioteca Aleatoria",
+  "appTitle": "My Random Library",
   "@appTitle": {
-    "description": "El título de la aplicación"
+    "description": "My Random Library"
   },
   
   "home": "Inicio",
@@ -52,6 +52,10 @@
   "createBackup": "Crear Copia de Seguridad",
   "importBackup": "Importar Copia de Seguridad",
   "deleteAllData": "Eliminar Todos los Datos",
+  "creatingBackup": "Creando Copia de Seguridad...",
+  "importingBooks": "Importando Libros...",
+  "importingBackup": "Importando Copia de Seguridad...",
+  "deletingAllData": "Eliminando Todos los Datos...",
   
   "theme": "Tema",
   "themeLight": "Claro",
@@ -82,5 +86,5 @@
   
   "readingInformation": "Información de Lectura (Opcional)",
   "addRead": "Añadir Lectura",
-  "tapHeartsToRate": "Toca los corazones para valorar (toca de nuevo para medio)"
+  "tapHeartsToRate": "Toca los corazones para valorar (toca de nuevo para medio corazón)"
 }
