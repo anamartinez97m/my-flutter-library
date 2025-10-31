@@ -12,11 +12,19 @@ class BookProvider extends ChangeNotifier {
   bool _isLoading = false;
   String _currentSearchQuery = '';
   int _currentSearchIndex = 0;
+  
+  // State for filters and sorting
+  final Map<String, String> _currentFilters = {};
+  String _currentSortBy = 'name';
+  bool _currentSortAscending = true;
 
   List<Book> get books => _displayBooks;
   List<Book> get allBooks => _books; // Unfiltered list for statistics
   String? get latestBookAdded => _latestBookAdded;
   bool get isLoading => _isLoading;
+  Map<String, String> get currentFilters => Map.unmodifiable(_currentFilters);
+  String get currentSortBy => _currentSortBy;
+  bool get currentSortAscending => _currentSortAscending;
 
   static Future<BookProvider> create() async {
     final db = await DatabaseHelper.instance.database;
@@ -45,10 +53,14 @@ class BookProvider extends ChangeNotifier {
     _repo = BookRepository(db);
     
     _books = await _repo.getAllBooks();
-    _filteredBooks = List<Book>.from(_books);
-    _displayBooks = List<Book>.from(_books);
     _latestBookAdded = await _repo.getLatestBookAdded();
     _isLoading = false;
+    
+    // Reapply all filters
+    _applyAllFilters();
+    
+    // Reapply sorting
+    sortBooks(_currentSortBy, _currentSortAscending);
     
     // Reapply search if there was one
     if (_currentSearchQuery.isNotEmpty) {
@@ -56,6 +68,40 @@ class BookProvider extends ChangeNotifier {
     }
     
     notifyListeners();
+  }
+
+  void _applyAllFilters() {
+    if (_currentFilters.isEmpty) {
+      _filteredBooks = List<Book>.from(_books);
+    } else {
+      _filteredBooks = _books.where((book) {
+        // Check all active filters
+        for (var entry in _currentFilters.entries) {
+          final filterType = entry.key;
+          final filterValue = entry.value;
+          
+          switch (filterType) {
+            case 'format':
+              if (book.formatValue != filterValue) return false;
+              break;
+            case 'language':
+              if (book.languageValue != filterValue) return false;
+              break;
+            case 'genre':
+              if (!(book.genre?.contains(filterValue) ?? false)) return false;
+              break;
+            case 'place':
+              if (book.placeValue != filterValue) return false;
+              break;
+            case 'status':
+              if (book.statusValue != filterValue) return false;
+              break;
+          }
+        }
+        return true;
+      }).toList();
+    }
+    _displayBooks = List<Book>.from(_filteredBooks);
   }
 
   void _applySearch() {
@@ -103,6 +149,9 @@ class BookProvider extends ChangeNotifier {
   }
 
   void sortBooks(String sortBy, bool ascending) {
+    _currentSortBy = sortBy;
+    _currentSortAscending = ascending;
+    
     _displayBooks.sort((a, b) {
       int comparison = 0;
 
@@ -134,26 +183,15 @@ class BookProvider extends ChangeNotifier {
 
   void filterBooks(String filterType, String? filterValue) {
     if (filterValue == null || filterValue == 'all') {
-      _filteredBooks = List<Book>.from(_books);
+      // Remove this filter type
+      _currentFilters.remove(filterType);
     } else {
-      _filteredBooks =
-          _books.where((book) {
-            switch (filterType) {
-              case 'format':
-                return book.formatValue == filterValue;
-              case 'language':
-                return book.languageValue == filterValue;
-              case 'genre':
-                return book.genre?.contains(filterValue) ?? false;
-              case 'place':
-                return book.placeValue == filterValue;
-              case 'status':
-                return book.statusValue == filterValue;
-              default:
-                return true;
-            }
-          }).toList();
+      // Add or update this filter type
+      _currentFilters[filterType] = filterValue;
     }
+    
+    // Reapply all filters
+    _applyAllFilters();
     
     // Reapply search on the filtered list
     _applySearch();

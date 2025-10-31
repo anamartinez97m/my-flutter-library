@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
@@ -35,6 +36,25 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadFilterOptions();
+
+    // Sync filter and sort state with provider after the first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = Provider.of<BookProvider?>(context, listen: false);
+      if (provider != null) {
+        setState(() {
+          // Restore filter state from provider
+          _selectedFormat = provider.currentFilters['format'];
+          _selectedLanguage = provider.currentFilters['language'];
+          _selectedGenre = provider.currentFilters['genre'];
+          _selectedPlace = provider.currentFilters['place'];
+          _selectedStatus = provider.currentFilters['status'];
+
+          // Restore sort state from provider
+          _sortBy = provider.currentSortBy;
+          _ascending = provider.currentSortAscending;
+        });
+      }
+    });
   }
 
   Future<void> _loadFilterOptions() async {
@@ -90,18 +110,24 @@ class _HomeScreenState extends State<HomeScreen> {
                             value: _sortBy,
                             isExpanded: true,
                             underline: const SizedBox(),
-                            items: const [
+                            items: [
                               DropdownMenuItem(
                                 value: 'name',
-                                child: Text('Name'),
+                                child: Text(
+                                  AppLocalizations.of(context)!.book_name,
+                                ),
                               ),
                               DropdownMenuItem(
                                 value: 'author',
-                                child: Text('Author'),
+                                child: Text(
+                                  AppLocalizations.of(context)!.author,
+                                ),
                               ),
                               DropdownMenuItem(
                                 value: 'created_at',
-                                child: Text('Date'),
+                                child: Text(
+                                  AppLocalizations.of(context)!.date_created,
+                                ),
                               ),
                             ],
                             onChanged: (value) {
@@ -127,26 +153,27 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const Divider(height: 24),
                         Text(
-                          'Filters',
+                          AppLocalizations.of(context)!.filters,
                           style: Theme.of(context).textTheme.titleSmall,
                         ),
                         const SizedBox(height: 12),
                         // Format filter
                         DropdownButtonFormField<String>(
                           value: _selectedFormat,
-                          decoration: const InputDecoration(
-                            labelText: 'Format',
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
+                          isExpanded: true,
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.format,
+                            border: const OutlineInputBorder(),
+                            contentPadding: const EdgeInsets.symmetric(
                               horizontal: 12,
                               vertical: 8,
                             ),
                             isDense: true,
                           ),
                           items: [
-                            const DropdownMenuItem(
+                            DropdownMenuItem(
                               value: null,
-                              child: Text('All'),
+                              child: Text(AppLocalizations.of(context)!.any),
                             ),
                             ..._formatList.map((item) {
                               return DropdownMenuItem<String>(
@@ -169,9 +196,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         // Language filter
                         DropdownButtonFormField<String>(
                           value: _selectedLanguage,
-                          decoration: const InputDecoration(
-                            labelText: 'Language',
-                            border: OutlineInputBorder(),
+                          isExpanded: true,
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.language,
+                            border: const OutlineInputBorder(),
                             contentPadding: EdgeInsets.symmetric(
                               horizontal: 12,
                               vertical: 8,
@@ -179,9 +207,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             isDense: true,
                           ),
                           items: [
-                            const DropdownMenuItem(
+                            DropdownMenuItem(
                               value: null,
-                              child: Text('All'),
+                              child: Text(AppLocalizations.of(context)!.any),
                             ),
                             ..._languageList.map((item) {
                               return DropdownMenuItem<String>(
@@ -204,9 +232,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         // Genre filter
                         DropdownButtonFormField<String>(
                           value: _selectedGenre,
-                          decoration: const InputDecoration(
-                            labelText: 'Genre',
-                            border: OutlineInputBorder(),
+                          isExpanded: true,
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.genre,
+                            border: const OutlineInputBorder(),
                             contentPadding: EdgeInsets.symmetric(
                               horizontal: 12,
                               vertical: 8,
@@ -214,9 +243,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             isDense: true,
                           ),
                           items: [
-                            const DropdownMenuItem(
+                            DropdownMenuItem(
                               value: null,
-                              child: Text('All'),
+                              child: Text(AppLocalizations.of(context)!.any),
                             ),
                             ..._genreList.map((item) {
                               return DropdownMenuItem<String>(
@@ -239,9 +268,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         // Place filter
                         DropdownButtonFormField<String>(
                           value: _selectedPlace,
-                          decoration: const InputDecoration(
-                            labelText: 'Place',
-                            border: OutlineInputBorder(),
+                          isExpanded: true,
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.place,
+                            border: const OutlineInputBorder(),
                             contentPadding: EdgeInsets.symmetric(
                               horizontal: 12,
                               vertical: 8,
@@ -249,9 +279,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             isDense: true,
                           ),
                           items: [
-                            const DropdownMenuItem(
+                            DropdownMenuItem(
                               value: null,
-                              child: Text('All'),
+                              child: Text(AppLocalizations.of(context)!.any),
                             ),
                             ..._placeList.map((item) {
                               return DropdownMenuItem<String>(
@@ -274,9 +304,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         // Status filter
                         DropdownButtonFormField<String>(
                           value: _selectedStatus,
-                          decoration: const InputDecoration(
-                            labelText: 'Status',
-                            border: OutlineInputBorder(),
+                          isExpanded: true,
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.status,
+                            border: const OutlineInputBorder(),
                             contentPadding: EdgeInsets.symmetric(
                               horizontal: 12,
                               vertical: 8,
@@ -284,9 +315,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             isDense: true,
                           ),
                           items: [
-                            const DropdownMenuItem(
+                            DropdownMenuItem(
                               value: null,
-                              child: Text('All'),
+                              child: Text(AppLocalizations.of(context)!.any),
                             ),
                             ..._statusList.map((item) {
                               return DropdownMenuItem<String>(
@@ -321,7 +352,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                   provider.filterBooks('all', null);
                                   setModalState(() {});
                                 },
-                                child: const Text('Clear'),
+                                child: Text(
+                                  AppLocalizations.of(context)!.clear,
+                                ),
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -335,7 +368,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                   backgroundColor: Colors.deepPurple,
                                   foregroundColor: Colors.white,
                                 ),
-                                child: const Text('Apply Filters'),
+                                child: Text(
+                                  AppLocalizations.of(context)!.apply,
+                                ),
                               ),
                             ),
                           ],
@@ -363,7 +398,11 @@ class _HomeScreenState extends State<HomeScreen> {
           Padding(
             padding: const EdgeInsets.only(top: 16, bottom: 8),
             child: SearchButtonsWidget(
-              titles: const ['Title', 'ISBN', 'Auth@r'],
+              titles: [
+                AppLocalizations.of(context)!.search_by_title,
+                AppLocalizations.of(context)!.search_by_isbn,
+                AppLocalizations.of(context)!.search_by_author,
+              ],
               initialSelectedIndex: _selectedSearchButtonIndex,
               onSelectionChanged: (index) {
                 setState(() {
@@ -404,7 +443,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 child:
                     provider.isLoading == false && provider.books.isNotEmpty
                         ? BookListView(books: provider.books)
-                        : const Center(child: Text('No books found')),
+                        : Center(
+                          child: Text(
+                            AppLocalizations.of(context)!.no_books_found,
+                          ),
+                        ),
               );
             },
           ),
@@ -448,7 +491,10 @@ class _SearchTextFieldState extends State<SearchTextField> {
         child: TextField(
           controller: widget.controller,
           decoration: InputDecoration(
-            prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.primary),
+            prefixIcon: Icon(
+              Icons.search,
+              color: Theme.of(context).colorScheme.primary,
+            ),
             suffixIcon: IconButton(
               onPressed: () {
                 widget.controller.clear();
@@ -456,8 +502,8 @@ class _SearchTextFieldState extends State<SearchTextField> {
               },
               icon: const Icon(Icons.clear),
             ),
-            labelText: 'Search',
-            hintText: 'Search for books...',
+            labelText: AppLocalizations.of(context)!.search_label,
+            hintText: AppLocalizations.of(context)!.search_hint,
             border: InputBorder.none,
             enabledBorder: InputBorder.none,
             focusedBorder: InputBorder.none,

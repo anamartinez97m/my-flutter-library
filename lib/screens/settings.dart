@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/providers/locale_provider.dart';
@@ -47,8 +47,8 @@ class SettingsScreen extends StatelessWidget {
       // Show loading indicator
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Creating backup...'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.creating_backup),
             duration: Duration(seconds: 2),
           ),
         );
@@ -73,8 +73,8 @@ class SettingsScreen extends StatelessWidget {
         // User canceled
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Backup canceled'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.backup_canceled),
               backgroundColor: Colors.grey,
             ),
           );
@@ -91,7 +91,11 @@ class SettingsScreen extends StatelessWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Backup created successfully!\n$backupPath'),
+            content: Text(
+              AppLocalizations.of(
+                context,
+              )!.backup_created_successfully(backupPath),
+            ),
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 4),
           ),
@@ -102,7 +106,9 @@ class SettingsScreen extends StatelessWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error creating backup: $e'),
+            content: Text(
+              AppLocalizations.of(context)!.error_creating_backup(e.toString()),
+            ),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 5),
           ),
@@ -294,7 +300,9 @@ class SettingsScreen extends StatelessWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'Import completed!\nImported: $importedCount books\nSkipped: $skippedCount rows',
+                AppLocalizations.of(
+                  context,
+                )!.import_completed(importedCount, skippedCount),
               ),
               backgroundColor: Colors.green,
               duration: const Duration(seconds: 5),
@@ -311,7 +319,9 @@ class SettingsScreen extends StatelessWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error importing CSV: $e'),
+            content: Text(
+              AppLocalizations.of(context)!.error_importing_csv(e.toString()),
+            ),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 5),
           ),
@@ -326,21 +336,19 @@ class SettingsScreen extends StatelessWidget {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Delete All Data?'),
-            content: const Text(
-              'This will permanently delete ALL books from your library. '
-              'This action cannot be undone!\n\n'
-              'Are you sure you want to continue?',
+            title: Text(AppLocalizations.of(context)!.delete_all_data),
+            content: Text(
+              AppLocalizations.of(context)!.delete_all_data_confirmation,
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
+                child: Text(AppLocalizations.of(context)!.cancel),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
                 style: TextButton.styleFrom(foregroundColor: Colors.red),
-                child: const Text('Delete All'),
+                child: Text(AppLocalizations.of(context)!.delete_all_data),
               ),
             ],
           ),
@@ -392,7 +400,9 @@ class SettingsScreen extends StatelessWidget {
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Deleted ${allBooks.length} books successfully'),
+            content: Text(
+              AppLocalizations.of(context)!.deleted_books(allBooks.length),
+            ),
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 3),
           ),
@@ -407,7 +417,9 @@ class SettingsScreen extends StatelessWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error deleting data: $e'),
+            content: Text(
+              AppLocalizations.of(context)!.error_deleting_data(e.toString()),
+            ),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 5),
           ),
@@ -421,7 +433,7 @@ class SettingsScreen extends StatelessWidget {
       // Pick database backup file
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.any,
-        dialogTitle: 'Select database backup file',
+        dialogTitle: AppLocalizations.of(context)!.select_backup_file,
       );
 
       if (result == null || result.files.single.path == null) {
@@ -435,15 +447,14 @@ class SettingsScreen extends StatelessWidget {
         context: context,
         builder:
             (context) => AlertDialog(
-              title: const Text('Import Database Backup'),
-              content: const Text(
-                'This will replace your current database with the backup. '
-                'All current data will be lost. Are you sure?',
+              title: Text(AppLocalizations.of(context)!.import_backup),
+              content: Text(
+                AppLocalizations.of(context)!.import_backup_confirmation,
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context, false),
-                  child: const Text('Cancel'),
+                  child: Text(AppLocalizations.of(context)!.cancel),
                 ),
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context, true),
@@ -451,7 +462,7 @@ class SettingsScreen extends StatelessWidget {
                     backgroundColor: Colors.red,
                     foregroundColor: Colors.white,
                   ),
-                  child: const Text('Replace Database'),
+                  child: Text(AppLocalizations.of(context)!.replace_database),
                 ),
               ],
             ),
@@ -478,19 +489,27 @@ class SettingsScreen extends StatelessWidget {
         await provider?.loadBooks();
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Database restored successfully!'),
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.database_restored_successfully,
+            ),
             backgroundColor: Colors.green,
-            duration: Duration(seconds: 3),
+            duration: const Duration(seconds: 3),
           ),
         );
       }
     } catch (e) {
-      debugPrint('Import backup error: $e');
+      debugPrint(
+        AppLocalizations.of(context)!.import_backup_error(e.toString()),
+      );
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error importing backup: $e'),
+            content: Text(
+              AppLocalizations.of(
+                context,
+              )!.error_importing_backup(e.toString()),
+            ),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 5),
           ),
@@ -510,18 +529,28 @@ class SettingsScreen extends StatelessWidget {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Import Completed with Duplicates'),
+            title: Text(
+              AppLocalizations.of(context)!.import_completed_with_duplicates,
+            ),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Imported: $importedCount books'),
-                  Text('Skipped: $skippedCount rows'),
-                  Text('Duplicates found: $duplicateCount books'),
+                  Text(
+                    AppLocalizations.of(context)!.imported_books(importedCount),
+                  ),
+                  Text(
+                    AppLocalizations.of(context)!.skipped_rows(skippedCount),
+                  ),
+                  Text(
+                    AppLocalizations.of(
+                      context,
+                    )!.duplicates_found(duplicateCount),
+                  ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Duplicate books (not imported):',
+                  Text(
+                    AppLocalizations.of(context)!.duplicate_books_not_imported,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
@@ -537,13 +566,15 @@ class SettingsScreen extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(left: 8, top: 4),
                       child: Text(
-                        '... and ${duplicateBooks.length - 10} more',
+                        AppLocalizations.of(
+                          context,
+                        )!.more_books(duplicateBooks.length - 10),
                         style: const TextStyle(fontStyle: FontStyle.italic),
                       ),
                     ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'These books already exist in your library. You can add them manually if needed.',
+                  Text(
+                    AppLocalizations.of(context)!.books_already_exist,
                     style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
                   ),
                 ],
@@ -552,7 +583,7 @@ class SettingsScreen extends StatelessWidget {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
+                child: Text(AppLocalizations.of(context)!.ok),
               ),
             ],
           ),
@@ -786,7 +817,7 @@ class SettingsScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Create Database Backup',
+                        AppLocalizations.of(context)!.create_database_backup,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w600,
@@ -794,7 +825,9 @@ class SettingsScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Save a copy of your library database',
+                        AppLocalizations.of(
+                          context,
+                        )!.save_a_copy_of_your_library_database,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Colors.grey[600],
@@ -825,7 +858,7 @@ class SettingsScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Import Database Backup',
+                        AppLocalizations.of(context)!.import_database_backup,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w600,
@@ -833,7 +866,9 @@ class SettingsScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Restore a copy of your library database',
+                        AppLocalizations.of(
+                          context,
+                        )!.restore_a_copy_of_your_library_database,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Colors.grey[600],
@@ -864,7 +899,7 @@ class SettingsScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Import from CSV',
+                        AppLocalizations.of(context)!.import_from_csv,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w600,
@@ -872,7 +907,7 @@ class SettingsScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Import books from a CSV file (.csv)',
+                        AppLocalizations.of(context)!.import_from_csv_file,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Colors.grey[600],
@@ -896,7 +931,9 @@ class SettingsScreen extends StatelessWidget {
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                'For unreleased books, use status: TBReleased',
+                                AppLocalizations.of(
+                                  context,
+                                )!.import_from_csv_tbreleased,
                                 style: Theme.of(
                                   context,
                                 ).textTheme.bodySmall?.copyWith(
@@ -910,7 +947,7 @@ class SettingsScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Expected columns: read, title, author, publisher, genre, saga, n_saga, format_saga, isbn13, number of pages, original publication year, language, place, binding, loaned',
+                        AppLocalizations.of(context)!.import_from_csv_hint,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.grey[500],
@@ -949,7 +986,7 @@ class SettingsScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Manage Dropdown Values',
+                        AppLocalizations.of(context)!.manage_dropdown_values,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w600,
@@ -957,7 +994,9 @@ class SettingsScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Add, edit, or remove values for Status, Language, Place, Format, and Format Saga',
+                        AppLocalizations.of(
+                          context,
+                        )!.manage_dropdown_values_hint,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Colors.grey[600],
@@ -990,7 +1029,7 @@ class SettingsScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Delete All Data',
+                        AppLocalizations.of(context)!.delete_all_data,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w600,
@@ -999,7 +1038,9 @@ class SettingsScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Permanently delete all books from the database',
+                        AppLocalizations.of(
+                          context,
+                        )!.permanently_delete_all_books_from_the_database,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Colors.grey[600],
@@ -1033,7 +1074,7 @@ class SettingsScreen extends StatelessWidget {
                             ),
                             const SizedBox(width: 12),
                             Text(
-                              'Theme Mode',
+                              AppLocalizations.of(context)!.theme_mode,
                               style: Theme.of(context).textTheme.titleLarge
                                   ?.copyWith(fontWeight: FontWeight.w600),
                             ),
@@ -1041,7 +1082,9 @@ class SettingsScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         RadioListTile<AppThemeMode>(
-                          title: const Text('Light'),
+                          title: Text(
+                            AppLocalizations.of(context)!.theme_light,
+                          ),
                           value: AppThemeMode.light,
                           groupValue: themeProvider.themeMode,
                           onChanged: (value) {
@@ -1051,7 +1094,7 @@ class SettingsScreen extends StatelessWidget {
                           },
                         ),
                         RadioListTile<AppThemeMode>(
-                          title: const Text('Dark'),
+                          title: Text(AppLocalizations.of(context)!.theme_dark),
                           value: AppThemeMode.dark,
                           groupValue: themeProvider.themeMode,
                           onChanged: (value) {
@@ -1061,7 +1104,9 @@ class SettingsScreen extends StatelessWidget {
                           },
                         ),
                         RadioListTile<AppThemeMode>(
-                          title: const Text('System'),
+                          title: Text(
+                            AppLocalizations.of(context)!.theme_system,
+                          ),
                           value: AppThemeMode.system,
                           groupValue: themeProvider.themeMode,
                           onChanged: (value) {
@@ -1074,7 +1119,7 @@ class SettingsScreen extends StatelessWidget {
 
                         // Light theme variants
                         Text(
-                          'Light Theme Colors',
+                          AppLocalizations.of(context)!.light_theme_colors,
                           style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(fontWeight: FontWeight.w600),
                         ),
@@ -1084,7 +1129,7 @@ class SettingsScreen extends StatelessWidget {
 
                         // Dark theme variants
                         Text(
-                          'Dark Theme Colors',
+                          AppLocalizations.of(context)!.dark_theme_colors,
                           style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(fontWeight: FontWeight.w600),
                         ),
@@ -1180,9 +1225,8 @@ class SettingsScreen extends StatelessWidget {
                   '© 2025 Ana Martínez Montañez. Todos los derechos reservados.',
               aboutBoxChildren: [
                 const SizedBox(height: 16),
-                const Text(
-                  'Aplicación desarrollada con Flutter/Dart.\n'
-                  'Permite gestionar tu biblioteca personal y recibir recomendaciones de lectura personalizadas.',
+                Text(
+                  AppLocalizations.of(context)!.about_box_children,
                   textAlign: TextAlign.justify,
                 ),
               ],

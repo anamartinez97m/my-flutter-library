@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/screens/add_book.dart';
 import 'package:myrandomlibrary/screens/home.dart';
 import 'package:myrandomlibrary/screens/random.dart';
@@ -37,7 +38,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Library'),
+        title: Text(AppLocalizations.of(context)!.app_title),
       ),
       body: SafeArea(
         child: Padding(
@@ -53,23 +54,26 @@ class _NavigationScreenState extends State<NavigationScreen> {
         },
         indicatorColor: Theme.of(context).navigationBarTheme.indicatorColor,
         selectedIndex: _selectedIndex,
-        destinations: const <Widget>[
+        destinations: <Widget>[
           NavigationDestination(
-            icon: Icon(Icons.cottage_outlined),
-            label: 'Home',
+            icon: const Icon(Icons.cottage_outlined),
+            label: AppLocalizations.of(context)!.home,
           ),
           NavigationDestination(
-            icon: Icon(Icons.donut_large_outlined),
-            label: 'Statistics/Facts',
-          ),
-          NavigationDestination(icon: Icon(Icons.add_outlined), label: 'Add'),
-          NavigationDestination(
-            icon: Icon(Icons.shuffle_outlined),
-            label: 'Random',
+            icon: const Icon(Icons.donut_large_outlined),
+            label: AppLocalizations.of(context)!.statistics,
           ),
           NavigationDestination(
-            icon: Icon(Icons.settings_outlined),
-            label: 'Settings',
+            icon: const Icon(Icons.add_outlined),
+            label: AppLocalizations.of(context)!.add_book,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.shuffle_outlined),
+            label: AppLocalizations.of(context)!.random,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.settings_outlined),
+            label: AppLocalizations.of(context)!.settings,
           ),
         ],
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
 class HeartRatingInput extends StatefulWidget {
   final double initialRating;
@@ -29,11 +30,11 @@ class _HeartRatingInputState extends State<HeartRatingInput> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'My Rating',
+          AppLocalizations.of(context)!.my_rating,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[700],
-                fontWeight: FontWeight.w500,
-              ),
+            color: Colors.grey[700],
+            fontWeight: FontWeight.w500,
+          ),
         ),
         const SizedBox(height: 8),
         Row(
@@ -64,19 +65,19 @@ class _HeartRatingInputState extends State<HeartRatingInput> {
             Text(
               _currentRating.toStringAsFixed(1),
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.red,
-                  ),
+                fontWeight: FontWeight.bold,
+                color: Colors.red,
+              ),
             ),
           ],
         ),
         const SizedBox(height: 4),
         Text(
-          'Tap hearts to rate (tap again for half)',
+          AppLocalizations.of(context)!.tap_hearts_to_rate,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey[600],
-                fontStyle: FontStyle.italic,
-              ),
+            color: Colors.grey[600],
+            fontStyle: FontStyle.italic,
+          ),
         ),
       ],
     );
@@ -84,40 +85,25 @@ class _HeartRatingInputState extends State<HeartRatingInput> {
 
   Widget _buildHeart(int heartValue) {
     final isFilled = _currentRating >= heartValue;
-    final isHalf = !isFilled && 
-                   _currentRating > heartValue - 1 && 
-                   _currentRating < heartValue;
+    final isHalf =
+        !isFilled &&
+        _currentRating > heartValue - 1 &&
+        _currentRating < heartValue;
 
     if (isFilled) {
-      return const Icon(
-        Icons.favorite,
-        color: Colors.red,
-        size: 36,
-      );
+      return const Icon(Icons.favorite, color: Colors.red, size: 36);
     } else if (isHalf) {
       return Stack(
         children: [
-          Icon(
-            Icons.favorite_border,
-            color: Colors.grey[400],
-            size: 36,
-          ),
+          Icon(Icons.favorite_border, color: Colors.grey[400], size: 36),
           ClipRect(
             clipper: HalfClipper(),
-            child: const Icon(
-              Icons.favorite,
-              color: Colors.red,
-              size: 36,
-            ),
+            child: const Icon(Icons.favorite, color: Colors.red, size: 36),
           ),
         ],
       );
     } else {
-      return Icon(
-        Icons.favorite_border,
-        color: Colors.grey[400],
-        size: 36,
-      );
+      return Icon(Icons.favorite_border, color: Colors.grey[400], size: 36);
     }
   }
 }
