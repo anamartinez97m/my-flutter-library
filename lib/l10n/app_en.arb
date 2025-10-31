@@ -3,7 +3,7 @@
   
   "appTitle": "My Random Library",
   "@appTitle": {
-    "description": "The title of the application"
+    "description": "My Random Library"
   },
   
   "home": "Home",
@@ -52,6 +52,10 @@
   "createBackup": "Create Backup",
   "importBackup": "Import Backup",
   "deleteAllData": "Delete All Data",
+  "creatingBackup": "Creating Backup...",
+  "importingBooks": "Importing Books...",
+  "importingBackup": "Importing Backup...",
+  "deletingAllData": "Deleting All Data...",
   
   "theme": "Theme",
   "themeLight": "Light",

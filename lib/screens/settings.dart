@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/providers/locale_provider.dart';
@@ -558,7 +559,10 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLightThemeGrid(BuildContext context, ThemeProvider themeProvider) {
+  Widget _buildLightThemeGrid(
+    BuildContext context,
+    ThemeProvider themeProvider,
+  ) {
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -570,28 +574,47 @@ class SettingsScreen extends StatelessWidget {
         _buildThemePreview(
           context,
           'Warm Earth',
-          [const Color(0xFFa36361), const Color(0xFFd3a29d), const Color(0xFFe8b298)],
+          [
+            const Color(0xFFa36361),
+            const Color(0xFFd3a29d),
+            const Color(0xFFe8b298),
+          ],
           themeProvider.lightThemeVariant == LightThemeVariant.warmEarth,
           () => themeProvider.setLightThemeVariant(LightThemeVariant.warmEarth),
         ),
         _buildThemePreview(
           context,
           'Vibrant Sunset',
-          [const Color(0xFFef476f), const Color(0xFFf78c6b), const Color(0xFFffd166)],
+          [
+            const Color(0xFFef476f),
+            const Color(0xFFf78c6b),
+            const Color(0xFFffd166),
+          ],
           themeProvider.lightThemeVariant == LightThemeVariant.vibrantSunset,
-          () => themeProvider.setLightThemeVariant(LightThemeVariant.vibrantSunset),
+          () => themeProvider.setLightThemeVariant(
+            LightThemeVariant.vibrantSunset,
+          ),
         ),
         _buildThemePreview(
           context,
           'Soft Pastel',
-          [const Color(0xFFc8a8e9), const Color(0xFFe3aadd), const Color(0xFFf5bcba)],
+          [
+            const Color(0xFFc8a8e9),
+            const Color(0xFFe3aadd),
+            const Color(0xFFf5bcba),
+          ],
           themeProvider.lightThemeVariant == LightThemeVariant.softPastel,
-          () => themeProvider.setLightThemeVariant(LightThemeVariant.softPastel),
+          () =>
+              themeProvider.setLightThemeVariant(LightThemeVariant.softPastel),
         ),
         _buildThemePreview(
           context,
           'Deep Ocean',
-          [const Color(0xFF14919b), const Color(0xFF0ad1c8), const Color(0xFF45dfb1)],
+          [
+            const Color(0xFF14919b),
+            const Color(0xFF0ad1c8),
+            const Color(0xFF45dfb1),
+          ],
           themeProvider.lightThemeVariant == LightThemeVariant.deepOcean,
           () => themeProvider.setLightThemeVariant(LightThemeVariant.deepOcean),
         ),
@@ -599,7 +622,10 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDarkThemeGrid(BuildContext context, ThemeProvider themeProvider) {
+  Widget _buildDarkThemeGrid(
+    BuildContext context,
+    ThemeProvider themeProvider,
+  ) {
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -611,21 +637,34 @@ class SettingsScreen extends StatelessWidget {
         _buildThemePreview(
           context,
           'Mystic Purple',
-          [const Color(0xFF854f6c), const Color(0xFF522b5b), const Color(0xFFdfb6b2)],
+          [
+            const Color(0xFF854f6c),
+            const Color(0xFF522b5b),
+            const Color(0xFFdfb6b2),
+          ],
           themeProvider.darkThemeVariant == DarkThemeVariant.mysticPurple,
-          () => themeProvider.setDarkThemeVariant(DarkThemeVariant.mysticPurple),
+          () =>
+              themeProvider.setDarkThemeVariant(DarkThemeVariant.mysticPurple),
         ),
         _buildThemePreview(
           context,
           'Deep Sea',
-          [const Color(0xFF0c7075), const Color(0xFF0f969c), const Color(0xFF6da5c0)],
+          [
+            const Color(0xFF0c7075),
+            const Color(0xFF0f969c),
+            const Color(0xFF6da5c0),
+          ],
           themeProvider.darkThemeVariant == DarkThemeVariant.deepSea,
           () => themeProvider.setDarkThemeVariant(DarkThemeVariant.deepSea),
         ),
         _buildThemePreview(
           context,
           'Warm Autumn',
-          [const Color(0xFF662549), const Color(0xFFae445a), const Color(0xFFf39f5a)],
+          [
+            const Color(0xFF662549),
+            const Color(0xFFae445a),
+            const Color(0xFFf39f5a),
+          ],
           themeProvider.darkThemeVariant == DarkThemeVariant.warmAutumn,
           () => themeProvider.setDarkThemeVariant(DarkThemeVariant.warmAutumn),
         ),
@@ -646,7 +685,10 @@ class SettingsScreen extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey[300]!,
+            color:
+                isSelected
+                    ? Theme.of(context).colorScheme.primary
+                    : Colors.grey[300]!,
             width: isSelected ? 3 : 1,
           ),
         ),
@@ -654,24 +696,26 @@ class SettingsScreen extends StatelessWidget {
           children: [
             Expanded(
               child: Row(
-                children: colors.map((color) {
-                  return Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: color,
-                        borderRadius: colors.indexOf(color) == 0
-                            ? const BorderRadius.only(
-                                topLeft: Radius.circular(10),
-                              )
-                            : colors.indexOf(color) == colors.length - 1
-                                ? const BorderRadius.only(
-                                    topRight: Radius.circular(10),
-                                  )
-                                : null,
-                      ),
-                    ),
-                  );
-                }).toList(),
+                children:
+                    colors.map((color) {
+                      return Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: color,
+                            borderRadius:
+                                colors.indexOf(color) == 0
+                                    ? const BorderRadius.only(
+                                      topLeft: Radius.circular(10),
+                                    )
+                                    : colors.indexOf(color) == colors.length - 1
+                                    ? const BorderRadius.only(
+                                      topRight: Radius.circular(10),
+                                    )
+                                    : null,
+                          ),
+                        ),
+                      );
+                    }).toList(),
               ),
             ),
             Container(
@@ -696,9 +740,13 @@ class SettingsScreen extends StatelessWidget {
                   Text(
                     name,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          color: isSelected ? Theme.of(context).colorScheme.primary : Colors.black87,
-                        ),
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.normal,
+                      color:
+                          isSelected
+                              ? Theme.of(context).colorScheme.primary
+                              : Colors.black87,
+                    ),
                   ),
                 ],
               ),
@@ -862,7 +910,7 @@ class SettingsScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Expected columns: read, name, author, editorial, genre, saga, n_saga, format_saga, isbn, pages, publication_year, language, place, format, loaned',
+                        'Expected columns: read, title, author, publisher, genre, saga, n_saga, format_saga, isbn13, number of pages, original publication year, language, place, binding, loaned',
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.grey[500],
@@ -979,13 +1027,15 @@ class SettingsScreen extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.palette, color: Theme.of(context).colorScheme.primary),
+                            Icon(
+                              Icons.palette,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
                             const SizedBox(width: 12),
                             Text(
                               'Theme Mode',
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(fontWeight: FontWeight.w600),
                             ),
                           ],
                         ),
@@ -1021,24 +1071,22 @@ class SettingsScreen extends StatelessWidget {
                           },
                         ),
                         const Divider(height: 32),
-                        
+
                         // Light theme variants
                         Text(
                           'Light Theme Colors',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 16),
                         _buildLightThemeGrid(context, themeProvider),
                         const SizedBox(height: 24),
-                        
+
                         // Dark theme variants
                         Text(
                           'Dark Theme Colors',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 16),
                         _buildDarkThemeGrid(context, themeProvider),
@@ -1063,13 +1111,15 @@ class SettingsScreen extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.language, color: Theme.of(context).colorScheme.primary),
+                        Icon(
+                          Icons.language,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                         const SizedBox(width: 12),
                         Text(
-                          'Language',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
+                          AppLocalizations.of(context)!.language,
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                       ],
                     ),
@@ -1085,14 +1135,14 @@ class SettingsScreen extends StatelessWidget {
                               vertical: 12,
                             ),
                           ),
-                          items: const [
+                          items: [
                             DropdownMenuItem(
                               value: 'en',
                               child: Row(
                                 children: [
                                   Text('🇬🇧'),
                                   SizedBox(width: 12),
-                                  Text('English'),
+                                  Text(AppLocalizations.of(context)!.english),
                                 ],
                               ),
                             ),
@@ -1102,7 +1152,7 @@ class SettingsScreen extends StatelessWidget {
                                 children: [
                                   Text('🇪🇸'),
                                   SizedBox(width: 12),
-                                  Text('Español'),
+                                  Text(AppLocalizations.of(context)!.spanish),
                                 ],
                               ),
                             ),
