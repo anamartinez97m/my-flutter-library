@@ -34,6 +34,47 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       return isoString.split('T')[0]; // Fallback to date only
     }
   }
+  
+  /// Build publication info - shows year and optionally full date for TBReleased books
+  List<Widget> _buildPublicationInfo(int pubYearOrDate) {
+    final widgets = <Widget>[];
+    
+    // Check if it's a full date (YYYYMMDD format, > 9999)
+    if (pubYearOrDate > 9999) {
+      final year = pubYearOrDate ~/ 10000;
+      final month = (pubYearOrDate % 10000) ~/ 100;
+      final day = pubYearOrDate % 100;
+      
+      // Add year card
+      widgets.add(
+        _DetailCard(
+          icon: Icons.calendar_today,
+          label: 'Original Publication Year',
+          value: year.toString(),
+        ),
+      );
+      
+      // Add full date card
+      widgets.add(
+        _DetailCard(
+          icon: Icons.event,
+          label: 'Original Publication Date',
+          value: '${day.toString().padLeft(2, '0')}/${month.toString().padLeft(2, '0')}/$year',
+        ),
+      );
+    } else {
+      // Just a year
+      widgets.add(
+        _DetailCard(
+          icon: Icons.calendar_today,
+          label: 'Original Publication Year',
+          value: pubYearOrDate.toString(),
+        ),
+      );
+    }
+    
+    return widgets;
+  }
 
   Future<void> _deleteBook(BuildContext context) async {
     final confirmed = await showDialog<bool>(
@@ -93,9 +134,17 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Book Details'),
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (bool didPop) {
+        if (!didPop) {
+          // Go back to previous screen (list)
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Book Details'),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
@@ -260,11 +309,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                       value: _currentBook.pages.toString(),
                     ),
                   if (_currentBook.originalPublicationYear != null)
-                    _DetailCard(
-                      icon: Icons.calendar_today,
-                      label: 'Publication Year',
-                      value: _currentBook.originalPublicationYear.toString(),
-                    ),
+                    ..._buildPublicationInfo(_currentBook.originalPublicationYear!),
                   if (_currentBook.statusValue != null && _currentBook.statusValue!.isNotEmpty)
                     _DetailCard(
                       icon: Icons.check_circle,
@@ -379,6 +424,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
             AppTheme.verticalSpaceXXLarge, // Bottom margin
           ],
         ),
+      ),
       ),
     );
   }

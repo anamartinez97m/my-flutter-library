@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/widgets/autocomplete_text_field.dart';
+import 'package:myrandomlibrary/widgets/chip_autocomplete_field.dart';
 import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/model/book.dart';
@@ -27,6 +29,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   late TextEditingController _nSagaController;
   late TextEditingController _pagesController;
   late TextEditingController _publicationYearController;
+  DateTime? _releaseDate;
   late TextEditingController _editorialController;
   late TextEditingController _genreController;
   late TextEditingController _myReviewController;
@@ -49,8 +52,49 @@ class _EditBookScreenState extends State<EditBookScreen> {
   List<Map<String, dynamic>> _languageList = [];
   List<Map<String, dynamic>> _placeList = [];
   List<Map<String, dynamic>> _formatList = [];
+  
+  // Autocomplete suggestions
+  List<String> _authorSuggestions = [];
+  List<String> _genreSuggestions = [];
+  List<String> _editorialSuggestions = [];
+  
+  // Multi-value fields
+  List<String> _selectedAuthors = [];
+  List<String> _selectedGenres = [];
 
   bool _isLoading = true;
+
+  /// Capitalize only the first letter, rest lowercase
+  String _capitalizeFirstWord(String text) {
+    if (text.isEmpty) return text;
+    final trimmed = text.trim();
+    if (trimmed.isEmpty) return trimmed;
+    return trimmed[0].toUpperCase() + trimmed.substring(1).toLowerCase();
+  }
+  
+  /// Get publication year or full date (YYYYMMDD) for TBReleased books
+  int? _getPublicationYearOrDate() {
+    final yearStr = _publicationYearController.text.trim();
+    if (yearStr.isEmpty) return null;
+    
+    final year = int.tryParse(yearStr);
+    if (year == null) return null;
+    
+    // Check if this is a TBReleased book with release date
+    final isTBReleased = _statusList.isNotEmpty && 
+        _selectedStatusId != null &&
+        _statusList.any((s) => 
+          s['status_id'] == _selectedStatusId && 
+          (s['value'] as String).toLowerCase() == 'tbreleased');
+    
+    if (isTBReleased && _releaseDate != null) {
+      // Store as YYYYMMDD
+      return _releaseDate!.year * 10000 + _releaseDate!.month * 100 + _releaseDate!.day;
+    }
+    
+    // Just return the year
+    return year;
+  }
 
   @override
   void initState() {
@@ -60,9 +104,19 @@ class _EditBookScreenState extends State<EditBookScreen> {
   }
 
   void _initializeControllers() {
-    _nameController = TextEditingController(text: widget.book.name);
-    _isbnController = TextEditingController(text: widget.book.isbn);
-    _authorController = TextEditingController(text: widget.book.author);
+    _nameController = TextEditingController(text: widget.book.name ?? '');
+    _isbnController = TextEditingController(text: widget.book.isbn ?? '');
+    _authorController = TextEditingController(text: widget.book.author ?? '');
+    _editorialController = TextEditingController(text: widget.book.editorialValue ?? '');
+    _genreController = TextEditingController(text: widget.book.genre ?? '');
+    
+    // Initialize chip values from comma-separated strings
+    if (widget.book.author != null && widget.book.author!.isNotEmpty) {
+      _selectedAuthors = widget.book.author!.split(',').map((a) => a.trim()).where((a) => a.isNotEmpty).toList();
+    }
+    if (widget.book.genre != null && widget.book.genre!.isNotEmpty) {
+      _selectedGenres = widget.book.genre!.split(',').map((g) => g.trim()).where((g) => g.isNotEmpty).toList();
+    }
     _sagaController = TextEditingController(text: widget.book.saga);
     _nSagaController = TextEditingController(text: widget.book.nSaga);
     _pagesController = TextEditingController(
@@ -71,6 +125,20 @@ class _EditBookScreenState extends State<EditBookScreen> {
     _publicationYearController = TextEditingController(
       text: widget.book.originalPublicationYear?.toString() ?? '',
     );
+    
+    // Parse release date if it's in YYYYMMDD format (> 9999)
+    if (widget.book.originalPublicationYear != null && widget.book.originalPublicationYear! > 9999) {
+      final dateInt = widget.book.originalPublicationYear!;
+      final year = dateInt ~/ 10000;
+      final month = (dateInt % 10000) ~/ 100;
+      final day = dateInt % 100;
+      try {
+        _releaseDate = DateTime(year, month, day);
+        _publicationYearController.text = year.toString();
+      } catch (e) {
+        // Invalid date, just use the value as year
+      }
+    }
     _editorialController = TextEditingController(
       text: widget.book.editorialValue,
     );
@@ -107,6 +175,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
       final language = await repository.getLookupValues('language');
       final place = await repository.getLookupValues('place');
       final format = await repository.getLookupValues('format');
+      final authors = await repository.getLookupValues('author');
+      final genres = await repository.getLookupValues('genre');
+      final editorials = await repository.getLookupValues('editorial');
 
       setState(() {
         _statusList = status;
@@ -114,6 +185,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
         _languageList = language;
         _placeList = place;
         _formatList = format;
+        _authorSuggestions = authors.map((a) => a['name'] as String).toList();
+        _genreSuggestions = genres.map((g) => g['name'] as String).toList();
+        _editorialSuggestions = editorials.map((e) => e['name'] as String).toList();
 
         // Set selected dropdown values based on book data
         _selectedStatusId = _findIdByValue(
@@ -223,19 +297,19 @@ class _EditBookScreenState extends State<EditBookScreen> {
         name:
             _nameController.text.trim().isEmpty
                 ? null
-                : _nameController.text.trim(),
+                : _capitalizeFirstWord(_nameController.text.trim()),
         isbn:
             _isbnController.text.trim().isEmpty
                 ? null
                 : _isbnController.text.trim(),
         author:
-            _authorController.text.trim().isEmpty
+            _selectedAuthors.isEmpty
                 ? null
-                : _authorController.text.trim(),
+                : _selectedAuthors.join(', '),
         saga:
             _sagaController.text.trim().isEmpty
                 ? null
-                : _sagaController.text.trim(),
+                : _capitalizeFirstWord(_sagaController.text.trim()),
         nSaga:
             _nSagaController.text.trim().isEmpty
                 ? null
@@ -244,10 +318,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
             _pagesController.text.trim().isEmpty
                 ? null
                 : int.tryParse(_pagesController.text.trim()),
-        originalPublicationYear:
-            _publicationYearController.text.trim().isEmpty
-                ? null
-                : int.tryParse(_publicationYearController.text.trim()),
+        originalPublicationYear: _getPublicationYearOrDate(),
         loaned: _selectedLoaned ?? 'no',
         statusValue: statusValue,
         editorialValue:
@@ -260,9 +331,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
         formatSagaValue: formatSagaValue,
         createdAt: widget.book.createdAt,
         genre:
-            _genreController.text.trim().isEmpty
+            _selectedGenres.isEmpty
                 ? null
-                : _genreController.text.trim(),
+                : _selectedGenres.join(', '),
         dateReadInitial: _dateReadInitial?.toIso8601String(),
         dateReadFinal: _dateReadFinal?.toIso8601String(),
         readCount: _readCount,
@@ -349,10 +420,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Edit Book'),
-      ),
+    return PopScope(
+      canPop: true, // Allow normal back navigation to details
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Edit Book'),
+        ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Form(
@@ -370,7 +443,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.book),
                 ),
-                textCapitalization: TextCapitalization.words,
+                textCapitalization: TextCapitalization.sentences,
               ),
               const SizedBox(height: 16),
 
@@ -387,58 +460,42 @@ class _EditBookScreenState extends State<EditBookScreen> {
               const SizedBox(height: 16),
 
               // Author field
-              TextFormField(
-                controller: _authorController,
-                decoration: const InputDecoration(
-                  labelText: 'Author(s)',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.person),
-                ),
-                textCapitalization: TextCapitalization.words,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 12, top: 4),
-                child: Text(
-                  'For multiple authors, separate with commas: author1, author2',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
+              ChipAutocompleteField(
+                labelText: 'Author(s)',
+                prefixIcon: Icons.person,
+                suggestions: _authorSuggestions,
+                initialValues: _selectedAuthors,
+                hintText: 'Type to search or add new author',
+                onChanged: (values) {
+                  setState(() {
+                    _selectedAuthors = values;
+                  });
+                },
               ),
               const SizedBox(height: 16),
 
               // Editorial field
-              TextFormField(
+              AutocompleteTextField(
                 controller: _editorialController,
-                decoration: const InputDecoration(
-                  labelText: 'Editorial',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.business),
-                ),
+                labelText: 'Editorial',
+                prefixIcon: Icons.business,
+                suggestions: _editorialSuggestions,
                 textCapitalization: TextCapitalization.words,
               ),
               const SizedBox(height: 16),
 
               // Genre field
-              TextFormField(
-                controller: _genreController,
-                decoration: const InputDecoration(
-                  labelText: 'Genre(s)',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.category),
-                ),
-                textCapitalization: TextCapitalization.words,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 12, top: 4),
-                child: Text(
-                  'For multiple genres, separate with commas: genre1, genre2',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
+              ChipAutocompleteField(
+                labelText: 'Genre(s)',
+                prefixIcon: Icons.category,
+                suggestions: _genreSuggestions,
+                initialValues: _selectedGenres,
+                hintText: 'Type to search or add new genre',
+                onChanged: (values) {
+                  setState(() {
+                    _selectedGenres = values;
+                  });
+                },
               ),
               const SizedBox(height: 16),
 
@@ -450,7 +507,6 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.collections_bookmark),
                 ),
-                textCapitalization: TextCapitalization.words,
               ),
               const SizedBox(height: 16),
 
@@ -490,6 +546,58 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               ),
               const SizedBox(height: 16),
+              
+              // Release date picker (only for TBReleased books)
+              if (_statusList.isNotEmpty && 
+                  _selectedStatusId != null &&
+                  _statusList.any((s) => 
+                    s['status_id'] == _selectedStatusId && 
+                    (s['value'] as String).toLowerCase() == 'tbreleased'))
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Original Publication Date (for notifications)',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    InkWell(
+                      onTap: () async {
+                        final pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: _releaseDate ?? DateTime.now(),
+                          firstDate: DateTime(1900),
+                          lastDate: DateTime(2100),
+                        );
+                        if (pickedDate != null) {
+                          setState(() {
+                            _releaseDate = pickedDate;
+                            // Update publication year to match
+                            _publicationYearController.text = pickedDate.year.toString();
+                          });
+                        }
+                      },
+                      child: InputDecorator(
+                        decoration: const InputDecoration(
+                          labelText: 'Release Date',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.calendar_today),
+                        ),
+                        child: Text(
+                          _releaseDate != null
+                              ? '${_releaseDate!.day}/${_releaseDate!.month}/${_releaseDate!.year}'
+                              : 'Select release date',
+                          style: TextStyle(
+                            color: _releaseDate != null ? null : Colors.grey,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
 
               // Status dropdown (required)
               DropdownButtonFormField<int>(
@@ -824,6 +932,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

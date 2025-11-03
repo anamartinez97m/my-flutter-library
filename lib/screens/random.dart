@@ -6,6 +6,7 @@ import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/screens/book_detail.dart';
+import 'package:myrandomlibrary/widgets/chip_autocomplete_field.dart';
 import 'package:provider/provider.dart';
 
 class RandomScreen extends StatefulWidget {
@@ -41,6 +42,10 @@ class _RandomScreenState extends State<RandomScreen> {
   // Random book
   Book? _randomBook;
   bool _isLoading = true;
+  
+  // Custom book selection
+  List<String> _selectedBookTitles = [];
+  bool _useCustomList = false;
 
   @override
   void initState() {
@@ -85,71 +90,80 @@ class _RandomScreenState extends State<RandomScreen> {
     final provider = Provider.of<BookProvider?>(context, listen: false);
     if (provider == null) return;
 
-    List<Book> filtered =
-        provider.books.where((book) {
-          // Status filter (optional)
-          if (_filterStatus != null && book.statusValue != _filterStatus) {
+    List<Book> filtered;
+    
+    // If using custom list, filter by selected titles only
+    if (_useCustomList && _selectedBookTitles.isNotEmpty) {
+      filtered = provider.allBooks.where((book) {
+        return _selectedBookTitles.contains(book.name);
+      }).toList();
+    } else {
+      // Use regular filters
+      filtered = provider.allBooks.where((book) {
+        // Status filter (optional)
+        if (_filterStatus != null && book.statusValue != _filterStatus) {
+          return false;
+        }
+        
+        if (_filterFormat != null && book.formatValue != _filterFormat) {
+          return false;
+        }
+        if (_filterLanguage != null &&
+            book.languageValue != _filterLanguage) {
+          return false;
+        }
+        if (_filterGenre != null &&
+            !(book.genre?.contains(_filterGenre!) ?? false)) {
+          return false;
+        }
+        if (_filterPlace != null && book.placeValue != _filterPlace) {
+          return false;
+        }
+        if (_filterEditorial != null && book.editorialValue != _filterEditorial) {
+          return false;
+        }
+        if (_filterFormatSaga != null && book.formatSagaValue != _filterFormatSaga) {
+          return false;
+        }
+        if (_filterAuthor != null && !(book.author?.contains(_filterAuthor!) ?? false)) {
+          return false;
+        }
+        
+        // Pages filter with ranges
+        if (_filterPages != null && book.pages != null) {
+          final pages = book.pages!;
+          switch (_filterPages) {
+            case '0-200':
+              if (pages < 0 || pages > 200) return false;
+              break;
+            case '200-400':
+              if (pages < 200 || pages > 400) return false;
+              break;
+            case '400-600':
+              if (pages < 400 || pages > 600) return false;
+              break;
+            case '600-900':
+              if (pages < 600 || pages > 900) return false;
+              break;
+            case '900+':
+              if (pages < 900) return false;
+              break;
+          }
+        }
+        
+        // Year filter with decades
+        if (_filterYear != null && book.originalPublicationYear != null) {
+          final year = book.originalPublicationYear!;
+          final decade = (year ~/ 10) * 10;
+          final filterDecade = int.tryParse(_filterYear!);
+          if (filterDecade != null && decade != filterDecade) {
             return false;
           }
-          
-          if (_filterFormat != null && book.formatValue != _filterFormat) {
-            return false;
-          }
-          if (_filterLanguage != null &&
-              book.languageValue != _filterLanguage) {
-            return false;
-          }
-          if (_filterGenre != null &&
-              !(book.genre?.contains(_filterGenre!) ?? false)) {
-            return false;
-          }
-          if (_filterPlace != null && book.placeValue != _filterPlace) {
-            return false;
-          }
-          if (_filterEditorial != null && book.editorialValue != _filterEditorial) {
-            return false;
-          }
-          if (_filterFormatSaga != null && book.formatSagaValue != _filterFormatSaga) {
-            return false;
-          }
-          if (_filterAuthor != null && !(book.author?.contains(_filterAuthor!) ?? false)) {
-            return false;
-          }
-          
-          // Pages filter with ranges
-          if (_filterPages != null && book.pages != null) {
-            final pages = book.pages!;
-            switch (_filterPages) {
-              case '0-200':
-                if (pages < 0 || pages > 200) return false;
-                break;
-              case '200-400':
-                if (pages < 200 || pages > 400) return false;
-                break;
-              case '400-600':
-                if (pages < 400 || pages > 600) return false;
-                break;
-              case '600-900':
-                if (pages < 600 || pages > 900) return false;
-                break;
-              case '900+':
-                if (pages < 900) return false;
-                break;
-            }
-          }
-          
-          // Year filter with decades
-          if (_filterYear != null && book.originalPublicationYear != null) {
-            final year = book.originalPublicationYear!;
-            final decade = (year ~/ 10) * 10;
-            final filterDecade = int.tryParse(_filterYear!);
-            if (filterDecade != null && decade != filterDecade) {
-              return false;
-            }
-          }
-          
-          return true;
-        }).toList();
+        }
+        
+        return true;
+      }).toList();
+    }
 
     if (filtered.isEmpty) {
       setState(() {
@@ -180,6 +194,8 @@ class _RandomScreenState extends State<RandomScreen> {
       _filterYear = null;
       _filterAuthor = null;
       _randomBook = null;
+      _selectedBookTitles = [];
+      _useCustomList = false;
     });
   }
 
@@ -527,6 +543,51 @@ class _RandomScreenState extends State<RandomScreen> {
                         });
                       },
                     ),
+                    const SizedBox(height: 24),
+                    
+                    // Divider
+                    const Divider(),
+                    const SizedBox(height: 16),
+                    
+                    // Custom book selection
+                    Text(
+                      'Or select specific books',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Search and select books by title to pick randomly from your custom list',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    
+                    Consumer<BookProvider>(
+                      builder: (context, provider, child) {
+                        final bookTitles = provider.allBooks
+                            .map((book) => book.name ?? '')
+                            .where((name) => name.isNotEmpty)
+                            .toList()
+                          ..sort();
+                        
+                        return ChipAutocompleteField(
+                          labelText: 'Select Books',
+                          prefixIcon: Icons.library_books,
+                          suggestions: bookTitles,
+                          initialValues: _selectedBookTitles,
+                          hintText: 'Type to search books by title',
+                          onChanged: (values) {
+                            setState(() {
+                              _selectedBookTitles = values;
+                              _useCustomList = values.isNotEmpty;
+                            });
+                          },
+                        );
+                      },
+                    ),
                     const SizedBox(height: 16),
 
                     Row(
@@ -535,7 +596,11 @@ class _RandomScreenState extends State<RandomScreen> {
                           child: ElevatedButton.icon(
                             onPressed: _getRandomBook,
                             icon: const Icon(Icons.casino),
-                            label: Text(AppLocalizations.of(context)!.get_random_book),
+                            label: Text(
+                              _useCustomList 
+                                ? 'Random from Selected (${_selectedBookTitles.length})'
+                                : AppLocalizations.of(context)!.get_random_book
+                            ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.deepPurple,
                               foregroundColor: Colors.white,

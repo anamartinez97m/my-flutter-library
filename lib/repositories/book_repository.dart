@@ -17,7 +17,10 @@ class BookRepository {
         column = 'b.isbn'; // ISBN
         break;
       case 2:
-        column = 'a.name'; // Auth@r
+        column = 'a.name'; // Author
+        break;
+      case 3:
+        column = 'b.saga'; // Saga
         break;
       default:
         column = 'b.name';
@@ -288,32 +291,22 @@ class BookRepository {
     await db.delete('book', where: 'book_id = ?', whereArgs: [bookId]);
   }
 
-  /// Check if a book already exists in the database
-  /// Returns the book_id if found, null otherwise
-  /// Logic: If ISBN exists, check by ISBN+place. If ISBN empty, check by name. If name also empty, check by status+author+saga+nSaga
-  Future<int?> findDuplicateBook(Book book) async {
-    // Check by ISBN+place if ISBN exists and is not empty
+  /// Check if books already exist in the database with the same ISBN
+  /// Returns list of book_ids if found, empty list otherwise
+  /// Logic: If ISBN exists, check by ISBN only. If ISBN empty, check by name. If name also empty, check by status+author+saga+nSaga
+  Future<List<int>> findDuplicateBooks(Book book) async {
+    // Check by ISBN only if ISBN exists and is not empty
     if (book.isbn != null && book.isbn!.isNotEmpty) {
-      // Get place_id if place exists
-      int? placeId;
-      if (book.placeValue != null && book.placeValue!.isNotEmpty) {
-        placeId = await _getOrInsertLookupId('place', 'name', book.placeValue);
-      }
-      
-      final result = await db.query(
+      final results = await db.query(
         'book',
         columns: ['book_id', 'name'],
-        where: placeId != null ? 'isbn = ? AND place_id = ?' : 'isbn = ? AND place_id IS NULL',
-        whereArgs: placeId != null ? [book.isbn, placeId] : [book.isbn],
-        limit: 1,
+        where: 'isbn = ?',
+        whereArgs: [book.isbn],
       );
-      if (result.isNotEmpty) {
-        debugPrint('  → Duplicate by ISBN+place: "${book.isbn}" (${book.placeValue ?? 'no place'}) matches "${result.first['name']}"');
-        return result.first['book_id'] as int?;
+      if (results.isNotEmpty) {
+        return results.map((r) => r['book_id'] as int).toList();
       }
-      // If ISBN exists but no match found, this is NOT a duplicate (even if name matches)
-      debugPrint('  → ISBN "${book.isbn}" with place "${book.placeValue ?? 'no place'}" not found, book is unique');
-      return null;
+      return [];
     }
 
     // Only check by name if ISBN is empty
@@ -326,8 +319,7 @@ class BookRepository {
         limit: 1,
       );
       if (result.isNotEmpty) {
-        debugPrint('  → Duplicate by NAME: "${book.name}" matches book with ISBN "${result.first['isbn']}"');
-        return result.first['book_id'] as int?;
+        return [result.first['book_id'] as int];
       }
       // If name exists but no match, continue to TBReleased check
     }
@@ -337,9 +329,6 @@ class BookRepository {
         book.statusValue!.toLowerCase() == 'tbreleased' &&
         book.author != null && 
         book.author!.isNotEmpty) {
-      
-      debugPrint('  → Checking TBReleased: author="${book.author}", saga="${book.saga}", nSaga="${book.nSaga}"');
-      
       // Get status_id
       final statusId = await _getOrInsertLookupId(
         'status',
@@ -370,12 +359,132 @@ class BookRepository {
       );
       
       if (result.isNotEmpty) {
-        debugPrint('  → Duplicate by TBReleased combo: matches book_id ${result.first['book_id']} (${result.first['saga']} #${result.first['n_saga']}) with status="${result.first['status']}"');
-        return result.first['book_id'] as int?;
+        return [result.first['book_id'] as int];
       }
     }
 
-    return null;
+    return [];
+  }
+
+  /// Update an existing book with new data, only updating non-empty fields
+  Future<void> updateBookWithNewData(int existingBookId, Book newBook) async {
+    // Get the existing book first
+    final existingBooks = await db.query(
+      'book',
+      where: 'book_id = ?',
+      whereArgs: [existingBookId],
+    );
+    
+    if (existingBooks.isEmpty) return;
+    
+    final existing = existingBooks.first;
+    
+    // Prepare update map - only update if new value is not null/empty
+    final Map<String, dynamic> updates = {};
+    
+    // Update simple fields only if they're empty in existing and not empty in new
+    if ((existing['name'] == null || existing['name'].toString().isEmpty) && 
+        newBook.name != null && newBook.name!.isNotEmpty) {
+      updates['name'] = newBook.name;
+    }
+    if ((existing['isbn'] == null || existing['isbn'].toString().isEmpty) && 
+        newBook.isbn != null && newBook.isbn!.isNotEmpty) {
+      updates['isbn'] = newBook.isbn;
+    }
+    if ((existing['saga'] == null || existing['saga'].toString().isEmpty) && 
+        newBook.saga != null && newBook.saga!.isNotEmpty) {
+      updates['saga'] = newBook.saga;
+    }
+    if ((existing['n_saga'] == null || existing['n_saga'].toString().isEmpty) && 
+        newBook.nSaga != null && newBook.nSaga!.isNotEmpty) {
+      updates['n_saga'] = newBook.nSaga;
+    }
+    if (existing['pages'] == null && newBook.pages != null) {
+      updates['pages'] = newBook.pages;
+    }
+    if (existing['original_publication_year'] == null && 
+        newBook.originalPublicationYear != null) {
+      updates['original_publication_year'] = newBook.originalPublicationYear;
+    }
+    if ((existing['loaned'] == null || existing['loaned'].toString().isEmpty) && 
+        newBook.loaned != null && newBook.loaned!.isNotEmpty) {
+      updates['loaned'] = newBook.loaned;
+    }
+    
+    // Update lookup table references only if empty in existing
+    if (existing['status_id'] == null && newBook.statusValue != null) {
+      final statusId = await _getOrInsertLookupId('status', 'value', newBook.statusValue);
+      if (statusId != null) updates['status_id'] = statusId;
+    }
+    if (existing['editorial_id'] == null && newBook.editorialValue != null) {
+      final editorialId = await _getOrInsertLookupId('editorial', 'name', newBook.editorialValue);
+      if (editorialId != null) updates['editorial_id'] = editorialId;
+    }
+    if (existing['language_id'] == null && newBook.languageValue != null) {
+      final languageId = await _getOrInsertLookupId('language', 'name', newBook.languageValue);
+      if (languageId != null) updates['language_id'] = languageId;
+    }
+    if (existing['place_id'] == null && newBook.placeValue != null) {
+      final placeId = await _getOrInsertLookupId('place', 'name', newBook.placeValue);
+      if (placeId != null) updates['place_id'] = placeId;
+    }
+    if (existing['format_id'] == null && newBook.formatValue != null) {
+      final formatId = await _getOrInsertLookupId('format', 'value', newBook.formatValue);
+      if (formatId != null) updates['format_id'] = formatId;
+    }
+    if (existing['format_saga_id'] == null && newBook.formatSagaValue != null) {
+      final formatSagaId = await _getOrInsertLookupId('format_saga', 'value', newBook.formatSagaValue);
+      if (formatSagaId != null) updates['format_saga_id'] = formatSagaId;
+    }
+    
+    // Update reading information only if empty
+    if (existing['date_read_initial'] == null && newBook.dateReadInitial != null) {
+      updates['date_read_initial'] = newBook.dateReadInitial;
+    }
+    if (existing['date_read_final'] == null && newBook.dateReadFinal != null) {
+      updates['date_read_final'] = newBook.dateReadFinal;
+    }
+    if ((existing['read_count'] == null || existing['read_count'] == 0) && 
+        newBook.readCount != null && newBook.readCount! > 0) {
+      updates['read_count'] = newBook.readCount;
+    }
+    if (existing['my_rating'] == null && newBook.myRating != null) {
+      updates['my_rating'] = newBook.myRating;
+    }
+    if ((existing['my_review'] == null || existing['my_review'].toString().isEmpty) && 
+        newBook.myReview != null && newBook.myReview!.isNotEmpty) {
+      updates['my_review'] = newBook.myReview;
+    }
+    
+    // Apply updates if any
+    if (updates.isNotEmpty) {
+      await db.update(
+        'book',
+        updates,
+        where: 'book_id = ?',
+        whereArgs: [existingBookId],
+      );
+    }
+    
+    // Update authors if existing book has no authors
+    final existingAuthors = await db.query(
+      'books_by_author',
+      where: 'book_id = ?',
+      whereArgs: [existingBookId],
+    );
+    if (existingAuthors.isEmpty && newBook.author != null && newBook.author!.isNotEmpty) {
+      await _linkAuthors(existingBookId, newBook.author);
+    }
+    
+    // Update genres if existing book has no genres
+    final existingGenres = await db.query(
+      'books_by_genre',
+      where: 'book_id = ?',
+      whereArgs: [existingBookId],
+    );
+    if (existingGenres.isEmpty && newBook.genre != null && newBook.genre!.isNotEmpty) {
+      await _linkGenres(existingBookId, newBook.genre);
+    }
   }
 
   Future<int> addBook(Book book) async {

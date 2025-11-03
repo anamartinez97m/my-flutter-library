@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
+import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/providers/locale_provider.dart';
 import 'package:myrandomlibrary/providers/theme_provider.dart';
@@ -136,16 +137,73 @@ class SettingsScreen extends StatelessWidget {
         throw Exception('Please select a CSV file');
       }
 
-      final input = File(filePath).readAsStringSync();
+      // Read file with proper encoding handling
+      String input;
+      try {
+        input = File(filePath).readAsStringSync();
+      } catch (e) {
+        throw Exception('Failed to read CSV file: $e');
+      }
 
-      // Parse CSV
-      final rows = const CsvToListConverter().convert(input);
+      // Check if file is empty
+      if (input.trim().isEmpty) {
+        throw Exception('CSV file is empty');
+      }
 
-      if (rows.isEmpty || rows.length < 2) {
+      // Parse CSV with better error handling
+      List<List<dynamic>> rows;
+      try {
+        // Configure CSV parser to handle different line endings
+        rows = const CsvToListConverter(
+          eol: '\n',
+          shouldParseNumbers: false,
+        ).convert(input);
+        
+        // If we got only 1 row, try with different line ending
+        if (rows.length == 1) {
+          debugPrint('Only 1 row found, trying with \\r\\n line ending...');
+          rows = const CsvToListConverter(
+            eol: '\r\n',
+            shouldParseNumbers: false,
+          ).convert(input);
+        }
+        
+        // If still only 1 row, try with \\r
+        if (rows.length == 1) {
+          debugPrint('Still 1 row, trying with \\r line ending...');
+          rows = const CsvToListConverter(
+            eol: '\r',
+            shouldParseNumbers: false,
+          ).convert(input);
+        }
+      } catch (e) {
+        throw Exception('Failed to parse CSV file. Please check the file format: $e');
+      }
+
+
+      if (rows.isEmpty) {
+        throw Exception('CSV file appears to be empty or invalid');
+      }
+      
+      // Filter out completely empty rows (all cells are null or empty)
+      final nonEmptyRows = rows.where((row) {
+        if (row.isEmpty) return false;
+        // Check if at least one cell has meaningful content
+        return row.any((cell) {
+          if (cell == null) return false;
+          final str = cell.toString().trim();
+          return str.isNotEmpty && str != '';
+        });
+      }).toList();
+      
+      if (nonEmptyRows.length < 2) {
         throw Exception(
-          'CSV file must have at least a header row and one data row',
+          'CSV file must have at least a header row and one data row. Found ${nonEmptyRows.length} non-empty row(s). Please check your CSV file format.',
         );
       }
+      
+      // Use filtered rows for the rest of the import
+      rows = nonEmptyRows;
 
       // Detect CSV format
       final headers = rows[0];
@@ -186,8 +244,7 @@ class SettingsScreen extends StatelessWidget {
 
       int importedCount = 0;
       int skippedCount = 0;
-      int duplicateCount = 0;
-      final List<String> duplicateBooks = [];
+      int updatedCount = 0;
       final List<String> skippedReasons = [];
 
       debugPrint('=== Starting Import ===');
@@ -218,45 +275,55 @@ class SettingsScreen extends StatelessWidget {
             skippedReasons.add(
               'Row $i: Failed to parse (possibly filtered out)',
             );
-            debugPrint('Row $i: Book parsed as null (filtered or invalid)');
             continue;
           }
 
-          // Detailed logging for first 5 rows and rows around 215-220
-          final showDetails = i <= 5 || (i >= 215 && i <= 220);
-          if (showDetails) {
-            debugPrint(
-              'Row $i: Checking "${book.name ?? '(no title)'}" (ISBN: ${book.isbn ?? '(no ISBN)'}) Status: ${book.statusValue}',
-            );
-          }
+          // Map status value to existing database value
+          final dbHelper = DatabaseHelper();
+          final mappedStatus = await CsvImportHelper.mapStatusValue(
+            book.statusValue,
+            dbHelper,
+          );
+          
+          // Create book with mapped status
+          final bookWithMappedStatus = Book(
+            bookId: book.bookId,
+            name: book.name,
+            isbn: book.isbn,
+            author: book.author,
+            saga: book.saga,
+            nSaga: book.nSaga,
+            formatSagaValue: book.formatSagaValue,
+            pages: book.pages,
+            originalPublicationYear: book.originalPublicationYear,
+            loaned: book.loaned,
+            statusValue: mappedStatus,
+            editorialValue: book.editorialValue,
+            languageValue: book.languageValue,
+            placeValue: book.placeValue,
+            formatValue: book.formatValue,
+            createdAt: book.createdAt,
+            genre: book.genre,
+            dateReadInitial: book.dateReadInitial,
+            dateReadFinal: book.dateReadFinal,
+            readCount: book.readCount,
+            myRating: book.myRating,
+            myReview: book.myReview,
+          );
 
           // Check for duplicates
-          final duplicateId = await repository.findDuplicateBook(book);
-          if (duplicateId != null) {
-            duplicateCount++;
-            final displayName = book.name ?? '(no title)';
-            final displayInfo =
-                book.isbn != null
-                    ? 'ISBN: ${book.isbn}'
-                    : (book.saga != null
-                        ? 'Saga: ${book.saga} #${book.nSaga}'
-                        : 'N/A');
-            duplicateBooks.add('$displayName ($displayInfo)');
-            if (showDetails) {
-              debugPrint(
-                'Row $i: DUPLICATE found - "${book.name ?? '(no title)'}" matches book_id $duplicateId',
-              );
+          final duplicateIds = await repository.findDuplicateBooks(bookWithMappedStatus);
+          if (duplicateIds.isNotEmpty) {
+            // Update all existing books with the same ISBN
+            for (final duplicateId in duplicateIds) {
+              await repository.updateBookWithNewData(duplicateId, bookWithMappedStatus);
+              updatedCount++;
             }
             continue;
           }
 
-          final newBookId = await repository.addBook(book);
+          await repository.addBook(bookWithMappedStatus);
           importedCount++;
-          if (showDetails) {
-            debugPrint(
-              'Row $i: IMPORTED - "${book.name ?? '(no title)'}" (${book.statusValue}) as book_id $newBookId',
-            );
-          }
         } catch (e) {
           skippedCount++;
           skippedReasons.add('Row $i: Error - $e');
@@ -268,7 +335,7 @@ class SettingsScreen extends StatelessWidget {
       debugPrint('=== CSV Import Summary ===');
       debugPrint('Total rows processed: ${rows.length - 1}');
       debugPrint('Imported: $importedCount');
-      debugPrint('Duplicates: $duplicateCount');
+      debugPrint('Updated: $updatedCount');
       debugPrint('Skipped: $skippedCount');
       if (skippedReasons.isNotEmpty) {
         debugPrint('Skipped reasons:');
@@ -279,7 +346,7 @@ class SettingsScreen extends StatelessWidget {
 
       // Close loading dialog
       if (context.mounted) {
-        Navigator.pop(context);
+        Navigator.of(context, rootNavigator: true).pop();
       }
 
       // Reload the books in the provider
@@ -287,43 +354,67 @@ class SettingsScreen extends StatelessWidget {
         final provider = Provider.of<BookProvider?>(context, listen: false);
         await provider?.loadBooks();
 
-        // Show results with duplicates info
-        if (duplicateCount > 0) {
-          _showDuplicatesDialog(
-            context,
-            importedCount,
-            skippedCount,
-            duplicateCount,
-            duplicateBooks,
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                AppLocalizations.of(
-                  context,
-                )!.import_completed(importedCount, skippedCount),
-              ),
-              backgroundColor: Colors.green,
-              duration: const Duration(seconds: 5),
+        // Show results in modal dialog
+        await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+            title: Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.green, size: 28),
+                const SizedBox(width: 8),
+                const Text('Import Completed'),
+              ],
             ),
-          );
-        }
+            content: Text(
+              'Imported: $importedCount books\nUpdated: $updatedCount books\nSkipped: $skippedCount rows',
+              style: const TextStyle(fontSize: 16),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
       }
     } catch (e) {
-      // Close loading dialog
+      debugPrint('CSV Import Error: $e');
+      debugPrint('Stack trace: ${StackTrace.current}');
+      
+      // Close any open dialogs to prevent black screen
       if (context.mounted) {
-        Navigator.pop(context);
+        try {
+          // Try to pop any dialogs that might be open
+          Navigator.of(context, rootNavigator: true).popUntil((route) => route.isFirst);
+        } catch (popError) {
+          debugPrint('Error closing dialogs: $popError');
+        }
       }
 
+      // Wait a bit to ensure dialogs are closed
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      // Show error dialog
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.error_importing_csv(e.toString()),
+        await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+            title: const Text('Import Error'),
+            content: SingleChildScrollView(
+              child: Text(
+                e.toString(),
+                style: const TextStyle(fontSize: 14),
+              ),
             ),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 5),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
           ),
         );
       }
@@ -516,78 +607,6 @@ class SettingsScreen extends StatelessWidget {
         );
       }
     }
-  }
-
-  void _showDuplicatesDialog(
-    BuildContext context,
-    int importedCount,
-    int skippedCount,
-    int duplicateCount,
-    List<String> duplicateBooks,
-  ) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(
-              AppLocalizations.of(context)!.import_completed_with_duplicates,
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.imported_books(importedCount),
-                  ),
-                  Text(
-                    AppLocalizations.of(context)!.skipped_rows(skippedCount),
-                  ),
-                  Text(
-                    AppLocalizations.of(
-                      context,
-                    )!.duplicates_found(duplicateCount),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    AppLocalizations.of(context)!.duplicate_books_not_imported,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  ...duplicateBooks
-                      .take(10)
-                      .map(
-                        (book) => Padding(
-                          padding: const EdgeInsets.only(left: 8, bottom: 4),
-                          child: Text('• $book'),
-                        ),
-                      ),
-                  if (duplicateBooks.length > 10)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8, top: 4),
-                      child: Text(
-                        AppLocalizations.of(
-                          context,
-                        )!.more_books(duplicateBooks.length - 10),
-                        style: const TextStyle(fontStyle: FontStyle.italic),
-                      ),
-                    ),
-                  const SizedBox(height: 16),
-                  Text(
-                    AppLocalizations.of(context)!.books_already_exist,
-                    style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(AppLocalizations.of(context)!.ok),
-              ),
-            ],
-          ),
-    );
   }
 
   Widget _buildLightThemeGrid(
