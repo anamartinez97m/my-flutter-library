@@ -402,25 +402,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 AppLocalizations.of(context)!.search_by_title,
                 AppLocalizations.of(context)!.search_by_isbn,
                 AppLocalizations.of(context)!.search_by_author,
+                AppLocalizations.of(context)!.saga,
               ],
               initialSelectedIndex: _selectedSearchButtonIndex,
               onSelectionChanged: (index) {
                 setState(() {
                   _selectedSearchButtonIndex = index;
-
-                  // If there's existing text, re-run the search with the new category.
-                  if (_searchController.text.trim().isNotEmpty) {
-                    provider.searchBooks(
-                      _searchController.text.trim(),
-                      searchIndex: _selectedSearchButtonIndex,
-                    );
-                  } else {
-                    // If no text, simply ensure all books are displayed.
-                    provider.searchBooks(
-                      '',
-                      searchIndex: _selectedSearchButtonIndex,
-                    );
-                  }
+                  // Re-run the search with the new category
+                  // This will maintain filters and sorting
+                  provider.searchBooks(
+                    _searchController.text.trim(),
+                    searchIndex: _selectedSearchButtonIndex,
+                  );
                 });
               },
             ),

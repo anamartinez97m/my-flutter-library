@@ -105,15 +105,12 @@ class BookProvider extends ChangeNotifier {
   }
 
   void _applySearch() {
-    final String normalizedQuery = _removeAccents(_currentSearchQuery.toLowerCase());
-
-    if (normalizedQuery.isEmpty) {
-      _displayBooks = List<Book>.from(_filteredBooks);
-      return;
-    }
-
-    _displayBooks =
-        _filteredBooks.where((Book book) {
+    if (_currentSearchQuery.isEmpty) {
+      _displayBooks = List.from(_filteredBooks);
+    } else {
+      final normalizedQuery = _removeAccents(_currentSearchQuery.toLowerCase());
+      _displayBooks =
+          _filteredBooks.where((book) {
           switch (_currentSearchIndex) {
             case 0: // Search by Title
               final normalizedTitle = _removeAccents(
@@ -130,15 +127,43 @@ class BookProvider extends ChangeNotifier {
                 (book.author ?? '').toLowerCase(),
               );
               return normalizedAuthor.contains(normalizedQuery);
-            case 3: // Search by Status
-              final normalizedStatus = _removeAccents(
-                (book.statusValue ?? '').toLowerCase(),
+            case 3: // Search by Saga
+              final normalizedSaga = _removeAccents(
+                (book.saga ?? '').toLowerCase(),
               );
-              return normalizedStatus.contains(normalizedQuery);
+              return normalizedSaga.contains(normalizedQuery);
             default:
               return false;
           }
         }).toList();
+    }
+    
+    // Re-apply sorting after search
+    _displayBooks.sort((a, b) {
+        int comparison = 0;
+
+        switch (_currentSortBy) {
+          case 'name':
+            final aName = _removeAccents((a.name ?? '').toLowerCase());
+            final bName = _removeAccents((b.name ?? '').toLowerCase());
+            comparison = aName.compareTo(bName);
+            break;
+          case 'author':
+            final aAuthor = _removeAccents((a.author ?? '').toLowerCase());
+            final bAuthor = _removeAccents((b.author ?? '').toLowerCase());
+            comparison = aAuthor.compareTo(bAuthor);
+            break;
+          case 'created_at':
+            comparison = (a.createdAt ?? '').compareTo(b.createdAt ?? '');
+            break;
+          default:
+            final aName = _removeAccents((a.name ?? '').toLowerCase());
+            final bName = _removeAccents((b.name ?? '').toLowerCase());
+            comparison = aName.compareTo(bName);
+        }
+
+        return _currentSortAscending ? comparison : -comparison;
+      });
   }
 
   Future<void> searchBooks(String query, {required int searchIndex}) async {

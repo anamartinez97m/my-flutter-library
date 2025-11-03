@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:myrandomlibrary/model/book.dart';
+import 'package:myrandomlibrary/db/database_helper.dart';
 
 /// Result of CSV import operation
 class CsvImportResult {
@@ -19,6 +21,59 @@ class CsvImportResult {
 
 /// Helper class for CSV import operations
 class CsvImportHelper {
+  /// Map status values across languages
+  /// Returns the database value that matches the input status semantically
+  static Future<String?> mapStatusValue(String? inputStatus, DatabaseHelper dbHelper) async {
+    if (inputStatus == null || inputStatus.isEmpty) return null;
+    
+    final normalized = inputStatus.toLowerCase().trim();
+    
+    // Get all existing status values from database
+    final db = await dbHelper.database;
+    final statusList = await db.query('status', columns: ['value']);
+    final existingStatuses = statusList.map((s) => s['value'] as String).toList();
+    
+    
+    // Define semantic mappings
+    // "read" / "yes" / "si" / "sí" -> all mean "read"
+    final readVariants = ['read', 'yes', 'si', 'sí', 'y', 'finished', 'completed'];
+    // "to-read" / "no" / "tbr" -> all mean "not read yet"
+    final toReadVariants = ['to-read', 'no', 'n', 'tbr', 'unread', 'pending'];
+    // "tbreleased" -> special status for unreleased books
+    final tbReleasedVariants = ['tbreleased', 'unreleased', 'upcoming'];
+    
+    // Check which semantic group the input belongs to
+    String? semanticGroup;
+    if (readVariants.contains(normalized)) {
+      semanticGroup = 'read';
+    } else if (toReadVariants.contains(normalized)) {
+      semanticGroup = 'to-read';
+    } else if (tbReleasedVariants.contains(normalized)) {
+      semanticGroup = 'tbreleased';
+    }
+    
+    if (semanticGroup == null) {
+      // Unknown status, return as-is
+      return inputStatus;
+    }
+    
+    // Find matching status in database
+    for (final existing in existingStatuses) {
+      final existingNormalized = existing.toLowerCase().trim();
+      
+      if (semanticGroup == 'read' && readVariants.contains(existingNormalized)) {
+        return existing;
+      } else if (semanticGroup == 'to-read' && toReadVariants.contains(existingNormalized)) {
+        return existing;
+      } else if (semanticGroup == 'tbreleased' && tbReleasedVariants.contains(existingNormalized)) {
+        return existing;
+      }
+    }
+    
+    // No match found, return the input as-is (will be created as new status)
+    return inputStatus;
+  }
+  
   /// Detect CSV format based on headers
   static CsvFormat detectCsvFormat(List<dynamic> headers) {
     final headerStr = headers.map((h) => h.toString().toLowerCase()).toList();
@@ -148,6 +203,7 @@ class CsvImportHelper {
     for (int i = 0; i < headers.length; i++) {
       headerMap[headers[i].toString().toLowerCase()] = i;
     }
+    
 
     String? getValue(String key) {
       final index = headerMap[key];
@@ -210,8 +266,8 @@ class CsvImportHelper {
     if (dateAdded != null) {
       try {
         final date = DateTime.parse(dateAdded);
-        createdAt = DateTime(date.year, date.month, date.day, 1, 0)
-            .toIso8601String();
+        createdAt =
+            DateTime(date.year, date.month, date.day, 1, 0).toIso8601String();
       } catch (e) {
         createdAt = DateTime.now().toIso8601String();
       }
@@ -244,8 +300,8 @@ class CsvImportHelper {
       formatValue: format,
       createdAt: createdAt,
       genre: null,
-      dateReadInitial: dateRead,
-      dateReadFinal: dateRead,
+      dateReadInitial: dateAdded, // Date Added -> Date Read Started
+      dateReadFinal: dateRead,     // Date Read -> Date Read Finished
       readCount: readCountStr != null ? int.tryParse(readCountStr) : 0,
       myRating: myRatingStr != null ? double.tryParse(myRatingStr) : null,
       myReview: myReview,
@@ -253,8 +309,4 @@ class CsvImportHelper {
   }
 }
 
-enum CsvFormat {
-  format1,
-  format2,
-  unknown,
-}
+enum CsvFormat { format1, format2, unknown }

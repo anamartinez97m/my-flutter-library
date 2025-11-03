@@ -36,10 +36,20 @@ class _NavigationScreenState extends State<NavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.app_title),
-      ),
+    return PopScope(
+      canPop: _selectedIndex == 0, // Only allow pop if on home screen
+      onPopInvoked: (bool didPop) {
+        if (!didPop && _selectedIndex != 0) {
+          // If not on home screen, switch to home instead of exiting
+          setState(() {
+            _selectedIndex = 0;
+          });
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(AppLocalizations.of(context)!.app_title),
+        ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -76,6 +86,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
             label: AppLocalizations.of(context)!.settings,
           ),
         ],
+      ),
       ),
     );
   }

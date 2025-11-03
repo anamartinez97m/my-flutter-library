@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
+import 'package:myrandomlibrary/screens/books_by_year.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -90,6 +91,34 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             .take(10)
             .toList();
 
+    // Calculate books read per year and pages read per year
+    final Map<int, int> booksReadPerYear = {};
+    final Map<int, int> pagesReadPerYear = {};
+    
+    for (var book in books) {
+      // Only count books that have been read (have a date_read_final)
+      if (book.dateReadFinal != null && book.dateReadFinal!.isNotEmpty) {
+        try {
+          final dateRead = DateTime.parse(book.dateReadFinal!);
+          final year = dateRead.year;
+          booksReadPerYear[year] = (booksReadPerYear[year] ?? 0) + 1;
+          
+          // Add pages if available
+          if (book.pages != null && book.pages! > 0) {
+            pagesReadPerYear[year] = (pagesReadPerYear[year] ?? 0) + book.pages!;
+          }
+        } catch (e) {
+          // Skip invalid dates
+        }
+      }
+    }
+    
+    // Sort years in descending order
+    final sortedBooksReadYears = booksReadPerYear.entries.toList()
+      ..sort((a, b) => b.key.compareTo(a.key));
+    final sortedPagesReadYears = pagesReadPerYear.entries.toList()
+      ..sort((a, b) => b.key.compareTo(a.key));
+
     return Scaffold(
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -98,79 +127,262 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Container(
+                      height: 180,
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.library_books,
+                            size: 32,
+                            color: Colors.deepPurple,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            AppLocalizations.of(context)!.total_books,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '$totalCount',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.headlineMedium?.copyWith(
+                              color: Colors.deepPurple,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Container(
+                      height: 180,
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.new_releases,
+                            size: 32,
+                            color: Colors.deepPurple,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            AppLocalizations.of(context)!.latest_book_added,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w500,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            latestBookName != null && latestBookName.isNotEmpty
+                                ? latestBookName
+                                : AppLocalizations.of(context)!.no_books_in_database,
+                            style: Theme.of(
+                              context,
+                            ).textTheme.titleMedium?.copyWith(
+                              color: Colors.deepPurple,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // Books Read Per Year
             Card(
               elevation: 2,
+              margin: const EdgeInsets.symmetric(horizontal: 8),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(24.0),
+                padding: const EdgeInsets.all(20.0),
                 child: Column(
                   children: [
-                    Icon(
-                      Icons.library_books,
-                      size: 48,
-                      color: Colors.deepPurple,
+                    Text(
+                      'Books Read Per Year',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 16),
-                    Text(
-                      AppLocalizations.of(context)!.total_books,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      '$totalCount',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.displayMedium?.copyWith(
-                        color: Colors.deepPurple,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
+                    if (sortedBooksReadYears.isEmpty)
+                      Center(child: Text(AppLocalizations.of(context)!.no_data))
+                    else
+                      ...sortedBooksReadYears.map((entry) {
+                        final maxValue = sortedBooksReadYears.first.value;
+                        final percentage = (entry.value / maxValue);
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => BooksByYearScreen(
+                                    initialYear: entry.key,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: 60,
+                                  child: Text(
+                                    '${entry.key}',
+                                    style: Theme.of(context).textTheme.bodySmall,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Stack(
+                                    children: [
+                                      Container(
+                                        height: 24,
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey[200],
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                      ),
+                                      FractionallySizedBox(
+                                        widthFactor: percentage,
+                                        child: Container(
+                                          height: 24,
+                                          decoration: BoxDecoration(
+                                            color: Colors.blue,
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              '${entry.value}',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 16),
+            // Pages Read Per Year
             Card(
               elevation: 2,
+              margin: const EdgeInsets.symmetric(horizontal: 8),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(24.0),
+                padding: const EdgeInsets.all(20.0),
                 child: Column(
                   children: [
-                    Icon(
-                      Icons.new_releases,
-                      size: 48,
-                      color: Colors.deepPurple,
-                    ),
-                    const SizedBox(height: 16),
                     Text(
-                      AppLocalizations.of(context)!.latest_book_added,
-                      textAlign: TextAlign.center,
+                      'Pages Read Per Year',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      latestBookName != null && latestBookName.isNotEmpty
-                          ? latestBookName
-                          : AppLocalizations.of(context)!.no_books_in_database,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.headlineSmall?.copyWith(
-                        color: Colors.deepPurple,
                         fontWeight: FontWeight.w600,
                       ),
-                      textAlign: TextAlign.center,
                     ),
+                    const SizedBox(height: 16),
+                    if (sortedPagesReadYears.isEmpty)
+                      Center(child: Text(AppLocalizations.of(context)!.no_data))
+                    else
+                      ...sortedPagesReadYears.map((entry) {
+                        final maxValue = sortedPagesReadYears.first.value;
+                        final percentage = (entry.value / maxValue);
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 60,
+                                child: Text(
+                                  '${entry.key}',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Stack(
+                                  children: [
+                                    Container(
+                                      height: 24,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[200],
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ),
+                                    FractionallySizedBox(
+                                      widthFactor: percentage,
+                                      child: Container(
+                                        height: 24,
+                                        decoration: BoxDecoration(
+                                          color: Colors.amber,
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            '${entry.value}',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
                   ],
                 ),
               ),
