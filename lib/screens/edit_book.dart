@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/widgets/autocomplete_text_field.dart';
 import 'package:myrandomlibrary/widgets/chip_autocomplete_field.dart';
+import 'package:myrandomlibrary/widgets/bundle_input_widget.dart';
 import 'package:flutter/services.dart';
+import 'dart:convert';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
@@ -37,6 +39,13 @@ class _EditBookScreenState extends State<EditBookScreen> {
   late int _readCount;
   DateTime? _dateReadInitial;
   DateTime? _dateReadFinal;
+  
+  // Bundle fields
+  late bool _isBundle;
+  int? _bundleCount;
+  String? _bundleNumbers;
+  List<DateTime?>? _bundleStartDates;
+  List<DateTime?>? _bundleEndDates;
 
   // Dropdown values
   int? _selectedStatusId;
@@ -147,6 +156,29 @@ class _EditBookScreenState extends State<EditBookScreen> {
     _myRating = widget.book.myRating ?? 0.0;
     _readCount = widget.book.readCount ?? 0;
     _selectedLoaned = widget.book.loaned;
+    
+    // Initialize bundle fields
+    _isBundle = widget.book.isBundle ?? false;
+    _bundleCount = widget.book.bundleCount;
+    _bundleNumbers = widget.book.bundleNumbers;
+    
+    // Parse bundle dates from JSON
+    if (widget.book.bundleStartDates != null) {
+      try {
+        final List<dynamic> dates = jsonDecode(widget.book.bundleStartDates!);
+        _bundleStartDates = dates.map((d) => d != null ? DateTime.parse(d) : null).toList();
+      } catch (e) {
+        _bundleStartDates = null;
+      }
+    }
+    if (widget.book.bundleEndDates != null) {
+      try {
+        final List<dynamic> dates = jsonDecode(widget.book.bundleEndDates!);
+        _bundleEndDates = dates.map((d) => d != null ? DateTime.parse(d) : null).toList();
+      } catch (e) {
+        _bundleEndDates = null;
+      }
+    }
 
     // Parse dates
     if (widget.book.dateReadInitial != null) {
@@ -342,6 +374,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
             _myReviewController.text.trim().isEmpty
                 ? null
                 : _myReviewController.text.trim(),
+        isBundle: _isBundle,
+        bundleCount: _bundleCount,
+        bundleNumbers: _bundleNumbers,
+        bundleStartDates: _bundleStartDates != null ? jsonEncode(_bundleStartDates!.map((d) => d?.toIso8601String()).toList()) : null,
+        bundleEndDates: _bundleEndDates != null ? jsonEncode(_bundleEndDates!.map((d) => d?.toIso8601String()).toList()) : null,
       );
 
       // Update the book (delete and re-add with same ID)
@@ -370,6 +407,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
         dateReadInitial: updatedBook.dateReadInitial,
         dateReadFinal: updatedBook.dateReadFinal,
         myReview: updatedBook.myReview,
+        isBundle: updatedBook.isBundle,
+        bundleCount: updatedBook.bundleCount,
+        bundleNumbers: updatedBook.bundleNumbers,
+        bundleStartDates: updatedBook.bundleStartDates,
+        bundleEndDates: updatedBook.bundleEndDates,
       );
       await repository.addBook(bookToAdd);
 
@@ -735,6 +777,25 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 onChanged: (value) {
                   setState(() {
                     _selectedLoaned = value;
+                  });
+                },
+              ),
+              const SizedBox(height: 32),
+
+              // Bundle section
+              BundleInputWidget(
+                initialIsBundle: _isBundle,
+                initialBundleCount: _bundleCount,
+                initialBundleNumbers: _bundleNumbers,
+                initialStartDates: _bundleStartDates,
+                initialEndDates: _bundleEndDates,
+                onChanged: (isBundle, count, numbers, startDates, endDates) {
+                  setState(() {
+                    _isBundle = isBundle;
+                    _bundleCount = count;
+                    _bundleNumbers = numbers;
+                    _bundleStartDates = startDates;
+                    _bundleEndDates = endDates;
                   });
                 },
               ),

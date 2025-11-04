@@ -6,6 +6,7 @@ import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/screens/edit_book.dart';
 import 'package:provider/provider.dart';
+import 'dart:convert';
 
 class BookDetailScreen extends StatefulWidget {
   final Book book;
@@ -355,6 +356,26 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                       value: _formatDateTime(_currentBook.createdAt!),
                     ),
 
+                  // Bundle information
+                  if (_currentBook.isBundle == true) ...[
+                    _DetailCard(
+                      icon: Icons.library_books,
+                      label: 'Bundle',
+                      value: 'Contains ${_currentBook.bundleCount ?? 0} books',
+                    ),
+                    if (_currentBook.bundleNumbers != null && _currentBook.bundleNumbers!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.format_list_numbered,
+                        label: 'Saga Numbers',
+                        value: _currentBook.bundleNumbers!,
+                      ),
+                    if (_currentBook.bundleStartDates != null || _currentBook.bundleEndDates != null)
+                      _BundleDatesCard(
+                        startDates: _currentBook.bundleStartDates,
+                        endDates: _currentBook.bundleEndDates,
+                      ),
+                  ],
+
                   // New fields
                   if (_currentBook.myRating != null && _currentBook.myRating! > 0)
                     _RatingCard(label: 'My Rating', rating: _currentBook.myRating!),
@@ -517,6 +538,108 @@ class _HalfClipper extends CustomClipper<Rect> {
 
   @override
   bool shouldReclip(CustomClipper<Rect> oldClipper) => false;
+}
+
+class _BundleDatesCard extends StatelessWidget {
+  final String? startDates;
+  final String? endDates;
+
+  const _BundleDatesCard({
+    this.startDates,
+    this.endDates,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    List<DateTime?>? starts;
+    List<DateTime?>? ends;
+    
+    try {
+      if (startDates != null) {
+        final List<dynamic> dates = jsonDecode(startDates!);
+        starts = dates.map((d) => d != null ? DateTime.parse(d) : null).toList();
+      }
+    } catch (e) {
+      starts = null;
+    }
+    
+    try {
+      if (endDates != null) {
+        final List<dynamic> dates = jsonDecode(endDates!);
+        ends = dates.map((d) => d != null ? DateTime.parse(d) : null).toList();
+      }
+    } catch (e) {
+      ends = null;
+    }
+    
+    final maxLength = [starts?.length ?? 0, ends?.length ?? 0].reduce((a, b) => a > b ? a : b);
+    
+    if (maxLength == 0) return const SizedBox.shrink();
+    
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: 1,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.calendar_month, color: Theme.of(context).colorScheme.primary, size: 24),
+                const SizedBox(width: 16),
+                Text(
+                  'Bundle Reading Dates',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ...List.generate(maxLength, (index) {
+              final start = starts != null && index < starts.length ? starts[index] : null;
+              final end = ends != null && index < ends.length ? ends[index] : null;
+              
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: [
+                    Text(
+                      'Book ${index + 1}:',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        start != null
+                            ? '${start.year}-${start.month.toString().padLeft(2, '0')}-${start.day.toString().padLeft(2, '0')}'
+                            : '-',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ),
+                    const Text(' → '),
+                    Expanded(
+                      child: Text(
+                        end != null
+                            ? '${end.year}-${end.month.toString().padLeft(2, '0')}-${end.day.toString().padLeft(2, '0')}'
+                            : '-',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _DetailCard extends StatelessWidget {

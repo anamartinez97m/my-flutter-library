@@ -157,150 +157,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: Theme.of(context).textTheme.titleSmall,
                         ),
                         const SizedBox(height: 12),
-                        // Format filter
-                        DropdownButtonFormField<String>(
-                          value: _selectedFormat,
-                          isExpanded: true,
-                          decoration: InputDecoration(
-                            labelText: AppLocalizations.of(context)!.format,
-                            border: const OutlineInputBorder(),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            isDense: true,
-                          ),
-                          items: [
-                            DropdownMenuItem(
-                              value: null,
-                              child: Text(AppLocalizations.of(context)!.any),
-                            ),
-                            ..._formatList.map((item) {
-                              return DropdownMenuItem<String>(
-                                value: item['value'] as String,
-                                child: Text(item['value'] as String),
-                              );
-                            }),
-                          ],
-                          onChanged: (value) {
-                            setState(() => _selectedFormat = value);
-                            if (value != null) {
-                              provider.filterBooks('format', value);
-                            } else {
-                              provider.filterBooks('all', null);
-                            }
-                            setModalState(() {});
-                          },
-                        ),
-                        const SizedBox(height: 12),
-                        // Language filter
-                        DropdownButtonFormField<String>(
-                          value: _selectedLanguage,
-                          isExpanded: true,
-                          decoration: InputDecoration(
-                            labelText: AppLocalizations.of(context)!.language,
-                            border: const OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            isDense: true,
-                          ),
-                          items: [
-                            DropdownMenuItem(
-                              value: null,
-                              child: Text(AppLocalizations.of(context)!.any),
-                            ),
-                            ..._languageList.map((item) {
-                              return DropdownMenuItem<String>(
-                                value: item['name'] as String,
-                                child: Text(item['name'] as String),
-                              );
-                            }),
-                          ],
-                          onChanged: (value) {
-                            setState(() => _selectedLanguage = value);
-                            if (value != null) {
-                              provider.filterBooks('language', value);
-                            } else {
-                              provider.filterBooks('all', null);
-                            }
-                            setModalState(() {});
-                          },
-                        ),
-                        const SizedBox(height: 12),
-                        // Genre filter
-                        DropdownButtonFormField<String>(
-                          value: _selectedGenre,
-                          isExpanded: true,
-                          decoration: InputDecoration(
-                            labelText: AppLocalizations.of(context)!.genre,
-                            border: const OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            isDense: true,
-                          ),
-                          items: [
-                            DropdownMenuItem(
-                              value: null,
-                              child: Text(AppLocalizations.of(context)!.any),
-                            ),
-                            ..._genreList.map((item) {
-                              return DropdownMenuItem<String>(
-                                value: item['name'] as String,
-                                child: Text(item['name'] as String),
-                              );
-                            }),
-                          ],
-                          onChanged: (value) {
-                            setState(() => _selectedGenre = value);
-                            if (value != null) {
-                              provider.filterBooks('genre', value);
-                            } else {
-                              provider.filterBooks('all', null);
-                            }
-                            setModalState(() {});
-                          },
-                        ),
-                        const SizedBox(height: 12),
-                        // Place filter
-                        DropdownButtonFormField<String>(
-                          value: _selectedPlace,
-                          isExpanded: true,
-                          decoration: InputDecoration(
-                            labelText: AppLocalizations.of(context)!.place,
-                            border: const OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            isDense: true,
-                          ),
-                          items: [
-                            DropdownMenuItem(
-                              value: null,
-                              child: Text(AppLocalizations.of(context)!.any),
-                            ),
-                            ..._placeList.map((item) {
-                              return DropdownMenuItem<String>(
-                                value: item['name'] as String,
-                                child: Text(item['name'] as String),
-                              );
-                            }),
-                          ],
-                          onChanged: (value) {
-                            setState(() => _selectedPlace = value);
-                            if (value != null) {
-                              provider.filterBooks('place', value);
-                            } else {
-                              provider.filterBooks('all', null);
-                            }
-                            setModalState(() {});
-                          },
-                        ),
-                        const SizedBox(height: 12),
                         // Status filter
                         DropdownButtonFormField<String>(
                           value: _selectedStatus,
@@ -336,7 +192,167 @@ class _HomeScreenState extends State<HomeScreen> {
                             setModalState(() {});
                           },
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 12),
+                        // Format filter
+                        DropdownButtonFormField<String>(
+                          value: _selectedFormat,
+                          isExpanded: true,
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.format,
+                            border: const OutlineInputBorder(),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            isDense: true,
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              value: null,
+                              child: Text(AppLocalizations.of(context)!.any),
+                            ),
+                            const DropdownMenuItem<String>(
+                              value: '__EMPTY__',
+                              child: Text('Empty'),
+                            ),
+                            ..._formatList.map((item) {
+                              return DropdownMenuItem<String>(
+                                value: item['value'] as String,
+                                child: Text(item['value'] as String),
+                              );
+                            }),
+                          ],
+                          onChanged: (value) {
+                            setState(() => _selectedFormat = value);
+                            if (value != null) {
+                              provider.filterBooks('format', value);
+                            } else {
+                              provider.filterBooks('all', null);
+                            }
+                            setModalState(() {});
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        // Genre filter
+                        DropdownButtonFormField<String>(
+                          value: _selectedGenre,
+                          isExpanded: true,
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.genre,
+                            border: const OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            isDense: true,
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              value: null,
+                              child: Text(AppLocalizations.of(context)!.any),
+                            ),
+                            const DropdownMenuItem<String>(
+                              value: '__EMPTY__',
+                              child: Text('Empty'),
+                            ),
+                            ..._genreList.map((item) {
+                              return DropdownMenuItem<String>(
+                                value: item['name'] as String,
+                                child: Text(item['name'] as String),
+                              );
+                            }),
+                          ],
+                          onChanged: (value) {
+                            setState(() => _selectedGenre = value);
+                            if (value != null) {
+                              provider.filterBooks('genre', value);
+                            } else {
+                              provider.filterBooks('all', null);
+                            }
+                            setModalState(() {});
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        // Language filter
+                        DropdownButtonFormField<String>(
+                          value: _selectedLanguage,
+                          isExpanded: true,
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.language,
+                            border: const OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            isDense: true,
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              value: null,
+                              child: Text(AppLocalizations.of(context)!.any),
+                            ),
+                            const DropdownMenuItem<String>(
+                              value: '__EMPTY__',
+                              child: Text('Empty'),
+                            ),
+                            ..._languageList.map((item) {
+                              return DropdownMenuItem<String>(
+                                value: item['name'] as String,
+                                child: Text(item['name'] as String),
+                              );
+                            }),
+                          ],
+                          onChanged: (value) {
+                            setState(() => _selectedLanguage = value);
+                            if (value != null) {
+                              provider.filterBooks('language', value);
+                            } else {
+                              provider.filterBooks('all', null);
+                            }
+                            setModalState(() {});
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        // Place filter
+                        DropdownButtonFormField<String>(
+                          value: _selectedPlace,
+                          isExpanded: true,
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.place,
+                            border: const OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            isDense: true,
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              value: null,
+                              child: Text(AppLocalizations.of(context)!.any),
+                            ),
+                            const DropdownMenuItem<String>(
+                              value: '__EMPTY__',
+                              child: Text('Empty'),
+                            ),
+                            ..._placeList.map((item) {
+                              return DropdownMenuItem<String>(
+                                value: item['name'] as String,
+                                child: Text(item['name'] as String),
+                              );
+                            }),
+                          ],
+                          onChanged: (value) {
+                            setState(() => _selectedPlace = value);
+                            if (value != null) {
+                              provider.filterBooks('place', value);
+                            } else {
+                              provider.filterBooks('all', null);
+                            }
+                            setModalState(() {});
+                          },
+                        ),
+                        const SizedBox(height: 24),
                         Row(
                           children: [
                             Expanded(
@@ -349,7 +365,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     _selectedPlace = null;
                                     _selectedStatus = null;
                                   });
-                                  provider.filterBooks('all', null);
+                                  provider.clearAllFilters();
                                   setModalState(() {});
                                 },
                                 child: Text(

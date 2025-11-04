@@ -27,6 +27,11 @@ class Book {
   final int? readCount;
   final double? myRating;
   final String? myReview;
+  final bool? isBundle;
+  final int? bundleCount;
+  final String? bundleNumbers;
+  final String? bundleStartDates;
+  final String? bundleEndDates;
 
   Book({
     required this.bookId,
@@ -51,6 +56,11 @@ class Book {
     this.readCount,
     this.myRating,
     this.myReview,
+    this.isBundle,
+    this.bundleCount,
+    this.bundleNumbers,
+    this.bundleStartDates,
+    this.bundleEndDates,
   });
 
   factory Book.fromMap(Map<String, dynamic> map) {
@@ -89,6 +99,13 @@ class Book {
           ? map['my_rating'] as double
           : double.tryParse(map['my_rating']?.toString() ?? ''),
       myReview: map['my_review'] as String?,
+      isBundle: map['is_bundle'] == 1 || map['is_bundle'] == true,
+      bundleCount: map['bundle_count'] is int
+          ? map['bundle_count'] as int
+          : int.tryParse(map['bundle_count']?.toString() ?? ''),
+      bundleNumbers: map['bundle_numbers'] as String?,
+      bundleStartDates: map['bundle_start_dates'] as String?,
+      bundleEndDates: map['bundle_end_dates'] as String?,
     );
   }
 
@@ -116,11 +133,16 @@ class Book {
       'readCount': readCount,
       'myRating': myRating,
       'myReview': myReview,
+      'isBundle': isBundle,
+      'bundleCount': bundleCount,
+      'bundleNumbers': bundleNumbers,
+      'bundleStartDates': bundleStartDates,
+      'bundleEndDates': bundleEndDates,
     };
   }
 
   @override
   String toString() {
-    return 'Book(bookId: $bookId, name: $name, author: $author, genre: $genre, saga: $saga, nSaga: $nSaga, formatSagaValue: $formatSagaValue, isbn: $isbn, pages: $pages, originalPublicationYear: $originalPublicationYear, loaned: $loaned, statusValue: $statusValue, editorialValue: $editorialValue, languageValue: $languageValue, placeValue: $placeValue, formatValue: $formatValue, createdAt: $createdAt, dateReadInitial: $dateReadInitial, dateReadFinal: $dateReadFinal, readCount: $readCount, myRating: $myRating, myReview: $myReview)';
+    return 'Book(bookId: $bookId, name: $name, author: $author, genre: $genre, saga: $saga, nSaga: $nSaga, formatSagaValue: $formatSagaValue, isbn: $isbn, pages: $pages, originalPublicationYear: $originalPublicationYear, loaned: $loaned, statusValue: $statusValue, editorialValue: $editorialValue, languageValue: $languageValue, placeValue: $placeValue, formatValue: $formatValue, createdAt: $createdAt, dateReadInitial: $dateReadInitial, dateReadFinal: $dateReadFinal, readCount: $readCount, myRating: $myRating, myReview: $myReview, isBundle: $isBundle, bundleCount: $bundleCount, bundleNumbers: $bundleNumbers, bundleStartDates: $bundleStartDates, bundleEndDates: $bundleEndDates)';
   }
 }

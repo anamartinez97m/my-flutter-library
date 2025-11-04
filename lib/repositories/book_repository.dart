@@ -541,6 +541,11 @@ class BookRepository {
       'read_count': book.readCount ?? 0,
       'my_rating': book.myRating,
       'my_review': book.myReview,
+      'is_bundle': book.isBundle == true ? 1 : 0,
+      'bundle_count': book.bundleCount,
+      'bundle_numbers': book.bundleNumbers,
+      'bundle_start_dates': book.bundleStartDates,
+      'bundle_end_dates': book.bundleEndDates,
     }, conflictAlgorithm: ConflictAlgorithm.replace);
 
     // Link authors (many-to-many relationship)
