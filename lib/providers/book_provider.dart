@@ -80,22 +80,44 @@ class BookProvider extends ChangeNotifier {
           final filterType = entry.key;
           final filterValue = entry.value;
           
-          switch (filterType) {
-            case 'format':
-              if (book.formatValue != filterValue) return false;
-              break;
-            case 'language':
-              if (book.languageValue != filterValue) return false;
-              break;
-            case 'genre':
-              if (!(book.genre?.contains(filterValue) ?? false)) return false;
-              break;
-            case 'place':
-              if (book.placeValue != filterValue) return false;
-              break;
-            case 'status':
-              if (book.statusValue != filterValue) return false;
-              break;
+          // Handle empty field filters
+          if (filterValue == '__EMPTY__') {
+            switch (filterType) {
+              case 'format':
+                if (book.formatValue != null && book.formatValue!.isNotEmpty) return false;
+                break;
+              case 'language':
+                if (book.languageValue != null && book.languageValue!.isNotEmpty) return false;
+                break;
+              case 'genre':
+                if (book.genre != null && book.genre!.isNotEmpty) return false;
+                break;
+              case 'place':
+                if (book.placeValue != null && book.placeValue!.isNotEmpty) return false;
+                break;
+              case 'editorial':
+                if (book.editorialValue != null && book.editorialValue!.isNotEmpty) return false;
+                break;
+            }
+          } else {
+            // Normal value filters
+            switch (filterType) {
+              case 'format':
+                if (book.formatValue != filterValue) return false;
+                break;
+              case 'language':
+                if (book.languageValue != filterValue) return false;
+                break;
+              case 'genre':
+                if (!(book.genre?.contains(filterValue) ?? false)) return false;
+                break;
+              case 'place':
+                if (book.placeValue != filterValue) return false;
+                break;
+              case 'status':
+                if (book.statusValue != filterValue) return false;
+                break;
+            }
           }
         }
         return true;
@@ -219,6 +241,13 @@ class BookProvider extends ChangeNotifier {
     _applyAllFilters();
     
     // Reapply search on the filtered list
+    _applySearch();
+    notifyListeners();
+  }
+
+  void clearAllFilters() {
+    _currentFilters.clear();
+    _applyAllFilters();
     _applySearch();
     notifyListeners();
   }

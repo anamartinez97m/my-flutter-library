@@ -185,6 +185,18 @@ class _ChipAutocompleteFieldState extends State<ChipAutocompleteField> {
             ),
           ),
         ],
+        const SizedBox(height: 4),
+        Padding(
+          padding: const EdgeInsets.only(left: 12.0),
+          child: Text(
+            'Press Enter to add a new entry',
+            style: TextStyle(
+              fontSize: 11,
+              color: Colors.grey[600],
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ),
       ],
     );
   }

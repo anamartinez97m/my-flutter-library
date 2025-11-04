@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final localeProvider = Provider.of<LocaleProvider>(context);
-    
+
     return MaterialApp(
       title: 'My Random Library',
       localizationsDelegates: const [
@@ -44,40 +44,68 @@ class MyApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [
-        Locale('en'),
-        Locale('es'),
-      ],
+      supportedLocales: const [Locale('en'), Locale('es')],
       locale: localeProvider.locale,
       theme: themeProvider.lightTheme.copyWith(
         textTheme: themeProvider.lightTheme.textTheme.copyWith(
-          headlineLarge: themeProvider.lightTheme.textTheme.headlineLarge?.copyWith(fontSize: 28),
-          headlineMedium: themeProvider.lightTheme.textTheme.headlineMedium?.copyWith(fontSize: 24),
-          headlineSmall: themeProvider.lightTheme.textTheme.headlineSmall?.copyWith(fontSize: 20),
-          titleLarge: themeProvider.lightTheme.textTheme.titleLarge?.copyWith(fontSize: 18),
-          titleMedium: themeProvider.lightTheme.textTheme.titleMedium?.copyWith(fontSize: 16),
-          titleSmall: themeProvider.lightTheme.textTheme.titleSmall?.copyWith(fontSize: 14),
-          bodyLarge: themeProvider.lightTheme.textTheme.bodyLarge?.copyWith(fontSize: 14),
-          bodyMedium: themeProvider.lightTheme.textTheme.bodyMedium?.copyWith(fontSize: 13),
-          bodySmall: themeProvider.lightTheme.textTheme.bodySmall?.copyWith(fontSize: 12),
+          headlineLarge: themeProvider.lightTheme.textTheme.headlineLarge
+              ?.copyWith(fontSize: 28),
+          headlineMedium: themeProvider.lightTheme.textTheme.headlineMedium
+              ?.copyWith(fontSize: 24),
+          headlineSmall: themeProvider.lightTheme.textTheme.headlineSmall
+              ?.copyWith(fontSize: 20),
+          titleLarge: themeProvider.lightTheme.textTheme.titleLarge?.copyWith(
+            fontSize: 18,
+          ),
+          titleMedium: themeProvider.lightTheme.textTheme.titleMedium?.copyWith(
+            fontSize: 16,
+          ),
+          titleSmall: themeProvider.lightTheme.textTheme.titleSmall?.copyWith(
+            fontSize: 14,
+          ),
+          bodyLarge: themeProvider.lightTheme.textTheme.bodyLarge?.copyWith(
+            fontSize: 14,
+          ),
+          bodyMedium: themeProvider.lightTheme.textTheme.bodyMedium?.copyWith(
+            fontSize: 13,
+          ),
+          bodySmall: themeProvider.lightTheme.textTheme.bodySmall?.copyWith(
+            fontSize: 12,
+          ),
         ),
       ),
       darkTheme: themeProvider.darkTheme.copyWith(
         textTheme: themeProvider.darkTheme.textTheme.copyWith(
-          headlineLarge: themeProvider.darkTheme.textTheme.headlineLarge?.copyWith(fontSize: 28),
-          headlineMedium: themeProvider.darkTheme.textTheme.headlineMedium?.copyWith(fontSize: 24),
-          headlineSmall: themeProvider.darkTheme.textTheme.headlineSmall?.copyWith(fontSize: 20),
-          titleLarge: themeProvider.darkTheme.textTheme.titleLarge?.copyWith(fontSize: 18),
-          titleMedium: themeProvider.darkTheme.textTheme.titleMedium?.copyWith(fontSize: 16),
-          titleSmall: themeProvider.darkTheme.textTheme.titleSmall?.copyWith(fontSize: 14),
-          bodyLarge: themeProvider.darkTheme.textTheme.bodyLarge?.copyWith(fontSize: 14),
-          bodyMedium: themeProvider.darkTheme.textTheme.bodyMedium?.copyWith(fontSize: 13),
-          bodySmall: themeProvider.darkTheme.textTheme.bodySmall?.copyWith(fontSize: 12),
+          headlineLarge: themeProvider.darkTheme.textTheme.headlineLarge
+              ?.copyWith(fontSize: 28),
+          headlineMedium: themeProvider.darkTheme.textTheme.headlineMedium
+              ?.copyWith(fontSize: 24),
+          headlineSmall: themeProvider.darkTheme.textTheme.headlineSmall
+              ?.copyWith(fontSize: 20),
+          titleLarge: themeProvider.darkTheme.textTheme.titleLarge?.copyWith(
+            fontSize: 18,
+          ),
+          titleMedium: themeProvider.darkTheme.textTheme.titleMedium?.copyWith(
+            fontSize: 16,
+          ),
+          titleSmall: themeProvider.darkTheme.textTheme.titleSmall?.copyWith(
+            fontSize: 14,
+          ),
+          bodyLarge: themeProvider.darkTheme.textTheme.bodyLarge?.copyWith(
+            fontSize: 14,
+          ),
+          bodyMedium: themeProvider.darkTheme.textTheme.bodyMedium?.copyWith(
+            fontSize: 13,
+          ),
+          bodySmall: themeProvider.darkTheme.textTheme.bodySmall?.copyWith(
+            fontSize: 12,
+          ),
         ),
       ),
-      themeMode: themeProvider.themeMode == AppThemeMode.light
-          ? ThemeMode.light
-          : themeProvider.themeMode == AppThemeMode.dark
+      themeMode:
+          themeProvider.themeMode == AppThemeMode.light
+              ? ThemeMode.light
+              : themeProvider.themeMode == AppThemeMode.dark
               ? ThemeMode.dark
               : ThemeMode.system,
       home: const NavigationScreen(),

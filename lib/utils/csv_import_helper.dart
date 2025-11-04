@@ -227,9 +227,18 @@ class CsvImportHelper {
     final myReview = getValue('my review');
     final readCountStr = getValue('read count');
 
-    // Only import if bookshelves contains "owned" (but only check if column exists)
+    // Check if book should be imported based on bookshelves
+    bool isOwned = false;
+    bool isReadLoaned = false;
+    if (headerMap.containsKey('bookshelves') && bookshelves != null) {
+      final shelvesLower = bookshelves.toLowerCase();
+      isOwned = shelvesLower.contains('owned');
+      isReadLoaned = shelvesLower.contains('read-loaned');
+    }
+    
+    // Only import if bookshelves contains "owned" or "read-loaned"
     if (headerMap.containsKey('bookshelves')) {
-      if (bookshelves == null || !bookshelves.toLowerCase().contains('owned')) {
+      if (!isOwned && !isReadLoaned) {
         return null;
       }
     }
@@ -292,7 +301,7 @@ class CsvImportHelper {
       pages: pagesStr != null ? int.tryParse(pagesStr) : null,
       originalPublicationYear:
           pubYearStr != null ? int.tryParse(pubYearStr) : null,
-      loaned: 'no',
+      loaned: isReadLoaned ? 'yes' : 'no',
       statusValue: statusValue,
       editorialValue: publisher,
       languageValue: null,

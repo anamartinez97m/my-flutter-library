@@ -8,8 +8,10 @@ import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/screens/navigation.dart';
 import 'package:myrandomlibrary/widgets/autocomplete_text_field.dart';
 import 'package:myrandomlibrary/widgets/chip_autocomplete_field.dart';
+import 'package:myrandomlibrary/widgets/bundle_input_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:myrandomlibrary/widgets/heart_rating_input.dart';
+import 'dart:convert';
 
 class AddBookScreen extends StatefulWidget {
   const AddBookScreen({super.key});
@@ -37,6 +39,13 @@ class _AddBookScreenState extends State<AddBookScreen> {
   int _readCount = 0;
   DateTime? _dateReadInitial;
   DateTime? _dateReadFinal;
+  
+  // Bundle fields
+  bool _isBundle = false;
+  int? _bundleCount;
+  String? _bundleNumbers;
+  List<DateTime?>? _bundleStartDates;
+  List<DateTime?>? _bundleEndDates;
 
   // Dropdown values
   int? _selectedStatusId;
@@ -302,6 +311,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
             _myReviewController.text.trim().isEmpty
                 ? null
                 : _myReviewController.text.trim(),
+        isBundle: _isBundle,
+        bundleCount: _bundleCount,
+        bundleNumbers: _bundleNumbers,
+        bundleStartDates: _bundleStartDates != null ? jsonEncode(_bundleStartDates!.map((d) => d?.toIso8601String()).toList()) : null,
+        bundleEndDates: _bundleEndDates != null ? jsonEncode(_bundleEndDates!.map((d) => d?.toIso8601String()).toList()) : null,
       );
 
       await repository.addBook(book);
@@ -338,6 +352,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
           _selectedLoaned = null;
           _dateReadInitial = null;
           _dateReadFinal = null;
+          _isBundle = false;
+          _bundleCount = null;
+          _bundleNumbers = null;
+          _bundleStartDates = null;
+          _bundleEndDates = null;
         });
 
         // Show success dialog
@@ -690,6 +709,25 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 onChanged: (value) {
                   setState(() {
                     _selectedLoaned = value;
+                  });
+                },
+              ),
+              const SizedBox(height: 32),
+
+              // Bundle section
+              BundleInputWidget(
+                initialIsBundle: _isBundle,
+                initialBundleCount: _bundleCount,
+                initialBundleNumbers: _bundleNumbers,
+                initialStartDates: _bundleStartDates,
+                initialEndDates: _bundleEndDates,
+                onChanged: (isBundle, count, numbers, startDates, endDates) {
+                  setState(() {
+                    _isBundle = isBundle;
+                    _bundleCount = count;
+                    _bundleNumbers = numbers;
+                    _bundleStartDates = startDates;
+                    _bundleEndDates = endDates;
                   });
                 },
               ),

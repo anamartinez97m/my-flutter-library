@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
@@ -37,38 +38,43 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     final authorCounts = <String, int>{};
 
     for (var book in books) {
+      // Get multiplier for bundle books
+      final multiplier = (book.isBundle == true && book.bundleCount != null && book.bundleCount! > 0) 
+          ? book.bundleCount! 
+          : 1;
+      
       // Status
       final status = book.statusValue ?? 'Unknown';
-      statusCounts[status] = (statusCounts[status] ?? 0) + 1;
+      statusCounts[status] = (statusCounts[status] ?? 0) + multiplier;
 
       // Language
       final language = book.languageValue;
       if (language != null && language.isNotEmpty && language != 'Unknown') {
-        languageCounts[language] = (languageCounts[language] ?? 0) + 1;
+        languageCounts[language] = (languageCounts[language] ?? 0) + multiplier;
       }
 
       // Format
       final format = book.formatValue;
       if (format != null && format.isNotEmpty) {
-        formatCounts[format] = (formatCounts[format] ?? 0) + 1;
+        formatCounts[format] = (formatCounts[format] ?? 0) + multiplier;
       }
 
       // Genre
       final genre = book.genre;
       if (genre != null && genre.isNotEmpty) {
-        genreCounts[genre] = (genreCounts[genre] ?? 0) + 1;
+        genreCounts[genre] = (genreCounts[genre] ?? 0) + multiplier;
       }
 
       // Editorial
       final editorial = book.editorialValue;
       if (editorial != null && editorial.isNotEmpty) {
-        editorialCounts[editorial] = (editorialCounts[editorial] ?? 0) + 1;
+        editorialCounts[editorial] = (editorialCounts[editorial] ?? 0) + multiplier;
       }
 
       // Author
       final author = book.author;
       if (author != null && author.isNotEmpty) {
-        authorCounts[author] = (authorCounts[author] ?? 0) + 1;
+        authorCounts[author] = (authorCounts[author] ?? 0) + multiplier;
       }
     }
 
@@ -96,19 +102,58 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     final Map<int, int> pagesReadPerYear = {};
     
     for (var book in books) {
-      // Only count books that have been read (have a date_read_final)
-      if (book.dateReadFinal != null && book.dateReadFinal!.isNotEmpty) {
+      // Handle bundle books differently - count each book in the year it was finished
+      if (book.isBundle == true && book.bundleEndDates != null) {
         try {
-          final dateRead = DateTime.parse(book.dateReadFinal!);
-          final year = dateRead.year;
-          booksReadPerYear[year] = (booksReadPerYear[year] ?? 0) + 1;
-          
-          // Add pages if available
-          if (book.pages != null && book.pages! > 0) {
-            pagesReadPerYear[year] = (pagesReadPerYear[year] ?? 0) + book.pages!;
+          final List<dynamic> endDates = jsonDecode(book.bundleEndDates!);
+          for (final dateStr in endDates) {
+            if (dateStr != null) {
+              try {
+                final date = DateTime.parse(dateStr);
+                final year = date.year;
+                booksReadPerYear[year] = (booksReadPerYear[year] ?? 0) + 1;
+                
+                // Add pages for each book in bundle
+                if (book.pages != null && book.pages! > 0) {
+                  pagesReadPerYear[year] = (pagesReadPerYear[year] ?? 0) + book.pages!;
+                }
+              } catch (e) {
+                // Skip invalid date
+              }
+            }
           }
         } catch (e) {
-          // Skip invalid dates
+          // If bundle dates parsing fails, fall back to regular counting
+          if (book.dateReadFinal != null && book.dateReadFinal!.isNotEmpty) {
+            try {
+              final dateRead = DateTime.parse(book.dateReadFinal!);
+              final year = dateRead.year;
+              final multiplier = book.bundleCount ?? 1;
+              booksReadPerYear[year] = (booksReadPerYear[year] ?? 0) + multiplier;
+              
+              if (book.pages != null && book.pages! > 0) {
+                pagesReadPerYear[year] = (pagesReadPerYear[year] ?? 0) + (book.pages! * multiplier);
+              }
+            } catch (e) {
+              // Skip invalid dates
+            }
+          }
+        }
+      } else {
+        // Regular books - use dateReadFinal
+        if (book.dateReadFinal != null && book.dateReadFinal!.isNotEmpty) {
+          try {
+            final dateRead = DateTime.parse(book.dateReadFinal!);
+            final year = dateRead.year;
+            booksReadPerYear[year] = (booksReadPerYear[year] ?? 0) + 1;
+            
+            // Add pages if available
+            if (book.pages != null && book.pages! > 0) {
+              pagesReadPerYear[year] = (pagesReadPerYear[year] ?? 0) + book.pages!;
+            }
+          } catch (e) {
+            // Skip invalid dates
+          }
         }
       }
     }
@@ -246,7 +291,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         final percentage = (entry.value / maxValue);
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: GestureDetector(
+                          child: InkWell(
                             onTap: () {
                               Navigator.push(
                                 context,
@@ -257,7 +302,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                 ),
                               );
                             },
-                            child: Row(
+                            borderRadius: BorderRadius.circular(4),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                              child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 SizedBox(
                                   width: 60,
@@ -301,6 +350,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                   ),
                                 ),
                               ],
+                            ),
                             ),
                           ),
                         );

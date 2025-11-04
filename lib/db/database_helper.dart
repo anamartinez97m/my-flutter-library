@@ -21,7 +21,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 2,
+      version: 3,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -107,6 +107,11 @@ class DatabaseHelper {
         read_count INTEGER DEFAULT 0,
         my_rating REAL,
         my_review TEXT,
+        is_bundle BOOLEAN DEFAULT 0,
+        bundle_count INTEGER,
+        bundle_numbers TEXT,
+        bundle_start_dates TEXT,
+        bundle_end_dates TEXT,
         FOREIGN KEY (status_id) REFERENCES status (status_id),
         FOREIGN KEY (editorial_id) REFERENCES editorial (editorial_id),
         FOREIGN KEY (language_id) REFERENCES language (language_id),
@@ -164,6 +169,24 @@ class DatabaseHelper {
       );
       await db.execute(
         'ALTER TABLE book ADD COLUMN my_review TEXT',
+      );
+    }
+    if (oldVersion < 3) {
+      // Add bundle columns for version 3
+      await db.execute(
+        'ALTER TABLE book ADD COLUMN is_bundle BOOLEAN DEFAULT 0',
+      );
+      await db.execute(
+        'ALTER TABLE book ADD COLUMN bundle_count INTEGER',
+      );
+      await db.execute(
+        'ALTER TABLE book ADD COLUMN bundle_numbers TEXT',
+      );
+      await db.execute(
+        'ALTER TABLE book ADD COLUMN bundle_start_dates TEXT',
+      );
+      await db.execute(
+        'ALTER TABLE book ADD COLUMN bundle_end_dates TEXT',
       );
     }
   }
