@@ -906,10 +906,20 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   }
                 },
                 child: InputDecorator(
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Date Started Reading',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.event),
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.event),
+                    suffixIcon: _dateReadInitial != null
+                        ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              setState(() {
+                                _dateReadInitial = null;
+                              });
+                            },
+                          )
+                        : null,
                   ),
                   child: Text(
                     _dateReadInitial != null
@@ -941,10 +951,20 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   }
                 },
                 child: InputDecorator(
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Date Finished Reading',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.event_available),
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.event_available),
+                    suffixIcon: _dateReadFinal != null
+                        ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              setState(() {
+                                _dateReadFinal = null;
+                              });
+                            },
+                          )
+                        : null,
                   ),
                   child: Text(
                     _dateReadFinal != null

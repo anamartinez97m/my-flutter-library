@@ -1051,13 +1051,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: InkWell(
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    final result = await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => const AdminCsvImportScreen(),
                       ),
                     );
+                    // If books were imported, reload the provider
+                    if (result == true && mounted) {
+                      final provider = Provider.of<BookProvider?>(context, listen: false);
+                      await provider?.loadBooks();
+                    }
                   },
                   borderRadius: BorderRadius.circular(12),
                   child: Padding(
