@@ -65,6 +65,7 @@ class BookRepository {
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count, b.my_rating, b.my_review,
+        b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 

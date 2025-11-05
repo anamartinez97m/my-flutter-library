@@ -266,46 +266,61 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             ),
             const SizedBox(height: 16),
             // Books Read Per Year
-            Card(
-              elevation: 2,
-              margin: const EdgeInsets.symmetric(horizontal: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: [
-                    Text(
-                      'Books Read Per Year',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
+            InkWell(
+              onTap: () {
+                // Navigate to the first year in the list
+                if (sortedBooksReadYears.isNotEmpty) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BooksByYearScreen(
+                        initialYear: sortedBooksReadYears.first.key,
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    if (sortedBooksReadYears.isEmpty)
-                      Center(child: Text(AppLocalizations.of(context)!.no_data))
-                    else
-                      ...sortedBooksReadYears.map((entry) {
-                        final maxValue = sortedBooksReadYears.first.value;
-                        final percentage = (entry.value / maxValue);
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: InkWell(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => BooksByYearScreen(
-                                    initialYear: entry.key,
+                  );
+                }
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Card(
+                elevation: 2,
+                margin: const EdgeInsets.symmetric(horizontal: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      Text(
+                        'Books Read Per Year',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      if (sortedBooksReadYears.isEmpty)
+                        Center(child: Text(AppLocalizations.of(context)!.no_data))
+                      else
+                        ...sortedBooksReadYears.map((entry) {
+                          final maxValue = sortedBooksReadYears.first.value;
+                          final percentage = (entry.value / maxValue);
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => BooksByYearScreen(
+                                      initialYear: entry.key,
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
-                            borderRadius: BorderRadius.circular(4),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-                              child: Row(
+                                );
+                              },
+                              borderRadius: BorderRadius.circular(4),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                                child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 SizedBox(
@@ -355,7 +370,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           ),
                         );
                       }).toList(),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
