@@ -83,6 +83,15 @@ class BookProvider extends ChangeNotifier {
           // Handle empty field filters
           if (filterValue == '__EMPTY__') {
             switch (filterType) {
+              case 'title':
+                if (book.name != null && book.name!.isNotEmpty) return false;
+                break;
+              case 'isbn':
+                if (book.isbn != null && book.isbn!.isNotEmpty) return false;
+                break;
+              case 'author':
+                if (book.author != null && book.author!.isNotEmpty) return false;
+                break;
               case 'format':
                 if (book.formatValue != null && book.formatValue!.isNotEmpty) return false;
                 break;

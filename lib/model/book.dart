@@ -32,6 +32,7 @@ class Book {
   final String? bundleNumbers;
   final String? bundleStartDates;
   final String? bundleEndDates;
+  final String? bundlePages;
 
   Book({
     required this.bookId,
@@ -61,6 +62,7 @@ class Book {
     this.bundleNumbers,
     this.bundleStartDates,
     this.bundleEndDates,
+    this.bundlePages,
   });
 
   factory Book.fromMap(Map<String, dynamic> map) {
@@ -106,6 +108,7 @@ class Book {
       bundleNumbers: map['bundle_numbers'] as String?,
       bundleStartDates: map['bundle_start_dates'] as String?,
       bundleEndDates: map['bundle_end_dates'] as String?,
+      bundlePages: map['bundle_pages'] as String?,
     );
   }
 
@@ -138,11 +141,12 @@ class Book {
       'bundleNumbers': bundleNumbers,
       'bundleStartDates': bundleStartDates,
       'bundleEndDates': bundleEndDates,
+      'bundlePages': bundlePages,
     };
   }
 
   @override
   String toString() {
-    return 'Book(bookId: $bookId, name: $name, author: $author, genre: $genre, saga: $saga, nSaga: $nSaga, formatSagaValue: $formatSagaValue, isbn: $isbn, pages: $pages, originalPublicationYear: $originalPublicationYear, loaned: $loaned, statusValue: $statusValue, editorialValue: $editorialValue, languageValue: $languageValue, placeValue: $placeValue, formatValue: $formatValue, createdAt: $createdAt, dateReadInitial: $dateReadInitial, dateReadFinal: $dateReadFinal, readCount: $readCount, myRating: $myRating, myReview: $myReview, isBundle: $isBundle, bundleCount: $bundleCount, bundleNumbers: $bundleNumbers, bundleStartDates: $bundleStartDates, bundleEndDates: $bundleEndDates)';
+    return 'Book(bookId: $bookId, name: $name, author: $author, genre: $genre, saga: $saga, nSaga: $nSaga, formatSagaValue: $formatSagaValue, isbn: $isbn, pages: $pages, originalPublicationYear: $originalPublicationYear, loaned: $loaned, statusValue: $statusValue, editorialValue: $editorialValue, languageValue: $languageValue, placeValue: $placeValue, formatValue: $formatValue, createdAt: $createdAt, dateReadInitial: $dateReadInitial, dateReadFinal: $dateReadFinal, readCount: $readCount, myRating: $myRating, myReview: $myReview, isBundle: $isBundle, bundleCount: $bundleCount, bundleNumbers: $bundleNumbers, bundleStartDates: $bundleStartDates, bundleEndDates: $bundleEndDates, bundlePages: $bundlePages)';
   }
 }

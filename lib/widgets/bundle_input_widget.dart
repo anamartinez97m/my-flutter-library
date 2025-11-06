@@ -7,7 +7,8 @@ class BundleInputWidget extends StatefulWidget {
   final String? initialBundleNumbers;
   final List<DateTime?>? initialStartDates;
   final List<DateTime?>? initialEndDates;
-  final Function(bool isBundle, int? count, String? numbers, List<DateTime?>? startDates, List<DateTime?>? endDates) onChanged;
+  final List<int?>? initialBundlePages;
+  final Function(bool isBundle, int? count, String? numbers, List<DateTime?>? startDates, List<DateTime?>? endDates, List<int?>? bundlePages) onChanged;
 
   const BundleInputWidget({
     super.key,
@@ -16,6 +17,7 @@ class BundleInputWidget extends StatefulWidget {
     this.initialBundleNumbers,
     this.initialStartDates,
     this.initialEndDates,
+    this.initialBundlePages,
     required this.onChanged,
   });
 
@@ -29,6 +31,7 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
   late TextEditingController _bundleNumbersController;
   List<DateTime?> _startDates = [];
   List<DateTime?> _endDates = [];
+  List<int?> _bundlePages = [];
 
   @override
   void initState() {
@@ -46,6 +49,9 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
     }
     if (widget.initialEndDates != null) {
       _endDates = List.from(widget.initialEndDates!);
+    }
+    if (widget.initialBundlePages != null) {
+      _bundlePages = List.from(widget.initialBundlePages!);
     }
     
     _bundleCountController.addListener(_onCountChanged);
@@ -75,6 +81,12 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
         if (_endDates.length > count) {
           _endDates = _endDates.sublist(0, count);
         }
+        while (_bundlePages.length < count) {
+          _bundlePages.add(null);
+        }
+        if (_bundlePages.length > count) {
+          _bundlePages = _bundlePages.sublist(0, count);
+        }
       });
     }
     _notifyChange();
@@ -88,6 +100,7 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
       _bundleNumbersController.text.trim().isEmpty ? null : _bundleNumbersController.text.trim(),
       _startDates.isEmpty ? null : _startDates,
       _endDates.isEmpty ? null : _endDates,
+      _bundlePages.isEmpty ? null : _bundlePages,
     );
   }
 
@@ -176,10 +189,21 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
                                   }
                                 },
                                 child: InputDecorator(
-                                  decoration: const InputDecoration(
+                                  decoration: InputDecoration(
                                     labelText: 'Start Date',
-                                    border: OutlineInputBorder(),
+                                    border: const OutlineInputBorder(),
                                     isDense: true,
+                                    suffixIcon: _startDates[index] != null
+                                        ? IconButton(
+                                            icon: const Icon(Icons.clear, size: 18),
+                                            onPressed: () {
+                                              setState(() {
+                                                _startDates[index] = null;
+                                              });
+                                              _notifyChange();
+                                            },
+                                          )
+                                        : null,
                                   ),
                                   child: Text(
                                     _startDates[index] != null
@@ -211,10 +235,21 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
                                   }
                                 },
                                 child: InputDecorator(
-                                  decoration: const InputDecoration(
+                                  decoration: InputDecoration(
                                     labelText: 'End Date',
-                                    border: OutlineInputBorder(),
+                                    border: const OutlineInputBorder(),
                                     isDense: true,
+                                    suffixIcon: _endDates[index] != null
+                                        ? IconButton(
+                                            icon: const Icon(Icons.clear, size: 18),
+                                            onPressed: () {
+                                              setState(() {
+                                                _endDates[index] = null;
+                                              });
+                                              _notifyChange();
+                                            },
+                                          )
+                                        : null,
                                   ),
                                   child: Text(
                                     _endDates[index] != null
@@ -229,6 +264,30 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
                               ),
                             ),
                           ],
+                        ),
+                        const SizedBox(height: 8),
+                        // Pages input
+                        TextFormField(
+                          initialValue: (index < _bundlePages.length && _bundlePages[index] != null) 
+                              ? _bundlePages[index].toString() 
+                              : '',
+                          decoration: const InputDecoration(
+                            labelText: 'Pages',
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                            hintText: 'e.g., 250',
+                          ),
+                          keyboardType: TextInputType.number,
+                          onChanged: (value) {
+                            setState(() {
+                              // Ensure the list is large enough
+                              while (_bundlePages.length <= index) {
+                                _bundlePages.add(null);
+                              }
+                              _bundlePages[index] = int.tryParse(value);
+                            });
+                            _notifyChange();
+                          },
                         ),
                       ],
                     ),
