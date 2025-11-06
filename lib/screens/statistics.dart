@@ -106,16 +106,33 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       if (book.isBundle == true && book.bundleEndDates != null) {
         try {
           final List<dynamic> endDates = jsonDecode(book.bundleEndDates!);
-          for (final dateStr in endDates) {
+          List<int?>? bundlePages;
+          
+          // Try to parse bundle pages if available
+          if (book.bundlePages != null) {
+            try {
+              final List<dynamic> pagesData = jsonDecode(book.bundlePages!);
+              bundlePages = pagesData.map((p) => p as int?).toList();
+            } catch (e) {
+              bundlePages = null;
+            }
+          }
+          
+          for (int i = 0; i < endDates.length; i++) {
+            final dateStr = endDates[i];
             if (dateStr != null) {
               try {
                 final date = DateTime.parse(dateStr);
                 final year = date.year;
                 booksReadPerYear[year] = (booksReadPerYear[year] ?? 0) + 1;
                 
-                // Add pages for each book in bundle
-                if (book.pages != null && book.pages! > 0) {
-                  pagesReadPerYear[year] = (pagesReadPerYear[year] ?? 0) + book.pages!;
+                // Add pages for this specific book in bundle if available
+                if (bundlePages != null && i < bundlePages.length && bundlePages[i] != null) {
+                  pagesReadPerYear[year] = (pagesReadPerYear[year] ?? 0) + bundlePages[i]!;
+                } else if (book.pages != null && book.pages! > 0) {
+                  // Fallback to total pages divided by bundle count
+                  final pagesPerBook = (book.pages! / (book.bundleCount ?? 1)).round();
+                  pagesReadPerYear[year] = (pagesReadPerYear[year] ?? 0) + pagesPerBook;
                 }
               } catch (e) {
                 // Skip invalid date

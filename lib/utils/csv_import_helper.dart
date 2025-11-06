@@ -147,6 +147,11 @@ class CsvImportHelper {
     final format = getValue('binding') ?? getValue('format');
     final loaned = getValue('loaned');
 
+    // Remove trailing comma from saga if present
+    if (saga != null && saga.endsWith(',')) {
+      saga = saga.substring(0, saga.length - 1).trim();
+    }
+
     // Extract saga and nSaga from title if present (Title #number)
     if (title != null) {
       final sagaMatch = RegExp(r'\((.+?)\s+#(\d+)\)$').firstMatch(title);
@@ -263,6 +268,11 @@ class CsvImportHelper {
         nSaga = sagaMatch.group(2);
         title = title.replaceAll(sagaMatch.group(0)!, '').trim();
       }
+    }
+
+    // Remove trailing comma from saga if present
+    if (saga != null && saga.endsWith(',')) {
+      saga = saga.substring(0, saga.length - 1).trim();
     }
 
     // Clean ISBN if it has ="" format

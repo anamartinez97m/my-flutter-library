@@ -21,7 +21,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 3,
+      version: 4,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -112,6 +112,7 @@ class DatabaseHelper {
         bundle_numbers TEXT,
         bundle_start_dates TEXT,
         bundle_end_dates TEXT,
+        bundle_pages TEXT,
         FOREIGN KEY (status_id) REFERENCES status (status_id),
         FOREIGN KEY (editorial_id) REFERENCES editorial (editorial_id),
         FOREIGN KEY (language_id) REFERENCES language (language_id),
@@ -187,6 +188,12 @@ class DatabaseHelper {
       );
       await db.execute(
         'ALTER TABLE book ADD COLUMN bundle_end_dates TEXT',
+      );
+    }
+    if (oldVersion < 4) {
+      // Add bundle_pages column for version 4
+      await db.execute(
+        'ALTER TABLE book ADD COLUMN bundle_pages TEXT',
       );
     }
   }

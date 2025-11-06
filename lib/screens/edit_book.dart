@@ -39,13 +39,14 @@ class _EditBookScreenState extends State<EditBookScreen> {
   late int _readCount;
   DateTime? _dateReadInitial;
   DateTime? _dateReadFinal;
-  
+
   // Bundle fields
   late bool _isBundle;
   int? _bundleCount;
   String? _bundleNumbers;
   List<DateTime?>? _bundleStartDates;
   List<DateTime?>? _bundleEndDates;
+  List<int?>? _bundlePages;
 
   // Dropdown values
   int? _selectedStatusId;
@@ -61,12 +62,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
   List<Map<String, dynamic>> _languageList = [];
   List<Map<String, dynamic>> _placeList = [];
   List<Map<String, dynamic>> _formatList = [];
-  
+
   // Autocomplete suggestions
   List<String> _authorSuggestions = [];
   List<String> _genreSuggestions = [];
   List<String> _editorialSuggestions = [];
-  
+
   // Multi-value fields
   List<String> _selectedAuthors = [];
   List<String> _selectedGenres = [];
@@ -80,27 +81,32 @@ class _EditBookScreenState extends State<EditBookScreen> {
     if (trimmed.isEmpty) return trimmed;
     return trimmed[0].toUpperCase() + trimmed.substring(1).toLowerCase();
   }
-  
+
   /// Get publication year or full date (YYYYMMDD) for TBReleased books
   int? _getPublicationYearOrDate() {
     final yearStr = _publicationYearController.text.trim();
     if (yearStr.isEmpty) return null;
-    
+
     final year = int.tryParse(yearStr);
     if (year == null) return null;
-    
+
     // Check if this is a TBReleased book with release date
-    final isTBReleased = _statusList.isNotEmpty && 
+    final isTBReleased =
+        _statusList.isNotEmpty &&
         _selectedStatusId != null &&
-        _statusList.any((s) => 
-          s['status_id'] == _selectedStatusId && 
-          (s['value'] as String).toLowerCase() == 'tbreleased');
-    
+        _statusList.any(
+          (s) =>
+              s['status_id'] == _selectedStatusId &&
+              (s['value'] as String).toLowerCase() == 'tbreleased',
+        );
+
     if (isTBReleased && _releaseDate != null) {
       // Store as YYYYMMDD
-      return _releaseDate!.year * 10000 + _releaseDate!.month * 100 + _releaseDate!.day;
+      return _releaseDate!.year * 10000 +
+          _releaseDate!.month * 100 +
+          _releaseDate!.day;
     }
-    
+
     // Just return the year
     return year;
   }
@@ -116,15 +122,27 @@ class _EditBookScreenState extends State<EditBookScreen> {
     _nameController = TextEditingController(text: widget.book.name ?? '');
     _isbnController = TextEditingController(text: widget.book.isbn ?? '');
     _authorController = TextEditingController(text: widget.book.author ?? '');
-    _editorialController = TextEditingController(text: widget.book.editorialValue ?? '');
+    _editorialController = TextEditingController(
+      text: widget.book.editorialValue ?? '',
+    );
     _genreController = TextEditingController(text: widget.book.genre ?? '');
-    
+
     // Initialize chip values from comma-separated strings
     if (widget.book.author != null && widget.book.author!.isNotEmpty) {
-      _selectedAuthors = widget.book.author!.split(',').map((a) => a.trim()).where((a) => a.isNotEmpty).toList();
+      _selectedAuthors =
+          widget.book.author!
+              .split(',')
+              .map((a) => a.trim())
+              .where((a) => a.isNotEmpty)
+              .toList();
     }
     if (widget.book.genre != null && widget.book.genre!.isNotEmpty) {
-      _selectedGenres = widget.book.genre!.split(',').map((g) => g.trim()).where((g) => g.isNotEmpty).toList();
+      _selectedGenres =
+          widget.book.genre!
+              .split(',')
+              .map((g) => g.trim())
+              .where((g) => g.isNotEmpty)
+              .toList();
     }
     _sagaController = TextEditingController(text: widget.book.saga);
     _nSagaController = TextEditingController(text: widget.book.nSaga);
@@ -134,9 +152,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
     _publicationYearController = TextEditingController(
       text: widget.book.originalPublicationYear?.toString() ?? '',
     );
-    
+
     // Parse release date if it's in YYYYMMDD format (> 9999)
-    if (widget.book.originalPublicationYear != null && widget.book.originalPublicationYear! > 9999) {
+    if (widget.book.originalPublicationYear != null &&
+        widget.book.originalPublicationYear! > 9999) {
       final dateInt = widget.book.originalPublicationYear!;
       final year = dateInt ~/ 10000;
       final month = (dateInt % 10000) ~/ 100;
@@ -156,17 +175,18 @@ class _EditBookScreenState extends State<EditBookScreen> {
     _myRating = widget.book.myRating ?? 0.0;
     _readCount = widget.book.readCount ?? 0;
     _selectedLoaned = widget.book.loaned;
-    
+
     // Initialize bundle fields
     _isBundle = widget.book.isBundle ?? false;
     _bundleCount = widget.book.bundleCount;
     _bundleNumbers = widget.book.bundleNumbers;
-    
+
     // Parse bundle dates from JSON
     if (widget.book.bundleStartDates != null) {
       try {
         final List<dynamic> dates = jsonDecode(widget.book.bundleStartDates!);
-        _bundleStartDates = dates.map((d) => d != null ? DateTime.parse(d) : null).toList();
+        _bundleStartDates =
+            dates.map((d) => d != null ? DateTime.parse(d) : null).toList();
       } catch (e) {
         _bundleStartDates = null;
       }
@@ -174,9 +194,18 @@ class _EditBookScreenState extends State<EditBookScreen> {
     if (widget.book.bundleEndDates != null) {
       try {
         final List<dynamic> dates = jsonDecode(widget.book.bundleEndDates!);
-        _bundleEndDates = dates.map((d) => d != null ? DateTime.parse(d) : null).toList();
+        _bundleEndDates =
+            dates.map((d) => d != null ? DateTime.parse(d) : null).toList();
       } catch (e) {
         _bundleEndDates = null;
+      }
+    }
+    if (widget.book.bundlePages != null) {
+      try {
+        final List<dynamic> pages = jsonDecode(widget.book.bundlePages!);
+        _bundlePages = pages.map((p) => p as int?).toList();
+      } catch (e) {
+        _bundlePages = null;
       }
     }
 
@@ -212,46 +241,83 @@ class _EditBookScreenState extends State<EditBookScreen> {
       final editorials = await repository.getLookupValues('editorial');
 
       setState(() {
-        _statusList = status;
-        _formatSagaList = formatSaga;
-        _languageList = language;
-        _placeList = place;
-        _formatList = format;
+        // Deduplicate lists by ID to avoid dropdown errors
+        _statusList = _deduplicateById(status, 'status_id');
+        _formatSagaList = _deduplicateById(formatSaga, 'format_id');
+        _languageList = _deduplicateById(language, 'language_id');
+        _placeList = _deduplicateById(place, 'place_id');
+        _formatList = _deduplicateById(format, 'format_id');
+
+        // Debug: Check for duplicates
+        debugPrint('Status list after dedup: ${_statusList.length} items');
+        debugPrint('Original status list: ${status.length} items');
+        if (status.length != _statusList.length) {
+          debugPrint('WARNING: Found ${status.length - _statusList.length} duplicate status entries!');
+          debugPrint('Status list: ${_statusList.map((s) => '${s['status_id']}: ${s['value']}').join(', ')}');
+        }
+        debugPrint('Looking for status: ${widget.book.statusValue}');
         _authorSuggestions = authors.map((a) => a['name'] as String).toList();
         _genreSuggestions = genres.map((g) => g['name'] as String).toList();
-        _editorialSuggestions = editorials.map((e) => e['name'] as String).toList();
+        _editorialSuggestions =
+            editorials.map((e) => e['name'] as String).toList();
 
         // Set selected dropdown values based on book data
-        _selectedStatusId = _findIdByValue(
+        // Validate that the selected ID exists in the deduplicated list
+        final tempStatusId = _findIdByValue(
           _statusList,
           'status_id',
           'value',
           widget.book.statusValue,
         );
-        _selectedFormatSagaId = _findIdByValue(
+        debugPrint('Found status ID: $tempStatusId');
+        final statusExists = _statusList.any((s) => s['status_id'] == tempStatusId);
+        debugPrint('Status ID exists in list: $statusExists');
+        _selectedStatusId = statusExists ? tempStatusId : (_statusList.isNotEmpty ? _statusList.first['status_id'] as int? : null);
+        debugPrint('Selected status ID: $_selectedStatusId');
+
+        final tempFormatSagaId = _findIdByValue(
           _formatSagaList,
           'format_id',
           'value',
           widget.book.formatSagaValue,
         );
-        _selectedLanguageId = _findIdByValue(
+        _selectedFormatSagaId =
+            _formatSagaList.any((f) => f['format_id'] == tempFormatSagaId)
+                ? tempFormatSagaId
+                : null;
+
+        final tempLanguageId = _findIdByValue(
           _languageList,
           'language_id',
           'name',
           widget.book.languageValue,
         );
-        _selectedPlaceId = _findIdByValue(
+        _selectedLanguageId =
+            _languageList.any((l) => l['language_id'] == tempLanguageId)
+                ? tempLanguageId
+                : null;
+
+        final tempPlaceId = _findIdByValue(
           _placeList,
           'place_id',
           'name',
           widget.book.placeValue,
         );
-        _selectedFormatId = _findIdByValue(
+        _selectedPlaceId =
+            _placeList.any((p) => p['place_id'] == tempPlaceId)
+                ? tempPlaceId
+                : null;
+
+        final tempFormatId = _findIdByValue(
           _formatList,
           'format_id',
           'value',
           widget.book.formatValue,
         );
+        _selectedFormatId =
+            _formatList.any((f) => f['format_id'] == tempFormatId)
+                ? tempFormatId
+                : null;
 
         _isLoading = false;
       });
@@ -261,6 +327,37 @@ class _EditBookScreenState extends State<EditBookScreen> {
         _isLoading = false;
       });
     }
+  }
+
+  List<Map<String, dynamic>> _deduplicateById(
+    List<Map<String, dynamic>> list,
+    String idColumn,
+  ) {
+    final seen = <int>{};
+    final seenValues = <String>{};
+    final result = <Map<String, dynamic>>[];
+
+    // Determine value column based on table
+    final valueColumn =
+        idColumn.contains('status') || idColumn.contains('format')
+            ? 'value'
+            : 'name';
+
+    for (final item in list) {
+      final id = item[idColumn] as int?;
+      final value = item[valueColumn]?.toString().toLowerCase();
+
+      // Skip if we've seen this ID or this value (case-insensitive)
+      if (id != null &&
+          !seen.contains(id) &&
+          (value == null || !seenValues.contains(value))) {
+        seen.add(id);
+        if (value != null) seenValues.add(value);
+        result.add(item);
+      }
+    }
+
+    return result;
   }
 
   int? _findIdByValue(
@@ -334,10 +431,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
             _isbnController.text.trim().isEmpty
                 ? null
                 : _isbnController.text.trim(),
-        author:
-            _selectedAuthors.isEmpty
-                ? null
-                : _selectedAuthors.join(', '),
+        author: _selectedAuthors.isEmpty ? null : _selectedAuthors.join(', '),
         saga:
             _sagaController.text.trim().isEmpty
                 ? null
@@ -362,10 +456,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
         formatValue: formatValue,
         formatSagaValue: formatSagaValue,
         createdAt: widget.book.createdAt,
-        genre:
-            _selectedGenres.isEmpty
-                ? null
-                : _selectedGenres.join(', '),
+        genre: _selectedGenres.isEmpty ? null : _selectedGenres.join(', '),
         dateReadInitial: _dateReadInitial?.toIso8601String(),
         dateReadFinal: _dateReadFinal?.toIso8601String(),
         readCount: _readCount,
@@ -377,8 +468,19 @@ class _EditBookScreenState extends State<EditBookScreen> {
         isBundle: _isBundle,
         bundleCount: _bundleCount,
         bundleNumbers: _bundleNumbers,
-        bundleStartDates: _bundleStartDates != null ? jsonEncode(_bundleStartDates!.map((d) => d?.toIso8601String()).toList()) : null,
-        bundleEndDates: _bundleEndDates != null ? jsonEncode(_bundleEndDates!.map((d) => d?.toIso8601String()).toList()) : null,
+        bundleStartDates:
+            _bundleStartDates != null
+                ? jsonEncode(
+                  _bundleStartDates!.map((d) => d?.toIso8601String()).toList(),
+                )
+                : null,
+        bundleEndDates:
+            _bundleEndDates != null
+                ? jsonEncode(
+                  _bundleEndDates!.map((d) => d?.toIso8601String()).toList(),
+                )
+                : null,
+        bundlePages: _bundlePages != null ? jsonEncode(_bundlePages!) : null,
       );
 
       // Update the book (delete and re-add with same ID)
@@ -412,6 +514,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
         bundleNumbers: updatedBook.bundleNumbers,
         bundleStartDates: updatedBook.bundleStartDates,
         bundleEndDates: updatedBook.bundleEndDates,
+        bundlePages: updatedBook.bundlePages,
       );
       await repository.addBook(bookToAdd);
 
@@ -467,553 +570,579 @@ class _EditBookScreenState extends State<EditBookScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Edit Book'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_outlined),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
         ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 16),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(20.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 16),
 
-              // Name field
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Book Name',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.book),
+                // Name field
+                TextFormField(
+                  controller: _nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Book Name',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.book),
+                  ),
+                  textCapitalization: TextCapitalization.sentences,
                 ),
-                textCapitalization: TextCapitalization.sentences,
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              // ISBN field
-              TextFormField(
-                controller: _isbnController,
-                decoration: const InputDecoration(
-                  labelText: 'ISBN',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.numbers),
+                // ISBN field
+                TextFormField(
+                  controller: _isbnController,
+                  decoration: const InputDecoration(
+                    labelText: 'ISBN',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.numbers),
+                  ),
+                  keyboardType: TextInputType.number,
                 ),
-                keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              // Author field
-              ChipAutocompleteField(
-                labelText: 'Author(s)',
-                prefixIcon: Icons.person,
-                suggestions: _authorSuggestions,
-                initialValues: _selectedAuthors,
-                hintText: 'Type to search or add new author',
-                onChanged: (values) {
-                  setState(() {
-                    _selectedAuthors = values;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Editorial field
-              AutocompleteTextField(
-                controller: _editorialController,
-                labelText: 'Editorial',
-                prefixIcon: Icons.business,
-                suggestions: _editorialSuggestions,
-                textCapitalization: TextCapitalization.words,
-              ),
-              const SizedBox(height: 16),
-
-              // Genre field
-              ChipAutocompleteField(
-                labelText: 'Genre(s)',
-                prefixIcon: Icons.category,
-                suggestions: _genreSuggestions,
-                initialValues: _selectedGenres,
-                hintText: 'Type to search or add new genre',
-                onChanged: (values) {
-                  setState(() {
-                    _selectedGenres = values;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Saga field
-              TextFormField(
-                controller: _sagaController,
-                decoration: const InputDecoration(
-                  labelText: 'Saga',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.collections_bookmark),
+                // Author field
+                ChipAutocompleteField(
+                  labelText: 'Author(s)',
+                  prefixIcon: Icons.person,
+                  suggestions: _authorSuggestions,
+                  initialValues: _selectedAuthors,
+                  hintText: 'Type to search or add new author',
+                  onChanged: (values) {
+                    setState(() {
+                      _selectedAuthors = values;
+                    });
+                  },
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              // N Saga field
-              TextFormField(
-                controller: _nSagaController,
-                decoration: const InputDecoration(
-                  labelText: 'Saga Number',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.format_list_numbered),
+                // Editorial field
+                AutocompleteTextField(
+                  controller: _editorialController,
+                  labelText: 'Editorial',
+                  prefixIcon: Icons.business,
+                  suggestions: _editorialSuggestions,
+                  textCapitalization: TextCapitalization.words,
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              // Pages field
-              TextFormField(
-                controller: _pagesController,
-                decoration: const InputDecoration(
-                  labelText: 'Pages',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.description),
+                // Genre field
+                ChipAutocompleteField(
+                  labelText: 'Genre(s)',
+                  prefixIcon: Icons.category,
+                  suggestions: _genreSuggestions,
+                  initialValues: _selectedGenres,
+                  hintText: 'Type to search or add new genre',
+                  onChanged: (values) {
+                    setState(() {
+                      _selectedGenres = values;
+                    });
+                  },
                 ),
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              // Publication Year field
-              TextFormField(
-                controller: _publicationYearController,
-                decoration: const InputDecoration(
-                  labelText: 'Publication Year',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.calendar_today),
+                // Saga field
+                TextFormField(
+                  controller: _sagaController,
+                  decoration: const InputDecoration(
+                    labelText: 'Saga',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.collections_bookmark),
+                  ),
                 ),
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              ),
-              const SizedBox(height: 16),
-              
-              // Release date picker (only for TBReleased books)
-              if (_statusList.isNotEmpty && 
-                  _selectedStatusId != null &&
-                  _statusList.any((s) => 
-                    s['status_id'] == _selectedStatusId && 
-                    (s['value'] as String).toLowerCase() == 'tbreleased'))
+                const SizedBox(height: 16),
+
+                // N Saga field
+                TextFormField(
+                  controller: _nSagaController,
+                  decoration: const InputDecoration(
+                    labelText: 'Saga Number',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.format_list_numbered),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Pages field
+                TextFormField(
+                  controller: _pagesController,
+                  decoration: const InputDecoration(
+                    labelText: 'Pages',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.description),
+                  ),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                ),
+                const SizedBox(height: 16),
+
+                // Publication Year field
+                TextFormField(
+                  controller: _publicationYearController,
+                  decoration: const InputDecoration(
+                    labelText: 'Publication Year',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.calendar_today),
+                  ),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                ),
+                const SizedBox(height: 16),
+
+                // Release date picker (only for TBReleased books)
+                if (_statusList.isNotEmpty &&
+                    _selectedStatusId != null &&
+                    _statusList.any(
+                      (s) =>
+                          s['status_id'] == _selectedStatusId &&
+                          (s['value'] as String).toLowerCase() == 'tbreleased',
+                    ))
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Original Publication Date (for notifications)',
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      InkWell(
+                        onTap: () async {
+                          final pickedDate = await showDatePicker(
+                            context: context,
+                            initialDate: _releaseDate ?? DateTime.now(),
+                            firstDate: DateTime(1900),
+                            lastDate: DateTime(2100),
+                          );
+                          if (pickedDate != null) {
+                            setState(() {
+                              _releaseDate = pickedDate;
+                              // Update publication year to match
+                              _publicationYearController.text =
+                                  pickedDate.year.toString();
+                            });
+                          }
+                        },
+                        child: InputDecorator(
+                          decoration: const InputDecoration(
+                            labelText: 'Release Date',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.calendar_today),
+                          ),
+                          child: Text(
+                            _releaseDate != null
+                                ? '${_releaseDate!.day}/${_releaseDate!.month}/${_releaseDate!.year}'
+                                : 'Select release date',
+                            style: TextStyle(
+                              color: _releaseDate != null ? null : Colors.grey,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+
+                // Status dropdown (required)
+                DropdownButtonFormField<int>(
+                  value: _selectedStatusId,
+                  decoration: const InputDecoration(
+                    labelText: 'Status *',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.check_circle),
+                  ),
+                  items:
+                      _statusList.map((status) {
+                        return DropdownMenuItem<int>(
+                          value: status['status_id'] as int,
+                          child: Text(status['value'] as String),
+                        );
+                      }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedStatusId = value;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Status is required';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // Format Saga dropdown
+                DropdownButtonFormField<int>(
+                  value: _selectedFormatSagaId,
+                  decoration: const InputDecoration(
+                    labelText: 'Format Saga',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.format_shapes),
+                  ),
+                  items:
+                      _formatSagaList.map((format) {
+                        return DropdownMenuItem<int>(
+                          value: format['format_id'] as int,
+                          child: Text(format['value'] as String),
+                        );
+                      }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedFormatSagaId = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // Language dropdown
+                DropdownButtonFormField<int>(
+                  value: _selectedLanguageId,
+                  decoration: const InputDecoration(
+                    labelText: 'Language',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.language),
+                  ),
+                  items:
+                      _languageList.map((lang) {
+                        return DropdownMenuItem<int>(
+                          value: lang['language_id'] as int,
+                          child: Text(lang['name'] as String),
+                        );
+                      }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedLanguageId = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // Place dropdown
+                DropdownButtonFormField<int>(
+                  value: _selectedPlaceId,
+                  decoration: const InputDecoration(
+                    labelText: 'Place',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.place),
+                  ),
+                  items:
+                      _placeList.map((place) {
+                        return DropdownMenuItem<int>(
+                          value: place['place_id'] as int,
+                          child: Text(place['name'] as String),
+                        );
+                      }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedPlaceId = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // Format dropdown
+                DropdownButtonFormField<int>(
+                  value: _selectedFormatId,
+                  decoration: const InputDecoration(
+                    labelText: 'Format',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.import_contacts),
+                  ),
+                  items:
+                      _formatList.map((format) {
+                        return DropdownMenuItem<int>(
+                          value: format['format_id'] as int,
+                          child: Text(format['value'] as String),
+                        );
+                      }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedFormatId = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // Loaned dropdown
+                DropdownButtonFormField<String>(
+                  value: _selectedLoaned,
+                  decoration: const InputDecoration(
+                    labelText: 'Loaned',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.swap_horiz),
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: 'Yes', child: Text('Yes')),
+                    DropdownMenuItem(value: 'No', child: Text('No')),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedLoaned = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 32),
+
+                // Bundle section
+                BundleInputWidget(
+                  initialIsBundle: _isBundle,
+                  initialBundleCount: _bundleCount,
+                  initialBundleNumbers: _bundleNumbers,
+                  initialStartDates: _bundleStartDates,
+                  initialEndDates: _bundleEndDates,
+                  initialBundlePages: _bundlePages,
+                  onChanged: (
+                    isBundle,
+                    count,
+                    numbers,
+                    startDates,
+                    endDates,
+                    bundlePages,
+                  ) {
+                    setState(() {
+                      _isBundle = isBundle;
+                      _bundleCount = count;
+                      _bundleNumbers = numbers;
+                      _bundleStartDates = startDates;
+                      _bundleEndDates = endDates;
+                      _bundlePages = bundlePages;
+                    });
+                  },
+                ),
+                const SizedBox(height: 32),
+
+                // New fields section
+                Text(
+                  'Reading Information (Optional)',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // My Rating with hearts
+                HeartRatingInput(
+                  initialRating: _myRating,
+                  onRatingChanged: (rating) {
+                    setState(() {
+                      _myRating = rating;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // Read Count with - and + buttons
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Original Publication Date (for notifications)',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
+                      'Times Read',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    InkWell(
-                      onTap: () async {
-                        final pickedDate = await showDatePicker(
-                          context: context,
-                          initialDate: _releaseDate ?? DateTime.now(),
-                          firstDate: DateTime(1900),
-                          lastDate: DateTime(2100),
-                        );
-                        if (pickedDate != null) {
-                          setState(() {
-                            _releaseDate = pickedDate;
-                            // Update publication year to match
-                            _publicationYearController.text = pickedDate.year.toString();
-                          });
-                        }
-                      },
-                      child: InputDecorator(
-                        decoration: const InputDecoration(
-                          labelText: 'Release Date',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.calendar_today),
-                        ),
-                        child: Text(
-                          _releaseDate != null
-                              ? '${_releaseDate!.day}/${_releaseDate!.month}/${_releaseDate!.year}'
-                              : 'Select release date',
-                          style: TextStyle(
-                            color: _releaseDate != null ? null : Colors.grey,
+                    Row(
+                      children: [
+                        // Minus button
+                        IconButton(
+                          onPressed:
+                              _readCount > 0
+                                  ? () {
+                                    setState(() {
+                                      _readCount--;
+                                    });
+                                  }
+                                  : null,
+                          icon: const Icon(Icons.remove),
+                          style: IconButton.styleFrom(
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.primary.withOpacity(0.1),
+                            foregroundColor:
+                                Theme.of(context).colorScheme.primary,
+                            disabledBackgroundColor: Colors.grey[200],
+                            disabledForegroundColor: Colors.grey[400],
                           ),
                         ),
-                      ),
+                        const SizedBox(width: 12),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey[400]!),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            '$_readCount',
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        // Plus button
+                        IconButton(
+                          onPressed: () {
+                            setState(() {
+                              _readCount++;
+                            });
+                          },
+                          icon: const Icon(Icons.add),
+                          style: IconButton.styleFrom(
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary,
+                            foregroundColor:
+                                Theme.of(context).colorScheme.onPrimary,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 16),
                   ],
                 ),
+                const SizedBox(height: 16),
 
-              // Status dropdown (required)
-              DropdownButtonFormField<int>(
-                value: _selectedStatusId,
-                decoration: const InputDecoration(
-                  labelText: 'Status *',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.check_circle),
-                ),
-                items:
-                    _statusList.map((status) {
-                      return DropdownMenuItem<int>(
-                        value: status['status_id'] as int,
-                        child: Text(status['value'] as String),
-                      );
-                    }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedStatusId = value;
-                  });
-                },
-                validator: (value) {
-                  if (value == null) {
-                    return 'Status is required';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Format Saga dropdown
-              DropdownButtonFormField<int>(
-                value: _selectedFormatSagaId,
-                decoration: const InputDecoration(
-                  labelText: 'Format Saga',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.format_shapes),
-                ),
-                items:
-                    _formatSagaList.map((format) {
-                      return DropdownMenuItem<int>(
-                        value: format['format_id'] as int,
-                        child: Text(format['value'] as String),
-                      );
-                    }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedFormatSagaId = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Language dropdown
-              DropdownButtonFormField<int>(
-                value: _selectedLanguageId,
-                decoration: const InputDecoration(
-                  labelText: 'Language',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.language),
-                ),
-                items:
-                    _languageList.map((lang) {
-                      return DropdownMenuItem<int>(
-                        value: lang['language_id'] as int,
-                        child: Text(lang['name'] as String),
-                      );
-                    }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedLanguageId = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Place dropdown
-              DropdownButtonFormField<int>(
-                value: _selectedPlaceId,
-                decoration: const InputDecoration(
-                  labelText: 'Place',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.place),
-                ),
-                items:
-                    _placeList.map((place) {
-                      return DropdownMenuItem<int>(
-                        value: place['place_id'] as int,
-                        child: Text(place['name'] as String),
-                      );
-                    }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedPlaceId = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Format dropdown
-              DropdownButtonFormField<int>(
-                value: _selectedFormatId,
-                decoration: const InputDecoration(
-                  labelText: 'Format',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.import_contacts),
-                ),
-                items:
-                    _formatList.map((format) {
-                      return DropdownMenuItem<int>(
-                        value: format['format_id'] as int,
-                        child: Text(format['value'] as String),
-                      );
-                    }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedFormatId = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Loaned dropdown
-              DropdownButtonFormField<String>(
-                value: _selectedLoaned,
-                decoration: const InputDecoration(
-                  labelText: 'Loaned',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.swap_horiz),
-                ),
-                items: const [
-                  DropdownMenuItem(value: 'Yes', child: Text('Yes')),
-                  DropdownMenuItem(value: 'No', child: Text('No')),
-                ],
-                onChanged: (value) {
-                  setState(() {
-                    _selectedLoaned = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 32),
-
-              // Bundle section
-              BundleInputWidget(
-                initialIsBundle: _isBundle,
-                initialBundleCount: _bundleCount,
-                initialBundleNumbers: _bundleNumbers,
-                initialStartDates: _bundleStartDates,
-                initialEndDates: _bundleEndDates,
-                onChanged: (isBundle, count, numbers, startDates, endDates) {
-                  setState(() {
-                    _isBundle = isBundle;
-                    _bundleCount = count;
-                    _bundleNumbers = numbers;
-                    _bundleStartDates = startDates;
-                    _bundleEndDates = endDates;
-                  });
-                },
-              ),
-              const SizedBox(height: 32),
-
-              // New fields section
-              Text(
-                'Reading Information (Optional)',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // My Rating with hearts
-              HeartRatingInput(
-                initialRating: _myRating,
-                onRatingChanged: (rating) {
-                  setState(() {
-                    _myRating = rating;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Read Count with - and + buttons
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Times Read',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey[700],
-                          fontWeight: FontWeight.w500,
-                        ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      // Minus button
-                      IconButton(
-                        onPressed: _readCount > 0
-                            ? () {
-                                setState(() {
-                                  _readCount--;
-                                });
-                              }
-                            : null,
-                        icon: const Icon(Icons.remove),
-                        style: IconButton.styleFrom(
-                          backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                          foregroundColor: Theme.of(context).colorScheme.primary,
-                          disabledBackgroundColor: Colors.grey[200],
-                          disabledForegroundColor: Colors.grey[400],
-                        ),
+                // Date Started Reading
+                InkWell(
+                  onTap: () async {
+                    final date = await showDatePicker(
+                      context: context,
+                      initialDate: _dateReadInitial ?? DateTime.now(),
+                      firstDate: DateTime(1900),
+                      lastDate: DateTime.now(),
+                    );
+                    if (date != null) {
+                      setState(() {
+                        _dateReadInitial = date;
+                      });
+                    }
+                  },
+                  child: InputDecorator(
+                    decoration: InputDecoration(
+                      labelText: 'Date Started Reading',
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.event),
+                      suffixIcon:
+                          _dateReadInitial != null
+                              ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  setState(() {
+                                    _dateReadInitial = null;
+                                  });
+                                },
+                              )
+                              : null,
+                    ),
+                    child: Text(
+                      _dateReadInitial != null
+                          ? '${_dateReadInitial!.year}-${_dateReadInitial!.month.toString().padLeft(2, '0')}-${_dateReadInitial!.day.toString().padLeft(2, '0')}'
+                          : 'Select date',
+                      style: TextStyle(
+                        color:
+                            _dateReadInitial != null ? null : Colors.grey[600],
                       ),
-                      const SizedBox(width: 12),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey[400]!),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          '$_readCount',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      // Plus button
-                      IconButton(
-                        onPressed: () {
-                          setState(() {
-                            _readCount++;
-                          });
-                        },
-                        icon: const Icon(Icons.add),
-                        style: IconButton.styleFrom(
-                          backgroundColor: Theme.of(context).colorScheme.primary,
-                          foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              // Date Started Reading
-              InkWell(
-                onTap: () async {
-                  final date = await showDatePicker(
-                    context: context,
-                    initialDate: _dateReadInitial ?? DateTime.now(),
-                    firstDate: DateTime(1900),
-                    lastDate: DateTime.now(),
-                  );
-                  if (date != null) {
-                    setState(() {
-                      _dateReadInitial = date;
-                    });
-                  }
-                },
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    labelText: 'Date Started Reading',
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.event),
-                    suffixIcon: _dateReadInitial != null
-                        ? IconButton(
-                            icon: const Icon(Icons.clear),
-                            onPressed: () {
-                              setState(() {
-                                _dateReadInitial = null;
-                              });
-                            },
-                          )
-                        : null,
-                  ),
-                  child: Text(
-                    _dateReadInitial != null
-                        ? '${_dateReadInitial!.year}-${_dateReadInitial!.month.toString().padLeft(2, '0')}-${_dateReadInitial!.day.toString().padLeft(2, '0')}'
-                        : 'Select date',
-                    style: TextStyle(
-                      color: _dateReadInitial != null ? null : Colors.grey[600],
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              // Date Finished Reading
-              InkWell(
-                onTap: () async {
-                  final date = await showDatePicker(
-                    context: context,
-                    initialDate: _dateReadFinal ?? DateTime.now(),
-                    firstDate: DateTime(1900),
-                    lastDate: DateTime.now(),
-                  );
-                  if (date != null) {
-                    setState(() {
-                      _dateReadFinal = date;
-                      // Auto-increment read count when finishing a book
-                      _readCount++;
-                    });
-                  }
-                },
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    labelText: 'Date Finished Reading',
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.event_available),
-                    suffixIcon: _dateReadFinal != null
-                        ? IconButton(
-                            icon: const Icon(Icons.clear),
-                            onPressed: () {
-                              setState(() {
-                                _dateReadFinal = null;
-                              });
-                            },
-                          )
-                        : null,
-                  ),
-                  child: Text(
-                    _dateReadFinal != null
-                        ? '${_dateReadFinal!.year}-${_dateReadFinal!.month.toString().padLeft(2, '0')}-${_dateReadFinal!.day.toString().padLeft(2, '0')}'
-                        : 'Select date',
-                    style: TextStyle(
-                      color: _dateReadFinal != null ? null : Colors.grey[600],
+                // Date Finished Reading
+                InkWell(
+                  onTap: () async {
+                    final date = await showDatePicker(
+                      context: context,
+                      initialDate: _dateReadFinal ?? DateTime.now(),
+                      firstDate: DateTime(1900),
+                      lastDate: DateTime.now(),
+                    );
+                    if (date != null) {
+                      setState(() {
+                        _dateReadFinal = date;
+                        // Auto-increment read count when finishing a book
+                        _readCount++;
+                      });
+                    }
+                  },
+                  child: InputDecorator(
+                    decoration: InputDecoration(
+                      labelText: 'Date Finished Reading',
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.event_available),
+                      suffixIcon:
+                          _dateReadFinal != null
+                              ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  setState(() {
+                                    _dateReadFinal = null;
+                                  });
+                                },
+                              )
+                              : null,
+                    ),
+                    child: Text(
+                      _dateReadFinal != null
+                          ? '${_dateReadFinal!.year}-${_dateReadFinal!.month.toString().padLeft(2, '0')}-${_dateReadFinal!.day.toString().padLeft(2, '0')}'
+                          : 'Select date',
+                      style: TextStyle(
+                        color: _dateReadFinal != null ? null : Colors.grey[600],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              // My Review field
-              TextFormField(
-                controller: _myReviewController,
-                decoration: const InputDecoration(
-                  labelText: 'My Review',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.rate_review),
-                  hintText: 'Write your thoughts about this book...',
+                // My Review field
+                TextFormField(
+                  controller: _myReviewController,
+                  decoration: const InputDecoration(
+                    labelText: 'My Review',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.rate_review),
+                    hintText: 'Write your thoughts about this book...',
+                  ),
+                  maxLines: 5,
+                  keyboardType: TextInputType.multiline,
+                  textCapitalization: TextCapitalization.sentences,
                 ),
-                maxLines: 5,
-                keyboardType: TextInputType.multiline,
-                textCapitalization: TextCapitalization.sentences,
-              ),
-              const SizedBox(height: 32),
+                const SizedBox(height: 32),
 
-              // Update button
-              ElevatedButton(
-                onPressed: _updateBook,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                // Update button
+                ElevatedButton(
+                  onPressed: _updateBook,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Update Book',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
-                child: const Text(
-                  'Update Book',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(height: 50), // Bottom margin
-            ],
+                const SizedBox(height: 50), // Bottom margin
+              ],
+            ),
           ),
         ),
-      ),
       ),
     );
   }

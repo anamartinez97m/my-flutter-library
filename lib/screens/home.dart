@@ -31,6 +31,9 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _selectedGenre;
   String? _selectedPlace;
   String? _selectedStatus;
+  String? _selectedTitle;
+  String? _selectedIsbn;
+  String? _selectedAuthor;
 
   @override
   void initState() {
@@ -48,6 +51,9 @@ class _HomeScreenState extends State<HomeScreen> {
           _selectedGenre = provider.currentFilters['genre'];
           _selectedPlace = provider.currentFilters['place'];
           _selectedStatus = provider.currentFilters['status'];
+          _selectedTitle = provider.currentFilters['title'];
+          _selectedIsbn = provider.currentFilters['isbn'];
+          _selectedAuthor = provider.currentFilters['author'];
 
           // Restore sort state from provider
           _sortBy = provider.currentSortBy;
@@ -155,6 +161,108 @@ class _HomeScreenState extends State<HomeScreen> {
                         Text(
                           AppLocalizations.of(context)!.filters,
                           style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                        const SizedBox(height: 12),
+                        // Title filter
+                        DropdownButtonFormField<String>(
+                          value: _selectedTitle,
+                          isExpanded: true,
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.book_name,
+                            border: const OutlineInputBorder(),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            isDense: true,
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              value: null,
+                              child: Text(AppLocalizations.of(context)!.any),
+                            ),
+                            const DropdownMenuItem<String>(
+                              value: '__EMPTY__',
+                              child: Text('Empty'),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            setState(() => _selectedTitle = value);
+                            if (value != null) {
+                              provider.filterBooks('title', value);
+                            } else {
+                              provider.filterBooks('all', null);
+                            }
+                            setModalState(() {});
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        // ISBN filter
+                        DropdownButtonFormField<String>(
+                          value: _selectedIsbn,
+                          isExpanded: true,
+                          decoration: const InputDecoration(
+                            labelText: 'ISBN',
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            isDense: true,
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              value: null,
+                              child: Text(AppLocalizations.of(context)!.any),
+                            ),
+                            const DropdownMenuItem<String>(
+                              value: '__EMPTY__',
+                              child: Text('Empty'),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            setState(() => _selectedIsbn = value);
+                            if (value != null) {
+                              provider.filterBooks('isbn', value);
+                            } else {
+                              provider.filterBooks('all', null);
+                            }
+                            setModalState(() {});
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        // Author filter
+                        DropdownButtonFormField<String>(
+                          value: _selectedAuthor,
+                          isExpanded: true,
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.author,
+                            border: const OutlineInputBorder(),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            isDense: true,
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              value: null,
+                              child: Text(AppLocalizations.of(context)!.any),
+                            ),
+                            const DropdownMenuItem<String>(
+                              value: '__EMPTY__',
+                              child: Text('Empty'),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            setState(() => _selectedAuthor = value);
+                            if (value != null) {
+                              provider.filterBooks('author', value);
+                            } else {
+                              provider.filterBooks('all', null);
+                            }
+                            setModalState(() {});
+                          },
                         ),
                         const SizedBox(height: 12),
                         // Status filter
@@ -364,6 +472,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                     _selectedGenre = null;
                                     _selectedPlace = null;
                                     _selectedStatus = null;
+                                    _selectedTitle = null;
+                                    _selectedIsbn = null;
+                                    _selectedAuthor = null;
                                   });
                                   provider.clearAllFilters();
                                   setModalState(() {});

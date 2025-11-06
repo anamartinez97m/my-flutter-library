@@ -193,6 +193,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                 bundleNumbers: bookWithMappedStatus.bundleNumbers?.isNotEmpty == true ? bookWithMappedStatus.bundleNumbers : existingBook.bundleNumbers,
                 bundleStartDates: bookWithMappedStatus.bundleStartDates?.isNotEmpty == true ? bookWithMappedStatus.bundleStartDates : existingBook.bundleStartDates,
                 bundleEndDates: bookWithMappedStatus.bundleEndDates?.isNotEmpty == true ? bookWithMappedStatus.bundleEndDates : existingBook.bundleEndDates,
+                bundlePages: bookWithMappedStatus.bundlePages?.isNotEmpty == true ? bookWithMappedStatus.bundlePages : existingBook.bundlePages,
               );
             }
           } else {
@@ -287,6 +288,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               bundleNumbers: item.book.bundleNumbers,
               bundleStartDates: item.book.bundleStartDates,
               bundleEndDates: item.book.bundleEndDates,
+              bundlePages: item.book.bundlePages,
             );
             await repository.addBook(bookToAdd);
           }
@@ -396,6 +398,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               bundleNumbers: item.book.bundleNumbers,
               bundleStartDates: item.book.bundleStartDates,
               bundleEndDates: item.book.bundleEndDates,
+              bundlePages: item.book.bundlePages,
             );
             await repository.addBook(bookToAdd);
           }

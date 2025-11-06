@@ -35,17 +35,17 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       return isoString.split('T')[0]; // Fallback to date only
     }
   }
-  
+
   /// Build publication info - shows year and optionally full date for TBReleased books
   List<Widget> _buildPublicationInfo(int pubYearOrDate) {
     final widgets = <Widget>[];
-    
+
     // Check if it's a full date (YYYYMMDD format, > 9999)
     if (pubYearOrDate > 9999) {
       final year = pubYearOrDate ~/ 10000;
       final month = (pubYearOrDate % 10000) ~/ 100;
       final day = pubYearOrDate % 100;
-      
+
       // Add year card
       widgets.add(
         _DetailCard(
@@ -54,13 +54,14 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           value: year.toString(),
         ),
       );
-      
+
       // Add full date card
       widgets.add(
         _DetailCard(
           icon: Icons.event,
           label: 'Original Publication Date',
-          value: '${day.toString().padLeft(2, '0')}/${month.toString().padLeft(2, '0')}/$year',
+          value:
+              '${day.toString().padLeft(2, '0')}/${month.toString().padLeft(2, '0')}/$year',
         ),
       );
     } else {
@@ -73,7 +74,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         ),
       );
     }
-    
+
     return widgets;
   }
 
@@ -83,7 +84,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       builder:
           (context) => AlertDialog(
             title: const Text('Confirm Delete'),
-            content: Text('Are you sure you want to delete "${_currentBook.name}"?'),
+            content: Text(
+              'Are you sure you want to delete "${_currentBook.name}"?',
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
@@ -146,306 +149,334 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Book Details'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () async {
-              final updatedBook = await Navigator.push<Book>(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => EditBookScreen(book: _currentBook),
-                ),
-              );
-              if (updatedBook != null && mounted) {
-                setState(() {
-                  _currentBook = updatedBook;
-                });
-              }
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () => _deleteBook(context),
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Image placeholder
-            Container(
-              height: 180,
-              color: Colors.grey[300],
-              child: const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.book, size: 60, color: Colors.grey),
-                    SizedBox(height: 6),
-                    Text(
-                      'Image coming soon',
-                      style: TextStyle(color: Colors.grey, fontSize: 13),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title
-                  Text(
-                    _currentBook.name ?? 'Unknown Title',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () async {
+                final updatedBook = await Navigator.push<Book>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EditBookScreen(book: _currentBook),
                   ),
-                  AppTheme.verticalSpaceLarge,
-
-                  // Description (from API - future implementation)
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.grey[300]!),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.description,
-                              size: 16,
-                              color: Colors.grey[600],
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Description',
-                              style: Theme.of(
-                                context,
-                              ).textTheme.bodySmall?.copyWith(
-                                color: Colors.grey[600],
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                'API',
-                                style: TextStyle(
-                                  fontSize: 9,
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'This is a placeholder for the book description that will be fetched from an external API in future development. The description will provide a summary of the book\'s content, themes, and other relevant information.',
-                          style: Theme.of(
-                            context,
-                          ).textTheme.bodySmall?.copyWith(
-                            color: Colors.grey[700],
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  AppTheme.verticalSpaceXLarge,
-
-                  // Details in cards
-                  if (_currentBook.author != null && _currentBook.author!.isNotEmpty)
-                    _DetailCard(
-                      icon: Icons.person,
-                      label: 'Author(s)',
-                      value: _currentBook.author!,
-                    ),
-                  if (_currentBook.isbn != null && _currentBook.isbn!.isNotEmpty)
-                    _DetailCard(
-                      icon: Icons.numbers,
-                      label: 'ISBN',
-                      value: _currentBook.isbn!,
-                    ),
-                  if (_currentBook.editorialValue != null &&
-                      _currentBook.editorialValue!.isNotEmpty)
-                    _DetailCard(
-                      icon: Icons.business,
-                      label: 'Editorial',
-                      value: _currentBook.editorialValue!,
-                    ),
-                  if (_currentBook.genre != null && _currentBook.genre!.isNotEmpty)
-                    _DetailCard(
-                      icon: Icons.category,
-                      label: 'Genre(s)',
-                      value: _currentBook.genre!,
-                    ),
-                  if (_currentBook.saga != null && _currentBook.saga!.isNotEmpty)
-                    _DetailCard(
-                      icon: Icons.collections_bookmark,
-                      label: 'Saga',
-                      value:
-                          '${_currentBook.saga}${_currentBook.nSaga != null ? ' #${_currentBook.nSaga}' : ''}',
-                    ),
-                  if (_currentBook.pages != null)
-                    _DetailCard(
-                      icon: Icons.description,
-                      label: 'Pages',
-                      value: _currentBook.pages.toString(),
-                    ),
-                  if (_currentBook.originalPublicationYear != null)
-                    ..._buildPublicationInfo(_currentBook.originalPublicationYear!),
-                  if (_currentBook.statusValue != null && _currentBook.statusValue!.isNotEmpty)
-                    _DetailCard(
-                      icon: Icons.check_circle,
-                      label: 'Status',
-                      value: _currentBook.statusValue!,
-                    ),
-                  if (_currentBook.formatSagaValue != null &&
-                      _currentBook.formatSagaValue!.isNotEmpty)
-                    _DetailCard(
-                      icon: Icons.format_shapes,
-                      label: 'Format Saga',
-                      value: _currentBook.formatSagaValue!,
-                    ),
-                  if (_currentBook.languageValue != null &&
-                      _currentBook.languageValue!.isNotEmpty)
-                    _DetailCard(
-                      icon: Icons.language,
-                      label: 'Language',
-                      value: _currentBook.languageValue!,
-                    ),
-                  if (_currentBook.placeValue != null && _currentBook.placeValue!.isNotEmpty)
-                    _DetailCard(
-                      icon: Icons.place,
-                      label: 'Place',
-                      value: _currentBook.placeValue!,
-                    ),
-                  if (_currentBook.formatValue != null && _currentBook.formatValue!.isNotEmpty)
-                    _DetailCard(
-                      icon: Icons.import_contacts,
-                      label: 'Format',
-                      value: _currentBook.formatValue!,
-                    ),
-                  if (_currentBook.loaned != null && _currentBook.loaned!.isNotEmpty)
-                    _DetailCard(
-                      icon: Icons.swap_horiz,
-                      label: 'Loaned',
-                      value: _currentBook.loaned!,
-                    ),
-                  if (_currentBook.createdAt != null && _currentBook.createdAt!.isNotEmpty)
-                    _DetailCard(
-                      icon: Icons.access_time,
-                      label: 'Created',
-                      value: _formatDateTime(_currentBook.createdAt!),
-                    ),
-
-                  // Bundle information
-                  if (_currentBook.isBundle == true) ...[
-                    _DetailCard(
-                      icon: Icons.library_books,
-                      label: 'Bundle',
-                      value: 'Contains ${_currentBook.bundleCount ?? 0} books',
-                    ),
-                    if (_currentBook.bundleNumbers != null && _currentBook.bundleNumbers!.isNotEmpty)
-                      _DetailCard(
-                        icon: Icons.format_list_numbered,
-                        label: 'Saga Numbers',
-                        value: _currentBook.bundleNumbers!,
-                      ),
-                    if (_currentBook.bundleStartDates != null || _currentBook.bundleEndDates != null)
-                      _BundleDatesCard(
-                        startDates: _currentBook.bundleStartDates,
-                        endDates: _currentBook.bundleEndDates,
-                      ),
-                  ],
-
-                  // New fields
-                  if (_currentBook.myRating != null && _currentBook.myRating! > 0)
-                    _RatingCard(label: 'My Rating', rating: _currentBook.myRating!),
-                  if (_currentBook.readCount != null && _currentBook.readCount! > 0)
-                    _DetailCard(
-                      icon: Icons.add_circle_outline,
-                      label: 'Times Read',
-                      value: '${_currentBook.readCount}+',
-                    ),
-                  if (_currentBook.dateReadInitial != null &&
-                      _currentBook.dateReadInitial!.isNotEmpty)
-                    _DetailCard(
-                      icon: Icons.event,
-                      label: 'Date Started Reading',
-                      value: _currentBook.dateReadInitial!.split('T')[0],
-                    ),
-                  if (_currentBook.dateReadFinal != null &&
-                      _currentBook.dateReadFinal!.isNotEmpty)
-                    _DetailCard(
-                      icon: Icons.event_available,
-                      label: 'Date Finished Reading',
-                      value: _currentBook.dateReadFinal!.split('T')[0],
-                    ),
-                  if (_currentBook.myReview != null && _currentBook.myReview!.isNotEmpty)
-                    Card(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      elevation: 1,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Padding(
-                        padding: AppTheme.cardPadding,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.rate_review,
-                                  color: Theme.of(context).colorScheme.primary,
-                                  size: 24,
-                                ),
-                                AppTheme.horizontalSpaceLarge,
-                                Text(
-                                  'My Review',
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.titleMedium?.copyWith(
-                                    color: Colors.grey[600],
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            AppTheme.verticalSpaceMedium,
-                            Text(
-                              _currentBook.myReview!,
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                ],
-              ),
+                );
+                if (updatedBook != null && mounted) {
+                  setState(() {
+                    _currentBook = updatedBook;
+                  });
+                }
+              },
             ),
-            AppTheme.verticalSpaceXXLarge, // Bottom margin
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () => _deleteBook(context),
+            ),
           ],
         ),
-      ),
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Image placeholder
+              Container(
+                height: 180,
+                color: Colors.grey[300],
+                child: const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.book, size: 60, color: Colors.grey),
+                      SizedBox(height: 6),
+                      Text(
+                        'Image coming soon',
+                        style: TextStyle(color: Colors.grey, fontSize: 13),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title
+                    Text(
+                      _currentBook.name ?? 'Unknown Title',
+                      style: Theme.of(
+                        context,
+                      ).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    AppTheme.verticalSpaceLarge,
+
+                    // Description (from API - future implementation)
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey[300]!),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.description,
+                                size: 16,
+                                color: Colors.grey[600],
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Description',
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.bodySmall?.copyWith(
+                                  color: Colors.grey[600],
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.primary.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  'API',
+                                  style: TextStyle(
+                                    fontSize: 9,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'This is a placeholder for the book description that will be fetched from an external API in future development. The description will provide a summary of the book\'s content, themes, and other relevant information.',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodySmall?.copyWith(
+                              color: Colors.grey[700],
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    AppTheme.verticalSpaceXLarge,
+
+                    // Details in cards
+                    if (_currentBook.author != null &&
+                        _currentBook.author!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.person,
+                        label: 'Author(s)',
+                        value: _currentBook.author!,
+                      ),
+                    if (_currentBook.isbn != null &&
+                        _currentBook.isbn!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.numbers,
+                        label: 'ISBN',
+                        value: _currentBook.isbn!,
+                      ),
+                    if (_currentBook.editorialValue != null &&
+                        _currentBook.editorialValue!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.business,
+                        label: 'Editorial',
+                        value: _currentBook.editorialValue!,
+                      ),
+                    if (_currentBook.genre != null &&
+                        _currentBook.genre!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.category,
+                        label: 'Genre(s)',
+                        value: _currentBook.genre!,
+                      ),
+                    if (_currentBook.saga != null &&
+                        _currentBook.saga!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.collections_bookmark,
+                        label: 'Saga',
+                        value:
+                            '${_currentBook.saga}${_currentBook.nSaga != null ? ' #${_currentBook.nSaga}' : ''}',
+                      ),
+                    if (_currentBook.pages != null)
+                      _DetailCard(
+                        icon: Icons.description,
+                        label: 'Pages',
+                        value: _currentBook.pages.toString(),
+                      ),
+                    if (_currentBook.originalPublicationYear != null)
+                      ..._buildPublicationInfo(
+                        _currentBook.originalPublicationYear!,
+                      ),
+                    if (_currentBook.statusValue != null &&
+                        _currentBook.statusValue!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.check_circle,
+                        label: 'Status',
+                        value: _currentBook.statusValue!,
+                      ),
+                    if (_currentBook.formatSagaValue != null &&
+                        _currentBook.formatSagaValue!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.format_shapes,
+                        label: 'Format Saga',
+                        value: _currentBook.formatSagaValue!,
+                      ),
+                    if (_currentBook.languageValue != null &&
+                        _currentBook.languageValue!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.language,
+                        label: 'Language',
+                        value: _currentBook.languageValue!,
+                      ),
+                    if (_currentBook.placeValue != null &&
+                        _currentBook.placeValue!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.place,
+                        label: 'Place',
+                        value: _currentBook.placeValue!,
+                      ),
+                    if (_currentBook.formatValue != null &&
+                        _currentBook.formatValue!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.import_contacts,
+                        label: 'Format',
+                        value: _currentBook.formatValue!,
+                      ),
+                    if (_currentBook.loaned != null &&
+                        _currentBook.loaned!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.swap_horiz,
+                        label: 'Loaned',
+                        value: _currentBook.loaned!,
+                      ),
+                    if (_currentBook.createdAt != null &&
+                        _currentBook.createdAt!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.access_time,
+                        label: 'Created',
+                        value: _formatDateTime(_currentBook.createdAt!),
+                      ),
+
+                    // Bundle information
+                    if (_currentBook.isBundle == true) ...[
+                      _DetailCard(
+                        icon: Icons.library_books,
+                        label: 'Bundle',
+                        value:
+                            'Contains ${_currentBook.bundleCount ?? 0} books',
+                      ),
+                      if (_currentBook.bundleNumbers != null &&
+                          _currentBook.bundleNumbers!.isNotEmpty)
+                        _DetailCard(
+                          icon: Icons.format_list_numbered,
+                          label: 'Saga Numbers',
+                          value: _currentBook.bundleNumbers!,
+                        ),
+                      if (_currentBook.bundleStartDates != null ||
+                          _currentBook.bundleEndDates != null ||
+                          _currentBook.bundlePages != null)
+                        _BundleDatesCard(
+                          startDates: _currentBook.bundleStartDates,
+                          endDates: _currentBook.bundleEndDates,
+                          bundlePages: _currentBook.bundlePages,
+                        ),
+                    ],
+
+                    // New fields
+                    if (_currentBook.myRating != null &&
+                        _currentBook.myRating! > 0)
+                      _RatingCard(
+                        label: 'My Rating',
+                        rating: _currentBook.myRating!,
+                      ),
+                    if (_currentBook.readCount != null &&
+                        _currentBook.readCount! > 0)
+                      _DetailCard(
+                        icon: Icons.add_circle_outline,
+                        label: 'Times Read',
+                        value: '${_currentBook.readCount}',
+                      ),
+                    if (_currentBook.dateReadInitial != null &&
+                        _currentBook.dateReadInitial!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.event,
+                        label: 'Date Started Reading',
+                        value: _currentBook.dateReadInitial!.split('T')[0],
+                      ),
+                    if (_currentBook.dateReadFinal != null &&
+                        _currentBook.dateReadFinal!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.event_available,
+                        label: 'Date Finished Reading',
+                        value: _currentBook.dateReadFinal!.split('T')[0],
+                      ),
+                    if (_currentBook.myReview != null &&
+                        _currentBook.myReview!.isNotEmpty)
+                      Card(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        elevation: 1,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Padding(
+                          padding: AppTheme.cardPadding,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.rate_review,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                    size: 24,
+                                  ),
+                                  AppTheme.horizontalSpaceLarge,
+                                  Text(
+                                    'My Review',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium?.copyWith(
+                                      color: Colors.grey[600],
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              AppTheme.verticalSpaceMedium,
+                              Text(
+                                _currentBook.myReview!,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              AppTheme.verticalSpaceXXLarge, // Bottom margin
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -497,35 +528,19 @@ class _RatingCard extends StatelessWidget {
 
   Widget _buildHeart(bool isFilled, bool isPartial) {
     if (isFilled) {
-      return const Icon(
-        Icons.favorite,
-        color: Colors.red,
-        size: 28,
-      );
+      return const Icon(Icons.favorite, color: Colors.red, size: 28);
     } else if (isPartial) {
       return Stack(
         children: [
-          Icon(
-            Icons.favorite_border,
-            color: Colors.grey[400],
-            size: 28,
-          ),
+          Icon(Icons.favorite_border, color: Colors.grey[400], size: 28),
           ClipRect(
             clipper: _HalfClipper(),
-            child: const Icon(
-              Icons.favorite,
-              color: Colors.red,
-              size: 28,
-            ),
+            child: const Icon(Icons.favorite, color: Colors.red, size: 28),
           ),
         ],
       );
     } else {
-      return Icon(
-        Icons.favorite_border,
-        color: Colors.grey[400],
-        size: 28,
-      );
+      return Icon(Icons.favorite_border, color: Colors.grey[400], size: 28);
     }
   }
 }
@@ -543,26 +558,26 @@ class _HalfClipper extends CustomClipper<Rect> {
 class _BundleDatesCard extends StatelessWidget {
   final String? startDates;
   final String? endDates;
+  final String? bundlePages;
 
-  const _BundleDatesCard({
-    this.startDates,
-    this.endDates,
-  });
+  const _BundleDatesCard({this.startDates, this.endDates, this.bundlePages});
 
   @override
   Widget build(BuildContext context) {
     List<DateTime?>? starts;
     List<DateTime?>? ends;
-    
+    List<int?>? pages;
+
     try {
       if (startDates != null) {
         final List<dynamic> dates = jsonDecode(startDates!);
-        starts = dates.map((d) => d != null ? DateTime.parse(d) : null).toList();
+        starts =
+            dates.map((d) => d != null ? DateTime.parse(d) : null).toList();
       }
     } catch (e) {
       starts = null;
     }
-    
+
     try {
       if (endDates != null) {
         final List<dynamic> dates = jsonDecode(endDates!);
@@ -571,11 +586,24 @@ class _BundleDatesCard extends StatelessWidget {
     } catch (e) {
       ends = null;
     }
-    
-    final maxLength = [starts?.length ?? 0, ends?.length ?? 0].reduce((a, b) => a > b ? a : b);
-    
+
+    try {
+      if (bundlePages != null) {
+        final List<dynamic> pagesData = jsonDecode(bundlePages!);
+        pages = pagesData.map((p) => p as int?).toList();
+      }
+    } catch (e) {
+      pages = null;
+    }
+
+    final maxLength = [
+      starts?.length ?? 0,
+      ends?.length ?? 0,
+      pages?.length ?? 0,
+    ].reduce((a, b) => a > b ? a : b);
+
     if (maxLength == 0) return const SizedBox.shrink();
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 1,
@@ -587,7 +615,11 @@ class _BundleDatesCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(Icons.calendar_month, color: Theme.of(context).colorScheme.primary, size: 24),
+                Icon(
+                  Icons.calendar_month,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 24,
+                ),
                 const SizedBox(width: 16),
                 Text(
                   'Bundle Reading Dates',
@@ -600,37 +632,59 @@ class _BundleDatesCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             ...List.generate(maxLength, (index) {
-              final start = starts != null && index < starts.length ? starts[index] : null;
-              final end = ends != null && index < ends.length ? ends[index] : null;
-              
+              final start =
+                  starts != null && index < starts.length
+                      ? starts[index]
+                      : null;
+              final end =
+                  ends != null && index < ends.length ? ends[index] : null;
+              final pageCount =
+                  pages != null && index < pages.length ? pages[index] : null;
+
               return Padding(
                 padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Book ${index + 1}:',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                    Row(
+                      children: [
+                        Text(
+                          'Book ${index + 1}:',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            start != null
+                                ? '${start.year}-${start.month.toString().padLeft(2, '0')}-${start.day.toString().padLeft(2, '0')}'
+                                : '-',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                        const Text(' → '),
+                        Expanded(
+                          child: Text(
+                            end != null
+                                ? '${end.year}-${end.month.toString().padLeft(2, '0')}-${end.day.toString().padLeft(2, '0')}'
+                                : '-',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        start != null
-                            ? '${start.year}-${start.month.toString().padLeft(2, '0')}-${start.day.toString().padLeft(2, '0')}'
-                            : '-',
-                        style: Theme.of(context).textTheme.bodySmall,
+                    if (pageCount != null)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 16, top: 4),
+                        child: Text(
+                          'Pages: $pageCount',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.grey[600],
+                            fontSize: 12,
+                          ),
+                        ),
                       ),
-                    ),
-                    const Text(' → '),
-                    Expanded(
-                      child: Text(
-                        end != null
-                            ? '${end.year}-${end.month.toString().padLeft(2, '0')}-${end.day.toString().padLeft(2, '0')}'
-                            : '-',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ),
                   ],
                 ),
               );

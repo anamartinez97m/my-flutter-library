@@ -46,6 +46,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   String? _bundleNumbers;
   List<DateTime?>? _bundleStartDates;
   List<DateTime?>? _bundleEndDates;
+  List<int?>? _bundlePages;
 
   // Dropdown values
   int? _selectedStatusId;
@@ -126,11 +127,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
       final editorials = await repository.getLookupValues('editorial');
 
       setState(() {
-        _statusList = status;
-        _formatSagaList = formatSaga;
-        _languageList = language;
-        _placeList = place;
-        _formatList = format;
+        // Deduplicate lists by ID to avoid dropdown errors
+        _statusList = _deduplicateById(status, 'status_id');
+        _formatSagaList = _deduplicateById(formatSaga, 'format_id');
+        _languageList = _deduplicateById(language, 'language_id');
+        _placeList = _deduplicateById(place, 'place_id');
+        _formatList = _deduplicateById(format, 'format_id');
         _authorSuggestions = authors.map((a) => a['name'] as String).toList();
         _genreSuggestions = genres.map((g) => g['name'] as String).toList();
         _editorialSuggestions = editorials.map((e) => e['name'] as String).toList();
@@ -142,6 +144,34 @@ class _AddBookScreenState extends State<AddBookScreen> {
         _isLoading = false;
       });
     }
+  }
+
+  List<Map<String, dynamic>> _deduplicateById(
+    List<Map<String, dynamic>> list,
+    String idColumn,
+  ) {
+    final seen = <int>{};
+    final seenValues = <String>{};
+    final result = <Map<String, dynamic>>[];
+    
+    // Determine value column based on table
+    final valueColumn = idColumn.contains('status') || 
+                        idColumn.contains('format') ? 'value' : 'name';
+    
+    for (final item in list) {
+      final id = item[idColumn] as int?;
+      final value = item[valueColumn]?.toString().toLowerCase();
+      
+      // Skip if we've seen this ID or this value (case-insensitive)
+      if (id != null && !seen.contains(id) && 
+          (value == null || !seenValues.contains(value))) {
+        seen.add(id);
+        if (value != null) seenValues.add(value);
+        result.add(item);
+      }
+    }
+    
+    return result;
   }
 
   void _showSuccessDialog(BuildContext context) {
@@ -316,6 +346,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         bundleNumbers: _bundleNumbers,
         bundleStartDates: _bundleStartDates != null ? jsonEncode(_bundleStartDates!.map((d) => d?.toIso8601String()).toList()) : null,
         bundleEndDates: _bundleEndDates != null ? jsonEncode(_bundleEndDates!.map((d) => d?.toIso8601String()).toList()) : null,
+        bundlePages: _bundlePages != null ? jsonEncode(_bundlePages!) : null,
       );
 
       await repository.addBook(book);
@@ -357,6 +388,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
           _bundleNumbers = null;
           _bundleStartDates = null;
           _bundleEndDates = null;
+          _bundlePages = null;
         });
 
         // Show success dialog
@@ -721,13 +753,15 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 initialBundleNumbers: _bundleNumbers,
                 initialStartDates: _bundleStartDates,
                 initialEndDates: _bundleEndDates,
-                onChanged: (isBundle, count, numbers, startDates, endDates) {
+                initialBundlePages: _bundlePages,
+                onChanged: (isBundle, count, numbers, startDates, endDates, bundlePages) {
                   setState(() {
                     _isBundle = isBundle;
                     _bundleCount = count;
                     _bundleNumbers = numbers;
                     _bundleStartDates = startDates;
                     _bundleEndDates = endDates;
+                    _bundlePages = bundlePages;
                   });
                 },
               ),
