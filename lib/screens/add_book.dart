@@ -26,6 +26,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   // Text controllers
   final _nameController = TextEditingController();
   final _isbnController = TextEditingController();
+  final _asinController = TextEditingController();
   final _authorController = TextEditingController();
   final _sagaController = TextEditingController();
   final _nSagaController = TextEditingController();
@@ -301,6 +302,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
             _isbnController.text.trim().isEmpty
                 ? null
                 : _isbnController.text.trim(),
+        asin:
+            _asinController.text.trim().isEmpty
+                ? null
+                : _asinController.text.trim(),
         author:
             _selectedAuthors.isEmpty
                 ? null
@@ -462,6 +467,17 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   prefixIcon: Icon(Icons.numbers),
                 ),
                 keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 16),
+
+              // ASIN field
+              TextFormField(
+                controller: _asinController,
+                decoration: const InputDecoration(
+                  labelText: 'ASIN',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.qr_code),
+                ),
               ),
               const SizedBox(height: 16),
 
@@ -735,8 +751,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   prefixIcon: Icon(Icons.swap_horiz),
                 ),
                 items: const [
-                  DropdownMenuItem(value: 'Yes', child: Text('Yes')),
-                  DropdownMenuItem(value: 'No', child: Text('No')),
+                  DropdownMenuItem(value: 'yes', child: Text('Yes')),
+                  DropdownMenuItem(value: 'no', child: Text('No')),
                 ],
                 onChanged: (value) {
                   setState(() {

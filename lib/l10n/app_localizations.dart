@@ -134,7 +134,7 @@ abstract class AppLocalizations {
   /// No description provided for @search_by_isbn.
   ///
   /// In en, this message translates to:
-  /// **'ISBN'**
+  /// **'ISBN/ASIN'**
   String get search_by_isbn;
 
   /// No description provided for @search_by_author.

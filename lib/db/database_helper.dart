@@ -21,7 +21,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 4,
+      version: 5,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -95,6 +95,7 @@ class DatabaseHelper {
         n_saga VARCHAR(50),
         format_saga_id VARCHAR(50),
         isbn VARCHAR(50),
+        asin VARCHAR(50),
         pages INTEGER,
         original_publication_year INTEGER,
         loaned BOOLEAN,
@@ -124,6 +125,10 @@ class DatabaseHelper {
 
     await db.execute('''
       CREATE INDEX IF NOT EXISTS idx_book_isbn ON book (isbn)
+    ''');
+
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_book_asin ON book (asin)
     ''');
 
     await db.execute('''
@@ -194,6 +199,16 @@ class DatabaseHelper {
       // Add bundle_pages column for version 4
       await db.execute(
         'ALTER TABLE book ADD COLUMN bundle_pages TEXT',
+      );
+    }
+    if (oldVersion < 5) {
+      // Add asin column for version 5
+      await db.execute(
+        'ALTER TABLE book ADD COLUMN asin VARCHAR(50)',
+      );
+      // Add index for asin
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_book_asin ON book (asin)',
       );
     }
   }

@@ -10,6 +10,7 @@ class Book {
   final int? formatSagaId = 0;
   final String? formatSagaValue;
   final String? isbn;
+  final String? asin;
   final int? pages;
   final int? originalPublicationYear;
   final String? loaned;
@@ -41,6 +42,7 @@ class Book {
     required this.nSaga,
     required this.formatSagaValue,
     required this.isbn,
+    required this.asin,
     required this.pages,
     required this.originalPublicationYear,
     required this.loaned,
@@ -73,6 +75,7 @@ class Book {
       nSaga: map['n_saga'] as String?,
       formatSagaValue: map['formatSagaValue'] as String?,
       isbn: map['isbn'] as String?,
+      asin: map['asin'] as String?,
       pages:
           map['pages'] is int
               ? map['pages'] as int
@@ -120,6 +123,7 @@ class Book {
       'nSaga': nSaga,
       'formatSagaValue': formatSagaValue,
       'isbn': isbn,
+      'asin': asin,
       'pages': pages,
       'originalPublicationYear': originalPublicationYear,
       'loaned': loaned,
@@ -147,6 +151,6 @@ class Book {
 
   @override
   String toString() {
-    return 'Book(bookId: $bookId, name: $name, author: $author, genre: $genre, saga: $saga, nSaga: $nSaga, formatSagaValue: $formatSagaValue, isbn: $isbn, pages: $pages, originalPublicationYear: $originalPublicationYear, loaned: $loaned, statusValue: $statusValue, editorialValue: $editorialValue, languageValue: $languageValue, placeValue: $placeValue, formatValue: $formatValue, createdAt: $createdAt, dateReadInitial: $dateReadInitial, dateReadFinal: $dateReadFinal, readCount: $readCount, myRating: $myRating, myReview: $myReview, isBundle: $isBundle, bundleCount: $bundleCount, bundleNumbers: $bundleNumbers, bundleStartDates: $bundleStartDates, bundleEndDates: $bundleEndDates, bundlePages: $bundlePages)';
+    return 'Book(bookId: $bookId, name: $name, author: $author, genre: $genre, saga: $saga, nSaga: $nSaga, formatSagaValue: $formatSagaValue, isbn: $isbn, asin: $asin, pages: $pages, originalPublicationYear: $originalPublicationYear, loaned: $loaned, statusValue: $statusValue, editorialValue: $editorialValue, languageValue: $languageValue, placeValue: $placeValue, formatValue: $formatValue, createdAt: $createdAt, dateReadInitial: $dateReadInitial, dateReadFinal: $dateReadFinal, readCount: $readCount, myRating: $myRating, myReview: $myReview, isBundle: $isBundle, bundleCount: $bundleCount, bundleNumbers: $bundleNumbers, bundleStartDates: $bundleStartDates, bundleEndDates: $bundleEndDates, bundlePages: $bundlePages)';
   }
 }
