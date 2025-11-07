@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/screens/books_by_year.dart';
+import 'package:myrandomlibrary/screens/books_by_decade.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -16,6 +17,49 @@ class StatisticsScreen extends StatefulWidget {
 class _StatisticsScreenState extends State<StatisticsScreen> {
   bool _showStatusAsPercentage = false;
   bool _showFormatAsPercentage = true;
+
+  /// Try to parse date with multiple formats
+  DateTime? _tryParseDate(String dateStr) {
+    if (dateStr.trim().isEmpty) return null;
+    
+    final trimmed = dateStr.trim();
+    
+    // Try ISO8601 format first (handles YYYY-MM-DD and full timestamps like 2025-11-06T00:00:00.000)
+    try {
+      return DateTime.parse(trimmed);
+    } catch (e) {
+      // If ISO8601 fails, try other formats
+      
+      // Check if it contains slashes - likely YYYY/MM/DD format
+      if (trimmed.contains('/')) {
+        try {
+          final parts = trimmed.split('/');
+          if (parts.length == 3) {
+            final year = int.parse(parts[0]);
+            final month = int.parse(parts[1]);
+            final day = int.parse(parts[2]);
+            
+            // Validate it's YYYY/MM/DD (year should be > 1900)
+            if (year > 1900) {
+              return DateTime(year, month, day);
+            } else {
+              // Try DD/MM/YYYY format
+              return DateTime(
+                int.parse(parts[2]),
+                int.parse(parts[1]),
+                int.parse(parts[0]),
+              );
+            }
+          }
+        } catch (e) {
+          debugPrint('Could not parse date with slashes: $dateStr - Error: $e');
+        }
+      }
+    }
+    
+    debugPrint('Could not parse date with any format: $dateStr');
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,6 +145,15 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     final Map<int, int> booksReadPerYear = {};
     final Map<int, int> pagesReadPerYear = {};
     
+    // Debug: Print first few date values to understand format
+    int debugCount = 0;
+    for (var book in books) {
+      if (debugCount < 5 && book.dateReadFinal != null && book.dateReadFinal!.isNotEmpty) {
+        debugPrint('DEBUG: Book "${book.name}" has dateReadFinal: "${book.dateReadFinal}"');
+        debugCount++;
+      }
+    }
+    
     for (var book in books) {
       // Handle bundle books differently - count each book in the year it was finished
       if (book.isBundle == true && book.bundleEndDates != null) {
@@ -121,8 +174,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           for (int i = 0; i < endDates.length; i++) {
             final dateStr = endDates[i];
             if (dateStr != null) {
-              try {
-                final date = DateTime.parse(dateStr);
+              final date = _tryParseDate(dateStr.toString());
+              if (date != null) {
                 final year = date.year;
                 booksReadPerYear[year] = (booksReadPerYear[year] ?? 0) + 1;
                 
@@ -134,16 +187,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   final pagesPerBook = (book.pages! / (book.bundleCount ?? 1)).round();
                   pagesReadPerYear[year] = (pagesReadPerYear[year] ?? 0) + pagesPerBook;
                 }
-              } catch (e) {
-                // Skip invalid date
               }
             }
           }
         } catch (e) {
           // If bundle dates parsing fails, fall back to regular counting
-          if (book.dateReadFinal != null && book.dateReadFinal!.isNotEmpty) {
-            try {
-              final dateRead = DateTime.parse(book.dateReadFinal!);
+          if (book.dateReadFinal != null) {
+            final dateRead = _tryParseDate(book.dateReadFinal!);
+            if (dateRead != null) {
               final year = dateRead.year;
               final multiplier = book.bundleCount ?? 1;
               booksReadPerYear[year] = (booksReadPerYear[year] ?? 0) + multiplier;
@@ -151,25 +202,24 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               if (book.pages != null && book.pages! > 0) {
                 pagesReadPerYear[year] = (pagesReadPerYear[year] ?? 0) + (book.pages! * multiplier);
               }
-            } catch (e) {
-              // Skip invalid dates
             }
           }
         }
       } else {
         // Regular books - use dateReadFinal
-        if (book.dateReadFinal != null && book.dateReadFinal!.isNotEmpty) {
-          try {
-            final dateRead = DateTime.parse(book.dateReadFinal!);
+        if (book.dateReadFinal != null) {
+          final dateRead = _tryParseDate(book.dateReadFinal!);
+          if (dateRead != null) {
             final year = dateRead.year;
+            if (year < 1900 || year > 2100) {
+              debugPrint('WARNING: Extracted suspicious year $year from date "${book.dateReadFinal}" for book "${book.name}"');
+            }
             booksReadPerYear[year] = (booksReadPerYear[year] ?? 0) + 1;
             
             // Add pages if available
             if (book.pages != null && book.pages! > 0) {
               pagesReadPerYear[year] = (pagesReadPerYear[year] ?? 0) + book.pages!;
             }
-          } catch (e) {
-            // Skip invalid dates
           }
         }
       }
@@ -180,6 +230,42 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       ..sort((a, b) => b.key.compareTo(a.key));
     final sortedPagesReadYears = pagesReadPerYear.entries.toList()
       ..sort((a, b) => b.key.compareTo(a.key));
+    
+    // Calculate books read by decade (from original publication year)
+    final Map<String, int> booksReadByDecade = {};
+    
+    for (var book in books) {
+      // Only count books that have been read (read_count > 0)
+      if (book.readCount != null && book.readCount! > 0 && 
+          book.originalPublicationYear != null) {
+        int pubYear = book.originalPublicationYear!;
+        
+        // Handle full date format (YYYYMMDD)
+        if (pubYear > 9999) {
+          pubYear = pubYear ~/ 10000; // Extract year from YYYYMMDD
+        }
+        
+        // Calculate decade (e.g., 1990 -> "1990s")
+        final decade = (pubYear ~/ 10) * 10;
+        final decadeLabel = '${decade}s';
+        
+        // Count books (handle bundles)
+        final multiplier = (book.isBundle == true && book.bundleCount != null && book.bundleCount! > 0) 
+            ? book.bundleCount! 
+            : 1;
+        
+        booksReadByDecade[decadeLabel] = (booksReadByDecade[decadeLabel] ?? 0) + multiplier;
+      }
+    }
+    
+    // Sort decades in descending order
+    final sortedBooksReadByDecade = booksReadByDecade.entries.toList()
+      ..sort((a, b) {
+        // Extract decade number from label (e.g., "1990s" -> 1990)
+        final aDecade = int.parse(a.key.replaceAll('s', ''));
+        final bDecade = int.parse(b.key.replaceAll('s', ''));
+        return bDecade.compareTo(aDecade);
+      });
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -318,7 +404,15 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       if (sortedBooksReadYears.isEmpty)
                         Center(child: Text(AppLocalizations.of(context)!.no_data))
                       else
-                        ...sortedBooksReadYears.map((entry) {
+                        ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxHeight: MediaQuery.of(context).size.height * 0.4,
+                          ),
+                          child: SingleChildScrollView(
+                            physics: const BouncingScrollPhysics(),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: sortedBooksReadYears.map((entry) {
                           final maxValue = sortedBooksReadYears.first.value;
                           final percentage = (entry.value / maxValue);
                           return Padding(
@@ -387,6 +481,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           ),
                         );
                       }).toList(),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -414,7 +511,15 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     if (sortedPagesReadYears.isEmpty)
                       Center(child: Text(AppLocalizations.of(context)!.no_data))
                     else
-                      ...sortedPagesReadYears.map((entry) {
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxHeight: MediaQuery.of(context).size.height * 0.4,
+                        ),
+                        child: SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: sortedPagesReadYears.map((entry) {
                         final maxValue = sortedPagesReadYears.first.value;
                         final percentage = (entry.value / maxValue);
                         return Padding(
@@ -466,9 +571,130 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           ),
                         );
                       }).toList(),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
+            ),
+            const SizedBox(height: 16),
+            // Books Read by Decade
+            InkWell(
+              onTap: () {
+                // Navigate to the first decade in the list
+                if (sortedBooksReadByDecade.isNotEmpty) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BooksByDecadeScreen(
+                        initialDecade: sortedBooksReadByDecade.first.key,
+                      ),
+                    ),
+                  );
+                }
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Card(
+                elevation: 2,
+                margin: const EdgeInsets.symmetric(horizontal: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  children: [
+                    Text(
+                      'Books Read by Decade',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '(Based on original publication year)',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.grey[600],
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    if (sortedBooksReadByDecade.isEmpty)
+                      Center(child: Text(AppLocalizations.of(context)!.no_data))
+                    else
+                      ...sortedBooksReadByDecade.map((entry) {
+                        final maxValue = sortedBooksReadByDecade.first.value;
+                        final percentage = (entry.value / maxValue);
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => BooksByDecadeScreen(
+                                    initialDecade: entry.key,
+                                  ),
+                                ),
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(4),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                              child: Row(
+                            children: [
+                              SizedBox(
+                                width: 70,
+                                child: Text(
+                                  entry.key,
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Stack(
+                                  children: [
+                                    Container(
+                                      height: 24,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[200],
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ),
+                                    FractionallySizedBox(
+                                      widthFactor: percentage,
+                                      child: Container(
+                                        height: 24,
+                                        decoration: BoxDecoration(
+                                          color: Colors.green,
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            '${entry.value}',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                  ],
+                ),
+              ),
+            ),
             ),
             const SizedBox(height: 16),
             // Status Donut Chart
