@@ -8,28 +8,32 @@ class BookRepository {
   BookRepository(this.db);
 
   Future<List<Book>> searchBooks(String input, int searchIndex) async {
-    String column;
+    String whereClause;
     switch (searchIndex) {
       case 0:
-        column = 'b.name'; // Title
+        whereClause = 'lower(b.name) like ?'; // Title
         break;
       case 1:
-        column = 'b.isbn'; // ISBN
+        // Search by ISBN or ASIN
+        whereClause = '(lower(b.isbn) like ? OR lower(b.asin) like ?)';
         break;
       case 2:
-        column = 'a.name'; // Author
+        whereClause = 'lower(a.name) like ?'; // Author
         break;
       case 3:
-        column = 'b.saga'; // Saga
+        whereClause = 'lower(b.saga) like ?'; // Saga
         break;
       default:
-        column = 'b.name';
+        whereClause = 'lower(b.name) like ?';
     }
+
+    final searchParam = '%${input.toLowerCase()}%';
+    final params = searchIndex == 1 ? [searchParam, searchParam] : [searchParam];
 
     final result = await db.rawQuery(
       '''
       select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
-        b.saga, b.n_saga, b.isbn, l.name as languageValue, 
+        b.saga, b.n_saga, b.isbn, b.asin, l.name as languageValue, 
         p.name as placeValue, f.value as formatValue,
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
@@ -47,11 +51,11 @@ class BookRepository {
       left join place p on b.place_id = p.place_id  
       left join format f on b.format_id = f.format_id
       left join format_saga fs on b.format_saga = fs.format_id
-      where lower($column) like ?
+      where $whereClause
       group by b.book_id
       order by b.name
       ''',
-      ['%${input.toLowerCase()}%'],
+      params,
     );
 
     return result.map((row) => Book.fromMap(row)).toList();
@@ -60,7 +64,7 @@ class BookRepository {
   Future<List<Book>> getAllBooks() async {
     final result = await db.rawQuery('''
       select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
-        b.saga, b.n_saga, b.isbn, l.name as languageValue, 
+        b.saga, b.n_saga, b.isbn, b.asin, l.name as languageValue, 
         p.name as placeValue, f.value as formatValue,
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
@@ -293,17 +297,20 @@ class BookRepository {
     await db.delete('book', where: 'book_id = ?', whereArgs: [bookId]);
   }
 
-  /// Check if books already exist in the database with the same ISBN
+  /// Check if books already exist in the database with the same ISBN or ASIN
   /// Returns list of book_ids if found, empty list otherwise
-  /// Logic: If ISBN exists, check by ISBN only. If ISBN empty, check by name. If name also empty, check by status+author+saga+nSaga
+  /// Logic: If ISBN/ASIN exists, check by ISBN or ASIN. If both empty, check by name. If name also empty, check by status+author+saga+nSaga
   Future<List<int>> findDuplicateBooks(Book book) async {
-    // Check by ISBN only if ISBN exists and is not empty
-    if (book.isbn != null && book.isbn!.isNotEmpty) {
-      final results = await db.query(
-        'book',
-        columns: ['book_id', 'name'],
-        where: 'isbn = ?',
-        whereArgs: [book.isbn],
+    // Check by ISBN or ASIN if either exists and is not empty
+    if ((book.isbn != null && book.isbn!.isNotEmpty) || 
+        (book.asin != null && book.asin!.isNotEmpty)) {
+      final results = await db.rawQuery(
+        '''
+        SELECT book_id, name FROM book 
+        WHERE (isbn IS NOT NULL AND isbn = ?) 
+           OR (asin IS NOT NULL AND asin = ?)
+        ''',
+        [book.isbn ?? '', book.asin ?? ''],
       );
       if (results.isNotEmpty) {
         return results.map((r) => r['book_id'] as int).toList();
@@ -392,6 +399,10 @@ class BookRepository {
     if ((existing['isbn'] == null || existing['isbn'].toString().isEmpty) && 
         newBook.isbn != null && newBook.isbn!.isNotEmpty) {
       updates['isbn'] = newBook.isbn;
+    }
+    if ((existing['asin'] == null || existing['asin'].toString().isEmpty) && 
+        newBook.asin != null && newBook.asin!.isNotEmpty) {
+      updates['asin'] = newBook.asin;
     }
     if ((existing['saga'] == null || existing['saga'].toString().isEmpty) && 
         newBook.saga != null && newBook.saga!.isNotEmpty) {
@@ -526,6 +537,7 @@ class BookRepository {
     final bookId = await db.insert('book', {
       'name': book.name ?? 'unknown',
       'isbn': book.isbn,
+      'asin': book.asin,
       'saga': book.saga,
       'n_saga': book.nSaga,
       'pages': book.pages,

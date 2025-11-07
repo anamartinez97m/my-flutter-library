@@ -32,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _selectedPlace;
   String? _selectedStatus;
   String? _selectedTitle;
-  String? _selectedIsbn;
+  String? _selectedIsbnAsin;
   String? _selectedAuthor;
 
   @override
@@ -52,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _selectedPlace = provider.currentFilters['place'];
           _selectedStatus = provider.currentFilters['status'];
           _selectedTitle = provider.currentFilters['title'];
-          _selectedIsbn = provider.currentFilters['isbn'];
+          _selectedIsbnAsin = provider.currentFilters['isbn'];
           _selectedAuthor = provider.currentFilters['author'];
 
           // Restore sort state from provider
@@ -197,12 +197,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           },
                         ),
                         const SizedBox(height: 12),
-                        // ISBN filter
+                        // ISBN/ASIN filter
                         DropdownButtonFormField<String>(
-                          value: _selectedIsbn,
+                          value: _selectedIsbnAsin,
                           isExpanded: true,
                           decoration: const InputDecoration(
-                            labelText: 'ISBN',
+                            labelText: 'ISBN/ASIN',
                             border: OutlineInputBorder(),
                             contentPadding: EdgeInsets.symmetric(
                               horizontal: 12,
@@ -221,7 +221,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ],
                           onChanged: (value) {
-                            setState(() => _selectedIsbn = value);
+                            setState(() => _selectedIsbnAsin = value);
                             if (value != null) {
                               provider.filterBooks('isbn', value);
                             } else {
@@ -473,7 +473,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     _selectedPlace = null;
                                     _selectedStatus = null;
                                     _selectedTitle = null;
-                                    _selectedIsbn = null;
+                                    _selectedIsbnAsin = null;
                                     _selectedAuthor = null;
                                   });
                                   provider.clearAllFilters();

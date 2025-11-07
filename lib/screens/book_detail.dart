@@ -293,6 +293,13 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         label: 'ISBN',
                         value: _currentBook.isbn!,
                       ),
+                    if (_currentBook.asin != null &&
+                        _currentBook.asin!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.qr_code,
+                        label: 'ASIN',
+                        value: _currentBook.asin!,
+                      ),
                     if (_currentBook.editorialValue != null &&
                         _currentBook.editorialValue!.isNotEmpty)
                       _DetailCard(

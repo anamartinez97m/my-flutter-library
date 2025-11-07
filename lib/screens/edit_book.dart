@@ -26,6 +26,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   // Text controllers
   late TextEditingController _nameController;
   late TextEditingController _isbnController;
+  late TextEditingController _asinController;
   late TextEditingController _authorController;
   late TextEditingController _sagaController;
   late TextEditingController _nSagaController;
@@ -121,6 +122,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   void _initializeControllers() {
     _nameController = TextEditingController(text: widget.book.name ?? '');
     _isbnController = TextEditingController(text: widget.book.isbn ?? '');
+    _asinController = TextEditingController(text: widget.book.asin ?? '');
     _authorController = TextEditingController(text: widget.book.author ?? '');
     _editorialController = TextEditingController(
       text: widget.book.editorialValue ?? '',
@@ -431,6 +433,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
             _isbnController.text.trim().isEmpty
                 ? null
                 : _isbnController.text.trim(),
+        asin:
+            _asinController.text.trim().isEmpty
+                ? null
+                : _asinController.text.trim(),
         author: _selectedAuthors.isEmpty ? null : _selectedAuthors.join(', '),
         saga:
             _sagaController.text.trim().isEmpty
@@ -490,6 +496,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
         bookId: widget.book.bookId,
         name: updatedBook.name,
         isbn: updatedBook.isbn,
+        asin: updatedBook.asin,
         author: updatedBook.author,
         saga: updatedBook.saga,
         nSaga: updatedBook.nSaga,
@@ -549,6 +556,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   void dispose() {
     _nameController.dispose();
     _isbnController.dispose();
+    _asinController.dispose();
     _authorController.dispose();
     _sagaController.dispose();
     _nSagaController.dispose();
@@ -607,6 +615,17 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     prefixIcon: Icon(Icons.numbers),
                   ),
                   keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 16),
+
+                // ASIN field
+                TextFormField(
+                  controller: _asinController,
+                  decoration: const InputDecoration(
+                    labelText: 'ASIN',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.qr_code),
+                  ),
                 ),
                 const SizedBox(height: 16),
 
@@ -883,8 +902,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     prefixIcon: Icon(Icons.swap_horiz),
                   ),
                   items: const [
-                    DropdownMenuItem(value: 'Yes', child: Text('Yes')),
-                    DropdownMenuItem(value: 'No', child: Text('No')),
+                    DropdownMenuItem(value: 'yes', child: Text('Yes')),
+                    DropdownMenuItem(value: 'no', child: Text('No')),
                   ],
                   onChanged: (value) {
                     setState(() {

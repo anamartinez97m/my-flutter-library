@@ -298,6 +298,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             bookId: book.bookId,
             name: book.name,
             isbn: book.isbn,
+            asin: book.asin,
             author: book.author,
             saga: book.saga,
             nSaga: book.nSaga,

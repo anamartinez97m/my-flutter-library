@@ -116,7 +116,7 @@ class CsvImportHelper {
   }
 
   /// Parse Format 1: read, title, author, publisher, genre, saga, n_saga,
-  /// format_saga, isbn13, number of pages, original publication year,
+  /// format_saga, isbn13, asin, number of pages, original publication year,
   /// language, place, binding, loaned
   static Book? _parseFormat1(List<dynamic> row, List<dynamic> headers) {
     final headerMap = <String, int>{};
@@ -140,6 +140,7 @@ class CsvImportHelper {
     var nSaga = getValue('n_saga');
     final formatSaga = getValue('format_saga');
     var isbn = getValue('isbn13') ?? getValue('isbn');
+    var asin = getValue('asin');
     final pagesStr = getValue('number of pages') ?? getValue('pages');
     final pubYearStr = getValue('original publication year');
     final language = getValue('language');
@@ -167,6 +168,11 @@ class CsvImportHelper {
       isbn = isbn.substring(2, isbn.length - 1);
     }
 
+    // Clean ASIN if it has ="" format
+    if (asin != null && asin.startsWith('="') && asin.endsWith('"')) {
+      asin = asin.substring(2, asin.length - 1);
+    }
+
     // Allow empty title for TBReleased books with author and saga
     final isTBReleased = statusValue?.toLowerCase() == 'tbreleased';
     if ((title == null || title.isEmpty) && !isTBReleased) {
@@ -177,6 +183,7 @@ class CsvImportHelper {
       bookId: null,
       name: title,
       isbn: isbn,
+      asin: asin,
       author: author,
       saga: saga,
       nSaga: nSaga,
@@ -200,7 +207,7 @@ class CsvImportHelper {
     );
   }
 
-  /// Parse Format 2: Title, Author, ISBN13, My Rating, Publisher, Binding,
+  /// Parse Format 2: Title, Author, ISBN13, ASIN, My Rating, Publisher, Binding,
   /// Number of Pages, Original Publication Year, Date Read, Date Added,
   /// Bookshelves, Exclusive Shelf, My Review, Read Count
   static Book? _parseFormat2(List<dynamic> row, List<dynamic> headers) {
@@ -222,6 +229,7 @@ class CsvImportHelper {
     final author = getValue('author');
     final publisher = getValue('publisher');
     var isbn = getValue('isbn13') ?? getValue('isbn');
+    var asin = getValue('asin');
     final pagesStr = getValue('number of pages');
     final pubYearStr = getValue('original publication year');
     final format = getValue('binding');
@@ -280,6 +288,11 @@ class CsvImportHelper {
       isbn = isbn.substring(2, isbn.length - 1);
     }
 
+    // Clean ASIN if it has ="" format
+    if (asin != null && asin.startsWith('="') && asin.endsWith('"')) {
+      asin = asin.substring(2, asin.length - 1);
+    }
+
     // Parse date added (set time to 01:00)
     String? createdAt;
     if (dateAdded != null) {
@@ -304,6 +317,7 @@ class CsvImportHelper {
       bookId: null,
       name: title,
       isbn: isbn,
+      asin: asin,
       author: author,
       saga: saga,
       nSaga: nSaga,

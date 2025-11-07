@@ -100,29 +100,37 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
             dbHelper,
           );
 
+          // Trim all string fields before saving
           var bookWithMappedStatus = Book(
             bookId: book.bookId,
-            name: book.name,
-            isbn: book.isbn,
-            author: book.author,
-            saga: book.saga,
-            nSaga: book.nSaga,
-            formatSagaValue: book.formatSagaValue,
+            name: book.name?.trim(),
+            isbn: book.isbn?.trim(),
+            asin: book.asin?.trim(),
+            author: book.author?.trim(),
+            saga: book.saga?.trim(),
+            nSaga: book.nSaga?.trim(),
+            formatSagaValue: book.formatSagaValue?.trim(),
             pages: book.pages,
             originalPublicationYear: book.originalPublicationYear,
-            loaned: book.loaned,
-            statusValue: mappedStatus,
-            editorialValue: book.editorialValue,
-            languageValue: book.languageValue,
-            placeValue: book.placeValue,
-            formatValue: book.formatValue,
+            loaned: book.loaned?.trim() ?? 'no', // Default to 'no'
+            statusValue: mappedStatus?.trim(),
+            editorialValue: book.editorialValue?.trim(),
+            languageValue: book.languageValue?.trim(),
+            placeValue: book.placeValue?.trim(),
+            formatValue: book.formatValue?.trim(),
             createdAt: book.createdAt,
-            genre: book.genre,
+            genre: book.genre?.trim(),
             dateReadInitial: book.dateReadInitial,
             dateReadFinal: book.dateReadFinal,
             readCount: book.readCount,
             myRating: book.myRating,
-            myReview: book.myReview,
+            myReview: book.myReview?.trim(),
+            isBundle: book.isBundle,
+            bundleCount: book.bundleCount,
+            bundleNumbers: book.bundleNumbers,
+            bundleStartDates: book.bundleStartDates,
+            bundleEndDates: book.bundleEndDates,
+            bundlePages: book.bundlePages,
           );
 
           // Check for duplicates
@@ -137,14 +145,15 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
           } else if (duplicateIds.length == 1) {
             importType = 'UPDATE';
             // Fetch the existing book for comparison with proper JOINs
-            final existingRows = await db.rawQuery('''
+            final existingRows = await db.rawQuery(
+              '''
               select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
-                b.saga, b.n_saga, b.isbn, l.name as languageValue, 
+                b.saga, b.n_saga, b.isbn, b.asin, l.name as languageValue, 
                 p.name as placeValue, f.value as formatValue,
                 fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
                 b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
                 b.read_count, b.my_rating, b.my_review,
-                b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates,
+                b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages,
                 GROUP_CONCAT(DISTINCT a.name) as author,
                 GROUP_CONCAT(DISTINCT g.name) as genre
               from book b 
@@ -160,41 +169,121 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               left join format_saga fs on b.format_saga_id = fs.format_id
               where b.book_id = ?
               group by b.book_id
-            ''', [duplicateIds.first]);
+            ''',
+              [duplicateIds.first],
+            );
             if (existingRows.isNotEmpty) {
               existingBook = Book.fromMap(existingRows.first);
-              
+
               // Merge: Keep old values when CSV has empty/null values
               bookWithMappedStatus = Book(
                 bookId: bookWithMappedStatus.bookId,
-                name: bookWithMappedStatus.name?.isNotEmpty == true ? bookWithMappedStatus.name : existingBook.name,
-                author: bookWithMappedStatus.author?.isNotEmpty == true ? bookWithMappedStatus.author : existingBook.author,
-                isbn: bookWithMappedStatus.isbn?.isNotEmpty == true ? bookWithMappedStatus.isbn : existingBook.isbn,
-                saga: bookWithMappedStatus.saga?.isNotEmpty == true ? bookWithMappedStatus.saga : existingBook.saga,
-                nSaga: bookWithMappedStatus.nSaga?.isNotEmpty == true ? bookWithMappedStatus.nSaga : existingBook.nSaga,
-                formatSagaValue: bookWithMappedStatus.formatSagaValue?.isNotEmpty == true ? bookWithMappedStatus.formatSagaValue : existingBook.formatSagaValue,
+                name:
+                    bookWithMappedStatus.name?.isNotEmpty == true
+                        ? bookWithMappedStatus.name
+                        : existingBook.name,
+                author:
+                    bookWithMappedStatus.author?.isNotEmpty == true
+                        ? bookWithMappedStatus.author
+                        : existingBook.author,
+                isbn:
+                    bookWithMappedStatus.isbn?.isNotEmpty == true
+                        ? bookWithMappedStatus.isbn
+                        : existingBook.isbn,
+                asin:
+                    bookWithMappedStatus.asin?.isNotEmpty == true
+                        ? bookWithMappedStatus.asin
+                        : existingBook.asin,
+                saga:
+                    bookWithMappedStatus.saga?.isNotEmpty == true
+                        ? bookWithMappedStatus.saga
+                        : existingBook.saga,
+                nSaga:
+                    bookWithMappedStatus.nSaga?.isNotEmpty == true
+                        ? bookWithMappedStatus.nSaga
+                        : existingBook.nSaga,
+                formatSagaValue:
+                    bookWithMappedStatus.formatSagaValue?.isNotEmpty == true
+                        ? bookWithMappedStatus.formatSagaValue
+                        : existingBook.formatSagaValue,
                 pages: bookWithMappedStatus.pages ?? existingBook.pages,
-                originalPublicationYear: bookWithMappedStatus.originalPublicationYear ?? existingBook.originalPublicationYear,
-                loaned: bookWithMappedStatus.loaned ?? existingBook.loaned,
-                statusValue: bookWithMappedStatus.statusValue?.isNotEmpty == true ? bookWithMappedStatus.statusValue : existingBook.statusValue,
-                editorialValue: bookWithMappedStatus.editorialValue?.isNotEmpty == true ? bookWithMappedStatus.editorialValue : existingBook.editorialValue,
-                languageValue: bookWithMappedStatus.languageValue?.isNotEmpty == true ? bookWithMappedStatus.languageValue : existingBook.languageValue,
-                placeValue: bookWithMappedStatus.placeValue?.isNotEmpty == true ? bookWithMappedStatus.placeValue : existingBook.placeValue,
-                formatValue: bookWithMappedStatus.formatValue?.isNotEmpty == true ? bookWithMappedStatus.formatValue : existingBook.formatValue,
-                createdAt: existingBook.createdAt, // Always keep original creation date
-                genre: bookWithMappedStatus.genre?.isNotEmpty == true ? bookWithMappedStatus.genre : existingBook.genre,
-                dateReadInitial: bookWithMappedStatus.dateReadInitial?.isNotEmpty == true ? bookWithMappedStatus.dateReadInitial : existingBook.dateReadInitial,
-                dateReadFinal: bookWithMappedStatus.dateReadFinal?.isNotEmpty == true ? bookWithMappedStatus.dateReadFinal : existingBook.dateReadFinal,
-                readCount: bookWithMappedStatus.readCount ?? existingBook.readCount,
-                myRating: bookWithMappedStatus.myRating ?? existingBook.myRating,
-                myReview: bookWithMappedStatus.myReview?.isNotEmpty == true ? bookWithMappedStatus.myReview : existingBook.myReview,
-                isBundle: bookWithMappedStatus.isBundle ?? existingBook.isBundle,
-                bundleCount: bookWithMappedStatus.bundleCount ?? existingBook.bundleCount,
-                bundleNumbers: bookWithMappedStatus.bundleNumbers?.isNotEmpty == true ? bookWithMappedStatus.bundleNumbers : existingBook.bundleNumbers,
-                bundleStartDates: bookWithMappedStatus.bundleStartDates?.isNotEmpty == true ? bookWithMappedStatus.bundleStartDates : existingBook.bundleStartDates,
-                bundleEndDates: bookWithMappedStatus.bundleEndDates?.isNotEmpty == true ? bookWithMappedStatus.bundleEndDates : existingBook.bundleEndDates,
-                bundlePages: bookWithMappedStatus.bundlePages?.isNotEmpty == true ? bookWithMappedStatus.bundlePages : existingBook.bundlePages,
+                originalPublicationYear:
+                    bookWithMappedStatus.originalPublicationYear ??
+                    existingBook.originalPublicationYear,
+                loaned:
+                    bookWithMappedStatus.loaned?.isNotEmpty == true
+                        ? bookWithMappedStatus.loaned
+                        : existingBook.loaned,
+                statusValue:
+                    bookWithMappedStatus.statusValue?.isNotEmpty == true
+                        ? bookWithMappedStatus.statusValue
+                        : existingBook.statusValue,
+                editorialValue:
+                    bookWithMappedStatus.editorialValue?.isNotEmpty == true
+                        ? bookWithMappedStatus.editorialValue
+                        : existingBook.editorialValue,
+                languageValue:
+                    bookWithMappedStatus.languageValue?.isNotEmpty == true
+                        ? bookWithMappedStatus.languageValue
+                        : existingBook.languageValue,
+                placeValue:
+                    bookWithMappedStatus.placeValue?.isNotEmpty == true
+                        ? bookWithMappedStatus.placeValue
+                        : existingBook.placeValue,
+                formatValue:
+                    bookWithMappedStatus.formatValue?.isNotEmpty == true
+                        ? bookWithMappedStatus.formatValue
+                        : existingBook.formatValue,
+                createdAt:
+                    existingBook
+                        .createdAt, // Always keep original creation date
+                genre:
+                    bookWithMappedStatus.genre?.isNotEmpty == true
+                        ? bookWithMappedStatus.genre
+                        : existingBook.genre,
+                dateReadInitial:
+                    bookWithMappedStatus.dateReadInitial?.isNotEmpty == true
+                        ? bookWithMappedStatus.dateReadInitial
+                        : existingBook.dateReadInitial,
+                dateReadFinal:
+                    bookWithMappedStatus.dateReadFinal?.isNotEmpty == true
+                        ? bookWithMappedStatus.dateReadFinal
+                        : existingBook.dateReadFinal,
+                readCount:
+                    bookWithMappedStatus.readCount ?? existingBook.readCount,
+                myRating:
+                    bookWithMappedStatus.myRating ?? existingBook.myRating,
+                myReview:
+                    bookWithMappedStatus.myReview?.isNotEmpty == true
+                        ? bookWithMappedStatus.myReview
+                        : existingBook.myReview,
+                isBundle:
+                    bookWithMappedStatus.isBundle ?? existingBook.isBundle,
+                bundleCount:
+                    bookWithMappedStatus.bundleCount ??
+                    existingBook.bundleCount,
+                bundleNumbers:
+                    bookWithMappedStatus.bundleNumbers?.isNotEmpty == true
+                        ? bookWithMappedStatus.bundleNumbers
+                        : existingBook.bundleNumbers,
+                bundleStartDates:
+                    bookWithMappedStatus.bundleStartDates?.isNotEmpty == true
+                        ? bookWithMappedStatus.bundleStartDates
+                        : existingBook.bundleStartDates,
+                bundleEndDates:
+                    bookWithMappedStatus.bundleEndDates?.isNotEmpty == true
+                        ? bookWithMappedStatus.bundleEndDates
+                        : existingBook.bundleEndDates,
+                bundlePages:
+                    bookWithMappedStatus.bundlePages?.isNotEmpty == true
+                        ? bookWithMappedStatus.bundlePages
+                        : existingBook.bundlePages,
               );
+              
+              // Check if merged book is actually different from existing
+              if (_booksAreIdentical(bookWithMappedStatus, existingBook)) {
+                importType = 'DUPLICATE';
+              }
             }
           } else {
             importType = 'DUPLICATE';
@@ -264,6 +353,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               bookId: id,
               name: item.book.name,
               isbn: item.book.isbn,
+              asin: item.book.asin,
               author: item.book.author,
               saga: item.book.saga,
               nSaga: item.book.nSaga,
@@ -318,7 +408,10 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                   TextButton(
                     onPressed: () {
                       Navigator.pop(context); // Close dialog
-                      Navigator.pop(context, true); // Go back to settings with result
+                      Navigator.pop(
+                        context,
+                        true,
+                      ); // Go back to settings with result
                     },
                     child: const Text('OK'),
                   ),
@@ -374,6 +467,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               bookId: id,
               name: item.book.name,
               isbn: item.book.isbn,
+              asin: item.book.asin,
               author: item.book.author,
               saga: item.book.saga,
               nSaga: item.book.nSaga,
@@ -552,10 +646,11 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                             padding: const EdgeInsets.only(bottom: 12),
                             child: OutlinedButton.icon(
                               onPressed: () async {
-                                final toImportCount = _importItems
-                                    .take(_currentIndex + 1)
-                                    .where((item) => item.shouldImport)
-                                    .length;
+                                final toImportCount =
+                                    _importItems
+                                        .take(_currentIndex + 1)
+                                        .where((item) => item.shouldImport)
+                                        .length;
                                 final confirm = await showDialog<bool>(
                                   context: context,
                                   builder:
@@ -597,7 +692,10 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                               ),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: Colors.orange,
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
                               ),
                             ),
                           ),
@@ -639,6 +737,31 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                 ],
               ),
     );
+  }
+
+  bool _booksAreIdentical(Book book1, Book book2) {
+    // Compare all relevant fields to determine if books are identical
+    return book1.name == book2.name &&
+        book1.author == book2.author &&
+        book1.isbn == book2.isbn &&
+        book1.asin == book2.asin &&
+        book1.saga == book2.saga &&
+        book1.nSaga == book2.nSaga &&
+        book1.formatSagaValue == book2.formatSagaValue &&
+        book1.pages == book2.pages &&
+        book1.originalPublicationYear == book2.originalPublicationYear &&
+        book1.loaned == book2.loaned &&
+        book1.statusValue == book2.statusValue &&
+        book1.editorialValue == book2.editorialValue &&
+        book1.languageValue == book2.languageValue &&
+        book1.placeValue == book2.placeValue &&
+        book1.formatValue == book2.formatValue &&
+        book1.genre == book2.genre &&
+        book1.dateReadInitial == book2.dateReadInitial &&
+        book1.dateReadFinal == book2.dateReadFinal &&
+        book1.readCount == book2.readCount &&
+        book1.myRating == book2.myRating &&
+        book1.myReview == book2.myReview;
   }
 }
 
@@ -715,6 +838,8 @@ class _BookImportPreview extends StatelessWidget {
         return book.author != null && book.author!.isNotEmpty;
       case 'isbn':
         return book.isbn != null && book.isbn!.isNotEmpty;
+      case 'asin':
+        return book.asin != null && book.asin!.isNotEmpty;
       case 'saga':
         return book.saga != null && book.saga!.isNotEmpty;
       case 'nSaga':
@@ -758,6 +883,7 @@ class _BookImportPreview extends StatelessWidget {
           bookId: book.bookId,
           name: value.isEmpty ? null : value,
           isbn: book.isbn,
+          asin: book.asin,
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
@@ -784,6 +910,7 @@ class _BookImportPreview extends StatelessWidget {
           bookId: book.bookId,
           name: book.name,
           isbn: book.isbn,
+          asin: book.asin,
           author: value.isEmpty ? null : value,
           saga: book.saga,
           nSaga: book.nSaga,
@@ -810,6 +937,34 @@ class _BookImportPreview extends StatelessWidget {
           bookId: book.bookId,
           name: book.name,
           isbn: value.isEmpty ? null : value,
+          asin: book.asin,
+          author: book.author,
+          saga: book.saga,
+          nSaga: book.nSaga,
+          formatSagaValue: book.formatSagaValue,
+          pages: book.pages,
+          originalPublicationYear: book.originalPublicationYear,
+          loaned: book.loaned,
+          statusValue: book.statusValue,
+          editorialValue: book.editorialValue,
+          languageValue: book.languageValue,
+          placeValue: book.placeValue,
+          formatValue: book.formatValue,
+          createdAt: book.createdAt,
+          genre: book.genre,
+          dateReadInitial: book.dateReadInitial,
+          dateReadFinal: book.dateReadFinal,
+          readCount: book.readCount,
+          myRating: book.myRating,
+          myReview: book.myReview,
+        );
+        break;
+      case 'asin':
+        updatedBook = Book(
+          bookId: book.bookId,
+          name: book.name,
+          isbn: book.isbn,
+          asin: value.isEmpty ? null : value,
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
@@ -836,6 +991,7 @@ class _BookImportPreview extends StatelessWidget {
           bookId: book.bookId,
           name: book.name,
           isbn: book.isbn,
+          asin: book.asin,
           author: book.author,
           saga: value.isEmpty ? null : value,
           nSaga: book.nSaga,
@@ -862,6 +1018,7 @@ class _BookImportPreview extends StatelessWidget {
           bookId: book.bookId,
           name: book.name,
           isbn: book.isbn,
+          asin: book.asin,
           author: book.author,
           saga: book.saga,
           nSaga: value.isEmpty ? null : value,
@@ -888,6 +1045,7 @@ class _BookImportPreview extends StatelessWidget {
           bookId: book.bookId,
           name: book.name,
           isbn: book.isbn,
+          asin: book.asin,
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
@@ -914,6 +1072,7 @@ class _BookImportPreview extends StatelessWidget {
           bookId: book.bookId,
           name: book.name,
           isbn: book.isbn,
+          asin: book.asin,
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
@@ -940,6 +1099,7 @@ class _BookImportPreview extends StatelessWidget {
           bookId: book.bookId,
           name: book.name,
           isbn: book.isbn,
+          asin: book.asin,
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
@@ -966,6 +1126,7 @@ class _BookImportPreview extends StatelessWidget {
           bookId: book.bookId,
           name: book.name,
           isbn: book.isbn,
+          asin: book.asin,
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
@@ -992,6 +1153,7 @@ class _BookImportPreview extends StatelessWidget {
           bookId: book.bookId,
           name: book.name,
           isbn: book.isbn,
+          asin: book.asin,
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
@@ -1018,6 +1180,7 @@ class _BookImportPreview extends StatelessWidget {
           bookId: book.bookId,
           name: book.name,
           isbn: book.isbn,
+          asin: book.asin,
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
@@ -1044,6 +1207,7 @@ class _BookImportPreview extends StatelessWidget {
           bookId: book.bookId,
           name: book.name,
           isbn: book.isbn,
+          asin: book.asin,
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
@@ -1070,6 +1234,7 @@ class _BookImportPreview extends StatelessWidget {
           bookId: book.bookId,
           name: book.name,
           isbn: book.isbn,
+          asin: book.asin,
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
@@ -1096,6 +1261,7 @@ class _BookImportPreview extends StatelessWidget {
           bookId: book.bookId,
           name: book.name,
           isbn: book.isbn,
+          asin: book.asin,
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
@@ -1122,6 +1288,7 @@ class _BookImportPreview extends StatelessWidget {
           bookId: book.bookId,
           name: book.name,
           isbn: book.isbn,
+          asin: book.asin,
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
@@ -1148,6 +1315,7 @@ class _BookImportPreview extends StatelessWidget {
           bookId: book.bookId,
           name: book.name,
           isbn: book.isbn,
+          asin: book.asin,
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
@@ -1174,6 +1342,7 @@ class _BookImportPreview extends StatelessWidget {
           bookId: book.bookId,
           name: book.name,
           isbn: book.isbn,
+          asin: book.asin,
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
@@ -1212,7 +1381,9 @@ class _BookImportPreview extends StatelessWidget {
         debugPrint('Existing Book ID: ${item.existingBook!.bookId}');
         debugPrint('Existing Book Name: ${item.existingBook!.name}');
         debugPrint('Existing Book Author: ${item.existingBook!.author}');
-        debugPrint('Existing Book Editorial: ${item.existingBook!.editorialValue}');
+        debugPrint(
+          'Existing Book Editorial: ${item.existingBook!.editorialValue}',
+        );
         debugPrint('Existing Book Format: ${item.existingBook!.formatValue}');
       }
       debugPrint('New Book Name: ${item.book.name}');
@@ -1221,14 +1392,14 @@ class _BookImportPreview extends StatelessWidget {
       debugPrint('New Book Format: ${item.book.formatValue}');
       debugPrint('=== DEBUG END ===');
     }
-    
+
     if (item.importType != 'UPDATE' || item.existingBook == null) {
       return null;
     }
-    
+
     final existing = item.existingBook!;
     String? oldValue;
-    
+
     switch (fieldName) {
       case 'name':
         oldValue = existing.name;
@@ -1238,6 +1409,9 @@ class _BookImportPreview extends StatelessWidget {
         break;
       case 'isbn':
         oldValue = existing.isbn;
+        break;
+      case 'asin':
+        oldValue = existing.asin;
         break;
       case 'saga':
         oldValue = existing.saga;
@@ -1284,7 +1458,7 @@ class _BookImportPreview extends StatelessWidget {
       default:
         oldValue = null;
     }
-    
+
     return oldValue;
   }
 
@@ -1429,6 +1603,13 @@ class _BookImportPreview extends StatelessWidget {
             isHighlighted: _isFieldNew(item, 'isbn'),
             onChanged: (value) => _updateField('isbn', value),
             oldValue: _getOldValue('isbn'),
+          ),
+          _EditableDetailRow(
+            label: 'ASIN',
+            value: item.book.asin ?? '',
+            isHighlighted: _isFieldNew(item, 'asin'),
+            onChanged: (value) => _updateField('asin', value),
+            oldValue: _getOldValue('asin'),
           ),
           _EditableDetailRow(
             label: 'Saga',
@@ -1619,79 +1800,85 @@ class _EditableDetailRowState extends State<_EditableDetailRow> {
             ),
           ),
           Expanded(
-            child: _isEditing
-                ? TextFormField(
-                    controller: _controller,
-                    onChanged: widget.onChanged,
-                    keyboardType: widget.keyboardType,
-                    maxLines: null,
-                    autofocus: true,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: Colors.black87,
-                    ),
-                    decoration: InputDecoration(
-                      isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 4,
+            child:
+                _isEditing
+                    ? TextFormField(
+                      controller: _controller,
+                      onChanged: widget.onChanged,
+                      keyboardType: widget.keyboardType,
+                      maxLines: null,
+                      autofocus: true,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: Colors.black87,
                       ),
-                      border: const OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.check, size: 16),
-                        onPressed: _stopEditing,
-                        padding: EdgeInsets.zero,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 4,
+                        ),
+                        border: const OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.check, size: 16),
+                          onPressed: _stopEditing,
+                          padding: EdgeInsets.zero,
+                        ),
                       ),
-                    ),
-                    onFieldSubmitted: (_) => _stopEditing(),
-                  )
-                : InkWell(
-                    onTap: _startEditing,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 2),
-                      child: RichText(
-                        text: TextSpan(
-                          style: const TextStyle(
-                            fontSize: 11,
-                            height: 1.3,
-                          ),
-                          children: [
-                            // Show old value if exists and different
-                            if (widget.oldValue != null && 
-                                widget.oldValue!.isNotEmpty && 
-                                widget.oldValue != widget.value)
+                      onFieldSubmitted: (_) => _stopEditing(),
+                    )
+                    : InkWell(
+                      onTap: _startEditing,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: RichText(
+                          text: TextSpan(
+                            style: const TextStyle(fontSize: 11, height: 1.3),
+                            children: [
+                              // Show old value if exists and different
+                              if (widget.oldValue != null &&
+                                  widget.oldValue!.isNotEmpty &&
+                                  widget.oldValue != widget.value)
+                                TextSpan(
+                                  text: widget.oldValue,
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    decoration: TextDecoration.lineThrough,
+                                  ),
+                                ),
+                              // Space between old and new
+                              if (widget.oldValue != null &&
+                                  widget.oldValue!.isNotEmpty &&
+                                  widget.oldValue != widget.value)
+                                const TextSpan(text: ' → '),
+                              // Show new value (or placeholder if empty)
                               TextSpan(
-                                text: widget.oldValue,
+                                text:
+                                    widget.value.isEmpty
+                                        ? '(empty)'
+                                        : widget.value,
                                 style: TextStyle(
-                                  color: Colors.grey[600],
-                                  decoration: TextDecoration.lineThrough,
+                                  color:
+                                      widget.value.isEmpty
+                                          ? Colors.grey[400]
+                                          : (widget.isHighlighted
+                                              ? Colors.green[700]
+                                              : Colors.black87),
+                                  fontWeight:
+                                      widget.isHighlighted
+                                          ? FontWeight.w600
+                                          : FontWeight.normal,
+                                  fontStyle:
+                                      widget.value.isEmpty
+                                          ? FontStyle.italic
+                                          : FontStyle.normal,
                                 ),
                               ),
-                            // Space between old and new
-                            if (widget.oldValue != null && 
-                                widget.oldValue!.isNotEmpty && 
-                                widget.oldValue != widget.value)
-                              const TextSpan(text: ' → '),
-                            // Show new value (or placeholder if empty)
-                            TextSpan(
-                              text: widget.value.isEmpty ? '(empty)' : widget.value,
-                              style: TextStyle(
-                                color: widget.value.isEmpty
-                                    ? Colors.grey[400]
-                                    : (widget.isHighlighted 
-                                        ? Colors.green[700]
-                                        : Colors.black87),
-                                fontWeight: widget.isHighlighted 
-                                    ? FontWeight.w600 
-                                    : FontWeight.normal,
-                                fontStyle: widget.value.isEmpty ? FontStyle.italic : FontStyle.normal,
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
           ),
         ],
       ),

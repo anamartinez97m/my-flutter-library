@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
+import 'package:myrandomlibrary/providers/book_provider.dart';
+import 'package:provider/provider.dart';
 
 class ManageDropdownsScreen extends StatefulWidget {
   const ManageDropdownsScreen({super.key});
@@ -99,6 +101,12 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         }
 
         _loadValues();
+        
+        // Refresh book list in home screen
+        if (mounted) {
+          final provider = Provider.of<BookProvider?>(context, listen: false);
+          await provider?.loadBooks();
+        }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -161,6 +169,12 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         }
 
         _loadValues();
+        
+        // Refresh book list in home screen
+        if (mounted) {
+          final provider = Provider.of<BookProvider?>(context, listen: false);
+          await provider?.loadBooks();
+        }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -264,6 +278,12 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       }
       
       _loadValues();
+      
+      // Refresh book list in home screen
+      if (mounted) {
+        final provider = Provider.of<BookProvider?>(context, listen: false);
+        await provider?.loadBooks();
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
