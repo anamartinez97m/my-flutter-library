@@ -27,6 +27,39 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
     _selectedYear = widget.initialYear;
   }
 
+  /// Try to parse date with multiple formats
+  DateTime? _tryParseDate(String dateStr) {
+    if (dateStr.trim().isEmpty) return null;
+    
+    final trimmed = dateStr.trim();
+    
+    // Try ISO8601 format first (handles YYYY-MM-DD and full timestamps)
+    try {
+      return DateTime.parse(trimmed);
+    } catch (e) {
+      // Check if it contains slashes - likely YYYY/MM/DD format
+      if (trimmed.contains('/')) {
+        try {
+          final parts = trimmed.split('/');
+          if (parts.length == 3) {
+            final year = int.parse(parts[0]);
+            final month = int.parse(parts[1]);
+            final day = int.parse(parts[2]);
+            
+            // Validate it's YYYY/MM/DD (year should be > 1900)
+            if (year > 1900) {
+              return DateTime(year, month, day);
+            }
+          }
+        } catch (e) {
+          // Failed to parse
+        }
+      }
+    }
+    
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,32 +78,26 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
               try {
                 final List<dynamic> endDates = jsonDecode(book.bundleEndDates!);
                 for (var dateStr in endDates) {
-                  if (dateStr != null && dateStr.toString().isNotEmpty) {
-                    try {
-                      final date = DateTime.parse(dateStr);
+                  if (dateStr != null) {
+                    final date = _tryParseDate(dateStr.toString());
+                    if (date != null) {
                       yearsSet.add(date.year);
-                    } catch (e) {
-                      // Skip invalid dates
                     }
                   }
                 }
               } catch (e) {
                 // If bundle dates parsing fails, try regular date
-                if (book.dateReadFinal != null && book.dateReadFinal!.isNotEmpty) {
-                  try {
-                    final dateRead = DateTime.parse(book.dateReadFinal!);
+                if (book.dateReadFinal != null) {
+                  final dateRead = _tryParseDate(book.dateReadFinal!);
+                  if (dateRead != null) {
                     yearsSet.add(dateRead.year);
-                  } catch (e) {
-                    // Skip invalid dates
                   }
                 }
               }
-            } else if (book.dateReadFinal != null && book.dateReadFinal!.isNotEmpty) {
-              try {
-                final dateRead = DateTime.parse(book.dateReadFinal!);
+            } else if (book.dateReadFinal != null) {
+              final dateRead = _tryParseDate(book.dateReadFinal!);
+              if (dateRead != null) {
                 yearsSet.add(dateRead.year);
-              } catch (e) {
-                // Skip invalid dates
               }
             }
           }
@@ -84,49 +111,36 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
                 final List<dynamic> endDates = jsonDecode(book.bundleEndDates!);
                 // Check if ANY of the bundle books were finished in the selected year
                 for (var dateStr in endDates) {
-                  if (dateStr != null && dateStr.toString().isNotEmpty) {
-                    try {
-                      final date = DateTime.parse(dateStr);
-                      if (date.year == _selectedYear) {
-                        return true;
-                      }
-                    } catch (e) {
-                      // Skip invalid dates
+                  if (dateStr != null) {
+                    final date = _tryParseDate(dateStr.toString());
+                    if (date != null && date.year == _selectedYear) {
+                      return true;
                     }
                   }
                 }
               } catch (e) {
                 // If bundle dates parsing fails, try regular date
-                if (book.dateReadFinal != null && book.dateReadFinal!.isNotEmpty) {
-                  try {
-                    final dateRead = DateTime.parse(book.dateReadFinal!);
-                    return dateRead.year == _selectedYear;
-                  } catch (e) {
-                    return false;
-                  }
+                if (book.dateReadFinal != null) {
+                  final dateRead = _tryParseDate(book.dateReadFinal!);
+                  return dateRead != null && dateRead.year == _selectedYear;
                 }
               }
               return false;
-            } else if (book.dateReadFinal != null && book.dateReadFinal!.isNotEmpty) {
-              try {
-                final dateRead = DateTime.parse(book.dateReadFinal!);
-                return dateRead.year == _selectedYear;
-              } catch (e) {
-                return false;
-              }
+            } else if (book.dateReadFinal != null) {
+              final dateRead = _tryParseDate(book.dateReadFinal!);
+              return dateRead != null && dateRead.year == _selectedYear;
             }
             return false;
           }).toList();
 
           // Sort by date read (most recent first)
           booksForYear.sort((a, b) {
-            try {
-              final dateA = DateTime.parse(a.dateReadFinal!);
-              final dateB = DateTime.parse(b.dateReadFinal!);
+            final dateA = _tryParseDate(a.dateReadFinal ?? '');
+            final dateB = _tryParseDate(b.dateReadFinal ?? '');
+            if (dateA != null && dateB != null) {
               return dateB.compareTo(dateA);
-            } catch (e) {
-              return 0;
             }
+            return 0;
           });
 
           return Column(
@@ -157,38 +171,24 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
                               try {
                                 final List<dynamic> endDates = jsonDecode(book.bundleEndDates!);
                                 for (var dateStr in endDates) {
-                                  if (dateStr != null && dateStr.toString().isNotEmpty) {
-                                    try {
-                                      final date = DateTime.parse(dateStr);
-                                      if (date.year == year) {
-                                        return true;
-                                      }
-                                    } catch (e) {
-                                      // Skip invalid dates
+                                  if (dateStr != null) {
+                                    final date = _tryParseDate(dateStr.toString());
+                                    if (date != null && date.year == year) {
+                                      return true;
                                     }
                                   }
                                 }
                               } catch (e) {
                                 // If bundle parsing fails, try regular date
-                                if (book.dateReadFinal != null && book.dateReadFinal!.isNotEmpty) {
-                                  try {
-                                    final dateRead = DateTime.parse(book.dateReadFinal!);
-                                    return dateRead.year == year;
-                                  } catch (e) {
-                                    return false;
-                                  }
+                                if (book.dateReadFinal != null) {
+                                  final dateRead = _tryParseDate(book.dateReadFinal!);
+                                  return dateRead != null && dateRead.year == year;
                                 }
                               }
                               return false;
-                            } else if (book.dateReadFinal != null &&
-                                book.dateReadFinal!.isNotEmpty) {
-                              try {
-                                final dateRead =
-                                    DateTime.parse(book.dateReadFinal!);
-                                return dateRead.year == year;
-                              } catch (e) {
-                                return false;
-                              }
+                            } else if (book.dateReadFinal != null) {
+                              final dateRead = _tryParseDate(book.dateReadFinal!);
+                              return dateRead != null && dateRead.year == year;
                             }
                             return false;
                           }).length;
@@ -234,35 +234,25 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
   Widget _buildBookCard(BuildContext context, Book book) {
     // Parse date for display
     String dateStr = '';
-    if (book.dateReadFinal != null && book.dateReadFinal!.isNotEmpty) {
-      try {
-        final date = DateTime.parse(book.dateReadFinal!);
+    if (book.dateReadFinal != null) {
+      final date = _tryParseDate(book.dateReadFinal!);
+      if (date != null) {
         dateStr = '${date.day}/${date.month}/${date.year}';
-      } catch (e) {
+      } else {
         dateStr = book.dateReadFinal!;
       }
     }
 
-    // Build subtitle info list
+    // Build subtitle info list - only author, finished date, and pages
     final List<String> subtitleParts = [];
     if (book.author != null && book.author!.isNotEmpty) {
-      subtitleParts.add('By ${book.author}');
-    }
-    if (book.editorialValue != null && book.editorialValue!.isNotEmpty) {
-      subtitleParts.add(book.editorialValue!);
-    }
-    if (book.formatValue != null && book.formatValue!.isNotEmpty) {
-      subtitleParts.add(book.formatValue!);
+      subtitleParts.add(book.author!);
     }
     if (dateStr.isNotEmpty) {
-      subtitleParts.add('Read: $dateStr');
+      subtitleParts.add('Finished: $dateStr');
     }
     if (book.pages != null && book.pages! > 0) {
       subtitleParts.add('${book.pages} pages');
-    }
-    // Show bundle info if it's a bundle
-    if (book.isBundle == true && book.bundleCount != null && book.bundleCount! > 0) {
-      subtitleParts.add('Bundle (${book.bundleCount} books)');
     }
 
     return Card(

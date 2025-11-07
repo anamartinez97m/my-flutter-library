@@ -87,7 +87,9 @@ class BookProvider extends ChangeNotifier {
                 if (book.name != null && book.name!.isNotEmpty) return false;
                 break;
               case 'isbn':
-                if (book.isbn != null && book.isbn!.isNotEmpty) return false;
+                // Check both ISBN and ASIN are empty
+                if ((book.isbn != null && book.isbn!.isNotEmpty) || 
+                    (book.asin != null && book.asin!.isNotEmpty)) return false;
                 break;
               case 'author':
                 if (book.author != null && book.author!.isNotEmpty) return false;

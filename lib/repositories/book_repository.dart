@@ -212,6 +212,19 @@ class BookRepository {
     }
   }
 
+  /// Get unique saga values from books for autocomplete
+  Future<List<String>> getUniqueSagas() async {
+    final result = await db.rawQuery(
+      '''
+      SELECT DISTINCT saga 
+      FROM book 
+      WHERE saga IS NOT NULL AND saga != ''
+      ORDER BY saga
+      ''',
+    );
+    return result.map((row) => row['saga'] as String).toList();
+  }
+
   /// Get all values from a lookup table
   Future<List<Map<String, dynamic>>> getLookupValues(String tableName) async {
     // format_saga table uses 'format_id' not 'format_saga_id'
@@ -297,40 +310,44 @@ class BookRepository {
     await db.delete('book', where: 'book_id = ?', whereArgs: [bookId]);
   }
 
-  /// Check if books already exist in the database with the same ISBN or ASIN
+  /// Check if books already exist in the database with the same ISBN, ASIN, or name
   /// Returns list of book_ids if found, empty list otherwise
-  /// Logic: If ISBN/ASIN exists, check by ISBN or ASIN. If both empty, check by name. If name also empty, check by status+author+saga+nSaga
+  /// Logic: Always check by name first, then by ISBN/ASIN, then by status+author+saga+nSaga for TBReleased
   Future<List<int>> findDuplicateBooks(Book book) async {
-    // Check by ISBN or ASIN if either exists and is not empty
+    final Set<int> duplicateIds = {};
+    
+    // Always check by name first if available
+    if (book.name != null && book.name!.isNotEmpty) {
+      final nameResults = await db.query(
+        'book',
+        columns: ['book_id'],
+        where: 'LOWER(name) = ?',
+        whereArgs: [book.name!.toLowerCase()],
+      );
+      if (nameResults.isNotEmpty) {
+        duplicateIds.addAll(nameResults.map((r) => r['book_id'] as int));
+      }
+    }
+    
+    // Also check by ISBN or ASIN if either exists and is not empty
     if ((book.isbn != null && book.isbn!.isNotEmpty) || 
         (book.asin != null && book.asin!.isNotEmpty)) {
-      final results = await db.rawQuery(
+      final isbnAsinResults = await db.rawQuery(
         '''
-        SELECT book_id, name FROM book 
-        WHERE (isbn IS NOT NULL AND isbn = ?) 
-           OR (asin IS NOT NULL AND asin = ?)
+        SELECT book_id FROM book 
+        WHERE (isbn IS NOT NULL AND isbn != '' AND isbn = ?) 
+           OR (asin IS NOT NULL AND asin != '' AND asin = ?)
         ''',
         [book.isbn ?? '', book.asin ?? ''],
       );
-      if (results.isNotEmpty) {
-        return results.map((r) => r['book_id'] as int).toList();
+      if (isbnAsinResults.isNotEmpty) {
+        duplicateIds.addAll(isbnAsinResults.map((r) => r['book_id'] as int));
       }
-      return [];
     }
-
-    // Only check by name if ISBN is empty
-    if (book.name != null && book.name!.isNotEmpty) {
-      final result = await db.query(
-        'book',
-        columns: ['book_id', 'isbn'],
-        where: 'LOWER(name) = ?',
-        whereArgs: [book.name!.toLowerCase()],
-        limit: 1,
-      );
-      if (result.isNotEmpty) {
-        return [result.first['book_id'] as int];
-      }
-      // If name exists but no match, continue to TBReleased check
+    
+    // If we found duplicates by name or ISBN/ASIN, return them
+    if (duplicateIds.isNotEmpty) {
+      return duplicateIds.toList();
     }
 
     // If no name match and status is 'TBReleased', check by status+author+saga+nSaga
@@ -451,10 +468,12 @@ class BookRepository {
     }
     
     // Update reading information only if empty
-    if (existing['date_read_initial'] == null && newBook.dateReadInitial != null) {
+    if ((existing['date_read_initial'] == null || existing['date_read_initial'].toString().isEmpty) && 
+        newBook.dateReadInitial != null && newBook.dateReadInitial!.isNotEmpty) {
       updates['date_read_initial'] = newBook.dateReadInitial;
     }
-    if (existing['date_read_final'] == null && newBook.dateReadFinal != null) {
+    if ((existing['date_read_final'] == null || existing['date_read_final'].toString().isEmpty) && 
+        newBook.dateReadFinal != null && newBook.dateReadFinal!.isNotEmpty) {
       updates['date_read_final'] = newBook.dateReadFinal;
     }
     if ((existing['read_count'] == null || existing['read_count'] == 0) && 

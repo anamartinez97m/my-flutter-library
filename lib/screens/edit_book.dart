@@ -40,6 +40,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
   late int _readCount;
   DateTime? _dateReadInitial;
   DateTime? _dateReadFinal;
+  String? _originalDateReadInitial;
+  String? _originalDateReadFinal;
 
   // Bundle fields
   late bool _isBundle;
@@ -68,6 +70,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   List<String> _authorSuggestions = [];
   List<String> _genreSuggestions = [];
   List<String> _editorialSuggestions = [];
+  List<String> _sagaSuggestions = [];
 
   // Multi-value fields
   List<String> _selectedAuthors = [];
@@ -211,18 +214,23 @@ class _EditBookScreenState extends State<EditBookScreen> {
       }
     }
 
-    // Parse dates
-    if (widget.book.dateReadInitial != null) {
+    // Parse dates and preserve original strings
+    _originalDateReadInitial = widget.book.dateReadInitial;
+    _originalDateReadFinal = widget.book.dateReadFinal;
+    
+    if (widget.book.dateReadInitial != null && widget.book.dateReadInitial!.trim().isNotEmpty) {
       try {
-        _dateReadInitial = DateTime.parse(widget.book.dateReadInitial!);
+        _dateReadInitial = DateTime.parse(widget.book.dateReadInitial!.trim());
       } catch (e) {
+        debugPrint('Error parsing dateReadInitial: ${widget.book.dateReadInitial} - $e');
         _dateReadInitial = null;
       }
     }
-    if (widget.book.dateReadFinal != null) {
+    if (widget.book.dateReadFinal != null && widget.book.dateReadFinal!.trim().isNotEmpty) {
       try {
-        _dateReadFinal = DateTime.parse(widget.book.dateReadFinal!);
+        _dateReadFinal = DateTime.parse(widget.book.dateReadFinal!.trim());
       } catch (e) {
+        debugPrint('Error parsing dateReadFinal: ${widget.book.dateReadFinal} - $e');
         _dateReadFinal = null;
       }
     }
@@ -241,6 +249,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
       final authors = await repository.getLookupValues('author');
       final genres = await repository.getLookupValues('genre');
       final editorials = await repository.getLookupValues('editorial');
+      final sagas = await repository.getUniqueSagas();
 
       setState(() {
         // Deduplicate lists by ID to avoid dropdown errors
@@ -262,6 +271,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
         _genreSuggestions = genres.map((g) => g['name'] as String).toList();
         _editorialSuggestions =
             editorials.map((e) => e['name'] as String).toList();
+        _sagaSuggestions = sagas;
 
         // Set selected dropdown values based on book data
         // Validate that the selected ID exists in the deduplicated list
@@ -463,8 +473,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
         formatSagaValue: formatSagaValue,
         createdAt: widget.book.createdAt,
         genre: _selectedGenres.isEmpty ? null : _selectedGenres.join(', '),
-        dateReadInitial: _dateReadInitial?.toIso8601String(),
-        dateReadFinal: _dateReadFinal?.toIso8601String(),
+        dateReadInitial: _dateReadInitial?.toIso8601String() ?? _originalDateReadInitial,
+        dateReadFinal: _dateReadFinal?.toIso8601String() ?? _originalDateReadFinal,
         readCount: _readCount,
         myRating: _myRating > 0 ? _myRating : null,
         myReview:
@@ -670,13 +680,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 const SizedBox(height: 16),
 
                 // Saga field
-                TextFormField(
+                AutocompleteTextField(
                   controller: _sagaController,
-                  decoration: const InputDecoration(
-                    labelText: 'Saga',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.collections_bookmark),
-                  ),
+                  labelText: 'Saga',
+                  prefixIcon: Icons.collections_bookmark,
+                  suggestions: _sagaSuggestions,
+                  textCapitalization: TextCapitalization.words,
                 ),
                 const SizedBox(height: 16),
 
@@ -1047,6 +1056,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     if (date != null) {
                       setState(() {
                         _dateReadInitial = date;
+                        _originalDateReadInitial = null; // Clear original since we have a new date
                       });
                     }
                   },
@@ -1056,12 +1066,13 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       border: const OutlineInputBorder(),
                       prefixIcon: const Icon(Icons.event),
                       suffixIcon:
-                          _dateReadInitial != null
+                          _dateReadInitial != null || (_originalDateReadInitial != null && _originalDateReadInitial!.isNotEmpty)
                               ? IconButton(
                                 icon: const Icon(Icons.clear),
                                 onPressed: () {
                                   setState(() {
                                     _dateReadInitial = null;
+                                    _originalDateReadInitial = null;
                                   });
                                 },
                               )
@@ -1070,10 +1081,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     child: Text(
                       _dateReadInitial != null
                           ? '${_dateReadInitial!.year}-${_dateReadInitial!.month.toString().padLeft(2, '0')}-${_dateReadInitial!.day.toString().padLeft(2, '0')}'
-                          : 'Select date',
+                          : (_originalDateReadInitial != null && _originalDateReadInitial!.isNotEmpty)
+                              ? _originalDateReadInitial!.split('T')[0]
+                              : 'Select date',
                       style: TextStyle(
                         color:
-                            _dateReadInitial != null ? null : Colors.grey[600],
+                            (_dateReadInitial != null || (_originalDateReadInitial != null && _originalDateReadInitial!.isNotEmpty)) ? null : Colors.grey[600],
                       ),
                     ),
                   ),
@@ -1092,6 +1105,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     if (date != null) {
                       setState(() {
                         _dateReadFinal = date;
+                        _originalDateReadFinal = null; // Clear original since we have a new date
                         // Auto-increment read count when finishing a book
                         _readCount++;
                       });
@@ -1103,12 +1117,13 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       border: const OutlineInputBorder(),
                       prefixIcon: const Icon(Icons.event_available),
                       suffixIcon:
-                          _dateReadFinal != null
+                          _dateReadFinal != null || (_originalDateReadFinal != null && _originalDateReadFinal!.isNotEmpty)
                               ? IconButton(
                                 icon: const Icon(Icons.clear),
                                 onPressed: () {
                                   setState(() {
                                     _dateReadFinal = null;
+                                    _originalDateReadFinal = null;
                                   });
                                 },
                               )
@@ -1117,9 +1132,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     child: Text(
                       _dateReadFinal != null
                           ? '${_dateReadFinal!.year}-${_dateReadFinal!.month.toString().padLeft(2, '0')}-${_dateReadFinal!.day.toString().padLeft(2, '0')}'
-                          : 'Select date',
+                          : (_originalDateReadFinal != null && _originalDateReadFinal!.isNotEmpty)
+                              ? _originalDateReadFinal!.split('T')[0]
+                              : 'Select date',
                       style: TextStyle(
-                        color: _dateReadFinal != null ? null : Colors.grey[600],
+                        color: (_dateReadFinal != null || (_originalDateReadFinal != null && _originalDateReadFinal!.isNotEmpty)) ? null : Colors.grey[600],
                       ),
                     ),
                   ),

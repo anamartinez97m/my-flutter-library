@@ -8,6 +8,7 @@ import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/utils/csv_import_helper.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminCsvImportScreen extends StatefulWidget {
   const AdminCsvImportScreen({super.key});
@@ -20,6 +21,118 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
   List<_BookImportItem> _importItems = [];
   bool _isLoading = false;
   int _currentIndex = 0;
+  String? _currentFileIdentifier;
+  String? _currentFilePath;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkForCheckpoint();
+  }
+
+  /// Generate a unique identifier for the file based on path, size, and modification time
+  String _generateFileIdentifier(String filePath) {
+    final file = File(filePath);
+    final stat = file.statSync();
+    return '${filePath}_${stat.size}_${stat.modified.millisecondsSinceEpoch}';
+  }
+
+  /// Check if there's a saved checkpoint
+  Future<void> _checkForCheckpoint() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedIdentifier = prefs.getString('csv_import_file_identifier');
+    final savedPath = prefs.getString('csv_import_file_path');
+    final savedIndex = prefs.getInt('csv_import_current_index');
+
+    if (savedIdentifier != null && savedPath != null && savedIndex != null) {
+      // Check if the file still exists
+      final file = File(savedPath);
+      if (await file.exists()) {
+        if (mounted) {
+          final resume = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Resume Import?'),
+              content: Text(
+                'Found a previous import session for:\n${savedPath.split('/').last}\n\nWould you like to resume from where you left off?',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () async {
+                    // Clear checkpoint
+                    await _clearCheckpoint();
+                    Navigator.pop(context, false);
+                  },
+                  child: const Text('Start Fresh'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text('Resume'),
+                ),
+              ],
+            ),
+          );
+
+          if (resume == true) {
+            await _resumeFromCheckpoint(savedPath, savedIdentifier, savedIndex);
+          }
+        }
+      } else {
+        // File no longer exists, clear checkpoint
+        await _clearCheckpoint();
+      }
+    }
+  }
+
+  /// Save checkpoint
+  Future<void> _saveCheckpoint() async {
+    if (_currentFilePath != null && _currentFileIdentifier != null) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('csv_import_file_identifier', _currentFileIdentifier!);
+      await prefs.setString('csv_import_file_path', _currentFilePath!);
+      await prefs.setInt('csv_import_current_index', _currentIndex);
+    }
+  }
+
+  /// Clear checkpoint
+  Future<void> _clearCheckpoint() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('csv_import_file_identifier');
+    await prefs.remove('csv_import_file_path');
+    await prefs.remove('csv_import_current_index');
+  }
+
+  /// Resume from checkpoint
+  Future<void> _resumeFromCheckpoint(
+    String filePath,
+    String fileIdentifier,
+    int startIndex,
+  ) async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      // Verify file identifier matches
+      final currentIdentifier = _generateFileIdentifier(filePath);
+      if (currentIdentifier != fileIdentifier) {
+        throw Exception('File has been modified since last session');
+      }
+
+      // Parse the file
+      await _parseCsvFile(filePath, startFromIndex: startIndex);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error resuming: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      await _clearCheckpoint();
+    }
+  }
 
   Future<void> _selectAndParseCsv() async {
     try {
@@ -42,6 +155,26 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
       setState(() {
         _isLoading = true;
       });
+
+      await _parseCsvFile(filePath);
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+
+  Future<void> _parseCsvFile(String filePath, {int startFromIndex = 0}) async {
+    try {
+      // Generate and save file identifier
+      _currentFileIdentifier = _generateFileIdentifier(filePath);
+      _currentFilePath = filePath;
 
       // Read and parse CSV
       String input = File(filePath).readAsStringSync();
@@ -76,7 +209,8 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
       final repository = BookRepository(db);
       final List<_BookImportItem> items = [];
 
-      for (int i = 1; i < rows.length; i++) {
+      // Start from the specified index (for resume functionality)
+      for (int i = 1 + startFromIndex; i < rows.length; i++) {
         final row = rows[i];
         if (row.isEmpty ||
             row.every(
@@ -112,7 +246,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
             formatSagaValue: book.formatSagaValue?.trim(),
             pages: book.pages,
             originalPublicationYear: book.originalPublicationYear,
-            loaned: book.loaned?.trim() ?? 'no', // Default to 'no'
+            loaned: (book.loaned?.trim().isEmpty ?? true) ? 'no' : book.loaned!.trim(), // Default to 'no' if empty
             statusValue: mappedStatus?.trim(),
             editorialValue: book.editorialValue?.trim(),
             languageValue: book.languageValue?.trim(),
@@ -120,8 +254,8 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
             formatValue: book.formatValue?.trim(),
             createdAt: book.createdAt,
             genre: book.genre?.trim(),
-            dateReadInitial: book.dateReadInitial,
-            dateReadFinal: book.dateReadFinal,
+            dateReadInitial: book.dateReadInitial?.trim(),
+            dateReadFinal: book.dateReadFinal?.trim(),
             readCount: book.readCount,
             myRating: book.myRating,
             myReview: book.myReview?.trim(),
@@ -308,16 +442,14 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         _isLoading = false;
         _currentIndex = 0;
       });
+
+      // Save checkpoint
+      await _saveCheckpoint();
     } catch (e) {
       setState(() {
         _isLoading = false;
       });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-        );
-      }
+      throw e;
     }
   }
 
@@ -394,6 +526,9 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         setState(() {
           _isLoading = false;
         });
+
+        // Clear checkpoint after successful import
+        await _clearCheckpoint();
 
         // Show results
         await showDialog(
@@ -514,6 +649,9 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
 
         // If all items imported, go back to settings
         if (_importItems.isEmpty) {
+          // Clear checkpoint after successful partial import
+          await _clearCheckpoint();
+          
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -531,6 +669,9 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
             }
           }
         } else {
+          // Save checkpoint for remaining items
+          await _saveCheckpoint();
+          
           // Show results with remaining count
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -709,6 +850,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                                           setState(() {
                                             _currentIndex--;
                                           });
+                                          _saveCheckpoint();
                                         }
                                         : null,
                                 child: const Text('Previous'),
@@ -723,6 +865,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                                           setState(() {
                                             _currentIndex++;
                                           });
+                                          _saveCheckpoint();
                                         }
                                         : null,
                                 child: const Text('Next'),
@@ -875,13 +1018,15 @@ class _BookImportPreview extends StatelessWidget {
 
   void _updateField(String fieldName, String value) {
     final book = item.book;
+    // Trim the value to prevent trailing spaces
+    final trimmedValue = value.trim();
     Book updatedBook;
 
     switch (fieldName) {
       case 'name':
         updatedBook = Book(
           bookId: book.bookId,
-          name: value.isEmpty ? null : value,
+          name: trimmedValue.isEmpty ? null : trimmedValue,
           isbn: book.isbn,
           asin: book.asin,
           author: book.author,
@@ -911,7 +1056,7 @@ class _BookImportPreview extends StatelessWidget {
           name: book.name,
           isbn: book.isbn,
           asin: book.asin,
-          author: value.isEmpty ? null : value,
+          author: trimmedValue.isEmpty ? null : trimmedValue,
           saga: book.saga,
           nSaga: book.nSaga,
           formatSagaValue: book.formatSagaValue,
@@ -936,7 +1081,7 @@ class _BookImportPreview extends StatelessWidget {
         updatedBook = Book(
           bookId: book.bookId,
           name: book.name,
-          isbn: value.isEmpty ? null : value,
+          isbn: trimmedValue.isEmpty ? null : trimmedValue,
           asin: book.asin,
           author: book.author,
           saga: book.saga,
@@ -964,7 +1109,7 @@ class _BookImportPreview extends StatelessWidget {
           bookId: book.bookId,
           name: book.name,
           isbn: book.isbn,
-          asin: value.isEmpty ? null : value,
+          asin: trimmedValue.isEmpty ? null : trimmedValue,
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
@@ -993,7 +1138,7 @@ class _BookImportPreview extends StatelessWidget {
           isbn: book.isbn,
           asin: book.asin,
           author: book.author,
-          saga: value.isEmpty ? null : value,
+          saga: trimmedValue.isEmpty ? null : trimmedValue,
           nSaga: book.nSaga,
           formatSagaValue: book.formatSagaValue,
           pages: book.pages,
@@ -1021,7 +1166,7 @@ class _BookImportPreview extends StatelessWidget {
           asin: book.asin,
           author: book.author,
           saga: book.saga,
-          nSaga: value.isEmpty ? null : value,
+          nSaga: trimmedValue.isEmpty ? null : trimmedValue,
           formatSagaValue: book.formatSagaValue,
           pages: book.pages,
           originalPublicationYear: book.originalPublicationYear,
@@ -1050,7 +1195,7 @@ class _BookImportPreview extends StatelessWidget {
           saga: book.saga,
           nSaga: book.nSaga,
           formatSagaValue: book.formatSagaValue,
-          pages: value.isEmpty ? null : int.tryParse(value),
+          pages: trimmedValue.isEmpty ? null : int.tryParse(trimmedValue),
           originalPublicationYear: book.originalPublicationYear,
           loaned: book.loaned,
           statusValue: book.statusValue,
@@ -1078,7 +1223,7 @@ class _BookImportPreview extends StatelessWidget {
           nSaga: book.nSaga,
           formatSagaValue: book.formatSagaValue,
           pages: book.pages,
-          originalPublicationYear: value.isEmpty ? null : int.tryParse(value),
+          originalPublicationYear: trimmedValue.isEmpty ? null : int.tryParse(trimmedValue),
           loaned: book.loaned,
           statusValue: book.statusValue,
           editorialValue: book.editorialValue,
@@ -1107,7 +1252,7 @@ class _BookImportPreview extends StatelessWidget {
           pages: book.pages,
           originalPublicationYear: book.originalPublicationYear,
           loaned: book.loaned,
-          statusValue: value.isEmpty ? null : value,
+          statusValue: trimmedValue.isEmpty ? null : trimmedValue,
           editorialValue: book.editorialValue,
           languageValue: book.languageValue,
           placeValue: book.placeValue,
@@ -1135,7 +1280,7 @@ class _BookImportPreview extends StatelessWidget {
           originalPublicationYear: book.originalPublicationYear,
           loaned: book.loaned,
           statusValue: book.statusValue,
-          editorialValue: value.isEmpty ? null : value,
+          editorialValue: trimmedValue.isEmpty ? null : trimmedValue,
           languageValue: book.languageValue,
           placeValue: book.placeValue,
           formatValue: book.formatValue,
@@ -1163,7 +1308,7 @@ class _BookImportPreview extends StatelessWidget {
           loaned: book.loaned,
           statusValue: book.statusValue,
           editorialValue: book.editorialValue,
-          languageValue: value.isEmpty ? null : value,
+          languageValue: trimmedValue.isEmpty ? null : trimmedValue,
           placeValue: book.placeValue,
           formatValue: book.formatValue,
           createdAt: book.createdAt,
@@ -1191,7 +1336,7 @@ class _BookImportPreview extends StatelessWidget {
           statusValue: book.statusValue,
           editorialValue: book.editorialValue,
           languageValue: book.languageValue,
-          placeValue: value.isEmpty ? null : value,
+          placeValue: trimmedValue.isEmpty ? null : trimmedValue,
           formatValue: book.formatValue,
           createdAt: book.createdAt,
           genre: book.genre,
@@ -1219,7 +1364,7 @@ class _BookImportPreview extends StatelessWidget {
           editorialValue: book.editorialValue,
           languageValue: book.languageValue,
           placeValue: book.placeValue,
-          formatValue: value.isEmpty ? null : value,
+          formatValue: trimmedValue.isEmpty ? null : trimmedValue,
           createdAt: book.createdAt,
           genre: book.genre,
           dateReadInitial: book.dateReadInitial,
@@ -1248,7 +1393,7 @@ class _BookImportPreview extends StatelessWidget {
           placeValue: book.placeValue,
           formatValue: book.formatValue,
           createdAt: book.createdAt,
-          genre: value.isEmpty ? null : value,
+          genre: trimmedValue.isEmpty ? null : trimmedValue,
           dateReadInitial: book.dateReadInitial,
           dateReadFinal: book.dateReadFinal,
           readCount: book.readCount,

@@ -68,6 +68,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   List<String> _authorSuggestions = [];
   List<String> _genreSuggestions = [];
   List<String> _editorialSuggestions = [];
+  List<String> _sagaSuggestions = [];
   
   // Multi-value fields
   List<String> _selectedAuthors = [];
@@ -126,6 +127,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       final authors = await repository.getLookupValues('author');
       final genres = await repository.getLookupValues('genre');
       final editorials = await repository.getLookupValues('editorial');
+      final sagas = await repository.getUniqueSagas();
 
       setState(() {
         // Deduplicate lists by ID to avoid dropdown errors
@@ -137,6 +139,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         _authorSuggestions = authors.map((a) => a['name'] as String).toList();
         _genreSuggestions = genres.map((g) => g['name'] as String).toList();
         _editorialSuggestions = editorials.map((e) => e['name'] as String).toList();
+        _sagaSuggestions = sagas;
         _isLoading = false;
       });
     } catch (e) {
@@ -522,13 +525,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
               const SizedBox(height: 16),
 
               // Saga field
-              TextFormField(
+              AutocompleteTextField(
                 controller: _sagaController,
-                decoration: const InputDecoration(
-                  labelText: 'Saga',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.collections_bookmark),
-                ),
+                labelText: 'Saga',
+                prefixIcon: Icons.collections_bookmark,
+                suggestions: _sagaSuggestions,
+                textCapitalization: TextCapitalization.words,
               ),
               const SizedBox(height: 16),
 
