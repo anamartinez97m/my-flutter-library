@@ -7,6 +7,7 @@ class Book {
   final String? editorialValue;
   final String? saga;
   final String? nSaga;
+  final String? sagaUniverse;
   final int? formatSagaId = 0;
   final String? formatSagaValue;
   final String? isbn;
@@ -34,12 +35,15 @@ class Book {
   final String? bundleStartDates;
   final String? bundleEndDates;
   final String? bundlePages;
+  final bool? tbr;
+  final bool? isTandem;
 
   Book({
     required this.bookId,
     required this.name,
     required this.saga,
     required this.nSaga,
+    this.sagaUniverse,
     required this.formatSagaValue,
     required this.isbn,
     required this.asin,
@@ -65,6 +69,8 @@ class Book {
     this.bundleStartDates,
     this.bundleEndDates,
     this.bundlePages,
+    this.tbr,
+    this.isTandem,
   });
 
   factory Book.fromMap(Map<String, dynamic> map) {
@@ -73,6 +79,7 @@ class Book {
       name: map['name'] as String?,
       saga: map['saga'] as String?,
       nSaga: map['n_saga'] as String?,
+      sagaUniverse: map['saga_universe'] as String?,
       formatSagaValue: map['formatSagaValue'] as String?,
       isbn: map['isbn'] as String?,
       asin: map['asin'] as String?,
@@ -86,7 +93,7 @@ class Book {
               : int.tryParse(
                 map['original_publication_year']?.toString() ?? '',
               ),
-      loaned: map['loaned'],
+      loaned: map['loaned'] != null ? map['loaned'].toString().toLowerCase() : 'no',
       statusValue: map['statusValue'] as String?,
       editorialValue: map['editorialValue'] as String?,
       languageValue: map['languageValue'] as String?,
@@ -112,6 +119,8 @@ class Book {
       bundleStartDates: map['bundle_start_dates'] as String?,
       bundleEndDates: map['bundle_end_dates'] as String?,
       bundlePages: map['bundle_pages'] as String?,
+      tbr: map['tbr'] == 1,
+      isTandem: map['is_tandem'] == 1,
     );
   }
 
@@ -121,6 +130,7 @@ class Book {
       'name': name,
       'saga': saga,
       'nSaga': nSaga,
+      'sagaUniverse': sagaUniverse,
       'formatSagaValue': formatSagaValue,
       'isbn': isbn,
       'asin': asin,
@@ -151,6 +161,6 @@ class Book {
 
   @override
   String toString() {
-    return 'Book(bookId: $bookId, name: $name, author: $author, genre: $genre, saga: $saga, nSaga: $nSaga, formatSagaValue: $formatSagaValue, isbn: $isbn, asin: $asin, pages: $pages, originalPublicationYear: $originalPublicationYear, loaned: $loaned, statusValue: $statusValue, editorialValue: $editorialValue, languageValue: $languageValue, placeValue: $placeValue, formatValue: $formatValue, createdAt: $createdAt, dateReadInitial: $dateReadInitial, dateReadFinal: $dateReadFinal, readCount: $readCount, myRating: $myRating, myReview: $myReview, isBundle: $isBundle, bundleCount: $bundleCount, bundleNumbers: $bundleNumbers, bundleStartDates: $bundleStartDates, bundleEndDates: $bundleEndDates, bundlePages: $bundlePages)';
+    return 'Book(bookId: $bookId, name: $name, author: $author, genre: $genre, saga: $saga, nSaga: $nSaga, sagaUniverse: $sagaUniverse, formatSagaValue: $formatSagaValue, isbn: $isbn, asin: $asin, pages: $pages, originalPublicationYear: $originalPublicationYear, loaned: $loaned, statusValue: $statusValue, editorialValue: $editorialValue, languageValue: $languageValue, placeValue: $placeValue, formatValue: $formatValue, createdAt: $createdAt, dateReadInitial: $dateReadInitial, dateReadFinal: $dateReadFinal, readCount: $readCount, myRating: $myRating, myReview: $myReview, isBundle: $isBundle, bundleCount: $bundleCount, bundleNumbers: $bundleNumbers, bundleStartDates: $bundleStartDates, bundleEndDates: $bundleEndDates, bundlePages: $bundlePages)';
   }
 }

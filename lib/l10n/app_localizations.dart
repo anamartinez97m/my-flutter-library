@@ -284,7 +284,7 @@ abstract class AppLocalizations {
   /// No description provided for @status.
   ///
   /// In en, this message translates to:
-  /// **'Status'**
+  /// **'Reading Status'**
   String get status;
 
   /// No description provided for @loaned.

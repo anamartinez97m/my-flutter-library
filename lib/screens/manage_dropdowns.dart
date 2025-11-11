@@ -24,6 +24,19 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     'format': 'Format',
   };
 
+  // Core status values that cannot be deleted (case-insensitive)
+  final Set<String> _coreStatusValues = {
+    'yes',
+    'no',
+    'started',
+    'tbreleased',
+  };
+
+  bool _isCoreStatusValue(String value) {
+    return _selectedTable == 'status' && 
+           _coreStatusValues.contains(value.toLowerCase());
+  }
+
   @override
   void initState() {
     super.initState();
@@ -122,19 +135,51 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
 
   Future<void> _editValue(int id, String currentValue) async {
     final controller = TextEditingController(text: currentValue);
+    final isCoreStatus = _isCoreStatusValue(currentValue);
 
     final result = await showDialog<String>(
       context: context,
       builder:
           (context) => AlertDialog(
             title: Text('Edit ${_tableLabels[_selectedTable]}'),
-            content: TextField(
-              controller: controller,
-              decoration: const InputDecoration(
-                labelText: 'Value',
-                border: OutlineInputBorder(),
-              ),
-              autofocus: true,
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (isCoreStatus)
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.orange.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.warning_amber, color: Colors.orange.shade700),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Core status: Only the label will change, not the database value or logic.',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.orange.shade900,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                TextField(
+                  controller: controller,
+                  decoration: const InputDecoration(
+                    labelText: 'Value',
+                    border: OutlineInputBorder(),
+                  ),
+                  autofocus: true,
+                ),
+              ],
             ),
             actions: [
               TextButton(
@@ -189,6 +234,29 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
   }
 
   Future<void> _deleteValue(int id, String value) async {
+    // Prevent deletion of core status values
+    if (_isCoreStatusValue(value)) {
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Cannot Delete'),
+            content: const Text(
+              'This is a core status value and cannot be deleted. '
+              'The app logic depends on these values: Yes, No, Started, and TBReleased.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
+      return;
+    }
+
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
@@ -369,8 +437,16 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                             onPressed: () => _editValue(id, value),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () => _deleteValue(id, value),
+                            icon: Icon(
+                              Icons.delete,
+                              color: _isCoreStatusValue(value) ? Colors.grey : Colors.red,
+                            ),
+                            onPressed: _isCoreStatusValue(value) 
+                                ? null 
+                                : () => _deleteValue(id, value),
+                            tooltip: _isCoreStatusValue(value)
+                                ? 'Core status cannot be deleted'
+                                : 'Delete',
                           ),
                         ],
                       ),

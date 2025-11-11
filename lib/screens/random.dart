@@ -6,6 +6,7 @@ import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/screens/book_detail.dart';
+import 'package:myrandomlibrary/utils/status_helper.dart';
 import 'package:myrandomlibrary/widgets/chip_autocomplete_field.dart';
 import 'package:provider/provider.dart';
 
@@ -28,6 +29,7 @@ class _RandomScreenState extends State<RandomScreen> {
   String? _filterPages;
   String? _filterYear;
   String? _filterAuthor;
+  bool? _filterTBR;
 
   // Dropdown options
   List<Map<String, dynamic>> _formatList = [];
@@ -102,6 +104,11 @@ class _RandomScreenState extends State<RandomScreen> {
       filtered = provider.allBooks.where((book) {
         // Status filter (optional)
         if (_filterStatus != null && book.statusValue != _filterStatus) {
+          return false;
+        }
+        
+        // TBR filter (optional)
+        if (_filterTBR != null && book.tbr != _filterTBR) {
           return false;
         }
         
@@ -193,6 +200,7 @@ class _RandomScreenState extends State<RandomScreen> {
       _filterPages = null;
       _filterYear = null;
       _filterAuthor = null;
+      _filterTBR = null;
       _randomBook = null;
       _selectedBookTitles = [];
       _useCustomList = false;
@@ -382,13 +390,38 @@ class _RandomScreenState extends State<RandomScreen> {
                         ..._statusList.map((status) {
                           return DropdownMenuItem<String>(
                             value: status['value'] as String,
-                            child: Text(status['value'] as String),
+                            child: Text(StatusHelper.getDisplayLabel(status['value'] as String)),
                           );
                         }),
                       ],
                       onChanged: (value) {
                         setState(() {
                           _filterStatus = value;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 12),
+
+                    // TBR filter
+                    DropdownButtonFormField<bool?>(
+                      value: _filterTBR,
+                      isExpanded: true,
+                      decoration: const InputDecoration(
+                        labelText: 'TBR (To Be Read)',
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                      ),
+                      items: const [
+                        DropdownMenuItem(value: null, child: Text('Any')),
+                        DropdownMenuItem(value: true, child: Text('Yes - In TBR')),
+                        DropdownMenuItem(value: false, child: Text('No - Not in TBR')),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          _filterTBR = value;
                         });
                       },
                     ),

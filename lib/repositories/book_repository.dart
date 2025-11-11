@@ -21,23 +21,25 @@ class BookRepository {
         whereClause = 'lower(a.name) like ?'; // Author
         break;
       case 3:
-        whereClause = 'lower(b.saga) like ?'; // Saga
+        whereClause = '(lower(b.saga) like ? OR lower(b.saga_universe) like ?)'; // Saga or Saga Universe
         break;
       default:
         whereClause = 'lower(b.name) like ?';
     }
 
     final searchParam = '%${input.toLowerCase()}%';
-    final params = searchIndex == 1 ? [searchParam, searchParam] : [searchParam];
+    final params = (searchIndex == 1 || searchIndex == 3) ? [searchParam, searchParam] : [searchParam];
 
     final result = await db.rawQuery(
       '''
       select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
-        b.saga, b.n_saga, b.isbn, b.asin, l.name as languageValue, 
+        b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
         p.name as placeValue, f.value as formatValue,
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count, b.my_rating, b.my_review,
+        b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages,
+        b.tbr, b.is_tandem,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -64,12 +66,13 @@ class BookRepository {
   Future<List<Book>> getAllBooks() async {
     final result = await db.rawQuery('''
       select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
-        b.saga, b.n_saga, b.isbn, b.asin, l.name as languageValue, 
+        b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
         p.name as placeValue, f.value as formatValue,
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count, b.my_rating, b.my_review,
         b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages,
+        b.tbr, b.is_tandem,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -93,17 +96,130 @@ class BookRepository {
 
   Future<String?> getLatestBookAdded() async {
     final result = await db.rawQuery('''
-      select b.name
-      from book b 
-      order by b.created_at desc 
-      limit 1;
-      ''');
+      SELECT name FROM book 
+      WHERE name IS NOT NULL AND name != '' 
+      ORDER BY created_at DESC 
+      LIMIT 1
+    ''');
 
     if (result.isNotEmpty) {
-      return result.first['name']?.toString();
-    } else {
-      return null;
+      return result.first['name'] as String?;
     }
+    return null;
+  }
+
+  /// Get distinct saga names from all books
+  Future<List<String>> getDistinctSagas() async {
+    final result = await db.rawQuery('''
+      SELECT DISTINCT saga FROM book 
+      WHERE saga IS NOT NULL AND saga != '' 
+      ORDER BY saga
+    ''');
+
+    return result.map((row) => row['saga'] as String).toList();
+  }
+
+  /// Get distinct saga universe names from all books
+  Future<List<String>> getDistinctSagaUniverses() async {
+    final result = await db.rawQuery('''
+      SELECT DISTINCT saga_universe 
+      FROM book 
+      WHERE saga_universe IS NOT NULL AND saga_universe != ''
+      ORDER BY saga_universe
+    ''');
+
+    return result.map((row) => row['saga_universe'] as String).toList();
+  }
+
+  /// Get count of books marked as TBR
+  Future<int> getTBRCount() async {
+    final result = await db.rawQuery('''
+      SELECT COUNT(*) as count 
+      FROM book 
+      WHERE tbr = 1
+    ''');
+
+    return result.first['count'] as int;
+  }
+
+  /// Get all books marked as TBR
+  Future<List<Book>> getTBRBooks() async {
+    final result = await db.rawQuery('''
+      select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
+        b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
+        p.name as placeValue, f.value as formatValue,
+        fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
+        b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
+        b.read_count, b.my_rating, b.my_review,
+        b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages,
+        b.tbr, b.is_tandem,
+        GROUP_CONCAT(DISTINCT a.name) as author,
+        GROUP_CONCAT(DISTINCT g.name) as genre
+      from book b 
+      left join books_by_author bba on b.book_id = bba.book_id 
+      left join author a on bba.author_id = a.author_id
+      left join books_by_genre bbg on b.book_id = bbg.book_id 
+      left join genre g on bbg.genre_id = g.genre_id
+      left join status s on b.status_id = s.status_id 
+      left join editorial e on b.editorial_id = e.editorial_id
+      left join language l on b.language_id = l.language_id 
+      left join place p on b.place_id = p.place_id  
+      left join format f on b.format_id = f.format_id
+      left join format_saga fs on b.format_saga_id = fs.format_id
+      where b.tbr = 1
+      group by b.book_id
+      order by b.name
+    ''');
+
+    return result.map((row) => Book.fromMap(row)).toList();
+  }
+
+  /// Get tandem books for a specific saga or saga_universe
+  Future<List<Book>> getTandemBooks(String? saga, String? sagaUniverse) async {
+    if (saga == null && sagaUniverse == null) return [];
+
+    String whereClause;
+    List<dynamic> params;
+
+    if (saga != null && sagaUniverse != null) {
+      whereClause = '(b.saga = ? OR b.saga_universe = ?) AND b.is_tandem = 1';
+      params = [saga, sagaUniverse];
+    } else if (saga != null) {
+      whereClause = 'b.saga = ? AND b.is_tandem = 1';
+      params = [saga];
+    } else {
+      whereClause = 'b.saga_universe = ? AND b.is_tandem = 1';
+      params = [sagaUniverse!];
+    }
+
+    final result = await db.rawQuery('''
+      select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
+        b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
+        p.name as placeValue, f.value as formatValue,
+        fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
+        b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
+        b.read_count, b.my_rating, b.my_review,
+        b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages,
+        b.tbr, b.is_tandem,
+        GROUP_CONCAT(DISTINCT a.name) as author,
+        GROUP_CONCAT(DISTINCT g.name) as genre
+      from book b 
+      left join books_by_author bba on b.book_id = bba.book_id 
+      left join author a on bba.author_id = a.author_id
+      left join books_by_genre bbg on b.book_id = bbg.book_id 
+      left join genre g on bbg.genre_id = g.genre_id
+      left join status s on b.status_id = s.status_id 
+      left join editorial e on b.editorial_id = e.editorial_id
+      left join language l on b.language_id = l.language_id 
+      left join place p on b.place_id = p.place_id  
+      left join format f on b.format_id = f.format_id
+      left join format_saga fs on b.format_saga_id = fs.format_id
+      where $whereClause
+      group by b.book_id
+      order by b.name
+    ''', params);
+
+    return result.map((row) => Book.fromMap(row)).toList();
   }
 
   /// Removes accents from a string for case-insensitive comparison
@@ -559,6 +675,7 @@ class BookRepository {
       'asin': book.asin,
       'saga': book.saga,
       'n_saga': book.nSaga,
+      'saga_universe': book.sagaUniverse,
       'pages': book.pages,
       'original_publication_year': book.originalPublicationYear,
       'loaned': book.loaned,
@@ -580,6 +697,8 @@ class BookRepository {
       'bundle_start_dates': book.bundleStartDates,
       'bundle_end_dates': book.bundleEndDates,
       'bundle_pages': book.bundlePages,
+      'tbr': book.tbr == true ? 1 : 0,
+      'is_tandem': book.isTandem == true ? 1 : 0,
     }, conflictAlgorithm: ConflictAlgorithm.replace);
 
     // Link authors (many-to-many relationship)
