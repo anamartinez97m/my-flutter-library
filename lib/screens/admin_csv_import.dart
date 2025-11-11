@@ -51,26 +51,27 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         if (mounted) {
           final resume = await showDialog<bool>(
             context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('Resume Import?'),
-              content: Text(
-                'Found a previous import session for:\n${savedPath.split('/').last}\n\nWould you like to resume from where you left off?',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () async {
-                    // Clear checkpoint
-                    await _clearCheckpoint();
-                    Navigator.pop(context, false);
-                  },
-                  child: const Text('Start Fresh'),
+            builder:
+                (context) => AlertDialog(
+                  title: const Text('Resume Import?'),
+                  content: Text(
+                    'Found a previous import session for:\n${savedPath.split('/').last}\n\nWould you like to resume from where you left off?',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () async {
+                        // Clear checkpoint
+                        await _clearCheckpoint();
+                        Navigator.pop(context, false);
+                      },
+                      child: const Text('Start Fresh'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text('Resume'),
+                    ),
+                  ],
                 ),
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(context, true),
-                  child: const Text('Resume'),
-                ),
-              ],
-            ),
           );
 
           if (resume == true) {
@@ -88,7 +89,10 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
   Future<void> _saveCheckpoint() async {
     if (_currentFilePath != null && _currentFileIdentifier != null) {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('csv_import_file_identifier', _currentFileIdentifier!);
+      await prefs.setString(
+        'csv_import_file_identifier',
+        _currentFileIdentifier!,
+      );
       await prefs.setString('csv_import_file_path', _currentFilePath!);
       await prefs.setInt('csv_import_current_index', _currentIndex);
     }
@@ -246,7 +250,10 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
             formatSagaValue: book.formatSagaValue?.trim(),
             pages: book.pages,
             originalPublicationYear: book.originalPublicationYear,
-            loaned: (book.loaned?.trim().isEmpty ?? true) ? 'no' : book.loaned!.trim(), // Default to 'no' if empty
+            loaned:
+                (book.loaned?.trim().isEmpty ?? true)
+                    ? 'no'
+                    : book.loaned!.trim(), // Default to 'no' if empty
             statusValue: mappedStatus?.trim(),
             editorialValue: book.editorialValue?.trim(),
             languageValue: book.languageValue?.trim(),
@@ -413,7 +420,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                         ? bookWithMappedStatus.bundlePages
                         : existingBook.bundlePages,
               );
-              
+
               // Check if merged book is actually different from existing
               if (_booksAreIdentical(bookWithMappedStatus, existingBook)) {
                 importType = 'DUPLICATE';
@@ -651,7 +658,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         if (_importItems.isEmpty) {
           // Clear checkpoint after successful partial import
           await _clearCheckpoint();
-          
+
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -671,7 +678,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         } else {
           // Save checkpoint for remaining items
           await _saveCheckpoint();
-          
+
           // Show results with remaining count
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -1223,7 +1230,8 @@ class _BookImportPreview extends StatelessWidget {
           nSaga: book.nSaga,
           formatSagaValue: book.formatSagaValue,
           pages: book.pages,
-          originalPublicationYear: trimmedValue.isEmpty ? null : int.tryParse(trimmedValue),
+          originalPublicationYear:
+              trimmedValue.isEmpty ? null : int.tryParse(trimmedValue),
           loaned: book.loaned,
           statusValue: book.statusValue,
           editorialValue: book.editorialValue,
@@ -1517,27 +1525,6 @@ class _BookImportPreview extends StatelessWidget {
   }
 
   String? _getOldValue(String fieldName) {
-    // Debug first call
-    if (fieldName == 'name') {
-      debugPrint('=== DEBUG START ===');
-      debugPrint('Import Type: ${item.importType}');
-      debugPrint('Existing Book is null: ${item.existingBook == null}');
-      if (item.existingBook != null) {
-        debugPrint('Existing Book ID: ${item.existingBook!.bookId}');
-        debugPrint('Existing Book Name: ${item.existingBook!.name}');
-        debugPrint('Existing Book Author: ${item.existingBook!.author}');
-        debugPrint(
-          'Existing Book Editorial: ${item.existingBook!.editorialValue}',
-        );
-        debugPrint('Existing Book Format: ${item.existingBook!.formatValue}');
-      }
-      debugPrint('New Book Name: ${item.book.name}');
-      debugPrint('New Book Author: ${item.book.author}');
-      debugPrint('New Book Editorial: ${item.book.editorialValue}');
-      debugPrint('New Book Format: ${item.book.formatValue}');
-      debugPrint('=== DEBUG END ===');
-    }
-
     if (item.importType != 'UPDATE' || item.existingBook == null) {
       return null;
     }

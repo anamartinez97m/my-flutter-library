@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/config/app_theme.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
+import 'package:myrandomlibrary/screens/books_by_saga.dart';
 import 'package:myrandomlibrary/screens/edit_book.dart';
+import 'package:myrandomlibrary/utils/status_helper.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 
@@ -34,6 +37,21 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     } catch (e) {
       return isoString.split('T')[0]; // Fallback to date only
     }
+  }
+
+  /// Convert database status values to user-friendly display values
+  String _getStatusDisplayValue(String dbValue) {
+    final lowerValue = dbValue.toLowerCase();
+
+    // Check if status should be "Started" based on read dates
+    if (lowerValue == 'no' &&
+        _currentBook.dateReadInitial != null &&
+        _currentBook.dateReadFinal == null) {
+      return 'Started';
+    }
+
+    // Use StatusHelper for consistent labeling
+    return StatusHelper.getDisplayLabel(dbValue);
   }
 
   /// Build publication info - shows year and optionally full date for TBReleased books
@@ -316,11 +334,48 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                       ),
                     if (_currentBook.saga != null &&
                         _currentBook.saga!.isNotEmpty)
-                      _DetailCard(
-                        icon: Icons.collections_bookmark,
-                        label: 'Saga',
-                        value:
-                            '${_currentBook.saga}${_currentBook.nSaga != null ? ' #${_currentBook.nSaga}' : ''}',
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => BooksBySagaScreen(
+                                    sagaName: _currentBook.saga!,
+                                    sagaUniverse: _currentBook.sagaUniverse,
+                                  ),
+                            ),
+                          );
+                        },
+                        child: _DetailCard(
+                          icon: Icons.collections_bookmark,
+                          label: 'Saga',
+                          value:
+                              '${_currentBook.saga}${_currentBook.nSaga != null ? ' #${_currentBook.nSaga}' : ''}',
+                          trailingIcon: Icons.open_in_new,
+                        ),
+                      ),
+                    if (_currentBook.sagaUniverse != null &&
+                        _currentBook.sagaUniverse!.isNotEmpty)
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => BooksBySagaScreen(
+                                    sagaName: _currentBook.sagaUniverse!,
+                                    isSagaUniverse: true,
+                                  ),
+                            ),
+                          );
+                        },
+                        child: _DetailCard(
+                          icon: Icons.public,
+                          label: 'Saga Universe',
+                          value: _currentBook.sagaUniverse!,
+                          trailingIcon: Icons.open_in_new,
+                        ),
                       ),
                     if (_currentBook.pages != null)
                       _DetailCard(
@@ -336,8 +391,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         _currentBook.statusValue!.isNotEmpty)
                       _DetailCard(
                         icon: Icons.check_circle,
-                        label: 'Status',
-                        value: _currentBook.statusValue!,
+                        label: AppLocalizations.of(context)!.status,
+                        value: _getStatusDisplayValue(
+                          _currentBook.statusValue!,
+                        ),
                       ),
                     if (_currentBook.formatSagaValue != null &&
                         _currentBook.formatSagaValue!.isNotEmpty)
@@ -406,6 +463,92 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                           bundlePages: _currentBook.bundlePages,
                         ),
                     ],
+
+                    // TBR Badge with Checkbox
+                    if (_currentBook.tbr == true)
+                      Card(
+                        elevation: 1,
+                        margin: const EdgeInsets.only(bottom: 12),
+                        color: Colors.orange.shade50,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: CheckboxListTile(
+                          value: true,
+                          onChanged: (value) async {
+                            if (value == false) {
+                              // Uncheck TBR
+                              try {
+                                final db = await DatabaseHelper.instance.database;
+                                await db.update(
+                                  'book',
+                                  {'tbr': 0},
+                                  where: 'book_id = ?',
+                                  whereArgs: [_currentBook.bookId],
+                                );
+                                
+                                if (mounted) {
+                                  // Reload provider and navigate back
+                                  final provider = Provider.of<BookProvider?>(context, listen: false);
+                                  await provider?.loadBooks();
+                                  
+                                  // Refresh the screen by popping and pushing again
+                                  final updatedBooks = provider?.allBooks ?? [];
+                                  final updatedBook = updatedBooks.firstWhere(
+                                    (b) => b.bookId == _currentBook.bookId,
+                                    orElse: () => _currentBook,
+                                  );
+                                  
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => BookDetailScreen(book: updatedBook),
+                                    ),
+                                  );
+                                  
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Removed from TBR'),
+                                      backgroundColor: Colors.green,
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Error: $e'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              }
+                            }
+                          },
+                          secondary: Icon(
+                            Icons.bookmark_add,
+                            color: Colors.orange,
+                            size: 24,
+                          ),
+                          title: Text(
+                            'To Be Read',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.orange.shade700,
+                            ),
+                          ),
+                          subtitle: const Text('This book is in your TBR list'),
+                        ),
+                      ),
+
+                    // Tandem Books
+                    if (_currentBook.isTandem == true)
+                      _TandemBooksCard(
+                        saga: _currentBook.saga,
+                        sagaUniverse: _currentBook.sagaUniverse,
+                        currentBookId: _currentBook.bookId,
+                      ),
 
                     // New fields
                     if (_currentBook.myRating != null &&
@@ -657,9 +800,8 @@ class _BundleDatesCard extends StatelessWidget {
                       children: [
                         Text(
                           'Book ${index + 1}:',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
@@ -686,10 +828,8 @@ class _BundleDatesCard extends StatelessWidget {
                         padding: const EdgeInsets.only(left: 16, top: 4),
                         child: Text(
                           'Pages: $pageCount',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.grey[600],
-                            fontSize: 12,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: Colors.grey[600], fontSize: 12),
                         ),
                       ),
                   ],
@@ -707,11 +847,13 @@ class _DetailCard extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
+  final IconData? trailingIcon;
 
   const _DetailCard({
     required this.icon,
     required this.label,
     required this.value,
+    this.trailingIcon,
   });
 
   @override
@@ -723,7 +865,7 @@ class _DetailCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Icon(icon, color: Theme.of(context).colorScheme.primary, size: 24),
             const SizedBox(width: 16),
@@ -743,6 +885,186 @@ class _DetailCard extends StatelessWidget {
                 ],
               ),
             ),
+            if (trailingIcon != null) ...[
+              const SizedBox(width: 8),
+              Icon(
+                trailingIcon,
+                color: Theme.of(context).colorScheme.primary,
+                size: 24,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TandemBooksCard extends StatefulWidget {
+  final String? saga;
+  final String? sagaUniverse;
+  final int? currentBookId;
+
+  const _TandemBooksCard({this.saga, this.sagaUniverse, this.currentBookId});
+
+  @override
+  State<_TandemBooksCard> createState() => _TandemBooksCardState();
+}
+
+class _TandemBooksCardState extends State<_TandemBooksCard> {
+  List<dynamic> _tandemBooks = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTandemBooks();
+  }
+
+  Future<void> _loadTandemBooks() async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final repository = BookRepository(db);
+      final books = await repository.getTandemBooks(
+        widget.saga,
+        widget.sagaUniverse,
+      );
+
+      final filteredBooks =
+          books.where((book) => book.bookId != widget.currentBookId).toList();
+
+      if (mounted) {
+        setState(() {
+          _tandemBooks = filteredBooks;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 1,
+      margin: const EdgeInsets.only(bottom: 12),
+      color: Colors.deepPurple.shade50,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.swap_horizontal_circle_outlined,
+                  color: Colors.deepPurple,
+                  size: 24,
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Tandem Books',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[700],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Read together with these books',
+                        style: Theme.of(
+                          context,
+                        ).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.deepPurple.shade700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            if (_isLoading)
+              const Center(child: CircularProgressIndicator())
+            else if (_tandemBooks.isEmpty)
+              Text(
+                'No other tandem books in this saga',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Colors.grey[600],
+                  fontStyle: FontStyle.italic,
+                ),
+              )
+            else
+              ..._tandemBooks.map((book) {
+                return InkWell(
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BookDetailScreen(book: book),
+                      ),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: Colors.deepPurple.withOpacity(0.2),
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.menu_book,
+                          size: 20,
+                          color: Colors.deepPurple,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                book.name ?? 'Unknown',
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(fontWeight: FontWeight.w600),
+                              ),
+                              if (book.author != null &&
+                                  book.author!.isNotEmpty)
+                                Text(
+                                  book.author!,
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(color: Colors.grey[600]),
+                                ),
+                            ],
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: 16,
+                          color: Colors.grey[600],
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
           ],
         ),
       ),

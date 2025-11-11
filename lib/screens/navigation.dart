@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
-import 'package:myrandomlibrary/screens/add_book.dart';
 import 'package:myrandomlibrary/screens/home.dart';
+import 'package:myrandomlibrary/screens/my_books.dart';
 import 'package:myrandomlibrary/screens/random.dart';
 import 'package:myrandomlibrary/screens/settings.dart';
 import 'package:myrandomlibrary/screens/statistics.dart';
@@ -11,7 +11,7 @@ class NavigationScreen extends StatefulWidget {
 
   @override
   State<NavigationScreen> createState() => _NavigationScreenState();
-  
+
   static _NavigationScreenState? of(BuildContext context) {
     return context.findAncestorStateOfType<_NavigationScreenState>();
   }
@@ -19,19 +19,24 @@ class NavigationScreen extends StatefulWidget {
 
 class _NavigationScreenState extends State<NavigationScreen> {
   int _selectedIndex = 0;
-  
+  VoidCallback? _clearHomeSearch;
+
   void switchToTab(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
 
-  final List<Widget> widgetOptions = const [
-    HomeScreen(),
-    StatisticsScreen(),
-    AddBookScreen(),
-    RandomScreen(),
-    SettingsScreen(),
+  void _registerClearSearch(VoidCallback callback) {
+    _clearHomeSearch = callback;
+  }
+
+  List<Widget> get widgetOptions => [
+    HomeScreen(onRegisterClearSearch: _registerClearSearch),
+    const StatisticsScreen(),
+    const MyBooksScreen(),
+    const RandomScreen(),
+    const SettingsScreen(),
   ];
 
   @override
@@ -47,46 +52,54 @@ class _NavigationScreenState extends State<NavigationScreen> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(AppLocalizations.of(context)!.app_title),
+        appBar: AppBar(title: Text(AppLocalizations.of(context)!.app_title)),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: widgetOptions.elementAt(_selectedIndex),
+          ),
         ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: widgetOptions.elementAt(_selectedIndex),
+        bottomNavigationBar: NavigationBar(
+          onDestinationSelected: (int index) {
+            // Clear search when navigating away from home (index 0)
+            if (_selectedIndex == 0 && index != 0) {
+              _clearHomeSearch?.call();
+            }
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+          indicatorColor: Theme.of(context).navigationBarTheme.indicatorColor,
+          selectedIndex: _selectedIndex,
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+          destinations: <Widget>[
+            NavigationDestination(
+              icon: const Icon(Icons.cottage_outlined),
+              label: AppLocalizations.of(context)!.home,
+              tooltip: AppLocalizations.of(context)!.home,
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.donut_large_outlined),
+              label: AppLocalizations.of(context)!.statistics,
+              tooltip: AppLocalizations.of(context)!.statistics,
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.bookmark_outline_outlined),
+              label: 'My Books',
+              tooltip: 'My Books',
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.shuffle_outlined),
+              label: AppLocalizations.of(context)!.random,
+              tooltip: AppLocalizations.of(context)!.random,
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.settings_outlined),
+              label: AppLocalizations.of(context)!.settings,
+              tooltip: AppLocalizations.of(context)!.settings,
+            ),
+          ],
         ),
-      ),
-      bottomNavigationBar: NavigationBar(
-        onDestinationSelected: (int index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        indicatorColor: Theme.of(context).navigationBarTheme.indicatorColor,
-        selectedIndex: _selectedIndex,
-        destinations: <Widget>[
-          NavigationDestination(
-            icon: const Icon(Icons.cottage_outlined),
-            label: AppLocalizations.of(context)!.home,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.donut_large_outlined),
-            label: AppLocalizations.of(context)!.statistics,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.add_outlined),
-            label: AppLocalizations.of(context)!.add_book,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.shuffle_outlined),
-            label: AppLocalizations.of(context)!.random,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.settings_outlined),
-            label: AppLocalizations.of(context)!.settings,
-          ),
-        ],
-      ),
       ),
     );
   }

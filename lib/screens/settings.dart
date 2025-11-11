@@ -12,6 +12,7 @@ import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/screens/admin_csv_import.dart';
 import 'package:myrandomlibrary/screens/manage_dropdowns.dart';
 import 'package:myrandomlibrary/utils/csv_import_helper.dart';
+import 'package:myrandomlibrary/widgets/tbr_limit_setting.dart';
 import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -166,7 +167,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           eol: '\n',
           shouldParseNumbers: false,
         ).convert(input);
-        
+
         // If we got only 1 row, try with different line ending
         if (rows.length == 1) {
           debugPrint('Only 1 row found, trying with \\r\\n line ending...');
@@ -175,7 +176,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             shouldParseNumbers: false,
           ).convert(input);
         }
-        
+
         // If still only 1 row, try with \\r
         if (rows.length == 1) {
           debugPrint('Still 1 row, trying with \\r line ending...');
@@ -185,31 +186,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ).convert(input);
         }
       } catch (e) {
-        throw Exception('Failed to parse CSV file. Please check the file format: $e');
+        throw Exception(
+          'Failed to parse CSV file. Please check the file format: $e',
+        );
       }
-
 
       if (rows.isEmpty) {
         throw Exception('CSV file appears to be empty or invalid');
       }
-      
+
       // Filter out completely empty rows (all cells are null or empty)
-      final nonEmptyRows = rows.where((row) {
-        if (row.isEmpty) return false;
-        // Check if at least one cell has meaningful content
-        return row.any((cell) {
-          if (cell == null) return false;
-          final str = cell.toString().trim();
-          return str.isNotEmpty && str != '';
-        });
-      }).toList();
-      
+      final nonEmptyRows =
+          rows.where((row) {
+            if (row.isEmpty) return false;
+            // Check if at least one cell has meaningful content
+            return row.any((cell) {
+              if (cell == null) return false;
+              final str = cell.toString().trim();
+              return str.isNotEmpty && str != '';
+            });
+          }).toList();
+
       if (nonEmptyRows.length < 2) {
         throw Exception(
           'CSV file must have at least a header row and one data row. Found ${nonEmptyRows.length} non-empty row(s). Please check your CSV file format.',
         );
       }
-      
+
       // Use filtered rows for the rest of the import
       rows = nonEmptyRows;
 
@@ -292,7 +295,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             book.statusValue,
             dbHelper,
           );
-          
+
           // Create book with mapped status
           final bookWithMappedStatus = Book(
             bookId: book.bookId,
@@ -321,11 +324,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
           );
 
           // Check for duplicates
-          final duplicateIds = await repository.findDuplicateBooks(bookWithMappedStatus);
+          final duplicateIds = await repository.findDuplicateBooks(
+            bookWithMappedStatus,
+          );
           if (duplicateIds.isNotEmpty) {
             // Update all existing books with the same ISBN
             for (final duplicateId in duplicateIds) {
-              await repository.updateBookWithNewData(duplicateId, bookWithMappedStatus);
+              await repository.updateBookWithNewData(
+                duplicateId,
+                bookWithMappedStatus,
+              );
               updatedCount++;
             }
             continue;
@@ -367,36 +375,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
         await showDialog(
           context: context,
           barrierDismissible: false,
-          builder: (context) => AlertDialog(
-            title: Row(
-              children: [
-                Icon(Icons.check_circle, color: Colors.green, size: 28),
-                const SizedBox(width: 8),
-                const Text('Import Completed'),
-              ],
-            ),
-            content: Text(
-              'Imported: $importedCount books\nUpdated: $updatedCount books\nSkipped: $skippedCount rows',
-              style: const TextStyle(fontSize: 16),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
+          builder:
+              (context) => AlertDialog(
+                title: Row(
+                  children: [
+                    Icon(Icons.check_circle, color: Colors.green, size: 28),
+                    const SizedBox(width: 8),
+                    const Text('Import Completed'),
+                  ],
+                ),
+                content: Text(
+                  'Imported: $importedCount books\nUpdated: $updatedCount books\nSkipped: $skippedCount rows',
+                  style: const TextStyle(fontSize: 16),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('OK'),
+                  ),
+                ],
               ),
-            ],
-          ),
         );
       }
     } catch (e) {
       debugPrint('CSV Import Error: $e');
       debugPrint('Stack trace: ${StackTrace.current}');
-      
+
       // Close any open dialogs to prevent black screen
       if (context.mounted) {
         try {
           // Try to pop any dialogs that might be open
-          Navigator.of(context, rootNavigator: true).popUntil((route) => route.isFirst);
+          Navigator.of(
+            context,
+            rootNavigator: true,
+          ).popUntil((route) => route.isFirst);
         } catch (popError) {
           debugPrint('Error closing dialogs: $popError');
         }
@@ -410,21 +422,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
         await showDialog(
           context: context,
           barrierDismissible: false,
-          builder: (context) => AlertDialog(
-            title: const Text('Import Error'),
-            content: SingleChildScrollView(
-              child: Text(
-                e.toString(),
-                style: const TextStyle(fontSize: 14),
+          builder:
+              (context) => AlertDialog(
+                title: const Text('Import Error'),
+                content: SingleChildScrollView(
+                  child: Text(
+                    e.toString(),
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('OK'),
+                  ),
+                ],
               ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
-              ),
-            ],
-          ),
         );
       }
     }
@@ -834,7 +847,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               child: CheckboxListTile(
                 title: const Text('Admin Mode'),
-                subtitle: const Text('Enable advanced features like admin CSV import'),
+                subtitle: const Text(
+                  'Enable advanced features like admin CSV import',
+                ),
                 value: _isAdmin,
                 onChanged: (value) {
                   setState(() {
@@ -844,6 +859,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 secondary: const Icon(Icons.admin_panel_settings),
               ),
             ),
+            const SizedBox(height: 16),
+            // TBR Limit Setting
+            const TBRLimitSetting(),
             const SizedBox(height: 16),
             Row(
               children: [
@@ -867,11 +885,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                             const SizedBox(height: 12),
                             Text(
-                              AppLocalizations.of(context)!.create_database_backup,
+                              AppLocalizations.of(
+                                context,
+                              )!.create_database_backup,
                               textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.w600),
                             ),
                             const SizedBox(height: 8),
                             Text(
@@ -879,9 +898,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 context,
                               )!.save_a_copy_of_your_library_database,
                               textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Colors.grey[600],
-                              ),
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: Colors.grey[600]),
                             ),
                           ],
                         ),
@@ -910,11 +928,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                             const SizedBox(height: 12),
                             Text(
-                              AppLocalizations.of(context)!.import_database_backup,
+                              AppLocalizations.of(
+                                context,
+                              )!.import_database_backup,
                               textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.w600),
                             ),
                             const SizedBox(height: 8),
                             Text(
@@ -922,9 +941,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 context,
                               )!.restore_a_copy_of_your_library_database,
                               textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Colors.grey[600],
-                              ),
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: Colors.grey[600]),
                             ),
                           ],
                         ),
@@ -1061,7 +1079,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     );
                     // If books were imported, reload the provider
                     if (result == true && mounted) {
-                      final provider = Provider.of<BookProvider?>(context, listen: false);
+                      final provider = Provider.of<BookProvider?>(
+                        context,
+                        listen: false,
+                      );
                       await provider?.loadBooks();
                     }
                   },
@@ -1079,17 +1100,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Text(
                           'Admin CSV Import',
                           textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           'Review and edit each book before importing',
                           textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.grey[600],
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: Colors.grey[600]),
                         ),
                       ],
                     ),
@@ -1142,6 +1161,109 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ],
                   ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Default Sort Order setting
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Consumer<BookProvider>(
+                  builder: (context, provider, child) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.sort,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Default Sort Order',
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Set the default order for your book list',
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: Colors.grey[600]),
+                        ),
+                        const SizedBox(height: 16),
+                        DropdownButtonFormField<String>(
+                          value: provider.currentSortBy,
+                          decoration: const InputDecoration(
+                            labelText: 'Sort By',
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                          ),
+                          items: const [
+                            DropdownMenuItem(
+                              value: 'name',
+                              child: Text('Title'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'author',
+                              child: Text('Author'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'created_at',
+                              child: Text('Date Added'),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            if (value != null) {
+                              provider.setDefaultSortOrder(
+                                value,
+                                provider.currentSortAscending,
+                              );
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: SegmentedButton<bool>(
+                                segments: const [
+                                  ButtonSegment(
+                                    value: true,
+                                    label: Text('Ascending'),
+                                    icon: Icon(Icons.arrow_upward, size: 16),
+                                  ),
+                                  ButtonSegment(
+                                    value: false,
+                                    label: Text('Descending'),
+                                    icon: Icon(Icons.arrow_downward, size: 16),
+                                  ),
+                                ],
+                                selected: {provider.currentSortAscending},
+                                onSelectionChanged: (Set<bool> newSelection) {
+                                  provider.setDefaultSortOrder(
+                                    provider.currentSortBy,
+                                    newSelection.first,
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
             ),

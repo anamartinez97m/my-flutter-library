@@ -69,7 +69,7 @@
     }
   },
   "format_saga": "Formato Saga",
-  "status": "Estado",
+  "status": "Estado de Lectura",
   "loaned": "Prestado",
   "date_created": "Fecha de Creación",
   "language_with_colon": "Idioma: {language}",

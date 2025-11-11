@@ -112,7 +112,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get format_saga => 'Formato Saga';
 
   @override
-  String get status => 'Estado';
+  String get status => 'Estado de Lectura';
 
   @override
   String get loaned => 'Prestado';

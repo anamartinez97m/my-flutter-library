@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
+import 'package:myrandomlibrary/providers/theme_provider.dart';
 import 'package:myrandomlibrary/screens/book_detail.dart';
 
 class BookListView extends StatelessWidget {
@@ -14,9 +15,12 @@ class BookListView extends StatelessWidget {
       itemCount: books.length,
       itemBuilder: (BuildContext context, int index) {
         final Book book = books[index];
+        // Check if book is read (status is 'yes' case-insensitive)
+        final isRead = book.statusValue?.toLowerCase() == 'yes';
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           elevation: 2,
+          color: isRead ? Colors.grey.shade200 : null,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -35,12 +39,48 @@ class BookListView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(
-                    book.name ?? AppLocalizations.of(context)!.unknown_title,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.deepPurple,
-                    ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          book.name ??
+                              AppLocalizations.of(context)!.unknown_title,
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.deepPurple,
+                          ),
+                        ),
+                      ),
+                      if (book.isTandem == true) ...[
+                        const SizedBox(width: 8),
+                        Icon(
+                          Icons.swap_horizontal_circle_outlined,
+                          size: 20,
+                          color: Colors.deepPurple,
+                        ),
+                        Icon(
+                          Icons.alt_route_outlined,
+                          size: 20,
+                          color: Colors.deepPurple,
+                        ),
+                      ],
+                      if (book.tbr == true) ...[
+                        Icon(
+                          Icons.bookmark_add,
+                          size: 20,
+                          color: Colors.deepPurple,
+                        ),
+                      ],
+                      if (book.isBundle == true) ...[
+                        Icon(
+                          Icons.library_books,
+                          size: 20,
+                          color: Colors.deepPurple,
+                        ),
+                      ],
+                    ],
                   ),
                   const SizedBox(height: 8),
                   if (book.author != null && book.author!.isNotEmpty)
@@ -69,8 +109,11 @@ class BookListView extends StatelessWidget {
                   if (book.saga != null && book.saga!.isNotEmpty)
                     Text(
                       AppLocalizations.of(
-                        context,
-                      )!.saga_with_colon(book.saga ?? ''),
+                            context,
+                          )!.saga_with_colon(book.saga ?? '') +
+                          (book.nSaga != null && book.nSaga!.isNotEmpty
+                              ? ' #${book.nSaga}'
+                              : ''),
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   if (book.saga != null && book.saga!.isNotEmpty)

@@ -21,15 +21,15 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   /// Try to parse date with multiple formats
   DateTime? _tryParseDate(String dateStr) {
     if (dateStr.trim().isEmpty) return null;
-    
+
     final trimmed = dateStr.trim();
-    
+
     // Try ISO8601 format first (handles YYYY-MM-DD and full timestamps like 2025-11-06T00:00:00.000)
     try {
       return DateTime.parse(trimmed);
     } catch (e) {
       // If ISO8601 fails, try other formats
-      
+
       // Check if it contains slashes - likely YYYY/MM/DD format
       if (trimmed.contains('/')) {
         try {
@@ -38,7 +38,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             final year = int.parse(parts[0]);
             final month = int.parse(parts[1]);
             final day = int.parse(parts[2]);
-            
+
             // Validate it's YYYY/MM/DD (year should be > 1900)
             if (year > 1900) {
               return DateTime(year, month, day);
@@ -56,7 +56,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         }
       }
     }
-    
+
     debugPrint('Could not parse date with any format: $dateStr');
     return null;
   }
@@ -83,10 +83,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
     for (var book in books) {
       // Get multiplier for bundle books
-      final multiplier = (book.isBundle == true && book.bundleCount != null && book.bundleCount! > 0) 
-          ? book.bundleCount! 
-          : 1;
-      
+      final multiplier =
+          (book.isBundle == true &&
+                  book.bundleCount != null &&
+                  book.bundleCount! > 0)
+              ? book.bundleCount!
+              : 1;
+
       // Status
       final status = book.statusValue ?? 'Unknown';
       statusCounts[status] = (statusCounts[status] ?? 0) + multiplier;
@@ -112,7 +115,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       // Editorial
       final editorial = book.editorialValue;
       if (editorial != null && editorial.isNotEmpty) {
-        editorialCounts[editorial] = (editorialCounts[editorial] ?? 0) + multiplier;
+        editorialCounts[editorial] =
+            (editorialCounts[editorial] ?? 0) + multiplier;
       }
 
       // Author
@@ -144,23 +148,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     // Calculate books read per year and pages read per year
     final Map<int, int> booksReadPerYear = {};
     final Map<int, int> pagesReadPerYear = {};
-    
-    // Debug: Print first few date values to understand format
-    int debugCount = 0;
-    for (var book in books) {
-      if (debugCount < 5 && book.dateReadFinal != null && book.dateReadFinal!.isNotEmpty) {
-        debugPrint('DEBUG: Book "${book.name}" has dateReadFinal: "${book.dateReadFinal}"');
-        debugCount++;
-      }
-    }
-    
+
     for (var book in books) {
       // Handle bundle books differently - count each book in the year it was finished
       if (book.isBundle == true && book.bundleEndDates != null) {
         try {
           final List<dynamic> endDates = jsonDecode(book.bundleEndDates!);
           List<int?>? bundlePages;
-          
+
           // Try to parse bundle pages if available
           if (book.bundlePages != null) {
             try {
@@ -170,7 +165,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               bundlePages = null;
             }
           }
-          
+
           for (int i = 0; i < endDates.length; i++) {
             final dateStr = endDates[i];
             if (dateStr != null) {
@@ -178,14 +173,19 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               if (date != null) {
                 final year = date.year;
                 booksReadPerYear[year] = (booksReadPerYear[year] ?? 0) + 1;
-                
+
                 // Add pages for this specific book in bundle if available
-                if (bundlePages != null && i < bundlePages.length && bundlePages[i] != null) {
-                  pagesReadPerYear[year] = (pagesReadPerYear[year] ?? 0) + bundlePages[i]!;
+                if (bundlePages != null &&
+                    i < bundlePages.length &&
+                    bundlePages[i] != null) {
+                  pagesReadPerYear[year] =
+                      (pagesReadPerYear[year] ?? 0) + bundlePages[i]!;
                 } else if (book.pages != null && book.pages! > 0) {
                   // Fallback to total pages divided by bundle count
-                  final pagesPerBook = (book.pages! / (book.bundleCount ?? 1)).round();
-                  pagesReadPerYear[year] = (pagesReadPerYear[year] ?? 0) + pagesPerBook;
+                  final pagesPerBook =
+                      (book.pages! / (book.bundleCount ?? 1)).round();
+                  pagesReadPerYear[year] =
+                      (pagesReadPerYear[year] ?? 0) + pagesPerBook;
                 }
               }
             }
@@ -197,10 +197,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             if (dateRead != null) {
               final year = dateRead.year;
               final multiplier = book.bundleCount ?? 1;
-              booksReadPerYear[year] = (booksReadPerYear[year] ?? 0) + multiplier;
-              
+              booksReadPerYear[year] =
+                  (booksReadPerYear[year] ?? 0) + multiplier;
+
               if (book.pages != null && book.pages! > 0) {
-                pagesReadPerYear[year] = (pagesReadPerYear[year] ?? 0) + (book.pages! * multiplier);
+                pagesReadPerYear[year] =
+                    (pagesReadPerYear[year] ?? 0) + (book.pages! * multiplier);
               }
             }
           }
@@ -212,60 +214,70 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           if (dateRead != null) {
             final year = dateRead.year;
             if (year < 1900 || year > 2100) {
-              debugPrint('WARNING: Extracted suspicious year $year from date "${book.dateReadFinal}" for book "${book.name}"');
+              debugPrint(
+                'WARNING: Extracted suspicious year $year from date "${book.dateReadFinal}" for book "${book.name}"',
+              );
             }
             booksReadPerYear[year] = (booksReadPerYear[year] ?? 0) + 1;
-            
+
             // Add pages if available
             if (book.pages != null && book.pages! > 0) {
-              pagesReadPerYear[year] = (pagesReadPerYear[year] ?? 0) + book.pages!;
+              pagesReadPerYear[year] =
+                  (pagesReadPerYear[year] ?? 0) + book.pages!;
             }
           }
         }
       }
     }
-    
+
     // Sort years in descending order
-    final sortedBooksReadYears = booksReadPerYear.entries.toList()
-      ..sort((a, b) => b.key.compareTo(a.key));
-    final sortedPagesReadYears = pagesReadPerYear.entries.toList()
-      ..sort((a, b) => b.key.compareTo(a.key));
-    
+    final sortedBooksReadYears =
+        booksReadPerYear.entries.toList()
+          ..sort((a, b) => b.key.compareTo(a.key));
+    final sortedPagesReadYears =
+        pagesReadPerYear.entries.toList()
+          ..sort((a, b) => b.key.compareTo(a.key));
+
     // Calculate books read by decade (from original publication year)
     final Map<String, int> booksReadByDecade = {};
-    
+
     for (var book in books) {
       // Only count books that have been read (read_count > 0)
-      if (book.readCount != null && book.readCount! > 0 && 
+      if (book.readCount != null &&
+          book.readCount! > 0 &&
           book.originalPublicationYear != null) {
         int pubYear = book.originalPublicationYear!;
-        
+
         // Handle full date format (YYYYMMDD)
         if (pubYear > 9999) {
           pubYear = pubYear ~/ 10000; // Extract year from YYYYMMDD
         }
-        
+
         // Calculate decade (e.g., 1990 -> "1990s")
         final decade = (pubYear ~/ 10) * 10;
         final decadeLabel = '${decade}s';
-        
+
         // Count books (handle bundles)
-        final multiplier = (book.isBundle == true && book.bundleCount != null && book.bundleCount! > 0) 
-            ? book.bundleCount! 
-            : 1;
-        
-        booksReadByDecade[decadeLabel] = (booksReadByDecade[decadeLabel] ?? 0) + multiplier;
+        final multiplier =
+            (book.isBundle == true &&
+                    book.bundleCount != null &&
+                    book.bundleCount! > 0)
+                ? book.bundleCount!
+                : 1;
+
+        booksReadByDecade[decadeLabel] =
+            (booksReadByDecade[decadeLabel] ?? 0) + multiplier;
       }
     }
-    
+
     // Sort decades in descending order
-    final sortedBooksReadByDecade = booksReadByDecade.entries.toList()
-      ..sort((a, b) {
-        // Extract decade number from label (e.g., "1990s" -> 1990)
-        final aDecade = int.parse(a.key.replaceAll('s', ''));
-        final bDecade = int.parse(b.key.replaceAll('s', ''));
-        return bDecade.compareTo(aDecade);
-      });
+    final sortedBooksReadByDecade =
+        booksReadByDecade.entries.toList()..sort((a, b) {
+          // Extract decade number from label (e.g., "1990s" -> 1990)
+          final aDecade = int.parse(a.key.replaceAll('s', ''));
+          final bDecade = int.parse(b.key.replaceAll('s', ''));
+          return bDecade.compareTo(aDecade);
+        });
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -298,9 +310,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           Text(
                             AppLocalizations.of(context)!.total_books,
                             textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w500,
-                            ),
+                            style: Theme.of(context).textTheme.titleSmall
+                                ?.copyWith(fontWeight: FontWeight.w500),
                           ),
                           const SizedBox(height: 4),
                           Text(
@@ -339,9 +350,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           Text(
                             AppLocalizations.of(context)!.latest_book_added,
                             textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w500,
-                            ),
+                            style: Theme.of(context).textTheme.titleSmall
+                                ?.copyWith(fontWeight: FontWeight.w500),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -349,7 +359,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           Text(
                             latestBookName != null && latestBookName.isNotEmpty
                                 ? latestBookName
-                                : AppLocalizations.of(context)!.no_books_in_database,
+                                : AppLocalizations.of(
+                                  context,
+                                )!.no_books_in_database,
                             style: Theme.of(
                               context,
                             ).textTheme.titleMedium?.copyWith(
@@ -376,9 +388,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => BooksByYearScreen(
-                        initialYear: sortedBooksReadYears.first.key,
-                      ),
+                      builder:
+                          (context) => BooksByYearScreen(
+                            initialYear: sortedBooksReadYears.first.key,
+                          ),
                     ),
                   );
                 }
@@ -402,7 +415,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       ),
                       const SizedBox(height: 16),
                       if (sortedBooksReadYears.isEmpty)
-                        Center(child: Text(AppLocalizations.of(context)!.no_data))
+                        Center(
+                          child: Text(AppLocalizations.of(context)!.no_data),
+                        )
                       else
                         ConstrainedBox(
                           constraints: BoxConstraints(
@@ -412,75 +427,110 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             physics: const BouncingScrollPhysics(),
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
-                              children: sortedBooksReadYears.map((entry) {
-                          final maxValue = sortedBooksReadYears.first.value;
-                          final percentage = (entry.value / maxValue);
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => BooksByYearScreen(
-                                      initialYear: entry.key,
-                                    ),
-                                  ),
-                                );
-                              },
-                              borderRadius: BorderRadius.circular(4),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-                                child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  width: 60,
-                                  child: Text(
-                                    '${entry.key}',
-                                    style: Theme.of(context).textTheme.bodySmall,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Stack(
-                                    children: [
-                                      Container(
-                                        height: 24,
-                                        decoration: BoxDecoration(
-                                          color: Colors.grey[200],
-                                          borderRadius: BorderRadius.circular(4),
-                                        ),
+                              children:
+                                  sortedBooksReadYears.map((entry) {
+                                    final maxValue = sortedBooksReadYears
+                                        .map((e) => e.value)
+                                        .reduce((a, b) => a > b ? a : b);
+                                    final percentage = (entry.value / maxValue)
+                                        .clamp(0.0, 1.0);
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 4,
                                       ),
-                                      FractionallySizedBox(
-                                        widthFactor: percentage,
-                                        child: Container(
-                                          height: 24,
-                                          decoration: BoxDecoration(
-                                            color: Colors.blue,
-                                            borderRadius: BorderRadius.circular(4),
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              '${entry.value}',
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                      child: InkWell(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) =>
+                                                      BooksByYearScreen(
+                                                        initialYear: entry.key,
+                                                      ),
                                             ),
+                                          );
+                                        },
+                                        borderRadius: BorderRadius.circular(4),
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 4,
+                                            horizontal: 4,
+                                          ),
+                                          child: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              SizedBox(
+                                                width: 60,
+                                                child: Text(
+                                                  '${entry.key}',
+                                                  style:
+                                                      Theme.of(
+                                                        context,
+                                                      ).textTheme.bodySmall,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                child: LayoutBuilder(
+                                                  builder: (
+                                                    context,
+                                                    constraints,
+                                                  ) {
+                                                    return Stack(
+                                                      children: [
+                                                        Container(
+                                                          height: 24,
+                                                          decoration: BoxDecoration(
+                                                            color:
+                                                                Colors
+                                                                    .grey[200],
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  4,
+                                                                ),
+                                                          ),
+                                                        ),
+                                                        Container(
+                                                          width:
+                                                              constraints
+                                                                  .maxWidth *
+                                                              percentage,
+                                                          height: 24,
+                                                          decoration: BoxDecoration(
+                                                            color: Colors.blue,
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  4,
+                                                                ),
+                                                          ),
+                                                          child: Center(
+                                                            child: Text(
+                                                              '${entry.value}',
+                                                              style: const TextStyle(
+                                                                color:
+                                                                    Colors
+                                                                        .white,
+                                                                fontSize: 11,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
+                                    );
+                                  }).toList(),
                             ),
                           ),
                         ),
@@ -519,58 +569,78 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           physics: const BouncingScrollPhysics(),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
-                            children: sortedPagesReadYears.map((entry) {
-                        final maxValue = sortedPagesReadYears.first.value;
-                        final percentage = (entry.value / maxValue);
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 60,
-                                child: Text(
-                                  '${entry.key}',
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Stack(
-                                  children: [
-                                    Container(
-                                      height: 24,
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[200],
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
+                            children:
+                                sortedPagesReadYears.map((entry) {
+                                  final maxValue = sortedPagesReadYears
+                                      .map((e) => e.value)
+                                      .reduce((a, b) => a > b ? a : b);
+                                  final percentage = (entry.value / maxValue)
+                                      .clamp(0.0, 1.0);
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 4,
                                     ),
-                                    FractionallySizedBox(
-                                      widthFactor: percentage,
-                                      child: Container(
-                                        height: 24,
-                                        decoration: BoxDecoration(
-                                          color: Colors.amber,
-                                          borderRadius: BorderRadius.circular(4),
-                                        ),
-                                        child: Center(
+                                    child: Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 60,
                                           child: Text(
-                                            '${entry.value}',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                            '${entry.key}',
+                                            style:
+                                                Theme.of(
+                                                  context,
+                                                ).textTheme.bodySmall,
                                           ),
                                         ),
-                                      ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: LayoutBuilder(
+                                            builder: (context, constraints) {
+                                              return Stack(
+                                                children: [
+                                                  Container(
+                                                    height: 24,
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.grey[200],
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            4,
+                                                          ),
+                                                    ),
+                                                  ),
+                                                  Container(
+                                                    width:
+                                                        constraints.maxWidth *
+                                                        percentage,
+                                                    height: 24,
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.amber,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            4,
+                                                          ),
+                                                    ),
+                                                    child: Center(
+                                                      child: Text(
+                                                        '${entry.value}',
+                                                        style: const TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 11,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
+                                  );
+                                }).toList(),
                           ),
                         ),
                       ),
@@ -587,9 +657,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => BooksByDecadeScreen(
-                        initialDecade: sortedBooksReadByDecade.first.key,
-                      ),
+                      builder:
+                          (context) => BooksByDecadeScreen(
+                            initialDecade: sortedBooksReadByDecade.first.key,
+                          ),
                     ),
                   );
                 }
@@ -602,99 +673,115 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: [
-                    Text(
-                      'Books Read by Decade',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      Text(
+                        'Books Read by Decade',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '(Based on original publication year)',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                        fontStyle: FontStyle.italic,
+                      const SizedBox(height: 8),
+                      Text(
+                        '(Based on original publication year)',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[600],
+                          fontStyle: FontStyle.italic,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    if (sortedBooksReadByDecade.isEmpty)
-                      Center(child: Text(AppLocalizations.of(context)!.no_data))
-                    else
-                      ...sortedBooksReadByDecade.map((entry) {
-                        final maxValue = sortedBooksReadByDecade.first.value;
-                        final percentage = (entry.value / maxValue);
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: InkWell(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => BooksByDecadeScreen(
-                                    initialDecade: entry.key,
+                      const SizedBox(height: 16),
+                      if (sortedBooksReadByDecade.isEmpty)
+                        Center(
+                          child: Text(AppLocalizations.of(context)!.no_data),
+                        )
+                      else
+                        ...sortedBooksReadByDecade.map((entry) {
+                          final maxValue = sortedBooksReadByDecade
+                              .map((e) => e.value)
+                              .reduce((a, b) => a > b ? a : b);
+                          final percentage = (entry.value / maxValue).clamp(
+                            0.0,
+                            1.0,
+                          );
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => BooksByDecadeScreen(
+                                          initialDecade: entry.key,
+                                        ),
                                   ),
+                                );
+                              },
+                              borderRadius: BorderRadius.circular(4),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 4,
+                                  horizontal: 4,
                                 ),
-                              );
-                            },
-                            borderRadius: BorderRadius.circular(4),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-                              child: Row(
-                            children: [
-                              SizedBox(
-                                width: 70,
-                                child: Text(
-                                  entry.key,
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Stack(
+                                child: Row(
                                   children: [
-                                    Container(
-                                      height: 24,
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[200],
-                                        borderRadius: BorderRadius.circular(4),
+                                    SizedBox(
+                                      width: 70,
+                                      child: Text(
+                                        entry.key,
+                                        style:
+                                            Theme.of(
+                                              context,
+                                            ).textTheme.bodySmall,
                                       ),
                                     ),
-                                    FractionallySizedBox(
-                                      widthFactor: percentage,
-                                      child: Container(
-                                        height: 24,
-                                        decoration: BoxDecoration(
-                                          color: Colors.green,
-                                          borderRadius: BorderRadius.circular(4),
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            '${entry.value}',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.bold,
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Stack(
+                                        children: [
+                                          Container(
+                                            height: 24,
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey[200],
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
                                             ),
                                           ),
-                                        ),
+                                          FractionallySizedBox(
+                                            widthFactor: percentage,
+                                            child: Container(
+                                              height: 24,
+                                              decoration: BoxDecoration(
+                                                color: Colors.green,
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  '${entry.value}',
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                            ],
-                          ),
                             ),
-                          ),
-                        );
-                      }).toList(),
-                  ],
+                          );
+                        }).toList(),
+                    ],
+                  ),
                 ),
               ),
-            ),
             ),
             const SizedBox(height: 16),
             // Status Donut Chart

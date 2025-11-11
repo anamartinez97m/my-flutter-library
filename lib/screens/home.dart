@@ -3,11 +3,14 @@ import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
+import 'package:myrandomlibrary/screens/add_book.dart';
 import 'package:myrandomlibrary/widgets/booklist.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final void Function(VoidCallback)? onRegisterClearSearch;
+  
+  const HomeScreen({super.key, this.onRegisterClearSearch});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -35,10 +38,23 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _selectedIsbnAsin;
   String? _selectedAuthor;
 
+  void clearSearch() {
+    if (_searchController.text.isNotEmpty) {
+      setState(() {
+        _searchController.clear();
+      });
+      final provider = Provider.of<BookProvider?>(context, listen: false);
+      provider?.searchBooks('', searchIndex: _selectedSearchButtonIndex);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     _loadFilterOptions();
+    
+    // Register clear search callback
+    widget.onRegisterClearSearch?.call(clearSearch);
 
     // Sync filter and sort state with provider after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -573,10 +589,30 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showFilterSortSheet(context, provider),
-        backgroundColor: Colors.deepPurple,
-        child: const Icon(Icons.tune, color: Colors.white),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton(
+            heroTag: 'add_book',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AddBookScreen(),
+                ),
+              );
+            },
+            backgroundColor: Colors.deepPurple,
+            child: const Icon(Icons.add, color: Colors.white),
+          ),
+          const SizedBox(height: 16),
+          FloatingActionButton(
+            heroTag: 'filters',
+            onPressed: () => _showFilterSortSheet(context, provider),
+            backgroundColor: Colors.deepPurple,
+            child: const Icon(Icons.tune, color: Colors.white),
+          ),
+        ],
       ),
     );
   }

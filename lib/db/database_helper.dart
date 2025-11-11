@@ -21,7 +21,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 5,
+      version: 7,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -93,6 +93,7 @@ class DatabaseHelper {
         editorial_id VARCHAR(50),
         saga VARCHAR(50),
         n_saga VARCHAR(50),
+        saga_universe VARCHAR(100),
         format_saga_id VARCHAR(50),
         isbn VARCHAR(50),
         asin VARCHAR(50),
@@ -114,6 +115,8 @@ class DatabaseHelper {
         bundle_start_dates TEXT,
         bundle_end_dates TEXT,
         bundle_pages TEXT,
+        tbr BOOLEAN DEFAULT 0,
+        is_tandem BOOLEAN DEFAULT 0,
         FOREIGN KEY (status_id) REFERENCES status (status_id),
         FOREIGN KEY (editorial_id) REFERENCES editorial (editorial_id),
         FOREIGN KEY (language_id) REFERENCES language (language_id),
@@ -152,6 +155,15 @@ class DatabaseHelper {
         UNIQUE (genre_id, book_id)
       )
     ''');
+
+    // Insert default status values if table is empty
+    final statusCount = await db.rawQuery('SELECT COUNT(*) as count FROM status');
+    if (statusCount.first['count'] == 0) {
+      await db.insert('status', {'value': 'No'});
+      await db.insert('status', {'value': 'Yes'});
+      await db.insert('status', {'value': 'Started'});
+      await db.insert('status', {'value': 'TBReleased'});
+    }
   }
 
   Future<void> _onUpgrade(
@@ -209,6 +221,21 @@ class DatabaseHelper {
       // Add index for asin
       await db.execute(
         'CREATE INDEX IF NOT EXISTS idx_book_asin ON book (asin)',
+      );
+    }
+    if (oldVersion < 6) {
+      // Add saga_universe column for version 6
+      await db.execute(
+        'ALTER TABLE book ADD COLUMN saga_universe VARCHAR(100)',
+      );
+    }
+    if (oldVersion < 7) {
+      // Add tbr and is_tandem columns for version 7
+      await db.execute(
+        'ALTER TABLE book ADD COLUMN tbr BOOLEAN DEFAULT 0',
+      );
+      await db.execute(
+        'ALTER TABLE book ADD COLUMN is_tandem BOOLEAN DEFAULT 0',
       );
     }
   }

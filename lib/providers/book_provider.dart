@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:myrandomlibrary/model/book.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../db/database_helper.dart';
 import '../repositories/book_repository.dart';
 
@@ -29,8 +30,15 @@ class BookProvider extends ChangeNotifier {
   static Future<BookProvider> create() async {
     final db = await DatabaseHelper.instance.database;
     final provider = BookProvider._(BookRepository(db));
+    await provider._loadSortPreferences();
     await provider.loadBooks();
     return provider;
+  }
+
+  Future<void> _loadSortPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    _currentSortBy = prefs.getString('default_sort_by') ?? 'name';
+    _currentSortAscending = prefs.getBool('default_sort_ascending') ?? true;
   }
 
   BookProvider._(this._repo);
@@ -204,6 +212,15 @@ class BookProvider extends ChangeNotifier {
     _currentSearchIndex = searchIndex;
     _applySearch();
     notifyListeners();
+  }
+
+  Future<void> setDefaultSortOrder(String sortBy, bool ascending) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('default_sort_by', sortBy);
+    await prefs.setBool('default_sort_ascending', ascending);
+    _currentSortBy = sortBy;
+    _currentSortAscending = ascending;
+    sortBooks(sortBy, ascending);
   }
 
   void sortBooks(String sortBy, bool ascending) {
