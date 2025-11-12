@@ -51,53 +51,66 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
     
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Set TBR Limit'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Maximum number of books you can mark as "To Be Read" at once:',
-              style: TextStyle(fontSize: 14),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _controller,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: const InputDecoration(
-                labelText: 'TBR Limit',
-                border: OutlineInputBorder(),
-                suffixText: 'books',
-              ),
-              autofocus: true,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final newLimit = int.tryParse(_controller.text);
-              if (newLimit != null && newLimit > 0) {
-                _saveTBRLimit(newLimit);
-                Navigator.pop(context);
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Please enter a valid number greater than 0'),
-                    backgroundColor: Colors.red,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          final currentValue = int.tryParse(_controller.text);
+          final isValid = currentValue != null && currentValue > 0 && currentValue <= 200;
+          String? errorText;
+          
+          if (_controller.text.isNotEmpty) {
+            if (currentValue == null || currentValue <= 0) {
+              errorText = 'Please enter a valid number greater than 0';
+            } else if (currentValue > 200) {
+              errorText = 'Maximum limit is 200 books';
+            }
+          }
+          
+          return AlertDialog(
+            title: const Text('Set TBR Limit'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Maximum number of books you can mark as "To Be Read" at once:',
+                  style: TextStyle(fontSize: 14),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _controller,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  decoration: InputDecoration(
+                    labelText: 'TBR Limit',
+                    border: const OutlineInputBorder(),
+                    suffixText: 'books',
+                    helperText: 'Range: 1-200 books',
+                    errorText: errorText,
                   ),
-                );
-              }
-            },
-            child: const Text('Save'),
-          ),
-        ],
+                  autofocus: true,
+                  onChanged: (value) {
+                    setState(() {}); // Rebuild to update validation
+                  },
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: isValid
+                    ? () {
+                        _saveTBRLimit(currentValue);
+                        Navigator.pop(context);
+                      }
+                    : null,
+                child: const Text('Save'),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

@@ -13,6 +13,7 @@ import 'package:myrandomlibrary/screens/admin_csv_import.dart';
 import 'package:myrandomlibrary/screens/manage_dropdowns.dart';
 import 'package:myrandomlibrary/utils/csv_import_helper.dart';
 import 'package:myrandomlibrary/widgets/tbr_limit_setting.dart';
+import 'package:myrandomlibrary/widgets/status_mapping_dialog.dart';
 import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -224,6 +225,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
         throw Exception('Unknown CSV format. Please check the file structure.');
       }
 
+      // For Format 1 (non-Goodreads), show status mapping dialog
+      Map<String, String>? statusMappings;
+      if (csvFormat == CsvFormat.format1) {
+        if (context.mounted) {
+          // Get predefined status values from database
+          final db = await DatabaseHelper.instance.database;
+          final statusList = await db.query('status', columns: ['value']);
+          final predefinedStatuses = statusList
+              .map((s) => s['value'] as String)
+              .toList();
+
+          // Show mapping dialog
+          statusMappings = await showDialog<Map<String, String>>(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => StatusMappingDialog(
+              predefinedStatuses: predefinedStatuses,
+            ),
+          );
+
+          // User canceled
+          if (statusMappings == null) {
+            return;
+          }
+        }
+      }
+
       // Show loading indicator
       if (context.mounted) {
         _showLoadingDialog(context, 'Importing books from CSV...');
@@ -290,11 +318,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
           }
 
           // Map status value to existing database value
-          final dbHelper = DatabaseHelper();
-          final mappedStatus = await CsvImportHelper.mapStatusValue(
-            book.statusValue,
-            dbHelper,
-          );
+          String? mappedStatus;
+          if (csvFormat == CsvFormat.format1 && statusMappings != null) {
+            // Use user-provided mappings for Format 1
+            final bookStatusLower = book.statusValue?.toLowerCase().trim();
+            if (bookStatusLower != null && statusMappings.containsKey(bookStatusLower)) {
+              mappedStatus = statusMappings[bookStatusLower];
+            } else {
+              // If no mapping found, keep original value
+              mappedStatus = book.statusValue;
+            }
+          } else {
+            // For Format 2 (Goodreads), use automatic mapping
+            final dbHelper = DatabaseHelper();
+            mappedStatus = await CsvImportHelper.mapStatusValue(
+              book.statusValue,
+              dbHelper,
+            );
+          }
 
           // Create book with mapped status
           final bookWithMappedStatus = Book(
