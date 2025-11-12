@@ -9,6 +9,7 @@ import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/utils/csv_import_helper.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart';
 
 class AdminCsvImportScreen extends StatefulWidget {
   const AdminCsvImportScreen({super.key});
@@ -23,11 +24,129 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
   int _currentIndex = 0;
   String? _currentFileIdentifier;
   String? _currentFilePath;
+  final Set<String> _reviewedBookHashes = {};
 
   @override
   void initState() {
     super.initState();
+    _initReviewedBooksTable();
     _checkForCheckpoint();
+  }
+
+  /// Initialize the temporary table for tracking reviewed books
+  Future<void> _initReviewedBooksTable() async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS temp_reviewed_books (
+          session_id TEXT NOT NULL,
+          book_hash TEXT NOT NULL,
+          reviewed_at TEXT DEFAULT (datetime('now')),
+          PRIMARY KEY (session_id, book_hash)
+        )
+      ''');
+      
+      // Clean up old sessions (older than 7 days)
+      await db.execute('''
+        DELETE FROM temp_reviewed_books 
+        WHERE reviewed_at < datetime('now', '-7 days')
+      ''');
+      
+      debugPrint('Reviewed books table initialized and old entries cleaned up');
+    } catch (e) {
+      debugPrint('Error creating reviewed books table: $e');
+    }
+  }
+
+  /// Generate a unique hash for a book based on its identifying information
+  String _generateBookHash(_BookImportItem item) {
+    final book = item.book;
+    // Use ISBN/ASIN if available, otherwise use title + author + saga
+    if (book.isbn != null && book.isbn!.isNotEmpty) {
+      return 'isbn_${book.isbn}';
+    }
+    if (book.asin != null && book.asin!.isNotEmpty) {
+      return 'asin_${book.asin}';
+    }
+    final title = book.name ?? '';
+    final author = book.author ?? '';
+    final saga = book.saga ?? '';
+    final nSaga = book.nSaga ?? '';
+    return 'book_${title}_${author}_${saga}_${nSaga}'.toLowerCase();
+  }
+
+  /// Mark a book as reviewed in the database
+  Future<void> _markBookAsReviewed(String bookHash) async {
+    if (_currentFileIdentifier == null) return;
+    
+    try {
+      final db = await DatabaseHelper.instance.database;
+      await db.insert(
+        'temp_reviewed_books',
+        {
+          'session_id': _currentFileIdentifier!,
+          'book_hash': bookHash,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      _reviewedBookHashes.add(bookHash);
+    } catch (e) {
+      debugPrint('Error marking book as reviewed: $e');
+    }
+  }
+
+  /// Load previously reviewed books for this session
+  Future<void> _loadReviewedBooks() async {
+    if (_currentFileIdentifier == null) return;
+    
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final results = await db.query(
+        'temp_reviewed_books',
+        columns: ['book_hash'],
+        where: 'session_id = ?',
+        whereArgs: [_currentFileIdentifier!],
+      );
+      
+      _reviewedBookHashes.clear();
+      for (final row in results) {
+        _reviewedBookHashes.add(row['book_hash'] as String);
+      }
+      
+      debugPrint('Loaded ${_reviewedBookHashes.length} reviewed books for session: $_currentFileIdentifier');
+    } catch (e) {
+      debugPrint('Error loading reviewed books: $e');
+    }
+  }
+
+  /// Clear reviewed books for a specific session
+  Future<void> _clearReviewedBooks() async {
+    if (_currentFileIdentifier == null) return;
+    
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final deletedCount = await db.delete(
+        'temp_reviewed_books',
+        where: 'session_id = ?',
+        whereArgs: [_currentFileIdentifier!],
+      );
+      _reviewedBookHashes.clear();
+      debugPrint('Cleared $deletedCount reviewed books for session: $_currentFileIdentifier');
+    } catch (e) {
+      debugPrint('Error clearing reviewed books: $e');
+    }
+  }
+  
+  /// Clear ALL reviewed books from all sessions (for debugging/cleanup)
+  Future<void> _clearAllReviewedBooks() async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final deletedCount = await db.delete('temp_reviewed_books');
+      _reviewedBookHashes.clear();
+      debugPrint('Cleared ALL $deletedCount reviewed books from all sessions');
+    } catch (e) {
+      debugPrint('Error clearing all reviewed books: $e');
+    }
   }
 
   /// Generate a unique identifier for the file based on path, size, and modification time
@@ -60,7 +179,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                   actions: [
                     TextButton(
                       onPressed: () async {
-                        // Clear checkpoint
+                        // Clear checkpoint (reviewed books will be cleared after file is loaded)
                         await _clearCheckpoint();
                         Navigator.pop(context, false);
                       },
@@ -160,7 +279,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         _isLoading = true;
       });
 
-      await _parseCsvFile(filePath);
+      await _parseCsvFile(filePath, clearReviewed: true);
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -174,11 +293,18 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
     }
   }
 
-  Future<void> _parseCsvFile(String filePath, {int startFromIndex = 0}) async {
+  Future<void> _parseCsvFile(String filePath, {int startFromIndex = 0, bool clearReviewed = false}) async {
     try {
       // Generate and save file identifier
       _currentFileIdentifier = _generateFileIdentifier(filePath);
       _currentFilePath = filePath;
+      
+      // Clear reviewed books if starting fresh
+      if (clearReviewed) {
+        debugPrint('Clearing reviewed books for fresh start...');
+        await _clearReviewedBooks();
+        debugPrint('Reviewed books cleared. Starting with clean slate.');
+      }
 
       // Read and parse CSV
       String input = File(filePath).readAsStringSync();
@@ -444,8 +570,38 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         }
       }
 
+      // Load reviewed books for this session
+      await _loadReviewedBooks();
+      
+      debugPrint('Session ID: $_currentFileIdentifier');
+      debugPrint('Loaded ${_reviewedBookHashes.length} reviewed book hashes from database');
+      
+      // Filter out reviewed books
+      int reviewedCount = 0;
+      final unreviewedItems = items.where((item) {
+        final hash = _generateBookHash(item);
+        final isReviewed = _reviewedBookHashes.contains(hash);
+        if (isReviewed) {
+          reviewedCount++;
+          if (reviewedCount <= 5) {
+            debugPrint('  Filtering out reviewed book: ${item.book.name} (hash: $hash)');
+          }
+        }
+        return !isReviewed;
+      }).toList();
+      
+      if (reviewedCount > 5) {
+        debugPrint('  ... and ${reviewedCount - 5} more reviewed books');
+      }
+      
+      debugPrint('=== IMPORT SUMMARY ===');
+      debugPrint('Total items parsed: ${items.length}');
+      debugPrint('Unreviewed items: ${unreviewedItems.length}');
+      debugPrint('Already reviewed: ${items.length - unreviewedItems.length}');
+      debugPrint('====================');
+
       setState(() {
-        _importItems = items;
+        _importItems = unreviewedItems;
         _isLoading = false;
         _currentIndex = 0;
       });
@@ -474,6 +630,10 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
       int skipped = 0;
 
       for (final item in _importItems) {
+        // Mark this book as reviewed (even if skipped)
+        final bookHash = _generateBookHash(item);
+        await _markBookAsReviewed(bookHash);
+        
         if (!item.shouldImport) {
           skipped++;
           continue;
@@ -534,8 +694,9 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
           _isLoading = false;
         });
 
-        // Clear checkpoint after successful import
+        // Clear checkpoint and reviewed books after successful import
         await _clearCheckpoint();
+        await _clearReviewedBooks();
 
         // Show results
         await showDialog(
@@ -590,6 +751,10 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
       // Only process items up to the specified index
       for (int i = 0; i < upToIndex && i < _importItems.length; i++) {
         final item = _importItems[i];
+        
+        // Mark this book as reviewed
+        final bookHash = _generateBookHash(item);
+        await _markBookAsReviewed(bookHash);
 
         if (!item.shouldImport) {
           skipped++;
@@ -656,8 +821,9 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
 
         // If all items imported, go back to settings
         if (_importItems.isEmpty) {
-          // Clear checkpoint after successful partial import
+          // Clear checkpoint and reviewed books after successful partial import
           await _clearCheckpoint();
+          await _clearReviewedBooks();
 
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -737,6 +903,51 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                       onPressed: _selectAndParseCsv,
                       icon: const Icon(Icons.file_open),
                       label: const Text('Select CSV File'),
+                    ),
+                    const SizedBox(height: 16),
+                    TextButton.icon(
+                      onPressed: () async {
+                        final confirmed = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Clear Reviewed Books?'),
+                            content: const Text(
+                              'This will clear all tracked reviewed books from all import sessions. Use this if the count seems wrong.',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                child: const Text('Cancel'),
+                              ),
+                              ElevatedButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  foregroundColor: Colors.white,
+                                ),
+                                child: const Text('Clear All'),
+                              ),
+                            ],
+                          ),
+                        );
+                        
+                        if (confirmed == true) {
+                          await _clearAllReviewedBooks();
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Cleared all reviewed books tracking'),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                          }
+                        }
+                      },
+                      icon: const Icon(Icons.delete_sweep, size: 18),
+                      label: const Text('Clear Reviewed Books Cache'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.grey,
+                      ),
                     ),
                   ],
                 ),
@@ -868,11 +1079,15 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                               child: ElevatedButton(
                                 onPressed:
                                     _currentIndex < _importItems.length - 1
-                                        ? () {
+                                        ? () async {
+                                          // Mark current book as reviewed before moving to next
+                                          final currentHash = _generateBookHash(_importItems[_currentIndex]);
+                                          await _markBookAsReviewed(currentHash);
+                                          
                                           setState(() {
                                             _currentIndex++;
                                           });
-                                          _saveCheckpoint();
+                                          await _saveCheckpoint();
                                         }
                                         : null,
                                 child: const Text('Next'),
@@ -1515,6 +1730,65 @@ class _BookImportPreview extends StatelessWidget {
           readCount: book.readCount,
           myRating: value.isEmpty ? null : double.tryParse(value),
           myReview: book.myReview,
+          sagaUniverse: book.sagaUniverse,
+        );
+        break;
+      case 'review':
+        updatedBook = Book(
+          bookId: book.bookId, name: book.name, isbn: book.isbn, asin: book.asin,
+          author: book.author, saga: book.saga, nSaga: book.nSaga,
+          formatSagaValue: book.formatSagaValue, pages: book.pages,
+          originalPublicationYear: book.originalPublicationYear, loaned: book.loaned,
+          statusValue: book.statusValue, editorialValue: book.editorialValue,
+          languageValue: book.languageValue, placeValue: book.placeValue,
+          formatValue: book.formatValue, createdAt: book.createdAt, genre: book.genre,
+          dateReadInitial: book.dateReadInitial, dateReadFinal: book.dateReadFinal,
+          readCount: book.readCount, myRating: book.myRating,
+          myReview: trimmedValue.isEmpty ? null : trimmedValue,
+          sagaUniverse: book.sagaUniverse,
+        );
+        break;
+      case 'sagaUniverse':
+        updatedBook = Book(
+          bookId: book.bookId, name: book.name, isbn: book.isbn, asin: book.asin,
+          author: book.author, saga: book.saga, nSaga: book.nSaga,
+          formatSagaValue: book.formatSagaValue, pages: book.pages,
+          originalPublicationYear: book.originalPublicationYear, loaned: book.loaned,
+          statusValue: book.statusValue, editorialValue: book.editorialValue,
+          languageValue: book.languageValue, placeValue: book.placeValue,
+          formatValue: book.formatValue, createdAt: book.createdAt, genre: book.genre,
+          dateReadInitial: book.dateReadInitial, dateReadFinal: book.dateReadFinal,
+          readCount: book.readCount, myRating: book.myRating, myReview: book.myReview,
+          sagaUniverse: trimmedValue.isEmpty ? null : trimmedValue,
+        );
+        break;
+      case 'formatSaga':
+        updatedBook = Book(
+          bookId: book.bookId, name: book.name, isbn: book.isbn, asin: book.asin,
+          author: book.author, saga: book.saga, nSaga: book.nSaga,
+          formatSagaValue: trimmedValue.isEmpty ? null : trimmedValue, pages: book.pages,
+          originalPublicationYear: book.originalPublicationYear, loaned: book.loaned,
+          statusValue: book.statusValue, editorialValue: book.editorialValue,
+          languageValue: book.languageValue, placeValue: book.placeValue,
+          formatValue: book.formatValue, createdAt: book.createdAt, genre: book.genre,
+          dateReadInitial: book.dateReadInitial, dateReadFinal: book.dateReadFinal,
+          readCount: book.readCount, myRating: book.myRating, myReview: book.myReview,
+          sagaUniverse: book.sagaUniverse,
+        );
+        break;
+      case 'loaned':
+        updatedBook = Book(
+          bookId: book.bookId, name: book.name, isbn: book.isbn, asin: book.asin,
+          author: book.author, saga: book.saga, nSaga: book.nSaga,
+          formatSagaValue: book.formatSagaValue, pages: book.pages,
+          originalPublicationYear: book.originalPublicationYear,
+          loaned: trimmedValue.isEmpty ? null : trimmedValue.toLowerCase(),
+          statusValue: book.statusValue, editorialValue: book.editorialValue,
+          languageValue: book.languageValue, placeValue: book.placeValue,
+          formatValue: book.formatValue, createdAt: book.createdAt, genre: book.genre,
+          dateReadInitial: book.dateReadInitial, dateReadFinal: book.dateReadFinal,
+          readCount: book.readCount, myRating: book.myRating, myReview: book.myReview,
+          sagaUniverse: book.sagaUniverse,
         );
         break;
       default:
@@ -1586,6 +1860,18 @@ class _BookImportPreview extends StatelessWidget {
         break;
       case 'rating':
         oldValue = existing.myRating?.toString();
+        break;
+      case 'review':
+        oldValue = existing.myReview;
+        break;
+      case 'sagaUniverse':
+        oldValue = existing.sagaUniverse;
+        break;
+      case 'formatSaga':
+        oldValue = existing.formatSagaValue;
+        break;
+      case 'loaned':
+        oldValue = existing.loaned;
         break;
       default:
         oldValue = null;
@@ -1670,13 +1956,13 @@ class _BookImportPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Import type badge
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: _getTypeColor().withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
@@ -1704,16 +1990,18 @@ class _BookImportPreview extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           // Skip checkbox
           CheckboxListTile(
-            title: const Text('Import this book'),
+            title: const Text('Import this book', style: TextStyle(fontSize: 13)),
             value: item.shouldImport,
             onChanged: (value) {
               onChanged(item.copyWith(shouldImport: value ?? false));
             },
+            dense: true,
+            contentPadding: EdgeInsets.zero,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           // Book details (editable)
           _EditableDetailRow(
             label: 'Title',
@@ -1756,6 +2044,20 @@ class _BookImportPreview extends StatelessWidget {
             isHighlighted: _isFieldNew(item, 'nSaga'),
             onChanged: (value) => _updateField('nSaga', value),
             oldValue: _getOldValue('nSaga'),
+          ),
+          _EditableDetailRow(
+            label: 'Saga Universe',
+            value: item.book.sagaUniverse ?? '',
+            isHighlighted: _isFieldNew(item, 'sagaUniverse'),
+            onChanged: (value) => _updateField('sagaUniverse', value),
+            oldValue: _getOldValue('sagaUniverse'),
+          ),
+          _EditableDetailRow(
+            label: 'Format Saga',
+            value: item.book.formatSagaValue ?? '',
+            isHighlighted: _isFieldNew(item, 'formatSaga'),
+            onChanged: (value) => _updateField('formatSaga', value),
+            oldValue: _getOldValue('formatSaga'),
           ),
           _EditableDetailRow(
             label: 'Pages',
@@ -1809,6 +2111,13 @@ class _BookImportPreview extends StatelessWidget {
             oldValue: _getOldValue('format'),
           ),
           _EditableDetailRow(
+            label: 'Loaned',
+            value: item.book.loaned == true ? 'Yes' : 'No',
+            isHighlighted: _isFieldNew(item, 'loaned'),
+            onChanged: (value) => _updateField('loaned', value),
+            oldValue: _getOldValue('loaned'),
+          ),
+          _EditableDetailRow(
             label: 'Genre',
             value: item.book.genre ?? '',
             isHighlighted: _isFieldNew(item, 'genre'),
@@ -1845,6 +2154,14 @@ class _BookImportPreview extends StatelessWidget {
             keyboardType: TextInputType.numberWithOptions(decimal: true),
             oldValue: _getOldValue('rating'),
           ),
+          _EditableDetailRow(
+            label: 'My Review',
+            value: item.book.myReview ?? '',
+            isHighlighted: _isFieldNew(item, 'review'),
+            onChanged: (value) => _updateField('review', value),
+            oldValue: _getOldValue('review'),
+            maxLines: 3,
+          ),
         ],
       ),
     );
@@ -1858,6 +2175,7 @@ class _EditableDetailRow extends StatefulWidget {
   final Function(String) onChanged;
   final TextInputType? keyboardType;
   final String? oldValue; // For showing previous value in updates
+  final int? maxLines;
 
   const _EditableDetailRow({
     required this.label,
@@ -1866,6 +2184,7 @@ class _EditableDetailRow extends StatefulWidget {
     this.isHighlighted = false,
     this.keyboardType,
     this.oldValue,
+    this.maxLines = 1,
   });
 
   @override
@@ -1938,7 +2257,7 @@ class _EditableDetailRowState extends State<_EditableDetailRow> {
                       controller: _controller,
                       onChanged: widget.onChanged,
                       keyboardType: widget.keyboardType,
-                      maxLines: null,
+                      maxLines: widget.maxLines,
                       autofocus: true,
                       style: const TextStyle(
                         fontSize: 11,
@@ -1957,7 +2276,7 @@ class _EditableDetailRowState extends State<_EditableDetailRow> {
                           padding: EdgeInsets.zero,
                         ),
                       ),
-                      onFieldSubmitted: (_) => _stopEditing(),
+                      onFieldSubmitted: widget.maxLines == 1 ? (_) => _stopEditing() : null,
                     )
                     : InkWell(
                       onTap: _startEditing,

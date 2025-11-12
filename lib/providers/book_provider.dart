@@ -45,13 +45,13 @@ class BookProvider extends ChangeNotifier {
 
   /// Removes accents from a string for accent-insensitive search
   String _removeAccents(String text) {
-    // const accents = 'ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËèéêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ';
-    // const withoutAccents = 'AAAAAAaaaaaaOOOOOOooooooEEEEeeeeCcIIIIiiiiUUUUuuuuyNn';
+    const accents = 'ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËèéêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ';
+    const withoutAccents = 'AAAAAAaaaaaaOOOOOOooooooEEEEeeeeCcIIIIiiiiUUUUuuuuyNn';
 
     String result = text;
-    // for (int i = 0; i < accents.length; i++) {
-    //   result = result.replaceAll(accents[i], withoutAccents[i]);
-    // }
+    for (int i = 0; i < accents.length; i++) {
+      result = result.replaceAll(accents[i], withoutAccents[i]);
+    }
     return result;
   }
 
