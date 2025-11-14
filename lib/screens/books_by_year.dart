@@ -1,9 +1,8 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/model/book.dart';
-import 'package:myrandomlibrary/providers/book_provider.dart';
+import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/screens/book_detail.dart';
-import 'package:provider/provider.dart';
 
 class BooksByYearScreen extends StatefulWidget {
   final int initialYear;
@@ -25,6 +24,19 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
   void initState() {
     super.initState();
     _selectedYear = widget.initialYear;
+  }
+
+  Future<List<int>> _loadYears() async {
+    final db = await DatabaseHelper.instance.database;
+    final repository = BookRepository(db);
+    return await repository.getYearsWithReadBooks();
+  }
+
+  Future<List<Book>> _loadBooksForYear(int year) async {
+    final db = await DatabaseHelper.instance.database;
+    final repository = BookRepository(db);
+    final booksData = await repository.getBooksReadInYear(year);
+    return booksData.map((data) => Book.fromMap(data)).toList();
   }
 
   /// Try to parse date with multiple formats
@@ -66,82 +78,28 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
       appBar: AppBar(
         title: const Text('Books by Year'),
       ),
-      body: Consumer<BookProvider>(
-        builder: (context, provider, child) {
-          final books = provider.allBooks; // Use all books, not filtered
-
-          // Calculate available years from books (including bundle books)
-          final yearsSet = <int>{};
-          for (var book in books) {
-            // Handle bundle books with multiple end dates
-            if (book.isBundle == true && book.bundleEndDates != null) {
-              try {
-                final List<dynamic> endDates = jsonDecode(book.bundleEndDates!);
-                for (var dateStr in endDates) {
-                  if (dateStr != null) {
-                    final date = _tryParseDate(dateStr.toString());
-                    if (date != null) {
-                      yearsSet.add(date.year);
-                    }
-                  }
-                }
-              } catch (e) {
-                // If bundle dates parsing fails, try regular date
-                if (book.dateReadFinal != null) {
-                  final dateRead = _tryParseDate(book.dateReadFinal!);
-                  if (dateRead != null) {
-                    yearsSet.add(dateRead.year);
-                  }
-                }
-              }
-            } else if (book.dateReadFinal != null) {
-              final dateRead = _tryParseDate(book.dateReadFinal!);
-              if (dateRead != null) {
-                yearsSet.add(dateRead.year);
-              }
-            }
+      body: FutureBuilder<List<int>>(
+        future: _loadYears(),
+        builder: (context, yearsSnapshot) {
+          if (!yearsSnapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
           }
-          _availableYears = yearsSet.toList()..sort((a, b) => b.compareTo(a));
 
-          // Filter books for selected year (including bundle books)
-          final booksForYear = books.where((book) {
-            // Handle bundle books with multiple end dates
-            if (book.isBundle == true && book.bundleEndDates != null) {
-              try {
-                final List<dynamic> endDates = jsonDecode(book.bundleEndDates!);
-                // Check if ANY of the bundle books were finished in the selected year
-                for (var dateStr in endDates) {
-                  if (dateStr != null) {
-                    final date = _tryParseDate(dateStr.toString());
-                    if (date != null && date.year == _selectedYear) {
-                      return true;
-                    }
-                  }
-                }
-              } catch (e) {
-                // If bundle dates parsing fails, try regular date
-                if (book.dateReadFinal != null) {
-                  final dateRead = _tryParseDate(book.dateReadFinal!);
-                  return dateRead != null && dateRead.year == _selectedYear;
-                }
+          _availableYears = yearsSnapshot.data!;
+          
+          // Ensure selected year is valid
+          if (_availableYears.isNotEmpty && !_availableYears.contains(_selectedYear)) {
+            _selectedYear = _availableYears.first;
+          }
+
+          return FutureBuilder<List<Book>>(
+            future: _loadBooksForYear(_selectedYear),
+            builder: (context, booksSnapshot) {
+              if (!booksSnapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
               }
-              return false;
-            } else if (book.dateReadFinal != null) {
-              final dateRead = _tryParseDate(book.dateReadFinal!);
-              return dateRead != null && dateRead.year == _selectedYear;
-            }
-            return false;
-          }).toList();
 
-          // Sort by date read (most recent first)
-          booksForYear.sort((a, b) {
-            final dateA = _tryParseDate(a.dateReadFinal ?? '');
-            final dateB = _tryParseDate(b.dateReadFinal ?? '');
-            if (dateA != null && dateB != null) {
-              return dateB.compareTo(dateA);
-            }
-            return 0;
-          });
+              final booksForYear = booksSnapshot.data!;
 
           return Column(
             children: [
@@ -164,38 +122,11 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
                         value: _selectedYear,
                         isExpanded: true,
                         items: _availableYears.map((year) {
-                          // Count books for this year (including bundle books)
-                          final count = books.where((book) {
-                            // Handle bundle books
-                            if (book.isBundle == true && book.bundleEndDates != null) {
-                              try {
-                                final List<dynamic> endDates = jsonDecode(book.bundleEndDates!);
-                                for (var dateStr in endDates) {
-                                  if (dateStr != null) {
-                                    final date = _tryParseDate(dateStr.toString());
-                                    if (date != null && date.year == year) {
-                                      return true;
-                                    }
-                                  }
-                                }
-                              } catch (e) {
-                                // If bundle parsing fails, try regular date
-                                if (book.dateReadFinal != null) {
-                                  final dateRead = _tryParseDate(book.dateReadFinal!);
-                                  return dateRead != null && dateRead.year == year;
-                                }
-                              }
-                              return false;
-                            } else if (book.dateReadFinal != null) {
-                              final dateRead = _tryParseDate(book.dateReadFinal!);
-                              return dateRead != null && dateRead.year == year;
-                            }
-                            return false;
-                          }).length;
-
+                          // Show year with count from current selection
+                          final count = year == _selectedYear ? booksForYear.length : 0;
                           return DropdownMenuItem<int>(
                             value: year,
-                            child: Text('$year ($count books)'),
+                            child: Text(year == _selectedYear ? '$year ($count books)' : '$year'),
                           );
                         }).toList(),
                         onChanged: (year) {
@@ -225,6 +156,8 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
                       ),
               ),
             ],
+          );
+            },
           );
         },
       ),

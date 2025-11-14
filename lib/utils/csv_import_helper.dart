@@ -21,6 +21,51 @@ class CsvImportResult {
 
 /// Helper class for CSV import operations
 class CsvImportHelper {
+  /// Normalize date to yyyy-mm-dd format
+  /// Handles various input formats: yyyy/mm/dd, dd/mm/yyyy, mm/dd/yyyy, yyyy-mm-dd
+  static String? normalizeDateFormat(String? dateStr) {
+    if (dateStr == null || dateStr.trim().isEmpty) return null;
+    
+    final trimmed = dateStr.trim();
+    
+    // Already in yyyy-mm-dd format
+    if (RegExp(r'^\d{4}-\d{2}-\d{2}').hasMatch(trimmed)) {
+      return trimmed.split('T')[0]; // Remove time component if present
+    }
+    
+    try {
+      // Try to parse various formats
+      DateTime? date;
+      
+      // Format: yyyy/mm/dd or yyyy-mm-dd
+      if (RegExp(r'^\d{4}[/-]\d{1,2}[/-]\d{1,2}').hasMatch(trimmed)) {
+        final parts = trimmed.split(RegExp(r'[/-]'));
+        date = DateTime(
+          int.parse(parts[0]),
+          int.parse(parts[1]),
+          int.parse(parts[2]),
+        );
+      }
+      // Format: dd/mm/yyyy or dd-mm-yyyy
+      else if (RegExp(r'^\d{1,2}[/-]\d{1,2}[/-]\d{4}').hasMatch(trimmed)) {
+        final parts = trimmed.split(RegExp(r'[/-]'));
+        date = DateTime(
+          int.parse(parts[2]),
+          int.parse(parts[1]),
+          int.parse(parts[0]),
+        );
+      }
+      
+      if (date != null) {
+        return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+      }
+    } catch (e) {
+      debugPrint('Error normalizing date "$dateStr": $e');
+    }
+    
+    return trimmed; // Return as-is if we can't parse it
+  }
+
   /// Map status values across languages
   /// Returns the database value that matches the input status semantically
   static Future<String?> mapStatusValue(String? inputStatus, DatabaseHelper dbHelper) async {
@@ -333,8 +378,8 @@ class CsvImportHelper {
       formatValue: format,
       createdAt: createdAt,
       genre: null,
-      dateReadInitial: dateAdded, // Date Added -> Date Read Started
-      dateReadFinal: dateRead,     // Date Read -> Date Read Finished
+      dateReadInitial: normalizeDateFormat(dateAdded), // Date Added -> Date Read Started
+      dateReadFinal: normalizeDateFormat(dateRead),     // Date Read -> Date Read Finished
       readCount: readCountStr != null ? int.tryParse(readCountStr) : 0,
       myRating: myRatingStr != null ? double.tryParse(myRatingStr) : null,
       myReview: myReview,

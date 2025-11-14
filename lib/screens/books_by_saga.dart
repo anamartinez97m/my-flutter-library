@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/widgets/booklist.dart';
+import 'package:myrandomlibrary/widgets/quick_add_book_dialog.dart';
 import 'package:provider/provider.dart';
 
 class BooksBySagaScreen extends StatelessWidget {
@@ -58,6 +59,31 @@ class BooksBySagaScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(isSagaUniverse ? 'Universe: $sagaName' : 'Saga: $sagaName'),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () async {
+          final result = await showDialog<int>(
+            context: context,
+            builder: (context) => QuickAddBookDialog(
+              sagaName: isSagaUniverse ? null : sagaName,
+              sagaUniverse: isSagaUniverse ? sagaName : sagaUniverse,
+            ),
+          );
+          
+          if (result != null && result > 0) {
+            // Reload books
+            provider.loadBooks();
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Added $result book(s) to ${isSagaUniverse ? 'universe' : 'saga'}'),
+                ),
+              );
+            }
+          }
+        },
+        icon: const Icon(Icons.add),
+        label: const Text('Quick Add'),
       ),
       body: filteredBooks.isEmpty
           ? Center(

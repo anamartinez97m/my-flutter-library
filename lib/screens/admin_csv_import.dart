@@ -25,6 +25,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
   String? _currentFileIdentifier;
   String? _currentFilePath;
   final Set<String> _reviewedBookHashes = {};
+  final Set<String> _ignoredBookHashes = {};
 
   @override
   void initState() {
@@ -41,20 +42,21 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         CREATE TABLE IF NOT EXISTS temp_reviewed_books (
           session_id TEXT NOT NULL,
           book_hash TEXT NOT NULL,
-          reviewed_at TEXT DEFAULT (datetime('now')),
+          reviewed_at INTEGER DEFAULT (strftime('%s', 'now')),
           PRIMARY KEY (session_id, book_hash)
         )
       ''');
-      
-      // Clean up old sessions (older than 7 days)
       await db.execute('''
-        DELETE FROM temp_reviewed_books 
-        WHERE reviewed_at < datetime('now', '-7 days')
+        CREATE TABLE IF NOT EXISTS temp_ignored_books (
+          session_id TEXT NOT NULL,
+          book_hash TEXT NOT NULL,
+          ignored_at INTEGER DEFAULT (strftime('%s', 'now')),
+          PRIMARY KEY (session_id, book_hash)
+        )
       ''');
-      
-      debugPrint('Reviewed books table initialized and old entries cleaned up');
+      debugPrint('Initialized temp_reviewed_books and temp_ignored_books tables');
     } catch (e) {
-      debugPrint('Error creating reviewed books table: $e');
+      debugPrint('Error initializing temporary tables: $e');
     }
   }
 
@@ -146,6 +148,53 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
       debugPrint('Cleared ALL $deletedCount reviewed books from all sessions');
     } catch (e) {
       debugPrint('Error clearing all reviewed books: $e');
+    }
+  }
+
+  /// Mark a book as ignored in the database
+  Future<void> _markBookAsIgnored(String bookHash) async {
+    if (_currentFileIdentifier == null) return;
+    
+    try {
+      final db = await DatabaseHelper.instance.database;
+      await db.insert(
+        'temp_ignored_books',
+        {
+          'session_id': _currentFileIdentifier!,
+          'book_hash': bookHash,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      _ignoredBookHashes.add(bookHash);
+      debugPrint('✓ Marked book as ignored: $bookHash (session: $_currentFileIdentifier)');
+    } catch (e) {
+      debugPrint('❌ Error marking book as ignored: $e');
+    }
+  }
+
+  /// Load previously ignored books for this session
+  Future<void> _loadIgnoredBooks() async {
+    if (_currentFileIdentifier == null) return;
+    
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final results = await db.query(
+        'temp_ignored_books',
+        columns: ['book_hash'],
+        where: 'session_id = ?',
+        whereArgs: [_currentFileIdentifier!],
+      );
+      
+      _ignoredBookHashes.clear();
+      for (final row in results) {
+        final hash = row['book_hash'] as String;
+        _ignoredBookHashes.add(hash);
+        debugPrint('  📋 Loaded ignored book: $hash');
+      }
+      
+      debugPrint('✓ Loaded ${_ignoredBookHashes.length} ignored books for session: $_currentFileIdentifier');
+    } catch (e) {
+      debugPrint('❌ Error loading ignored books: $e');
     }
   }
 
@@ -469,6 +518,10 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                     bookWithMappedStatus.nSaga?.isNotEmpty == true
                         ? bookWithMappedStatus.nSaga
                         : existingBook.nSaga,
+                sagaUniverse:
+                    bookWithMappedStatus.sagaUniverse?.isNotEmpty == true
+                        ? bookWithMappedStatus.sagaUniverse
+                        : existingBook.sagaUniverse,
                 formatSagaValue:
                     bookWithMappedStatus.formatSagaValue?.isNotEmpty == true
                         ? bookWithMappedStatus.formatSagaValue
@@ -570,34 +623,48 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         }
       }
 
-      // Load reviewed books for this session
+      // Load reviewed and ignored books for this session
       await _loadReviewedBooks();
+      await _loadIgnoredBooks();
       
       debugPrint('Session ID: $_currentFileIdentifier');
       debugPrint('Loaded ${_reviewedBookHashes.length} reviewed book hashes from database');
+      debugPrint('Loaded ${_ignoredBookHashes.length} ignored book hashes from database');
       
-      // Filter out reviewed books
+      // Filter out reviewed and ignored books
       int reviewedCount = 0;
+      int ignoredCount = 0;
       final unreviewedItems = items.where((item) {
         final hash = _generateBookHash(item);
         final isReviewed = _reviewedBookHashes.contains(hash);
+        final isIgnored = _ignoredBookHashes.contains(hash);
         if (isReviewed) {
           reviewedCount++;
           if (reviewedCount <= 5) {
-            debugPrint('  Filtering out reviewed book: ${item.book.name} (hash: $hash)');
+            debugPrint('  ✓ Filtering out reviewed book: ${item.book.name} (hash: $hash)');
           }
         }
-        return !isReviewed;
+        if (isIgnored) {
+          ignoredCount++;
+          if (ignoredCount <= 5) {
+            debugPrint('  🚫 Filtering out ignored book: ${item.book.name} (hash: $hash)');
+          }
+        }
+        return !isReviewed && !isIgnored;
       }).toList();
       
       if (reviewedCount > 5) {
         debugPrint('  ... and ${reviewedCount - 5} more reviewed books');
       }
+      if (ignoredCount > 5) {
+        debugPrint('  ... and ${ignoredCount - 5} more ignored books');
+      }
       
       debugPrint('=== IMPORT SUMMARY ===');
       debugPrint('Total items parsed: ${items.length}');
       debugPrint('Unreviewed items: ${unreviewedItems.length}');
-      debugPrint('Already reviewed: ${items.length - unreviewedItems.length}');
+      debugPrint('Already reviewed: $reviewedCount');
+      debugPrint('Already ignored: $ignoredCount');
       debugPrint('====================');
 
       setState(() {
@@ -1076,6 +1143,32 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                             ),
                             const SizedBox(width: 16),
                             Expanded(
+                              child: OutlinedButton(
+                                onPressed:
+                                    _currentIndex < _importItems.length - 1
+                                        ? () async {
+                                          // Mark current book as ignored, don't import, and move to next
+                                          final currentItem = _importItems[_currentIndex];
+                                          final currentHash = _generateBookHash(currentItem);
+                                          debugPrint('🚫 Ignoring book: ${currentItem.book.name} (hash: $currentHash)');
+                                          await _markBookAsIgnored(currentHash);
+                                          
+                                          setState(() {
+                                            // Mark as not to import
+                                            _importItems[_currentIndex] = _importItems[_currentIndex].copyWith(shouldImport: false);
+                                            _currentIndex++;
+                                          });
+                                          await _saveCheckpoint();
+                                        }
+                                        : null,
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.orange,
+                                ),
+                                child: const Text('Ignore'),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
                               child: ElevatedButton(
                                 onPressed:
                                     _currentIndex < _importItems.length - 1
@@ -1112,6 +1205,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         book1.asin == book2.asin &&
         book1.saga == book2.saga &&
         book1.nSaga == book2.nSaga &&
+        book1.sagaUniverse == book2.sagaUniverse &&
         book1.formatSagaValue == book2.formatSagaValue &&
         book1.pages == book2.pages &&
         book1.originalPublicationYear == book2.originalPublicationYear &&
@@ -1209,6 +1303,12 @@ class _BookImportPreview extends StatelessWidget {
         return book.saga != null && book.saga!.isNotEmpty;
       case 'nSaga':
         return book.nSaga != null && book.nSaga!.isNotEmpty;
+      case 'sagaUniverse':
+        return book.sagaUniverse != null && book.sagaUniverse!.isNotEmpty;
+      case 'formatSaga':
+        return book.formatSagaValue != null && book.formatSagaValue!.isNotEmpty;
+      case 'loaned':
+        return book.loaned != null && book.loaned!.isNotEmpty;
       case 'pages':
         return book.pages != null;
       case 'year':
@@ -1254,6 +1354,7 @@ class _BookImportPreview extends StatelessWidget {
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
+          sagaUniverse: book.sagaUniverse,
           formatSagaValue: book.formatSagaValue,
           pages: book.pages,
           originalPublicationYear: book.originalPublicationYear,
@@ -1281,6 +1382,7 @@ class _BookImportPreview extends StatelessWidget {
           author: trimmedValue.isEmpty ? null : trimmedValue,
           saga: book.saga,
           nSaga: book.nSaga,
+          sagaUniverse: book.sagaUniverse,
           formatSagaValue: book.formatSagaValue,
           pages: book.pages,
           originalPublicationYear: book.originalPublicationYear,
@@ -1308,6 +1410,7 @@ class _BookImportPreview extends StatelessWidget {
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
+          sagaUniverse: book.sagaUniverse,
           formatSagaValue: book.formatSagaValue,
           pages: book.pages,
           originalPublicationYear: book.originalPublicationYear,
@@ -1335,6 +1438,7 @@ class _BookImportPreview extends StatelessWidget {
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
+          sagaUniverse: book.sagaUniverse,
           formatSagaValue: book.formatSagaValue,
           pages: book.pages,
           originalPublicationYear: book.originalPublicationYear,
@@ -1362,6 +1466,7 @@ class _BookImportPreview extends StatelessWidget {
           author: book.author,
           saga: trimmedValue.isEmpty ? null : trimmedValue,
           nSaga: book.nSaga,
+          sagaUniverse: book.sagaUniverse,
           formatSagaValue: book.formatSagaValue,
           pages: book.pages,
           originalPublicationYear: book.originalPublicationYear,
@@ -1389,6 +1494,7 @@ class _BookImportPreview extends StatelessWidget {
           author: book.author,
           saga: book.saga,
           nSaga: trimmedValue.isEmpty ? null : trimmedValue,
+          sagaUniverse: book.sagaUniverse,
           formatSagaValue: book.formatSagaValue,
           pages: book.pages,
           originalPublicationYear: book.originalPublicationYear,
@@ -1416,6 +1522,7 @@ class _BookImportPreview extends StatelessWidget {
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
+          sagaUniverse: book.sagaUniverse,
           formatSagaValue: book.formatSagaValue,
           pages: trimmedValue.isEmpty ? null : int.tryParse(trimmedValue),
           originalPublicationYear: book.originalPublicationYear,
@@ -1443,6 +1550,7 @@ class _BookImportPreview extends StatelessWidget {
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
+          sagaUniverse: book.sagaUniverse,
           formatSagaValue: book.formatSagaValue,
           pages: book.pages,
           originalPublicationYear:
@@ -1471,6 +1579,7 @@ class _BookImportPreview extends StatelessWidget {
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
+          sagaUniverse: book.sagaUniverse,
           formatSagaValue: book.formatSagaValue,
           pages: book.pages,
           originalPublicationYear: book.originalPublicationYear,
@@ -1498,6 +1607,7 @@ class _BookImportPreview extends StatelessWidget {
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
+          sagaUniverse: book.sagaUniverse,
           formatSagaValue: book.formatSagaValue,
           pages: book.pages,
           originalPublicationYear: book.originalPublicationYear,
@@ -1525,6 +1635,7 @@ class _BookImportPreview extends StatelessWidget {
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
+          sagaUniverse: book.sagaUniverse,
           formatSagaValue: book.formatSagaValue,
           pages: book.pages,
           originalPublicationYear: book.originalPublicationYear,
@@ -1552,6 +1663,7 @@ class _BookImportPreview extends StatelessWidget {
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
+          sagaUniverse: book.sagaUniverse,
           formatSagaValue: book.formatSagaValue,
           pages: book.pages,
           originalPublicationYear: book.originalPublicationYear,
@@ -1579,6 +1691,7 @@ class _BookImportPreview extends StatelessWidget {
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
+          sagaUniverse: book.sagaUniverse,
           formatSagaValue: book.formatSagaValue,
           pages: book.pages,
           originalPublicationYear: book.originalPublicationYear,
@@ -1606,6 +1719,7 @@ class _BookImportPreview extends StatelessWidget {
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
+          sagaUniverse: book.sagaUniverse,
           formatSagaValue: book.formatSagaValue,
           pages: book.pages,
           originalPublicationYear: book.originalPublicationYear,
@@ -1633,6 +1747,7 @@ class _BookImportPreview extends StatelessWidget {
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
+          sagaUniverse: book.sagaUniverse,
           formatSagaValue: book.formatSagaValue,
           pages: book.pages,
           originalPublicationYear: book.originalPublicationYear,
@@ -1660,6 +1775,7 @@ class _BookImportPreview extends StatelessWidget {
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
+          sagaUniverse: book.sagaUniverse,
           formatSagaValue: book.formatSagaValue,
           pages: book.pages,
           originalPublicationYear: book.originalPublicationYear,
@@ -1687,6 +1803,7 @@ class _BookImportPreview extends StatelessWidget {
           author: book.author,
           saga: book.saga,
           nSaga: book.nSaga,
+          sagaUniverse: book.sagaUniverse,
           formatSagaValue: book.formatSagaValue,
           pages: book.pages,
           originalPublicationYear: book.originalPublicationYear,
@@ -1902,6 +2019,18 @@ class _BookImportPreview extends StatelessWidget {
         return newBook.nSaga != existingBook.nSaga &&
             newBook.nSaga != null &&
             newBook.nSaga!.isNotEmpty;
+      case 'sagaUniverse':
+        return newBook.sagaUniverse != existingBook.sagaUniverse &&
+            newBook.sagaUniverse != null &&
+            newBook.sagaUniverse!.isNotEmpty;
+      case 'formatSaga':
+        return newBook.formatSagaValue != existingBook.formatSagaValue &&
+            newBook.formatSagaValue != null &&
+            newBook.formatSagaValue!.isNotEmpty;
+      case 'loaned':
+        return newBook.loaned != existingBook.loaned &&
+            newBook.loaned != null &&
+            newBook.loaned!.isNotEmpty;
       case 'pages':
         return newBook.pages != existingBook.pages && newBook.pages != null;
       case 'year':
@@ -1942,8 +2071,7 @@ class _BookImportPreview extends StatelessWidget {
             newBook.dateReadFinal!.isNotEmpty;
       case 'readCount':
         return newBook.readCount != existingBook.readCount &&
-            newBook.readCount != null &&
-            newBook.readCount! > 0;
+            newBook.readCount != null;
       case 'rating':
         return newBook.myRating != existingBook.myRating &&
             newBook.myRating != null &&
@@ -2270,19 +2398,50 @@ class _EditableDetailRowState extends State<_EditableDetailRow> {
                           vertical: 4,
                         ),
                         border: const OutlineInputBorder(),
-                        suffixIcon: IconButton(
-                          icon: const Icon(Icons.check, size: 16),
-                          onPressed: _stopEditing,
-                          padding: EdgeInsets.zero,
+                        suffixIcon: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // X icon to revert to old value (only when there's an old value)
+                            if (widget.oldValue != null &&
+                                widget.oldValue!.isNotEmpty &&
+                                widget.oldValue != widget.value)
+                              IconButton(
+                                icon: const Icon(Icons.close, size: 16),
+                                onPressed: () {
+                                  widget.onChanged(widget.oldValue!);
+                                  _controller.text = widget.oldValue!;
+                                  _stopEditing();
+                                },
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(
+                                  minWidth: 32,
+                                  minHeight: 32,
+                                ),
+                                tooltip: 'Revert to old value',
+                              ),
+                            // Check icon to confirm
+                            IconButton(
+                              icon: const Icon(Icons.check, size: 16),
+                              onPressed: _stopEditing,
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(
+                                minWidth: 32,
+                                minHeight: 32,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       onFieldSubmitted: widget.maxLines == 1 ? (_) => _stopEditing() : null,
                     )
-                    : InkWell(
-                      onTap: _startEditing,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 2),
-                        child: RichText(
+                    : Row(
+                      children: [
+                        Expanded(
+                          child: InkWell(
+                            onTap: _startEditing,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 2),
+                              child: RichText(
                           text: TextSpan(
                             style: const TextStyle(fontSize: 11, height: 1.3),
                             children: [
@@ -2329,6 +2488,9 @@ class _EditableDetailRowState extends State<_EditableDetailRow> {
                           ),
                         ),
                       ),
+                            ),
+                          ),
+                      ],
                     ),
           ),
         ],

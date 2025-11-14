@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
+import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/screens/books_by_year.dart';
 import 'package:myrandomlibrary/screens/books_by_decade.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +19,30 @@ class StatisticsScreen extends StatefulWidget {
 class _StatisticsScreenState extends State<StatisticsScreen> {
   bool _showStatusAsPercentage = false;
   bool _showFormatAsPercentage = true;
+  Map<int, int>? _booksReadPerYear;
+  Map<int, int>? _pagesReadPerYear;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadYearData();
+  }
+
+  Future<void> _loadYearData() async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final repository = BookRepository(db);
+      final yearData = await repository.getBooksAndPagesPerYear();
+      if (mounted) {
+        setState(() {
+          _booksReadPerYear = yearData['books'] as Map<int, int>;
+          _pagesReadPerYear = yearData['pages'] as Map<int, int>;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading year statistics: $e');
+    }
+  }
 
   /// Try to parse date with multiple formats
   DateTime? _tryParseDate(String dateStr) {
@@ -145,90 +171,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             .take(10)
             .toList();
 
-    // Calculate books read per year and pages read per year
-    final Map<int, int> booksReadPerYear = {};
-    final Map<int, int> pagesReadPerYear = {};
-
-    for (var book in books) {
-      // Handle bundle books differently - count each book in the year it was finished
-      if (book.isBundle == true && book.bundleEndDates != null) {
-        try {
-          final List<dynamic> endDates = jsonDecode(book.bundleEndDates!);
-          List<int?>? bundlePages;
-
-          // Try to parse bundle pages if available
-          if (book.bundlePages != null) {
-            try {
-              final List<dynamic> pagesData = jsonDecode(book.bundlePages!);
-              bundlePages = pagesData.map((p) => p as int?).toList();
-            } catch (e) {
-              bundlePages = null;
-            }
-          }
-
-          for (int i = 0; i < endDates.length; i++) {
-            final dateStr = endDates[i];
-            if (dateStr != null) {
-              final date = _tryParseDate(dateStr.toString());
-              if (date != null) {
-                final year = date.year;
-                booksReadPerYear[year] = (booksReadPerYear[year] ?? 0) + 1;
-
-                // Add pages for this specific book in bundle if available
-                if (bundlePages != null &&
-                    i < bundlePages.length &&
-                    bundlePages[i] != null) {
-                  pagesReadPerYear[year] =
-                      (pagesReadPerYear[year] ?? 0) + bundlePages[i]!;
-                } else if (book.pages != null && book.pages! > 0) {
-                  // Fallback to total pages divided by bundle count
-                  final pagesPerBook =
-                      (book.pages! / (book.bundleCount ?? 1)).round();
-                  pagesReadPerYear[year] =
-                      (pagesReadPerYear[year] ?? 0) + pagesPerBook;
-                }
-              }
-            }
-          }
-        } catch (e) {
-          // If bundle dates parsing fails, fall back to regular counting
-          if (book.dateReadFinal != null) {
-            final dateRead = _tryParseDate(book.dateReadFinal!);
-            if (dateRead != null) {
-              final year = dateRead.year;
-              final multiplier = book.bundleCount ?? 1;
-              booksReadPerYear[year] =
-                  (booksReadPerYear[year] ?? 0) + multiplier;
-
-              if (book.pages != null && book.pages! > 0) {
-                pagesReadPerYear[year] =
-                    (pagesReadPerYear[year] ?? 0) + (book.pages! * multiplier);
-              }
-            }
-          }
-        }
-      } else {
-        // Regular books - use dateReadFinal
-        if (book.dateReadFinal != null) {
-          final dateRead = _tryParseDate(book.dateReadFinal!);
-          if (dateRead != null) {
-            final year = dateRead.year;
-            if (year < 1900 || year > 2100) {
-              debugPrint(
-                'WARNING: Extracted suspicious year $year from date "${book.dateReadFinal}" for book "${book.name}"',
-              );
-            }
-            booksReadPerYear[year] = (booksReadPerYear[year] ?? 0) + 1;
-
-            // Add pages if available
-            if (book.pages != null && book.pages! > 0) {
-              pagesReadPerYear[year] =
-                  (pagesReadPerYear[year] ?? 0) + book.pages!;
-            }
-          }
-        }
-      }
-    }
+    // Use cached year data or empty maps
+    final booksReadPerYear = _booksReadPerYear ?? {};
+    final pagesReadPerYear = _pagesReadPerYear ?? {};
 
     // Sort years in descending order
     final sortedBooksReadYears =

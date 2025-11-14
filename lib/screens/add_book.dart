@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/model/book.dart';
+import 'package:myrandomlibrary/model/read_date.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/utils/status_helper.dart';
@@ -11,6 +12,8 @@ import 'package:myrandomlibrary/widgets/autocomplete_text_field.dart';
 import 'package:myrandomlibrary/widgets/chip_autocomplete_field.dart';
 import 'package:myrandomlibrary/widgets/tbr_limit_setting.dart';
 import 'package:myrandomlibrary/widgets/bundle_input_widget.dart';
+import 'package:myrandomlibrary/widgets/read_dates_widget.dart';
+import 'package:myrandomlibrary/widgets/bundle_read_dates_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:myrandomlibrary/widgets/heart_rating_input.dart';
 
@@ -40,16 +43,20 @@ class _AddBookScreenState extends State<AddBookScreen> {
   final _myReviewController = TextEditingController();
   double _myRating = 0.0;
   int _readCount = 0;
-  DateTime? _dateReadInitial;
-  DateTime? _dateReadFinal;
+  
+  // Read dates (new multi-session system)
+  List<ReadDate> _readDates = [];
+  
+  // Bundle read dates (map of bundle book index to list of read dates)
+  Map<int, List<ReadDate>> _bundleReadDates = {};
 
   // Bundle fields
   bool _isBundle = false;
   int? _bundleCount;
   String? _bundleNumbers;
-  List<DateTime?>? _bundleStartDates;
-  List<DateTime?>? _bundleEndDates;
   List<int?>? _bundlePages;
+  List<int?>? _bundlePublicationYears;
+  List<String?>? _bundleTitles;
 
   // TBR and Tandem fields
   bool _tbr = false;
@@ -57,6 +64,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
   // Dropdown values
   int? _selectedStatusId;
+  String? _selectedStatusValue;
+  int? _selectedOriginalBookId; // For repeated books
   int? _selectedFormatSagaId;
   int? _selectedLanguageId;
   int? _selectedPlaceId;
@@ -389,8 +398,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
         formatSagaValue: formatSagaValue,
         createdAt: DateTime.now().toIso8601String(),
         genre: _selectedGenres.isEmpty ? null : _selectedGenres.join(', '),
-        dateReadInitial: _dateReadInitial?.toIso8601String(),
-        dateReadFinal: _dateReadFinal?.toIso8601String(),
+        dateReadInitial: null,
+        dateReadFinal: null,
         readCount: _readCount,
         myRating: _myRating > 0 ? _myRating : null,
         myReview:
@@ -400,24 +409,41 @@ class _AddBookScreenState extends State<AddBookScreen> {
         isBundle: _isBundle,
         bundleCount: _bundleCount,
         bundleNumbers: _bundleNumbers,
-        bundleStartDates:
-            _bundleStartDates != null
-                ? jsonEncode(
-                  _bundleStartDates!.map((d) => d?.toIso8601String()).toList(),
-                )
-                : null,
-        bundleEndDates:
-            _bundleEndDates != null
-                ? jsonEncode(
-                  _bundleEndDates!.map((d) => d?.toIso8601String()).toList(),
-                )
-                : null,
+        bundleStartDates: null,
+        bundleEndDates: null,
         bundlePages: _bundlePages != null ? jsonEncode(_bundlePages!) : null,
+        bundlePublicationYears: _bundlePublicationYears != null ? jsonEncode(_bundlePublicationYears!) : null,
+        bundleTitles: _bundleTitles != null ? jsonEncode(_bundleTitles!) : null,
         tbr: _tbr,
         isTandem: _isTandem,
+        originalBookId: _selectedOriginalBookId,
       );
 
-      await repository.addBook(book);
+      final bookId = await repository.addBook(book);
+
+      // Save read dates to the new table
+      if (_isBundle) {
+        // Save bundle read dates
+        for (var entry in _bundleReadDates.entries) {
+          for (var readDate in entry.value) {
+            await repository.addReadDate(ReadDate(
+              bookId: bookId,
+              dateStarted: readDate.dateStarted,
+              dateFinished: readDate.dateFinished,
+              bundleBookIndex: entry.key,
+            ));
+          }
+        }
+      } else {
+        // Save regular read dates
+        for (final readDate in _readDates) {
+          await repository.addReadDate(ReadDate(
+            bookId: bookId,
+            dateStarted: readDate.dateStarted,
+            dateFinished: readDate.dateFinished,
+          ));
+        }
+      }
 
       // Reload books in provider
       if (mounted) {
@@ -441,22 +467,20 @@ class _AddBookScreenState extends State<AddBookScreen> {
         setState(() {
           _myRating = 0.0;
           _readCount = 0;
-          _dateReadInitial = null;
-          _dateReadFinal = null;
+          _readDates = [];
+          _bundleReadDates = {};
           _selectedStatusId = null;
           _selectedFormatSagaId = null;
           _selectedLanguageId = null;
           _selectedPlaceId = null;
           _selectedFormatId = null;
           _selectedLoaned = null;
-          _dateReadInitial = null;
-          _dateReadFinal = null;
           _isBundle = false;
           _bundleCount = null;
           _bundleNumbers = null;
-          _bundleStartDates = null;
-          _bundleEndDates = null;
           _bundlePages = null;
+          _bundlePublicationYears = null;
+          _bundleTitles = null;
         });
 
         // Show success dialog
@@ -471,6 +495,19 @@ class _AddBookScreenState extends State<AddBookScreen> {
           ),
         );
       }
+    }
+  }
+
+  Future<List<Book>> _loadAllBooksForSelection() async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final repository = BookRepository(db);
+      final books = await repository.getAllBooks();
+      // Filter out books with status "Repeated" to avoid circular references
+      return books.where((b) => b.statusValue != 'Repeated').toList();
+    } catch (e) {
+      debugPrint('Error loading books for selection: $e');
+      return [];
     }
   }
 
@@ -509,6 +546,120 @@ class _AddBookScreenState extends State<AddBookScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Status dropdown (required) - MOVED TO TOP
+              DropdownButtonFormField<int>(
+                value: _selectedStatusId,
+                decoration: const InputDecoration(
+                  labelText: 'Reading Status *',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.check_circle),
+                ),
+                items:
+                    _statusList.map((status) {
+                      return DropdownMenuItem<int>(
+                        value: status['status_id'] as int,
+                        child: Text(
+                          StatusHelper.getDisplayLabel(
+                            status['value'] as String,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedStatusId = value;
+                    // Find the status value
+                    final status = _statusList.firstWhere(
+                      (s) => s['status_id'] == value,
+                      orElse: () => {},
+                    );
+                    _selectedStatusValue = status['value'] as String?;
+                    // Clear original book if status is not Repeated
+                    if (_selectedStatusValue != 'Repeated') {
+                      _selectedOriginalBookId = null;
+                    }
+                  });
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Status is required';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              
+              // Original Book Selection (shown only for Repeated status)
+              if (_selectedStatusValue == 'Repeated')
+                FutureBuilder<List<Book>>(
+                  future: _loadAllBooksForSelection(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const SizedBox(
+                        height: 50,
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+                    
+                    final books = snapshot.data!;
+                    Book? selectedBook;
+                    if (_selectedOriginalBookId != null) {
+                      try {
+                        selectedBook = books.firstWhere(
+                          (b) => b.bookId == _selectedOriginalBookId,
+                        );
+                      } catch (e) {
+                        selectedBook = null;
+                      }
+                    }
+                    
+                    return Autocomplete<Book>(
+                      initialValue: _selectedOriginalBookId != null && selectedBook != null
+                          ? TextEditingValue(
+                              text: '${selectedBook.name}${selectedBook.author != null ? " - ${selectedBook.author}" : ""}',
+                            )
+                          : const TextEditingValue(),
+                      optionsBuilder: (TextEditingValue textEditingValue) {
+                        if (textEditingValue.text.isEmpty) {
+                          return books;
+                        }
+                        return books.where((book) {
+                          final searchText = textEditingValue.text.toLowerCase();
+                          final bookText = '${book.name} ${book.author ?? ""}'.toLowerCase();
+                          return bookText.contains(searchText);
+                        });
+                      },
+                      displayStringForOption: (Book book) =>
+                          '${book.name}${book.author != null ? " - ${book.author}" : ""}',
+                      onSelected: (Book book) {
+                        setState(() {
+                          _selectedOriginalBookId = book.bookId;
+                        });
+                      },
+                      fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                        return TextFormField(
+                          controller: controller,
+                          focusNode: focusNode,
+                          decoration: const InputDecoration(
+                            labelText: 'Original Book *',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.book),
+                            hintText: 'Search for the original book...',
+                          ),
+                          validator: (value) {
+                            if (_selectedStatusValue == 'Repeated' && _selectedOriginalBookId == null) {
+                              return 'Original book is required';
+                            }
+                            return null;
+                          },
+                        );
+                      },
+                    );
+                  },
+                ),
+              if (_selectedStatusValue == 'Repeated')
+                const SizedBox(height: 16),
+              
               // Name field
               TextFormField(
                 controller: _nameController,
@@ -696,39 +847,6 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   ],
                 ),
 
-              // Status dropdown (required)
-              DropdownButtonFormField<int>(
-                value: _selectedStatusId,
-                decoration: const InputDecoration(
-                  labelText: 'Reading Status *',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.check_circle),
-                ),
-                items:
-                    _statusList.map((status) {
-                      return DropdownMenuItem<int>(
-                        value: status['status_id'] as int,
-                        child: Text(
-                          StatusHelper.getDisplayLabel(
-                            status['value'] as String,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedStatusId = value;
-                  });
-                },
-                validator: (value) {
-                  if (value == null) {
-                    return 'Status is required';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
               // Format Saga dropdown
               DropdownButtonFormField<int>(
                 value: _selectedFormatSagaId,
@@ -846,28 +964,44 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 initialIsBundle: _isBundle,
                 initialBundleCount: _bundleCount,
                 initialBundleNumbers: _bundleNumbers,
-                initialStartDates: _bundleStartDates,
-                initialEndDates: _bundleEndDates,
                 initialBundlePages: _bundlePages,
+                initialBundlePublicationYears: _bundlePublicationYears,
+                initialBundleTitles: _bundleTitles,
                 onChanged: (
                   isBundle,
                   count,
                   numbers,
-                  startDates,
-                  endDates,
                   bundlePages,
+                  bundlePublicationYears,
+                  bundleTitles,
                 ) {
                   setState(() {
                     _isBundle = isBundle;
                     _bundleCount = count;
                     _bundleNumbers = numbers;
-                    _bundleStartDates = startDates;
-                    _bundleEndDates = endDates;
                     _bundlePages = bundlePages;
+                    _bundlePublicationYears = bundlePublicationYears;
+                    _bundleTitles = bundleTitles;
                   });
                 },
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 16),
+              
+              // Bundle Read Dates (shown only for bundles)
+              if (_isBundle && _bundleCount != null && _bundleCount! > 0)
+                BundleReadDatesWidget(
+                  bookId: 0, // Temporary ID for new books
+                  bundleCount: _bundleCount!,
+                  initialBundleReadDates: _bundleReadDates,
+                  onChanged: (bundleReadDates) {
+                    setState(() {
+                      _bundleReadDates = bundleReadDates;
+                    });
+                  },
+                ),
+              if (_isBundle && _bundleCount != null && _bundleCount! > 0)
+                const SizedBox(height: 16),
+              const SizedBox(height: 16),
 
               // TBR and Tandem section
               Card(
@@ -1045,73 +1179,20 @@ class _AddBookScreenState extends State<AddBookScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Date Started Reading
-              InkWell(
-                onTap: () async {
-                  final date = await showDatePicker(
-                    context: context,
-                    initialDate: _dateReadInitial ?? DateTime.now(),
-                    firstDate: DateTime(1900),
-                    lastDate: DateTime.now(),
-                  );
-                  if (date != null) {
+              // Reading Sessions (hidden for bundles)
+              if (!_isBundle)
+                ReadDatesWidget(
+                  bookId: 0, // Temporary ID for new books
+                  initialReadDates: _readDates,
+                  onChanged: (readDates) {
                     setState(() {
-                      _dateReadInitial = date;
+                      _readDates = readDates;
+                      // Update read count based on finished sessions
+                      _readCount = readDates.where((rd) => rd.dateFinished != null && rd.dateFinished!.isNotEmpty).length;
                     });
-                  }
-                },
-                child: InputDecorator(
-                  decoration: const InputDecoration(
-                    labelText: 'Date Started Reading',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.event),
-                  ),
-                  child: Text(
-                    _dateReadInitial != null
-                        ? '${_dateReadInitial!.year}-${_dateReadInitial!.month.toString().padLeft(2, '0')}-${_dateReadInitial!.day.toString().padLeft(2, '0')}'
-                        : 'Select date',
-                    style: TextStyle(
-                      color: _dateReadInitial != null ? null : Colors.grey[600],
-                    ),
-                  ),
+                  },
                 ),
-              ),
-              const SizedBox(height: 16),
-
-              // Date Finished Reading
-              InkWell(
-                onTap: () async {
-                  final date = await showDatePicker(
-                    context: context,
-                    initialDate: _dateReadFinal ?? DateTime.now(),
-                    firstDate: DateTime(1900),
-                    lastDate: DateTime.now(),
-                  );
-                  if (date != null) {
-                    setState(() {
-                      _dateReadFinal = date;
-                      // Auto-increment read count when finishing a book
-                      _readCount++;
-                    });
-                  }
-                },
-                child: InputDecorator(
-                  decoration: const InputDecoration(
-                    labelText: 'Date Finished Reading',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.event_available),
-                  ),
-                  child: Text(
-                    _dateReadFinal != null
-                        ? '${_dateReadFinal!.year}-${_dateReadFinal!.month.toString().padLeft(2, '0')}-${_dateReadFinal!.day.toString().padLeft(2, '0')}'
-                        : 'Select date',
-                    style: TextStyle(
-                      color: _dateReadFinal != null ? null : Colors.grey[600],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
+              if (!_isBundle) const SizedBox(height: 16),
 
               // My Review field
               TextFormField(

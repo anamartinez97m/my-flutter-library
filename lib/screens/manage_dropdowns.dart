@@ -22,6 +22,10 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     'language': 'Language',
     'place': 'Place',
     'format': 'Format',
+    'author': 'Authors',
+    'genre': 'Genres',
+    'editorial': 'Editorials',
+    'saga_universe': 'Saga Universe',
   };
 
   // Core status values that cannot be deleted (case-insensitive)
@@ -263,11 +267,36 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       
       // Check if value is in use
       final idColumn = _selectedTable == 'format_saga' ? 'format_id' : '${_selectedTable}_id';
-      final booksUsingValue = await db.rawQuery(
-        'SELECT COUNT(*) as count FROM book WHERE $idColumn = ?',
-        [id],
-      );
-      final usageCount = booksUsingValue.first['count'] as int;
+      int usageCount;
+      
+      // For author and genre, check junction tables
+      if (_selectedTable == 'author') {
+        final booksUsingValue = await db.rawQuery(
+          'SELECT COUNT(*) as count FROM books_by_author WHERE author_id = ?',
+          [id],
+        );
+        usageCount = booksUsingValue.first['count'] as int;
+      } else if (_selectedTable == 'genre') {
+        final booksUsingValue = await db.rawQuery(
+          'SELECT COUNT(*) as count FROM books_by_genre WHERE genre_id = ?',
+          [id],
+        );
+        usageCount = booksUsingValue.first['count'] as int;
+      } else if (_selectedTable == 'saga_universe') {
+        // saga_universe is a text field in book table
+        final booksUsingValue = await db.rawQuery(
+          'SELECT COUNT(*) as count FROM book WHERE saga_universe = ?',
+          [value],
+        );
+        usageCount = booksUsingValue.first['count'] as int;
+      } else {
+        // For other tables (status, format, language, place, editorial, format_saga)
+        final booksUsingValue = await db.rawQuery(
+          'SELECT COUNT(*) as count FROM book WHERE $idColumn = ?',
+          [id],
+        );
+        usageCount = booksUsingValue.first['count'] as int;
+      }
       
       if (usageCount > 0) {
         // Value is in use, show options dialog
@@ -286,23 +315,60 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         
         if (action == 'delete') {
           // Delete completely (will fail if FK constraint)
+          if (_selectedTable == 'author') {
+            // Delete from junction table first
+            await db.delete('books_by_author', where: 'author_id = ?', whereArgs: [id]);
+          } else if (_selectedTable == 'genre') {
+            // Delete from junction table first
+            await db.delete('books_by_genre', where: 'genre_id = ?', whereArgs: [id]);
+          }
           await repository.deleteLookupValue(_selectedTable, id);
         } else if (action.startsWith('replace:')) {
           // Replace with another value
           final newId = int.parse(action.split(':')[1]);
-          await db.rawUpdate(
-            'UPDATE book SET $idColumn = ? WHERE $idColumn = ?',
-            [newId, id],
-          );
+          if (_selectedTable == 'author') {
+            // Update junction table
+            await db.rawUpdate(
+              'UPDATE books_by_author SET author_id = ? WHERE author_id = ?',
+              [newId, id],
+            );
+          } else if (_selectedTable == 'genre') {
+            // Update junction table
+            await db.rawUpdate(
+              'UPDATE books_by_genre SET genre_id = ? WHERE genre_id = ?',
+              [newId, id],
+            );
+          } else {
+            // Update book table directly
+            await db.rawUpdate(
+              'UPDATE book SET $idColumn = ? WHERE $idColumn = ?',
+              [newId, id],
+            );
+          }
           await repository.deleteLookupValue(_selectedTable, id);
         } else if (action.startsWith('create:')) {
           // Create new value and replace
           final newValue = action.split(':')[1];
           final newId = await repository.addLookupValue(_selectedTable, newValue);
-          await db.rawUpdate(
-            'UPDATE book SET $idColumn = ? WHERE $idColumn = ?',
-            [newId, id],
-          );
+          if (_selectedTable == 'author') {
+            // Update junction table
+            await db.rawUpdate(
+              'UPDATE books_by_author SET author_id = ? WHERE author_id = ?',
+              [newId, id],
+            );
+          } else if (_selectedTable == 'genre') {
+            // Update junction table
+            await db.rawUpdate(
+              'UPDATE books_by_genre SET genre_id = ? WHERE genre_id = ?',
+              [newId, id],
+            );
+          } else {
+            // Update book table directly
+            await db.rawUpdate(
+              'UPDATE book SET $idColumn = ? WHERE $idColumn = ?',
+              [newId, id],
+            );
+          }
           await repository.deleteLookupValue(_selectedTable, id);
         }
       } else {
@@ -429,27 +495,29 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                     ),
                     child: ListTile(
                       title: Text(value),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.blue),
-                            onPressed: () => _editValue(id, value),
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.delete,
-                              color: _isCoreStatusValue(value) ? Colors.grey : Colors.red,
+                      trailing: _selectedTable == 'saga_universe'
+                          ? null
+                          : Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit, color: Colors.blue),
+                                  onPressed: () => _editValue(id, value),
+                                ),
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.delete,
+                                    color: _isCoreStatusValue(value) ? Colors.grey : Colors.red,
+                                  ),
+                                  onPressed: _isCoreStatusValue(value) 
+                                      ? null 
+                                      : () => _deleteValue(id, value),
+                                  tooltip: _isCoreStatusValue(value)
+                                      ? 'Core status cannot be deleted'
+                                      : 'Delete',
+                                ),
+                              ],
                             ),
-                            onPressed: _isCoreStatusValue(value) 
-                                ? null 
-                                : () => _deleteValue(id, value),
-                            tooltip: _isCoreStatusValue(value)
-                                ? 'Core status cannot be deleted'
-                                : 'Delete',
-                          ),
-                        ],
-                      ),
                     ),
                   );
                 },
@@ -457,12 +525,14 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
             ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _addValue,
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: _selectedTable == 'saga_universe'
+          ? null
+          : FloatingActionButton(
+              onPressed: _addValue,
+              backgroundColor: Colors.deepPurple,
+              foregroundColor: Colors.white,
+              child: const Icon(Icons.add),
+            ),
     );
   }
 }

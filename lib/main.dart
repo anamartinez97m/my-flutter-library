@@ -24,7 +24,16 @@ void main() async {
   } catch (e, stack) {
     debugPrint('❌ Error al crear BookProvider: $e');
     debugPrint('$stack');
-    runApp(const MyApp());
+    // Even in error case, provide ThemeProvider and LocaleProvider
+    runApp(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => ThemeProvider()),
+          ChangeNotifierProvider(create: (_) => LocaleProvider()),
+        ],
+        child: const MyApp(),
+      ),
+    );
   }
 }
 

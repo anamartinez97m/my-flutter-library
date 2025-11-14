@@ -5,19 +5,19 @@ class BundleInputWidget extends StatefulWidget {
   final bool initialIsBundle;
   final int? initialBundleCount;
   final String? initialBundleNumbers;
-  final List<DateTime?>? initialStartDates;
-  final List<DateTime?>? initialEndDates;
   final List<int?>? initialBundlePages;
-  final Function(bool isBundle, int? count, String? numbers, List<DateTime?>? startDates, List<DateTime?>? endDates, List<int?>? bundlePages) onChanged;
+  final List<int?>? initialBundlePublicationYears;
+  final List<String?>? initialBundleTitles;
+  final Function(bool isBundle, int? count, String? numbers, List<int?>? bundlePages, List<int?>? bundlePublicationYears, List<String?>? bundleTitles) onChanged;
 
   const BundleInputWidget({
     super.key,
     required this.initialIsBundle,
     this.initialBundleCount,
     this.initialBundleNumbers,
-    this.initialStartDates,
-    this.initialEndDates,
     this.initialBundlePages,
+    this.initialBundlePublicationYears,
+    this.initialBundleTitles,
     required this.onChanged,
   });
 
@@ -29,9 +29,9 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
   late bool _isBundle;
   late TextEditingController _bundleCountController;
   late TextEditingController _bundleNumbersController;
-  List<DateTime?> _startDates = [];
-  List<DateTime?> _endDates = [];
   List<int?> _bundlePages = [];
+  List<int?> _bundlePublicationYears = [];
+  List<String?> _bundleTitles = [];
 
   @override
   void initState() {
@@ -44,14 +44,14 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
       text: widget.initialBundleNumbers ?? '',
     );
     
-    if (widget.initialStartDates != null) {
-      _startDates = List.from(widget.initialStartDates!);
-    }
-    if (widget.initialEndDates != null) {
-      _endDates = List.from(widget.initialEndDates!);
-    }
     if (widget.initialBundlePages != null) {
       _bundlePages = List.from(widget.initialBundlePages!);
+    }
+    if (widget.initialBundlePublicationYears != null) {
+      _bundlePublicationYears = List.from(widget.initialBundlePublicationYears!);
+    }
+    if (widget.initialBundleTitles != null) {
+      _bundleTitles = List.from(widget.initialBundleTitles!);
     }
     
     _bundleCountController.addListener(_onCountChanged);
@@ -69,23 +69,23 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
     if (count != null && count > 0) {
       setState(() {
         // Adjust lists to match count
-        while (_startDates.length < count) {
-          _startDates.add(null);
-        }
-        while (_endDates.length < count) {
-          _endDates.add(null);
-        }
-        if (_startDates.length > count) {
-          _startDates = _startDates.sublist(0, count);
-        }
-        if (_endDates.length > count) {
-          _endDates = _endDates.sublist(0, count);
-        }
         while (_bundlePages.length < count) {
           _bundlePages.add(null);
         }
         if (_bundlePages.length > count) {
           _bundlePages = _bundlePages.sublist(0, count);
+        }
+        while (_bundlePublicationYears.length < count) {
+          _bundlePublicationYears.add(null);
+        }
+        if (_bundlePublicationYears.length > count) {
+          _bundlePublicationYears = _bundlePublicationYears.sublist(0, count);
+        }
+        while (_bundleTitles.length < count) {
+          _bundleTitles.add(null);
+        }
+        if (_bundleTitles.length > count) {
+          _bundleTitles = _bundleTitles.sublist(0, count);
         }
       });
     }
@@ -98,9 +98,9 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
       _isBundle,
       count,
       _bundleNumbersController.text.trim().isEmpty ? null : _bundleNumbersController.text.trim(),
-      _startDates.isEmpty ? null : _startDates,
-      _endDates.isEmpty ? null : _endDates,
       _bundlePages.isEmpty ? null : _bundlePages,
+      _bundlePublicationYears.isEmpty ? null : _bundlePublicationYears,
+      _bundleTitles.isEmpty ? null : _bundleTitles,
     );
   }
 
@@ -146,15 +146,15 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
             onChanged: (_) => _notifyChange(),
           ),
           const SizedBox(height: 16),
-          if (_startDates.isNotEmpty) ...[
+          if (_bundlePages.isNotEmpty) ...[
             Text(
-              'Reading Dates for Each Book',
+              'Bundle Book Details',
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 8),
-            ...List.generate(_startDates.length, (index) {
+            ...List.generate(_bundlePages.length, (index) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: Card(
@@ -170,100 +170,26 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: InkWell(
-                                onTap: () async {
-                                  final date = await showDatePicker(
-                                    context: context,
-                                    initialDate: _startDates[index] ?? DateTime.now(),
-                                    firstDate: DateTime(1900),
-                                    lastDate: DateTime.now(),
-                                  );
-                                  if (date != null) {
-                                    setState(() {
-                                      _startDates[index] = date;
-                                    });
-                                    _notifyChange();
-                                  }
-                                },
-                                child: InputDecorator(
-                                  decoration: InputDecoration(
-                                    labelText: 'Start Date',
-                                    border: const OutlineInputBorder(),
-                                    isDense: true,
-                                    suffixIcon: _startDates[index] != null
-                                        ? IconButton(
-                                            icon: const Icon(Icons.clear, size: 18),
-                                            onPressed: () {
-                                              setState(() {
-                                                _startDates[index] = null;
-                                              });
-                                              _notifyChange();
-                                            },
-                                          )
-                                        : null,
-                                  ),
-                                  child: Text(
-                                    _startDates[index] != null
-                                        ? '${_startDates[index]!.year}-${_startDates[index]!.month.toString().padLeft(2, '0')}-${_startDates[index]!.day.toString().padLeft(2, '0')}'
-                                        : 'Select date',
-                                    style: TextStyle(
-                                      color: _startDates[index] != null ? null : Colors.grey[600],
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: InkWell(
-                                onTap: () async {
-                                  final date = await showDatePicker(
-                                    context: context,
-                                    initialDate: _endDates[index] ?? DateTime.now(),
-                                    firstDate: DateTime(1900),
-                                    lastDate: DateTime.now(),
-                                  );
-                                  if (date != null) {
-                                    setState(() {
-                                      _endDates[index] = date;
-                                    });
-                                    _notifyChange();
-                                  }
-                                },
-                                child: InputDecorator(
-                                  decoration: InputDecoration(
-                                    labelText: 'End Date',
-                                    border: const OutlineInputBorder(),
-                                    isDense: true,
-                                    suffixIcon: _endDates[index] != null
-                                        ? IconButton(
-                                            icon: const Icon(Icons.clear, size: 18),
-                                            onPressed: () {
-                                              setState(() {
-                                                _endDates[index] = null;
-                                              });
-                                              _notifyChange();
-                                            },
-                                          )
-                                        : null,
-                                  ),
-                                  child: Text(
-                                    _endDates[index] != null
-                                        ? '${_endDates[index]!.year}-${_endDates[index]!.month.toString().padLeft(2, '0')}-${_endDates[index]!.day.toString().padLeft(2, '0')}'
-                                        : 'Select date',
-                                    style: TextStyle(
-                                      color: _endDates[index] != null ? null : Colors.grey[600],
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                        // Book Title input
+                        TextFormField(
+                          initialValue: (index < _bundleTitles.length && _bundleTitles[index] != null) 
+                              ? _bundleTitles[index] 
+                              : '',
+                          decoration: const InputDecoration(
+                            labelText: 'Book Title',
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                            hintText: 'Enter book title',
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              while (_bundleTitles.length <= index) {
+                                _bundleTitles.add(null);
+                              }
+                              _bundleTitles[index] = value.isEmpty ? null : value;
+                            });
+                            _notifyChange();
+                          },
                         ),
                         const SizedBox(height: 8),
                         // Pages input
@@ -285,6 +211,30 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
                                 _bundlePages.add(null);
                               }
                               _bundlePages[index] = int.tryParse(value);
+                            });
+                            _notifyChange();
+                          },
+                        ),
+                        const SizedBox(height: 8),
+                        // Original Publication Year input
+                        TextFormField(
+                          initialValue: (index < _bundlePublicationYears.length && _bundlePublicationYears[index] != null) 
+                              ? _bundlePublicationYears[index].toString() 
+                              : '',
+                          decoration: const InputDecoration(
+                            labelText: 'Original Publication Year',
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                            hintText: 'e.g., 2020',
+                          ),
+                          keyboardType: TextInputType.number,
+                          onChanged: (value) {
+                            setState(() {
+                              // Ensure the list is large enough
+                              while (_bundlePublicationYears.length <= index) {
+                                _bundlePublicationYears.add(null);
+                              }
+                              _bundlePublicationYears[index] = int.tryParse(value);
                             });
                             _notifyChange();
                           },
