@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:myrandomlibrary/model/book.dart';
+import 'package:myrandomlibrary/model/read_date.dart';
 import 'package:sqflite/sqflite.dart';
 
 class BookRepository {
@@ -38,8 +39,8 @@ class BookRepository {
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count, b.my_rating, b.my_review,
-        b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages,
-        b.tbr, b.is_tandem,
+        b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles,
+        b.tbr, b.is_tandem, b.original_book_id,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -52,7 +53,7 @@ class BookRepository {
       left join language l on b.language_id = l.language_id 
       left join place p on b.place_id = p.place_id  
       left join format f on b.format_id = f.format_id
-      left join format_saga fs on b.format_saga = fs.format_id
+      left join format_saga fs on b.format_saga_id = fs.format_id
       where $whereClause
       group by b.book_id
       order by b.name
@@ -71,8 +72,8 @@ class BookRepository {
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count, b.my_rating, b.my_review,
-        b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages,
-        b.tbr, b.is_tandem,
+        b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles,
+        b.tbr, b.is_tandem, b.original_book_id,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -151,8 +152,8 @@ class BookRepository {
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count, b.my_rating, b.my_review,
-        b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages,
-        b.tbr, b.is_tandem,
+        b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles,
+        b.tbr, b.is_tandem, b.original_book_id,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -199,8 +200,8 @@ class BookRepository {
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count, b.my_rating, b.my_review,
-        b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages,
-        b.tbr, b.is_tandem,
+        b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles,
+        b.tbr, b.is_tandem, b.original_book_id,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -343,6 +344,23 @@ class BookRepository {
 
   /// Get all values from a lookup table
   Future<List<Map<String, dynamic>>> getLookupValues(String tableName) async {
+    // Special handling for saga_universe which is stored in book table
+    if (tableName == 'saga_universe') {
+      final result = await db.rawQuery('''
+        SELECT DISTINCT saga_universe as name
+        FROM book
+        WHERE saga_universe IS NOT NULL AND saga_universe != ''
+        ORDER BY saga_universe
+      ''');
+      // Add a fake ID for compatibility with the UI
+      return result.asMap().entries.map((entry) {
+        return {
+          'saga_universe_id': entry.key + 1,
+          'name': entry.value['name'],
+        };
+      }).toList();
+    }
+    
     // format_saga table uses 'format_id' not 'format_saga_id'
     final idColumn =
         tableName == 'format_saga' ? 'format_id' : '${tableName}_id';
@@ -418,6 +436,13 @@ class BookRepository {
     );
     await db.delete(
       'books_by_genre',
+      where: 'book_id = ?',
+      whereArgs: [bookId],
+    );
+    
+    // Delete read dates (CASCADE should handle this, but being explicit)
+    await db.delete(
+      'book_read_dates',
       where: 'book_id = ?',
       whereArgs: [bookId],
     );
@@ -669,7 +694,7 @@ class BookRepository {
     );
 
     // Insert into book table with resolved IDs
-    final bookId = await db.insert('book', {
+    final bookData = {
       'name': book.name ?? 'unknown',
       'isbn': book.isbn,
       'asin': book.asin,
@@ -697,9 +722,19 @@ class BookRepository {
       'bundle_start_dates': book.bundleStartDates,
       'bundle_end_dates': book.bundleEndDates,
       'bundle_pages': book.bundlePages,
+      'bundle_publication_years': book.bundlePublicationYears,
+      'bundle_titles': book.bundleTitles,
       'tbr': book.tbr == true ? 1 : 0,
       'is_tandem': book.isTandem == true ? 1 : 0,
-    }, conflictAlgorithm: ConflictAlgorithm.replace);
+      'original_book_id': book.originalBookId,
+    };
+    
+    // If book has an ID, preserve it (for updates)
+    if (book.bookId != null) {
+      bookData['book_id'] = book.bookId;
+    }
+    
+    final bookId = await db.insert('book', bookData, conflictAlgorithm: ConflictAlgorithm.replace);
 
     // Link authors (many-to-many relationship)
     await _linkAuthors(bookId, book.author);
@@ -708,5 +743,245 @@ class BookRepository {
     await _linkGenres(bookId, book.genre);
 
     return bookId;
+  }
+
+  // ==================== Read Dates Methods ====================
+
+  /// Get all read dates for a specific book
+  /// If bundleBookIndex is provided, only returns dates for that bundle book
+  Future<List<ReadDate>> getReadDatesForBook(int bookId, {int? bundleBookIndex}) async {
+    String whereClause = 'book_id = ?';
+    List<dynamic> whereArgs = [bookId];
+    
+    if (bundleBookIndex != null) {
+      whereClause += ' AND bundle_book_index = ?';
+      whereArgs.add(bundleBookIndex);
+    } else {
+      // For regular books, only get dates where bundle_book_index is null
+      whereClause += ' AND bundle_book_index IS NULL';
+    }
+    
+    final result = await db.query(
+      'book_read_dates',
+      where: whereClause,
+      whereArgs: whereArgs,
+      orderBy: 'date_started DESC',
+    );
+    return result.map((row) => ReadDate.fromMap(row)).toList();
+  }
+  
+  /// Get all read dates for all books in a bundle
+  /// Returns a map of bundleBookIndex -> List<ReadDate>
+  Future<Map<int, List<ReadDate>>> getAllBundleReadDates(int bookId) async {
+    final result = await db.query(
+      'book_read_dates',
+      where: 'book_id = ? AND bundle_book_index IS NOT NULL',
+      whereArgs: [bookId],
+      orderBy: 'bundle_book_index, date_started DESC',
+    );
+    
+    final Map<int, List<ReadDate>> bundleDates = {};
+    for (var row in result) {
+      final readDate = ReadDate.fromMap(row);
+      final index = readDate.bundleBookIndex!;
+      if (!bundleDates.containsKey(index)) {
+        bundleDates[index] = [];
+      }
+      bundleDates[index]!.add(readDate);
+    }
+    
+    return bundleDates;
+  }
+
+  /// Add a new read date entry for a book
+  Future<int> addReadDate(ReadDate readDate) async {
+    return await db.insert('book_read_dates', readDate.toMap());
+  }
+
+  /// Update an existing read date entry
+  Future<int> updateReadDate(ReadDate readDate) async {
+    return await db.update(
+      'book_read_dates',
+      readDate.toMap(),
+      where: 'read_date_id = ?',
+      whereArgs: [readDate.readDateId],
+    );
+  }
+
+  /// Delete a read date entry
+  Future<int> deleteReadDate(int readDateId) async {
+    return await db.delete(
+      'book_read_dates',
+      where: 'read_date_id = ?',
+      whereArgs: [readDateId],
+    );
+  }
+
+  /// Delete all read dates for a specific book
+  Future<int> deleteAllReadDatesForBook(int bookId) async {
+    return await db.delete(
+      'book_read_dates',
+      where: 'book_id = ?',
+      whereArgs: [bookId],
+    );
+  }
+
+  /// Get the count of read sessions for a book
+  Future<int> getReadCountForBook(int bookId) async {
+    final result = await db.rawQuery(
+      'SELECT COUNT(*) as count FROM book_read_dates WHERE book_id = ? AND date_finished IS NOT NULL AND date_finished != ""',
+      [bookId],
+    );
+    return result.first['count'] as int;
+  }
+
+  /// Get all years that have books read in them (from book_read_dates table)
+  Future<List<int>> getYearsWithReadBooks() async {
+    final result = await db.rawQuery('''
+      SELECT DISTINCT CAST(substr(date_finished, 1, 4) AS INTEGER) as year
+      FROM book_read_dates
+      WHERE date_finished IS NOT NULL AND date_finished != ""
+      ORDER BY year DESC
+    ''');
+    return result.map((row) => row['year'] as int).toList();
+  }
+
+  /// Get books and pages count per year from book_read_dates table
+  /// Groups by original book (repeated books count as their original)
+  Future<Map<String, Map<int, int>>> getBooksAndPagesPerYear() async {
+    final result = await db.rawQuery('''
+      SELECT 
+        CAST(substr(rd.date_finished, 1, 4) AS INTEGER) as year,
+        COUNT(DISTINCT COALESCE(orig.book_id, b.book_id)) as book_count,
+        SUM(COALESCE(orig.pages, b.pages, 0)) as total_pages
+      FROM book_read_dates rd
+      INNER JOIN book b ON rd.book_id = b.book_id
+      LEFT JOIN status s ON b.status_id = s.status_id
+      LEFT JOIN book orig ON b.original_book_id = orig.book_id AND LOWER(s.value) = 'repeated'
+      WHERE rd.date_finished IS NOT NULL 
+        AND rd.date_finished != ""
+        AND CAST(substr(rd.date_finished, 1, 4) AS INTEGER) >= 1900
+        AND CAST(substr(rd.date_finished, 1, 4) AS INTEGER) <= 2100
+      GROUP BY year
+      ORDER BY year DESC
+    ''');
+    
+    final Map<int, int> booksPerYear = {};
+    final Map<int, int> pagesPerYear = {};
+    
+    for (var row in result) {
+      final year = row['year'] as int;
+      final bookCount = row['book_count'] as int;
+      final totalPages = row['total_pages'] as int;
+      
+      booksPerYear[year] = bookCount;
+      pagesPerYear[year] = totalPages;
+    }
+    
+    return {
+      'books': booksPerYear,
+      'pages': pagesPerYear,
+    };
+  }
+
+  /// Get books read in a specific year (including original books for repeated reads)
+  Future<List<Map<String, dynamic>>> getBooksReadInYear(int year) async {
+    final result = await db.rawQuery('''
+      SELECT DISTINCT 
+        COALESCE(orig.book_id, b.book_id) as book_id,
+        COALESCE(orig_s.value, s.value) as statusValue,
+        COALESCE(orig.name, b.name) as name,
+        COALESCE(orig_e.name, e.name) as editorialValue,
+        COALESCE(orig.saga, b.saga) as saga,
+        COALESCE(orig.n_saga, b.n_saga) as n_saga,
+        COALESCE(orig.saga_universe, b.saga_universe) as saga_universe,
+        COALESCE(orig.isbn, b.isbn) as isbn,
+        COALESCE(orig.asin, b.asin) as asin,
+        COALESCE(orig_l.name, l.name) as languageValue,
+        COALESCE(orig_p.name, p.name) as placeValue,
+        COALESCE(orig_f.value, f.value) as formatValue,
+        COALESCE(orig_fs.value, fs.value) as formatSagaValue,
+        COALESCE(orig.loaned, b.loaned) as loaned,
+        COALESCE(orig.original_publication_year, b.original_publication_year) as original_publication_year,
+        COALESCE(orig.pages, b.pages) as pages,
+        COALESCE(orig.created_at, b.created_at) as created_at,
+        COALESCE(orig.date_read_initial, b.date_read_initial) as date_read_initial,
+        COALESCE(orig.date_read_final, b.date_read_final) as date_read_final,
+        COALESCE(orig.read_count, b.read_count) as read_count,
+        COALESCE(orig.my_rating, b.my_rating) as my_rating,
+        COALESCE(orig.my_review, b.my_review) as my_review,
+        COALESCE(orig.is_bundle, b.is_bundle) as is_bundle,
+        COALESCE(orig.bundle_count, b.bundle_count) as bundle_count,
+        COALESCE(orig.bundle_numbers, b.bundle_numbers) as bundle_numbers,
+        COALESCE(orig.bundle_start_dates, b.bundle_start_dates) as bundle_start_dates,
+        COALESCE(orig.bundle_end_dates, b.bundle_end_dates) as bundle_end_dates,
+        COALESCE(orig.bundle_pages, b.bundle_pages) as bundle_pages,
+        COALESCE(orig.bundle_publication_years, b.bundle_publication_years) as bundle_publication_years,
+        COALESCE(orig.bundle_titles, b.bundle_titles) as bundle_titles,
+        COALESCE(orig.tbr, b.tbr) as tbr,
+        COALESCE(orig.is_tandem, b.is_tandem) as is_tandem,
+        COALESCE(orig.original_book_id, b.original_book_id) as original_book_id,
+        COALESCE(orig_authors.author, authors.author) as author,
+        COALESCE(orig_genres.genre, genres.genre) as genre,
+        MAX(rd.date_finished) as latest_read_date
+      FROM book b
+      INNER JOIN book_read_dates rd ON b.book_id = rd.book_id
+      LEFT JOIN status s ON b.status_id = s.status_id
+      
+      -- If this is a repeated book, join to the original book
+      LEFT JOIN book orig ON b.original_book_id = orig.book_id AND LOWER(s.value) = 'repeated'
+      LEFT JOIN status orig_s ON orig.status_id = orig_s.status_id
+      LEFT JOIN editorial orig_e ON orig.editorial_id = orig_e.editorial_id
+      LEFT JOIN language orig_l ON orig.language_id = orig_l.language_id
+      LEFT JOIN place orig_p ON orig.place_id = orig_p.place_id
+      LEFT JOIN format orig_f ON orig.format_id = orig_f.format_id
+      LEFT JOIN format_saga orig_fs ON orig.format_saga_id = orig_fs.format_id
+      
+      -- Get authors for original book
+      LEFT JOIN (
+        SELECT bba.book_id, GROUP_CONCAT(DISTINCT a.name) as author
+        FROM books_by_author bba
+        LEFT JOIN author a ON bba.author_id = a.author_id
+        GROUP BY bba.book_id
+      ) orig_authors ON orig.book_id = orig_authors.book_id
+      
+      -- Get genres for original book
+      LEFT JOIN (
+        SELECT bbg.book_id, GROUP_CONCAT(DISTINCT g.name) as genre
+        FROM books_by_genre bbg
+        LEFT JOIN genre g ON bbg.genre_id = g.genre_id
+        GROUP BY bbg.book_id
+      ) orig_genres ON orig.book_id = orig_genres.book_id
+      
+      -- Get authors for current book
+      LEFT JOIN (
+        SELECT bba.book_id, GROUP_CONCAT(DISTINCT a.name) as author
+        FROM books_by_author bba
+        LEFT JOIN author a ON bba.author_id = a.author_id
+        GROUP BY bba.book_id
+      ) authors ON b.book_id = authors.book_id
+      
+      -- Get genres for current book
+      LEFT JOIN (
+        SELECT bbg.book_id, GROUP_CONCAT(DISTINCT g.name) as genre
+        FROM books_by_genre bbg
+        LEFT JOIN genre g ON bbg.genre_id = g.genre_id
+        GROUP BY bbg.book_id
+      ) genres ON b.book_id = genres.book_id
+      
+      LEFT JOIN editorial e ON b.editorial_id = e.editorial_id
+      LEFT JOIN language l ON b.language_id = l.language_id
+      LEFT JOIN place p ON b.place_id = p.place_id
+      LEFT JOIN format f ON b.format_id = f.format_id
+      LEFT JOIN format_saga fs ON b.format_saga_id = fs.format_id
+      
+      WHERE CAST(substr(rd.date_finished, 1, 4) AS INTEGER) = ?
+        AND rd.date_finished IS NOT NULL 
+        AND rd.date_finished != ""
+      GROUP BY COALESCE(orig.book_id, b.book_id)
+      ORDER BY latest_read_date DESC
+    ''', [year]);
+    
+    return result;
   }
 }

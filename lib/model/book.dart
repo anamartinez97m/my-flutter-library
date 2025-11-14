@@ -35,8 +35,11 @@ class Book {
   final String? bundleStartDates;
   final String? bundleEndDates;
   final String? bundlePages;
+  final String? bundlePublicationYears;
+  final String? bundleTitles;
   final bool? tbr;
   final bool? isTandem;
+  final int? originalBookId; // For repeated books, links to the original book
 
   Book({
     required this.bookId,
@@ -69,8 +72,11 @@ class Book {
     this.bundleStartDates,
     this.bundleEndDates,
     this.bundlePages,
+    this.bundlePublicationYears,
+    this.bundleTitles,
     this.tbr,
     this.isTandem,
+    this.originalBookId,
   });
 
   factory Book.fromMap(Map<String, dynamic> map) {
@@ -119,8 +125,11 @@ class Book {
       bundleStartDates: map['bundle_start_dates'] as String?,
       bundleEndDates: map['bundle_end_dates'] as String?,
       bundlePages: map['bundle_pages'] as String?,
+      bundlePublicationYears: map['bundle_publication_years'] as String?,
+      bundleTitles: map['bundle_titles'] as String?,
       tbr: map['tbr'] == 1,
       isTandem: map['is_tandem'] == 1,
+      originalBookId: map['original_book_id'] as int?,
     );
   }
 
@@ -156,6 +165,11 @@ class Book {
       'bundleStartDates': bundleStartDates,
       'bundleEndDates': bundleEndDates,
       'bundlePages': bundlePages,
+      'bundlePublicationYears': bundlePublicationYears,
+      'bundleTitles': bundleTitles,
+      'tbr': tbr,
+      'isTandem': isTandem,
+      'originalBookId': originalBookId,
     };
   }
 

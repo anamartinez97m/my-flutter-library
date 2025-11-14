@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/config/app_theme.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
+import 'package:myrandomlibrary/model/read_date.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/screens/books_by_saga.dart';
 import 'package:myrandomlibrary/screens/edit_book.dart';
 import 'package:myrandomlibrary/utils/status_helper.dart';
+import 'package:myrandomlibrary/utils/date_formatter.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 
@@ -22,11 +25,31 @@ class BookDetailScreen extends StatefulWidget {
 
 class _BookDetailScreenState extends State<BookDetailScreen> {
   late Book _currentBook;
+  List<ReadDate> _readDates = [];
+  bool _loadingReadDates = true;
 
   @override
   void initState() {
     super.initState();
     _currentBook = widget.book;
+    _loadReadDates();
+  }
+  
+  Future<void> _loadReadDates() async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final repository = BookRepository(db);
+      final readDates = await repository.getReadDatesForBook(_currentBook.bookId!);
+      setState(() {
+        _readDates = readDates;
+        _loadingReadDates = false;
+      });
+    } catch (e) {
+      debugPrint('Error loading read dates: $e');
+      setState(() {
+        _loadingReadDates = false;
+      });
+    }
   }
 
   String _formatDateTime(String isoString) {
@@ -181,6 +204,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                   setState(() {
                     _currentBook = updatedBook;
                   });
+                  // Reload read dates after edit
+                  await _loadReadDates();
                 }
               },
             ),
@@ -217,15 +242,109 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Title
-                    Text(
-                      _currentBook.name ?? 'Unknown Title',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                    // Title with TBR toggle
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _currentBook.name ?? 'Unknown Title',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.headlineMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            _currentBook.tbr == true 
+                                ? Icons.bookmark 
+                                : Icons.bookmark_border,
+                            color: _currentBook.tbr == true 
+                                ? Theme.of(context).colorScheme.primary 
+                                : Colors.grey,
+                          ),
+                          onPressed: () async {
+                            try {
+                              final db = await DatabaseHelper.instance.database;
+                              final repository = BookRepository(db);
+                              
+                              // Toggle TBR status
+                              final updatedBook = Book(
+                                bookId: _currentBook.bookId,
+                                name: _currentBook.name,
+                                isbn: _currentBook.isbn,
+                                asin: _currentBook.asin,
+                                author: _currentBook.author,
+                                saga: _currentBook.saga,
+                                nSaga: _currentBook.nSaga,
+                                sagaUniverse: _currentBook.sagaUniverse,
+                                formatSagaValue: _currentBook.formatSagaValue,
+                                pages: _currentBook.pages,
+                                originalPublicationYear: _currentBook.originalPublicationYear,
+                                loaned: _currentBook.loaned,
+                                statusValue: _currentBook.statusValue,
+                                editorialValue: _currentBook.editorialValue,
+                                languageValue: _currentBook.languageValue,
+                                placeValue: _currentBook.placeValue,
+                                formatValue: _currentBook.formatValue,
+                                createdAt: _currentBook.createdAt,
+                                genre: _currentBook.genre,
+                                dateReadInitial: _currentBook.dateReadInitial,
+                                dateReadFinal: _currentBook.dateReadFinal,
+                                readCount: _currentBook.readCount,
+                                myRating: _currentBook.myRating,
+                                myReview: _currentBook.myReview,
+                                isBundle: _currentBook.isBundle,
+                                bundleCount: _currentBook.bundleCount,
+                                bundleNumbers: _currentBook.bundleNumbers,
+                                bundleStartDates: _currentBook.bundleStartDates,
+                                bundleEndDates: _currentBook.bundleEndDates,
+                                bundlePages: _currentBook.bundlePages,
+                                bundlePublicationYears: _currentBook.bundlePublicationYears,
+                                bundleTitles: _currentBook.bundleTitles,
+                                tbr: !(_currentBook.tbr == true), // Toggle
+                                isTandem: _currentBook.isTandem,
+                              );
+                              
+                              await repository.deleteBook(_currentBook.bookId!);
+                              await repository.addBook(updatedBook);
+                              
+                              // Reload provider first
+                              if (mounted) {
+                                final provider = Provider.of<BookProvider?>(context, listen: false);
+                                await provider?.loadBooks();
+                              }
+                              
+                              // Then update local state
+                              setState(() {
+                                _currentBook = updatedBook;
+                              });
+                              
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      updatedBook.tbr == true 
+                                          ? 'Added to TBR' 
+                                          : 'Removed from TBR',
+                                    ),
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              debugPrint('Error toggling TBR: $e');
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Error: $e')),
+                                );
+                              }
+                            }
+                          },
+                          tooltip: _currentBook.tbr == true ? 'Remove from TBR' : 'Add to TBR',
+                        ),
+                      ],
                     ),
                     AppTheme.verticalSpaceLarge,
 
@@ -297,6 +416,16 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                     AppTheme.verticalSpaceXLarge,
 
                     // Details in cards
+                    // Status - MOVED TO TOP
+                    if (_currentBook.statusValue != null &&
+                        _currentBook.statusValue!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.check_circle,
+                        label: AppLocalizations.of(context)!.status,
+                        value: _getStatusDisplayValue(
+                          _currentBook.statusValue!,
+                        ),
+                      ),
                     if (_currentBook.author != null &&
                         _currentBook.author!.isNotEmpty)
                       _DetailCard(
@@ -387,15 +516,6 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                       ..._buildPublicationInfo(
                         _currentBook.originalPublicationYear!,
                       ),
-                    if (_currentBook.statusValue != null &&
-                        _currentBook.statusValue!.isNotEmpty)
-                      _DetailCard(
-                        icon: Icons.check_circle,
-                        label: AppLocalizations.of(context)!.status,
-                        value: _getStatusDisplayValue(
-                          _currentBook.statusValue!,
-                        ),
-                      ),
                     if (_currentBook.formatSagaValue != null &&
                         _currentBook.formatSagaValue!.isNotEmpty)
                       _DetailCard(
@@ -456,11 +576,15 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         ),
                       if (_currentBook.bundleStartDates != null ||
                           _currentBook.bundleEndDates != null ||
-                          _currentBook.bundlePages != null)
+                          _currentBook.bundlePages != null ||
+                          _currentBook.bundlePublicationYears != null ||
+                          _currentBook.bundleTitles != null)
                         _BundleDatesCard(
                           startDates: _currentBook.bundleStartDates,
                           endDates: _currentBook.bundleEndDates,
                           bundlePages: _currentBook.bundlePages,
+                          bundlePublicationYears: _currentBook.bundlePublicationYears,
+                          bundleTitles: _currentBook.bundleTitles,
                         ),
                     ],
 
@@ -564,20 +688,79 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         label: 'Times Read',
                         value: '${_currentBook.readCount}',
                       ),
-                    if (_currentBook.dateReadInitial != null &&
-                        _currentBook.dateReadInitial!.isNotEmpty)
-                      _DetailCard(
-                        icon: Icons.event,
-                        label: 'Date Started Reading',
-                        value: _currentBook.dateReadInitial!.split('T')[0],
+                    
+                    // Old date fields removed - now using Reading Sessions
+                    
+                    // Reading Sessions Card
+                    if (!(_currentBook.isBundle == true) && _readDates.isNotEmpty)
+                      Card(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        elevation: 1,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.history,
+                                    color: Theme.of(context).colorScheme.primary,
+                                    size: 24,
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Text(
+                                    'Reading Sessions (${_readDates.length})',
+                                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                      color: Colors.grey[600],
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              ...List.generate(_readDates.length, (index) {
+                                final readDate = _readDates[index];
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 8),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        '${index + 1}.',
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          readDate.dateStarted != null 
+                                              ? formatDateForDisplay(readDate.dateStarted)
+                                              : 'Not started',
+                                          style: Theme.of(context).textTheme.bodySmall,
+                                        ),
+                                      ),
+                                      const Text(' → '),
+                                      Expanded(
+                                        child: Text(
+                                          readDate.dateFinished != null
+                                              ? formatDateForDisplay(readDate.dateFinished)
+                                              : 'Not finished',
+                                          style: Theme.of(context).textTheme.bodySmall,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }),
+                            ],
+                          ),
+                        ),
                       ),
-                    if (_currentBook.dateReadFinal != null &&
-                        _currentBook.dateReadFinal!.isNotEmpty)
-                      _DetailCard(
-                        icon: Icons.event_available,
-                        label: 'Date Finished Reading',
-                        value: _currentBook.dateReadFinal!.split('T')[0],
-                      ),
+                    
                     if (_currentBook.myReview != null &&
                         _currentBook.myReview!.isNotEmpty)
                       Card(
@@ -709,14 +892,18 @@ class _BundleDatesCard extends StatelessWidget {
   final String? startDates;
   final String? endDates;
   final String? bundlePages;
+  final String? bundlePublicationYears;
+  final String? bundleTitles;
 
-  const _BundleDatesCard({this.startDates, this.endDates, this.bundlePages});
+  const _BundleDatesCard({this.startDates, this.endDates, this.bundlePages, this.bundlePublicationYears, this.bundleTitles});
 
   @override
   Widget build(BuildContext context) {
     List<DateTime?>? starts;
     List<DateTime?>? ends;
     List<int?>? pages;
+    List<int?>? pubYears;
+    List<String?>? titles;
 
     try {
       if (startDates != null) {
@@ -746,10 +933,30 @@ class _BundleDatesCard extends StatelessWidget {
       pages = null;
     }
 
+    try {
+      if (bundlePublicationYears != null) {
+        final List<dynamic> yearsData = jsonDecode(bundlePublicationYears!);
+        pubYears = yearsData.map((y) => y as int?).toList();
+      }
+    } catch (e) {
+      pubYears = null;
+    }
+
+    try {
+      if (bundleTitles != null) {
+        final List<dynamic> titlesData = jsonDecode(bundleTitles!);
+        titles = titlesData.map((t) => t as String?).toList();
+      }
+    } catch (e) {
+      titles = null;
+    }
+
     final maxLength = [
       starts?.length ?? 0,
       ends?.length ?? 0,
       pages?.length ?? 0,
+      pubYears?.length ?? 0,
+      titles?.length ?? 0,
     ].reduce((a, b) => a > b ? a : b);
 
     if (maxLength == 0) return const SizedBox.shrink();
@@ -790,12 +997,26 @@ class _BundleDatesCard extends StatelessWidget {
                   ends != null && index < ends.length ? ends[index] : null;
               final pageCount =
                   pages != null && index < pages.length ? pages[index] : null;
+              final pubYear =
+                  pubYears != null && index < pubYears.length ? pubYears[index] : null;
+              final title =
+                  titles != null && index < titles.length ? titles[index] : null;
 
               return Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Title if available
+                    if (title != null && title.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Text(
+                          title,
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                      ),
                     Row(
                       children: [
                         Text(
@@ -807,7 +1028,7 @@ class _BundleDatesCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             start != null
-                                ? '${start.year}-${start.month.toString().padLeft(2, '0')}-${start.day.toString().padLeft(2, '0')}'
+                                ? formatDateForDisplay('${start.year}-${start.month.toString().padLeft(2, '0')}-${start.day.toString().padLeft(2, '0')}')
                                 : '-',
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
@@ -816,20 +1037,37 @@ class _BundleDatesCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             end != null
-                                ? '${end.year}-${end.month.toString().padLeft(2, '0')}-${end.day.toString().padLeft(2, '0')}'
+                                ? formatDateForDisplay('${end.year}-${end.month.toString().padLeft(2, '0')}-${end.day.toString().padLeft(2, '0')}')
                                 : '-',
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ),
                       ],
                     ),
-                    if (pageCount != null)
+                    if (pageCount != null || pubYear != null)
                       Padding(
                         padding: const EdgeInsets.only(left: 16, top: 4),
-                        child: Text(
-                          'Pages: $pageCount',
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: Colors.grey[600], fontSize: 12),
+                        child: Row(
+                          children: [
+                            if (pageCount != null)
+                              Text(
+                                'Pages: $pageCount',
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(color: Colors.grey[600], fontSize: 12),
+                              ),
+                            if (pageCount != null && pubYear != null)
+                              Text(
+                                ' • ',
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(color: Colors.grey[600], fontSize: 12),
+                              ),
+                            if (pubYear != null)
+                              Text(
+                                'Pub. Year: $pubYear',
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(color: Colors.grey[600], fontSize: 12),
+                              ),
+                          ],
                         ),
                       ),
                   ],
@@ -858,42 +1096,53 @@ class _DetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 1,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Icon(icon, color: Theme.of(context).colorScheme.primary, size: 24),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey[600],
-                      fontWeight: FontWeight.w500,
+    return GestureDetector(
+      onLongPress: () {
+        Clipboard.setData(ClipboardData(text: value));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Copied: $value'),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+      },
+      child: Card(
+        margin: const EdgeInsets.only(bottom: 12),
+        elevation: 1,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(icon, color: Theme.of(context).colorScheme.primary, size: 24),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(value, style: Theme.of(context).textTheme.bodyLarge),
-                ],
+                    const SizedBox(height: 4),
+                    Text(value, style: Theme.of(context).textTheme.bodyLarge),
+                  ],
+                ),
               ),
-            ),
-            if (trailingIcon != null) ...[
-              const SizedBox(width: 8),
-              Icon(
-                trailingIcon,
-                color: Theme.of(context).colorScheme.primary,
-                size: 24,
-              ),
+              if (trailingIcon != null) ...[
+                const SizedBox(width: 8),
+                Icon(
+                  trailingIcon,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 24,
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
