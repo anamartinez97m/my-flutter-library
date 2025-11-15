@@ -152,6 +152,81 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       }
     }
 
+    // Calculate reading velocity (average pages per day)
+    double readingVelocity = 0.0;
+    int totalDaysRead = 0;
+    int totalPagesRead = 0;
+    int booksWithDates = 0;
+    
+    for (var book in books) {
+      // Skip books without dates or pages
+      if (book.dateReadInitial == null || 
+          book.dateReadInitial!.isEmpty ||
+          book.dateReadFinal == null || 
+          book.dateReadFinal!.isEmpty ||
+          book.pages == null ||
+          book.pages! <= 0) {
+        continue;
+      }
+      
+      final startDate = _tryParseDate(book.dateReadInitial!);
+      final endDate = _tryParseDate(book.dateReadFinal!);
+      
+      if (startDate != null && endDate != null && endDate.isAfter(startDate)) {
+        final daysToRead = endDate.difference(startDate).inDays + 1; // +1 to include both start and end day
+        if (daysToRead > 0) {
+          totalDaysRead += daysToRead;
+          totalPagesRead += book.pages!;
+          booksWithDates++;
+        }
+      }
+    }
+    
+    if (totalDaysRead > 0 && totalPagesRead > 0) {
+      readingVelocity = totalPagesRead / totalDaysRead;
+    }
+
+    // Calculate average days to finish a book
+    double averageDaysToFinish = 0.0;
+    int booksCountedForDays = 0;
+    
+    for (var book in books) {
+      // Skip books without dates
+      if (book.dateReadInitial == null || 
+          book.dateReadInitial!.isEmpty ||
+          book.dateReadFinal == null || 
+          book.dateReadFinal!.isEmpty) {
+        continue;
+      }
+      
+      final startDate = _tryParseDate(book.dateReadInitial!);
+      final endDate = _tryParseDate(book.dateReadFinal!);
+      
+      if (startDate != null && endDate != null && endDate.isAfter(startDate)) {
+        final daysToRead = endDate.difference(startDate).inDays + 1;
+        if (daysToRead > 0) {
+          averageDaysToFinish += daysToRead;
+          booksCountedForDays++;
+        }
+      }
+    }
+    
+    if (booksCountedForDays > 0) {
+      averageDaysToFinish = averageDaysToFinish / booksCountedForDays;
+    }
+
+    // Calculate average books read per year
+    double averageBooksPerYear = 0.0;
+    int yearsWithBooks = 0;
+    
+    if (_booksReadPerYear != null && _booksReadPerYear!.isNotEmpty) {
+      final totalBooks = _booksReadPerYear!.values.reduce((a, b) => a + b);
+      yearsWithBooks = _booksReadPerYear!.length;
+      if (yearsWithBooks > 0) {
+        averageBooksPerYear = totalBooks / yearsWithBooks;
+      }
+    }
+
     // Sort and get top entries
     final top5Genres =
         (genreCounts.entries.toList()
@@ -352,11 +427,22 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   padding: const EdgeInsets.all(20.0),
                   child: Column(
                     children: [
-                      Text(
-                        'Books Read Per Year',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Books Read Per Year',
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Icon(
+                            Icons.chevron_right,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 28,
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 16),
                       if (sortedBooksReadYears.isEmpty)
@@ -621,11 +707,22 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   padding: const EdgeInsets.all(20.0),
                   child: Column(
                     children: [
-                      Text(
-                        'Books Read by Decade',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Books Read by Decade',
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Icon(
+                            Icons.chevron_right,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 28,
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -1099,6 +1196,165 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               ),
             ),
             const SizedBox(height: 16),
+            // Reading Velocity Card
+            if (readingVelocity > 0)
+              Card(
+                elevation: 2,
+                margin: const EdgeInsets.symmetric(horizontal: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      Text(
+                        'Reading Velocity',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Text(
+                            readingVelocity.toStringAsFixed(1),
+                            style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'pages/day',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Based on $booksWithDates books with read dates',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            if (readingVelocity > 0)
+              const SizedBox(height: 16),
+            // Average Days to Finish a Book Card
+            if (averageDaysToFinish > 0)
+              Card(
+                elevation: 2,
+                margin: const EdgeInsets.symmetric(horizontal: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      Text(
+                        'Average Time to Finish a Book',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Text(
+                            averageDaysToFinish.toStringAsFixed(1),
+                            style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'days',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Based on $booksCountedForDays books with read dates',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            if (averageDaysToFinish > 0)
+              const SizedBox(height: 16),
+            // Average Books Per Year Card
+            if (averageBooksPerYear > 0)
+              Card(
+                elevation: 2,
+                margin: const EdgeInsets.symmetric(horizontal: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      Text(
+                        'Average Books Per Year',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Text(
+                            averageBooksPerYear.toStringAsFixed(1),
+                            style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'books/year',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Based on $yearsWithBooks years of reading data',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            if (averageBooksPerYear > 0)
+              const SizedBox(height: 16),
             // Top 5 Genres Horizontal Bar Chart
             Card(
               elevation: 2,

@@ -620,10 +620,15 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
                     border: OutlineInputBorder(),
                     isDense: true,
                   ),
+                  isExpanded: true,
                   items: otherValues.map((v) {
                     return DropdownMenuItem<int>(
                       value: v[idColumn] as int,
-                      child: Text(v[valueColumn] as String),
+                      child: Text(
+                        v[valueColumn] as String,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
                     );
                   }).toList(),
                   onChanged: (value) {

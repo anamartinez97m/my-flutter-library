@@ -249,9 +249,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
             ),
             actions: [
               TextButton.icon(
-                onPressed: () {
+                onPressed: () async {
+                  debugPrint('📚 Add Another clicked - reloading dropdown data...');
                   Navigator.of(dialogContext).pop();
-                  // Stay on add book screen to add another
+                  // Reload dropdown data to include newly added authors, sagas, etc.
+                  await _loadDropdownData();
+                  debugPrint('✅ Dropdown data reloaded successfully');
                 },
                 icon: const Icon(Icons.add),
                 label: const Text('Add Another'),
@@ -450,13 +453,18 @@ class _AddBookScreenState extends State<AddBookScreen> {
         final provider = Provider.of<BookProvider?>(context, listen: false);
         await provider?.loadBooks();
 
+        debugPrint('📖 Book saved successfully with ID: $bookId');
+        debugPrint('🧹 Clearing form and resetting state...');
+        
         // Clear form first
         _formKey.currentState!.reset();
         _nameController.clear();
         _isbnController.clear();
+        _asinController.clear();
         _authorController.clear();
         _sagaController.clear();
         _nSagaController.clear();
+        _sagaUniverseController.clear();
         _pagesController.clear();
         _publicationYearController.clear();
         _releaseDate = null;
@@ -469,7 +477,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
           _readCount = 0;
           _readDates = [];
           _bundleReadDates = {};
+          _selectedAuthors = [];
+          _selectedGenres = [];
           _selectedStatusId = null;
+          _selectedStatusValue = null;
+          _selectedOriginalBookId = null;
           _selectedFormatSagaId = null;
           _selectedLanguageId = null;
           _selectedPlaceId = null;
@@ -481,7 +493,17 @@ class _AddBookScreenState extends State<AddBookScreen> {
           _bundlePages = null;
           _bundlePublicationYears = null;
           _bundleTitles = null;
+          _tbr = false;
+          _isTandem = false;
         });
+
+        debugPrint('✅ Form cleared. Controllers reset:');
+        debugPrint('   - Name: "${_nameController.text}"');
+        debugPrint('   - Author: "${_authorController.text}"');
+        debugPrint('   - Saga: "${_sagaController.text}"');
+        debugPrint('   - Selected Authors: $_selectedAuthors');
+        debugPrint('   - Selected Genres: $_selectedGenres');
+        debugPrint('   - Selected Status: $_selectedStatusId');
 
         // Show success dialog
         _showSuccessDialog(context);
