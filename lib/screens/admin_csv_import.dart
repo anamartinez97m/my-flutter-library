@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/model/book.dart';
+import 'package:myrandomlibrary/model/read_date.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/utils/csv_import_helper.dart';
@@ -464,7 +465,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
             final existingRows = await db.rawQuery(
               '''
               select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
-                b.saga, b.n_saga, b.isbn, b.asin, l.name as languageValue, 
+                b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
                 p.name as placeValue, f.value as formatValue,
                 fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
                 b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
@@ -490,6 +491,53 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
             );
             if (existingRows.isNotEmpty) {
               existingBook = Book.fromMap(existingRows.first);
+              
+              // Fetch read dates from book_read_dates table if dates are empty
+              if ((existingBook.dateReadInitial == null || existingBook.dateReadInitial!.isEmpty) &&
+                  (existingBook.dateReadFinal == null || existingBook.dateReadFinal!.isEmpty)) {
+                final readDatesRows = await db.query(
+                  'book_read_dates',
+                  where: 'book_id = ? AND bundle_book_index IS NULL',
+                  whereArgs: [duplicateIds.first],
+                  orderBy: 'date_started ASC',
+                  limit: 1,
+                );
+                if (readDatesRows.isNotEmpty) {
+                  final firstReadDate = readDatesRows.first;
+                  existingBook = Book(
+                    bookId: existingBook.bookId,
+                    name: existingBook.name,
+                    isbn: existingBook.isbn,
+                    asin: existingBook.asin,
+                    author: existingBook.author,
+                    saga: existingBook.saga,
+                    nSaga: existingBook.nSaga,
+                    sagaUniverse: existingBook.sagaUniverse,
+                    formatSagaValue: existingBook.formatSagaValue,
+                    pages: existingBook.pages,
+                    originalPublicationYear: existingBook.originalPublicationYear,
+                    loaned: existingBook.loaned,
+                    statusValue: existingBook.statusValue,
+                    editorialValue: existingBook.editorialValue,
+                    languageValue: existingBook.languageValue,
+                    placeValue: existingBook.placeValue,
+                    formatValue: existingBook.formatValue,
+                    createdAt: existingBook.createdAt,
+                    genre: existingBook.genre,
+                    dateReadInitial: firstReadDate['date_started'] as String?,
+                    dateReadFinal: firstReadDate['date_finished'] as String?,
+                    readCount: existingBook.readCount,
+                    myRating: existingBook.myRating,
+                    myReview: existingBook.myReview,
+                    isBundle: existingBook.isBundle,
+                    bundleCount: existingBook.bundleCount,
+                    bundleNumbers: existingBook.bundleNumbers,
+                    bundleStartDates: existingBook.bundleStartDates,
+                    bundleEndDates: existingBook.bundleEndDates,
+                    bundlePages: existingBook.bundlePages,
+                  );
+                }
+              }
 
               // Merge: Keep old values when CSV has empty/null values
               bookWithMappedStatus = Book(
@@ -707,7 +755,16 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         }
 
         if (item.importType == 'NEW') {
-          await repository.addBook(item.book);
+          final bookId = await repository.addBook(item.book);
+          // Save dates to book_read_dates table if they exist
+          if (item.book.dateReadInitial != null && item.book.dateReadInitial!.isNotEmpty) {
+            await repository.addReadDate(ReadDate(
+              bookId: bookId,
+              dateStarted: item.book.dateReadInitial,
+              dateFinished: item.book.dateReadFinal,
+            ));
+            debugPrint('📅 Saved read dates for new book $bookId: ${item.book.dateReadInitial} - ${item.book.dateReadFinal}');
+          }
           imported++;
         } else if (item.importType == 'UPDATE' &&
             item.duplicateIds.isNotEmpty) {
@@ -723,6 +780,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               author: item.book.author,
               saga: item.book.saga,
               nSaga: item.book.nSaga,
+              sagaUniverse: item.book.sagaUniverse,
               pages: item.book.pages,
               originalPublicationYear: item.book.originalPublicationYear,
               statusValue: item.book.statusValue,
@@ -747,6 +805,16 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               bundlePages: item.book.bundlePages,
             );
             await repository.addBook(bookToAdd);
+            
+            // Save dates to book_read_dates table if they exist
+            if (item.book.dateReadInitial != null && item.book.dateReadInitial!.isNotEmpty) {
+              await repository.addReadDate(ReadDate(
+                bookId: id,
+                dateStarted: item.book.dateReadInitial,
+                dateFinished: item.book.dateReadFinal,
+              ));
+              debugPrint('📅 Saved read dates for updated book $id: ${item.book.dateReadInitial} - ${item.book.dateReadFinal}');
+            }
           }
           updated++;
         }
@@ -829,7 +897,16 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         }
 
         if (item.importType == 'NEW') {
-          await repository.addBook(item.book);
+          final bookId = await repository.addBook(item.book);
+          // Save dates to book_read_dates table if they exist
+          if (item.book.dateReadInitial != null && item.book.dateReadInitial!.isNotEmpty) {
+            await repository.addReadDate(ReadDate(
+              bookId: bookId,
+              dateStarted: item.book.dateReadInitial,
+              dateFinished: item.book.dateReadFinal,
+            ));
+            debugPrint('📅 Saved read dates for new book $bookId: ${item.book.dateReadInitial} - ${item.book.dateReadFinal}');
+          }
           imported++;
         } else if (item.importType == 'UPDATE' &&
             item.duplicateIds.isNotEmpty) {
@@ -845,6 +922,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               author: item.book.author,
               saga: item.book.saga,
               nSaga: item.book.nSaga,
+              sagaUniverse: item.book.sagaUniverse,
               pages: item.book.pages,
               originalPublicationYear: item.book.originalPublicationYear,
               statusValue: item.book.statusValue,
@@ -869,6 +947,16 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               bundlePages: item.book.bundlePages,
             );
             await repository.addBook(bookToAdd);
+            
+            // Save dates to book_read_dates table if they exist
+            if (item.book.dateReadInitial != null && item.book.dateReadInitial!.isNotEmpty) {
+              await repository.addReadDate(ReadDate(
+                bookId: id,
+                dateStarted: item.book.dateReadInitial,
+                dateFinished: item.book.dateReadFinal,
+              ));
+              debugPrint('📅 Saved read dates for updated book $id: ${item.book.dateReadInitial} - ${item.book.dateReadFinal}');
+            }
           }
           updated++;
         }
