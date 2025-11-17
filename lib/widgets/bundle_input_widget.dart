@@ -8,7 +8,9 @@ class BundleInputWidget extends StatefulWidget {
   final List<int?>? initialBundlePages;
   final List<int?>? initialBundlePublicationYears;
   final List<String?>? initialBundleTitles;
+  final Map<int, bool>? bundleBooksReadStatus; // Map of bundle index to read status
   final Function(bool isBundle, int? count, String? numbers, List<int?>? bundlePages, List<int?>? bundlePublicationYears, List<String?>? bundleTitles) onChanged;
+  final Function(int bundleIndex, bool isRead)? onReadStatusChanged; // Callback for manual read status changes
 
   const BundleInputWidget({
     super.key,
@@ -18,7 +20,9 @@ class BundleInputWidget extends StatefulWidget {
     this.initialBundlePages,
     this.initialBundlePublicationYears,
     this.initialBundleTitles,
+    this.bundleBooksReadStatus,
     required this.onChanged,
+    this.onReadStatusChanged,
   });
 
   @override
@@ -163,11 +167,66 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Book ${index + 1}',
-                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  'Book ${index + 1}',
+                                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                if (widget.bundleBooksReadStatus != null && 
+                                    widget.bundleBooksReadStatus!.containsKey(index) &&
+                                    widget.bundleBooksReadStatus![index] == true)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: const Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.check, size: 12, color: Colors.white),
+                                        SizedBox(width: 4),
+                                        Text(
+                                          'Read',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            if (widget.onReadStatusChanged != null)
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Mark as read',
+                                    style: Theme.of(context).textTheme.bodySmall,
+                                  ),
+                                  Transform.scale(
+                                    scale: 0.8,
+                                    child: Checkbox(
+                                      value: widget.bundleBooksReadStatus?[index] ?? false,
+                                      onChanged: (value) {
+                                        widget.onReadStatusChanged!(index, value ?? false);
+                                      },
+                                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                          ],
                         ),
                         const SizedBox(height: 8),
                         // Book Title input

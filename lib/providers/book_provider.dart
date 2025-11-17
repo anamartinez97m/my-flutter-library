@@ -117,6 +117,25 @@ class BookProvider extends ChangeNotifier {
               case 'editorial':
                 if (book.editorialValue != null && book.editorialValue!.isNotEmpty) return false;
                 break;
+              case 'saga':
+                if (book.saga != null && book.saga!.isNotEmpty) return false;
+                break;
+              case 'saga_universe':
+                if (book.sagaUniverse != null && book.sagaUniverse!.isNotEmpty) return false;
+                break;
+              case 'format_saga':
+                if (book.formatSagaValue != null && book.formatSagaValue!.isNotEmpty) return false;
+                break;
+              case 'pages_empty':
+                if (book.pages != null && book.pages! > 0) return false;
+                break;
+            }
+          } else if (filterValue == '__NOT_EMPTY__') {
+            // Special case for "not empty" filters
+            switch (filterType) {
+              case 'pages_empty':
+                if (book.pages == null || book.pages! <= 0) return false;
+                break;
             }
           } else {
             // Normal value filters
@@ -135,6 +154,28 @@ class BookProvider extends ChangeNotifier {
                 break;
               case 'status':
                 if (book.statusValue != filterValue) return false;
+                break;
+              case 'editorial':
+                if (book.editorialValue != filterValue) return false;
+                break;
+              case 'saga':
+                if (book.saga != filterValue) return false;
+                break;
+              case 'saga_universe':
+                if (book.sagaUniverse != filterValue) return false;
+                break;
+              case 'format_saga':
+                if (book.formatSagaValue != filterValue) return false;
+                break;
+              case 'is_bundle':
+                final isBundle = book.isBundle == true;
+                if (filterValue == 'true' && !isBundle) return false;
+                if (filterValue == 'false' && isBundle) return false;
+                break;
+              case 'is_tandem':
+                final isTandem = book.isTandem == true;
+                if (filterValue == 'true' && !isTandem) return false;
+                if (filterValue == 'false' && isTandem) return false;
                 break;
             }
           }
@@ -168,11 +209,15 @@ class BookProvider extends ChangeNotifier {
                 (book.author ?? '').toLowerCase(),
               );
               return normalizedAuthor.contains(normalizedQuery);
-            case 3: // Search by Saga
+            case 3: // Search by Saga or Saga Universe
               final normalizedSaga = _removeAccents(
                 (book.saga ?? '').toLowerCase(),
               );
-              return normalizedSaga.contains(normalizedQuery);
+              final normalizedSagaUniverse = _removeAccents(
+                (book.sagaUniverse ?? '').toLowerCase(),
+              );
+              return normalizedSaga.contains(normalizedQuery) || 
+                     normalizedSagaUniverse.contains(normalizedQuery);
             default:
               return false;
           }

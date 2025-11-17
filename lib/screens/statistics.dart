@@ -152,43 +152,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       }
     }
 
-    // Calculate reading velocity (average pages per day)
+    // Calculate reading velocity (average pages per day) and average days to finish
     double readingVelocity = 0.0;
+    double averageDaysToFinish = 0.0;
     int totalDaysRead = 0;
     int totalPagesRead = 0;
-    int booksWithDates = 0;
-    
-    for (var book in books) {
-      // Skip books without dates or pages
-      if (book.dateReadInitial == null || 
-          book.dateReadInitial!.isEmpty ||
-          book.dateReadFinal == null || 
-          book.dateReadFinal!.isEmpty ||
-          book.pages == null ||
-          book.pages! <= 0) {
-        continue;
-      }
-      
-      final startDate = _tryParseDate(book.dateReadInitial!);
-      final endDate = _tryParseDate(book.dateReadFinal!);
-      
-      if (startDate != null && endDate != null && endDate.isAfter(startDate)) {
-        final daysToRead = endDate.difference(startDate).inDays + 1; // +1 to include both start and end day
-        if (daysToRead > 0) {
-          totalDaysRead += daysToRead;
-          totalPagesRead += book.pages!;
-          booksWithDates++;
-        }
-      }
-    }
-    
-    if (totalDaysRead > 0 && totalPagesRead > 0) {
-      readingVelocity = totalPagesRead / totalDaysRead;
-    }
-
-    // Calculate average days to finish a book
-    double averageDaysToFinish = 0.0;
-    int booksCountedForDays = 0;
+    int booksWithValidDates = 0;
     
     for (var book in books) {
       // Skip books without dates
@@ -203,16 +172,27 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       final endDate = _tryParseDate(book.dateReadFinal!);
       
       if (startDate != null && endDate != null && endDate.isAfter(startDate)) {
-        final daysToRead = endDate.difference(startDate).inDays + 1;
+        final daysToRead = endDate.difference(startDate).inDays + 1; // +1 to include both start and end day
         if (daysToRead > 0) {
+          // Count for average days calculation
           averageDaysToFinish += daysToRead;
-          booksCountedForDays++;
+          booksWithValidDates++;
+          
+          // Only count for velocity if book has pages
+          if (book.pages != null && book.pages! > 0) {
+            totalDaysRead += daysToRead;
+            totalPagesRead += book.pages!;
+          }
         }
       }
     }
     
-    if (booksCountedForDays > 0) {
-      averageDaysToFinish = averageDaysToFinish / booksCountedForDays;
+    if (totalDaysRead > 0 && totalPagesRead > 0) {
+      readingVelocity = totalPagesRead / totalDaysRead;
+    }
+    
+    if (booksWithValidDates > 0) {
+      averageDaysToFinish = averageDaysToFinish / booksWithValidDates;
     }
 
     // Calculate average books read per year
@@ -1238,7 +1218,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Based on $booksWithDates books with read dates',
+                        'Based on $booksWithValidDates books with read dates',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.grey[600],
                         ),
@@ -1291,7 +1271,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Based on $booksCountedForDays books with read dates',
+                        'Based on $booksWithValidDates books with read dates',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.grey[600],
                         ),

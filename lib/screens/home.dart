@@ -6,6 +6,7 @@ import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/screens/add_book.dart';
 import 'package:myrandomlibrary/widgets/booklist.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   final void Function(VoidCallback)? onRegisterClearSearch;
@@ -28,6 +29,10 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> _genreList = [];
   List<Map<String, dynamic>> _placeList = [];
   List<Map<String, dynamic>> _statusList = [];
+  List<Map<String, dynamic>> _editorialList = [];
+  List<Map<String, dynamic>> _sagaList = [];
+  List<Map<String, dynamic>> _sagaUniverseList = [];
+  List<Map<String, dynamic>> _formatSagaList = [];
 
   String? _selectedFormat;
   String? _selectedLanguage;
@@ -37,6 +42,15 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _selectedTitle;
   String? _selectedIsbnAsin;
   String? _selectedAuthor;
+  String? _selectedEditorial;
+  String? _selectedSaga;
+  String? _selectedSagaUniverse;
+  String? _selectedFormatSaga;
+  String? _selectedPagesEmpty;
+  String? _selectedIsBundle;
+  String? _selectedIsTandem;
+  
+  Set<String> _enabledFilters = {};
 
   void clearSearch() {
     if (_searchController.text.isNotEmpty) {
@@ -51,12 +65,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    widget.onRegisterClearSearch?.call(clearSearch);
+    _loadEnabledFilters();
     _loadFilterOptions();
     
-    // Register clear search callback
-    widget.onRegisterClearSearch?.call(clearSearch);
-
-    // Sync filter and sort state with provider after the first frame
+    // Restore filter and sort state from provider
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<BookProvider?>(context, listen: false);
       if (provider != null) {
@@ -70,6 +83,13 @@ class _HomeScreenState extends State<HomeScreen> {
           _selectedTitle = provider.currentFilters['title'];
           _selectedIsbnAsin = provider.currentFilters['isbn'];
           _selectedAuthor = provider.currentFilters['author'];
+          _selectedEditorial = provider.currentFilters['editorial'];
+          _selectedSaga = provider.currentFilters['saga'];
+          _selectedSagaUniverse = provider.currentFilters['saga_universe'];
+          _selectedFormatSaga = provider.currentFilters['format_saga'];
+          _selectedPagesEmpty = provider.currentFilters['pages_empty'];
+          _selectedIsBundle = provider.currentFilters['is_bundle'];
+          _selectedIsTandem = provider.currentFilters['is_tandem'];
 
           // Restore sort state from provider
           _sortBy = provider.currentSortBy;
@@ -77,6 +97,27 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     });
+  }
+  
+  Future<void> _loadEnabledFilters() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedFilters = prefs.getStringList('enabled_filters');
+    setState(() {
+      if (savedFilters != null) {
+        _enabledFilters = savedFilters.toSet();
+      } else {
+        // Default: enable all filters
+        _enabledFilters = {
+          'title', 'isbn', 'author', 'status', 'format', 'genre', 'language', 
+          'place', 'editorial', 'saga', 'saga_universe', 'format_saga', 
+          'pages_empty', 'is_bundle', 'is_tandem'
+        };
+      }
+    });
+  }
+  
+  bool _isFilterEnabled(String filterKey) {
+    return _enabledFilters.contains(filterKey);
   }
 
   Future<void> _loadFilterOptions() async {
@@ -89,6 +130,20 @@ class _HomeScreenState extends State<HomeScreen> {
       final genre = await repository.getLookupValues('genre');
       final place = await repository.getLookupValues('place');
       final status = await repository.getLookupValues('status');
+      final editorial = await repository.getLookupValues('editorial');
+      final formatSaga = await repository.getLookupValues('format_saga');
+      
+      // Get distinct sagas and saga universes
+      final sagasResult = await db.rawQuery('''
+        SELECT DISTINCT saga as name FROM book 
+        WHERE saga IS NOT NULL AND saga != '' 
+        ORDER BY saga
+      ''');
+      final sagaUniversesResult = await db.rawQuery('''
+        SELECT DISTINCT saga_universe as name FROM book 
+        WHERE saga_universe IS NOT NULL AND saga_universe != '' 
+        ORDER BY saga_universe
+      ''');
 
       setState(() {
         _formatList = format;
@@ -96,6 +151,10 @@ class _HomeScreenState extends State<HomeScreen> {
         _genreList = genre;
         _placeList = place;
         _statusList = status;
+        _editorialList = editorial;
+        _formatSagaList = formatSaga;
+        _sagaList = sagasResult;
+        _sagaUniverseList = sagaUniversesResult;
       });
     } catch (e) {
       debugPrint('Error loading filter options: $e');
@@ -107,20 +166,19 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       isScrollControlled: true,
       builder:
-          (context) => StatefulBuilder(
-            builder:
-                (context, setModalState) => Padding(
-                  padding: EdgeInsets.only(
-                    left: 16,
-                    right: 16,
-                    top: 16,
-                    bottom: MediaQuery.of(context).viewInsets.bottom + 50,
-                  ),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+          (context) => DraggableScrollableSheet(
+            initialChildSize: 0.9,
+            minChildSize: 0.5,
+            maxChildSize: 0.95,
+            expand: false,
+            builder: (context, scrollController) => StatefulBuilder(
+              builder:
+                  (context, setModalState) => Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: ListView(
+                      controller: scrollController,
                       children: [
+                        const SizedBox(height: 16),
                         Text(
                           'Sort & Filter',
                           style: Theme.of(context).textTheme.titleMedium,
@@ -180,6 +238,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(height: 12),
                         // Title filter
+                        if (_isFilterEnabled('title'))
                         DropdownButtonFormField<String>(
                           value: _selectedTitle,
                           isExpanded: true,
@@ -214,6 +273,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(height: 12),
                         // ISBN/ASIN filter
+                        if (_isFilterEnabled('isbn'))
                         DropdownButtonFormField<String>(
                           value: _selectedIsbnAsin,
                           isExpanded: true,
@@ -248,6 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(height: 12),
                         // Author filter
+                        if (_isFilterEnabled('author'))
                         DropdownButtonFormField<String>(
                           value: _selectedAuthor,
                           isExpanded: true,
@@ -282,6 +343,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(height: 12),
                         // Status filter
+                        if (_isFilterEnabled('status'))
                         DropdownButtonFormField<String>(
                           value: _selectedStatus,
                           isExpanded: true,
@@ -318,6 +380,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(height: 12),
                         // Format filter
+                        if (_isFilterEnabled('format'))
                         DropdownButtonFormField<String>(
                           value: _selectedFormat,
                           isExpanded: true,
@@ -358,6 +421,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(height: 12),
                         // Genre filter
+                        if (_isFilterEnabled('genre'))
                         DropdownButtonFormField<String>(
                           value: _selectedGenre,
                           isExpanded: true,
@@ -398,6 +462,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(height: 12),
                         // Language filter
+                        if (_isFilterEnabled('language'))
                         DropdownButtonFormField<String>(
                           value: _selectedLanguage,
                           isExpanded: true,
@@ -438,6 +503,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(height: 12),
                         // Place filter
+                        if (_isFilterEnabled('place'))
                         DropdownButtonFormField<String>(
                           value: _selectedPlace,
                           isExpanded: true,
@@ -476,6 +542,283 @@ class _HomeScreenState extends State<HomeScreen> {
                             setModalState(() {});
                           },
                         ),
+                        const SizedBox(height: 12),
+                        // Editorial filter
+                        if (_isFilterEnabled('editorial'))
+                        DropdownButtonFormField<String>(
+                          value: _selectedEditorial,
+                          isExpanded: true,
+                          decoration: const InputDecoration(
+                            labelText: 'Editorial',
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            isDense: true,
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              value: null,
+                              child: Text(AppLocalizations.of(context)!.any),
+                            ),
+                            const DropdownMenuItem<String>(
+                              value: '__EMPTY__',
+                              child: Text('Empty'),
+                            ),
+                            ..._editorialList.map((item) {
+                              return DropdownMenuItem<String>(
+                                value: item['name'] as String,
+                                child: Text(item['name'] as String),
+                              );
+                            }),
+                          ],
+                          onChanged: (value) {
+                            setState(() => _selectedEditorial = value);
+                            if (value != null) {
+                              provider.filterBooks('editorial', value);
+                            } else {
+                              provider.filterBooks('all', null);
+                            }
+                            setModalState(() {});
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        // Saga filter
+                        if (_isFilterEnabled('saga'))
+                        DropdownButtonFormField<String>(
+                          value: _selectedSaga,
+                          isExpanded: true,
+                          decoration: const InputDecoration(
+                            labelText: 'Saga',
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            isDense: true,
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              value: null,
+                              child: Text(AppLocalizations.of(context)!.any),
+                            ),
+                            const DropdownMenuItem<String>(
+                              value: '__EMPTY__',
+                              child: Text('Empty'),
+                            ),
+                            ..._sagaList.map((item) {
+                              return DropdownMenuItem<String>(
+                                value: item['name'] as String,
+                                child: Text(item['name'] as String),
+                              );
+                            }),
+                          ],
+                          onChanged: (value) {
+                            setState(() => _selectedSaga = value);
+                            if (value != null) {
+                              provider.filterBooks('saga', value);
+                            } else {
+                              provider.filterBooks('all', null);
+                            }
+                            setModalState(() {});
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        // Saga Universe filter
+                        if (_isFilterEnabled('saga_universe'))
+                        DropdownButtonFormField<String>(
+                          value: _selectedSagaUniverse,
+                          isExpanded: true,
+                          decoration: const InputDecoration(
+                            labelText: 'Saga Universe',
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            isDense: true,
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              value: null,
+                              child: Text(AppLocalizations.of(context)!.any),
+                            ),
+                            const DropdownMenuItem<String>(
+                              value: '__EMPTY__',
+                              child: Text('Empty'),
+                            ),
+                            ..._sagaUniverseList.map((item) {
+                              return DropdownMenuItem<String>(
+                                value: item['name'] as String,
+                                child: Text(item['name'] as String),
+                              );
+                            }),
+                          ],
+                          onChanged: (value) {
+                            setState(() => _selectedSagaUniverse = value);
+                            if (value != null) {
+                              provider.filterBooks('saga_universe', value);
+                            } else {
+                              provider.filterBooks('all', null);
+                            }
+                            setModalState(() {});
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        // Format Saga filter
+                        if (_isFilterEnabled('format_saga'))
+                        DropdownButtonFormField<String>(
+                          value: _selectedFormatSaga,
+                          isExpanded: true,
+                          decoration: const InputDecoration(
+                            labelText: 'Format Saga',
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            isDense: true,
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              value: null,
+                              child: Text(AppLocalizations.of(context)!.any),
+                            ),
+                            const DropdownMenuItem<String>(
+                              value: '__EMPTY__',
+                              child: Text('Empty'),
+                            ),
+                            ..._formatSagaList.map((item) {
+                              return DropdownMenuItem<String>(
+                                value: item['value'] as String,
+                                child: Text(item['value'] as String),
+                              );
+                            }),
+                          ],
+                          onChanged: (value) {
+                            setState(() => _selectedFormatSaga = value);
+                            if (value != null) {
+                              provider.filterBooks('format_saga', value);
+                            } else {
+                              provider.filterBooks('all', null);
+                            }
+                            setModalState(() {});
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        // Pages Empty filter
+                        if (_isFilterEnabled('pages_empty'))
+                        DropdownButtonFormField<String>(
+                          value: _selectedPagesEmpty,
+                          isExpanded: true,
+                          decoration: const InputDecoration(
+                            labelText: 'Pages',
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            isDense: true,
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              value: null,
+                              child: Text(AppLocalizations.of(context)!.any),
+                            ),
+                            const DropdownMenuItem<String>(
+                              value: '__EMPTY__',
+                              child: Text('Empty'),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            setState(() => _selectedPagesEmpty = value);
+                            if (value != null) {
+                              provider.filterBooks('pages_empty', value);
+                            } else {
+                              provider.filterBooks('all', null);
+                            }
+                            setModalState(() {});
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        // Is Bundle filter
+                        if (_isFilterEnabled('is_bundle'))
+                        DropdownButtonFormField<String>(
+                          value: _selectedIsBundle,
+                          isExpanded: true,
+                          decoration: const InputDecoration(
+                            labelText: 'Bundle',
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            isDense: true,
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              value: null,
+                              child: Text(AppLocalizations.of(context)!.any),
+                            ),
+                            const DropdownMenuItem<String>(
+                              value: 'true',
+                              child: Text('Yes'),
+                            ),
+                            const DropdownMenuItem<String>(
+                              value: 'false',
+                              child: Text('No'),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            setState(() => _selectedIsBundle = value);
+                            if (value != null) {
+                              provider.filterBooks('is_bundle', value);
+                            } else {
+                              provider.filterBooks('all', null);
+                            }
+                            setModalState(() {});
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        // Is Tandem filter
+                        if (_isFilterEnabled('is_tandem'))
+                        DropdownButtonFormField<String>(
+                          value: _selectedIsTandem,
+                          isExpanded: true,
+                          decoration: const InputDecoration(
+                            labelText: 'Tandem',
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            isDense: true,
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              value: null,
+                              child: Text(AppLocalizations.of(context)!.any),
+                            ),
+                            const DropdownMenuItem<String>(
+                              value: 'true',
+                              child: Text('Yes'),
+                            ),
+                            const DropdownMenuItem<String>(
+                              value: 'false',
+                              child: Text('No'),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            setState(() => _selectedIsTandem = value);
+                            if (value != null) {
+                              provider.filterBooks('is_tandem', value);
+                            } else {
+                              provider.filterBooks('all', null);
+                            }
+                            setModalState(() {});
+                          },
+                        ),
                         const SizedBox(height: 24),
                         Row(
                           children: [
@@ -491,6 +834,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                     _selectedTitle = null;
                                     _selectedIsbnAsin = null;
                                     _selectedAuthor = null;
+                                    _selectedEditorial = null;
+                                    _selectedSaga = null;
+                                    _selectedSagaUniverse = null;
+                                    _selectedFormatSaga = null;
+                                    _selectedPagesEmpty = null;
+                                    _selectedIsBundle = null;
+                                    _selectedIsTandem = null;
                                   });
                                   provider.clearAllFilters();
                                   setModalState(() {});
@@ -518,11 +868,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 24),
                       ],
                     ),
                   ),
-                ),
+            ),
           ),
     );
   }
