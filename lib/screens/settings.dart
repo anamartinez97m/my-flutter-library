@@ -15,6 +15,7 @@ import 'package:myrandomlibrary/utils/csv_import_helper.dart';
 import 'package:myrandomlibrary/widgets/tbr_limit_setting.dart';
 import 'package:myrandomlibrary/widgets/status_mapping_dialog.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -25,6 +26,115 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _isAdmin = false;
+  Set<String> _enabledFilters = {};
+  
+  // Available filters
+  static const List<Map<String, String>> _availableFilters = [
+    {'key': 'title', 'label': 'Title'},
+    {'key': 'isbn', 'label': 'ISBN/ASIN'},
+    {'key': 'author', 'label': 'Author'},
+    {'key': 'status', 'label': 'Status'},
+    {'key': 'format', 'label': 'Format'},
+    {'key': 'genre', 'label': 'Genre'},
+    {'key': 'language', 'label': 'Language'},
+    {'key': 'place', 'label': 'Place'},
+    {'key': 'editorial', 'label': 'Editorial'},
+    {'key': 'saga', 'label': 'Saga'},
+    {'key': 'saga_universe', 'label': 'Saga Universe'},
+    {'key': 'format_saga', 'label': 'Format Saga'},
+    {'key': 'pages_empty', 'label': 'Pages Empty'},
+    {'key': 'is_bundle', 'label': 'Is Bundle'},
+    {'key': 'is_tandem', 'label': 'Is Tandem'},
+  ];
+  
+  @override
+  void initState() {
+    super.initState();
+    _loadEnabledFilters();
+  }
+  
+  Future<void> _loadEnabledFilters() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedFilters = prefs.getStringList('enabled_filters');
+    setState(() {
+      if (savedFilters != null) {
+        _enabledFilters = savedFilters.toSet();
+      } else {
+        // Default: enable all filters
+        _enabledFilters = _availableFilters.map((f) => f['key']!).toSet();
+      }
+    });
+  }
+  
+  Future<void> _saveEnabledFilters() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('enabled_filters', _enabledFilters.toList());
+  }
+  
+  void _showFiltersDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Customize Home Filters'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: _availableFilters.length,
+              itemBuilder: (context, index) {
+                final filter = _availableFilters[index];
+                final key = filter['key']!;
+                final label = filter['label']!;
+                
+                return CheckboxListTile(
+                  title: Text(label),
+                  value: _enabledFilters.contains(key),
+                  onChanged: (value) {
+                    setState(() {
+                      if (value == true) {
+                        _enabledFilters.add(key);
+                      } else {
+                        _enabledFilters.remove(key);
+                      }
+                    });
+                    setDialogState(() {}); // Rebuild dialog
+                    _saveEnabledFilters();
+                  },
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _enabledFilters = _availableFilters.map((f) => f['key']!).toSet();
+                });
+                setDialogState(() {}); // Rebuild dialog
+                _saveEnabledFilters();
+              },
+              child: const Text('Select All'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _enabledFilters.clear();
+                });
+                setDialogState(() {}); // Rebuild dialog
+                _saveEnabledFilters();
+              },
+              child: const Text('Clear All'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   void _showLoadingDialog(BuildContext context, String message) {
     showDialog(
@@ -901,8 +1011,101 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 16),
+            // Admin CSV Import (moved to top)
+            if (_isAdmin) ...[
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: InkWell(
+                  onTap: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AdminCsvImportScreen(),
+                      ),
+                    );
+                    // If books were imported, reload the provider
+                    if (result == true && mounted) {
+                      final provider = Provider.of<BookProvider?>(
+                        context,
+                        listen: false,
+                      );
+                      await provider?.loadBooks();
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.admin_panel_settings,
+                          size: 36,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Admin CSV Import',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Review and edit each book before importing',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: Colors.grey[600]),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
             // TBR Limit Setting
             const TBRLimitSetting(),
+            const SizedBox(height: 16),
+            // Home Filters Configuration
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: InkWell(
+                onTap: () => _showFiltersDialog(context),
+                borderRadius: BorderRadius.circular(12),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.filter_list,
+                        size: 36,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Customize Home Filters',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.titleLarge
+                            ?.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Select which filters to show in the home screen',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium
+                            ?.copyWith(color: Colors.grey[600]),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
             const SizedBox(height: 16),
             Row(
               children: [
@@ -1104,60 +1307,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            if (_isAdmin) ...[
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: InkWell(
-                  onTap: () async {
-                    final result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AdminCsvImportScreen(),
-                      ),
-                    );
-                    // If books were imported, reload the provider
-                    if (result == true && mounted) {
-                      final provider = Provider.of<BookProvider?>(
-                        context,
-                        listen: false,
-                      );
-                      await provider?.loadBooks();
-                    }
-                  },
-                  borderRadius: BorderRadius.circular(12),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.admin_panel_settings,
-                          size: 36,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'Admin CSV Import',
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Review and edit each book before importing',
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(color: Colors.grey[600]),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(

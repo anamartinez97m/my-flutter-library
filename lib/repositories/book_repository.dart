@@ -848,38 +848,70 @@ class BookRepository {
 
   /// Get books and pages count per year from book_read_dates table
   /// Groups by original book (repeated books count as their original)
+  /// For books spanning multiple years, counts them for the year with more days
   Future<Map<String, Map<int, int>>> getBooksAndPagesPerYear() async {
+    // Get all read dates with book info
     final result = await db.rawQuery('''
       SELECT 
-        CAST(substr(rd.date_finished, 1, 4) AS INTEGER) as year,
-        COUNT(DISTINCT COALESCE(orig.book_id, b.book_id)) as book_count,
-        SUM(COALESCE(orig.pages, b.pages, 0)) as total_pages
+        rd.date_started,
+        rd.date_finished,
+        COALESCE(orig.book_id, b.book_id) as book_id,
+        COALESCE(orig.pages, b.pages, 0) as pages
       FROM book_read_dates rd
       INNER JOIN book b ON rd.book_id = b.book_id
       LEFT JOIN status s ON b.status_id = s.status_id
       LEFT JOIN book orig ON b.original_book_id = orig.book_id AND LOWER(s.value) = 'repeated'
       WHERE rd.date_finished IS NOT NULL 
         AND rd.date_finished != ""
-        AND CAST(substr(rd.date_finished, 1, 4) AS INTEGER) >= 1900
-        AND CAST(substr(rd.date_finished, 1, 4) AS INTEGER) <= 2100
-      GROUP BY year
-      ORDER BY year DESC
+        AND rd.date_started IS NOT NULL
+        AND rd.date_started != ""
     ''');
     
-    final Map<int, int> booksPerYear = {};
+    final Map<int, Set<int>> booksPerYear = {};
     final Map<int, int> pagesPerYear = {};
     
     for (var row in result) {
-      final year = row['year'] as int;
-      final bookCount = row['book_count'] as int;
-      final totalPages = row['total_pages'] as int;
-      
-      booksPerYear[year] = bookCount;
-      pagesPerYear[year] = totalPages;
+      try {
+        final dateStarted = DateTime.parse(row['date_started'] as String);
+        final dateFinished = DateTime.parse(row['date_finished'] as String);
+        final bookId = row['book_id'] as int;
+        final pages = row['pages'] as int;
+        
+        final startYear = dateStarted.year;
+        final endYear = dateFinished.year;
+        
+        int targetYear;
+        if (startYear == endYear) {
+          // Same year, count for that year
+          targetYear = startYear;
+        } else {
+          // Different years, count for year with more days
+          final daysInStartYear = DateTime(startYear, 12, 31).difference(dateStarted).inDays + 1;
+          final daysInEndYear = dateFinished.difference(DateTime(endYear, 1, 1)).inDays + 1;
+          targetYear = daysInStartYear > daysInEndYear ? startYear : endYear;
+        }
+        
+        // Add book to the target year (using Set to avoid duplicates)
+        if (!booksPerYear.containsKey(targetYear)) {
+          booksPerYear[targetYear] = {};
+        }
+        booksPerYear[targetYear]!.add(bookId);
+        
+        // Add pages to the target year
+        pagesPerYear[targetYear] = (pagesPerYear[targetYear] ?? 0) + pages;
+      } catch (e) {
+        debugPrint('Error parsing dates for book: $e');
+      }
+    }
+    
+    // Convert Set to count
+    final Map<int, int> booksCountPerYear = {};
+    for (var entry in booksPerYear.entries) {
+      booksCountPerYear[entry.key] = entry.value.length;
     }
     
     return {
-      'books': booksPerYear,
+      'books': booksCountPerYear,
       'pages': pagesPerYear,
     };
   }

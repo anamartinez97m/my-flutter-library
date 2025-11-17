@@ -92,6 +92,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
   // Multi-value fields
   List<String> _selectedAuthors = [];
   List<String> _selectedGenres = [];
+  
+  // Manual bundle read status (for books without reading sessions)
+  Map<int, bool> _manualBundleReadStatus = {};
 
   bool _isLoading = true;
 
@@ -542,6 +545,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
         bundlePages: _bundlePages != null ? jsonEncode(_bundlePages!) : null,
         bundlePublicationYears: _bundlePublicationYears != null ? jsonEncode(_bundlePublicationYears!) : null,
         bundleTitles: _bundleTitles != null ? jsonEncode(_bundleTitles!) : null,
+        tbr: _tbr,
+        isTandem: _isTandem,
+        originalBookId: _selectedOriginalBookId,
       );
 
       // Update the book (delete and re-add with same ID)
@@ -1104,6 +1110,17 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   initialBundlePages: _bundlePages,
                   initialBundlePublicationYears: _bundlePublicationYears,
                   initialBundleTitles: _bundleTitles,
+                  bundleBooksReadStatus: _bundleReadDates.map((index, dates) {
+                    // Check if there are actual reading sessions
+                    final hasReadingSessions = dates.any((d) => d.dateFinished != null && d.dateFinished!.isNotEmpty);
+                    // If no reading sessions, use manual status
+                    return MapEntry(index, hasReadingSessions || (_manualBundleReadStatus[index] ?? false));
+                  }),
+                  onReadStatusChanged: (index, isRead) {
+                    setState(() {
+                      _manualBundleReadStatus[index] = isRead;
+                    });
+                  },
                   onChanged: (
                     isBundle,
                     count,

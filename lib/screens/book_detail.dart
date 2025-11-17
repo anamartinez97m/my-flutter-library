@@ -26,6 +26,7 @@ class BookDetailScreen extends StatefulWidget {
 class _BookDetailScreenState extends State<BookDetailScreen> {
   late Book _currentBook;
   List<ReadDate> _readDates = [];
+  Map<int, List<ReadDate>> _bundleReadDates = {};
   bool _loadingReadDates = true;
 
   @override
@@ -39,17 +40,140 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
-      final readDates = await repository.getReadDatesForBook(_currentBook.bookId!);
-      setState(() {
-        _readDates = readDates;
-        _loadingReadDates = false;
-      });
+      
+      if (_currentBook.isBundle == true) {
+        // Load bundle read dates
+        final bundleReadDates = await repository.getAllBundleReadDates(_currentBook.bookId!);
+        setState(() {
+          _bundleReadDates = bundleReadDates;
+          _loadingReadDates = false;
+        });
+      } else {
+        // Load regular read dates
+        final readDates = await repository.getReadDatesForBook(_currentBook.bookId!);
+        setState(() {
+          _readDates = readDates;
+          _loadingReadDates = false;
+        });
+      }
     } catch (e) {
       debugPrint('Error loading read dates: $e');
       setState(() {
         _loadingReadDates = false;
       });
     }
+  }
+  
+  Future<Book?> _loadOriginalBook(int originalBookId) async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final repository = BookRepository(db);
+      final books = await repository.getAllBooks();
+      return books.firstWhere((book) => book.bookId == originalBookId);
+    } catch (e) {
+      debugPrint('Error loading original book: $e');
+      return null;
+    }
+  }
+  
+  List<Widget> _buildBundleBooksList() {
+    List<String?>? titles;
+    List<int?>? pages;
+    List<int?>? pubYears;
+    
+    try {
+      if (_currentBook.bundleTitles != null) {
+        final List<dynamic> titlesData = jsonDecode(_currentBook.bundleTitles!);
+        titles = titlesData.map((t) => t as String?).toList();
+      }
+    } catch (e) {
+      titles = null;
+    }
+    
+    try {
+      if (_currentBook.bundlePages != null) {
+        final List<dynamic> pagesData = jsonDecode(_currentBook.bundlePages!);
+        pages = pagesData.map((p) => p as int?).toList();
+      }
+    } catch (e) {
+      pages = null;
+    }
+    
+    try {
+      if (_currentBook.bundlePublicationYears != null) {
+        final List<dynamic> yearsData = jsonDecode(_currentBook.bundlePublicationYears!);
+        pubYears = yearsData.map((y) => y as int?).toList();
+      }
+    } catch (e) {
+      pubYears = null;
+    }
+    
+    final maxLength = [
+      titles?.length ?? 0,
+      pages?.length ?? 0,
+      pubYears?.length ?? 0,
+      _currentBook.bundleCount ?? 0,
+    ].reduce((a, b) => a > b ? a : b);
+    
+    return List.generate(maxLength, (index) {
+      final title = titles != null && index < titles.length ? titles[index] : null;
+      final pageCount = pages != null && index < pages.length ? pages[index] : null;
+      final pubYear = pubYears != null && index < pubYears.length ? pubYears[index] : null;
+      final hasReadDates = _bundleReadDates.containsKey(index) && 
+                           _bundleReadDates[index]!.any((d) => d.dateFinished != null && d.dateFinished!.isNotEmpty);
+      
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                color: hasReadDates ? Colors.green : Colors.grey[300],
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Text(
+                  '${index + 1}',
+                  style: TextStyle(
+                    color: hasReadDates ? Colors.white : Colors.grey[700],
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (title != null && title.isNotEmpty)
+                    Text(
+                      title,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  if (pageCount != null || pubYear != null)
+                    Text(
+                      [
+                        if (pageCount != null) '$pageCount pages',
+                        if (pubYear != null) 'Pub. $pubYear',
+                      ].join(' • '),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   String _formatDateTime(String isoString) {
@@ -426,6 +550,34 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                           _currentBook.statusValue!,
                         ),
                       ),
+                    // Original Book (for repeated books)
+                    if (_currentBook.statusValue?.toLowerCase() == 'repeated' && 
+                        _currentBook.originalBookId != null)
+                      FutureBuilder<Book?>(
+                        future: _loadOriginalBook(_currentBook.originalBookId!),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData && snapshot.data != null) {
+                            final originalBook = snapshot.data!;
+                            return InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => BookDetailScreen(book: originalBook),
+                                  ),
+                                );
+                              },
+                              child: _DetailCard(
+                                icon: Icons.repeat,
+                                label: 'Original Book',
+                                value: '${originalBook.name}${originalBook.author != null ? " - ${originalBook.author}" : ""}',
+                                trailingIcon: Icons.open_in_new,
+                              ),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
                     if (_currentBook.author != null &&
                         _currentBook.author!.isNotEmpty)
                       _DetailCard(
@@ -561,30 +713,147 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
 
                     // Bundle information
                     if (_currentBook.isBundle == true) ...[
-                      _DetailCard(
-                        icon: Icons.library_books,
-                        label: 'Bundle',
-                        value:
-                            'Contains ${_currentBook.bundleCount ?? 0} books',
-                      ),
-                      if (_currentBook.bundleNumbers != null &&
-                          _currentBook.bundleNumbers!.isNotEmpty)
-                        _DetailCard(
-                          icon: Icons.format_list_numbered,
-                          label: 'Saga Numbers',
-                          value: _currentBook.bundleNumbers!,
+                      Card(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        elevation: 1,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      if (_currentBook.bundleStartDates != null ||
-                          _currentBook.bundleEndDates != null ||
-                          _currentBook.bundlePages != null ||
-                          _currentBook.bundlePublicationYears != null ||
-                          _currentBook.bundleTitles != null)
-                        _BundleDatesCard(
-                          startDates: _currentBook.bundleStartDates,
-                          endDates: _currentBook.bundleEndDates,
-                          bundlePages: _currentBook.bundlePages,
-                          bundlePublicationYears: _currentBook.bundlePublicationYears,
-                          bundleTitles: _currentBook.bundleTitles,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.library_books,
+                                    color: Theme.of(context).colorScheme.primary,
+                                    size: 24,
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Text(
+                                    'Bundle Information',
+                                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                      color: Colors.grey[600],
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                'Contains ${_currentBook.bundleCount ?? 0} books',
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                              if (_currentBook.bundleNumbers != null &&
+                                  _currentBook.bundleNumbers!.isNotEmpty) ...[
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Saga Numbers: ${_currentBook.bundleNumbers}',
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ],
+                              if (_currentBook.bundleTitles != null ||
+                                  _currentBook.bundlePages != null ||
+                                  _currentBook.bundlePublicationYears != null) ...[
+                                const SizedBox(height: 12),
+                                const Divider(),
+                                const SizedBox(height: 8),
+                                ..._buildBundleBooksList(),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                      // Bundle Reading Sessions
+                      if (_bundleReadDates.isNotEmpty)
+                        Card(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.history,
+                                      color: Theme.of(context).colorScheme.primary,
+                                      size: 24,
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Text(
+                                      'Bundle Reading Sessions',
+                                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                        color: Colors.grey[600],
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                ...List.generate(_currentBook.bundleCount ?? 0, (bundleIndex) {
+                                  final readDates = _bundleReadDates[bundleIndex] ?? [];
+                                  if (readDates.isEmpty) return const SizedBox.shrink();
+                                  
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 12),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Book ${bundleIndex + 1}',
+                                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        ...List.generate(readDates.length, (index) {
+                                          final readDate = readDates[index];
+                                          return Padding(
+                                            padding: const EdgeInsets.only(bottom: 4, left: 16),
+                                            child: Row(
+                                              children: [
+                                                Text(
+                                                  '${index + 1}.',
+                                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Expanded(
+                                                  child: Text(
+                                                    readDate.dateStarted != null 
+                                                        ? formatDateForDisplay(readDate.dateStarted)
+                                                        : 'Not started',
+                                                    style: Theme.of(context).textTheme.bodySmall,
+                                                  ),
+                                                ),
+                                                const Text(' → '),
+                                                Expanded(
+                                                  child: Text(
+                                                    readDate.dateFinished != null
+                                                        ? formatDateForDisplay(readDate.dateFinished)
+                                                        : 'Not finished',
+                                                    style: Theme.of(context).textTheme.bodySmall,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        }),
+                                      ],
+                                    ),
+                                  );
+                                }),
+                              ],
+                            ),
+                          ),
                         ),
                     ],
 

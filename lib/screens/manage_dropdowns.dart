@@ -267,6 +267,8 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       
       // Check if value is in use
       final idColumn = _selectedTable == 'format_saga' ? 'format_id' : '${_selectedTable}_id';
+      // Column name in book table (format_saga uses format_saga_id in book table)
+      final bookColumnName = _selectedTable == 'format_saga' ? 'format_saga_id' : idColumn;
       int usageCount;
       
       // For author and genre, check junction tables
@@ -292,7 +294,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       } else {
         // For other tables (status, format, language, place, editorial, format_saga)
         final booksUsingValue = await db.rawQuery(
-          'SELECT COUNT(*) as count FROM book WHERE $idColumn = ?',
+          'SELECT COUNT(*) as count FROM book WHERE $bookColumnName = ?',
           [id],
         );
         usageCount = booksUsingValue.first['count'] as int;
@@ -341,7 +343,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
           } else {
             // Update book table directly
             await db.rawUpdate(
-              'UPDATE book SET $idColumn = ? WHERE $idColumn = ?',
+              'UPDATE book SET $bookColumnName = ? WHERE $bookColumnName = ?',
               [newId, id],
             );
           }
@@ -365,7 +367,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
           } else {
             // Update book table directly
             await db.rawUpdate(
-              'UPDATE book SET $idColumn = ? WHERE $idColumn = ?',
+              'UPDATE book SET $bookColumnName = ? WHERE $bookColumnName = ?',
               [newId, id],
             );
           }
