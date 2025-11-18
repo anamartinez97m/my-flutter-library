@@ -782,6 +782,157 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  Future<void> _exportToCsv(BuildContext context) async {
+    try {
+      // Show loading indicator
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Preparing CSV export...'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+
+      // Get all books from the database
+      final db = await DatabaseHelper.instance.database;
+      final repository = BookRepository(db);
+      final allBooks = await repository.getAllBooks();
+
+      if (allBooks.isEmpty) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No books to export'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+        return;
+      }
+
+      // Create CSV data
+      List<List<dynamic>> csvData = [];
+      
+      // Add header row
+      csvData.add([
+        'Title',
+        'Author',
+        'ISBN',
+        'ASIN',
+        'Saga',
+        'N_Saga',
+        'Saga Universe',
+        'Format Saga',
+        'Status',
+        'Editorial',
+        'Language',
+        'Place',
+        'Format',
+        'Genre',
+        'Pages',
+        'Original Publication Year',
+        'Loaned',
+        'Date Read Initial',
+        'Date Read Final',
+        'Read Count',
+        'My Rating',
+        'My Review',
+        'Is Bundle',
+        'Bundle Count',
+        'Bundle Numbers',
+        'Created At',
+      ]);
+
+      // Add book data
+      for (var book in allBooks) {
+        csvData.add([
+          book.name ?? '',
+          book.author ?? '',
+          book.isbn ?? '',
+          book.asin ?? '',
+          book.saga ?? '',
+          book.nSaga ?? '',
+          book.sagaUniverse ?? '',
+          book.formatSagaValue ?? '',
+          book.statusValue ?? '',
+          book.editorialValue ?? '',
+          book.languageValue ?? '',
+          book.placeValue ?? '',
+          book.formatValue ?? '',
+          book.genre ?? '',
+          book.pages?.toString() ?? '',
+          book.originalPublicationYear?.toString() ?? '',
+          book.loaned ?? '',
+          book.dateReadInitial ?? '',
+          book.dateReadFinal ?? '',
+          book.readCount?.toString() ?? '',
+          book.myRating?.toString() ?? '',
+          book.myReview ?? '',
+          book.isBundle == true ? 'yes' : 'no',
+          book.bundleCount?.toString() ?? '',
+          book.bundleNumbers ?? '',
+          book.createdAt ?? '',
+        ]);
+      }
+
+      // Convert to CSV string
+      String csv = const ListToCsvConverter().convert(csvData);
+
+      // Create file name with timestamp
+      final timestamp =
+          DateTime.now().toIso8601String().replaceAll(':', '-').split('.')[0];
+      final fileName = 'my_library_export_$timestamp.csv';
+
+      // Let user pick a directory
+      String? selectedDirectory = await FilePicker.platform.getDirectoryPath(
+        dialogTitle: 'Select folder to save CSV',
+      );
+
+      if (selectedDirectory == null) {
+        // User canceled
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Export canceled'),
+              backgroundColor: Colors.grey,
+            ),
+          );
+        }
+        return;
+      }
+
+      // Create the full path for the CSV file
+      final filePath = '$selectedDirectory/$fileName';
+
+      // Write the CSV file
+      await File(filePath).writeAsString(csv);
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Exported ${allBooks.length} books to:\n$filePath',
+            ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Export error: $e');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error exporting to CSV: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+    }
+  }
+
   Widget _buildLightThemeGrid(
     BuildContext context,
     ThemeProvider themeProvider,
@@ -1661,6 +1812,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       },
                     ),
                   ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Export to CSV button
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: InkWell(
+                onTap: () => _exportToCsv(context),
+                borderRadius: BorderRadius.circular(12),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.file_download,
+                        size: 36,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Export to CSV',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Export all books to a CSV file',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

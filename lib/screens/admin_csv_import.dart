@@ -309,25 +309,45 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
 
   Future<void> _selectAndParseCsv() async {
     try {
-      // Pick CSV file
+      // Pick CSV file - use FileType.any to allow selection from cloud storage
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.any,
         dialogTitle: 'Select CSV file',
+        allowMultiple: false,
       );
 
-      if (result == null || result.files.single.path == null) {
+      if (result == null || result.files.isEmpty) {
         return;
       }
 
-      final filePath = result.files.single.path!;
-
-      if (!filePath.toLowerCase().endsWith('.csv')) {
+      final file = result.files.single;
+      final fileName = file.name;
+      
+      if (!fileName.toLowerCase().endsWith('.csv')) {
         throw Exception('Please select a CSV file');
       }
 
       setState(() {
         _isLoading = true;
       });
+
+      // Try to get file path, if not available use bytes
+      String filePath;
+      
+      if (file.path == null || file.path!.isEmpty) {
+        // Path not available (e.g., web or cloud storage), use bytes
+        if (file.bytes != null) {
+          // Create a temporary file from bytes
+          final tempDir = await Directory.systemTemp.createTemp('csv_import');
+          final tempFile = File('${tempDir.path}/$fileName');
+          await tempFile.writeAsBytes(file.bytes!);
+          filePath = tempFile.path;
+        } else {
+          throw Exception('Could not access file. Please try downloading it first.');
+        }
+      } else {
+        filePath = file.path!;
+      }
 
       await _parseCsvFile(filePath, clearReviewed: true);
     } catch (e) {
@@ -700,6 +720,32 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         }
         return !isReviewed && !isIgnored;
       }).toList();
+      
+      // Sort items: ISBN/ASIN matches first, then name matches, then rest
+      unreviewedItems.sort((a, b) {
+        // Determine match type for each item
+        int getMatchPriority(_BookImportItem item) {
+          final hasIsbn = item.book.isbn != null && item.book.isbn!.isNotEmpty;
+          final hasAsin = item.book.asin != null && item.book.asin!.isNotEmpty;
+          final hasName = item.book.name != null && item.book.name!.isNotEmpty;
+          
+          // Priority 1: Has ISBN or ASIN match (UPDATE or DUPLICATE with ISBN/ASIN)
+          if ((hasIsbn || hasAsin) && (item.importType == 'UPDATE' || item.importType == 'DUPLICATE')) {
+            return 1;
+          }
+          // Priority 2: Has name match (UPDATE or DUPLICATE without ISBN/ASIN)
+          if (hasName && (item.importType == 'UPDATE' || item.importType == 'DUPLICATE')) {
+            return 2;
+          }
+          // Priority 3: Everything else (NEW books)
+          return 3;
+        }
+        
+        final aPriority = getMatchPriority(a);
+        final bPriority = getMatchPriority(b);
+        
+        return aPriority.compareTo(bPriority);
+      });
       
       if (reviewedCount > 5) {
         debugPrint('  ... and ${reviewedCount - 5} more reviewed books');

@@ -849,14 +849,18 @@ class BookRepository {
   /// Get books and pages count per year from book_read_dates table
   /// Groups by original book (repeated books count as their original)
   /// For books spanning multiple years, counts them for the year with more days
+  /// Handles bundles by counting each book in the bundle separately
   Future<Map<String, Map<int, int>>> getBooksAndPagesPerYear() async {
-    // Get all read dates with book info
+    // Get all read dates with book info, including bundle information
     final result = await db.rawQuery('''
       SELECT 
+        rd.read_date_id,
         rd.date_started,
         rd.date_finished,
         COALESCE(orig.book_id, b.book_id) as book_id,
-        COALESCE(orig.pages, b.pages, 0) as pages
+        COALESCE(orig.pages, b.pages, 0) as pages,
+        COALESCE(orig.is_bundle, b.is_bundle, 0) as is_bundle,
+        COALESCE(orig.bundle_count, b.bundle_count, 0) as bundle_count
       FROM book_read_dates rd
       INNER JOIN book b ON rd.book_id = b.book_id
       LEFT JOIN status s ON b.status_id = s.status_id
@@ -867,15 +871,16 @@ class BookRepository {
         AND rd.date_started != ""
     ''');
     
-    final Map<int, Set<int>> booksPerYear = {};
+    final Map<int, int> booksPerYear = {};
     final Map<int, int> pagesPerYear = {};
     
     for (var row in result) {
       try {
         final dateStarted = DateTime.parse(row['date_started'] as String);
         final dateFinished = DateTime.parse(row['date_finished'] as String);
-        final bookId = row['book_id'] as int;
         final pages = row['pages'] as int;
+        final isBundle = (row['is_bundle'] as int) == 1;
+        final bundleCount = row['bundle_count'] as int;
         
         final startYear = dateStarted.year;
         final endYear = dateFinished.year;
@@ -891,11 +896,11 @@ class BookRepository {
           targetYear = daysInStartYear > daysInEndYear ? startYear : endYear;
         }
         
-        // Add book to the target year (using Set to avoid duplicates)
-        if (!booksPerYear.containsKey(targetYear)) {
-          booksPerYear[targetYear] = {};
-        }
-        booksPerYear[targetYear]!.add(bookId);
+        // Calculate multiplier for bundles
+        final multiplier = (isBundle && bundleCount > 0) ? bundleCount : 1;
+        
+        // Add books count to the target year
+        booksPerYear[targetYear] = (booksPerYear[targetYear] ?? 0) + multiplier;
         
         // Add pages to the target year
         pagesPerYear[targetYear] = (pagesPerYear[targetYear] ?? 0) + pages;
@@ -904,14 +909,8 @@ class BookRepository {
       }
     }
     
-    // Convert Set to count
-    final Map<int, int> booksCountPerYear = {};
-    for (var entry in booksPerYear.entries) {
-      booksCountPerYear[entry.key] = entry.value.length;
-    }
-    
     return {
-      'books': booksCountPerYear,
+      'books': booksPerYear,
       'pages': pagesPerYear,
     };
   }
