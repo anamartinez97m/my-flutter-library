@@ -516,18 +516,17 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                                                   4,
                                                                 ),
                                                           ),
-                                                          child: Center(
-                                                            child: Text(
-                                                              '${entry.value}',
-                                                              style: const TextStyle(
-                                                                color:
-                                                                    Colors
-                                                                        .white,
-                                                                fontSize: 11,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                              ),
+                                                        ),
+                                                        Container(
+                                                          height: 24,
+                                                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                                                          alignment: Alignment.centerLeft,
+                                                          child: Text(
+                                                            '${entry.value}',
+                                                            style: TextStyle(
+                                                              color: percentage > 0.15 ? Colors.white : Colors.black87,
+                                                              fontSize: 11,
+                                                              fontWeight: FontWeight.bold,
                                                             ),
                                                           ),
                                                         ),
@@ -631,15 +630,17 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                                             4,
                                                           ),
                                                     ),
-                                                    child: Center(
-                                                      child: Text(
-                                                        '${entry.value}',
-                                                        style: const TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize: 11,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
+                                                  ),
+                                                  Container(
+                                                    height: 24,
+                                                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                                                    alignment: Alignment.centerLeft,
+                                                    child: Text(
+                                                      '${entry.value}',
+                                                      style: TextStyle(
+                                                        color: percentage > 0.15 ? Colors.white : Colors.black87,
+                                                        fontSize: 11,
+                                                        fontWeight: FontWeight.bold,
                                                       ),
                                                     ),
                                                   ),
@@ -779,15 +780,18 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                                 borderRadius:
                                                     BorderRadius.circular(4),
                                               ),
-                                              child: Center(
-                                                child: Text(
-                                                  '${entry.value}',
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 11,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
+                                            ),
+                                          ),
+                                          Container(
+                                            height: 24,
+                                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                                            alignment: Alignment.centerLeft,
+                                            child: Text(
+                                              '${entry.value}',
+                                              style: TextStyle(
+                                                color: percentage > 0.15 ? Colors.white : Colors.black87,
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.bold,
                                               ),
                                             ),
                                           ),
@@ -1009,15 +1013,18 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                               borderRadius:
                                                   BorderRadius.circular(4),
                                             ),
-                                            child: Center(
-                                              child: Text(
-                                                '${entry.value}',
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 11,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
+                                          ),
+                                        ),
+                                        Container(
+                                          height: 24,
+                                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            '${entry.value}',
+                                            style: TextStyle(
+                                              color: percentage > 0.15 ? Colors.white : Colors.black87,
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.bold,
                                             ),
                                           ),
                                         ),
@@ -1392,15 +1399,18 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                             4,
                                           ),
                                         ),
-                                        child: Center(
-                                          child: Text(
-                                            '${entry.value}',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
+                                      ),
+                                    ),
+                                    Container(
+                                      height: 24,
+                                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        '${entry.value}',
+                                        style: TextStyle(
+                                          color: percentage > 0.15 ? Colors.white : Colors.black87,
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                     ),
@@ -1468,15 +1478,18 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                         color: Colors.orange,
                                         borderRadius: BorderRadius.circular(4),
                                       ),
-                                      child: Center(
-                                        child: Text(
-                                          '${entry.value}',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
+                                    ),
+                                  ),
+                                  Container(
+                                    height: 24,
+                                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      '${entry.value}',
+                                      style: TextStyle(
+                                        color: percentage > 0.15 ? Colors.white : Colors.black87,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                   ),
@@ -1544,15 +1557,18 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                         color: Colors.red,
                                         borderRadius: BorderRadius.circular(4),
                                       ),
-                                      child: Center(
-                                        child: Text(
-                                          '${entry.value}',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
+                                    ),
+                                  ),
+                                  Container(
+                                    height: 24,
+                                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      '${entry.value}',
+                                      style: TextStyle(
+                                        color: percentage > 0.15 ? Colors.white : Colors.black87,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                   ),

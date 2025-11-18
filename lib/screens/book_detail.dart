@@ -76,10 +76,44 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     }
   }
   
+  List<String?> _parseBundleSagaNumbers(String numbersStr) {
+    // Parse formats like "1-3", "1, 2, 3", "1,2,3"
+    final List<String?> result = [];
+    
+    if (numbersStr.contains('-')) {
+      // Range format: "1-3"
+      final parts = numbersStr.split('-');
+      if (parts.length == 2) {
+        final start = int.tryParse(parts[0].trim());
+        final end = int.tryParse(parts[1].trim());
+        if (start != null && end != null) {
+          for (int i = start; i <= end; i++) {
+            result.add(i.toString());
+          }
+        }
+      }
+    } else if (numbersStr.contains(',')) {
+      // Comma-separated format: "1, 2, 3"
+      final parts = numbersStr.split(',');
+      for (final part in parts) {
+        final trimmed = part.trim();
+        if (trimmed.isNotEmpty) {
+          result.add(trimmed);
+        }
+      }
+    } else {
+      // Single number
+      result.add(numbersStr.trim());
+    }
+    
+    return result;
+  }
+  
   List<Widget> _buildBundleBooksList() {
     List<String?>? titles;
     List<int?>? pages;
     List<int?>? pubYears;
+    List<String?>? sagaNumbers;
     
     try {
       if (_currentBook.bundleTitles != null) {
@@ -108,10 +142,16 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       pubYears = null;
     }
     
+    // Parse saga numbers from bundleNumbers string
+    if (_currentBook.bundleNumbers != null && _currentBook.bundleNumbers!.isNotEmpty) {
+      sagaNumbers = _parseBundleSagaNumbers(_currentBook.bundleNumbers!);
+    }
+    
     final maxLength = [
       titles?.length ?? 0,
       pages?.length ?? 0,
       pubYears?.length ?? 0,
+      sagaNumbers?.length ?? 0,
       _currentBook.bundleCount ?? 0,
     ].reduce((a, b) => a > b ? a : b);
     
@@ -119,6 +159,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       final title = titles != null && index < titles.length ? titles[index] : null;
       final pageCount = pages != null && index < pages.length ? pages[index] : null;
       final pubYear = pubYears != null && index < pubYears.length ? pubYears[index] : null;
+      final sagaNum = sagaNumbers != null && index < sagaNumbers.length ? sagaNumbers[index] : null;
       final hasReadDates = _bundleReadDates.containsKey(index) && 
                            _bundleReadDates[index]!.any((d) => d.dateFinished != null && d.dateFinished!.isNotEmpty);
       
@@ -150,6 +191,14 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (sagaNum != null && sagaNum.isNotEmpty)
+                    Text(
+                      'Saga #$sagaNum',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   if (title != null && title.isNotEmpty)
                     Text(
                       title,

@@ -36,6 +36,7 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
   List<int?> _bundlePages = [];
   List<int?> _bundlePublicationYears = [];
   List<String?> _bundleTitles = [];
+  List<String?> _bundleSagaNumbers = []; // N_Saga for each book in bundle
 
   @override
   void initState() {
@@ -58,6 +59,11 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
       _bundleTitles = List.from(widget.initialBundleTitles!);
     }
     
+    // Initialize saga numbers from bundleNumbers string if available
+    if (widget.initialBundleNumbers != null && widget.initialBundleNumbers!.isNotEmpty) {
+      _bundleSagaNumbers = _parseSagaNumbers(widget.initialBundleNumbers!);
+    }
+    
     _bundleCountController.addListener(_onCountChanged);
   }
 
@@ -66,6 +72,39 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
     _bundleCountController.dispose();
     _bundleNumbersController.dispose();
     super.dispose();
+  }
+
+  List<String?> _parseSagaNumbers(String numbersStr) {
+    // Parse formats like "1-3", "1, 2, 3", "1,2,3"
+    final List<String?> result = [];
+    
+    if (numbersStr.contains('-')) {
+      // Range format: "1-3"
+      final parts = numbersStr.split('-');
+      if (parts.length == 2) {
+        final start = int.tryParse(parts[0].trim());
+        final end = int.tryParse(parts[1].trim());
+        if (start != null && end != null) {
+          for (int i = start; i <= end; i++) {
+            result.add(i.toString());
+          }
+        }
+      }
+    } else if (numbersStr.contains(',')) {
+      // Comma-separated format: "1, 2, 3"
+      final parts = numbersStr.split(',');
+      for (final part in parts) {
+        final trimmed = part.trim();
+        if (trimmed.isNotEmpty) {
+          result.add(trimmed);
+        }
+      }
+    } else {
+      // Single number
+      result.add(numbersStr.trim());
+    }
+    
+    return result;
   }
 
   void _onCountChanged() {
@@ -91,6 +130,12 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
         if (_bundleTitles.length > count) {
           _bundleTitles = _bundleTitles.sublist(0, count);
         }
+        while (_bundleSagaNumbers.length < count) {
+          _bundleSagaNumbers.add(null);
+        }
+        if (_bundleSagaNumbers.length > count) {
+          _bundleSagaNumbers = _bundleSagaNumbers.sublist(0, count);
+        }
       });
     }
     _notifyChange();
@@ -98,10 +143,23 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
 
   void _notifyChange() {
     final count = int.tryParse(_bundleCountController.text);
+    
+    // Build bundleNumbers string from individual saga numbers if they exist
+    String? bundleNumbersStr;
+    if (_bundleSagaNumbers.isNotEmpty && _bundleSagaNumbers.any((n) => n != null && n.isNotEmpty)) {
+      // Use comma-separated format for individual saga numbers
+      bundleNumbersStr = _bundleSagaNumbers
+          .where((n) => n != null && n.isNotEmpty)
+          .join(', ');
+    } else if (_bundleNumbersController.text.trim().isNotEmpty) {
+      // Fall back to the text field value
+      bundleNumbersStr = _bundleNumbersController.text.trim();
+    }
+    
     widget.onChanged(
       _isBundle,
       count,
-      _bundleNumbersController.text.trim().isEmpty ? null : _bundleNumbersController.text.trim(),
+      bundleNumbersStr,
       _bundlePages.isEmpty ? null : _bundlePages,
       _bundlePublicationYears.isEmpty ? null : _bundlePublicationYears,
       _bundleTitles.isEmpty ? null : _bundleTitles,
@@ -227,6 +285,28 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
                                 ],
                               ),
                           ],
+                        ),
+                        const SizedBox(height: 8),
+                        // N_Saga input
+                        TextFormField(
+                          initialValue: (index < _bundleSagaNumbers.length && _bundleSagaNumbers[index] != null) 
+                              ? _bundleSagaNumbers[index] 
+                              : '',
+                          decoration: const InputDecoration(
+                            labelText: 'Saga Number (N_Saga)',
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                            hintText: 'e.g., 1 or 1.5',
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              while (_bundleSagaNumbers.length <= index) {
+                                _bundleSagaNumbers.add(null);
+                              }
+                              _bundleSagaNumbers[index] = value.isEmpty ? null : value;
+                            });
+                            _notifyChange();
+                          },
                         ),
                         const SizedBox(height: 8),
                         // Book Title input
