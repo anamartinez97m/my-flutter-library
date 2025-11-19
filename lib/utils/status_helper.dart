@@ -15,6 +15,8 @@ class StatusHelper {
         return 'Repeated';
       case 'started':
         return 'Started';
+      case 'abandoned':
+        return 'Abandoned / DNF';
       default:
         // Return original value with first letter capitalized for unknown values
         return dbValue.isEmpty ? dbValue : dbValue[0].toUpperCase() + dbValue.substring(1);
@@ -29,6 +31,7 @@ class StatusHelper {
       'tbreleased': 'TBReleased',
       'repeated': 'Repeated',
       'started': 'Started',
+      'abandoned': 'Abandoned / DNF',
     };
   }
 }

@@ -23,7 +23,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 14,
+      version: 15,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -184,6 +184,7 @@ class DatabaseHelper {
       await db.insert('status', {'value': 'Yes'});
       await db.insert('status', {'value': 'Started'});
       await db.insert('status', {'value': 'TBReleased'});
+      await db.insert('status', {'value': 'Abandoned'});
     }
   }
 
@@ -529,6 +530,15 @@ class DatabaseHelper {
             });
           }
         }
+      }
+    }
+    if (oldVersion < 15) {
+      // Add "Abandoned" status if it doesn't exist
+      final abandonedExists = await db.rawQuery(
+        "SELECT COUNT(*) as count FROM status WHERE value = 'Abandoned'",
+      );
+      if (abandonedExists.first['count'] == 0) {
+        await db.insert('status', {'value': 'Abandoned'});
       }
     }
   }
