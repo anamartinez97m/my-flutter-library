@@ -116,7 +116,7 @@ class BookExtremesCard extends StatelessWidget {
                           Text(
                             book1,
                             style: Theme.of(context).textTheme.bodySmall,
-                            maxLines: 1,
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
                       ],
@@ -144,7 +144,7 @@ class BookExtremesCard extends StatelessWidget {
                           Text(
                             book2,
                             style: Theme.of(context).textTheme.bodySmall,
-                            maxLines: 1,
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
                       ],
