@@ -5,7 +5,21 @@ import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/screens/books_by_year.dart';
-import 'package:myrandomlibrary/screens/books_by_decade.dart';
+import 'package:myrandomlibrary/widgets/statistics/total_books_card.dart';
+import 'package:myrandomlibrary/widgets/statistics/responsive_stat_grid.dart';
+import 'package:myrandomlibrary/widgets/statistics/latest_book_card.dart';
+import 'package:myrandomlibrary/widgets/statistics/books_by_decade_card.dart';
+import 'package:myrandomlibrary/widgets/statistics/rating_distribution_card.dart';
+import 'package:myrandomlibrary/widgets/statistics/page_distribution_card.dart';
+import 'package:myrandomlibrary/widgets/statistics/saga_completion_card.dart';
+import 'package:myrandomlibrary/widgets/statistics/seasonal_reading_card.dart';
+import 'package:myrandomlibrary/widgets/statistics/reading_efficiency_card.dart';
+import 'package:myrandomlibrary/widgets/statistics/monthly_heatmap_card.dart';
+import 'package:myrandomlibrary/widgets/statistics/average_rating_card.dart';
+import 'package:myrandomlibrary/widgets/statistics/book_extremes_card.dart';
+import 'package:myrandomlibrary/widgets/statistics/reading_insights_card.dart';
+import 'package:myrandomlibrary/widgets/statistics/reading_time_placeholder_card.dart';
+import 'package:myrandomlibrary/widgets/statistics/reading_goals_placeholder_card.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -19,6 +33,10 @@ class StatisticsScreen extends StatefulWidget {
 class _StatisticsScreenState extends State<StatisticsScreen> {
   bool _showStatusAsPercentage = false;
   bool _showFormatAsPercentage = true;
+  bool _showReadBooksDecade = true;
+  bool _showReadBooksGenres = true;
+  bool _showReadBooksEditorials = true;
+  bool _showReadBooksAuthors = true;
   Map<int, int>? _booksReadPerYear;
   Map<int, int>? _pagesReadPerYear;
 
@@ -44,8 +62,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     }
   }
 
+  String _getMonthName(int month) {
+    const monthNames = [
+      '', 'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return month >= 1 && month <= 12 ? monthNames[month] : '';
+  }
+
   /// Try to parse date with multiple formats
-  DateTime? _tryParseDate(String dateStr) {
+  DateTime? _tryParseDate(String dateStr, {String? bookName}) {
     if (dateStr.trim().isEmpty) return null;
 
     final trimmed = dateStr.trim();
@@ -78,12 +104,17 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             }
           }
         } catch (e) {
-          debugPrint('Could not parse date with slashes: $dateStr - Error: $e');
+          if (bookName != null) {
+            debugPrint('Error parsing date "$dateStr" for book "$bookName": $e');
+          }
+          return null;
         }
       }
     }
 
-    debugPrint('Could not parse date with any format: $dateStr');
+    if (bookName != null) {
+      debugPrint('Could not parse date "$dateStr" for book "$bookName"');
+    }
     return null;
   }
 
@@ -132,23 +163,33 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         formatCounts[format] = (formatCounts[format] ?? 0) + multiplier;
       }
 
-      // Genre
-      final genre = book.genre;
-      if (genre != null && genre.isNotEmpty) {
-        genreCounts[genre] = (genreCounts[genre] ?? 0) + multiplier;
+      // Genre (filtered by read status)
+      final isRead = book.readCount != null && book.readCount! > 0;
+      final shouldIncludeGenre = _showReadBooksGenres ? isRead : true;
+      if (shouldIncludeGenre) {
+        final genre = book.genre;
+        if (genre != null && genre.isNotEmpty) {
+          genreCounts[genre] = (genreCounts[genre] ?? 0) + multiplier;
+        }
       }
 
-      // Editorial
-      final editorial = book.editorialValue;
-      if (editorial != null && editorial.isNotEmpty) {
-        editorialCounts[editorial] =
-            (editorialCounts[editorial] ?? 0) + multiplier;
+      // Editorial (filtered by read status)
+      final shouldIncludeEditorial = _showReadBooksEditorials ? isRead : true;
+      if (shouldIncludeEditorial) {
+        final editorial = book.editorialValue;
+        if (editorial != null && editorial.isNotEmpty) {
+          editorialCounts[editorial] =
+              (editorialCounts[editorial] ?? 0) + multiplier;
+        }
       }
 
-      // Author
-      final author = book.author;
-      if (author != null && author.isNotEmpty) {
-        authorCounts[author] = (authorCounts[author] ?? 0) + multiplier;
+      // Author (filtered by read status)
+      final shouldIncludeAuthor = _showReadBooksAuthors ? isRead : true;
+      if (shouldIncludeAuthor) {
+        final author = book.author;
+        if (author != null && author.isNotEmpty) {
+          authorCounts[author] = (authorCounts[author] ?? 0) + multiplier;
+        }
       }
     }
 
@@ -168,8 +209,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         continue;
       }
       
-      final startDate = _tryParseDate(book.dateReadInitial!);
-      final endDate = _tryParseDate(book.dateReadFinal!);
+      final startDate = _tryParseDate(book.dateReadInitial!, bookName: book.name);
+      final endDate = _tryParseDate(book.dateReadFinal!, bookName: book.name);
       
       if (startDate != null && endDate != null && endDate.isAfter(startDate)) {
         final daysToRead = endDate.difference(startDate).inDays + 1; // +1 to include both start and end day
@@ -238,14 +279,15 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         pagesReadPerYear.entries.toList()
           ..sort((a, b) => b.key.compareTo(a.key));
 
-    // Calculate books read by decade (from original publication year)
-    final Map<String, int> booksReadByDecade = {};
+    // Calculate books by decade (from original publication year)
+    final Map<String, int> booksByDecade = {};
 
     for (var book in books) {
-      // Only count books that have been read (read_count > 0)
-      if (book.readCount != null &&
-          book.readCount! > 0 &&
-          book.originalPublicationYear != null) {
+      // Filter based on toggle: if ON show only read books, if OFF show all books
+      final isRead = book.readCount != null && book.readCount! > 0;
+      final shouldInclude = _showReadBooksDecade ? isRead : true;
+      
+      if (shouldInclude && book.originalPublicationYear != null) {
         int pubYear = book.originalPublicationYear!;
 
         // Handle full date format (YYYYMMDD)
@@ -265,19 +307,441 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 ? book.bundleCount!
                 : 1;
 
-        booksReadByDecade[decadeLabel] =
-            (booksReadByDecade[decadeLabel] ?? 0) + multiplier;
+        booksByDecade[decadeLabel] =
+            (booksByDecade[decadeLabel] ?? 0) + multiplier;
       }
     }
 
     // Sort decades in descending order
-    final sortedBooksReadByDecade =
-        booksReadByDecade.entries.toList()..sort((a, b) {
+    final sortedBooksByDecade =
+        booksByDecade.entries.toList()..sort((a, b) {
           // Extract decade number from label (e.g., "1990s" -> 1990)
           final aDecade = int.parse(a.key.replaceAll('s', ''));
           final bDecade = int.parse(b.key.replaceAll('s', ''));
           return bDecade.compareTo(aDecade);
         });
+
+    // #8: Books by Rating Distribution
+    final Map<String, int> ratingDistribution = {
+      '5.0': 0,
+      '4.0-4.9': 0,
+      '3.0-3.9': 0,
+      '2.0-2.9': 0,
+      '1.0-1.9': 0,
+      '0.0-0.9': 0,
+      'Unrated': 0,
+    };
+    for (var book in books) {
+      if (book.myRating == null || book.myRating == 0) {
+        ratingDistribution['Unrated'] = (ratingDistribution['Unrated'] ?? 0) + 1;
+      } else if (book.myRating! >= 5.0) {
+        ratingDistribution['5.0'] = (ratingDistribution['5.0'] ?? 0) + 1;
+      } else if (book.myRating! >= 4.0) {
+        ratingDistribution['4.0-4.9'] = (ratingDistribution['4.0-4.9'] ?? 0) + 1;
+      } else if (book.myRating! >= 3.0) {
+        ratingDistribution['3.0-3.9'] = (ratingDistribution['3.0-3.9'] ?? 0) + 1;
+      } else if (book.myRating! >= 2.0) {
+        ratingDistribution['2.0-2.9'] = (ratingDistribution['2.0-2.9'] ?? 0) + 1;
+      } else if (book.myRating! >= 1.0) {
+        ratingDistribution['1.0-1.9'] = (ratingDistribution['1.0-1.9'] ?? 0) + 1;
+      } else {
+        ratingDistribution['0.0-0.9'] = (ratingDistribution['0.0-0.9'] ?? 0) + 1;
+      }
+    }
+
+    // #16: Page Count Distribution
+    final Map<String, int> pageDistribution = {
+      '0-100': 0,
+      '101-200': 0,
+      '201-300': 0,
+      '301-400': 0,
+      '401-500': 0,
+      '500+': 0,
+    };
+    for (var book in books) {
+      if (book.pages != null && book.pages! > 0) {
+        if (book.pages! <= 100) {
+          pageDistribution['0-100'] = (pageDistribution['0-100'] ?? 0) + 1;
+        } else if (book.pages! <= 200) {
+          pageDistribution['101-200'] = (pageDistribution['101-200'] ?? 0) + 1;
+        } else if (book.pages! <= 300) {
+          pageDistribution['201-300'] = (pageDistribution['201-300'] ?? 0) + 1;
+        } else if (book.pages! <= 400) {
+          pageDistribution['301-400'] = (pageDistribution['301-400'] ?? 0) + 1;
+        } else if (book.pages! <= 500) {
+          pageDistribution['401-500'] = (pageDistribution['401-500'] ?? 0) + 1;
+        } else {
+          pageDistribution['500+'] = (pageDistribution['500+'] ?? 0) + 1;
+        }
+      }
+    }
+
+    // #18: Saga Completion Rate
+    final Map<String, Map<String, int>> sagaStats = {};
+    for (var book in books) {
+      if (book.saga != null && book.saga!.isNotEmpty) {
+        if (!sagaStats.containsKey(book.saga!)) {
+          sagaStats[book.saga!] = {'total': 0, 'read': 0};
+        }
+        sagaStats[book.saga!]!['total'] = (sagaStats[book.saga!]!['total'] ?? 0) + 1;
+        if (book.readCount != null && book.readCount! > 0) {
+          sagaStats[book.saga!]!['read'] = (sagaStats[book.saga!]!['read'] ?? 0) + 1;
+        }
+      }
+    }
+    final completedSagas = sagaStats.entries.where((e) => e.value['read'] == e.value['total']).length;
+    final partialSagas = sagaStats.entries.where((e) => e.value['read']! > 0 && e.value['read'] != e.value['total']).length;
+    final unstartedSagas = sagaStats.entries.where((e) => e.value['read'] == 0).length;
+
+    // #20: Seasonal Reading Patterns
+    final Map<String, int> seasonalReading = {
+      'Winter': 0,
+      'Spring': 0,
+      'Summer': 0,
+      'Fall': 0,
+    };
+    for (var book in books) {
+      if (book.dateReadFinal != null && book.dateReadFinal!.isNotEmpty) {
+        final endDate = _tryParseDate(book.dateReadFinal!, bookName: book.name);
+        if (endDate != null) {
+          final month = endDate.month;
+          if (month >= 12 || month <= 2) {
+            seasonalReading['Winter'] = (seasonalReading['Winter'] ?? 0) + 1;
+          } else if (month >= 3 && month <= 5) {
+            seasonalReading['Spring'] = (seasonalReading['Spring'] ?? 0) + 1;
+          } else if (month >= 6 && month <= 8) {
+            seasonalReading['Summer'] = (seasonalReading['Summer'] ?? 0) + 1;
+          } else {
+            seasonalReading['Fall'] = (seasonalReading['Fall'] ?? 0) + 1;
+          }
+        }
+      }
+    }
+
+    // #24: Reading Efficiency Score (books that took less time than average)
+    int efficientReads = 0;
+    int totalReadingsWithData = 0;
+    for (var book in books) {
+      if (book.dateReadInitial != null && book.dateReadFinal != null && 
+          book.pages != null && book.pages! > 0) {
+        final startDate = _tryParseDate(book.dateReadInitial!, bookName: book.name);
+        final endDate = _tryParseDate(book.dateReadFinal!, bookName: book.name);
+        if (startDate != null && endDate != null && endDate.isAfter(startDate)) {
+          final daysToRead = endDate.difference(startDate).inDays + 1;
+          final pagesPerDay = book.pages! / daysToRead;
+          totalReadingsWithData++;
+          // Consider "efficient" if reading faster than average velocity
+          if (readingVelocity > 0 && pagesPerDay >= readingVelocity) {
+            efficientReads++;
+          }
+        }
+      }
+    }
+    final efficiencyPercentage = totalReadingsWithData > 0 
+        ? (efficientReads / totalReadingsWithData) * 100 
+        : 0.0;
+
+    // #12: Monthly Reading Heatmap data
+    final Map<int, Map<int, int>> monthlyHeatmap = {}; // year -> month -> count
+    for (var book in books) {
+      if (book.dateReadFinal != null && book.dateReadFinal!.isNotEmpty) {
+        final endDate = _tryParseDate(book.dateReadFinal!, bookName: book.name);
+        if (endDate != null) {
+          final year = endDate.year;
+          final month = endDate.month;
+          if (!monthlyHeatmap.containsKey(year)) {
+            monthlyHeatmap[year] = {};
+          }
+          monthlyHeatmap[year]![month] = (monthlyHeatmap[year]![month] ?? 0) + 1;
+        }
+      }
+    }
+
+    // NEW STATISTICS
+    
+    // Average Rating
+    double averageRating = 0.0;
+    int ratedBooksCount = 0;
+    for (var book in books) {
+      if (book.myRating != null && book.myRating! > 0) {
+        averageRating += book.myRating!;
+        ratedBooksCount++;
+      }
+    }
+    if (ratedBooksCount > 0) {
+      averageRating = averageRating / ratedBooksCount;
+    }
+
+    // Oldest & Newest Book (by publication year)
+    int? oldestYear;
+    int? newestYear;
+    String? oldestBookName;
+    String? newestBookName;
+    for (var book in books) {
+      if (book.originalPublicationYear != null && book.originalPublicationYear! > 0) {
+        if (oldestYear == null || book.originalPublicationYear! < oldestYear) {
+          oldestYear = book.originalPublicationYear;
+          oldestBookName = book.name;
+        }
+        if (newestYear == null || book.originalPublicationYear! > newestYear) {
+          newestYear = book.originalPublicationYear;
+          newestBookName = book.name;
+        }
+      }
+    }
+
+    // Shortest & Longest Book (by pages)
+    // Include individual books from bundles
+    int? shortestPages;
+    int? longestPages;
+    String? shortestBookName;
+    String? longestBookName;
+    for (var book in books) {
+      if (book.isBundle == true) {
+        // Parse individual book pages from bundle
+        if (book.bundlePages != null && book.bundlePages!.isNotEmpty) {
+          try {
+            final List<dynamic> pagesList = jsonDecode(book.bundlePages!);
+            final List<String?>? titles = book.bundleTitles != null && book.bundleTitles!.isNotEmpty
+                ? (jsonDecode(book.bundleTitles!) as List<dynamic>).map((e) => e as String?).toList()
+                : null;
+            
+            for (int i = 0; i < pagesList.length; i++) {
+              final pages = pagesList[i] is int 
+                  ? pagesList[i] as int 
+                  : int.tryParse(pagesList[i]?.toString() ?? '');
+              
+              if (pages != null && pages > 0) {
+                final bookTitle = titles != null && i < titles.length && titles[i] != null
+                    ? '${book.name} - ${titles[i]}'
+                    : '${book.name} (Book ${i + 1})';
+                
+                // Shortest book
+                if (shortestPages == null || pages < shortestPages) {
+                  shortestPages = pages;
+                  shortestBookName = bookTitle;
+                }
+                // Longest book
+                if (longestPages == null || pages > longestPages) {
+                  longestPages = pages;
+                  longestBookName = bookTitle;
+                }
+              }
+            }
+          } catch (e) {
+            debugPrint('Error parsing bundle pages for ${book.name}: $e');
+          }
+        }
+      } else {
+        // Regular book
+        if (book.pages != null && book.pages! > 0) {
+          // Shortest book
+          if (shortestPages == null || book.pages! < shortestPages) {
+            shortestPages = book.pages;
+            shortestBookName = book.name;
+          }
+          // Longest book
+          if (longestPages == null || book.pages! > longestPages) {
+            longestPages = book.pages;
+            longestBookName = book.name;
+          }
+        }
+      }
+    }
+
+    // #31: Reading Streaks
+    final List<DateTime> readDates = [];
+    for (var book in books) {
+      if (book.dateReadFinal != null && book.dateReadFinal!.isNotEmpty) {
+        final endDate = _tryParseDate(book.dateReadFinal!, bookName: book.name);
+        if (endDate != null) {
+          readDates.add(endDate);
+        }
+      }
+    }
+    readDates.sort();
+    
+    int currentStreak = 0;
+    int longestStreak = 0;
+    int tempStreak = 0;
+    DateTime? lastDate;
+    final today = DateTime.now();
+    
+    for (var date in readDates) {
+      if (lastDate == null) {
+        tempStreak = 1;
+      } else {
+        final daysDiff = date.difference(lastDate).inDays;
+        if (daysDiff <= 1) {
+          tempStreak++;
+        } else {
+          if (tempStreak > longestStreak) longestStreak = tempStreak;
+          tempStreak = 1;
+        }
+      }
+      lastDate = date;
+    }
+    if (tempStreak > longestStreak) longestStreak = tempStreak;
+    
+    // Calculate current streak
+    if (lastDate != null) {
+      final daysSinceLastRead = today.difference(lastDate).inDays;
+      if (daysSinceLastRead <= 1) {
+        currentStreak = tempStreak;
+      }
+    }
+
+    // #32: DNF (Did Not Finish) Rate - Books with "Abandoned" status
+    int dnfCount = 0;
+    for (var book in books) {
+      if (book.statusValue != null && 
+          (book.statusValue!.toLowerCase().contains('abandoned') || 
+           book.statusValue!.toLowerCase().contains('dnf'))) {
+        dnfCount++;
+      }
+    }
+    final dnfRate = totalCount > 0 ? (dnfCount / totalCount) * 100 : 0.0;
+
+    // #33: Re-read Analysis
+    int rereadCount = 0;
+    final List<Map<String, dynamic>> rereadBooks = [];
+    for (var book in books) {
+      if (book.readCount != null && book.readCount! > 1) {
+        rereadCount++;
+        rereadBooks.add({
+          'name': book.name,
+          'count': book.readCount,
+        });
+      }
+    }
+    rereadBooks.sort((a, b) => (b['count'] as int).compareTo(a['count'] as int));
+    final mostRereadBook = rereadBooks.isNotEmpty ? rereadBooks.first : null;
+
+    // #34: Reading Time of Day (placeholder for future chronometer feature)
+    // Will be implemented when time tracking is added
+
+    // #39: Series vs Standalone
+    int seriesBooks = 0;
+    int standaloneBooks = 0;
+    for (var book in books) {
+      if (book.saga != null && book.saga!.isNotEmpty) {
+        seriesBooks++;
+      } else {
+        standaloneBooks++;
+      }
+    }
+    final seriesPercentage = totalCount > 0 ? (seriesBooks / totalCount) * 100 : 0.0;
+
+    // #53: Reading Goals Progress (placeholder for future goals feature)
+    // Will be implemented when goal tracking is added
+
+    // #54: Personal Bests
+    int mostBooksInMonth = 0;
+    String? bestMonth;
+    for (var yearData in monthlyHeatmap.entries) {
+      for (var monthData in yearData.value.entries) {
+        if (monthData.value > mostBooksInMonth) {
+          mostBooksInMonth = monthData.value;
+          bestMonth = '${_getMonthName(monthData.key)} ${yearData.key}';
+        }
+      }
+    }
+    
+    // Fastest book (shortest reading time)
+    int? fastestDays;
+    String? fastestBookName;
+    for (var book in books) {
+      if (book.dateReadInitial != null && book.dateReadFinal != null) {
+        final startDate = _tryParseDate(book.dateReadInitial!, bookName: book.name);
+        final endDate = _tryParseDate(book.dateReadFinal!, bookName: book.name);
+        if (startDate != null && endDate != null) {
+          final days = endDate.difference(startDate).inDays + 1;
+          if (days > 0 && (fastestDays == null || days < fastestDays)) {
+            fastestDays = days;
+            fastestBookName = book.name;
+          }
+        }
+      }
+    }
+
+    // #55: Milestones
+    final milestones = <String, dynamic>{};
+    if (totalCount >= 100) milestones['100'] = true;
+    if (totalCount >= 500) milestones['500'] = true;
+    if (totalCount >= 1000) milestones['1000'] = true;
+    final nextMilestone = totalCount < 100 ? 100 : 
+                          totalCount < 500 ? 500 : 
+                          totalCount < 1000 ? 1000 : 
+                          ((totalCount ~/ 1000) + 1) * 1000;
+    final booksToMilestone = nextMilestone - totalCount;
+
+    // #65: Binge Reading Patterns (books read in quick succession)
+    final List<Map<String, dynamic>> bingeReading = [];
+    final sortedReadBooks = books.where((b) => 
+      b.dateReadFinal != null && b.dateReadFinal!.isNotEmpty
+    ).toList();
+    
+    sortedReadBooks.sort((a, b) {
+      final dateA = _tryParseDate(a.dateReadFinal!, bookName: a.name);
+      final dateB = _tryParseDate(b.dateReadFinal!, bookName: b.name);
+      if (dateA == null || dateB == null) return 0;
+      return dateA.compareTo(dateB);
+    });
+    
+    int bingeCount = 0;
+    for (int i = 1; i < sortedReadBooks.length; i++) {
+      final prevDate = _tryParseDate(sortedReadBooks[i-1].dateReadFinal!, 
+                                     bookName: sortedReadBooks[i-1].name);
+      final currDate = _tryParseDate(sortedReadBooks[i].dateReadFinal!, 
+                                     bookName: sortedReadBooks[i].name);
+      if (prevDate != null && currDate != null) {
+        final daysDiff = currDate.difference(prevDate).inDays;
+        if (daysDiff <= 14) { // Books finished within 14 days
+          bingeCount++;
+        }
+      }
+    }
+    final bingePercentage = sortedReadBooks.length > 1 
+        ? (bingeCount / (sortedReadBooks.length - 1)) * 100 
+        : 0.0;
+
+    // #66: Mood Reading (Genre by Season)
+    final Map<String, Map<String, int>> genreBySeason = {
+      'Winter': {},
+      'Spring': {},
+      'Summer': {},
+      'Fall': {},
+    };
+    for (var book in books) {
+      if (book.dateReadFinal != null && book.genre != null && book.genre!.isNotEmpty) {
+        final endDate = _tryParseDate(book.dateReadFinal!, bookName: book.name);
+        if (endDate != null) {
+          final month = endDate.month;
+          String season;
+          if (month >= 12 || month <= 2) {
+            season = 'Winter';
+          } else if (month >= 3 && month <= 5) {
+            season = 'Spring';
+          } else if (month >= 6 && month <= 8) {
+            season = 'Summer';
+          } else {
+            season = 'Fall';
+          }
+          genreBySeason[season]![book.genre!] = 
+              (genreBySeason[season]![book.genre!] ?? 0) + 1;
+        }
+      }
+    }
+    
+    // Find most popular genre per season
+    final Map<String, String> topGenreBySeason = {};
+    for (var season in genreBySeason.keys) {
+      if (genreBySeason[season]!.isNotEmpty) {
+        final topGenre = genreBySeason[season]!.entries
+            .reduce((a, b) => a.value > b.value ? a : b);
+        topGenreBySeason[season] = topGenre.key;
+      }
+    }
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -289,94 +753,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             const SizedBox(height: 16),
             Row(
               children: [
-                Expanded(
-                  child: Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Container(
-                      height: 180,
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.library_books,
-                            size: 32,
-                            color: Colors.deepPurple,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            AppLocalizations.of(context)!.total_books,
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.titleSmall
-                                ?.copyWith(fontWeight: FontWeight.w500),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '$totalCount',
-                            style: Theme.of(
-                              context,
-                            ).textTheme.headlineMedium?.copyWith(
-                              color: Colors.deepPurple,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+                Expanded(child: TotalBooksCard(totalCount: totalCount)),
                 const SizedBox(width: 8),
-                Expanded(
-                  child: Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Container(
-                      height: 180,
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.new_releases,
-                            size: 32,
-                            color: Colors.deepPurple,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            AppLocalizations.of(context)!.latest_book_added,
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.titleSmall
-                                ?.copyWith(fontWeight: FontWeight.w500),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            latestBookName != null && latestBookName.isNotEmpty
-                                ? latestBookName
-                                : AppLocalizations.of(
-                                  context,
-                                )!.no_books_in_database,
-                            style: Theme.of(
-                              context,
-                            ).textTheme.titleMedium?.copyWith(
-                              color: Colors.deepPurple,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            textAlign: TextAlign.center,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+                Expanded(child: LatestBookCard(latestBookName: latestBookName)),
               ],
             ),
             const SizedBox(height: 16),
@@ -661,153 +1040,15 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            // Books Read by Decade
-            InkWell(
-              onTap: () {
-                // Navigate to the first decade in the list
-                if (sortedBooksReadByDecade.isNotEmpty) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (context) => BooksByDecadeScreen(
-                            initialDecade: sortedBooksReadByDecade.first.key,
-                          ),
-                    ),
-                  );
-                }
+            // Books by Decade
+            BooksByDecadeCard(
+              sortedBooksByDecade: sortedBooksByDecade,
+              showReadBooks: _showReadBooksDecade,
+              onToggleChanged: (value) {
+                setState(() {
+                  _showReadBooksDecade = value;
+                });
               },
-              borderRadius: BorderRadius.circular(12),
-              child: Card(
-                elevation: 2,
-                margin: const EdgeInsets.symmetric(horizontal: 8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Books Read by Decade',
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Icon(
-                            Icons.chevron_right,
-                            color: Theme.of(context).colorScheme.primary,
-                            size: 28,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '(Based on original publication year)',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      if (sortedBooksReadByDecade.isEmpty)
-                        Center(
-                          child: Text(AppLocalizations.of(context)!.no_data),
-                        )
-                      else
-                        ...sortedBooksReadByDecade.map((entry) {
-                          final maxValue = sortedBooksReadByDecade
-                              .map((e) => e.value)
-                              .reduce((a, b) => a > b ? a : b);
-                          final percentage = (entry.value / maxValue).clamp(
-                            0.0,
-                            1.0,
-                          );
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) => BooksByDecadeScreen(
-                                          initialDecade: entry.key,
-                                        ),
-                                  ),
-                                );
-                              },
-                              borderRadius: BorderRadius.circular(4),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 4,
-                                  horizontal: 4,
-                                ),
-                                child: Row(
-                                  children: [
-                                    SizedBox(
-                                      width: 70,
-                                      child: Text(
-                                        entry.key,
-                                        style:
-                                            Theme.of(
-                                              context,
-                                            ).textTheme.bodySmall,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Stack(
-                                        children: [
-                                          Container(
-                                            height: 24,
-                                            decoration: BoxDecoration(
-                                              color: Colors.grey[200],
-                                              borderRadius:
-                                                  BorderRadius.circular(4),
-                                            ),
-                                          ),
-                                          FractionallySizedBox(
-                                            widthFactor: percentage,
-                                            child: Container(
-                                              height: 24,
-                                              decoration: BoxDecoration(
-                                                color: Colors.green,
-                                                borderRadius:
-                                                    BorderRadius.circular(4),
-                                              ),
-                                            ),
-                                          ),
-                                          Container(
-                                            height: 24,
-                                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                                            alignment: Alignment.centerLeft,
-                                            child: Text(
-                                              '${entry.value}',
-                                              style: TextStyle(
-                                                color: percentage > 0.15 ? Colors.white : Colors.black87,
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                    ],
-                  ),
-                ),
-              ),
             ),
             const SizedBox(height: 16),
             // Status Donut Chart
@@ -1353,11 +1594,38 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
                   children: [
-                    Text(
-                      AppLocalizations.of(context)!.top_5_genres,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                    Column(
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.top_5_genres,
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'All',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            Switch(
+                              value: _showReadBooksGenres,
+                              onChanged: (value) {
+                                setState(() {
+                                  _showReadBooksGenres = value;
+                                });
+                              },
+                            ),
+                            Text(
+                              'Read',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     if (top5Genres.isEmpty)
@@ -1437,11 +1705,38 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
                   children: [
-                    Text(
-                      AppLocalizations.of(context)!.top_10_editorials,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                    Column(
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.top_10_editorials,
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'All',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            Switch(
+                              value: _showReadBooksEditorials,
+                              onChanged: (value) {
+                                setState(() {
+                                  _showReadBooksEditorials = value;
+                                });
+                              },
+                            ),
+                            Text(
+                              'Read',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     ...top10Editorials.map((entry) {
@@ -1516,11 +1811,38 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
                   children: [
-                    Text(
-                      AppLocalizations.of(context)!.top_10_authors,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                    Column(
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.top_10_authors,
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'All',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            Switch(
+                              value: _showReadBooksAuthors,
+                              onChanged: (value) {
+                                setState(() {
+                                  _showReadBooksAuthors = value;
+                                });
+                              },
+                            ),
+                            Text(
+                              'Read',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     ...top10Authors.map((entry) {
@@ -1583,6 +1905,100 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 ),
               ),
             ),
+            const SizedBox(height: 32),
+            // Separator for new statistics
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Divider(
+                      thickness: 2,
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text(
+                      'ADVANCED STATISTICS',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.primary,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Divider(
+                      thickness: 2,
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            // Use widget components for advanced statistics with responsive layout
+            ResponsiveStatGrid(
+              children: [
+                // Average Rating
+                if (ratedBooksCount > 0)
+                  AverageRatingCard(
+                    averageRating: averageRating,
+                    ratedBooksCount: ratedBooksCount,
+                  ),
+                // Book Extremes (Oldest/Newest, Shortest/Longest)
+                BookExtremesCard(
+                  oldestYear: oldestYear,
+                  oldestBookName: oldestBookName,
+                  newestYear: newestYear,
+                  newestBookName: newestBookName,
+                  shortestPages: shortestPages,
+                  shortestBookName: shortestBookName,
+                  longestPages: longestPages,
+                  longestBookName: longestBookName,
+                ),
+                // Reading Insights (comprehensive card)
+                ReadingInsightsCard(
+                  currentStreak: currentStreak,
+                  longestStreak: longestStreak,
+                  dnfCount: dnfCount,
+                  dnfRate: dnfRate,
+                  rereadCount: rereadCount,
+                  mostRereadBook: mostRereadBook,
+                  seriesBooks: seriesBooks,
+                  standaloneBooks: standaloneBooks,
+                  seriesPercentage: seriesPercentage,
+                  mostBooksInMonth: mostBooksInMonth,
+                  bestMonth: bestMonth,
+                  fastestDays: fastestDays,
+                  fastestBookName: fastestBookName,
+                  nextMilestone: nextMilestone,
+                  booksToMilestone: booksToMilestone,
+                  bingePercentage: bingePercentage,
+                  topGenreBySeason: topGenreBySeason,
+                ),
+                RatingDistributionCard(ratingDistribution: ratingDistribution),
+                PageDistributionCard(pageDistribution: pageDistribution),
+                if (sagaStats.isNotEmpty)
+                  SagaCompletionCard(
+                    completedSagas: completedSagas,
+                    partialSagas: partialSagas,
+                    unstartedSagas: unstartedSagas,
+                  ),
+                SeasonalReadingCard(seasonalReading: seasonalReading),
+                if (totalReadingsWithData > 0)
+                  ReadingEfficiencyCard(
+                    efficiencyPercentage: efficiencyPercentage,
+                    totalReadingsWithData: totalReadingsWithData,
+                  ),
+                // Placeholder cards for future features
+                const ReadingTimePlaceholderCard(),
+                const ReadingGoalsPlaceholderCard(),
+                // Monthly Reading Heatmap - Full calendar view (always full width)
+              ],
+            ),
+            MonthlyHeatmapCard(monthlyHeatmap: monthlyHeatmap),
             const SizedBox(height: 24),
           ],
         ),
