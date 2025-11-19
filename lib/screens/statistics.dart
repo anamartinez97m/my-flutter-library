@@ -33,10 +33,10 @@ class StatisticsScreen extends StatefulWidget {
 class _StatisticsScreenState extends State<StatisticsScreen> {
   bool _showStatusAsPercentage = false;
   bool _showFormatAsPercentage = true;
-  bool _showReadBooksDecade = true;
-  bool _showReadBooksGenres = true;
-  bool _showReadBooksEditorials = true;
-  bool _showReadBooksAuthors = true;
+  bool _showReadBooksDecade = false;
+  bool _showReadBooksGenres = false;
+  bool _showReadBooksEditorials = false;
+  bool _showReadBooksAuthors = false;
   Map<int, int>? _booksReadPerYear;
   Map<int, int>? _pagesReadPerYear;
 
@@ -479,12 +479,19 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     String? newestBookName;
     for (var book in books) {
       if (book.originalPublicationYear != null && book.originalPublicationYear! > 0) {
-        if (oldestYear == null || book.originalPublicationYear! < oldestYear) {
-          oldestYear = book.originalPublicationYear;
+        int pubYear = book.originalPublicationYear!;
+        
+        // Handle full date format (YYYYMMDD) - extract year only
+        if (pubYear > 9999) {
+          pubYear = pubYear ~/ 10000;
+        }
+        
+        if (oldestYear == null || pubYear < oldestYear) {
+          oldestYear = pubYear;
           oldestBookName = book.name;
         }
-        if (newestYear == null || book.originalPublicationYear! > newestYear) {
-          newestYear = book.originalPublicationYear;
+        if (newestYear == null || pubYear > newestYear) {
+          newestYear = pubYear;
           newestBookName = book.name;
         }
       }
@@ -623,14 +630,17 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     // #39: Series vs Standalone
     int seriesBooks = 0;
     int standaloneBooks = 0;
+    final Set<String> uniqueSeries = {};
     for (var book in books) {
       if (book.saga != null && book.saga!.isNotEmpty) {
         seriesBooks++;
+        uniqueSeries.add(book.saga!);
       } else {
         standaloneBooks++;
       }
     }
     final seriesPercentage = totalCount > 0 ? (seriesBooks / totalCount) * 100 : 0.0;
+    final seriesCount = uniqueSeries.length;
 
     // #53: Reading Goals Progress (placeholder for future goals feature)
     // Will be implemented when goal tracking is added
@@ -669,11 +679,19 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     if (totalCount >= 100) milestones['100'] = true;
     if (totalCount >= 500) milestones['500'] = true;
     if (totalCount >= 1000) milestones['1000'] = true;
-    final nextMilestone = totalCount < 100 ? 100 : 
+    final nextMilestoneOwned = totalCount < 100 ? 100 : 
                           totalCount < 500 ? 500 : 
                           totalCount < 1000 ? 1000 : 
                           ((totalCount ~/ 1000) + 1) * 1000;
-    final booksToMilestone = nextMilestone - totalCount;
+    final booksToMilestoneOwned = nextMilestoneOwned - totalCount;
+    
+    // Books read milestone
+    final readBooks = books.where((b) => b.readCount != null && b.readCount! > 0).length;
+    final nextMilestoneRead = readBooks < 100 ? 100 : 
+                          readBooks < 500 ? 500 : 
+                          readBooks < 1000 ? 1000 : 
+                          ((readBooks ~/ 1000) + 1) * 1000;
+    final booksToMilestoneRead = nextMilestoneRead - readBooks;
 
     // #65: Binge Reading Patterns (books read in quick succession)
     final List<Map<String, dynamic>> bingeReading = [];
@@ -1969,12 +1987,15 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   seriesBooks: seriesBooks,
                   standaloneBooks: standaloneBooks,
                   seriesPercentage: seriesPercentage,
+                  seriesCount: seriesCount,
                   mostBooksInMonth: mostBooksInMonth,
                   bestMonth: bestMonth,
                   fastestDays: fastestDays,
                   fastestBookName: fastestBookName,
-                  nextMilestone: nextMilestone,
-                  booksToMilestone: booksToMilestone,
+                  nextMilestoneOwned: nextMilestoneOwned,
+                  booksToMilestoneOwned: booksToMilestoneOwned,
+                  nextMilestoneRead: nextMilestoneRead,
+                  booksToMilestoneRead: booksToMilestoneRead,
                   bingePercentage: bingePercentage,
                   topGenreBySeason: topGenreBySeason,
                 ),
@@ -1992,13 +2013,18 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     efficiencyPercentage: efficiencyPercentage,
                     totalReadingsWithData: totalReadingsWithData,
                   ),
-                // Placeholder cards for future features
-                const ReadingTimePlaceholderCard(),
-                const ReadingGoalsPlaceholderCard(),
                 // Monthly Reading Heatmap - Full calendar view (always full width)
               ],
             ),
             MonthlyHeatmapCard(monthlyHeatmap: monthlyHeatmap),
+            const SizedBox(height: 16),
+            // Placeholder cards for future features
+            const ResponsiveStatGrid(
+              children: [
+                ReadingTimePlaceholderCard(),
+                ReadingGoalsPlaceholderCard(),
+              ],
+            ),
             const SizedBox(height: 24),
           ],
         ),

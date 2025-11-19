@@ -11,12 +11,15 @@ class ReadingInsightsCard extends StatelessWidget {
   final int seriesBooks;
   final int standaloneBooks;
   final double seriesPercentage;
+  final int seriesCount;
   final int mostBooksInMonth;
   final String? bestMonth;
   final int? fastestDays;
   final String? fastestBookName;
-  final int nextMilestone;
-  final int booksToMilestone;
+  final int nextMilestoneOwned;
+  final int booksToMilestoneOwned;
+  final int nextMilestoneRead;
+  final int booksToMilestoneRead;
   final double bingePercentage;
   final Map<String, String> topGenreBySeason;
 
@@ -31,12 +34,15 @@ class ReadingInsightsCard extends StatelessWidget {
     required this.seriesBooks,
     required this.standaloneBooks,
     required this.seriesPercentage,
+    required this.seriesCount,
     required this.mostBooksInMonth,
     this.bestMonth,
     this.fastestDays,
     this.fastestBookName,
-    required this.nextMilestone,
-    required this.booksToMilestone,
+    required this.nextMilestoneOwned,
+    required this.booksToMilestoneOwned,
+    required this.nextMilestoneRead,
+    required this.booksToMilestoneRead,
     required this.bingePercentage,
     required this.topGenreBySeason,
   });
@@ -104,6 +110,7 @@ class ReadingInsightsCard extends StatelessWidget {
               color: Colors.indigo,
               title: 'Series vs Standalone',
               value: '$seriesBooks series (${seriesPercentage.toStringAsFixed(1)}%) | $standaloneBooks standalone',
+              subtitle: seriesCount > 0 ? 'From $seriesCount series' : null,
             ),
             const Divider(height: 20),
             
@@ -120,13 +127,23 @@ class ReadingInsightsCard extends StatelessWidget {
             ),
             const Divider(height: 20),
             
-            // Milestones
+            // Milestones - Books Owned
             _buildInsightRow(
               context,
               icon: Icons.flag,
               color: Colors.green,
-              title: 'Next Milestone',
-              value: '$nextMilestone books ($booksToMilestone to go)',
+              title: 'Next Milestone (Books Owned)',
+              value: '$nextMilestoneOwned books ($booksToMilestoneOwned to go)',
+            ),
+            const Divider(height: 20),
+            
+            // Milestones - Books Read
+            _buildInsightRow(
+              context,
+              icon: Icons.menu_book,
+              color: Colors.blue,
+              title: 'Next Milestone (Books Read)',
+              value: '$nextMilestoneRead books ($booksToMilestoneRead to go)',
             ),
             const Divider(height: 20),
             
@@ -135,7 +152,7 @@ class ReadingInsightsCard extends StatelessWidget {
               context,
               icon: Icons.fast_forward,
               color: Colors.purple,
-              title: 'Binge Reading',
+              title: 'Binge Reading (Series)',
               value: '${bingePercentage.toStringAsFixed(1)}% of books finished within 14 days of previous',
             ),
             
