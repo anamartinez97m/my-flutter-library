@@ -45,6 +45,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     {'key': 'pages_empty', 'label': 'Pages Empty'},
     {'key': 'is_bundle', 'label': 'Is Bundle'},
     {'key': 'is_tandem', 'label': 'Is Tandem'},
+    {'key': 'saga_format_without_saga', 'label': 'Saga Format Without Saga'},
+    {'key': 'saga_format_without_nsaga', 'label': 'Saga Format Without N_Saga'},
   ];
   
   @override

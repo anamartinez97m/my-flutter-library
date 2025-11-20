@@ -24,6 +24,7 @@ class BooksByDecadeCard extends StatelessWidget {
             MaterialPageRoute(
               builder: (context) => BooksByDecadeScreen(
                 initialDecade: sortedBooksByDecade.first.key,
+                showReadOnly: showReadBooks,
               ),
             ),
           );
@@ -108,6 +109,7 @@ class BooksByDecadeCard extends StatelessWidget {
                           MaterialPageRoute(
                             builder: (context) => BooksByDecadeScreen(
                               initialDecade: entry.key,
+                              showReadOnly: showReadBooks,
                             ),
                           ),
                         );

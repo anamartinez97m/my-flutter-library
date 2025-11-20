@@ -11,6 +11,9 @@ import 'package:myrandomlibrary/screens/books_by_saga.dart';
 import 'package:myrandomlibrary/screens/edit_book.dart';
 import 'package:myrandomlibrary/utils/status_helper.dart';
 import 'package:myrandomlibrary/utils/date_formatter.dart';
+import 'package:myrandomlibrary/widgets/chronometer_widget.dart';
+import 'package:myrandomlibrary/model/reading_session.dart';
+import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 
@@ -27,6 +30,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   late Book _currentBook;
   List<ReadDate> _readDates = [];
   Map<int, List<ReadDate>> _bundleReadDates = {};
+  List<ReadingSession> _chronometerSessions = [];
   bool _loadingReadDates = true;
 
   @override
@@ -40,6 +44,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
+      final sessionRepository = ReadingSessionRepository(db);
       
       if (_currentBook.isBundle == true) {
         // Load bundle read dates
@@ -51,8 +56,11 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       } else {
         // Load regular read dates
         final readDates = await repository.getReadDatesForBook(_currentBook.bookId!);
+        // Load chronometer sessions
+        final sessions = await sessionRepository.getSessionsForBook(_currentBook.bookId!);
         setState(() {
           _readDates = readDates;
+          _chronometerSessions = sessions;
           _loadingReadDates = false;
         });
       }
@@ -73,6 +81,156 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     } catch (e) {
       debugPrint('Error loading original book: $e');
       return null;
+    }
+  }
+  
+  Future<void> _quickStartReading() async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final repository = BookRepository(db);
+      final today = DateTime.now().toIso8601String().split('T')[0];
+      
+      // Update status to "Started"
+      final statusList = await repository.getLookupValues('status');
+      final startedStatus = statusList.firstWhere(
+        (s) => (s['value'] as String).toLowerCase() == 'started',
+        orElse: () => statusList.first,
+      );
+      
+      await db.update(
+        'book',
+        {
+          'status_id': startedStatus['status_id'],
+          'date_read_initial': today,
+        },
+        where: 'book_id = ?',
+        whereArgs: [_currentBook.bookId!],
+      );
+      
+      // Create a new reading session with start date
+      await repository.addReadDate(ReadDate(
+        bookId: _currentBook.bookId!,
+        dateStarted: today,
+        dateFinished: null,
+      ));
+      
+      // Reload book data
+      final updatedBooks = await repository.getAllBooks();
+      final updatedBook = updatedBooks.firstWhere((b) => b.bookId == _currentBook.bookId);
+      
+      setState(() {
+        _currentBook = updatedBook;
+      });
+      await _loadReadDates();
+      
+      // Update provider
+      if (mounted) {
+        final provider = Provider.of<BookProvider?>(context, listen: false);
+        await provider?.loadBooks();
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Started reading!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error starting reading: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+  
+  Future<void> _quickFinishReading() async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final repository = BookRepository(db);
+      final today = DateTime.now().toIso8601String().split('T')[0];
+      
+      // Get status values
+      final statusList = await repository.getLookupValues('status');
+      
+      // Check if there are any reading sessions
+      final hasReadingSessions = _readDates.isNotEmpty;
+      
+      // If there are reading sessions, mark as "Yes", otherwise "No"
+      final targetStatus = statusList.firstWhere(
+        (s) => (s['value'] as String).toLowerCase() == (hasReadingSessions ? 'yes' : 'no'),
+        orElse: () => statusList.first,
+      );
+      
+      // Get current read count
+      final currentReadCount = _currentBook.readCount ?? 0;
+      
+      // Update status and increment read count
+      await db.update(
+        'book',
+        {
+          'status_id': targetStatus['status_id'],
+          'date_read_final': today,
+          'read_count': currentReadCount + 1,
+        },
+        where: 'book_id = ?',
+        whereArgs: [_currentBook.bookId!],
+      );
+      
+      // If there's an open reading session, close it
+      if (_readDates.isNotEmpty && _readDates.last.dateFinished == null) {
+        final updatedReadDate = ReadDate(
+          readDateId: _readDates.last.readDateId,
+          bookId: _readDates.last.bookId,
+          dateStarted: _readDates.last.dateStarted,
+          dateFinished: today,
+          bundleBookIndex: _readDates.last.bundleBookIndex,
+        );
+        await repository.updateReadDate(updatedReadDate);
+      } else {
+        // Create a new reading session with finish date
+        await repository.addReadDate(ReadDate(
+          bookId: _currentBook.bookId!,
+          dateStarted: _currentBook.dateReadInitial ?? today,
+          dateFinished: today,
+        ));
+      }
+      
+      // Reload book data
+      final updatedBooks = await repository.getAllBooks();
+      final updatedBook = updatedBooks.firstWhere((b) => b.bookId == _currentBook.bookId);
+      
+      setState(() {
+        _currentBook = updatedBook;
+      });
+      await _loadReadDates();
+      
+      // Update provider
+      if (mounted) {
+        final provider = Provider.of<BookProvider?>(context, listen: false);
+        await provider?.loadBooks();
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Marked as finished!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error finishing reading: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
   
@@ -519,6 +677,96 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 16),
+                    
+                    // Quick status change buttons (always visible)
+                    Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.primary,
+                            width: 2,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            if (_currentBook.statusValue?.toLowerCase() != 'started')
+                              Expanded(
+                                child: InkWell(
+                                  onTap: _quickStartReading,
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(6),
+                                    bottomLeft: Radius.circular(6),
+                                  ),
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.play_arrow,
+                                          color: Theme.of(context).colorScheme.primary,
+                                          size: 20,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          'Start Reading',
+                                          style: TextStyle(
+                                            color: Theme.of(context).colorScheme.primary,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            if (_currentBook.statusValue?.toLowerCase() != 'started')
+                              Container(
+                                width: 2,
+                                color: Theme.of(context).colorScheme.primary,
+                                margin: const EdgeInsets.symmetric(vertical: 8),
+                              ),
+                            Expanded(
+                              child: InkWell(
+                                onTap: _quickFinishReading,
+                                borderRadius: BorderRadius.only(
+                                  topRight: const Radius.circular(6),
+                                  bottomRight: const Radius.circular(6),
+                                  topLeft: _currentBook.statusValue?.toLowerCase() == 'started' 
+                                      ? const Radius.circular(6) 
+                                      : Radius.zero,
+                                  bottomLeft: _currentBook.statusValue?.toLowerCase() == 'started' 
+                                      ? const Radius.circular(6) 
+                                      : Radius.zero,
+                                ),
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.check_circle,
+                                        color: Theme.of(context).colorScheme.primary,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        'Mark as Finished',
+                                        style: TextStyle(
+                                          color: Theme.of(context).colorScheme.primary,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     AppTheme.verticalSpaceLarge,
 
                     // Description (from API - future implementation)
@@ -1031,7 +1279,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   ),
                                   const SizedBox(width: 16),
                                   Text(
-                                    'Reading Sessions (${_readDates.length})',
+                                    'Reading History (${_readDates.length})',
                                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                                       color: Colors.grey[600],
                                       fontWeight: FontWeight.w600,
@@ -1067,6 +1315,78 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                           readDate.dateFinished != null
                                               ? formatDateForDisplay(readDate.dateFinished)
                                               : 'Not finished',
+                                          style: Theme.of(context).textTheme.bodySmall,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }),
+                            ],
+                          ),
+                        ),
+                      ),
+                    
+                    // Chronometer Sessions Card
+                    if (!(_currentBook.isBundle == true) && _chronometerSessions.isNotEmpty)
+                      Card(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        elevation: 1,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.timer,
+                                    color: Theme.of(context).colorScheme.primary,
+                                    size: 24,
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Text(
+                                    'Timed Reading Sessions (${_chronometerSessions.length})',
+                                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                      color: Colors.grey[600],
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              ...List.generate(_chronometerSessions.length, (index) {
+                                final session = _chronometerSessions[index];
+                                final duration = session.durationSeconds ?? 0;
+                                final hours = duration ~/ 3600;
+                                final minutes = (duration % 3600) ~/ 60;
+                                final seconds = duration % 60;
+                                String durationStr;
+                                if (hours > 0) {
+                                  durationStr = '${hours}h ${minutes}m ${seconds}s';
+                                } else if (minutes > 0) {
+                                  durationStr = '${minutes}m ${seconds}s';
+                                } else {
+                                  durationStr = '${seconds}s';
+                                }
+                                
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 8),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        '${index + 1}.',
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          '${formatDateForDisplay(session.startTime.toIso8601String().split('T')[0])} - $durationStr',
                                           style: Theme.of(context).textTheme.bodySmall,
                                         ),
                                       ),
@@ -1127,6 +1447,23 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
               AppTheme.verticalSpaceXXLarge, // Bottom margin
             ],
           ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder: (context) => ChronometerWidget(
+                bookId: _currentBook.bookId!,
+                onSessionComplete: () {
+                  _loadReadDates();
+                },
+              ),
+            );
+          },
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          child: const Icon(Icons.timer, color: Colors.white),
         ),
       ),
     );

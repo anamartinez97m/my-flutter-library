@@ -13,7 +13,7 @@ import 'package:myrandomlibrary/widgets/statistics/rating_distribution_card.dart
 import 'package:myrandomlibrary/widgets/statistics/page_distribution_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/saga_completion_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/seasonal_reading_card.dart';
-import 'package:myrandomlibrary/widgets/statistics/reading_efficiency_card.dart';
+import 'package:myrandomlibrary/widgets/statistics/seasonal_preferences_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/monthly_heatmap_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/average_rating_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/book_extremes_card.dart';
@@ -417,29 +417,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         }
       }
     }
-
-    // #24: Reading Efficiency Score (books that took less time than average)
-    int efficientReads = 0;
-    int totalReadingsWithData = 0;
-    for (var book in books) {
-      if (book.dateReadInitial != null && book.dateReadFinal != null && 
-          book.pages != null && book.pages! > 0) {
-        final startDate = _tryParseDate(book.dateReadInitial!, bookName: book.name);
-        final endDate = _tryParseDate(book.dateReadFinal!, bookName: book.name);
-        if (startDate != null && endDate != null && endDate.isAfter(startDate)) {
-          final daysToRead = endDate.difference(startDate).inDays + 1;
-          final pagesPerDay = book.pages! / daysToRead;
-          totalReadingsWithData++;
-          // Consider "efficient" if reading faster than average velocity
-          if (readingVelocity > 0 && pagesPerDay >= readingVelocity) {
-            efficientReads++;
-          }
-        }
-      }
-    }
-    final efficiencyPercentage = totalReadingsWithData > 0 
-        ? (efficientReads / totalReadingsWithData) * 100 
-        : 0.0;
 
     // #12: Monthly Reading Heatmap data
     final Map<int, Map<int, int>> monthlyHeatmap = {}; // year -> month -> count
@@ -2008,14 +1985,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     unstartedSagas: unstartedSagas,
                   ),
                 SeasonalReadingCard(seasonalReading: seasonalReading),
-                if (totalReadingsWithData > 0)
-                  ReadingEfficiencyCard(
-                    efficiencyPercentage: efficiencyPercentage,
-                    totalReadingsWithData: totalReadingsWithData,
-                  ),
                 // Monthly Reading Heatmap - Full calendar view (always full width)
               ],
             ),
+            SeasonalPreferencesCard(seasonalReading: seasonalReading),
+            const SizedBox(height: 16),
             MonthlyHeatmapCard(monthlyHeatmap: monthlyHeatmap),
             const SizedBox(height: 16),
             // Placeholder cards for future features

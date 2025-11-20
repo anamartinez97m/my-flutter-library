@@ -177,6 +177,22 @@ class BookProvider extends ChangeNotifier {
                 if (filterValue == 'true' && !isTandem) return false;
                 if (filterValue == 'false' && isTandem) return false;
                 break;
+              case 'saga_format_without_saga':
+                // Filter books where format_saga is not "Standalone" and saga is empty
+                final hasNonStandaloneFormat = book.formatSagaValue != null && 
+                    book.formatSagaValue!.toLowerCase() != 'standalone';
+                final hasSaga = book.saga != null && book.saga!.isNotEmpty;
+                if (filterValue == 'true' && !(hasNonStandaloneFormat && !hasSaga)) return false;
+                if (filterValue == 'false' && (hasNonStandaloneFormat && !hasSaga)) return false;
+                break;
+              case 'saga_format_without_nsaga':
+                // Filter books where format_saga is not "Standalone" and nSaga is empty
+                final hasNonStandaloneFormat = book.formatSagaValue != null && 
+                    book.formatSagaValue!.toLowerCase() != 'standalone';
+                final hasNSaga = book.nSaga != null && book.nSaga!.isNotEmpty;
+                if (filterValue == 'true' && !(hasNonStandaloneFormat && !hasNSaga)) return false;
+                if (filterValue == 'false' && (hasNonStandaloneFormat && !hasNSaga)) return false;
+                break;
             }
           }
         }

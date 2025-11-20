@@ -19,6 +19,7 @@ class BooksByYearScreen extends StatefulWidget {
 class _BooksByYearScreenState extends State<BooksByYearScreen> {
   late int _selectedYear;
   List<int> _availableYears = [];
+  Map<int, int> _yearBookCounts = {};
 
   @override
   void initState() {
@@ -29,14 +30,29 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
   Future<List<int>> _loadYears() async {
     final db = await DatabaseHelper.instance.database;
     final repository = BookRepository(db);
-    return await repository.getYearsWithReadBooks();
+    final years = await repository.getYearsWithReadBooks();
+    
+    // Load book counts for all years
+    for (var year in years) {
+      final booksData = await repository.getBooksReadInYear(year);
+      _yearBookCounts[year] = booksData.length;
+    }
+    
+    return years;
   }
 
   Future<List<Book>> _loadBooksForYear(int year) async {
     final db = await DatabaseHelper.instance.database;
     final repository = BookRepository(db);
     final booksData = await repository.getBooksReadInYear(year);
-    return booksData.map((data) => Book.fromMap(data)).toList();
+    // Map latest_read_date to dateReadFinal for proper display
+    return booksData.map((data) {
+      final mappedData = Map<String, dynamic>.from(data);
+      if (mappedData.containsKey('latest_read_date')) {
+        mappedData['date_read_final'] = mappedData['latest_read_date'];
+      }
+      return Book.fromMap(mappedData);
+    }).toList();
   }
 
   /// Try to parse date with multiple formats
@@ -70,6 +86,75 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
     }
     
     return null;
+  }
+
+  String _getMonthName(int month) {
+    const monthNames = [
+      '', 'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return month >= 1 && month <= 12 ? monthNames[month] : '';
+  }
+
+  int _getItemCount(List<Book> books) {
+    if (books.isEmpty) return 0;
+    
+    int count = 0;
+    int? lastMonth;
+    
+    for (var book in books) {
+      if (book.dateReadFinal != null) {
+        final date = _tryParseDate(book.dateReadFinal!);
+        if (date != null) {
+          if (lastMonth != date.month) {
+            count++; // Add month header
+            lastMonth = date.month;
+          }
+        }
+      }
+      count++; // Add book card
+    }
+    
+    return count;
+  }
+
+  Widget _buildItem(BuildContext context, List<Book> books, int index) {
+    int currentIndex = 0;
+    int? lastMonth;
+    
+    for (var i = 0; i < books.length; i++) {
+      final book = books[i];
+      
+      // Check if we need a month header
+      if (book.dateReadFinal != null) {
+        final date = _tryParseDate(book.dateReadFinal!);
+        if (date != null && lastMonth != date.month) {
+          if (currentIndex == index) {
+            // Return month header
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              color: Theme.of(context).colorScheme.surfaceVariant,
+              child: Text(
+                _getMonthName(date.month),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            );
+          }
+          currentIndex++;
+          lastMonth = date.month;
+        }
+      }
+      
+      // Check if this is the book card we're looking for
+      if (currentIndex == index) {
+        return _buildBookCard(context, book);
+      }
+      currentIndex++;
+    }
+    
+    return const SizedBox.shrink();
   }
 
   @override
@@ -122,11 +207,10 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
                         value: _selectedYear,
                         isExpanded: true,
                         items: _availableYears.map((year) {
-                          // Show year with count from current selection
-                          final count = year == _selectedYear ? booksForYear.length : 0;
+                          final count = _yearBookCounts[year] ?? 0;
                           return DropdownMenuItem<int>(
                             value: year,
-                            child: Text(year == _selectedYear ? '$year ($count books)' : '$year'),
+                            child: Text('$year ($count books)'),
                           );
                         }).toList(),
                         onChanged: (year) {
@@ -141,17 +225,16 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
                   ],
                 ),
               ),
-              // Books list
+              // Books list with month separators
               Expanded(
                 child: booksForYear.isEmpty
                     ? const Center(
                         child: Text('No books read in this year'),
                       )
                     : ListView.builder(
-                        itemCount: booksForYear.length,
+                        itemCount: _getItemCount(booksForYear),
                         itemBuilder: (context, index) {
-                          final book = booksForYear[index];
-                          return _buildBookCard(context, book);
+                          return _buildItem(context, booksForYear, index);
                         },
                       ),
               ),

@@ -25,6 +25,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     'author': 'Authors',
     'genre': 'Genres',
     'editorial': 'Editorials',
+    'saga': 'Saga',
     'saga_universe': 'Saga Universe',
   };
 
@@ -291,6 +292,13 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
           [value],
         );
         usageCount = booksUsingValue.first['count'] as int;
+      } else if (_selectedTable == 'saga') {
+        // saga is a text field in book table
+        final booksUsingValue = await db.rawQuery(
+          'SELECT COUNT(*) as count FROM book WHERE saga = ?',
+          [value],
+        );
+        usageCount = booksUsingValue.first['count'] as int;
       } else {
         // For other tables (status, format, language, place, editorial, format_saga)
         final booksUsingValue = await db.rawQuery(
@@ -340,6 +348,15 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
               'UPDATE books_by_genre SET genre_id = ? WHERE genre_id = ?',
               [newId, id],
             );
+          } else if (_selectedTable == 'saga_universe' || _selectedTable == 'saga') {
+            // These are text fields, need special handling
+            final newValueResult = await repository.getLookupValues(_selectedTable);
+            final newValueMap = newValueResult.firstWhere((v) => v['${_selectedTable}_id'] == newId);
+            final newValue = newValueMap['name'] as String;
+            await db.rawUpdate(
+              'UPDATE book SET $_selectedTable = ? WHERE $_selectedTable = ?',
+              [newValue, value],
+            );
           } else {
             // Update book table directly
             await db.rawUpdate(
@@ -347,31 +364,42 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
               [newId, id],
             );
           }
-          await repository.deleteLookupValue(_selectedTable, id);
+          // For saga and saga_universe, we don't delete from a lookup table
+          if (_selectedTable != 'saga' && _selectedTable != 'saga_universe') {
+            await repository.deleteLookupValue(_selectedTable, id);
+          }
         } else if (action.startsWith('create:')) {
           // Create new value and replace
           final newValue = action.split(':')[1];
-          final newId = await repository.addLookupValue(_selectedTable, newValue);
-          if (_selectedTable == 'author') {
-            // Update junction table
+          if (_selectedTable == 'saga_universe' || _selectedTable == 'saga') {
+            // These are text fields, update directly with new value
             await db.rawUpdate(
-              'UPDATE books_by_author SET author_id = ? WHERE author_id = ?',
-              [newId, id],
-            );
-          } else if (_selectedTable == 'genre') {
-            // Update junction table
-            await db.rawUpdate(
-              'UPDATE books_by_genre SET genre_id = ? WHERE genre_id = ?',
-              [newId, id],
+              'UPDATE book SET $_selectedTable = ? WHERE $_selectedTable = ?',
+              [newValue, value],
             );
           } else {
-            // Update book table directly
-            await db.rawUpdate(
-              'UPDATE book SET $bookColumnName = ? WHERE $bookColumnName = ?',
-              [newId, id],
-            );
+            final newId = await repository.addLookupValue(_selectedTable, newValue);
+            if (_selectedTable == 'author') {
+              // Update junction table
+              await db.rawUpdate(
+                'UPDATE books_by_author SET author_id = ? WHERE author_id = ?',
+                [newId, id],
+              );
+            } else if (_selectedTable == 'genre') {
+              // Update junction table
+              await db.rawUpdate(
+                'UPDATE books_by_genre SET genre_id = ? WHERE genre_id = ?',
+                [newId, id],
+              );
+            } else {
+              // Update book table directly
+              await db.rawUpdate(
+                'UPDATE book SET $bookColumnName = ? WHERE $bookColumnName = ?',
+                [newId, id],
+              );
+            }
+            await repository.deleteLookupValue(_selectedTable, id);
           }
-          await repository.deleteLookupValue(_selectedTable, id);
         }
       } else {
         // Value not in use, simple confirmation
@@ -497,9 +525,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                     ),
                     child: ListTile(
                       title: Text(value),
-                      trailing: _selectedTable == 'saga_universe'
-                          ? null
-                          : Row(
+                      trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 IconButton(
@@ -527,14 +553,12 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
             ),
         ],
       ),
-      floatingActionButton: _selectedTable == 'saga_universe'
-          ? null
-          : FloatingActionButton(
-              onPressed: _addValue,
-              backgroundColor: Colors.deepPurple,
-              foregroundColor: Colors.white,
-              child: const Icon(Icons.add),
-            ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _addValue,
+        backgroundColor: Colors.deepPurple,
+        foregroundColor: Colors.white,
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }

@@ -344,7 +344,7 @@ class BookRepository {
 
   /// Get all values from a lookup table
   Future<List<Map<String, dynamic>>> getLookupValues(String tableName) async {
-    // Special handling for saga_universe which is stored in book table
+    // Special handling for saga and saga_universe which are stored in book table
     if (tableName == 'saga_universe') {
       final result = await db.rawQuery('''
         SELECT DISTINCT saga_universe as name
@@ -356,6 +356,22 @@ class BookRepository {
       return result.asMap().entries.map((entry) {
         return {
           'saga_universe_id': entry.key + 1,
+          'name': entry.value['name'],
+        };
+      }).toList();
+    }
+    
+    if (tableName == 'saga') {
+      final result = await db.rawQuery('''
+        SELECT DISTINCT saga as name
+        FROM book
+        WHERE saga IS NOT NULL AND saga != ''
+        ORDER BY saga
+      ''');
+      // Add a fake ID for compatibility with the UI
+      return result.asMap().entries.map((entry) {
+        return {
+          'saga_id': entry.key + 1,
           'name': entry.value['name'],
         };
       }).toList();
@@ -383,6 +399,12 @@ class BookRepository {
 
   /// Add a new value to a lookup table
   Future<int> addLookupValue(String tableName, String value) async {
+    // saga and saga_universe are text fields in book table, not lookup tables
+    // Return a fake ID for compatibility
+    if (tableName == 'saga' || tableName == 'saga_universe') {
+      return 0; // No actual insert needed
+    }
+    
     final valueColumn =
         tableName == 'status' ||
                 tableName == 'format' ||
@@ -399,6 +421,21 @@ class BookRepository {
     int id,
     String newValue,
   ) async {
+    // saga and saga_universe are text fields in book table, not lookup tables
+    // We need to get the old value first and update all books with it
+    if (tableName == 'saga' || tableName == 'saga_universe') {
+      // Get the old value from the fake ID
+      final allValues = await getLookupValues(tableName);
+      if (id > 0 && id <= allValues.length) {
+        final oldValue = allValues[id - 1]['name'] as String;
+        return await db.rawUpdate(
+          'UPDATE book SET $tableName = ? WHERE $tableName = ?',
+          [newValue, oldValue],
+        );
+      }
+      return 0;
+    }
+    
     // format_saga table uses 'format_id' not 'format_saga_id'
     final idColumn =
         tableName == 'format_saga' ? 'format_id' : '${tableName}_id';
