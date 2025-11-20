@@ -6,10 +6,12 @@ import 'package:provider/provider.dart';
 
 class BooksByDecadeScreen extends StatefulWidget {
   final String initialDecade;
+  final bool showReadOnly;
 
   const BooksByDecadeScreen({
     super.key,
     required this.initialDecade,
+    this.showReadOnly = true,
   });
 
   @override
@@ -36,11 +38,14 @@ class _BooksByDecadeScreenState extends State<BooksByDecadeScreen> {
         builder: (context, provider, child) {
           final books = provider.allBooks; // Use all books, not filtered
 
-          // Calculate available decades from books (only books with read_count > 0)
+          // Calculate available decades from books
           final decadesSet = <String>{};
           for (var book in books) {
-            if (book.readCount != null && book.readCount! > 0 && 
-                book.originalPublicationYear != null) {
+            // Filter based on showReadOnly parameter
+            final isRead = book.readCount != null && book.readCount! > 0;
+            final shouldInclude = widget.showReadOnly ? isRead : true;
+            
+            if (shouldInclude && book.originalPublicationYear != null) {
               int pubYear = book.originalPublicationYear!;
               
               // Handle full date format (YYYYMMDD)
@@ -59,10 +64,18 @@ class _BooksByDecadeScreenState extends State<BooksByDecadeScreen> {
             return bDecade.compareTo(aDecade);
           });
 
-          // Filter books for selected decade (only books with read_count > 0)
+          // Ensure selected decade is in available decades
+          if (_availableDecades.isNotEmpty && !_availableDecades.contains(_selectedDecade)) {
+            _selectedDecade = _availableDecades.first;
+          }
+
+          // Filter books for selected decade
           final booksForDecade = books.where((book) {
-            if (book.readCount == null || book.readCount! <= 0 || 
-                book.originalPublicationYear == null) {
+            // Filter based on showReadOnly parameter
+            final isRead = book.readCount != null && book.readCount! > 0;
+            final shouldInclude = widget.showReadOnly ? isRead : true;
+            
+            if (!shouldInclude || book.originalPublicationYear == null) {
               return false;
             }
             
@@ -80,16 +93,17 @@ class _BooksByDecadeScreenState extends State<BooksByDecadeScreen> {
             return decadeLabel == _selectedDecade;
           }).toList();
 
-          // Sort by date read (most recent first)
+          // Sort by publication year (most recent first)
           booksForDecade.sort((a, b) {
-            try {
-              if (a.dateReadFinal != null && b.dateReadFinal != null) {
-                final dateA = DateTime.parse(a.dateReadFinal!.trim());
-                final dateB = DateTime.parse(b.dateReadFinal!.trim());
-                return dateB.compareTo(dateA);
-              }
-            } catch (e) {
-              // Fall through to default
+            if (a.originalPublicationYear != null && b.originalPublicationYear != null) {
+              int yearA = a.originalPublicationYear!;
+              int yearB = b.originalPublicationYear!;
+              
+              // Handle full date format (YYYYMMDD)
+              if (yearA > 9999) yearA = yearA ~/ 10000;
+              if (yearB > 9999) yearB = yearB ~/ 10000;
+              
+              return yearB.compareTo(yearA);
             }
             return 0;
           });
@@ -115,32 +129,14 @@ class _BooksByDecadeScreenState extends State<BooksByDecadeScreen> {
                         value: _selectedDecade,
                         isExpanded: true,
                         items: _availableDecades.map((decade) {
-                          // Count books for this decade
-                          final count = books.where((book) {
-                            if (book.readCount == null || book.readCount! <= 0 || 
-                                book.originalPublicationYear == null) {
-                              return false;
-                            }
-                            
-                            int pubYear = book.originalPublicationYear!;
-                            
-                            // Handle full date format (YYYYMMDD)
-                            if (pubYear > 9999) {
-                              pubYear = pubYear ~/ 10000;
-                            }
-                            
-                            // Calculate decade
-                            final decadeNum = (pubYear ~/ 10) * 10;
-                            final decadeLabel = '${decadeNum}s';
-                            
-                            return decadeLabel == decade;
-                          }).length;
-
                           // Calculate total book count (including bundles)
                           int totalCount = 0;
                           for (var book in books) {
-                            if (book.readCount == null || book.readCount! <= 0 || 
-                                book.originalPublicationYear == null) {
+                            // Filter based on showReadOnly parameter
+                            final isRead = book.readCount != null && book.readCount! > 0;
+                            final shouldInclude = widget.showReadOnly ? isRead : true;
+                            
+                            if (!shouldInclude || book.originalPublicationYear == null) {
                               continue;
                             }
                             
@@ -212,16 +208,10 @@ class _BooksByDecadeScreenState extends State<BooksByDecadeScreen> {
       pubYearStr = '$pubYear';
     }
 
-    // Build subtitle info list - only author, publication year, and pages
+    // Build subtitle info list - only author
     final List<String> subtitleParts = [];
     if (book.author != null && book.author!.isNotEmpty) {
       subtitleParts.add(book.author!);
-    }
-    if (pubYearStr.isNotEmpty) {
-      subtitleParts.add('Published: $pubYearStr');
-    }
-    if (book.pages != null && book.pages! > 0) {
-      subtitleParts.add('${book.pages} pages');
     }
 
     return Card(
@@ -234,17 +224,13 @@ class _BooksByDecadeScreenState extends State<BooksByDecadeScreen> {
         subtitle: subtitleParts.isNotEmpty
             ? Text(subtitleParts.join(' • '))
             : null,
-        trailing: book.myRating != null && book.myRating! > 0
-            ? Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.favorite, color: Colors.red, size: 16),
-                  const SizedBox(width: 4),
-                  Text(
-                    book.myRating!.toStringAsFixed(1),
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
+        trailing: pubYearStr.isNotEmpty
+            ? Text(
+                pubYearStr,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
               )
             : null,
         onTap: () {

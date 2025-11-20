@@ -139,12 +139,19 @@ class _MonthlyHeatmapCardState extends State<MonthlyHeatmapCard> {
                 ),
                 const SizedBox(width: 4),
                 ...List.generate(5, (index) {
+                  // Calculate intensity from 0.2 to 1.0 in 5 steps
+                  final intensity = (index + 1) * 0.2;
+                  final color = Color.lerp(
+                    Colors.green[100],
+                    Colors.green[900],
+                    intensity,
+                  )!;
                   return Container(
                     width: 16,
                     height: 16,
                     margin: const EdgeInsets.symmetric(horizontal: 2),
                     decoration: BoxDecoration(
-                      color: _getHeatColor((index + 1) * (maxCount ~/ 5), maxCount),
+                      color: color,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   );

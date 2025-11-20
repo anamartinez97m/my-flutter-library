@@ -82,10 +82,12 @@ class BookListView extends StatelessWidget {
     }
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 2,
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       color: backgroundColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: InkWell(
         onTap: () {
           Navigator.push(
@@ -106,7 +108,7 @@ class BookListView extends StatelessWidget {
                   Expanded(
                     child: Text(
                       book.name ?? AppLocalizations.of(context)!.unknown_title,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Colors.deepPurple,
                       ),
@@ -147,7 +149,7 @@ class BookListView extends StatelessWidget {
                   AppLocalizations.of(
                     context,
                   )!.author_with_colon(book.author ?? ''),
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -158,7 +160,7 @@ class BookListView extends StatelessWidget {
                   AppLocalizations.of(
                     context,
                   )!.genre_with_colon(book.genre ?? ''),
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Colors.grey[700],
                     fontStyle: FontStyle.italic,
                   ),
@@ -173,7 +175,7 @@ class BookListView extends StatelessWidget {
                       (book.nSaga != null && book.nSaga!.isNotEmpty
                           ? ' #${book.nSaga}'
                           : ''),
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
               if (book.saga != null && book.saga!.isNotEmpty)
                 const SizedBox(height: 4),

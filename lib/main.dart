@@ -58,11 +58,11 @@ class MyApp extends StatelessWidget {
       theme: themeProvider.lightTheme.copyWith(
         textTheme: themeProvider.lightTheme.textTheme.copyWith(
           headlineLarge: themeProvider.lightTheme.textTheme.headlineLarge
-              ?.copyWith(fontSize: 28),
-          headlineMedium: themeProvider.lightTheme.textTheme.headlineMedium
               ?.copyWith(fontSize: 24),
-          headlineSmall: themeProvider.lightTheme.textTheme.headlineSmall
+          headlineMedium: themeProvider.lightTheme.textTheme.headlineMedium
               ?.copyWith(fontSize: 20),
+          headlineSmall: themeProvider.lightTheme.textTheme.headlineSmall
+              ?.copyWith(fontSize: 18),
           titleLarge: themeProvider.lightTheme.textTheme.titleLarge?.copyWith(
             fontSize: 18,
           ),
@@ -86,11 +86,11 @@ class MyApp extends StatelessWidget {
       darkTheme: themeProvider.darkTheme.copyWith(
         textTheme: themeProvider.darkTheme.textTheme.copyWith(
           headlineLarge: themeProvider.darkTheme.textTheme.headlineLarge
-              ?.copyWith(fontSize: 28),
-          headlineMedium: themeProvider.darkTheme.textTheme.headlineMedium
               ?.copyWith(fontSize: 24),
-          headlineSmall: themeProvider.darkTheme.textTheme.headlineSmall
+          headlineMedium: themeProvider.darkTheme.textTheme.headlineMedium
               ?.copyWith(fontSize: 20),
+          headlineSmall: themeProvider.darkTheme.textTheme.headlineSmall
+              ?.copyWith(fontSize: 18),
           titleLarge: themeProvider.darkTheme.textTheme.titleLarge?.copyWith(
             fontSize: 18,
           ),

@@ -9,6 +9,7 @@ class BundleInputWidget extends StatefulWidget {
   final List<int?>? initialBundlePublicationYears;
   final List<String?>? initialBundleTitles;
   final Map<int, bool>? bundleBooksReadStatus; // Map of bundle index to read status
+  final Map<int, bool>? bundleBooksHasReadingSessions;
   final Function(bool isBundle, int? count, String? numbers, List<int?>? bundlePages, List<int?>? bundlePublicationYears, List<String?>? bundleTitles) onChanged;
   final Function(int bundleIndex, bool isRead)? onReadStatusChanged; // Callback for manual read status changes
 
@@ -21,6 +22,7 @@ class BundleInputWidget extends StatefulWidget {
     this.initialBundlePublicationYears,
     this.initialBundleTitles,
     this.bundleBooksReadStatus,
+    this.bundleBooksHasReadingSessions,
     required this.onChanged,
     this.onReadStatusChanged,
   });
@@ -276,9 +278,11 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
                                     scale: 0.8,
                                     child: Checkbox(
                                       value: widget.bundleBooksReadStatus?[index] ?? false,
-                                      onChanged: (value) {
-                                        widget.onReadStatusChanged!(index, value ?? false);
-                                      },
+                                      onChanged: (widget.bundleBooksHasReadingSessions?[index] ?? false)
+                                          ? null // Disable if there are reading sessions
+                                          : (value) {
+                                              widget.onReadStatusChanged!(index, value ?? false);
+                                            },
                                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                     ),
                                   ),

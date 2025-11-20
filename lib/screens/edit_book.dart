@@ -14,6 +14,8 @@ import 'package:myrandomlibrary/widgets/chip_autocomplete_field.dart';
 import 'package:myrandomlibrary/widgets/heart_rating_input.dart';
 import 'package:myrandomlibrary/widgets/read_dates_widget.dart';
 import 'package:myrandomlibrary/widgets/tbr_limit_setting.dart';
+import 'package:myrandomlibrary/model/reading_session.dart';
+import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
 import 'package:provider/provider.dart';
 
 class EditBookScreen extends StatefulWidget {
@@ -47,6 +49,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
   
   // Read dates (new multi-session system)
   List<ReadDate> _readDates = [];
+  
+  // Chronometer sessions
+  List<ReadingSession> _chronometerSessions = [];
   
   // Bundle read dates (map of bundle book index to list of read dates)
   Map<int, List<ReadDate>> _bundleReadDates = {};
@@ -148,9 +153,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
+      final sessionRepository = ReadingSessionRepository(db);
       final readDates = await repository.getReadDatesForBook(widget.book.bookId!);
+      final sessions = await sessionRepository.getSessionsForBook(widget.book.bookId!);
       setState(() {
         _readDates = readDates;
+        _chronometerSessions = sessions;
       });
     } catch (e) {
       debugPrint('Error loading read dates: $e');
@@ -596,6 +604,16 @@ class _EditBookScreenState extends State<EditBookScreen> {
       // First, delete all existing read dates for this book
       await repository.deleteAllReadDatesForBook(widget.book.bookId!);
       
+      // Update chronometer sessions (delete all and re-add remaining ones)
+      final sessionRepository = ReadingSessionRepository(db);
+      await sessionRepository.deleteSessionsForBook(widget.book.bookId!);
+      for (final session in _chronometerSessions) {
+        await sessionRepository.createSession(session.copyWith(
+          sessionId: null, // Let database assign new ID
+          bookId: widget.book.bookId!,
+        ));
+      }
+      
       // Then add the updated read dates
       if (_isBundle) {
         // Save bundle read dates
@@ -606,6 +624,22 @@ class _EditBookScreenState extends State<EditBookScreen> {
               dateStarted: readDate.dateStarted,
               dateFinished: readDate.dateFinished,
               bundleBookIndex: entry.key,
+            ));
+          }
+        }
+        
+        // Handle manual bundle read status (books marked as read without sessions)
+        for (var entry in _manualBundleReadStatus.entries) {
+          final bundleIndex = entry.key;
+          final isRead = entry.value;
+          
+          if (isRead) {
+            // Create a minimal ReadDate entry to mark as read
+            await repository.addReadDate(ReadDate(
+              bookId: widget.book.bookId!,
+              dateStarted: null,
+              dateFinished: '',  // Empty string to mark as read
+              bundleBookIndex: bundleIndex,
             ));
           }
         }
@@ -1116,6 +1150,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     // If no reading sessions, use manual status
                     return MapEntry(index, hasReadingSessions || (_manualBundleReadStatus[index] ?? false));
                   }),
+                  bundleBooksHasReadingSessions: _bundleReadDates.map((index, dates) {
+                    // Track which books have actual reading sessions
+                    final hasReadingSessions = dates.any((d) => d.dateFinished != null && d.dateFinished!.isNotEmpty);
+                    return MapEntry(index, hasReadingSessions);
+                  }),
                   onReadStatusChanged: (index, isRead) {
                     setState(() {
                       _manualBundleReadStatus[index] = isRead;
@@ -1363,6 +1402,76 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     },
                   ),
                 if (!_isBundle) const SizedBox(height: 16),
+                
+                // Chronometer Sessions (hidden for bundles)
+                if (!_isBundle && _chronometerSessions.isNotEmpty)
+                  Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.timer, color: Colors.deepPurple),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Timed Reading Sessions',
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          ..._chronometerSessions.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final session = entry.value;
+                            final duration = session.durationSeconds ?? 0;
+                            final hours = duration ~/ 3600;
+                            final minutes = (duration % 3600) ~/ 60;
+                            final seconds = duration % 60;
+                            String durationStr;
+                            if (hours > 0) {
+                              durationStr = '${hours}h ${minutes}m ${seconds}s';
+                            } else if (minutes > 0) {
+                              durationStr = '${minutes}m ${seconds}s';
+                            } else {
+                              durationStr = '${seconds}s';
+                            }
+                            
+                            return Card(
+                              margin: const EdgeInsets.only(bottom: 8),
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  backgroundColor: Colors.deepPurple.shade100,
+                                  child: Text('${index + 1}'),
+                                ),
+                                title: Text(
+                                  session.startTime.toIso8601String().split('T')[0],
+                                  style: const TextStyle(fontWeight: FontWeight.w500),
+                                ),
+                                subtitle: Text('Duration: $durationStr'),
+                                trailing: IconButton(
+                                  icon: const Icon(Icons.delete, color: Colors.red),
+                                  onPressed: () {
+                                    setState(() {
+                                      _chronometerSessions.removeAt(index);
+                                    });
+                                  },
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ],
+                      ),
+                    ),
+                  ),
+                if (!_isBundle && _chronometerSessions.isNotEmpty) const SizedBox(height: 16),
 
                 // My Review field
                 TextFormField(
