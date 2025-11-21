@@ -226,16 +226,50 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
     } catch (e) {
       debugPrint('Backup error: $e');
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.error_creating_backup(e.toString()),
+      
+      // Check if it's a permission error
+      final errorStr = e.toString().toLowerCase();
+      if (errorStr.contains('permission') || 
+          errorStr.contains('denied') || 
+          errorStr.contains('eacces')) {
+        // Permission error - try to request again
+        if (context.mounted) {
+          final shouldRetry = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Permission Required'),
+              content: const Text('Storage permission is needed to create backups. Would you like to grant permission?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text('Grant Permission'),
+                ),
+              ],
             ),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 5),
-          ),
-        );
+          );
+          
+          if (shouldRetry == true) {
+            // Retry the backup operation
+            await _createBackup(context);
+          }
+        }
+      } else {
+        // Other error
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                AppLocalizations.of(context)!.error_creating_backup(e.toString()),
+              ),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 5),
+            ),
+          );
+        }
       }
     }
   }
@@ -923,14 +957,48 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
     } catch (e) {
       debugPrint('Export error: $e');
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error exporting to CSV: $e'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 5),
-          ),
-        );
+      
+      // Check if it's a permission error
+      final errorStr = e.toString().toLowerCase();
+      if (errorStr.contains('permission') || 
+          errorStr.contains('denied') || 
+          errorStr.contains('eacces')) {
+        // Permission error - try to request again
+        if (context.mounted) {
+          final shouldRetry = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Permission Required'),
+              content: const Text('Storage permission is needed to export CSV files. Would you like to grant permission?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text('Grant Permission'),
+                ),
+              ],
+            ),
+          );
+          
+          if (shouldRetry == true) {
+            // Retry the export operation
+            await _exportToCsv(context);
+          }
+        }
+      } else {
+        // Other error
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error exporting to CSV: $e'),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 5),
+            ),
+          );
+        }
       }
     }
   }

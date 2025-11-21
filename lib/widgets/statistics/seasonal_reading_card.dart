@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 
 class SeasonalReadingCard extends StatelessWidget {
   final Map<String, int> seasonalReading;
+  final int yearsCount;
 
   const SeasonalReadingCard({
     super.key,
     required this.seasonalReading,
+    this.yearsCount = 1,
   });
 
   String _getSeasonEmoji(String season) {
@@ -25,23 +27,44 @@ class SeasonalReadingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final totalBooks = seasonalReading.values.fold(0, (sum, count) => sum + count);
-    
+    final totalBooks = seasonalReading.values.fold(
+      0,
+      (sum, count) => sum + count,
+    );
+
     // Calculate average per season (total books / 4 seasons)
-    final avgPerSeason = totalBooks > 0 ? (totalBooks / 4).toStringAsFixed(1) : '0.0';
+    final avgPerSeason =
+        totalBooks > 0 ? (totalBooks / 4).toStringAsFixed(1) : '0.0';
     
+    // Calculate average per year per season (average books per season / years)
+    final avgPerYearPerSeason =
+        totalBooks > 0 && yearsCount > 0 
+            ? ((totalBooks / 4) / yearsCount).toStringAsFixed(1) 
+            : '0.0';
+
     // Find most and least productive seasons
-    final sortedSeasons = seasonalReading.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-    final mostProductive = sortedSeasons.isNotEmpty ? sortedSeasons.first : null;
-    final leastProductive = sortedSeasons.isNotEmpty ? sortedSeasons.last : null;
-    
+    final sortedSeasons =
+        seasonalReading.entries.toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
+    final mostProductive =
+        sortedSeasons.isNotEmpty ? sortedSeasons.first : null;
+    final leastProductive =
+        sortedSeasons.isNotEmpty ? sortedSeasons.last : null;
+
+    // Calculate averages per year for most and least productive seasons
+    final mostAvgPerYear =
+        mostProductive != null && yearsCount > 0
+            ? (mostProductive.value / yearsCount).toStringAsFixed(1)
+            : '0.0';
+    final leastAvgPerYear =
+        leastProductive != null && yearsCount > 0
+            ? (leastProductive.value / yearsCount).toStringAsFixed(1)
+            : '0.0';
+
     return Card(
       elevation: 2,
       margin: const EdgeInsets.symmetric(horizontal: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -64,7 +87,7 @@ class SeasonalReadingCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            
+
             // Average books per season display
             Container(
               padding: const EdgeInsets.all(10),
@@ -72,28 +95,43 @@ class SeasonalReadingCard extends StatelessWidget {
                 color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: Column(
                 children: [
-                  const Icon(Icons.trending_up, size: 18),
-                  const SizedBox(width: 6),
-                  Flexible(
-                    child: Text(
-                      'Average: $avgPerSeason books per season',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.trending_up, size: 18),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          'Average: $avgPerSeason books per season',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                      overflow: TextOverflow.ellipsis,
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '$avgPerYearPerSeason books per year per season',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey[700],
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 10),
-            
+
             // Most and least productive seasons
-            if (mostProductive != null && leastProductive != null && mostProductive.key != leastProductive.key) ...[
+            if (mostProductive != null &&
+                leastProductive != null &&
+                mostProductive.key != leastProductive.key) ...[
               Row(
                 children: [
                   Expanded(
@@ -128,12 +166,19 @@ class SeasonalReadingCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
-                            '${mostProductive.value}',
+                            mostAvgPerYear,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
                               color: Colors.green,
+                            ),
+                          ),
+                          Text(
+                            'per year',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Colors.grey[600],
                             ),
                           ),
                         ],
@@ -173,12 +218,19 @@ class SeasonalReadingCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
-                            '${leastProductive.value}',
+                            leastAvgPerYear,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
                               color: Colors.orange,
+                            ),
+                          ),
+                          Text(
+                            'per year',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Colors.grey[600],
                             ),
                           ),
                         ],

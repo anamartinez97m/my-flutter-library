@@ -5,10 +5,21 @@ import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/providers/locale_provider.dart';
 import 'package:myrandomlibrary/providers/theme_provider.dart';
 import 'package:myrandomlibrary/screens/navigation.dart';
+import 'package:myrandomlibrary/services/notification_service.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize notification service
+  try {
+    final notificationService = NotificationService();
+    await notificationService.initialize();
+    await notificationService.requestPermissions();
+  } catch (e) {
+    debugPrint('Error initializing notifications: $e');
+  }
+  
   try {
     final bookProvider = await BookProvider.create();
     runApp(

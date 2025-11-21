@@ -82,11 +82,11 @@ class BookListView extends StatelessWidget {
     }
 
     return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      elevation: 1,
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       color: backgroundColor,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: InkWell(
         onTap: () {
@@ -97,9 +97,9 @@ class BookListView extends StatelessWidget {
             ),
           );
         },
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
@@ -108,65 +108,53 @@ class BookListView extends StatelessWidget {
                   Expanded(
                     child: Text(
                       book.name ?? AppLocalizations.of(context)!.unknown_title,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Colors.deepPurple,
                       ),
                     ),
                   ),
                   if (book.isTandem == true) ...[
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 6),
                     Icon(
                       Icons.swap_horizontal_circle_outlined,
-                      size: 20,
+                      size: 18,
                       color: Colors.deepPurple,
                     ),
                     Icon(
                       Icons.alt_route_outlined,
-                      size: 20,
+                      size: 18,
                       color: Colors.deepPurple,
                     ),
                   ],
                   if (book.tbr == true) ...[
                     Icon(
                       Icons.bookmark_add,
-                      size: 20,
+                      size: 18,
                       color: Colors.deepPurple,
                     ),
                   ],
                   if (book.isBundle == true) ...[
                     Icon(
                       Icons.library_books,
-                      size: 20,
+                      size: 18,
                       color: Colors.deepPurple,
                     ),
                   ],
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               if (book.author != null && book.author!.isNotEmpty)
                 Text(
                   AppLocalizations.of(
                     context,
                   )!.author_with_colon(book.author ?? ''),
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w500,
                   ),
                 ),
               if (book.author != null && book.author!.isNotEmpty)
-                const SizedBox(height: 4),
-              if (book.genre != null && book.genre!.isNotEmpty)
-                Text(
-                  AppLocalizations.of(
-                    context,
-                  )!.genre_with_colon(book.genre ?? ''),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[700],
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              if (book.genre != null && book.genre!.isNotEmpty)
-                const SizedBox(height: 4),
+                const SizedBox(height: 3),
               if (book.saga != null && book.saga!.isNotEmpty)
                 Text(
                   AppLocalizations.of(
@@ -178,14 +166,7 @@ class BookListView extends StatelessWidget {
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               if (book.saga != null && book.saga!.isNotEmpty)
-                const SizedBox(height: 4),
-              Text(
-                'ISBN/ASIN: ${book.isbn?.isNotEmpty == true ? book.isbn : (book.asin?.isNotEmpty == true ? book.asin : 'N/A')}',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-              ),
-              const SizedBox(height: 4),
+                const SizedBox(height: 3),
               Text(
                 AppLocalizations.of(
                       context,

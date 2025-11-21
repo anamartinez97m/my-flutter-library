@@ -19,7 +19,7 @@ import 'package:myrandomlibrary/widgets/statistics/average_rating_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/book_extremes_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/reading_insights_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/reading_time_placeholder_card.dart';
-import 'package:myrandomlibrary/widgets/statistics/reading_goals_placeholder_card.dart';
+import 'package:myrandomlibrary/widgets/statistics/reading_goals_card.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -400,10 +400,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       'Summer': 0,
       'Fall': 0,
     };
+    final Set<int> yearsWithReading = {};
     for (var book in books) {
       if (book.dateReadFinal != null && book.dateReadFinal!.isNotEmpty) {
         final endDate = _tryParseDate(book.dateReadFinal!, bookName: book.name);
         if (endDate != null) {
+          yearsWithReading.add(endDate.year);
           final month = endDate.month;
           if (month >= 12 || month <= 2) {
             seasonalReading['Winter'] = (seasonalReading['Winter'] ?? 0) + 1;
@@ -417,6 +419,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         }
       }
     }
+    final int yearsCount = yearsWithReading.isNotEmpty ? yearsWithReading.length : 1;
 
     // #12: Monthly Reading Heatmap data
     final Map<int, Map<int, int>> monthlyHeatmap = {}; // year -> month -> count
@@ -1984,7 +1987,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     partialSagas: partialSagas,
                     unstartedSagas: unstartedSagas,
                   ),
-                SeasonalReadingCard(seasonalReading: seasonalReading),
+                SeasonalReadingCard(
+                  seasonalReading: seasonalReading,
+                  yearsCount: yearsCount,
+                ),
                 // Monthly Reading Heatmap - Full calendar view (always full width)
               ],
             ),
@@ -1993,10 +1999,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             MonthlyHeatmapCard(monthlyHeatmap: monthlyHeatmap),
             const SizedBox(height: 16),
             // Placeholder cards for future features
-            const ResponsiveStatGrid(
+            ResponsiveStatGrid(
               children: [
                 ReadingTimePlaceholderCard(),
-                ReadingGoalsPlaceholderCard(),
+                ReadingGoalsCard(),
               ],
             ),
             const SizedBox(height: 24),

@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'custom_challenge.dart';
+
 /// Model for yearly reading challenges
 class YearChallenge {
   final int? challengeId;
@@ -6,6 +9,7 @@ class YearChallenge {
   final int? targetPages;
   final DateTime createdAt;
   final String? notes;
+  final List<CustomChallenge>? customChallenges;
 
   YearChallenge({
     this.challengeId,
@@ -14,6 +18,7 @@ class YearChallenge {
     this.targetPages,
     DateTime? createdAt,
     this.notes,
+    this.customChallenges,
   }) : createdAt = createdAt ?? DateTime.now();
 
   Map<String, dynamic> toMap() {
@@ -24,6 +29,9 @@ class YearChallenge {
       'target_pages': targetPages,
       'created_at': createdAt.toIso8601String(),
       'notes': notes,
+      'custom_challenges': customChallenges != null
+          ? jsonEncode(customChallenges!.map((c) => c.toJson()).toList())
+          : null,
     };
   }
 
@@ -35,6 +43,11 @@ class YearChallenge {
       targetPages: map['target_pages'] as int?,
       createdAt: DateTime.parse(map['created_at'] as String),
       notes: map['notes'] as String?,
+      customChallenges: map['custom_challenges'] != null
+          ? (jsonDecode(map['custom_challenges']) as List)
+              .map((c) => CustomChallenge.fromJson(c))
+              .toList()
+          : null,
     );
   }
 
@@ -45,6 +58,7 @@ class YearChallenge {
     int? targetPages,
     DateTime? createdAt,
     String? notes,
+    List<CustomChallenge>? customChallenges,
   }) {
     return YearChallenge(
       challengeId: challengeId ?? this.challengeId,
@@ -53,6 +67,7 @@ class YearChallenge {
       targetPages: targetPages ?? this.targetPages,
       createdAt: createdAt ?? this.createdAt,
       notes: notes ?? this.notes,
+      customChallenges: customChallenges ?? this.customChallenges,
     );
   }
 }
