@@ -37,9 +37,12 @@ class Book {
   final String? bundlePages;
   final String? bundlePublicationYears;
   final String? bundleTitles;
+  final String? bundleAuthors;
   final bool? tbr;
   final bool? isTandem;
   final int? originalBookId; // For repeated books, links to the original book
+  final bool? notificationEnabled;
+  final String? notificationDatetime;
 
   Book({
     required this.bookId,
@@ -74,9 +77,12 @@ class Book {
     this.bundlePages,
     this.bundlePublicationYears,
     this.bundleTitles,
+    this.bundleAuthors,
     this.tbr,
     this.isTandem,
     this.originalBookId,
+    this.notificationEnabled,
+    this.notificationDatetime,
   });
 
   factory Book.fromMap(Map<String, dynamic> map) {
@@ -127,9 +133,12 @@ class Book {
       bundlePages: map['bundle_pages'] as String?,
       bundlePublicationYears: map['bundle_publication_years'] as String?,
       bundleTitles: map['bundle_titles'] as String?,
+      bundleAuthors: map['bundle_authors'] as String?,
       tbr: map['tbr'] == 1,
       isTandem: map['is_tandem'] == 1,
       originalBookId: map['original_book_id'] as int?,
+      notificationEnabled: map['notification_enabled'] == 1,
+      notificationDatetime: map['notification_datetime'] as String?,
     );
   }
 
@@ -167,9 +176,12 @@ class Book {
       'bundlePages': bundlePages,
       'bundlePublicationYears': bundlePublicationYears,
       'bundleTitles': bundleTitles,
+      'bundleAuthors': bundleAuthors,
       'tbr': tbr,
       'isTandem': isTandem,
       'originalBookId': originalBookId,
+      'notificationEnabled': notificationEnabled,
+      'notificationDatetime': notificationDatetime,
     };
   }
 

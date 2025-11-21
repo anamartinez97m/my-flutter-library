@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/model/book.dart';
@@ -41,18 +42,47 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
     return years;
   }
 
-  Future<List<Book>> _loadBooksForYear(int year) async {
+  Future<List<Map<String, dynamic>>> _loadBooksForYear(int year) async {
     final db = await DatabaseHelper.instance.database;
     final repository = BookRepository(db);
     final booksData = await repository.getBooksReadInYear(year);
-    // Map latest_read_date to dateReadFinal for proper display
+    
+    // Return the raw data with bundle_book_index for proper display
     return booksData.map((data) {
       final mappedData = Map<String, dynamic>.from(data);
       if (mappedData.containsKey('latest_read_date')) {
         mappedData['date_read_final'] = mappedData['latest_read_date'];
       }
-      return Book.fromMap(mappedData);
+      return mappedData;
     }).toList();
+  }
+  
+  String _getDisplayName(Map<String, dynamic> bookData) {
+    final book = Book.fromMap(bookData);
+    final bundleIndex = bookData['bundle_book_index'] as int?;
+    
+    if (book.isBundle == true && bundleIndex != null) {
+      // Extract title from bundle_titles if available
+      String? bundleBookTitle;
+      if (book.bundleTitles != null) {
+        try {
+          final List<dynamic> titles = jsonDecode(book.bundleTitles!);
+          if (bundleIndex < titles.length && titles[bundleIndex] != null) {
+            bundleBookTitle = titles[bundleIndex] as String?;
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+      
+      if (bundleBookTitle != null && bundleBookTitle.isNotEmpty) {
+        return '${book.name} - Book ${bundleIndex + 1}: $bundleBookTitle';
+      } else {
+        return '${book.name} - Book ${bundleIndex + 1}';
+      }
+    }
+    
+    return book.name ?? 'Unknown';
   }
 
   /// Try to parse date with multiple formats
@@ -96,15 +126,16 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
     return month >= 1 && month <= 12 ? monthNames[month] : '';
   }
 
-  int _getItemCount(List<Book> books) {
-    if (books.isEmpty) return 0;
+  int _getItemCount(List<Map<String, dynamic>> booksData) {
+    if (booksData.isEmpty) return 0;
     
     int count = 0;
     int? lastMonth;
     
-    for (var book in books) {
-      if (book.dateReadFinal != null) {
-        final date = _tryParseDate(book.dateReadFinal!);
+    for (var bookData in booksData) {
+      final dateReadFinal = bookData['date_read_final'] as String?;
+      if (dateReadFinal != null) {
+        final date = _tryParseDate(dateReadFinal);
         if (date != null) {
           if (lastMonth != date.month) {
             count++; // Add month header
@@ -118,16 +149,17 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
     return count;
   }
 
-  Widget _buildItem(BuildContext context, List<Book> books, int index) {
+  Widget _buildItem(BuildContext context, List<Map<String, dynamic>> booksData, int index) {
     int currentIndex = 0;
     int? lastMonth;
     
-    for (var i = 0; i < books.length; i++) {
-      final book = books[i];
+    for (var i = 0; i < booksData.length; i++) {
+      final bookData = booksData[i];
+      final dateReadFinal = bookData['date_read_final'] as String?;
       
       // Check if we need a month header
-      if (book.dateReadFinal != null) {
-        final date = _tryParseDate(book.dateReadFinal!);
+      if (dateReadFinal != null) {
+        final date = _tryParseDate(dateReadFinal);
         if (date != null && lastMonth != date.month) {
           if (currentIndex == index) {
             // Return month header
@@ -149,7 +181,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
       
       // Check if this is the book card we're looking for
       if (currentIndex == index) {
-        return _buildBookCard(context, book);
+        return _buildBookCard(context, bookData);
       }
       currentIndex++;
     }
@@ -177,14 +209,14 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
             _selectedYear = _availableYears.first;
           }
 
-          return FutureBuilder<List<Book>>(
+          return FutureBuilder<List<Map<String, dynamic>>>(
             future: _loadBooksForYear(_selectedYear),
             builder: (context, booksSnapshot) {
               if (!booksSnapshot.hasData) {
                 return const Center(child: CircularProgressIndicator());
               }
 
-              final booksForYear = booksSnapshot.data!;
+              final booksDataForYear = booksSnapshot.data!;
 
           return Column(
             children: [
@@ -227,14 +259,14 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
               ),
               // Books list with month separators
               Expanded(
-                child: booksForYear.isEmpty
+                child: booksDataForYear.isEmpty
                     ? const Center(
                         child: Text('No books read in this year'),
                       )
                     : ListView.builder(
-                        itemCount: _getItemCount(booksForYear),
+                        itemCount: _getItemCount(booksDataForYear),
                         itemBuilder: (context, index) {
-                          return _buildItem(context, booksForYear, index);
+                          return _buildItem(context, booksDataForYear, index);
                         },
                       ),
               ),
@@ -247,7 +279,8 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
     );
   }
 
-  Widget _buildBookCard(BuildContext context, Book book) {
+  Widget _buildBookCard(BuildContext context, Map<String, dynamic> bookData) {
+    final book = Book.fromMap(bookData);
     // Parse date for display
     String dateStr = '';
     if (book.dateReadFinal != null) {
@@ -275,7 +308,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: ListTile(
         title: Text(
-          book.name ?? 'Unknown',
+          _getDisplayName(bookData),
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: subtitleParts.isNotEmpty

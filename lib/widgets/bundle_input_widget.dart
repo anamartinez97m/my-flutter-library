@@ -8,9 +8,10 @@ class BundleInputWidget extends StatefulWidget {
   final List<int?>? initialBundlePages;
   final List<int?>? initialBundlePublicationYears;
   final List<String?>? initialBundleTitles;
+  final List<String?>? initialBundleAuthors;
   final Map<int, bool>? bundleBooksReadStatus; // Map of bundle index to read status
   final Map<int, bool>? bundleBooksHasReadingSessions;
-  final Function(bool isBundle, int? count, String? numbers, List<int?>? bundlePages, List<int?>? bundlePublicationYears, List<String?>? bundleTitles) onChanged;
+  final Function(bool isBundle, int? count, String? numbers, List<int?>? bundlePages, List<int?>? bundlePublicationYears, List<String?>? bundleTitles, List<String?>? bundleAuthors) onChanged;
   final Function(int bundleIndex, bool isRead)? onReadStatusChanged; // Callback for manual read status changes
 
   const BundleInputWidget({
@@ -21,6 +22,7 @@ class BundleInputWidget extends StatefulWidget {
     this.initialBundlePages,
     this.initialBundlePublicationYears,
     this.initialBundleTitles,
+    this.initialBundleAuthors,
     this.bundleBooksReadStatus,
     this.bundleBooksHasReadingSessions,
     required this.onChanged,
@@ -38,7 +40,9 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
   List<int?> _bundlePages = [];
   List<int?> _bundlePublicationYears = [];
   List<String?> _bundleTitles = [];
+  List<String?> _bundleAuthors = [];
   List<String?> _bundleSagaNumbers = []; // N_Saga for each book in bundle
+  Set<int> _expandedPanels = {}; // Track which panels are expanded
 
   @override
   void initState() {
@@ -51,6 +55,11 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
       text: widget.initialBundleNumbers ?? '',
     );
     
+    // Initialize all panels as expanded by default
+    if (widget.initialBundleCount != null && widget.initialBundleCount! > 0) {
+      _expandedPanels = Set.from(List.generate(widget.initialBundleCount!, (index) => index));
+    }
+    
     if (widget.initialBundlePages != null) {
       _bundlePages = List.from(widget.initialBundlePages!);
     }
@@ -60,6 +69,9 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
     if (widget.initialBundleTitles != null) {
       _bundleTitles = List.from(widget.initialBundleTitles!);
     }
+    if (widget.initialBundleAuthors != null) {
+      _bundleAuthors = List.from(widget.initialBundleAuthors!);
+    }
     
     // Initialize saga numbers from bundleNumbers string if available
     if (widget.initialBundleNumbers != null && widget.initialBundleNumbers!.isNotEmpty) {
@@ -67,6 +79,11 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
     }
     
     _bundleCountController.addListener(_onCountChanged);
+    
+    // Expand first panel by default if there are bundle books
+    if (_bundlePages.isNotEmpty) {
+      _expandedPanels.add(0);
+    }
   }
 
   @override
@@ -132,12 +149,21 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
         if (_bundleTitles.length > count) {
           _bundleTitles = _bundleTitles.sublist(0, count);
         }
+        while (_bundleAuthors.length < count) {
+          _bundleAuthors.add(null);
+        }
+        if (_bundleAuthors.length > count) {
+          _bundleAuthors = _bundleAuthors.sublist(0, count);
+        }
         while (_bundleSagaNumbers.length < count) {
           _bundleSagaNumbers.add(null);
         }
         if (_bundleSagaNumbers.length > count) {
           _bundleSagaNumbers = _bundleSagaNumbers.sublist(0, count);
         }
+        
+        // Expand all panels by default
+        _expandedPanels = Set.from(List.generate(count, (index) => index));
       });
     }
     _notifyChange();
@@ -165,6 +191,7 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
       _bundlePages.isEmpty ? null : _bundlePages,
       _bundlePublicationYears.isEmpty ? null : _bundlePublicationYears,
       _bundleTitles.isEmpty ? null : _bundleTitles,
+      _bundleAuthors.isEmpty ? null : _bundleAuthors,
     );
   }
 
@@ -218,81 +245,84 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
               ),
             ),
             const SizedBox(height: 8),
-            ...List.generate(_bundlePages.length, (index) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
+            ExpansionPanelList(
+              key: ValueKey(_bundlePages.length), // Force rebuild when count changes
+              elevation: 1,
+              expandedHeaderPadding: EdgeInsets.zero,
+              expansionCallback: (int index, bool isExpanded) {
+                setState(() {
+                  if (isExpanded) {
+                    _expandedPanels.remove(index);
+                  } else {
+                    _expandedPanels.add(index);
+                  }
+                });
+              },
+              children: List.generate(_bundlePages.length, (index) {
+                final isRead = widget.bundleBooksReadStatus?[index] ?? false;
+                final bookTitle = (index < _bundleTitles.length && _bundleTitles[index] != null && _bundleTitles[index]!.isNotEmpty)
+                    ? _bundleTitles[index]!
+                    : 'Book ${index + 1}';
+                
+                return ExpansionPanel(
+                  isExpanded: _expandedPanels.contains(index),
+                  canTapOnHeader: true,
+                  backgroundColor: Colors.grey[50],
+                  headerBuilder: (BuildContext context, bool isExpanded) {
+                    return ListTile(
+                      leading: Icon(
+                        isRead ? Icons.check_circle : Icons.circle_outlined,
+                        color: isRead ? Colors.green : Colors.grey,
+                      ),
+                      title: Text(
+                        bookTitle,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: isRead ? Colors.green.shade700 : null,
+                        ),
+                      ),
+                      subtitle: Text(
+                        isRead ? 'Read' : 'Not read',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isRead ? Colors.green : Colors.grey,
+                        ),
+                      ),
+                    );
+                  },
+                  body: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
+                        if (widget.onReadStatusChanged != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 Text(
-                                  'Book ${index + 1}',
-                                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                    fontWeight: FontWeight.bold,
+                                  'Mark as read',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                                Transform.scale(
+                                  scale: 0.8,
+                                  child: Checkbox(
+                                    value: isRead,
+                                    onChanged: (widget.bundleBooksHasReadingSessions?[index] ?? false)
+                                        ? null
+                                        : (value) {
+                                            widget.onReadStatusChanged!(index, value ?? false);
+                                          },
+                                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                   ),
                                 ),
-                                const SizedBox(width: 8),
-                                if (widget.bundleBooksReadStatus != null && 
-                                    widget.bundleBooksReadStatus!.containsKey(index) &&
-                                    widget.bundleBooksReadStatus![index] == true)
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: Colors.green,
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: const Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(Icons.check, size: 12, color: Colors.white),
-                                        SizedBox(width: 4),
-                                        Text(
-                                          'Read',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
                               ],
                             ),
-                            if (widget.onReadStatusChanged != null)
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    'Mark as read',
-                                    style: Theme.of(context).textTheme.bodySmall,
-                                  ),
-                                  Transform.scale(
-                                    scale: 0.8,
-                                    child: Checkbox(
-                                      value: widget.bundleBooksReadStatus?[index] ?? false,
-                                      onChanged: (widget.bundleBooksHasReadingSessions?[index] ?? false)
-                                          ? null // Disable if there are reading sessions
-                                          : (value) {
-                                              widget.onReadStatusChanged!(index, value ?? false);
-                                            },
-                                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
+                          ),
                         // N_Saga input
                         TextFormField(
+                          key: ValueKey('saga_$index'),
                           initialValue: (index < _bundleSagaNumbers.length && _bundleSagaNumbers[index] != null) 
                               ? _bundleSagaNumbers[index] 
                               : '',
@@ -315,6 +345,7 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
                         const SizedBox(height: 8),
                         // Book Title input
                         TextFormField(
+                          key: ValueKey('title_$index'),
                           initialValue: (index < _bundleTitles.length && _bundleTitles[index] != null) 
                               ? _bundleTitles[index] 
                               : '',
@@ -335,8 +366,32 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
                           },
                         ),
                         const SizedBox(height: 8),
+                        // Author input
+                        TextFormField(
+                          key: ValueKey('author_$index'),
+                          initialValue: (index < _bundleAuthors.length && _bundleAuthors[index] != null) 
+                              ? _bundleAuthors[index] 
+                              : '',
+                          decoration: const InputDecoration(
+                            labelText: 'Author(s)',
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                            hintText: 'Enter author name(s), separate with commas',
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              while (_bundleAuthors.length <= index) {
+                                _bundleAuthors.add(null);
+                              }
+                              _bundleAuthors[index] = value.isEmpty ? null : value;
+                            });
+                            _notifyChange();
+                          },
+                        ),
+                        const SizedBox(height: 8),
                         // Pages input
                         TextFormField(
+                          key: ValueKey('pages_$index'),
                           initialValue: (index < _bundlePages.length && _bundlePages[index] != null) 
                               ? _bundlePages[index].toString() 
                               : '',
@@ -349,7 +404,6 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
                           keyboardType: TextInputType.number,
                           onChanged: (value) {
                             setState(() {
-                              // Ensure the list is large enough
                               while (_bundlePages.length <= index) {
                                 _bundlePages.add(null);
                               }
@@ -361,6 +415,7 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
                         const SizedBox(height: 8),
                         // Original Publication Year input
                         TextFormField(
+                          key: ValueKey('year_$index'),
                           initialValue: (index < _bundlePublicationYears.length && _bundlePublicationYears[index] != null) 
                               ? _bundlePublicationYears[index].toString() 
                               : '',
@@ -373,7 +428,6 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
                           keyboardType: TextInputType.number,
                           onChanged: (value) {
                             setState(() {
-                              // Ensure the list is large enough
                               while (_bundlePublicationYears.length <= index) {
                                 _bundlePublicationYears.add(null);
                               }
@@ -385,9 +439,9 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
                       ],
                     ),
                   ),
-                ),
-              );
-            }),
+                );
+              }),
+            ),
           ],
         ],
       ],

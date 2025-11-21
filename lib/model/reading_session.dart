@@ -6,6 +6,7 @@ class ReadingSession {
   final DateTime? endTime;
   final int? durationSeconds; // Total reading time in seconds
   final bool isActive;
+  final DateTime? clickedAt; // When the chronometer was clicked/started
 
   ReadingSession({
     this.sessionId,
@@ -14,6 +15,7 @@ class ReadingSession {
     this.endTime,
     this.durationSeconds,
     this.isActive = true,
+    this.clickedAt,
   });
 
   Map<String, dynamic> toMap() {
@@ -24,6 +26,7 @@ class ReadingSession {
       'end_time': endTime?.toIso8601String(),
       'duration_seconds': durationSeconds,
       'is_active': isActive ? 1 : 0,
+      'clicked_at': clickedAt?.toIso8601String(),
     };
   }
 
@@ -35,6 +38,7 @@ class ReadingSession {
       endTime: map['end_time'] != null ? DateTime.parse(map['end_time'] as String) : null,
       durationSeconds: map['duration_seconds'] as int?,
       isActive: (map['is_active'] as int) == 1,
+      clickedAt: map['clicked_at'] != null ? DateTime.parse(map['clicked_at'] as String) : null,
     );
   }
 
@@ -45,6 +49,7 @@ class ReadingSession {
     DateTime? endTime,
     int? durationSeconds,
     bool? isActive,
+    DateTime? clickedAt,
   }) {
     return ReadingSession(
       sessionId: sessionId ?? this.sessionId,
@@ -53,6 +58,7 @@ class ReadingSession {
       endTime: endTime ?? this.endTime,
       durationSeconds: durationSeconds ?? this.durationSeconds,
       isActive: isActive ?? this.isActive,
+      clickedAt: clickedAt ?? this.clickedAt,
     );
   }
 }

@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/model/read_date.dart';
@@ -14,6 +13,7 @@ import 'package:myrandomlibrary/widgets/tbr_limit_setting.dart';
 import 'package:myrandomlibrary/widgets/bundle_input_widget.dart';
 import 'package:myrandomlibrary/widgets/read_dates_widget.dart';
 import 'package:myrandomlibrary/widgets/bundle_read_dates_widget.dart';
+import 'package:myrandomlibrary/services/notification_service.dart';
 import 'package:provider/provider.dart';
 import 'package:myrandomlibrary/widgets/heart_rating_input.dart';
 
@@ -57,10 +57,16 @@ class _AddBookScreenState extends State<AddBookScreen> {
   List<int?>? _bundlePages;
   List<int?>? _bundlePublicationYears;
   List<String?>? _bundleTitles;
+  List<String?>? _bundleAuthors;
 
   // TBR and Tandem fields
   bool _tbr = false;
   bool _isTandem = false;
+  
+  // Notification fields
+  bool _notificationEnabled = false;
+  DateTime? _notificationDateTime;
+  TimeOfDay? _notificationTime;
 
   // Dropdown values
   int? _selectedStatusId;
@@ -417,9 +423,14 @@ class _AddBookScreenState extends State<AddBookScreen> {
         bundlePages: _bundlePages != null ? jsonEncode(_bundlePages!) : null,
         bundlePublicationYears: _bundlePublicationYears != null ? jsonEncode(_bundlePublicationYears!) : null,
         bundleTitles: _bundleTitles != null ? jsonEncode(_bundleTitles!) : null,
+        bundleAuthors: _bundleAuthors != null ? jsonEncode(_bundleAuthors!) : null,
         tbr: _tbr,
         isTandem: _isTandem,
         originalBookId: _selectedOriginalBookId,
+        notificationEnabled: _notificationEnabled,
+        notificationDatetime: _notificationEnabled && _notificationDateTime != null 
+            ? _notificationDateTime!.toIso8601String() 
+            : null,
       );
 
       final bookId = await repository.addBook(book);
@@ -448,6 +459,22 @@ class _AddBookScreenState extends State<AddBookScreen> {
         }
       }
 
+      // Schedule notification if enabled
+      if (_notificationEnabled && _notificationDateTime != null) {
+        try {
+          final notificationService = NotificationService();
+          await notificationService.requestPermissions();
+          await notificationService.scheduleBookReleaseNotification(
+            bookId: bookId,
+            bookTitle: _nameController.text.trim(),
+            scheduledDate: _notificationDateTime!,
+          );
+          debugPrint('📅 Notification scheduled for book ID: $bookId');
+        } catch (e) {
+          debugPrint('Error scheduling notification: $e');
+        }
+      }
+
       // Reload books in provider
       if (mounted) {
         final provider = Provider.of<BookProvider?>(context, listen: false);
@@ -468,6 +495,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
         _pagesController.clear();
         _publicationYearController.clear();
         _releaseDate = null;
+        _notificationEnabled = false;
+        _notificationDateTime = null;
+        _notificationTime = null;
         _editorialController.clear();
         _genreController.clear();
         _myReviewController.clear();
@@ -493,6 +523,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
           _bundlePages = null;
           _bundlePublicationYears = null;
           _bundleTitles = null;
+          _bundleAuthors = null;
           _tbr = false;
           _isTandem = false;
         });
@@ -866,6 +897,75 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
+                    
+                    // Notification checkbox
+                    CheckboxListTile(
+                      title: const Text('Enable Release Notification'),
+                      subtitle: const Text('Get notified when this book is released'),
+                      value: _notificationEnabled,
+                      onChanged: (value) {
+                        setState(() {
+                          _notificationEnabled = value ?? false;
+                          if (_notificationEnabled && _notificationDateTime == null) {
+                            // Set default notification time to release date at 9 AM
+                            _notificationDateTime = _releaseDate != null
+                                ? DateTime(_releaseDate!.year, _releaseDate!.month, _releaseDate!.day, 9, 0)
+                                : DateTime.now().add(const Duration(days: 1));
+                            _notificationTime = const TimeOfDay(hour: 9, minute: 0);
+                          }
+                        });
+                      },
+                      controlAffinity: ListTileControlAffinity.leading,
+                    ),
+                    
+                    // Notification datetime picker
+                    if (_notificationEnabled) ...[
+                      const SizedBox(height: 8),
+                      InkWell(
+                        onTap: () async {
+                          final pickedDate = await showDatePicker(
+                            context: context,
+                            initialDate: _notificationDateTime ?? DateTime.now(),
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime(2100),
+                          );
+                          if (pickedDate != null) {
+                            final pickedTime = await showTimePicker(
+                              context: context,
+                              initialTime: _notificationTime ?? const TimeOfDay(hour: 9, minute: 0),
+                            );
+                            if (pickedTime != null) {
+                              setState(() {
+                                _notificationDateTime = DateTime(
+                                  pickedDate.year,
+                                  pickedDate.month,
+                                  pickedDate.day,
+                                  pickedTime.hour,
+                                  pickedTime.minute,
+                                );
+                                _notificationTime = pickedTime;
+                              });
+                            }
+                          }
+                        },
+                        child: InputDecorator(
+                          decoration: const InputDecoration(
+                            labelText: 'Notification Date & Time',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.notifications_active),
+                          ),
+                          child: Text(
+                            _notificationDateTime != null
+                                ? '${_notificationDateTime!.day}/${_notificationDateTime!.month}/${_notificationDateTime!.year} at ${_notificationTime!.format(context)}'
+                                : 'Select notification date and time',
+                            style: TextStyle(
+                              color: _notificationDateTime != null ? null : Colors.grey,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
                   ],
                 ),
 
@@ -989,6 +1089,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 initialBundlePages: _bundlePages,
                 initialBundlePublicationYears: _bundlePublicationYears,
                 initialBundleTitles: _bundleTitles,
+                initialBundleAuthors: _bundleAuthors,
                 onChanged: (
                   isBundle,
                   count,
@@ -996,6 +1097,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   bundlePages,
                   bundlePublicationYears,
                   bundleTitles,
+                  bundleAuthors,
                 ) {
                   setState(() {
                     _isBundle = isBundle;
@@ -1004,6 +1106,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     _bundlePages = bundlePages;
                     _bundlePublicationYears = bundlePublicationYears;
                     _bundleTitles = bundleTitles;
+                    _bundleAuthors = bundleAuthors;
                   });
                 },
               ),

@@ -490,7 +490,9 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                 fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
                 b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
                 b.read_count, b.my_rating, b.my_review,
-                b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages,
+                b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
+                b.tbr, b.is_tandem, b.original_book_id,
+                b.notification_enabled, b.notification_datetime,
                 GROUP_CONCAT(DISTINCT a.name) as author,
                 GROUP_CONCAT(DISTINCT g.name) as genre
               from book b 
@@ -817,7 +819,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
           for (final id in item.duplicateIds) {
             // Use delete and re-add approach to properly handle relational tables
             await repository.deleteBook(id);
-            // Preserve the original book ID
+            // Preserve the original book ID and fields not in CSV (tbr, notifications, etc.)
             final bookToAdd = Book(
               bookId: id,
               name: item.book.name,
@@ -849,6 +851,15 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               bundleStartDates: item.book.bundleStartDates,
               bundleEndDates: item.book.bundleEndDates,
               bundlePages: item.book.bundlePages,
+              bundlePublicationYears: item.existingBook?.bundlePublicationYears,
+              bundleTitles: item.existingBook?.bundleTitles,
+              bundleAuthors: item.existingBook?.bundleAuthors,
+              // Preserve fields not in CSV from existing book
+              tbr: item.existingBook?.tbr,
+              isTandem: item.existingBook?.isTandem,
+              originalBookId: item.existingBook?.originalBookId,
+              notificationEnabled: item.existingBook?.notificationEnabled,
+              notificationDatetime: item.existingBook?.notificationDatetime,
             );
             await repository.addBook(bookToAdd);
             
@@ -959,7 +970,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
           for (final id in item.duplicateIds) {
             // Use delete and re-add approach to properly handle relational tables
             await repository.deleteBook(id);
-            // Preserve the original book ID
+            // Preserve the original book ID and fields not in CSV (tbr, notifications, etc.)
             final bookToAdd = Book(
               bookId: id,
               name: item.book.name,
@@ -991,6 +1002,15 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               bundleStartDates: item.book.bundleStartDates,
               bundleEndDates: item.book.bundleEndDates,
               bundlePages: item.book.bundlePages,
+              bundlePublicationYears: item.existingBook?.bundlePublicationYears,
+              bundleTitles: item.existingBook?.bundleTitles,
+              bundleAuthors: item.existingBook?.bundleAuthors,
+              // Preserve fields not in CSV from existing book
+              tbr: item.existingBook?.tbr,
+              isTandem: item.existingBook?.isTandem,
+              originalBookId: item.existingBook?.originalBookId,
+              notificationEnabled: item.existingBook?.notificationEnabled,
+              notificationDatetime: item.existingBook?.notificationDatetime,
             );
             await repository.addBook(bookToAdd);
             
@@ -1466,7 +1486,7 @@ class _BookImportPreview extends StatelessWidget {
       case 'readCount':
         return book.readCount != null && book.readCount! > 0;
       case 'rating':
-        return book.myRating != null && book.myRating! > 0;
+        return book.myRating != null;
       default:
         return false;
     }
@@ -2208,8 +2228,7 @@ class _BookImportPreview extends StatelessWidget {
             newBook.readCount != null;
       case 'rating':
         return newBook.myRating != existingBook.myRating &&
-            newBook.myRating != null &&
-            newBook.myRating! > 0;
+            newBook.myRating != null;
       default:
         return false;
     }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/screens/year_challenges.dart';
 
 /// Placeholder card for Reading Goals Progress feature (future goals tracking)
 class ReadingGoalsPlaceholderCard extends StatelessWidget {
@@ -12,7 +13,17 @@ class ReadingGoalsPlaceholderCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Container(
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const YearChallengesScreen(),
+            ),
+          );
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           gradient: LinearGradient(
@@ -46,10 +57,10 @@ class ReadingGoalsPlaceholderCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withOpacity(0.2),
+                  color: Colors.green.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: Colors.amber.withOpacity(0.5),
+                    color: Colors.green.withOpacity(0.5),
                     width: 1,
                   ),
                 ),
@@ -57,17 +68,17 @@ class ReadingGoalsPlaceholderCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      Icons.schedule,
+                      Icons.check_circle,
                       size: 16,
-                      color: Colors.amber[800],
+                      color: Colors.green[800],
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      'Coming Soon',
+                      'Available Now',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: Colors.amber[800],
+                        color: Colors.green[800],
                       ),
                     ),
                   ],
@@ -83,7 +94,7 @@ class ReadingGoalsPlaceholderCard extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                'Annual, monthly, or custom challenges',
+                'Annual book and page challenges',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Colors.grey[500],
                   fontStyle: FontStyle.italic,
@@ -94,23 +105,23 @@ class ReadingGoalsPlaceholderCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.grey[100],
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      Icons.info_outline,
+                      Icons.touch_app,
                       size: 16,
-                      color: Colors.grey[600],
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Requires goals tracking system',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
-                        ),
+                    Text(
+                      'Tap to manage challenges',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -119,6 +130,7 @@ class ReadingGoalsPlaceholderCard extends StatelessWidget {
             ],
           ),
         ),
+      ),
       ),
     );
   }

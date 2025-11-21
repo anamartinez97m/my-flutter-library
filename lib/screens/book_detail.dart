@@ -272,6 +272,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     List<int?>? pages;
     List<int?>? pubYears;
     List<String?>? sagaNumbers;
+    List<String?>? authors;
     
     try {
       if (_currentBook.bundleTitles != null) {
@@ -300,6 +301,15 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       pubYears = null;
     }
     
+    try {
+      if (_currentBook.bundleAuthors != null) {
+        final List<dynamic> authorsData = jsonDecode(_currentBook.bundleAuthors!);
+        authors = authorsData.map((a) => a as String?).toList();
+      }
+    } catch (e) {
+      authors = null;
+    }
+    
     // Parse saga numbers from bundleNumbers string
     if (_currentBook.bundleNumbers != null && _currentBook.bundleNumbers!.isNotEmpty) {
       sagaNumbers = _parseBundleSagaNumbers(_currentBook.bundleNumbers!);
@@ -310,6 +320,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       pages?.length ?? 0,
       pubYears?.length ?? 0,
       sagaNumbers?.length ?? 0,
+      authors?.length ?? 0,
       _currentBook.bundleCount ?? 0,
     ].reduce((a, b) => a > b ? a : b);
     
@@ -318,6 +329,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       final pageCount = pages != null && index < pages.length ? pages[index] : null;
       final pubYear = pubYears != null && index < pubYears.length ? pubYears[index] : null;
       final sagaNum = sagaNumbers != null && index < sagaNumbers.length ? sagaNumbers[index] : null;
+      final author = authors != null && index < authors.length ? authors[index] : null;
       final hasReadDates = _bundleReadDates.containsKey(index) && 
                            _bundleReadDates[index]!.any((d) => d.dateFinished != null && d.dateFinished!.isNotEmpty);
       
@@ -362,6 +374,14 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                       title,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  if (author != null && author.isNotEmpty)
+                    Text(
+                      author,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.grey[700],
+                        fontStyle: FontStyle.italic,
                       ),
                     ),
                   if (pageCount != null || pubYear != null)
@@ -635,8 +655,12 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                 bundlePages: _currentBook.bundlePages,
                                 bundlePublicationYears: _currentBook.bundlePublicationYears,
                                 bundleTitles: _currentBook.bundleTitles,
+                                bundleAuthors: _currentBook.bundleAuthors,
                                 tbr: !(_currentBook.tbr == true), // Toggle
                                 isTandem: _currentBook.isTandem,
+                                originalBookId: _currentBook.originalBookId,
+                                notificationEnabled: _currentBook.notificationEnabled,
+                                notificationDatetime: _currentBook.notificationDatetime,
                               );
                               
                               await repository.deleteBook(_currentBook.bookId!);
@@ -1232,6 +1256,29 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         ),
                       ),
 
+                    // Notification Badge
+                    if (_currentBook.notificationEnabled == true && _currentBook.notificationDatetime != null)
+                      Card(
+                        elevation: 1,
+                        margin: const EdgeInsets.only(bottom: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: ListTile(
+                          leading: Icon(
+                            Icons.notifications_active,
+                            color: Colors.blue.shade700,
+                          ),
+                          title: const Text(
+                            'Release Notification',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Text(
+                            'Scheduled for ${formatDateForDisplay(_currentBook.notificationDatetime!.split('T')[0])}',
+                          ),
+                        ),
+                      ),
+
                     // Tandem Books
                     if (_currentBook.isTandem == true)
                       _TandemBooksCard(
@@ -1373,6 +1420,13 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   durationStr = '${seconds}s';
                                 }
                                 
+                                // Format clicked_at time if available
+                                String clickedAtStr = '';
+                                if (session.clickedAt != null) {
+                                  final clickedTime = session.clickedAt!;
+                                  clickedAtStr = ' (Started: ${clickedTime.hour.toString().padLeft(2, '0')}:${clickedTime.minute.toString().padLeft(2, '0')})';
+                                }
+                                
                                 return Padding(
                                   padding: const EdgeInsets.only(bottom: 8),
                                   child: Row(
@@ -1386,7 +1440,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                       const SizedBox(width: 8),
                                       Expanded(
                                         child: Text(
-                                          '${formatDateForDisplay(session.startTime.toIso8601String().split('T')[0])} - $durationStr',
+                                          '${formatDateForDisplay(session.startTime.toIso8601String().split('T')[0])} - $durationStr$clickedAtStr',
                                           style: Theme.of(context).textTheme.bodySmall,
                                         ),
                                       ),
@@ -1549,8 +1603,9 @@ class _BundleDatesCard extends StatelessWidget {
   final String? bundlePages;
   final String? bundlePublicationYears;
   final String? bundleTitles;
+  final String? bundleAuthors;
 
-  const _BundleDatesCard({this.startDates, this.endDates, this.bundlePages, this.bundlePublicationYears, this.bundleTitles});
+  const _BundleDatesCard({this.startDates, this.endDates, this.bundlePages, this.bundlePublicationYears, this.bundleTitles, this.bundleAuthors});
 
   @override
   Widget build(BuildContext context) {
@@ -1559,6 +1614,7 @@ class _BundleDatesCard extends StatelessWidget {
     List<int?>? pages;
     List<int?>? pubYears;
     List<String?>? titles;
+    List<String?>? authors;
 
     try {
       if (startDates != null) {
@@ -1606,12 +1662,22 @@ class _BundleDatesCard extends StatelessWidget {
       titles = null;
     }
 
+    try {
+      if (bundleAuthors != null) {
+        final List<dynamic> authorsData = jsonDecode(bundleAuthors!);
+        authors = authorsData.map((a) => a as String?).toList();
+      }
+    } catch (e) {
+      authors = null;
+    }
+
     final maxLength = [
       starts?.length ?? 0,
       ends?.length ?? 0,
       pages?.length ?? 0,
       pubYears?.length ?? 0,
       titles?.length ?? 0,
+      authors?.length ?? 0,
     ].reduce((a, b) => a > b ? a : b);
 
     if (maxLength == 0) return const SizedBox.shrink();
@@ -1656,6 +1722,8 @@ class _BundleDatesCard extends StatelessWidget {
                   pubYears != null && index < pubYears.length ? pubYears[index] : null;
               final title =
                   titles != null && index < titles.length ? titles[index] : null;
+              final author =
+                  authors != null && index < authors.length ? authors[index] : null;
 
               return Padding(
                 padding: const EdgeInsets.only(bottom: 8),
@@ -1699,28 +1767,42 @@ class _BundleDatesCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    if (pageCount != null || pubYear != null)
+                    if (pageCount != null || pubYear != null || author != null)
                       Padding(
                         padding: const EdgeInsets.only(left: 16, top: 4),
-                        child: Row(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (pageCount != null)
-                              Text(
-                                'Pages: $pageCount',
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(color: Colors.grey[600], fontSize: 12),
-                              ),
-                            if (pageCount != null && pubYear != null)
-                              Text(
-                                ' • ',
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(color: Colors.grey[600], fontSize: 12),
-                              ),
-                            if (pubYear != null)
-                              Text(
-                                'Pub. Year: $pubYear',
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(color: Colors.grey[600], fontSize: 12),
+                            Row(
+                              children: [
+                                if (pageCount != null)
+                                  Text(
+                                    'Pages: $pageCount',
+                                    style: Theme.of(context).textTheme.bodySmall
+                                        ?.copyWith(color: Colors.grey[600], fontSize: 12),
+                                  ),
+                                if (pageCount != null && pubYear != null)
+                                  Text(
+                                    ' • ',
+                                    style: Theme.of(context).textTheme.bodySmall
+                                        ?.copyWith(color: Colors.grey[600], fontSize: 12),
+                                  ),
+                                if (pubYear != null)
+                                  Text(
+                                    'Pub. Year: $pubYear',
+                                    style: Theme.of(context).textTheme.bodySmall
+                                        ?.copyWith(color: Colors.grey[600], fontSize: 12),
+                                  ),
+                              ],
+                            ),
+                            if (author != null && author.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: Text(
+                                  'Author(s): $author',
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(color: Colors.grey[600], fontSize: 12),
+                                ),
                               ),
                           ],
                         ),

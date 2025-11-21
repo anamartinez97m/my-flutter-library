@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/model/read_date.dart';
@@ -39,8 +40,9 @@ class BookRepository {
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count, b.my_rating, b.my_review,
-        b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles,
+        b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
         b.tbr, b.is_tandem, b.original_book_id,
+        b.notification_enabled, b.notification_datetime,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -72,8 +74,9 @@ class BookRepository {
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count, b.my_rating, b.my_review,
-        b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles,
+        b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
         b.tbr, b.is_tandem, b.original_book_id,
+        b.notification_enabled, b.notification_datetime,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -152,8 +155,9 @@ class BookRepository {
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count, b.my_rating, b.my_review,
-        b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles,
+        b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
         b.tbr, b.is_tandem, b.original_book_id,
+        b.notification_enabled, b.notification_datetime,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -200,8 +204,9 @@ class BookRepository {
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count, b.my_rating, b.my_review,
-        b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles,
+        b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
         b.tbr, b.is_tandem, b.original_book_id,
+        b.notification_enabled, b.notification_datetime,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -761,9 +766,12 @@ class BookRepository {
       'bundle_pages': book.bundlePages,
       'bundle_publication_years': book.bundlePublicationYears,
       'bundle_titles': book.bundleTitles,
+      'bundle_authors': book.bundleAuthors,
       'tbr': book.tbr == true ? 1 : 0,
       'is_tandem': book.isTandem == true ? 1 : 0,
       'original_book_id': book.originalBookId,
+      'notification_enabled': book.notificationEnabled == true ? 1 : 0,
+      'notification_datetime': book.notificationDatetime,
     };
     
     // If book has an ID, preserve it (for updates)
@@ -887,17 +895,20 @@ class BookRepository {
   /// Groups by original book (repeated books count as their original)
   /// For books spanning multiple years, counts them for the year with more days
   /// Handles bundles by counting each book in the bundle separately
+  /// Only counts repeated books if they were read in different years
   Future<Map<String, Map<int, int>>> getBooksAndPagesPerYear() async {
     // Get all read dates with book info, including bundle information
+    // Count each bundle book separately (by bundle_book_index)
     final result = await db.rawQuery('''
       SELECT 
         rd.read_date_id,
         rd.date_started,
         rd.date_finished,
+        rd.bundle_book_index,
         COALESCE(orig.book_id, b.book_id) as book_id,
         COALESCE(orig.pages, b.pages, 0) as pages,
         COALESCE(orig.is_bundle, b.is_bundle, 0) as is_bundle,
-        COALESCE(orig.bundle_count, b.bundle_count, 0) as bundle_count
+        COALESCE(orig.bundle_pages, b.bundle_pages) as bundle_pages
       FROM book_read_dates rd
       INNER JOIN book b ON rd.book_id = b.book_id
       LEFT JOIN status s ON b.status_id = s.status_id
@@ -906,45 +917,74 @@ class BookRepository {
         AND rd.date_finished != ""
         AND rd.date_started IS NOT NULL
         AND rd.date_started != ""
+        -- Exclude whole bundle books (only include individual bundle books or non-bundle books)
+        AND NOT (COALESCE(orig.is_bundle, b.is_bundle, 0) = 1 AND rd.bundle_book_index IS NULL)
     ''');
     
     final Map<int, int> booksPerYear = {};
     final Map<int, int> pagesPerYear = {};
     
+    // Track which books have been counted in which years to avoid duplicates
+    // Key: "bookId_bundleIndex" (or just "bookId" for non-bundle books)
+    final Map<String, Set<int>> countedBooksPerYear = {};
+    
+    debugPrint('📊 getBooksAndPagesPerYear: Processing ${result.length} read dates');
+    
     for (var row in result) {
       try {
-        final dateStarted = DateTime.parse(row['date_started'] as String);
         final dateFinished = DateTime.parse(row['date_finished'] as String);
+        final bookId = row['book_id'] as int;
         final pages = row['pages'] as int;
         final isBundle = (row['is_bundle'] as int) == 1;
-        final bundleCount = row['bundle_count'] as int;
+        final bundleBookIndex = row['bundle_book_index'] as int?;
+        final bundlePagesJson = row['bundle_pages'] as String?;
         
-        final startYear = dateStarted.year;
-        final endYear = dateFinished.year;
-        
-        int targetYear;
-        if (startYear == endYear) {
-          // Same year, count for that year
-          targetYear = startYear;
-        } else {
-          // Different years, count for year with more days
-          final daysInStartYear = DateTime(startYear, 12, 31).difference(dateStarted).inDays + 1;
-          final daysInEndYear = dateFinished.difference(DateTime(endYear, 1, 1)).inDays + 1;
-          targetYear = daysInStartYear > daysInEndYear ? startYear : endYear;
+        // Skip whole bundle books (only count individual bundle books)
+        if (isBundle && bundleBookIndex == null) {
+          debugPrint('  ⏭️  Skipping whole bundle book: bookId=$bookId');
+          continue;
         }
         
-        // Calculate multiplier for bundles
-        final multiplier = (isBundle && bundleCount > 0) ? bundleCount : 1;
+        // Use the year from date_finished to match the book list logic
+        final targetYear = dateFinished.year;
         
-        // Add books count to the target year
-        booksPerYear[targetYear] = (booksPerYear[targetYear] ?? 0) + multiplier;
+        // Create unique key for this book/bundle book
+        final bookKey = bundleBookIndex != null 
+            ? '${bookId}_$bundleBookIndex' 
+            : bookId.toString();
         
-        // Add pages to the target year
-        pagesPerYear[targetYear] = (pagesPerYear[targetYear] ?? 0) + pages;
+        // Check if this book has already been counted for this year
+        if (!countedBooksPerYear.containsKey(bookKey)) {
+          countedBooksPerYear[bookKey] = {};
+        }
+        
+        // Only count if not already counted for this year
+        if (!countedBooksPerYear[bookKey]!.contains(targetYear)) {
+          countedBooksPerYear[bookKey]!.add(targetYear);
+          booksPerYear[targetYear] = (booksPerYear[targetYear] ?? 0) + 1;
+          debugPrint('  ✅ Counted: bookKey=$bookKey, year=$targetYear, isBundle=$isBundle, bundleIndex=$bundleBookIndex');
+          
+          // For pages: use individual bundle book pages if available
+          int pagesToAdd = pages;
+          if (isBundle && bundleBookIndex != null && bundlePagesJson != null) {
+            try {
+              final List<dynamic> bundlePagesList = jsonDecode(bundlePagesJson);
+              if (bundleBookIndex < bundlePagesList.length && bundlePagesList[bundleBookIndex] != null) {
+                pagesToAdd = bundlePagesList[bundleBookIndex] as int;
+              }
+            } catch (e) {
+              // If parsing fails, use total pages
+            }
+          }
+          
+          pagesPerYear[targetYear] = (pagesPerYear[targetYear] ?? 0) + pagesToAdd;
+        }
       } catch (e) {
         debugPrint('Error parsing dates for book: $e');
       }
     }
+    
+    debugPrint('📊 Final counts: $booksPerYear');
     
     return {
       'books': booksPerYear,
@@ -986,12 +1026,14 @@ class BookRepository {
         COALESCE(orig.bundle_pages, b.bundle_pages) as bundle_pages,
         COALESCE(orig.bundle_publication_years, b.bundle_publication_years) as bundle_publication_years,
         COALESCE(orig.bundle_titles, b.bundle_titles) as bundle_titles,
+        COALESCE(orig.bundle_authors, b.bundle_authors) as bundle_authors,
         COALESCE(orig.tbr, b.tbr) as tbr,
         COALESCE(orig.is_tandem, b.is_tandem) as is_tandem,
         COALESCE(orig.original_book_id, b.original_book_id) as original_book_id,
         COALESCE(orig_authors.author, authors.author) as author,
         COALESCE(orig_genres.genre, genres.genre) as genre,
-        MAX(rd.date_finished) as latest_read_date
+        MAX(rd.date_finished) as latest_read_date,
+        rd.bundle_book_index
       FROM book b
       INNER JOIN book_read_dates rd ON b.book_id = rd.book_id
       LEFT JOIN status s ON b.status_id = s.status_id
@@ -1046,10 +1088,21 @@ class BookRepository {
       WHERE CAST(substr(rd.date_finished, 1, 4) AS INTEGER) = ?
         AND rd.date_finished IS NOT NULL 
         AND rd.date_finished != ""
-      GROUP BY COALESCE(orig.book_id, b.book_id)
+        -- Exclude whole bundle books (only include individual bundle books or non-bundle books)
+        AND NOT (COALESCE(orig.is_bundle, b.is_bundle, 0) = 1 AND rd.bundle_book_index IS NULL)
+      GROUP BY COALESCE(orig.book_id, b.book_id), rd.bundle_book_index
       ORDER BY latest_read_date DESC
     ''', [year]);
     
     return result;
+  }
+
+  /// Delete read dates for a specific bundle book
+  Future<void> deleteReadDatesForBundleBook(int bookId, int bundleIndex) async {
+    await db.delete(
+      'book_read_dates',
+      where: 'book_id = ? AND bundle_book_index = ?',
+      whereArgs: [bookId, bundleIndex],
+    );
   }
 }

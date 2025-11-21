@@ -154,17 +154,19 @@ class _ChronometerWidgetState extends State<ChronometerWidget> {
       final db = await DatabaseHelper.instance.database;
       final repository = ReadingSessionRepository(db);
 
+      final now = DateTime.now();
       final session = ReadingSession(
         bookId: widget.bookId,
-        startTime: DateTime.now(),
+        startTime: now,
         isActive: true,
+        clickedAt: now, // Save when the chronometer was clicked
       );
 
       final sessionId = await repository.createSession(session);
 
       setState(() {
         _activeSession = session.copyWith(sessionId: sessionId);
-        _sessionStartTime = DateTime.now();
+        _sessionStartTime = now;
         _elapsedSeconds = 0;
       });
 
@@ -186,21 +188,61 @@ class _ChronometerWidgetState extends State<ChronometerWidget> {
     }
   }
 
+  Future<bool> _handleBackButton() async {
+    if (_isRunning) {
+      // Show confirmation dialog if timer is running
+      final shouldClose = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Stop Timer?'),
+          content: const Text('Do you want to stop the reading timer?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: const Text('Stop'),
+            ),
+          ],
+        ),
+      );
+      
+      if (shouldClose == true) {
+        _timer?.cancel();
+        return true;
+      }
+      return false;
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) async {
+        if (didPop) return;
+        final shouldPop = await _handleBackButton();
+        if (shouldPop && context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -213,7 +255,38 @@ class _ChronometerWidgetState extends State<ChronometerWidget> {
               ),
               IconButton(
                 icon: const Icon(Icons.close),
-                onPressed: () => Navigator.pop(context),
+                onPressed: () async {
+                  if (_isRunning) {
+                    // Show confirmation dialog if timer is running
+                    final shouldClose = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Timer is Running'),
+                        content: const Text(
+                          'The timer is still counting. Are you sure you want to exit without stopping it?',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            child: const Text('Exit'),
+                            style: TextButton.styleFrom(
+                              foregroundColor: Colors.red,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (shouldClose == true && mounted) {
+                      Navigator.pop(context);
+                    }
+                  } else {
+                    Navigator.pop(context);
+                  }
+                },
               ),
             ],
           ),
@@ -296,6 +369,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget> {
           ),
           const SizedBox(height: 50),
         ],
+      ),
       ),
     );
   }

@@ -23,7 +23,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 16,
+      version: 20,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -119,9 +119,12 @@ class DatabaseHelper {
         bundle_pages TEXT,
         bundle_publication_years TEXT,
         bundle_titles TEXT,
+        bundle_authors TEXT,
         tbr BOOLEAN DEFAULT 0,
         is_tandem BOOLEAN DEFAULT 0,
         original_book_id INTEGER,
+        notification_enabled BOOLEAN DEFAULT 0,
+        notification_datetime TEXT,
         FOREIGN KEY (status_id) REFERENCES status (status_id),
         FOREIGN KEY (original_book_id) REFERENCES book (book_id) ON DELETE SET NULL,
         FOREIGN KEY (editorial_id) REFERENCES editorial (editorial_id),
@@ -578,6 +581,33 @@ class DatabaseHelper {
       await db.execute('''
         CREATE INDEX IF NOT EXISTS idx_year_challenges_year ON year_challenges(year)
       ''');
+    }
+    if (oldVersion < 17) {
+      // Add notification fields for TBReleased books
+      await db.execute(
+        'ALTER TABLE book ADD COLUMN notification_enabled BOOLEAN DEFAULT 0',
+      );
+      await db.execute(
+        'ALTER TABLE book ADD COLUMN notification_datetime TEXT',
+      );
+    }
+    if (oldVersion < 18) {
+      // Add bundle_authors column for individual bundle book authors
+      await db.execute(
+        'ALTER TABLE book ADD COLUMN bundle_authors TEXT',
+      );
+    }
+    if (oldVersion < 19) {
+      // Add custom_challenges column to year_challenges table
+      await db.execute(
+        'ALTER TABLE year_challenges ADD COLUMN custom_challenges TEXT',
+      );
+    }
+    if (oldVersion < 20) {
+      // Add clicked_at column to reading_sessions table
+      await db.execute(
+        'ALTER TABLE reading_sessions ADD COLUMN clicked_at TEXT',
+      );
     }
   }
 

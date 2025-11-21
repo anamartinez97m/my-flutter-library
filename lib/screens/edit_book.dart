@@ -16,6 +16,7 @@ import 'package:myrandomlibrary/widgets/read_dates_widget.dart';
 import 'package:myrandomlibrary/widgets/tbr_limit_setting.dart';
 import 'package:myrandomlibrary/model/reading_session.dart';
 import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
+import 'package:myrandomlibrary/services/notification_service.dart';
 import 'package:provider/provider.dart';
 
 class EditBookScreen extends StatefulWidget {
@@ -63,10 +64,16 @@ class _EditBookScreenState extends State<EditBookScreen> {
   List<int?>? _bundlePages;
   List<int?>? _bundlePublicationYears;
   List<String?>? _bundleTitles;
+  List<String?>? _bundleAuthors;
 
   // TBR and Tandem fields
   late bool _tbr;
   late bool _isTandem;
+  
+  // Notification fields
+  bool _notificationEnabled = false;
+  DateTime? _notificationDateTime;
+  TimeOfDay? _notificationTime;
   
   // Repeated books
   String? _selectedStatusValue;
@@ -267,6 +274,17 @@ class _EditBookScreenState extends State<EditBookScreen> {
     _isTandem = widget.book.isTandem ?? false;
     _selectedStatusValue = widget.book.statusValue;
     _selectedOriginalBookId = widget.book.originalBookId;
+    
+    // Initialize notification fields
+    _notificationEnabled = widget.book.notificationEnabled ?? false;
+    if (widget.book.notificationDatetime != null && widget.book.notificationDatetime!.isNotEmpty) {
+      try {
+        _notificationDateTime = DateTime.parse(widget.book.notificationDatetime!);
+        _notificationTime = TimeOfDay.fromDateTime(_notificationDateTime!);
+      } catch (e) {
+        debugPrint('Error parsing notification datetime: $e');
+      }
+    }
 
     // Parse bundle dates from JSON
     if (widget.book.bundlePages != null) {
@@ -292,6 +310,15 @@ class _EditBookScreenState extends State<EditBookScreen> {
         _bundleTitles = titles.map((t) => t as String?).toList();
       } catch (e) {
         _bundleTitles = null;
+      }
+    }
+    
+    if (widget.book.bundleAuthors != null) {
+      try {
+        final List<dynamic> authors = jsonDecode(widget.book.bundleAuthors!);
+        _bundleAuthors = authors.map((a) => a as String?).toList();
+      } catch (e) {
+        _bundleAuthors = null;
       }
     }
     
@@ -553,9 +580,14 @@ class _EditBookScreenState extends State<EditBookScreen> {
         bundlePages: _bundlePages != null ? jsonEncode(_bundlePages!) : null,
         bundlePublicationYears: _bundlePublicationYears != null ? jsonEncode(_bundlePublicationYears!) : null,
         bundleTitles: _bundleTitles != null ? jsonEncode(_bundleTitles!) : null,
+        bundleAuthors: _bundleAuthors != null ? jsonEncode(_bundleAuthors!) : null,
         tbr: _tbr,
         isTandem: _isTandem,
         originalBookId: _selectedOriginalBookId,
+        notificationEnabled: _notificationEnabled,
+        notificationDatetime: _notificationEnabled && _notificationDateTime != null 
+            ? _notificationDateTime!.toIso8601String() 
+            : null,
       );
 
       // Update the book (delete and re-add with same ID)
@@ -597,6 +629,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
         tbr: _tbr,
         isTandem: _isTandem,
         originalBookId: _selectedOriginalBookId,
+        notificationEnabled: _notificationEnabled,
+        notificationDatetime: _notificationEnabled && _notificationDateTime != null 
+            ? _notificationDateTime!.toIso8601String() 
+            : null,
       );
       await repository.addBook(bookToAdd);
 
@@ -661,6 +697,54 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
         // Return the book with preserved ID to the detail screen
         Navigator.pop(context, bookToAdd);
+
+        // Schedule notification if enabled
+        if (_notificationEnabled && _notificationDateTime != null) {
+          try {
+            debugPrint('🔔 Scheduling notification for book: ${_nameController.text.trim()}');
+            debugPrint('🔔 Scheduled date: $_notificationDateTime');
+            final notificationService = NotificationService();
+            final permissionGranted = await notificationService.requestPermissions();
+            debugPrint('🔔 Permission granted: $permissionGranted');
+            
+            await notificationService.scheduleBookReleaseNotification(
+              bookId: widget.book.bookId!,
+              bookTitle: _nameController.text.trim(),
+              scheduledDate: _notificationDateTime!,
+            );
+            debugPrint('🔔 Notification scheduled successfully');
+            
+            // Show confirmation to user
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Notification scheduled for ${_notificationDateTime!.toString().split('.')[0]}'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            }
+          } catch (e, stackTrace) {
+            debugPrint('❌ Error scheduling notification: $e');
+            debugPrint('Stack trace: $stackTrace');
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Error scheduling notification: $e'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          }
+        } else {
+          // Cancel notification if disabled
+          try {
+            final notificationService = NotificationService();
+            await notificationService.cancelNotification(widget.book.bookId!);
+            debugPrint('🔔 Notification cancelled for book ${widget.book.bookId}');
+          } catch (e) {
+            debugPrint('Error canceling notification: $e');
+          }
+        }
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -1021,6 +1105,114 @@ class _EditBookScreenState extends State<EditBookScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
+                      
+                      // Notification checkbox
+                      CheckboxListTile(
+                        title: const Text('Enable Release Notification'),
+                        subtitle: const Text('Get notified when this book is released'),
+                        value: _notificationEnabled,
+                        onChanged: (value) {
+                          setState(() {
+                            _notificationEnabled = value ?? false;
+                            if (_notificationEnabled && _notificationDateTime == null) {
+                              // Set default notification time to release date at 9 AM
+                              _notificationDateTime = _releaseDate != null
+                                  ? DateTime(_releaseDate!.year, _releaseDate!.month, _releaseDate!.day, 9, 0)
+                                  : DateTime.now().add(const Duration(days: 1));
+                              _notificationTime = const TimeOfDay(hour: 9, minute: 0);
+                            }
+                          });
+                        },
+                        controlAffinity: ListTileControlAffinity.leading,
+                      ),
+                      
+                      // Notification datetime picker
+                      if (_notificationEnabled) ...[
+                        const SizedBox(height: 8),
+                        InkWell(
+                          onTap: () async {
+                            final pickedDate = await showDatePicker(
+                              context: context,
+                              initialDate: _notificationDateTime ?? DateTime.now(),
+                              firstDate: DateTime.now(),
+                              lastDate: DateTime(2100),
+                            );
+                            if (pickedDate != null) {
+                              final pickedTime = await showTimePicker(
+                                context: context,
+                                initialTime: _notificationTime ?? const TimeOfDay(hour: 9, minute: 0),
+                              );
+                              if (pickedTime != null) {
+                                setState(() {
+                                  _notificationDateTime = DateTime(
+                                    pickedDate.year,
+                                    pickedDate.month,
+                                    pickedDate.day,
+                                    pickedTime.hour,
+                                    pickedTime.minute,
+                                  );
+                                  _notificationTime = pickedTime;
+                                });
+                              }
+                            }
+                          },
+                          child: InputDecorator(
+                            decoration: const InputDecoration(
+                              labelText: 'Notification Date & Time',
+                              border: OutlineInputBorder(),
+                              prefixIcon: Icon(Icons.notifications_active),
+                            ),
+                            child: Text(
+                              _notificationDateTime != null
+                                  ? '${_notificationDateTime!.day}/${_notificationDateTime!.month}/${_notificationDateTime!.year} at ${_notificationTime!.format(context)}'
+                                  : 'Select notification date and time',
+                              style: TextStyle(
+                                color: _notificationDateTime != null ? null : Colors.grey,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        // Test notification button
+                        ElevatedButton.icon(
+                          onPressed: () async {
+                            try {
+                              debugPrint('🔔 Testing notification...');
+                              final notificationService = NotificationService();
+                              await notificationService.showImmediateNotification(
+                                id: 999999,
+                                title: 'Test Notification',
+                                body: 'If you see this, notifications are working!',
+                              );
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Test notification sent!'),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              debugPrint('❌ Test notification error: $e');
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Error: $e'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                          icon: const Icon(Icons.notification_add),
+                          label: const Text('Test Notification'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.orange,
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
                     ],
                   ),
 
@@ -1144,18 +1336,48 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   initialBundlePages: _bundlePages,
                   initialBundlePublicationYears: _bundlePublicationYears,
                   initialBundleTitles: _bundleTitles,
-                  bundleBooksReadStatus: _bundleReadDates.map((index, dates) {
-                    // Check if there are actual reading sessions
-                    final hasReadingSessions = dates.any((d) => d.dateFinished != null && d.dateFinished!.isNotEmpty);
-                    // If no reading sessions, use manual status
-                    return MapEntry(index, hasReadingSessions || (_manualBundleReadStatus[index] ?? false));
-                  }),
-                  bundleBooksHasReadingSessions: _bundleReadDates.map((index, dates) {
-                    // Track which books have actual reading sessions
-                    final hasReadingSessions = dates.any((d) => d.dateFinished != null && d.dateFinished!.isNotEmpty);
-                    return MapEntry(index, hasReadingSessions);
-                  }),
-                  onReadStatusChanged: (index, isRead) {
+                  initialBundleAuthors: _bundleAuthors,
+                  bundleBooksReadStatus: () {
+                    final Map<int, bool> status = {};
+                    for (int i = 0; i < (_bundleCount ?? 0); i++) {
+                      final dates = _bundleReadDates[i] ?? [];
+                      final hasReadingSessions = dates.any((d) => d.dateFinished != null && d.dateFinished!.isNotEmpty);
+                      status[i] = hasReadingSessions || (_manualBundleReadStatus[i] ?? false);
+                    }
+                    return status;
+                  }(),
+                  bundleBooksHasReadingSessions: () {
+                    final Map<int, bool> hasSessions = {};
+                    for (int i = 0; i < (_bundleCount ?? 0); i++) {
+                      final dates = _bundleReadDates[i] ?? [];
+                      hasSessions[i] = dates.any((d) => d.dateFinished != null && d.dateFinished!.isNotEmpty);
+                    }
+                    return hasSessions;
+                  }(),
+                  onReadStatusChanged: (index, isRead) async {
+                    final db = await DatabaseHelper.instance.database;
+                    final repository = BookRepository(db);
+                    
+                    if (isRead) {
+                      // Create read date with NULL dates - marks as read but won't count in stats
+                      // Stats queries filter for non-null date_finished
+                      await repository.addReadDate(ReadDate(
+                        bookId: widget.book.bookId!,
+                        dateStarted: null,
+                        dateFinished: null,
+                        bundleBookIndex: index,
+                      ));
+                    } else {
+                      // Remove read dates for this bundle book
+                      await repository.deleteReadDatesForBundleBook(
+                        widget.book.bookId!,
+                        index,
+                      );
+                    }
+                    
+                    // Reload bundle read dates to reflect changes
+                    await _loadBundleReadDates();
+                    
                     setState(() {
                       _manualBundleReadStatus[index] = isRead;
                     });
@@ -1167,6 +1389,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     bundlePages,
                     bundlePublicationYears,
                     bundleTitles,
+                    bundleAuthors,
                   ) {
                     setState(() {
                       _isBundle = isBundle;
@@ -1175,6 +1398,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       _bundlePages = bundlePages;
                       _bundlePublicationYears = bundlePublicationYears;
                       _bundleTitles = bundleTitles;
+                      _bundleAuthors = bundleAuthors;
                     });
                   },
                 ),
@@ -1444,6 +1668,13 @@ class _EditBookScreenState extends State<EditBookScreen> {
                               durationStr = '${seconds}s';
                             }
                             
+                            // Format clicked_at time if available
+                            String clickedAtStr = '';
+                            if (session.clickedAt != null) {
+                              final clickedTime = session.clickedAt!;
+                              clickedAtStr = '\nStarted: ${clickedTime.hour.toString().padLeft(2, '0')}:${clickedTime.minute.toString().padLeft(2, '0')}';
+                            }
+                            
                             return Card(
                               margin: const EdgeInsets.only(bottom: 8),
                               child: ListTile(
@@ -1455,7 +1686,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                                   session.startTime.toIso8601String().split('T')[0],
                                   style: const TextStyle(fontWeight: FontWeight.w500),
                                 ),
-                                subtitle: Text('Duration: $durationStr'),
+                                subtitle: Text('Duration: $durationStr$clickedAtStr'),
                                 trailing: IconButton(
                                   icon: const Icon(Icons.delete, color: Colors.red),
                                   onPressed: () {
