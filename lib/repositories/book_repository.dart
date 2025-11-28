@@ -880,6 +880,23 @@ class BookRepository {
     return result.first['count'] as int;
   }
 
+  /// Helper method to parse date strings that can be either full dates (YYYY-MM-DD) or year-only (YYYY)
+  DateTime? _parseFlexibleDate(String? dateStr) {
+    if (dateStr == null || dateStr.isEmpty) return null;
+    
+    try {
+      // Try parsing as full date first
+      return DateTime.parse(dateStr);
+    } catch (e) {
+      // If it fails, check if it's a year-only format (4 digits)
+      if (dateStr.length == 4 && int.tryParse(dateStr) != null) {
+        // Return January 1st of that year
+        return DateTime(int.parse(dateStr), 1, 1);
+      }
+      return null;
+    }
+  }
+
   /// Get all years that have books read in them (from book_read_dates table)
   Future<List<int>> getYearsWithReadBooks() async {
     final result = await db.rawQuery('''
@@ -915,8 +932,6 @@ class BookRepository {
       LEFT JOIN book orig ON b.original_book_id = orig.book_id AND LOWER(s.value) = 'repeated'
       WHERE rd.date_finished IS NOT NULL 
         AND rd.date_finished != ""
-        AND rd.date_started IS NOT NULL
-        AND rd.date_started != ""
         -- Exclude whole bundle books (only include individual bundle books or non-bundle books)
         AND NOT (COALESCE(orig.is_bundle, b.is_bundle, 0) = 1 AND rd.bundle_book_index IS NULL)
     ''');
@@ -932,7 +947,14 @@ class BookRepository {
     
     for (var row in result) {
       try {
-        final dateFinished = DateTime.parse(row['date_finished'] as String);
+        final dateFinishedStr = row['date_finished'] as String;
+        final dateFinished = _parseFlexibleDate(dateFinishedStr);
+        
+        if (dateFinished == null) {
+          debugPrint('  ⚠️  Could not parse date: $dateFinishedStr');
+          continue;
+        }
+        
         final bookId = row['book_id'] as int;
         final pages = row['pages'] as int;
         final isBundle = (row['is_bundle'] as int) == 1;

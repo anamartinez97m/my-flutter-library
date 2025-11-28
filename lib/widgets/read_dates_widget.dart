@@ -56,6 +56,59 @@ class _ReadDatesWidgetState extends State<ReadDatesWidget> {
     widget.onChanged(_readDates);
   }
 
+  Future<String?> _showDateOrYearPicker(BuildContext context, String? currentDate, String label) async {
+    // Show dialog to choose between full date or year only
+    final choice = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Select $label'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.calendar_today),
+              title: const Text('Full Date'),
+              onTap: () => Navigator.pop(context, 'date'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.calendar_view_month),
+              title: const Text('Year Only'),
+              onTap: () => Navigator.pop(context, 'year'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (choice == 'date') {
+      final date = await showDatePicker(
+        context: context,
+        initialDate: currentDate != null && currentDate.length >= 4
+            ? DateTime.tryParse(currentDate) ?? DateTime.now()
+            : DateTime.now(),
+        firstDate: DateTime(1900),
+        lastDate: DateTime.now(),
+      );
+      if (date != null) {
+        return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+      }
+    } else if (choice == 'year') {
+      final year = await showDialog<String>(
+        context: context,
+        builder: (context) => _YearPickerDialog(
+          initialYear: currentDate != null && currentDate.length >= 4
+              ? currentDate.substring(0, 4)
+              : DateTime.now().year.toString(),
+        ),
+      );
+      
+      if (year != null) {
+        return year; // Return just the year as a string
+      }
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -122,16 +175,12 @@ class _ReadDatesWidgetState extends State<ReadDatesWidget> {
                         Expanded(
                           child: InkWell(
                             onTap: () async {
-                              final date = await showDatePicker(
-                                context: context,
-                                initialDate: readDate.dateStarted != null
-                                    ? DateTime.parse(readDate.dateStarted!)
-                                    : DateTime.now(),
-                                firstDate: DateTime(1900),
-                                lastDate: DateTime.now(),
+                              final dateStr = await _showDateOrYearPicker(
+                                context,
+                                readDate.dateStarted,
+                                'Start Date',
                               );
-                              if (date != null) {
-                                final dateStr = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+                              if (dateStr != null) {
                                 _updateReadDate(index, dateStr, readDate.dateFinished);
                               }
                             },
@@ -161,16 +210,12 @@ class _ReadDatesWidgetState extends State<ReadDatesWidget> {
                         Expanded(
                           child: InkWell(
                             onTap: () async {
-                              final date = await showDatePicker(
-                                context: context,
-                                initialDate: readDate.dateFinished != null
-                                    ? DateTime.parse(readDate.dateFinished!)
-                                    : DateTime.now(),
-                                firstDate: DateTime(1900),
-                                lastDate: DateTime.now(),
+                              final dateStr = await _showDateOrYearPicker(
+                                context,
+                                readDate.dateFinished,
+                                'End Date',
                               );
-                              if (date != null) {
-                                final dateStr = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+                              if (dateStr != null) {
                                 _updateReadDate(index, readDate.dateStarted, dateStr);
                               }
                             },
@@ -203,6 +248,66 @@ class _ReadDatesWidgetState extends State<ReadDatesWidget> {
               ),
             );
           }),
+      ],
+    );
+  }
+}
+
+class _YearPickerDialog extends StatefulWidget {
+  final String initialYear;
+
+  const _YearPickerDialog({required this.initialYear});
+
+  @override
+  State<_YearPickerDialog> createState() => _YearPickerDialogState();
+}
+
+class _YearPickerDialogState extends State<_YearPickerDialog> {
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialYear);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Enter Year'),
+      content: TextField(
+        controller: _controller,
+        keyboardType: TextInputType.number,
+        decoration: const InputDecoration(
+          labelText: 'Year',
+          hintText: 'e.g., 2024',
+        ),
+        autofocus: true,
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () {
+            final yearValue = int.tryParse(_controller.text);
+            if (yearValue != null && yearValue >= 1900 && yearValue <= DateTime.now().year) {
+              Navigator.pop(context, _controller.text);
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Please enter a valid year')),
+              );
+            }
+          },
+          child: const Text('OK'),
+        ),
       ],
     );
   }

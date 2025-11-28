@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/model/reading_session.dart';
 import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class ChronometerWidget extends StatefulWidget {
   final int bookId;
@@ -34,6 +35,8 @@ class _ChronometerWidgetState extends State<ChronometerWidget> {
   @override
   void dispose() {
     _timer?.cancel();
+    // Disable wakelock when widget is disposed
+    WakelockPlus.disable();
     super.dispose();
   }
 
@@ -71,6 +74,9 @@ class _ChronometerWidgetState extends State<ChronometerWidget> {
       _sessionStartTime ??= DateTime.now();
     });
 
+    // Enable wakelock to keep screen awake during reading
+    WakelockPlus.enable();
+
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
         setState(() {
@@ -82,6 +88,8 @@ class _ChronometerWidgetState extends State<ChronometerWidget> {
 
   void _pauseTimer() {
     _timer?.cancel();
+    // Disable wakelock when paused
+    WakelockPlus.disable();
     setState(() {
       _isRunning = false;
     });
@@ -90,6 +98,8 @@ class _ChronometerWidgetState extends State<ChronometerWidget> {
   Future<void> _stopAndSaveSession() async {
     try {
       _timer?.cancel();
+      // Disable wakelock when stopping
+      WakelockPlus.disable();
       
       // Save the duration before resetting
       final savedDuration = _elapsedSeconds;
