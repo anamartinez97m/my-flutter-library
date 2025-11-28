@@ -626,6 +626,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
         bundlePages: updatedBook.bundlePages,
         bundlePublicationYears: updatedBook.bundlePublicationYears,
         bundleTitles: updatedBook.bundleTitles,
+        bundleAuthors: updatedBook.bundleAuthors,
         tbr: _tbr,
         isTandem: _isTandem,
         originalBookId: _selectedOriginalBookId,
@@ -664,21 +665,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
           }
         }
         
-        // Handle manual bundle read status (books marked as read without sessions)
-        for (var entry in _manualBundleReadStatus.entries) {
-          final bundleIndex = entry.key;
-          final isRead = entry.value;
-          
-          if (isRead) {
-            // Create a minimal ReadDate entry to mark as read
-            await repository.addReadDate(ReadDate(
-              bookId: widget.book.bookId!,
-              dateStarted: null,
-              dateFinished: '',  // Empty string to mark as read
-              bundleBookIndex: bundleIndex,
-            ));
-          }
-        }
+        // Note: Manual bundle read status is tracked in-memory only via checkbox
+        // We don't create empty reading sessions for bundle books marked as read
       } else {
         // Save regular read dates
         for (final readDate in _readDates) {
