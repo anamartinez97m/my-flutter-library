@@ -23,7 +23,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 20,
+      version: 21,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -125,8 +125,10 @@ class DatabaseHelper {
         original_book_id INTEGER,
         notification_enabled BOOLEAN DEFAULT 0,
         notification_datetime TEXT,
+        bundle_parent_id INTEGER,
         FOREIGN KEY (status_id) REFERENCES status (status_id),
         FOREIGN KEY (original_book_id) REFERENCES book (book_id) ON DELETE SET NULL,
+        FOREIGN KEY (bundle_parent_id) REFERENCES book (book_id) ON DELETE CASCADE,
         FOREIGN KEY (editorial_id) REFERENCES editorial (editorial_id),
         FOREIGN KEY (language_id) REFERENCES language (language_id),
         FOREIGN KEY (place_id) REFERENCES place (place_id),
@@ -607,6 +609,12 @@ class DatabaseHelper {
       // Add clicked_at column to reading_sessions table
       await db.execute(
         'ALTER TABLE reading_sessions ADD COLUMN clicked_at TEXT',
+      );
+    }
+    if (oldVersion < 21) {
+      // Add bundle_parent_id column for new bundle architecture
+      await db.execute(
+        'ALTER TABLE book ADD COLUMN bundle_parent_id INTEGER REFERENCES book(book_id) ON DELETE CASCADE',
       );
     }
   }

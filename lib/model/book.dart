@@ -43,6 +43,7 @@ class Book {
   final int? originalBookId; // For repeated books, links to the original book
   final bool? notificationEnabled;
   final String? notificationDatetime;
+  final int? bundleParentId; // For individual bundle books, links to the parent bundle book
 
   Book({
     required this.bookId,
@@ -83,6 +84,7 @@ class Book {
     this.originalBookId,
     this.notificationEnabled,
     this.notificationDatetime,
+    this.bundleParentId,
   });
 
   factory Book.fromMap(Map<String, dynamic> map) {
@@ -139,6 +141,7 @@ class Book {
       originalBookId: map['original_book_id'] as int?,
       notificationEnabled: map['notification_enabled'] == 1,
       notificationDatetime: map['notification_datetime'] as String?,
+      bundleParentId: map['bundle_parent_id'] as int?,
     );
   }
 
@@ -182,6 +185,7 @@ class Book {
       'originalBookId': originalBookId,
       'notificationEnabled': notificationEnabled,
       'notificationDatetime': notificationDatetime,
+      'bundleParentId': bundleParentId,
     };
   }
 

@@ -11,7 +11,10 @@ import 'package:myrandomlibrary/providers/theme_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/screens/admin_csv_import.dart';
 import 'package:myrandomlibrary/screens/manage_dropdowns.dart';
+import 'package:myrandomlibrary/screens/bundle_migration_screen.dart';
 import 'package:myrandomlibrary/utils/csv_import_helper.dart';
+import 'package:myrandomlibrary/utils/bundle_migration.dart';
+import 'package:myrandomlibrary/utils/reading_session_migration.dart';
 import 'package:myrandomlibrary/widgets/tbr_limit_setting.dart';
 import 'package:myrandomlibrary/widgets/status_mapping_dialog.dart';
 import 'package:provider/provider.dart';
@@ -720,6 +723,166 @@ class _SettingsScreenState extends State<SettingsScreen> {
             content: Text(
               AppLocalizations.of(context)!.error_deleting_data(e.toString()),
             ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _migrateReadingSessions(BuildContext context) async {
+    // Get statistics first
+    final stats = await ReadingSessionMigration.getStats();
+    
+    if (!stats.needsMigration) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No reading sessions to migrate. All sessions are already on individual books!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+      return;
+    }
+    
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.history, color: Colors.blue),
+            SizedBox(width: 8),
+            Text('Migrate Reading Sessions?'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'This will migrate ${stats.oldStyleSessions} reading session${stats.oldStyleSessions == 1 ? '' : 's'} '
+              'from ${stats.bundlesWithOldSessions} bundle${stats.bundlesWithOldSessions == 1 ? '' : 's'} '
+              'to individual books.',
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'What will happen:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const Text(
+              '• Reading sessions will be copied to individual books\n'
+              '• Old bundle reading sessions will be deleted\n'
+              '• This fixes inconsistencies in bundle reading history',
+              style: TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.blue.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Text(
+                'ℹ️ This is safe and can be run multiple times',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue,
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Migrate'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    // Show loading indicator
+    if (context.mounted) {
+      _showLoadingDialog(context, 'Migrating reading sessions...');
+    }
+
+    try {
+      final result = await ReadingSessionMigration.migrateAllReadingSessions();
+
+      // Close loading dialog
+      if (context.mounted) {
+        Navigator.pop(context);
+      }
+
+      // Show result dialog
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text(
+              result.hasErrors ? 'Migration Completed with Errors' : 'Migration Successful!',
+              style: TextStyle(
+                color: result.hasErrors ? Colors.orange : Colors.green,
+              ),
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('✅ Successful: ${result.successfulBundles} bundles'),
+                  Text('⏭️  Skipped: ${result.skippedBundles} bundles'),
+                  Text('❌ Failed: ${result.failedBundles} bundles'),
+                  Text('📚 Total sessions migrated: ${result.totalSessionsMigrated}'),
+                  if (result.errors.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Errors:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    ...result.errors.map((error) => Text(
+                      '• $error',
+                      style: const TextStyle(fontSize: 12),
+                    )),
+                  ],
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Close'),
+              ),
+            ],
+          ),
+        );
+        
+        // Refresh the settings screen to update badges
+        setState(() {});
+      }
+    } catch (e) {
+      // Close loading dialog
+      if (context.mounted) {
+        Navigator.pop(context);
+      }
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error migrating reading sessions: $e'),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 5),
           ),
@@ -1924,6 +2087,103 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ],
                   ),
                 ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Bundle Migration
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.sync_alt),
+                    title: const Text('Migrate Bundle Books'),
+                    subtitle: const Text('Convert old bundles to new system'),
+                    trailing: FutureBuilder<bool>(
+                      future: BundleMigration.isMigrationNeeded(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          );
+                        }
+                        
+                        if (snapshot.data == true) {
+                          return Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.orange,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Text(
+                              'Available',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          );
+                        }
+                        
+                        return const Icon(Icons.check_circle, color: Colors.green);
+                      },
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const BundleMigrationScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.history, color: Colors.blue),
+                    title: const Text('Migrate Reading Sessions'),
+                    subtitle: const Text('Move reading sessions to individual books'),
+                    trailing: FutureBuilder<bool>(
+                      future: ReadingSessionMigration.needsMigration(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          );
+                        }
+                        
+                        if (snapshot.data == true) {
+                          return Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.blue,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Text(
+                              'Available',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          );
+                        }
+                        
+                        return const Icon(Icons.check_circle, color: Colors.green);
+                      },
+                    ),
+                    onTap: () => _migrateReadingSessions(context),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 16),

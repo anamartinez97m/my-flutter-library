@@ -32,7 +32,8 @@ class BookRepository {
     final searchParam = '%${input.toLowerCase()}%';
     final params = (searchIndex == 1 || searchIndex == 3) ? [searchParam, searchParam] : [searchParam];
 
-    final result = await db.rawQuery(
+    // First, search all books (including individual bundle books)
+    final allResults = await db.rawQuery(
       '''
       select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
         b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
@@ -42,7 +43,7 @@ class BookRepository {
         b.read_count, b.my_rating, b.my_review,
         b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
         b.tbr, b.is_tandem, b.original_book_id,
-        b.notification_enabled, b.notification_datetime,
+        b.notification_enabled, b.notification_datetime, b.bundle_parent_id,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -63,7 +64,32 @@ class BookRepository {
       params,
     );
 
-    return result.map((row) => Book.fromMap(row)).toList();
+    // Process results: if a book is an individual bundle book, replace it with its parent
+    final Set<int> addedBookIds = {};
+    final List<Book> finalResults = [];
+    
+    for (var row in allResults) {
+      final book = Book.fromMap(row);
+      
+      if (book.bundleParentId != null) {
+        // This is an individual bundle book - add the parent instead
+        if (!addedBookIds.contains(book.bundleParentId)) {
+          final parent = await getBookById(book.bundleParentId!);
+          if (parent != null) {
+            finalResults.add(parent);
+            addedBookIds.add(book.bundleParentId!);
+          }
+        }
+      } else {
+        // Regular book or bundle parent - add it
+        if (book.bookId != null && !addedBookIds.contains(book.bookId)) {
+          finalResults.add(book);
+          addedBookIds.add(book.bookId!);
+        }
+      }
+    }
+
+    return finalResults;
   }
 
   Future<List<Book>> getAllBooks() async {
@@ -76,7 +102,7 @@ class BookRepository {
         b.read_count, b.my_rating, b.my_review,
         b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
         b.tbr, b.is_tandem, b.original_book_id,
-        b.notification_enabled, b.notification_datetime,
+        b.notification_enabled, b.notification_datetime, b.bundle_parent_id,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -90,7 +116,7 @@ class BookRepository {
       left join place p on b.place_id = p.place_id  
       left join format f on b.format_id = f.format_id
       left join format_saga fs on b.format_saga_id = fs.format_id
-      where b.name <> "" 
+      where b.name <> "" AND b.bundle_parent_id IS NULL
       group by b.book_id
       order by b.name;
       ''');
@@ -157,7 +183,7 @@ class BookRepository {
         b.read_count, b.my_rating, b.my_review,
         b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
         b.tbr, b.is_tandem, b.original_book_id,
-        b.notification_enabled, b.notification_datetime,
+        b.notification_enabled, b.notification_datetime, b.bundle_parent_id,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -171,7 +197,7 @@ class BookRepository {
       left join place p on b.place_id = p.place_id  
       left join format f on b.format_id = f.format_id
       left join format_saga fs on b.format_saga_id = fs.format_id
-      where b.tbr = 1
+      where b.tbr = 1 AND b.bundle_parent_id IS NULL
       group by b.book_id
       order by b.name
     ''');
@@ -206,7 +232,7 @@ class BookRepository {
         b.read_count, b.my_rating, b.my_review,
         b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
         b.tbr, b.is_tandem, b.original_book_id,
-        b.notification_enabled, b.notification_datetime,
+        b.notification_enabled, b.notification_datetime, b.bundle_parent_id,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -772,6 +798,7 @@ class BookRepository {
       'original_book_id': book.originalBookId,
       'notification_enabled': book.notificationEnabled == true ? 1 : 0,
       'notification_datetime': book.notificationDatetime,
+      'bundle_parent_id': book.bundleParentId,
     };
     
     // If book has an ID, preserve it (for updates)
@@ -801,10 +828,9 @@ class BookRepository {
     if (bundleBookIndex != null) {
       whereClause += ' AND bundle_book_index = ?';
       whereArgs.add(bundleBookIndex);
-    } else {
-      // For regular books, only get dates where bundle_book_index is null
-      whereClause += ' AND bundle_book_index IS NULL';
     }
+    // Note: We don't filter by bundle_book_index IS NULL anymore
+    // This allows individual bundle books to load their own reading sessions
     
     final result = await db.query(
       'book_read_dates',
@@ -812,6 +838,17 @@ class BookRepository {
       whereArgs: whereArgs,
       orderBy: 'date_started DESC',
     );
+    
+    // Debug logging
+    if (result.isEmpty) {
+      // Check if there are ANY sessions for this book with different conditions
+      final allForBook = await db.query('book_read_dates', where: 'book_id = ?', whereArgs: [bookId]);
+      debugPrint('BookRepository: No read dates found for book $bookId with bundleBookIndex=$bundleBookIndex. Total for this book_id: ${allForBook.length}');
+      if (allForBook.isNotEmpty) {
+        debugPrint('  Sample: ${allForBook.first}');
+      }
+    }
+    
     return result.map((row) => ReadDate.fromMap(row)).toList();
   }
   
@@ -1126,5 +1163,86 @@ class BookRepository {
       where: 'book_id = ? AND bundle_book_index = ?',
       whereArgs: [bookId, bundleIndex],
     );
+  }
+
+  // ==================== Bundle Books Methods ====================
+
+  /// Get all individual books that belong to a bundle
+  Future<List<Book>> getBundleBooks(int parentBookId) async {
+    final result = await db.rawQuery('''
+      select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
+        b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
+        p.name as placeValue, f.value as formatValue,
+        fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
+        b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
+        b.read_count, b.my_rating, b.my_review,
+        b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
+        b.tbr, b.is_tandem, b.original_book_id,
+        b.notification_enabled, b.notification_datetime, b.bundle_parent_id,
+        GROUP_CONCAT(DISTINCT a.name) as author,
+        GROUP_CONCAT(DISTINCT g.name) as genre
+      from book b 
+      left join books_by_author bba on b.book_id = bba.book_id 
+      left join author a on bba.author_id = a.author_id
+      left join books_by_genre bbg on b.book_id = bbg.book_id 
+      left join genre g on bbg.genre_id = g.genre_id
+      left join status s on b.status_id = s.status_id 
+      left join editorial e on b.editorial_id = e.editorial_id
+      left join language l on b.language_id = l.language_id 
+      left join place p on b.place_id = p.place_id  
+      left join format f on b.format_id = f.format_id
+      left join format_saga fs on b.format_saga_id = fs.format_id
+      where b.bundle_parent_id = ?
+      group by b.book_id
+      order by b.n_saga, b.name
+    ''', [parentBookId]);
+
+    return result.map((row) => Book.fromMap(row)).toList();
+  }
+
+  /// Delete all individual books that belong to a bundle
+  Future<void> deleteBundleBooks(int parentBookId) async {
+    // Get all bundle books first
+    final bundleBooks = await getBundleBooks(parentBookId);
+    
+    // Delete each bundle book (this will also delete their relationships)
+    for (var book in bundleBooks) {
+      if (book.bookId != null) {
+        await deleteBook(book.bookId!);
+      }
+    }
+  }
+
+  /// Get book by ID
+  Future<Book?> getBookById(int bookId) async {
+    final result = await db.rawQuery('''
+      select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
+        b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
+        p.name as placeValue, f.value as formatValue,
+        fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
+        b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
+        b.read_count, b.my_rating, b.my_review,
+        b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
+        b.tbr, b.is_tandem, b.original_book_id,
+        b.notification_enabled, b.notification_datetime, b.bundle_parent_id,
+        GROUP_CONCAT(DISTINCT a.name) as author,
+        GROUP_CONCAT(DISTINCT g.name) as genre
+      from book b 
+      left join books_by_author bba on b.book_id = bba.book_id 
+      left join author a on bba.author_id = a.author_id
+      left join books_by_genre bbg on b.book_id = bbg.book_id 
+      left join genre g on bbg.genre_id = g.genre_id
+      left join status s on b.status_id = s.status_id 
+      left join editorial e on b.editorial_id = e.editorial_id
+      left join language l on b.language_id = l.language_id 
+      left join place p on b.place_id = p.place_id  
+      left join format f on b.format_id = f.format_id
+      left join format_saga fs on b.format_saga_id = fs.format_id
+      where b.book_id = ?
+      group by b.book_id
+    ''', [bookId]);
+
+    if (result.isEmpty) return null;
+    return Book.fromMap(result.first);
   }
 }
