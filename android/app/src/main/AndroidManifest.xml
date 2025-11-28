@@ -7,9 +7,13 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
     
     <application
-        android:label="mylibrary"
+        android:label="My Book Vault"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:allowBackup="true"
+        android:fullBackupContent="@xml/backup_rules"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:supportsRtl="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"
