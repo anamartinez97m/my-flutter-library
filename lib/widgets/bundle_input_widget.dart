@@ -42,7 +42,6 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
   List<String?> _bundleTitles = [];
   List<String?> _bundleAuthors = [];
   List<String?> _bundleSagaNumbers = []; // N_Saga for each book in bundle
-  Set<int> _expandedPanels = {}; // Track which panels are expanded
 
   @override
   void initState() {
@@ -54,11 +53,6 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
     _bundleNumbersController = TextEditingController(
       text: widget.initialBundleNumbers ?? '',
     );
-    
-    // Initialize all panels as expanded by default
-    if (widget.initialBundleCount != null && widget.initialBundleCount! > 0) {
-      _expandedPanels = Set.from(List.generate(widget.initialBundleCount!, (index) => index));
-    }
     
     if (widget.initialBundlePages != null) {
       _bundlePages = List.from(widget.initialBundlePages!);
@@ -79,11 +73,6 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
     }
     
     _bundleCountController.addListener(_onCountChanged);
-    
-    // Expand first panel by default if there are bundle books
-    if (_bundlePages.isNotEmpty) {
-      _expandedPanels.add(0);
-    }
   }
 
   @override
@@ -161,9 +150,6 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
         if (_bundleSagaNumbers.length > count) {
           _bundleSagaNumbers = _bundleSagaNumbers.sublist(0, count);
         }
-        
-        // Expand all panels by default
-        _expandedPanels = Set.from(List.generate(count, (index) => index));
       });
     }
     _notifyChange();
@@ -245,203 +231,204 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
               ),
             ),
             const SizedBox(height: 8),
-            ExpansionPanelList(
-              key: ValueKey(_bundlePages.length), // Force rebuild when count changes
-              elevation: 1,
-              expandedHeaderPadding: EdgeInsets.zero,
-              expansionCallback: (int index, bool isExpanded) {
-                setState(() {
-                  if (isExpanded) {
-                    _expandedPanels.remove(index);
-                  } else {
-                    _expandedPanels.add(index);
-                  }
-                });
-              },
-              children: List.generate(_bundlePages.length, (index) {
-                final isRead = widget.bundleBooksReadStatus?[index] ?? false;
-                final bookTitle = (index < _bundleTitles.length && _bundleTitles[index] != null && _bundleTitles[index]!.isNotEmpty)
-                    ? _bundleTitles[index]!
-                    : 'Book ${index + 1}';
-                
-                return ExpansionPanel(
-                  isExpanded: _expandedPanels.contains(index),
-                  canTapOnHeader: true,
-                  backgroundColor: Colors.grey[50],
-                  headerBuilder: (BuildContext context, bool isExpanded) {
-                    return ListTile(
-                      leading: Icon(
-                        isRead ? Icons.check_circle : Icons.circle_outlined,
-                        color: isRead ? Colors.green : Colors.grey,
-                      ),
-                      title: Text(
-                        bookTitle,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: isRead ? Colors.green.shade700 : null,
-                        ),
-                      ),
-                      subtitle: Text(
-                        isRead ? 'Read' : 'Not read',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: isRead ? Colors.green : Colors.grey,
-                        ),
-                      ),
-                    );
-                  },
-                  body: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (widget.onReadStatusChanged != null)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
+            ...List.generate(_bundlePages.length, (index) {
+              final isRead = widget.bundleBooksReadStatus?[index] ?? false;
+              final bookTitle = (index < _bundleTitles.length && _bundleTitles[index] != null && _bundleTitles[index]!.isNotEmpty)
+                  ? _bundleTitles[index]!
+                  : 'Book ${index + 1}';
+              
+              return Card(
+                key: ValueKey('bundle_card_$index'),
+                margin: const EdgeInsets.only(bottom: 12),
+                elevation: 1,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Header with icon and title
+                      Row(
+                        children: [
+                          Icon(
+                            isRead ? Icons.check_circle : Icons.circle_outlined,
+                            color: isRead ? Colors.green : Colors.grey,
+                            size: 28,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Mark as read',
-                                  style: Theme.of(context).textTheme.bodySmall,
+                                  bookTitle,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: isRead ? Colors.green.shade700 : null,
+                                  ),
                                 ),
-                                Transform.scale(
-                                  scale: 0.8,
-                                  child: Checkbox(
-                                    value: isRead,
-                                    onChanged: (widget.bundleBooksHasReadingSessions?[index] ?? false)
-                                        ? null
-                                        : (value) {
-                                            widget.onReadStatusChanged!(index, value ?? false);
-                                          },
-                                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                Text(
+                                  isRead ? 'Read' : 'Not read',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: isRead ? Colors.green : Colors.grey,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                        // N_Saga input
-                        TextFormField(
-                          key: ValueKey('saga_$index'),
-                          initialValue: (index < _bundleSagaNumbers.length && _bundleSagaNumbers[index] != null) 
-                              ? _bundleSagaNumbers[index] 
-                              : '',
-                          decoration: const InputDecoration(
-                            labelText: 'Saga Number (N_Saga)',
-                            border: OutlineInputBorder(),
-                            isDense: true,
-                            hintText: 'e.g., 1 or 1.5',
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      if (widget.onReadStatusChanged != null)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                'Mark as read',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                              Transform.scale(
+                                scale: 0.8,
+                                child: Checkbox(
+                                  value: isRead,
+                                  onChanged: (widget.bundleBooksHasReadingSessions?[index] ?? false)
+                                      ? null
+                                      : (value) {
+                                          widget.onReadStatusChanged!(index, value ?? false);
+                                        },
+                                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                ),
+                              ),
+                            ],
                           ),
-                          onChanged: (value) {
-                            setState(() {
-                              while (_bundleSagaNumbers.length <= index) {
-                                _bundleSagaNumbers.add(null);
-                              }
-                              _bundleSagaNumbers[index] = value.isEmpty ? null : value;
-                            });
-                            _notifyChange();
-                          },
                         ),
-                        const SizedBox(height: 8),
-                        // Book Title input
-                        TextFormField(
-                          key: ValueKey('title_$index'),
-                          initialValue: (index < _bundleTitles.length && _bundleTitles[index] != null) 
-                              ? _bundleTitles[index] 
-                              : '',
-                          decoration: const InputDecoration(
-                            labelText: 'Book Title',
-                            border: OutlineInputBorder(),
-                            isDense: true,
-                            hintText: 'Enter book title',
-                          ),
-                          onChanged: (value) {
-                            setState(() {
-                              while (_bundleTitles.length <= index) {
-                                _bundleTitles.add(null);
-                              }
-                              _bundleTitles[index] = value.isEmpty ? null : value;
-                            });
-                            _notifyChange();
-                          },
+                      // N_Saga input
+                      TextFormField(
+                        key: ValueKey('saga_$index'),
+                        initialValue: (index < _bundleSagaNumbers.length && _bundleSagaNumbers[index] != null) 
+                            ? _bundleSagaNumbers[index] 
+                            : '',
+                        decoration: const InputDecoration(
+                          labelText: 'Saga Number (N_Saga)',
+                          border: OutlineInputBorder(),
+                          isDense: true,
+                          hintText: 'e.g., 1 or 1.5',
                         ),
-                        const SizedBox(height: 8),
-                        // Author input
-                        TextFormField(
-                          key: ValueKey('author_$index'),
-                          initialValue: (index < _bundleAuthors.length && _bundleAuthors[index] != null) 
-                              ? _bundleAuthors[index] 
-                              : '',
-                          decoration: const InputDecoration(
-                            labelText: 'Author(s)',
-                            border: OutlineInputBorder(),
-                            isDense: true,
-                            hintText: 'Enter author name(s), separate with commas',
-                          ),
-                          onChanged: (value) {
-                            setState(() {
-                              while (_bundleAuthors.length <= index) {
-                                _bundleAuthors.add(null);
-                              }
-                              _bundleAuthors[index] = value.isEmpty ? null : value;
-                            });
-                            _notifyChange();
-                          },
+                        onChanged: (value) {
+                          setState(() {
+                            while (_bundleSagaNumbers.length <= index) {
+                              _bundleSagaNumbers.add(null);
+                            }
+                            _bundleSagaNumbers[index] = value.isEmpty ? null : value;
+                          });
+                          _notifyChange();
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                      // Book Title input
+                      TextFormField(
+                        key: ValueKey('title_$index'),
+                        initialValue: (index < _bundleTitles.length && _bundleTitles[index] != null) 
+                            ? _bundleTitles[index] 
+                            : '',
+                        decoration: const InputDecoration(
+                          labelText: 'Book Title',
+                          border: OutlineInputBorder(),
+                          isDense: true,
+                          hintText: 'Enter book title',
                         ),
-                        const SizedBox(height: 8),
-                        // Pages input
-                        TextFormField(
-                          key: ValueKey('pages_$index'),
-                          initialValue: (index < _bundlePages.length && _bundlePages[index] != null) 
-                              ? _bundlePages[index].toString() 
-                              : '',
-                          decoration: const InputDecoration(
-                            labelText: 'Pages',
-                            border: OutlineInputBorder(),
-                            isDense: true,
-                            hintText: 'e.g., 250',
-                          ),
-                          keyboardType: TextInputType.number,
-                          onChanged: (value) {
-                            setState(() {
-                              while (_bundlePages.length <= index) {
-                                _bundlePages.add(null);
-                              }
-                              _bundlePages[index] = int.tryParse(value);
-                            });
-                            _notifyChange();
-                          },
+                        onChanged: (value) {
+                          setState(() {
+                            while (_bundleTitles.length <= index) {
+                              _bundleTitles.add(null);
+                            }
+                            _bundleTitles[index] = value.isEmpty ? null : value;
+                          });
+                          _notifyChange();
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                      // Author input
+                      TextFormField(
+                        key: ValueKey('author_$index'),
+                        initialValue: (index < _bundleAuthors.length && _bundleAuthors[index] != null) 
+                            ? _bundleAuthors[index] 
+                            : '',
+                        decoration: const InputDecoration(
+                          labelText: 'Author(s)',
+                          border: OutlineInputBorder(),
+                          isDense: true,
+                          hintText: 'Enter author name(s), separate with commas',
                         ),
-                        const SizedBox(height: 8),
-                        // Original Publication Year input
-                        TextFormField(
-                          key: ValueKey('year_$index'),
-                          initialValue: (index < _bundlePublicationYears.length && _bundlePublicationYears[index] != null) 
-                              ? _bundlePublicationYears[index].toString() 
-                              : '',
-                          decoration: const InputDecoration(
-                            labelText: 'Original Publication Year',
-                            border: OutlineInputBorder(),
-                            isDense: true,
-                            hintText: 'e.g., 2020',
-                          ),
-                          keyboardType: TextInputType.number,
-                          onChanged: (value) {
-                            setState(() {
-                              while (_bundlePublicationYears.length <= index) {
-                                _bundlePublicationYears.add(null);
-                              }
-                              _bundlePublicationYears[index] = int.tryParse(value);
-                            });
-                            _notifyChange();
-                          },
+                        onChanged: (value) {
+                          setState(() {
+                            while (_bundleAuthors.length <= index) {
+                              _bundleAuthors.add(null);
+                            }
+                            _bundleAuthors[index] = value.isEmpty ? null : value;
+                          });
+                          _notifyChange();
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                      // Pages input
+                      TextFormField(
+                        key: ValueKey('pages_$index'),
+                        initialValue: (index < _bundlePages.length && _bundlePages[index] != null) 
+                            ? _bundlePages[index].toString() 
+                            : '',
+                        decoration: const InputDecoration(
+                          labelText: 'Pages',
+                          border: OutlineInputBorder(),
+                          isDense: true,
+                          hintText: 'e.g., 250',
                         ),
-                      ],
-                    ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (value) {
+                          setState(() {
+                            while (_bundlePages.length <= index) {
+                              _bundlePages.add(null);
+                            }
+                            _bundlePages[index] = int.tryParse(value);
+                          });
+                          _notifyChange();
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                      // Original Publication Year input
+                      TextFormField(
+                        key: ValueKey('year_$index'),
+                        initialValue: (index < _bundlePublicationYears.length && _bundlePublicationYears[index] != null) 
+                            ? _bundlePublicationYears[index].toString() 
+                            : '',
+                        decoration: const InputDecoration(
+                          labelText: 'Original Publication Year',
+                          border: OutlineInputBorder(),
+                          isDense: true,
+                          hintText: 'e.g., 2020',
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (value) {
+                          setState(() {
+                            while (_bundlePublicationYears.length <= index) {
+                              _bundlePublicationYears.add(null);
+                            }
+                            _bundlePublicationYears[index] = int.tryParse(value);
+                          });
+                          _notifyChange();
+                        },
+                      ),
+                    ],
                   ),
-                );
-              }),
-            ),
+                ),
+              );
+            }),
           ],
         ],
       ],

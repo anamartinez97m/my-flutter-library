@@ -1,9 +1,9 @@
 {
   "@@locale": "en",
   
-  "app_title": "My Random Library",
+  "app_title": "My Book Vault",
   "@app_title": {
-    "description": "My Random Library"
+    "description": "My Book Vault"
   },
   
   "home": "Home",

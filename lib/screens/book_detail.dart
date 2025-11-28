@@ -31,7 +31,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   List<ReadDate> _readDates = [];
   Map<int, List<ReadDate>> _bundleReadDates = {};
   List<ReadingSession> _chronometerSessions = [];
+  Map<int, List<ReadingSession>> _bundleChronometerSessions = {};
+  Map<int, String> _bundleBookTitles = {}; // Map of index -> book title
   bool _loadingReadDates = true;
+  int _bundleBooksKey = 0; // Key to force FutureBuilder rebuild
 
   @override
   void initState() {
@@ -39,25 +42,105 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     _currentBook = widget.book;
     _loadReadDates();
   }
-  
-  Future<void> _loadReadDates() async {
+
+  Future<List<Book>> _loadBundleBooks() async {
+    if (_currentBook.isBundle != true) return [];
+
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final repository = BookRepository(db);
+      return await repository.getBundleBooks(_currentBook.bookId!);
+    } catch (e) {
+      debugPrint('Error loading bundle books: $e');
+      return [];
+    }
+  }
+
+  Future<Map<int, List<ReadDate>>> _loadIndividualBundleBooksReadDates() async {
+    if (_currentBook.isBundle != true) return {};
+
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final repository = BookRepository(db);
+      
+      // Get all individual books in this bundle
+      final bundleBooks = await repository.getBundleBooks(_currentBook.bookId!);
+      
+      // Load reading sessions for each individual book
+      final Map<int, List<ReadDate>> result = {};
+      for (int i = 0; i < bundleBooks.length; i++) {
+        final book = bundleBooks[i];
+        // Store book title
+        _bundleBookTitles[i] = book.name ?? 'Book ${i + 1}';
+        final readDates = await repository.getReadDatesForBook(book.bookId!);
+        if (readDates.isNotEmpty) {
+          result[i] = readDates;
+        }
+      }
+      
+      return result;
+    } catch (e) {
+      debugPrint('Error loading individual bundle books read dates: $e');
+      return {};
+    }
+  }
+
+  Future<Map<int, List<ReadingSession>>> _loadIndividualBundleBooksSessions() async {
+    if (_currentBook.isBundle != true) return {};
+
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
       final sessionRepository = ReadingSessionRepository(db);
       
+      // Get all individual books in this bundle
+      final bundleBooks = await repository.getBundleBooks(_currentBook.bookId!);
+      
+      // Load chronometer sessions for each individual book
+      final Map<int, List<ReadingSession>> result = {};
+      for (int i = 0; i < bundleBooks.length; i++) {
+        final book = bundleBooks[i];
+        final sessions = await sessionRepository.getSessionsForBook(book.bookId!);
+        if (sessions.isNotEmpty) {
+          result[i] = sessions;
+        }
+      }
+      
+      return result;
+    } catch (e) {
+      debugPrint('Error loading individual bundle books sessions: $e');
+      return {};
+    }
+  }
+
+  Future<void> _loadReadDates() async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final repository = BookRepository(db);
+      final sessionRepository = ReadingSessionRepository(db);
+
       if (_currentBook.isBundle == true) {
-        // Load bundle read dates
-        final bundleReadDates = await repository.getAllBundleReadDates(_currentBook.bookId!);
+        // Load bundle read dates from individual books
+        final individualReadDates = await _loadIndividualBundleBooksReadDates();
+        
+        // Load chronometer sessions from individual books
+        final individualSessions = await _loadIndividualBundleBooksSessions();
+        
         setState(() {
-          _bundleReadDates = bundleReadDates;
+          _bundleReadDates = individualReadDates;
+          _bundleChronometerSessions = individualSessions;
           _loadingReadDates = false;
         });
       } else {
-        // Load regular read dates
-        final readDates = await repository.getReadDatesForBook(_currentBook.bookId!);
-        // Load chronometer sessions
-        final sessions = await sessionRepository.getSessionsForBook(_currentBook.bookId!);
+        // Check if this is an individual book that's part of a bundle
+        List<ReadDate> readDates;
+        List<ReadingSession> sessions;
+        
+        // Load reading sessions for this book (works for both regular books and individual bundle books)
+        readDates = await repository.getReadDatesForBook(_currentBook.bookId!);
+        sessions = await sessionRepository.getSessionsForBook(_currentBook.bookId!);
+        
+        debugPrint('BookDetail: Loaded ${readDates.length} read dates and ${sessions.length} sessions for book ${_currentBook.bookId} (${_currentBook.name})');
         setState(() {
           _readDates = readDates;
           _chronometerSessions = sessions;
@@ -71,7 +154,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       });
     }
   }
-  
+
   Future<Book?> _loadOriginalBook(int originalBookId) async {
     try {
       final db = await DatabaseHelper.instance.database;
@@ -83,51 +166,52 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       return null;
     }
   }
-  
+
   Future<void> _quickStartReading() async {
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
       final today = DateTime.now().toIso8601String().split('T')[0];
-      
+
       // Update status to "Started"
       final statusList = await repository.getLookupValues('status');
       final startedStatus = statusList.firstWhere(
         (s) => (s['value'] as String).toLowerCase() == 'started',
         orElse: () => statusList.first,
       );
-      
+
       await db.update(
         'book',
-        {
-          'status_id': startedStatus['status_id'],
-          'date_read_initial': today,
-        },
+        {'status_id': startedStatus['status_id'], 'date_read_initial': today},
         where: 'book_id = ?',
         whereArgs: [_currentBook.bookId!],
       );
-      
+
       // Create a new reading session with start date
-      await repository.addReadDate(ReadDate(
-        bookId: _currentBook.bookId!,
-        dateStarted: today,
-        dateFinished: null,
-      ));
-      
+      await repository.addReadDate(
+        ReadDate(
+          bookId: _currentBook.bookId!,
+          dateStarted: today,
+          dateFinished: null,
+        ),
+      );
+
       // Reload book data
       final updatedBooks = await repository.getAllBooks();
-      final updatedBook = updatedBooks.firstWhere((b) => b.bookId == _currentBook.bookId);
-      
+      final updatedBook = updatedBooks.firstWhere(
+        (b) => b.bookId == _currentBook.bookId,
+      );
+
       setState(() {
         _currentBook = updatedBook;
       });
       await _loadReadDates();
-      
+
       // Update provider
       if (mounted) {
         final provider = Provider.of<BookProvider?>(context, listen: false);
         await provider?.loadBooks();
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Started reading!'),
@@ -139,36 +223,35 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       debugPrint('Error starting reading: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
         );
       }
     }
   }
-  
+
   Future<void> _quickFinishReading() async {
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
       final today = DateTime.now().toIso8601String().split('T')[0];
-      
+
       // Get status values
       final statusList = await repository.getLookupValues('status');
-      
+
       // Check if there are any reading sessions
       final hasReadingSessions = _readDates.isNotEmpty;
-      
+
       // If there are reading sessions, mark as "Yes", otherwise "No"
       final targetStatus = statusList.firstWhere(
-        (s) => (s['value'] as String).toLowerCase() == (hasReadingSessions ? 'yes' : 'no'),
+        (s) =>
+            (s['value'] as String).toLowerCase() ==
+            (hasReadingSessions ? 'yes' : 'no'),
         orElse: () => statusList.first,
       );
-      
+
       // Get current read count
       final currentReadCount = _currentBook.readCount ?? 0;
-      
+
       // Update status and increment read count
       await db.update(
         'book',
@@ -180,7 +263,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         where: 'book_id = ?',
         whereArgs: [_currentBook.bookId!],
       );
-      
+
       // If there's an open reading session, close it
       if (_readDates.isNotEmpty && _readDates.last.dateFinished == null) {
         final updatedReadDate = ReadDate(
@@ -193,27 +276,31 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         await repository.updateReadDate(updatedReadDate);
       } else {
         // Create a new reading session with finish date
-        await repository.addReadDate(ReadDate(
-          bookId: _currentBook.bookId!,
-          dateStarted: _currentBook.dateReadInitial ?? today,
-          dateFinished: today,
-        ));
+        await repository.addReadDate(
+          ReadDate(
+            bookId: _currentBook.bookId!,
+            dateStarted: _currentBook.dateReadInitial ?? today,
+            dateFinished: today,
+          ),
+        );
       }
-      
+
       // Reload book data
       final updatedBooks = await repository.getAllBooks();
-      final updatedBook = updatedBooks.firstWhere((b) => b.bookId == _currentBook.bookId);
-      
+      final updatedBook = updatedBooks.firstWhere(
+        (b) => b.bookId == _currentBook.bookId,
+      );
+
       setState(() {
         _currentBook = updatedBook;
       });
       await _loadReadDates();
-      
+
       // Update provider
       if (mounted) {
         final provider = Provider.of<BookProvider?>(context, listen: false);
         await provider?.loadBooks();
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Marked as finished!'),
@@ -225,182 +312,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       debugPrint('Error finishing reading: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
         );
       }
     }
-  }
-  
-  List<String?> _parseBundleSagaNumbers(String numbersStr) {
-    // Parse formats like "1-3", "1, 2, 3", "1,2,3"
-    final List<String?> result = [];
-    
-    if (numbersStr.contains('-')) {
-      // Range format: "1-3"
-      final parts = numbersStr.split('-');
-      if (parts.length == 2) {
-        final start = int.tryParse(parts[0].trim());
-        final end = int.tryParse(parts[1].trim());
-        if (start != null && end != null) {
-          for (int i = start; i <= end; i++) {
-            result.add(i.toString());
-          }
-        }
-      }
-    } else if (numbersStr.contains(',')) {
-      // Comma-separated format: "1, 2, 3"
-      final parts = numbersStr.split(',');
-      for (final part in parts) {
-        final trimmed = part.trim();
-        if (trimmed.isNotEmpty) {
-          result.add(trimmed);
-        }
-      }
-    } else {
-      // Single number
-      result.add(numbersStr.trim());
-    }
-    
-    return result;
-  }
-  
-  List<Widget> _buildBundleBooksList() {
-    List<String?>? titles;
-    List<int?>? pages;
-    List<int?>? pubYears;
-    List<String?>? sagaNumbers;
-    List<String?>? authors;
-    
-    try {
-      if (_currentBook.bundleTitles != null) {
-        final List<dynamic> titlesData = jsonDecode(_currentBook.bundleTitles!);
-        titles = titlesData.map((t) => t as String?).toList();
-      }
-    } catch (e) {
-      titles = null;
-    }
-    
-    try {
-      if (_currentBook.bundlePages != null) {
-        final List<dynamic> pagesData = jsonDecode(_currentBook.bundlePages!);
-        pages = pagesData.map((p) => p as int?).toList();
-      }
-    } catch (e) {
-      pages = null;
-    }
-    
-    try {
-      if (_currentBook.bundlePublicationYears != null) {
-        final List<dynamic> yearsData = jsonDecode(_currentBook.bundlePublicationYears!);
-        pubYears = yearsData.map((y) => y as int?).toList();
-      }
-    } catch (e) {
-      pubYears = null;
-    }
-    
-    try {
-      if (_currentBook.bundleAuthors != null) {
-        final List<dynamic> authorsData = jsonDecode(_currentBook.bundleAuthors!);
-        authors = authorsData.map((a) => a as String?).toList();
-      }
-    } catch (e) {
-      authors = null;
-    }
-    
-    // Parse saga numbers from bundleNumbers string
-    if (_currentBook.bundleNumbers != null && _currentBook.bundleNumbers!.isNotEmpty) {
-      sagaNumbers = _parseBundleSagaNumbers(_currentBook.bundleNumbers!);
-    }
-    
-    final maxLength = [
-      titles?.length ?? 0,
-      pages?.length ?? 0,
-      pubYears?.length ?? 0,
-      sagaNumbers?.length ?? 0,
-      authors?.length ?? 0,
-      _currentBook.bundleCount ?? 0,
-    ].reduce((a, b) => a > b ? a : b);
-    
-    return List.generate(maxLength, (index) {
-      final title = titles != null && index < titles.length ? titles[index] : null;
-      final pageCount = pages != null && index < pages.length ? pages[index] : null;
-      final pubYear = pubYears != null && index < pubYears.length ? pubYears[index] : null;
-      final sagaNum = sagaNumbers != null && index < sagaNumbers.length ? sagaNumbers[index] : null;
-      final author = authors != null && index < authors.length ? authors[index] : null;
-      final hasReadDates = _bundleReadDates.containsKey(index) && 
-                           _bundleReadDates[index]!.any((d) => d.dateFinished != null && d.dateFinished!.isNotEmpty);
-      
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 28,
-              height: 28,
-              decoration: BoxDecoration(
-                color: hasReadDates ? Colors.green : Colors.grey[300],
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Text(
-                  '${index + 1}',
-                  style: TextStyle(
-                    color: hasReadDates ? Colors.white : Colors.grey[700],
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (sagaNum != null && sagaNum.isNotEmpty)
-                    Text(
-                      'Saga #$sagaNum',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  if (title != null && title.isNotEmpty)
-                    Text(
-                      title,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  if (author != null && author.isNotEmpty)
-                    Text(
-                      author,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[700],
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  if (pageCount != null || pubYear != null)
-                    Text(
-                      [
-                        if (pageCount != null) '$pageCount pages',
-                        if (pubYear != null) 'Pub. $pubYear',
-                      ].join(' • '),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
-    });
   }
 
   String _formatDateTime(String isoString) {
@@ -557,6 +472,12 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                   });
                   // Reload read dates after edit
                   await _loadReadDates();
+                  
+                  // If this is an individual book in a bundle, notify parent to refresh
+                  if (_currentBook.bundleParentId != null) {
+                    // Pop with result to notify parent bundle detail screen
+                    Navigator.pop(context, updatedBook);
+                  }
                 }
               },
             ),
@@ -609,18 +530,19 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         ),
                         IconButton(
                           icon: Icon(
-                            _currentBook.tbr == true 
-                                ? Icons.bookmark 
+                            _currentBook.tbr == true
+                                ? Icons.bookmark
                                 : Icons.bookmark_border,
-                            color: _currentBook.tbr == true 
-                                ? Theme.of(context).colorScheme.primary 
-                                : Colors.grey,
+                            color:
+                                _currentBook.tbr == true
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Colors.grey,
                           ),
                           onPressed: () async {
                             try {
                               final db = await DatabaseHelper.instance.database;
                               final repository = BookRepository(db);
-                              
+
                               // Toggle TBR status
                               final updatedBook = Book(
                                 bookId: _currentBook.bookId,
@@ -633,7 +555,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                 sagaUniverse: _currentBook.sagaUniverse,
                                 formatSagaValue: _currentBook.formatSagaValue,
                                 pages: _currentBook.pages,
-                                originalPublicationYear: _currentBook.originalPublicationYear,
+                                originalPublicationYear:
+                                    _currentBook.originalPublicationYear,
                                 loaned: _currentBook.loaned,
                                 statusValue: _currentBook.statusValue,
                                 editorialValue: _currentBook.editorialValue,
@@ -653,36 +576,42 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                 bundleStartDates: _currentBook.bundleStartDates,
                                 bundleEndDates: _currentBook.bundleEndDates,
                                 bundlePages: _currentBook.bundlePages,
-                                bundlePublicationYears: _currentBook.bundlePublicationYears,
+                                bundlePublicationYears:
+                                    _currentBook.bundlePublicationYears,
                                 bundleTitles: _currentBook.bundleTitles,
                                 bundleAuthors: _currentBook.bundleAuthors,
                                 tbr: !(_currentBook.tbr == true), // Toggle
                                 isTandem: _currentBook.isTandem,
                                 originalBookId: _currentBook.originalBookId,
-                                notificationEnabled: _currentBook.notificationEnabled,
-                                notificationDatetime: _currentBook.notificationDatetime,
+                                notificationEnabled:
+                                    _currentBook.notificationEnabled,
+                                notificationDatetime:
+                                    _currentBook.notificationDatetime,
                               );
-                              
+
                               await repository.deleteBook(_currentBook.bookId!);
                               await repository.addBook(updatedBook);
-                              
+
                               // Reload provider first
                               if (mounted) {
-                                final provider = Provider.of<BookProvider?>(context, listen: false);
+                                final provider = Provider.of<BookProvider?>(
+                                  context,
+                                  listen: false,
+                                );
                                 await provider?.loadBooks();
                               }
-                              
+
                               // Then update local state
                               setState(() {
                                 _currentBook = updatedBook;
                               });
-                              
+
                               if (mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                      updatedBook.tbr == true 
-                                          ? 'Added to TBR' 
+                                      updatedBook.tbr == true
+                                          ? 'Added to TBR'
                                           : 'Removed from TBR',
                                     ),
                                   ),
@@ -697,73 +626,35 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               }
                             }
                           },
-                          tooltip: _currentBook.tbr == true ? 'Remove from TBR' : 'Add to TBR',
+                          tooltip:
+                              _currentBook.tbr == true
+                                  ? 'Remove from TBR'
+                                  : 'Add to TBR',
                         ),
                       ],
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Quick status change buttons (always visible)
                     Container(
-                        height: 48,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: Theme.of(context).colorScheme.primary,
-                            width: 2,
-                          ),
+                      height: 48,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 2,
                         ),
-                        child: Row(
-                          children: [
-                            if (_currentBook.statusValue?.toLowerCase() != 'started')
-                              Expanded(
-                                child: InkWell(
-                                  onTap: _quickStartReading,
-                                  borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(6),
-                                    bottomLeft: Radius.circular(6),
-                                  ),
-                                  child: Container(
-                                    alignment: Alignment.center,
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          Icons.play_arrow,
-                                          color: Theme.of(context).colorScheme.primary,
-                                          size: 20,
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          'Start Reading',
-                                          style: TextStyle(
-                                            color: Theme.of(context).colorScheme.primary,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            if (_currentBook.statusValue?.toLowerCase() != 'started')
-                              Container(
-                                width: 2,
-                                color: Theme.of(context).colorScheme.primary,
-                                margin: const EdgeInsets.symmetric(vertical: 8),
-                              ),
+                      ),
+                      child: Row(
+                        children: [
+                          if (_currentBook.statusValue?.toLowerCase() !=
+                              'started')
                             Expanded(
                               child: InkWell(
-                                onTap: _quickFinishReading,
-                                borderRadius: BorderRadius.only(
-                                  topRight: const Radius.circular(6),
-                                  bottomRight: const Radius.circular(6),
-                                  topLeft: _currentBook.statusValue?.toLowerCase() == 'started' 
-                                      ? const Radius.circular(6) 
-                                      : Radius.zero,
-                                  bottomLeft: _currentBook.statusValue?.toLowerCase() == 'started' 
-                                      ? const Radius.circular(6) 
-                                      : Radius.zero,
+                                onTap: _quickStartReading,
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(6),
+                                  bottomLeft: Radius.circular(6),
                                 ),
                                 child: Container(
                                   alignment: Alignment.center,
@@ -771,15 +662,21 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(
-                                        Icons.check_circle,
-                                        color: Theme.of(context).colorScheme.primary,
+                                        Icons.play_arrow,
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.primary,
                                         size: 20,
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
-                                        'Mark as Finished',
+                                        'Start Reading',
                                         style: TextStyle(
-                                          color: Theme.of(context).colorScheme.primary,
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
@@ -788,9 +685,60 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                 ),
                               ),
                             ),
-                          ],
-                        ),
+                          if (_currentBook.statusValue?.toLowerCase() !=
+                              'started')
+                            Container(
+                              width: 2,
+                              color: Theme.of(context).colorScheme.primary,
+                              margin: const EdgeInsets.symmetric(vertical: 8),
+                            ),
+                          Expanded(
+                            child: InkWell(
+                              onTap: _quickFinishReading,
+                              borderRadius: BorderRadius.only(
+                                topRight: const Radius.circular(6),
+                                bottomRight: const Radius.circular(6),
+                                topLeft:
+                                    _currentBook.statusValue?.toLowerCase() ==
+                                            'started'
+                                        ? const Radius.circular(6)
+                                        : Radius.zero,
+                                bottomLeft:
+                                    _currentBook.statusValue?.toLowerCase() ==
+                                            'started'
+                                        ? const Radius.circular(6)
+                                        : Radius.zero,
+                              ),
+                              child: Container(
+                                alignment: Alignment.center,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.check_circle,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'Mark as Finished',
+                                      style: TextStyle(
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.primary,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
+                    ),
                     AppTheme.verticalSpaceLarge,
 
                     // Description (from API - future implementation)
@@ -872,7 +820,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         ),
                       ),
                     // Original Book (for repeated books)
-                    if (_currentBook.statusValue?.toLowerCase() == 'repeated' && 
+                    if (_currentBook.statusValue?.toLowerCase() == 'repeated' &&
                         _currentBook.originalBookId != null)
                       FutureBuilder<Book?>(
                         future: _loadOriginalBook(_currentBook.originalBookId!),
@@ -884,14 +832,18 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => BookDetailScreen(book: originalBook),
+                                    builder:
+                                        (context) => BookDetailScreen(
+                                          book: originalBook,
+                                        ),
                                   ),
                                 );
                               },
                               child: _DetailCard(
                                 icon: Icons.repeat,
                                 label: 'Original Book',
-                                value: '${originalBook.name}${originalBook.author != null ? " - ${originalBook.author}" : ""}',
+                                value:
+                                    '${originalBook.name}${originalBook.author != null ? " - ${originalBook.author}" : ""}',
                                 trailingIcon: Icons.open_in_new,
                               ),
                             );
@@ -1034,6 +986,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
 
                     // Bundle information
                     if (_currentBook.isBundle == true) ...[
+                      // Individual Bundle Books Card
                       Card(
                         margin: const EdgeInsets.only(bottom: 12),
                         elevation: 1,
@@ -1048,14 +1001,17 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               Row(
                                 children: [
                                   Icon(
-                                    Icons.library_books,
-                                    color: Theme.of(context).colorScheme.primary,
+                                    Icons.menu_book,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                     size: 24,
                                   ),
                                   const SizedBox(width: 16),
                                   Text(
-                                    'Bundle Information',
-                                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                    'Books in Bundle',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleSmall?.copyWith(
                                       color: Colors.grey[600],
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -1063,30 +1019,179 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                 ],
                               ),
                               const SizedBox(height: 12),
-                              Text(
-                                'Contains ${_currentBook.bundleCount ?? 0} books',
-                                style: Theme.of(context).textTheme.bodyMedium,
+                              FutureBuilder<List<Book>>(
+                                key: ValueKey(_bundleBooksKey),
+                                future: _loadBundleBooks(),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const Center(
+                                      child: Padding(
+                                        padding: EdgeInsets.all(16.0),
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    );
+                                  }
+
+                                  if (snapshot.hasError) {
+                                    return Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                        'Error loading bundle books',
+                                        style: TextStyle(
+                                          color: Colors.red[700],
+                                        ),
+                                      ),
+                                    );
+                                  }
+
+                                  if (!snapshot.hasData ||
+                                      snapshot.data!.isEmpty) {
+                                    return const Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text('No books in bundle'),
+                                    );
+                                  }
+
+                                  final bundleBooks = snapshot.data!;
+                                  return Column(
+                                    children:
+                                        bundleBooks.asMap().entries.map((
+                                          entry,
+                                        ) {
+                                          final index = entry.key;
+                                          final book = entry.value;
+
+                                          // Determine icon and color based on status
+                                          IconData statusIcon;
+                                          Color statusColor;
+                                          if (book.statusValue == 'Yes') {
+                                            statusIcon = Icons.check_circle;
+                                            statusColor = Colors.green;
+                                          } else if (book.statusValue ==
+                                              'Started') {
+                                            statusIcon = Icons.play_circle;
+                                            statusColor = Colors.orange;
+                                          } else {
+                                            statusIcon = Icons.circle_outlined;
+                                            statusColor = Colors.grey;
+                                          }
+
+                                          return Column(
+                                            children: [
+                                              if (index > 0)
+                                                const Divider(height: 1),
+                                              ListTile(
+                                                contentPadding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 0,
+                                                      vertical: 4,
+                                                    ),
+                                                leading: Icon(
+                                                  statusIcon,
+                                                  color: statusColor,
+                                                  size: 28,
+                                                ),
+                                                title: Text(
+                                                  book.name ?? 'Unknown',
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                                subtitle: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    if (book.author != null &&
+                                                        book.author!.isNotEmpty)
+                                                      Text(
+                                                        book.author!,
+                                                        style: TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              Colors.grey[600],
+                                                        ),
+                                                      ),
+                                                    Row(
+                                                      children: [
+                                                        Text(
+                                                          book.statusValue ??
+                                                              'No status',
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                            color: statusColor,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                          ),
+                                                        ),
+                                                        if (book.pages !=
+                                                            null) ...[
+                                                          Text(
+                                                            ' • ${book.pages} pages',
+                                                            style: TextStyle(
+                                                              fontSize: 12,
+                                                              color:
+                                                                  Colors
+                                                                      .grey[600],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                        if (book.nSaga !=
+                                                                null &&
+                                                            book
+                                                                .nSaga!
+                                                                .isNotEmpty) ...[
+                                                          Text(
+                                                            ' • #${book.nSaga}',
+                                                            style: TextStyle(
+                                                              fontSize: 12,
+                                                              color:
+                                                                  Colors
+                                                                      .grey[600],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                                trailing: const Icon(
+                                                  Icons.arrow_forward_ios,
+                                                  size: 16,
+                                                ),
+                                                onTap: () async {
+                                                  // Navigate to individual book details
+                                                  final result =
+                                                      await Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder:
+                                                              (context) =>
+                                                                  BookDetailScreen(
+                                                                    book: book,
+                                                                  ),
+                                                        ),
+                                                      );
+                                                  // Reload if book was modified
+                                                  if (result != null) {
+                                                    setState(() {
+                                                      _bundleBooksKey++; // Force bundle books to reload
+                                                    });
+                                                    _loadReadDates();
+                                                  }
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        }).toList(),
+                                  );
+                                },
                               ),
-                              if (_currentBook.bundleNumbers != null &&
-                                  _currentBook.bundleNumbers!.isNotEmpty) ...[
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Saga Numbers: ${_currentBook.bundleNumbers}',
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                ),
-                              ],
-                              if (_currentBook.bundleTitles != null ||
-                                  _currentBook.bundlePages != null ||
-                                  _currentBook.bundlePublicationYears != null) ...[
-                                const SizedBox(height: 12),
-                                const Divider(),
-                                const SizedBox(height: 8),
-                                ..._buildBundleBooksList(),
-                              ],
                             ],
                           ),
                         ),
                       ),
+
                       // Bundle Reading Sessions
                       if (_bundleReadDates.isNotEmpty)
                         Card(
@@ -1104,13 +1209,16 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   children: [
                                     Icon(
                                       Icons.history,
-                                      color: Theme.of(context).colorScheme.primary,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
                                       size: 24,
                                     ),
                                     const SizedBox(width: 16),
                                     Text(
                                       'Bundle Reading Sessions',
-                                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleSmall?.copyWith(
                                         color: Colors.grey[600],
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -1118,50 +1226,200 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   ],
                                 ),
                                 const SizedBox(height: 12),
-                                ...List.generate(_currentBook.bundleCount ?? 0, (bundleIndex) {
-                                  final readDates = _bundleReadDates[bundleIndex] ?? [];
-                                  if (readDates.isEmpty) return const SizedBox.shrink();
-                                  
+                                ...List.generate(_currentBook.bundleCount ?? 0, (
+                                  bundleIndex,
+                                ) {
+                                  final readDates =
+                                      _bundleReadDates[bundleIndex] ?? [];
+                                  if (readDates.isEmpty)
+                                    return const SizedBox.shrink();
+
                                   return Padding(
                                     padding: const EdgeInsets.only(bottom: 12),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'Book ${bundleIndex + 1}',
-                                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                          _bundleBookTitles[bundleIndex] ?? 'Book ${bundleIndex + 1}',
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodyMedium?.copyWith(
                                             fontWeight: FontWeight.w600,
                                           ),
                                         ),
                                         const SizedBox(height: 8),
-                                        ...List.generate(readDates.length, (index) {
+                                        ...List.generate(readDates.length, (
+                                          index,
+                                        ) {
                                           final readDate = readDates[index];
                                           return Padding(
-                                            padding: const EdgeInsets.only(bottom: 4, left: 16),
+                                            padding: const EdgeInsets.only(
+                                              bottom: 4,
+                                              left: 16,
+                                            ),
                                             child: Row(
                                               children: [
                                                 Text(
                                                   '${index + 1}.',
-                                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodySmall
+                                                      ?.copyWith(
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
                                                 ),
                                                 const SizedBox(width: 8),
                                                 Expanded(
                                                   child: Text(
-                                                    readDate.dateStarted != null 
-                                                        ? formatDateForDisplay(readDate.dateStarted)
+                                                    readDate.dateStarted != null
+                                                        ? formatDateForDisplay(
+                                                          readDate.dateStarted,
+                                                        )
                                                         : 'Not started',
-                                                    style: Theme.of(context).textTheme.bodySmall,
+                                                    style:
+                                                        Theme.of(
+                                                          context,
+                                                        ).textTheme.bodySmall,
                                                   ),
                                                 ),
                                                 const Text(' → '),
                                                 Expanded(
                                                   child: Text(
-                                                    readDate.dateFinished != null
-                                                        ? formatDateForDisplay(readDate.dateFinished)
+                                                    readDate.dateFinished !=
+                                                            null
+                                                        ? formatDateForDisplay(
+                                                          readDate.dateFinished,
+                                                        )
                                                         : 'Not finished',
-                                                    style: Theme.of(context).textTheme.bodySmall,
+                                                    style:
+                                                        Theme.of(
+                                                          context,
+                                                        ).textTheme.bodySmall,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        }),
+                                      ],
+                                    ),
+                                  );
+                                }),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                      // Bundle Chronometer Sessions
+                      if (_bundleChronometerSessions.isNotEmpty)
+                        Card(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.timer,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                      size: 24,
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Text(
+                                      'Bundle Timed Reading Sessions',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleSmall?.copyWith(
+                                        color: Colors.grey[600],
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                ...List.generate(_currentBook.bundleCount ?? 0, (
+                                  bundleIndex,
+                                ) {
+                                  final sessions =
+                                      _bundleChronometerSessions[bundleIndex] ?? [];
+                                  if (sessions.isEmpty)
+                                    return const SizedBox.shrink();
+
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 12),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          _bundleBookTitles[bundleIndex] ?? 'Book ${bundleIndex + 1}',
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodyMedium?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        ...List.generate(sessions.length, (
+                                          index,
+                                        ) {
+                                          final session = sessions[index];
+                                          final duration = session.durationSeconds ?? 0;
+                                          final hours = duration ~/ 3600;
+                                          final minutes = (duration % 3600) ~/ 60;
+                                          final seconds = duration % 60;
+                                          String durationStr;
+                                          if (hours > 0) {
+                                            durationStr =
+                                                '${hours}h ${minutes}m ${seconds}s';
+                                          } else if (minutes > 0) {
+                                            durationStr = '${minutes}m ${seconds}s';
+                                          } else {
+                                            durationStr = '${seconds}s';
+                                          }
+
+                                          // Format clicked_at time if available
+                                          String clickedAtStr = '';
+                                          if (session.clickedAt != null) {
+                                            final clickedTime = session.clickedAt!;
+                                            clickedAtStr =
+                                                ' (Started: ${clickedTime.hour.toString().padLeft(2, '0')}:${clickedTime.minute.toString().padLeft(2, '0')})';
+                                          }
+
+                                          return Padding(
+                                            padding: const EdgeInsets.only(
+                                              bottom: 4,
+                                              left: 16,
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Text(
+                                                  '${index + 1}.',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodySmall
+                                                      ?.copyWith(
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Expanded(
+                                                  child: Text(
+                                                    '${formatDateForDisplay(session.startTime.toIso8601String().split('T')[0])} - $durationStr$clickedAtStr',
+                                                    style:
+                                                        Theme.of(
+                                                          context,
+                                                        ).textTheme.bodySmall,
                                                   ),
                                                 ),
                                               ],
@@ -1193,33 +1451,40 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                             if (value == false) {
                               // Uncheck TBR
                               try {
-                                final db = await DatabaseHelper.instance.database;
+                                final db =
+                                    await DatabaseHelper.instance.database;
                                 await db.update(
                                   'book',
                                   {'tbr': 0},
                                   where: 'book_id = ?',
                                   whereArgs: [_currentBook.bookId],
                                 );
-                                
+
                                 if (mounted) {
                                   // Reload provider and navigate back
-                                  final provider = Provider.of<BookProvider?>(context, listen: false);
+                                  final provider = Provider.of<BookProvider?>(
+                                    context,
+                                    listen: false,
+                                  );
                                   await provider?.loadBooks();
-                                  
+
                                   // Refresh the screen by popping and pushing again
                                   final updatedBooks = provider?.allBooks ?? [];
                                   final updatedBook = updatedBooks.firstWhere(
                                     (b) => b.bookId == _currentBook.bookId,
                                     orElse: () => _currentBook,
                                   );
-                                  
+
                                   Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => BookDetailScreen(book: updatedBook),
+                                      builder:
+                                          (context) => BookDetailScreen(
+                                            book: updatedBook,
+                                          ),
                                     ),
                                   );
-                                  
+
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
                                       content: Text('Removed from TBR'),
@@ -1247,7 +1512,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                           ),
                           title: Text(
                             'To Be Read',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            style: Theme.of(
+                              context,
+                            ).textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: Colors.orange.shade700,
                             ),
@@ -1257,7 +1524,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                       ),
 
                     // Notification Badge
-                    if (_currentBook.notificationEnabled == true && _currentBook.notificationDatetime != null)
+                    if (_currentBook.notificationEnabled == true &&
+                        _currentBook.notificationDatetime != null)
                       Card(
                         elevation: 1,
                         margin: const EdgeInsets.only(bottom: 12),
@@ -1301,11 +1569,12 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         label: 'Times Read',
                         value: '${_currentBook.readCount}',
                       ),
-                    
+
                     // Old date fields removed - now using Reading Sessions
-                    
+
                     // Reading Sessions Card
-                    if (!(_currentBook.isBundle == true) && _readDates.isNotEmpty)
+                    if (!(_currentBook.isBundle == true) &&
+                        _readDates.isNotEmpty)
                       Card(
                         margin: const EdgeInsets.only(bottom: 12),
                         elevation: 1,
@@ -1321,13 +1590,16 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                 children: [
                                   Icon(
                                     Icons.history,
-                                    color: Theme.of(context).colorScheme.primary,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                     size: 24,
                                   ),
                                   const SizedBox(width: 16),
                                   Text(
                                     'Reading History (${_readDates.length})',
-                                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleSmall?.copyWith(
                                       color: Colors.grey[600],
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -1343,26 +1615,38 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     children: [
                                       Text(
                                         '${index + 1}.',
-                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodySmall?.copyWith(
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
                                       const SizedBox(width: 8),
                                       Expanded(
                                         child: Text(
-                                          readDate.dateStarted != null 
-                                              ? formatDateForDisplay(readDate.dateStarted)
+                                          readDate.dateStarted != null
+                                              ? formatDateForDisplay(
+                                                readDate.dateStarted,
+                                              )
                                               : 'Not started',
-                                          style: Theme.of(context).textTheme.bodySmall,
+                                          style:
+                                              Theme.of(
+                                                context,
+                                              ).textTheme.bodySmall,
                                         ),
                                       ),
                                       const Text(' → '),
                                       Expanded(
                                         child: Text(
                                           readDate.dateFinished != null
-                                              ? formatDateForDisplay(readDate.dateFinished)
+                                              ? formatDateForDisplay(
+                                                readDate.dateFinished,
+                                              )
                                               : 'Not finished',
-                                          style: Theme.of(context).textTheme.bodySmall,
+                                          style:
+                                              Theme.of(
+                                                context,
+                                              ).textTheme.bodySmall,
                                         ),
                                       ),
                                     ],
@@ -1373,9 +1657,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                           ),
                         ),
                       ),
-                    
+
                     // Chronometer Sessions Card
-                    if (!(_currentBook.isBundle == true) && _chronometerSessions.isNotEmpty)
+                    if (!(_currentBook.isBundle == true) &&
+                        _chronometerSessions.isNotEmpty)
                       Card(
                         margin: const EdgeInsets.only(bottom: 12),
                         elevation: 1,
@@ -1391,13 +1676,16 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                 children: [
                                   Icon(
                                     Icons.timer,
-                                    color: Theme.of(context).colorScheme.primary,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                     size: 24,
                                   ),
                                   const SizedBox(width: 16),
                                   Text(
                                     'Timed Reading Sessions (${_chronometerSessions.length})',
-                                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleSmall?.copyWith(
                                       color: Colors.grey[600],
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -1405,7 +1693,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                 ],
                               ),
                               const SizedBox(height: 12),
-                              ...List.generate(_chronometerSessions.length, (index) {
+                              ...List.generate(_chronometerSessions.length, (
+                                index,
+                              ) {
                                 final session = _chronometerSessions[index];
                                 final duration = session.durationSeconds ?? 0;
                                 final hours = duration ~/ 3600;
@@ -1413,27 +1703,31 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                 final seconds = duration % 60;
                                 String durationStr;
                                 if (hours > 0) {
-                                  durationStr = '${hours}h ${minutes}m ${seconds}s';
+                                  durationStr =
+                                      '${hours}h ${minutes}m ${seconds}s';
                                 } else if (minutes > 0) {
                                   durationStr = '${minutes}m ${seconds}s';
                                 } else {
                                   durationStr = '${seconds}s';
                                 }
-                                
+
                                 // Format clicked_at time if available
                                 String clickedAtStr = '';
                                 if (session.clickedAt != null) {
                                   final clickedTime = session.clickedAt!;
-                                  clickedAtStr = ' (Started: ${clickedTime.hour.toString().padLeft(2, '0')}:${clickedTime.minute.toString().padLeft(2, '0')})';
+                                  clickedAtStr =
+                                      ' (Started: ${clickedTime.hour.toString().padLeft(2, '0')}:${clickedTime.minute.toString().padLeft(2, '0')})';
                                 }
-                                
+
                                 return Padding(
                                   padding: const EdgeInsets.only(bottom: 8),
                                   child: Row(
                                     children: [
                                       Text(
                                         '${index + 1}.',
-                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodySmall?.copyWith(
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
@@ -1441,7 +1735,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                       Expanded(
                                         child: Text(
                                           '${formatDateForDisplay(session.startTime.toIso8601String().split('T')[0])} - $durationStr$clickedAtStr',
-                                          style: Theme.of(context).textTheme.bodySmall,
+                                          style:
+                                              Theme.of(
+                                                context,
+                                              ).textTheme.bodySmall,
                                         ),
                                       ),
                                     ],
@@ -1452,7 +1749,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                           ),
                         ),
                       ),
-                    
+
                     if (_currentBook.myReview != null &&
                         _currentBook.myReview!.isNotEmpty)
                       Card(
@@ -1508,12 +1805,13 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
               context: context,
               isScrollControlled: true,
               backgroundColor: Colors.transparent,
-              builder: (context) => ChronometerWidget(
-                bookId: _currentBook.bookId!,
-                onSessionComplete: () {
-                  _loadReadDates();
-                },
-              ),
+              builder:
+                  (context) => ChronometerWidget(
+                    bookId: _currentBook.bookId!,
+                    onSessionComplete: () {
+                      _loadReadDates();
+                    },
+                  ),
             );
           },
           backgroundColor: Theme.of(context).colorScheme.primary,
@@ -1605,7 +1903,14 @@ class _BundleDatesCard extends StatelessWidget {
   final String? bundleTitles;
   final String? bundleAuthors;
 
-  const _BundleDatesCard({this.startDates, this.endDates, this.bundlePages, this.bundlePublicationYears, this.bundleTitles, this.bundleAuthors});
+  const _BundleDatesCard({
+    this.startDates,
+    this.endDates,
+    this.bundlePages,
+    this.bundlePublicationYears,
+    this.bundleTitles,
+    this.bundleAuthors,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1719,11 +2024,17 @@ class _BundleDatesCard extends StatelessWidget {
               final pageCount =
                   pages != null && index < pages.length ? pages[index] : null;
               final pubYear =
-                  pubYears != null && index < pubYears.length ? pubYears[index] : null;
+                  pubYears != null && index < pubYears.length
+                      ? pubYears[index]
+                      : null;
               final title =
-                  titles != null && index < titles.length ? titles[index] : null;
+                  titles != null && index < titles.length
+                      ? titles[index]
+                      : null;
               final author =
-                  authors != null && index < authors.length ? authors[index] : null;
+                  authors != null && index < authors.length
+                      ? authors[index]
+                      : null;
 
               return Padding(
                 padding: const EdgeInsets.only(bottom: 8),
@@ -1751,7 +2062,9 @@ class _BundleDatesCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             start != null
-                                ? formatDateForDisplay('${start.year}-${start.month.toString().padLeft(2, '0')}-${start.day.toString().padLeft(2, '0')}')
+                                ? formatDateForDisplay(
+                                  '${start.year}-${start.month.toString().padLeft(2, '0')}-${start.day.toString().padLeft(2, '0')}',
+                                )
                                 : '-',
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
@@ -1760,7 +2073,9 @@ class _BundleDatesCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             end != null
-                                ? formatDateForDisplay('${end.year}-${end.month.toString().padLeft(2, '0')}-${end.day.toString().padLeft(2, '0')}')
+                                ? formatDateForDisplay(
+                                  '${end.year}-${end.month.toString().padLeft(2, '0')}-${end.day.toString().padLeft(2, '0')}',
+                                )
                                 : '-',
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
@@ -1778,20 +2093,32 @@ class _BundleDatesCard extends StatelessWidget {
                                 if (pageCount != null)
                                   Text(
                                     'Pages: $pageCount',
-                                    style: Theme.of(context).textTheme.bodySmall
-                                        ?.copyWith(color: Colors.grey[600], fontSize: 12),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall?.copyWith(
+                                      color: Colors.grey[600],
+                                      fontSize: 12,
+                                    ),
                                   ),
                                 if (pageCount != null && pubYear != null)
                                   Text(
                                     ' • ',
-                                    style: Theme.of(context).textTheme.bodySmall
-                                        ?.copyWith(color: Colors.grey[600], fontSize: 12),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall?.copyWith(
+                                      color: Colors.grey[600],
+                                      fontSize: 12,
+                                    ),
                                   ),
                                 if (pubYear != null)
                                   Text(
                                     'Pub. Year: $pubYear',
-                                    style: Theme.of(context).textTheme.bodySmall
-                                        ?.copyWith(color: Colors.grey[600], fontSize: 12),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall?.copyWith(
+                                      color: Colors.grey[600],
+                                      fontSize: 12,
+                                    ),
                                   ),
                               ],
                             ),
@@ -1800,8 +2127,12 @@ class _BundleDatesCard extends StatelessWidget {
                                 padding: const EdgeInsets.only(top: 2),
                                 child: Text(
                                   'Author(s): $author',
-                                  style: Theme.of(context).textTheme.bodySmall
-                                      ?.copyWith(color: Colors.grey[600], fontSize: 12),
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.bodySmall?.copyWith(
+                                    color: Colors.grey[600],
+                                    fontSize: 12,
+                                  ),
                                 ),
                               ),
                           ],
@@ -1852,7 +2183,11 @@ class _DetailCard extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Icon(icon, color: Theme.of(context).colorScheme.primary, size: 24),
+              Icon(
+                icon,
+                color: Theme.of(context).colorScheme.primary,
+                size: 24,
+              ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(

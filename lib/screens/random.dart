@@ -6,7 +6,6 @@ import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/screens/book_detail.dart';
-import 'package:myrandomlibrary/utils/status_helper.dart';
 import 'package:myrandomlibrary/widgets/chip_autocomplete_field.dart';
 import 'package:provider/provider.dart';
 
@@ -21,9 +20,9 @@ class _RandomScreenState extends State<RandomScreen> {
   // Filter values
   String? _filterFormat;
   String? _filterLanguage;
-  String? _filterGenre;
+  List<String> _filterGenre = [];
   String? _filterPlace;
-  String? _filterStatus;
+  List<String> _filterStatus = [];
   String? _filterEditorial;
   String? _filterFormatSaga;
   String? _filterPages;
@@ -102,8 +101,9 @@ class _RandomScreenState extends State<RandomScreen> {
     } else {
       // Use regular filters
       filtered = provider.allBooks.where((book) {
-        // Status filter (optional)
-        if (_filterStatus != null && book.statusValue != _filterStatus) {
+        // Status filter (optional) - multiple selection
+        if (_filterStatus.isNotEmpty && 
+            (book.statusValue == null || !_filterStatus.contains(book.statusValue))) {
           return false;
         }
         
@@ -119,9 +119,14 @@ class _RandomScreenState extends State<RandomScreen> {
             book.languageValue != _filterLanguage) {
           return false;
         }
-        if (_filterGenre != null &&
-            !(book.genre?.contains(_filterGenre!) ?? false)) {
-          return false;
+        // Genre filter (optional) - multiple selection
+        if (_filterGenre.isNotEmpty) {
+          final bookGenres = book.genre?.split(',').map((g) => g.trim()).toList() ?? [];
+          final hasMatch = _filterGenre.any((selectedGenre) => 
+            bookGenres.contains(selectedGenre));
+          if (!hasMatch) {
+            return false;
+          }
         }
         if (_filterPlace != null && book.placeValue != _filterPlace) {
           return false;
@@ -192,9 +197,9 @@ class _RandomScreenState extends State<RandomScreen> {
     setState(() {
       _filterFormat = null;
       _filterLanguage = null;
-      _filterGenre = null;
+      _filterGenre = [];
       _filterPlace = null;
-      _filterStatus = null;
+      _filterStatus = [];
       _filterEditorial = null;
       _filterFormatSaga = null;
       _filterPages = null;
@@ -315,30 +320,18 @@ class _RandomScreenState extends State<RandomScreen> {
                     ),
                     const SizedBox(height: 12),
 
-                    // Genre filter
-                    DropdownButtonFormField<String>(
-                      value: _filterGenre,
-                      isExpanded: true,
-                      decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)!.genre,
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                      ),
-                      items: [
-                        DropdownMenuItem(value: null, child: Text(AppLocalizations.of(context)!.any)),
-                        ..._genreList.map((genre) {
-                          return DropdownMenuItem<String>(
-                            value: genre['name'] as String,
-                            child: Text(genre['name'] as String),
-                          );
-                        }),
-                      ],
-                      onChanged: (value) {
+                    // Genre filter - Multiple selection
+                    ChipAutocompleteField(
+                      labelText: AppLocalizations.of(context)!.genre,
+                      prefixIcon: Icons.category,
+                      suggestions: _genreList
+                          .map((genre) => genre['name'] as String)
+                          .toList(),
+                      initialValues: _filterGenre,
+                      hintText: 'Select one or more genres',
+                      onChanged: (values) {
                         setState(() {
-                          _filterGenre = value;
+                          _filterGenre = values;
                         });
                       },
                     ),
@@ -373,30 +366,18 @@ class _RandomScreenState extends State<RandomScreen> {
                     ),
                     const SizedBox(height: 12),
 
-                    // Status filter
-                    DropdownButtonFormField<String>(
-                      value: _filterStatus,
-                      isExpanded: true,
-                      decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)!.status,
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                      ),
-                      items: [
-                        DropdownMenuItem(value: null, child: Text(AppLocalizations.of(context)!.any)),
-                        ..._statusList.map((status) {
-                          return DropdownMenuItem<String>(
-                            value: status['value'] as String,
-                            child: Text(StatusHelper.getDisplayLabel(status['value'] as String)),
-                          );
-                        }),
-                      ],
-                      onChanged: (value) {
+                    // Status filter - Multiple selection
+                    ChipAutocompleteField(
+                      labelText: AppLocalizations.of(context)!.status,
+                      prefixIcon: Icons.bookmark,
+                      suggestions: _statusList
+                          .map((status) => status['value'] as String)
+                          .toList(),
+                      initialValues: _filterStatus,
+                      hintText: 'Select one or more statuses',
+                      onChanged: (values) {
                         setState(() {
-                          _filterStatus = value;
+                          _filterStatus = values;
                         });
                       },
                     ),

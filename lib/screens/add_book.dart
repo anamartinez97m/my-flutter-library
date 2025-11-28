@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
@@ -10,9 +9,8 @@ import 'package:myrandomlibrary/utils/status_helper.dart';
 import 'package:myrandomlibrary/widgets/autocomplete_text_field.dart';
 import 'package:myrandomlibrary/widgets/chip_autocomplete_field.dart';
 import 'package:myrandomlibrary/widgets/tbr_limit_setting.dart';
-import 'package:myrandomlibrary/widgets/bundle_input_widget.dart';
+import 'package:myrandomlibrary/widgets/bundle_input_widget_v2.dart';
 import 'package:myrandomlibrary/widgets/read_dates_widget.dart';
-import 'package:myrandomlibrary/widgets/bundle_read_dates_widget.dart';
 import 'package:myrandomlibrary/services/notification_service.dart';
 import 'package:provider/provider.dart';
 import 'package:myrandomlibrary/widgets/heart_rating_input.dart';
@@ -47,17 +45,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
   // Read dates (new multi-session system)
   List<ReadDate> _readDates = [];
   
-  // Bundle read dates (map of bundle book index to list of read dates)
-  Map<int, List<ReadDate>> _bundleReadDates = {};
-
   // Bundle fields
   bool _isBundle = false;
   int? _bundleCount;
-  String? _bundleNumbers;
-  List<int?>? _bundlePages;
-  List<int?>? _bundlePublicationYears;
-  List<String?>? _bundleTitles;
-  List<String?>? _bundleAuthors;
+  List<BundleBookData>? _bundleBooks;
 
   // TBR and Tandem fields
   bool _tbr = false;
@@ -417,13 +408,13 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 : _myReviewController.text.trim(),
         isBundle: _isBundle,
         bundleCount: _bundleCount,
-        bundleNumbers: _bundleNumbers,
+        bundleNumbers: null, // No longer used in new system
         bundleStartDates: null,
         bundleEndDates: null,
-        bundlePages: _bundlePages != null ? jsonEncode(_bundlePages!) : null,
-        bundlePublicationYears: _bundlePublicationYears != null ? jsonEncode(_bundlePublicationYears!) : null,
-        bundleTitles: _bundleTitles != null ? jsonEncode(_bundleTitles!) : null,
-        bundleAuthors: _bundleAuthors != null ? jsonEncode(_bundleAuthors!) : null,
+        bundlePages: null, // No longer used in new system
+        bundlePublicationYears: null, // No longer used in new system
+        bundleTitles: null, // No longer used in new system
+        bundleAuthors: null, // No longer used in new system
         tbr: _tbr,
         isTandem: _isTandem,
         originalBookId: _selectedOriginalBookId,
@@ -431,25 +422,65 @@ class _AddBookScreenState extends State<AddBookScreen> {
         notificationDatetime: _notificationEnabled && _notificationDateTime != null 
             ? _notificationDateTime!.toIso8601String() 
             : null,
+        bundleParentId: null, // This is the parent book
       );
 
       final bookId = await repository.addBook(book);
 
-      // Save read dates to the new table
-      if (_isBundle) {
-        // Save bundle read dates
-        for (var entry in _bundleReadDates.entries) {
-          for (var readDate in entry.value) {
-            await repository.addReadDate(ReadDate(
-              bookId: bookId,
-              dateStarted: readDate.dateStarted,
-              dateFinished: readDate.dateFinished,
-              bundleBookIndex: entry.key,
-            ));
-          }
+      // If this is a bundle, create individual books
+      if (_isBundle && _bundleBooks != null && _bundleBooks!.isNotEmpty) {
+        for (int i = 0; i < _bundleBooks!.length; i++) {
+          final bundleBookData = _bundleBooks![i];
+          
+          // Create individual book with parent's shared data
+          final individualBook = Book(
+            bookId: null,
+            name: bundleBookData.title ?? 'Book ${i + 1}',
+            isbn: null, // Individual books don't have ISBN
+            asin: null,
+            saga: _sagaController.text.trim().isEmpty ? null : _sagaController.text.trim(),
+            nSaga: bundleBookData.sagaNumber,
+            sagaUniverse: _sagaUniverseController.text.trim().isEmpty ? null : _sagaUniverseController.text.trim(),
+            pages: bundleBookData.pages,
+            originalPublicationYear: bundleBookData.publicationYear,
+            loaned: (_selectedLoaned ?? 'no').toLowerCase(),
+            statusValue: bundleBookData.status ?? 'No',
+            editorialValue: _editorialController.text.trim().isEmpty ? null : _editorialController.text.trim(),
+            languageValue: languageValue,
+            placeValue: placeValue,
+            formatValue: formatValue,
+            formatSagaValue: formatSagaValue,
+            createdAt: DateTime.now().toIso8601String(),
+            author: bundleBookData.author ?? (_selectedAuthors.isEmpty ? null : _selectedAuthors.join(', ')),
+            genre: _selectedGenres.isEmpty ? null : _selectedGenres.join(', '),
+            dateReadInitial: null,
+            dateReadFinal: null,
+            readCount: 0,
+            myRating: null,
+            myReview: null,
+            isBundle: false, // Individual books are not bundles
+            bundleCount: null,
+            bundleNumbers: null,
+            bundleStartDates: null,
+            bundleEndDates: null,
+            bundlePages: null,
+            bundlePublicationYears: null,
+            bundleTitles: null,
+            bundleAuthors: null,
+            tbr: false,
+            isTandem: false,
+            originalBookId: null,
+            notificationEnabled: false,
+            notificationDatetime: null,
+            bundleParentId: bookId, // Link to parent bundle
+          );
+          
+          await repository.addBook(individualBook);
         }
-      } else {
-        // Save regular read dates
+      }
+
+      // Save read dates for non-bundle books only
+      if (!_isBundle) {
         for (final readDate in _readDates) {
           await repository.addReadDate(ReadDate(
             bookId: bookId,
@@ -506,7 +537,6 @@ class _AddBookScreenState extends State<AddBookScreen> {
           _myRating = 0.0;
           _readCount = 0;
           _readDates = [];
-          _bundleReadDates = {};
           _selectedAuthors = [];
           _selectedGenres = [];
           _selectedStatusId = null;
@@ -519,11 +549,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
           _selectedLoaned = null;
           _isBundle = false;
           _bundleCount = null;
-          _bundleNumbers = null;
-          _bundlePages = null;
-          _bundlePublicationYears = null;
-          _bundleTitles = null;
-          _bundleAuthors = null;
+          _bundleBooks = null;
           _tbr = false;
           _isTandem = false;
         });
@@ -1082,50 +1108,19 @@ class _AddBookScreenState extends State<AddBookScreen> {
               const SizedBox(height: 32),
 
               // Bundle section
-              BundleInputWidget(
+              BundleInputWidgetV2(
                 initialIsBundle: _isBundle,
                 initialBundleCount: _bundleCount,
-                initialBundleNumbers: _bundleNumbers,
-                initialBundlePages: _bundlePages,
-                initialBundlePublicationYears: _bundlePublicationYears,
-                initialBundleTitles: _bundleTitles,
-                initialBundleAuthors: _bundleAuthors,
-                onChanged: (
-                  isBundle,
-                  count,
-                  numbers,
-                  bundlePages,
-                  bundlePublicationYears,
-                  bundleTitles,
-                  bundleAuthors,
-                ) {
+                initialBundleBooks: _bundleBooks,
+                statusOptions: _statusList,
+                onChanged: (isBundle, count, bundleBooks) {
                   setState(() {
                     _isBundle = isBundle;
                     _bundleCount = count;
-                    _bundleNumbers = numbers;
-                    _bundlePages = bundlePages;
-                    _bundlePublicationYears = bundlePublicationYears;
-                    _bundleTitles = bundleTitles;
-                    _bundleAuthors = bundleAuthors;
+                    _bundleBooks = bundleBooks;
                   });
                 },
               ),
-              const SizedBox(height: 16),
-              
-              // Bundle Read Dates (shown only for bundles)
-              if (_isBundle && _bundleCount != null && _bundleCount! > 0)
-                BundleReadDatesWidget(
-                  bookId: 0, // Temporary ID for new books
-                  bundleCount: _bundleCount!,
-                  initialBundleReadDates: _bundleReadDates,
-                  onChanged: (bundleReadDates) {
-                    setState(() {
-                      _bundleReadDates = bundleReadDates;
-                    });
-                  },
-                ),
-              if (_isBundle && _bundleCount != null && _bundleCount! > 0)
-                const SizedBox(height: 16),
               const SizedBox(height: 16),
 
               // TBR and Tandem section

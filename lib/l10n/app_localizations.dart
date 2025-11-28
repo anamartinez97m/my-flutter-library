@@ -95,10 +95,10 @@ abstract class AppLocalizations {
     Locale('es')
   ];
 
-  /// My Random Library
+  /// My Book Vault
   ///
   /// In en, this message translates to:
-  /// **'My Random Library'**
+  /// **'My Book Vault'**
   String get app_title;
 
   /// No description provided for @home.
