@@ -62,7 +62,8 @@ import 'app_localizations_es.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -70,7 +71,8 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -82,17 +84,18 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('es')
+    Locale('es'),
   ];
 
   /// My Book Vault
@@ -928,9 +931,298 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Range: 1-200 books'**
   String get range_1_200_books;
+
+  /// No description provided for @this_is_a_bundle.
+  ///
+  /// In en, this message translates to:
+  /// **'This is a bundle'**
+  String get this_is_a_bundle;
+
+  /// No description provided for @check_if_this_book_contains_multiple_books.
+  ///
+  /// In en, this message translates to:
+  /// **'Check if this book contains multiple books in one volume'**
+  String get check_if_this_book_contains_multiple_books;
+
+  /// No description provided for @number_of_books_in_bundle.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of Books in Bundle'**
+  String get number_of_books_in_bundle;
+
+  /// No description provided for @saga_numbers_optional.
+  ///
+  /// In en, this message translates to:
+  /// **'Saga Numbers (optional)'**
+  String get saga_numbers_optional;
+
+  /// No description provided for @saga_number_n_saga.
+  ///
+  /// In en, this message translates to:
+  /// **'Saga Number (N_Saga)'**
+  String get saga_number_n_saga;
+
+  /// No description provided for @book_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Book Title'**
+  String get book_title;
+
+  /// No description provided for @authors.
+  ///
+  /// In en, this message translates to:
+  /// **'Author(s)'**
+  String get authors;
+
+  /// No description provided for @original_publication_year.
+  ///
+  /// In en, this message translates to:
+  /// **'Original Publication Year'**
+  String get original_publication_year;
+
+  /// No description provided for @started.
+  ///
+  /// In en, this message translates to:
+  /// **'Started'**
+  String get started;
+
+  /// No description provided for @finished.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished'**
+  String get finished;
+
+  /// No description provided for @year.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get year;
+
+  /// No description provided for @search_books_by_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Search books by title'**
+  String get search_books_by_title;
+
+  /// No description provided for @stop_timer.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop Timer'**
+  String get stop_timer;
+
+  /// No description provided for @do_you_want_to_stop_the_reading_timer.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to stop the reading timer?'**
+  String get do_you_want_to_stop_the_reading_timer;
+
+  /// No description provided for @stop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get stop;
+
+  /// No description provided for @timer_is_running.
+  ///
+  /// In en, this message translates to:
+  /// **'Timer is Running'**
+  String get timer_is_running;
+
+  /// No description provided for @exit.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit'**
+  String get exit;
+
+  /// No description provided for @start.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get start;
+
+  /// No description provided for @pause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get pause;
+
+  /// No description provided for @resume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get resume;
+
+  /// No description provided for @stop_save.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop & Save'**
+  String get stop_save;
+
+  /// No description provided for @quick_add.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Add'**
+  String get quick_add;
+
+  /// Add book(s)
+  ///
+  /// In en, this message translates to:
+  /// **'Add {count} Book(s)'**
+  String add_book_s(Object count);
+
+  /// No description provided for @bundle_book_details.
+  ///
+  /// In en, this message translates to:
+  /// **'Bundle Book Details'**
+  String get bundle_book_details;
+
+  /// Select {label}
+  ///
+  /// In en, this message translates to:
+  /// **'Select {label}'**
+  String select_label(Object label);
+
+  /// No description provided for @full_date.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Date'**
+  String get full_date;
+
+  /// No description provided for @year_only.
+  ///
+  /// In en, this message translates to:
+  /// **'Year Only'**
+  String get year_only;
+
+  /// No description provided for @add_session.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Session'**
+  String get add_session;
+
+  /// No description provided for @enter_year.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Year'**
+  String get enter_year;
+
+  /// No description provided for @please_enter_valid_year.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid year'**
+  String get please_enter_valid_year;
+
+  /// No description provided for @add.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get add;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// No description provided for @proceed.
+  ///
+  /// In en, this message translates to:
+  /// **'Proceed'**
+  String get proceed;
+
+  /// No description provided for @create.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get create;
+
+  /// No description provided for @confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirm;
+
+  /// No description provided for @error.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get error;
+
+  /// No description provided for @success.
+  ///
+  /// In en, this message translates to:
+  /// **'Success'**
+  String get success;
+
+  /// No description provided for @warning.
+  ///
+  /// In en, this message translates to:
+  /// **'Warning'**
+  String get warning;
+
+  /// No description provided for @info.
+  ///
+  /// In en, this message translates to:
+  /// **'Information'**
+  String get info;
+
+  /// No description provided for @loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading'**
+  String get loading;
+
+  /// No description provided for @search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get search;
+
+  /// No description provided for @filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get filter;
+
+  /// No description provided for @sort.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
+  String get sort;
+
+  /// No description provided for @reset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get reset;
+
+  /// No description provided for @back.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get back;
+
+  /// No description provided for @next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get next;
+
+  /// No description provided for @previous.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get previous;
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -939,25 +1231,26 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['en', 'es'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['en', 'es'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
-
-
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en': return AppLocalizationsEn();
-    case 'es': return AppLocalizationsEs();
+    case 'en':
+      return AppLocalizationsEn();
+    case 'es':
+      return AppLocalizationsEs();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.'
+    'that was used.',
   );
 }
