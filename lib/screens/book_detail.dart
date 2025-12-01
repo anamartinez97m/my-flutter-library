@@ -62,10 +62,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
-      
+
       // Get all individual books in this bundle
       final bundleBooks = await repository.getBundleBooks(_currentBook.bookId!);
-      
+
       // Load reading sessions for each individual book
       final Map<int, List<ReadDate>> result = {};
       for (int i = 0; i < bundleBooks.length; i++) {
@@ -77,7 +77,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           result[i] = readDates;
         }
       }
-      
+
       return result;
     } catch (e) {
       debugPrint('Error loading individual bundle books read dates: $e');
@@ -85,27 +85,30 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     }
   }
 
-  Future<Map<int, List<ReadingSession>>> _loadIndividualBundleBooksSessions() async {
+  Future<Map<int, List<ReadingSession>>>
+  _loadIndividualBundleBooksSessions() async {
     if (_currentBook.isBundle != true) return {};
 
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
       final sessionRepository = ReadingSessionRepository(db);
-      
+
       // Get all individual books in this bundle
       final bundleBooks = await repository.getBundleBooks(_currentBook.bookId!);
-      
+
       // Load chronometer sessions for each individual book
       final Map<int, List<ReadingSession>> result = {};
       for (int i = 0; i < bundleBooks.length; i++) {
         final book = bundleBooks[i];
-        final sessions = await sessionRepository.getSessionsForBook(book.bookId!);
+        final sessions = await sessionRepository.getSessionsForBook(
+          book.bookId!,
+        );
         if (sessions.isNotEmpty) {
           result[i] = sessions;
         }
       }
-      
+
       return result;
     } catch (e) {
       debugPrint('Error loading individual bundle books sessions: $e');
@@ -122,10 +125,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       if (_currentBook.isBundle == true) {
         // Load bundle read dates from individual books
         final individualReadDates = await _loadIndividualBundleBooksReadDates();
-        
+
         // Load chronometer sessions from individual books
         final individualSessions = await _loadIndividualBundleBooksSessions();
-        
+
         setState(() {
           _bundleReadDates = individualReadDates;
           _bundleChronometerSessions = individualSessions;
@@ -135,12 +138,16 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         // Check if this is an individual book that's part of a bundle
         List<ReadDate> readDates;
         List<ReadingSession> sessions;
-        
+
         // Load reading sessions for this book (works for both regular books and individual bundle books)
         readDates = await repository.getReadDatesForBook(_currentBook.bookId!);
-        sessions = await sessionRepository.getSessionsForBook(_currentBook.bookId!);
-        
-        debugPrint('BookDetail: Loaded ${readDates.length} read dates and ${sessions.length} sessions for book ${_currentBook.bookId} (${_currentBook.name})');
+        sessions = await sessionRepository.getSessionsForBook(
+          _currentBook.bookId!,
+        );
+
+        debugPrint(
+          'BookDetail: Loaded ${readDates.length} read dates and ${sessions.length} sessions for book ${_currentBook.bookId} (${_currentBook.name})',
+        );
         setState(() {
           _readDates = readDates;
           _chronometerSessions = sessions;
@@ -385,7 +392,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   Future<void> _showProgressModal() async {
     final isPercentage = _currentBook.progressType == 'percentage';
     final currentProgress = _currentBook.readingProgress ?? 0;
-    
+
     final progressController = TextEditingController(
       text: currentProgress.toString(),
     );
@@ -394,118 +401,131 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
 
     final result = await showDialog<Map<String, dynamic>>(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Update Reading Progress'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Toggle between percentage and pages
-                Row(
-                  children: [
-                    Expanded(
-                      child: SegmentedButton<bool>(
-                        segments: const [
-                          ButtonSegment(
-                            value: true,
-                            label: Text('Percentage'),
+      builder:
+          (context) => StatefulBuilder(
+            builder:
+                (context, setDialogState) => AlertDialog(
+                  title: const Text('Update Reading Progress'),
+                  content: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Toggle between percentage and pages
+                        Row(
+                          children: [
+                            Expanded(
+                              child: SegmentedButton<bool>(
+                                segments: const [
+                                  ButtonSegment(
+                                    value: true,
+                                    label: Text('Percentage'),
+                                  ),
+                                  ButtonSegment(
+                                    value: false,
+                                    label: Text('Pages'),
+                                  ),
+                                ],
+                                selected: {usePercentage},
+                                onSelectionChanged: (Set<bool> newSelection) {
+                                  setDialogState(() {
+                                    usePercentage = newSelection.first;
+                                    progressController.clear();
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: progressController,
+                          decoration: InputDecoration(
+                            labelText:
+                                usePercentage ? 'Progress (%)' : 'Current Page',
+                            border: const OutlineInputBorder(),
+                            hintText:
+                                usePercentage
+                                    ? '0-100'
+                                    : '1-${_currentBook.pages ?? 0}',
                           ),
-                          ButtonSegment(
-                            value: false,
-                            label: Text('Pages'),
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                        ),
+                        if (!usePercentage && _currentBook.pages != null) ...[
+                          const SizedBox(height: 12),
+                          Text(
+                            'Total pages: ${_currentBook.pages}',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: Colors.grey[600]),
                           ),
                         ],
-                        selected: {usePercentage},
-                        onSelectionChanged: (Set<bool> newSelection) {
-                          setDialogState(() {
-                            usePercentage = newSelection.first;
-                            progressController.clear();
-                          });
-                        },
-                      ),
+                      ],
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Cancel'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        final value = int.tryParse(progressController.text);
+                        if (value == null || value < 0) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Please enter a valid number'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+
+                        if (usePercentage && value > 100) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Percentage cannot exceed 100'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+
+                        if (!usePercentage &&
+                            _currentBook.pages != null &&
+                            value > _currentBook.pages!) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Page number cannot exceed ${_currentBook.pages}',
+                              ),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+
+                        // Calculate percentage if pages mode
+                        final progressValue =
+                            usePercentage
+                                ? value
+                                : (_currentBook.pages != null &&
+                                    _currentBook.pages! > 0)
+                                ? ((value / _currentBook.pages!) * 100).toInt()
+                                : 0;
+
+                        Navigator.pop(context, {
+                          'progress': progressValue,
+                          'type': usePercentage ? 'percentage' : 'pages',
+                          'pages': !usePercentage ? value : null,
+                        });
+                      },
+                      child: const Text('Save'),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: progressController,
-                  decoration: InputDecoration(
-                    labelText: usePercentage ? 'Progress (%)' : 'Current Page',
-                    border: const OutlineInputBorder(),
-                    hintText: usePercentage ? '0-100' : '1-${_currentBook.pages ?? 0}',
-                  ),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                ),
-                if (!usePercentage && _currentBook.pages != null) ...[
-                  const SizedBox(height: 12),
-                  Text(
-                    'Total pages: ${_currentBook.pages}',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ],
-            ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final value = int.tryParse(progressController.text);
-                if (value == null || value < 0) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please enter a valid number'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                  return;
-                }
-
-                if (usePercentage && value > 100) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Percentage cannot exceed 100'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                  return;
-                }
-
-                if (!usePercentage && _currentBook.pages != null && value > _currentBook.pages!) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Page number cannot exceed ${_currentBook.pages}'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                  return;
-                }
-
-                // Calculate percentage if pages mode
-                final progressValue = usePercentage
-                    ? value
-                    : (_currentBook.pages != null && _currentBook.pages! > 0)
-                    ? ((value / _currentBook.pages!) * 100).toInt()
-                    : 0;
-
-                Navigator.pop(context, {
-                  'progress': progressValue,
-                  'type': usePercentage ? 'percentage' : 'pages',
-                  'pages': !usePercentage ? value : null,
-                });
-              },
-              child: const Text('Save'),
-            ),
-          ],
-        ),
-      ),
     );
 
     if (result != null) {
@@ -709,7 +729,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                   });
                   // Reload read dates after edit
                   await _loadReadDates();
-                  
+
                   // If this is an individual book in a bundle, notify parent to refresh
                   if (_currentBook.bundleParentId != null) {
                     // Pop with result to notify parent bundle detail screen
@@ -1018,13 +1038,16 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
 
                     // Progress bar (only show for Started or Standby status)
                     if (_currentBook.statusValue?.toLowerCase() == 'started' ||
-                        _currentBook.statusValue?.toLowerCase() == 'standby') ...[
+                        _currentBook.statusValue?.toLowerCase() ==
+                            'standby') ...[
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: Colors.blue.withOpacity(0.05),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.blue.withOpacity(0.2)),
+                          border: Border.all(
+                            color: Colors.blue.withOpacity(0.2),
+                          ),
                         ),
                         child: InkWell(
                           onTap: _showProgressModal,
@@ -1032,19 +1055,24 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     'Reading Progress',
-                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(fontWeight: FontWeight.w600),
                                   ),
                                   Text(
                                     '${_currentBook.readingProgress ?? 0}%',
-                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.copyWith(
                                       fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).colorScheme.primary,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
                                     ),
                                   ),
                                 ],
@@ -1053,7 +1081,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(4),
                                 child: LinearProgressIndicator(
-                                  value: (_currentBook.readingProgress ?? 0) / 100,
+                                  value:
+                                      (_currentBook.readingProgress ?? 0) / 100,
                                   minHeight: 8,
                                   backgroundColor: Colors.grey[300],
                                   valueColor: AlwaysStoppedAnimation<Color>(
@@ -1064,7 +1093,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               const SizedBox(height: 8),
                               Text(
                                 'Tap to update progress',
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.bodySmall?.copyWith(
                                   color: Colors.grey[600],
                                   fontStyle: FontStyle.italic,
                                 ),
@@ -1576,7 +1607,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          _bundleBookTitles[bundleIndex] ?? 'Book ${bundleIndex + 1}',
+                                          _bundleBookTitles[bundleIndex] ??
+                                              'Book ${bundleIndex + 1}',
                                           style: Theme.of(
                                             context,
                                           ).textTheme.bodyMedium?.copyWith(
@@ -1685,7 +1717,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   bundleIndex,
                                 ) {
                                   final sessions =
-                                      _bundleChronometerSessions[bundleIndex] ?? [];
+                                      _bundleChronometerSessions[bundleIndex] ??
+                                      [];
                                   if (sessions.isEmpty)
                                     return const SizedBox.shrink();
 
@@ -1696,7 +1729,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          _bundleBookTitles[bundleIndex] ?? 'Book ${bundleIndex + 1}',
+                                          _bundleBookTitles[bundleIndex] ??
+                                              'Book ${bundleIndex + 1}',
                                           style: Theme.of(
                                             context,
                                           ).textTheme.bodyMedium?.copyWith(
@@ -1708,16 +1742,19 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                           index,
                                         ) {
                                           final session = sessions[index];
-                                          final duration = session.durationSeconds ?? 0;
+                                          final duration =
+                                              session.durationSeconds ?? 0;
                                           final hours = duration ~/ 3600;
-                                          final minutes = (duration % 3600) ~/ 60;
+                                          final minutes =
+                                              (duration % 3600) ~/ 60;
                                           final seconds = duration % 60;
                                           String durationStr;
                                           if (hours > 0) {
                                             durationStr =
                                                 '${hours}h ${minutes}m ${seconds}s';
                                           } else if (minutes > 0) {
-                                            durationStr = '${minutes}m ${seconds}s';
+                                            durationStr =
+                                                '${minutes}m ${seconds}s';
                                           } else {
                                             durationStr = '${seconds}s';
                                           }
@@ -1725,7 +1762,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                           // Format clicked_at time if available
                                           String clickedAtStr = '';
                                           if (session.clickedAt != null) {
-                                            final clickedTime = session.clickedAt!;
+                                            final clickedTime =
+                                                session.clickedAt!;
                                             clickedAtStr =
                                                 ' (Started: ${clickedTime.hour.toString().padLeft(2, '0')}:${clickedTime.minute.toString().padLeft(2, '0')})';
                                           }

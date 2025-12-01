@@ -23,18 +23,21 @@ class BookRepository {
         whereClause = 'lower(a.name) like ?'; // Author
         break;
       case 3:
-        whereClause = '(lower(b.saga) like ? OR lower(b.saga_universe) like ?)'; // Saga or Saga Universe
+        whereClause =
+            '(lower(b.saga) like ? OR lower(b.saga_universe) like ?)'; // Saga or Saga Universe
         break;
       default:
         whereClause = 'lower(b.name) like ?';
     }
 
     final searchParam = '%${input.toLowerCase()}%';
-    final params = (searchIndex == 1 || searchIndex == 3) ? [searchParam, searchParam] : [searchParam];
+    final params =
+        (searchIndex == 1 || searchIndex == 3)
+            ? [searchParam, searchParam]
+            : [searchParam];
 
     // First, search all books (including individual bundle books)
-    final allResults = await db.rawQuery(
-      '''
+    final allResults = await db.rawQuery('''
       select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
         b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
         p.name as placeValue, f.value as formatValue,
@@ -61,17 +64,15 @@ class BookRepository {
       where $whereClause
       group by b.book_id
       order by b.name
-      ''',
-      params,
-    );
+      ''', params);
 
     // Process results: if a book is an individual bundle book, replace it with its parent
     final Set<int> addedBookIds = {};
     final List<Book> finalResults = [];
-    
+
     for (var row in allResults) {
       final book = Book.fromMap(row);
-      
+
       if (book.bundleParentId != null) {
         // This is an individual bundle book - add the parent instead
         if (!addedBookIds.contains(book.bundleParentId)) {
@@ -364,14 +365,12 @@ class BookRepository {
 
   /// Get unique saga values from books for autocomplete
   Future<List<String>> getUniqueSagas() async {
-    final result = await db.rawQuery(
-      '''
+    final result = await db.rawQuery('''
       SELECT DISTINCT saga 
       FROM book 
       WHERE saga IS NOT NULL AND saga != ''
       ORDER BY saga
-      ''',
-    );
+      ''');
     return result.map((row) => row['saga'] as String).toList();
   }
 
@@ -387,13 +386,10 @@ class BookRepository {
       ''');
       // Add a fake ID for compatibility with the UI
       return result.asMap().entries.map((entry) {
-        return {
-          'saga_universe_id': entry.key + 1,
-          'name': entry.value['name'],
-        };
+        return {'saga_universe_id': entry.key + 1, 'name': entry.value['name']};
       }).toList();
     }
-    
+
     if (tableName == 'saga') {
       final result = await db.rawQuery('''
         SELECT DISTINCT saga as name
@@ -403,13 +399,10 @@ class BookRepository {
       ''');
       // Add a fake ID for compatibility with the UI
       return result.asMap().entries.map((entry) {
-        return {
-          'saga_id': entry.key + 1,
-          'name': entry.value['name'],
-        };
+        return {'saga_id': entry.key + 1, 'name': entry.value['name']};
       }).toList();
     }
-    
+
     // format_saga table uses 'format_id' not 'format_saga_id'
     final idColumn =
         tableName == 'format_saga' ? 'format_id' : '${tableName}_id';
@@ -437,7 +430,7 @@ class BookRepository {
     if (tableName == 'saga' || tableName == 'saga_universe') {
       return 0; // No actual insert needed
     }
-    
+
     final valueColumn =
         tableName == 'status' ||
                 tableName == 'format' ||
@@ -468,7 +461,7 @@ class BookRepository {
       }
       return 0;
     }
-    
+
     // format_saga table uses 'format_id' not 'format_saga_id'
     final idColumn =
         tableName == 'format_saga' ? 'format_id' : '${tableName}_id';
@@ -509,7 +502,7 @@ class BookRepository {
       where: 'book_id = ?',
       whereArgs: [bookId],
     );
-    
+
     // Delete read dates (CASCADE should handle this, but being explicit)
     await db.delete(
       'book_read_dates',
@@ -526,7 +519,7 @@ class BookRepository {
   /// Logic: Always check by name first, then by ISBN/ASIN, then by status+author+saga+nSaga for TBReleased
   Future<List<int>> findDuplicateBooks(Book book) async {
     final Set<int> duplicateIds = {};
-    
+
     // Always check by name first if available
     if (book.name != null && book.name!.isNotEmpty) {
       final nameResults = await db.query(
@@ -539,9 +532,9 @@ class BookRepository {
         duplicateIds.addAll(nameResults.map((r) => r['book_id'] as int));
       }
     }
-    
+
     // Also check by ISBN or ASIN if either exists and is not empty
-    if ((book.isbn != null && book.isbn!.isNotEmpty) || 
+    if ((book.isbn != null && book.isbn!.isNotEmpty) ||
         (book.asin != null && book.asin!.isNotEmpty)) {
       final isbnAsinResults = await db.rawQuery(
         '''
@@ -555,16 +548,16 @@ class BookRepository {
         duplicateIds.addAll(isbnAsinResults.map((r) => r['book_id'] as int));
       }
     }
-    
+
     // If we found duplicates by name or ISBN/ASIN, return them
     if (duplicateIds.isNotEmpty) {
       return duplicateIds.toList();
     }
 
     // If no name match and status is 'TBReleased', check by status+author+saga+nSaga
-    if (book.statusValue != null && 
+    if (book.statusValue != null &&
         book.statusValue!.toLowerCase() == 'tbreleased' &&
-        book.author != null && 
+        book.author != null &&
         book.author!.isNotEmpty) {
       // Get status_id
       final statusId = await _getOrInsertLookupId(
@@ -572,7 +565,7 @@ class BookRepository {
         'value',
         book.statusValue,
       );
-      
+
       // For TBReleased books, we need to check author, saga, and nSaga combination
       final result = await db.rawQuery(
         '''
@@ -594,7 +587,7 @@ class BookRepository {
           (book.nSaga ?? '').toLowerCase(),
         ],
       );
-      
+
       if (result.isNotEmpty) {
         return [result.first['book_id'] as int];
       }
@@ -611,94 +604,131 @@ class BookRepository {
       where: 'book_id = ?',
       whereArgs: [existingBookId],
     );
-    
+
     if (existingBooks.isEmpty) return;
-    
+
     final existing = existingBooks.first;
-    
+
     // Prepare update map - only update if new value is not null/empty
     final Map<String, dynamic> updates = {};
-    
+
     // Update simple fields only if they're empty in existing and not empty in new
-    if ((existing['name'] == null || existing['name'].toString().isEmpty) && 
-        newBook.name != null && newBook.name!.isNotEmpty) {
+    if ((existing['name'] == null || existing['name'].toString().isEmpty) &&
+        newBook.name != null &&
+        newBook.name!.isNotEmpty) {
       updates['name'] = newBook.name;
     }
-    if ((existing['isbn'] == null || existing['isbn'].toString().isEmpty) && 
-        newBook.isbn != null && newBook.isbn!.isNotEmpty) {
+    if ((existing['isbn'] == null || existing['isbn'].toString().isEmpty) &&
+        newBook.isbn != null &&
+        newBook.isbn!.isNotEmpty) {
       updates['isbn'] = newBook.isbn;
     }
-    if ((existing['asin'] == null || existing['asin'].toString().isEmpty) && 
-        newBook.asin != null && newBook.asin!.isNotEmpty) {
+    if ((existing['asin'] == null || existing['asin'].toString().isEmpty) &&
+        newBook.asin != null &&
+        newBook.asin!.isNotEmpty) {
       updates['asin'] = newBook.asin;
     }
-    if ((existing['saga'] == null || existing['saga'].toString().isEmpty) && 
-        newBook.saga != null && newBook.saga!.isNotEmpty) {
+    if ((existing['saga'] == null || existing['saga'].toString().isEmpty) &&
+        newBook.saga != null &&
+        newBook.saga!.isNotEmpty) {
       updates['saga'] = newBook.saga;
     }
-    if ((existing['n_saga'] == null || existing['n_saga'].toString().isEmpty) && 
-        newBook.nSaga != null && newBook.nSaga!.isNotEmpty) {
+    if ((existing['n_saga'] == null || existing['n_saga'].toString().isEmpty) &&
+        newBook.nSaga != null &&
+        newBook.nSaga!.isNotEmpty) {
       updates['n_saga'] = newBook.nSaga;
     }
     if (existing['pages'] == null && newBook.pages != null) {
       updates['pages'] = newBook.pages;
     }
-    if (existing['original_publication_year'] == null && 
+    if (existing['original_publication_year'] == null &&
         newBook.originalPublicationYear != null) {
       updates['original_publication_year'] = newBook.originalPublicationYear;
     }
-    if ((existing['loaned'] == null || existing['loaned'].toString().isEmpty) && 
-        newBook.loaned != null && newBook.loaned!.isNotEmpty) {
+    if ((existing['loaned'] == null || existing['loaned'].toString().isEmpty) &&
+        newBook.loaned != null &&
+        newBook.loaned!.isNotEmpty) {
       updates['loaned'] = newBook.loaned;
     }
-    
+
     // Update lookup table references only if empty in existing
     if (existing['status_id'] == null && newBook.statusValue != null) {
-      final statusId = await _getOrInsertLookupId('status', 'value', newBook.statusValue);
+      final statusId = await _getOrInsertLookupId(
+        'status',
+        'value',
+        newBook.statusValue,
+      );
       if (statusId != null) updates['status_id'] = statusId;
     }
     if (existing['editorial_id'] == null && newBook.editorialValue != null) {
-      final editorialId = await _getOrInsertLookupId('editorial', 'name', newBook.editorialValue);
+      final editorialId = await _getOrInsertLookupId(
+        'editorial',
+        'name',
+        newBook.editorialValue,
+      );
       if (editorialId != null) updates['editorial_id'] = editorialId;
     }
     if (existing['language_id'] == null && newBook.languageValue != null) {
-      final languageId = await _getOrInsertLookupId('language', 'name', newBook.languageValue);
+      final languageId = await _getOrInsertLookupId(
+        'language',
+        'name',
+        newBook.languageValue,
+      );
       if (languageId != null) updates['language_id'] = languageId;
     }
     if (existing['place_id'] == null && newBook.placeValue != null) {
-      final placeId = await _getOrInsertLookupId('place', 'name', newBook.placeValue);
+      final placeId = await _getOrInsertLookupId(
+        'place',
+        'name',
+        newBook.placeValue,
+      );
       if (placeId != null) updates['place_id'] = placeId;
     }
     if (existing['format_id'] == null && newBook.formatValue != null) {
-      final formatId = await _getOrInsertLookupId('format', 'value', newBook.formatValue);
+      final formatId = await _getOrInsertLookupId(
+        'format',
+        'value',
+        newBook.formatValue,
+      );
       if (formatId != null) updates['format_id'] = formatId;
     }
     if (existing['format_saga_id'] == null && newBook.formatSagaValue != null) {
-      final formatSagaId = await _getOrInsertLookupId('format_saga', 'value', newBook.formatSagaValue);
+      final formatSagaId = await _getOrInsertLookupId(
+        'format_saga',
+        'value',
+        newBook.formatSagaValue,
+      );
       if (formatSagaId != null) updates['format_saga_id'] = formatSagaId;
     }
-    
+
     // Update reading information only if empty
-    if ((existing['date_read_initial'] == null || existing['date_read_initial'].toString().isEmpty) && 
-        newBook.dateReadInitial != null && newBook.dateReadInitial!.isNotEmpty) {
+    if ((existing['date_read_initial'] == null ||
+            existing['date_read_initial'].toString().isEmpty) &&
+        newBook.dateReadInitial != null &&
+        newBook.dateReadInitial!.isNotEmpty) {
       updates['date_read_initial'] = newBook.dateReadInitial;
     }
-    if ((existing['date_read_final'] == null || existing['date_read_final'].toString().isEmpty) && 
-        newBook.dateReadFinal != null && newBook.dateReadFinal!.isNotEmpty) {
+    if ((existing['date_read_final'] == null ||
+            existing['date_read_final'].toString().isEmpty) &&
+        newBook.dateReadFinal != null &&
+        newBook.dateReadFinal!.isNotEmpty) {
       updates['date_read_final'] = newBook.dateReadFinal;
     }
-    if ((existing['read_count'] == null || existing['read_count'] == 0) && 
-        newBook.readCount != null && newBook.readCount! > 0) {
+    if ((existing['read_count'] == null || existing['read_count'] == 0) &&
+        newBook.readCount != null &&
+        newBook.readCount! > 0) {
       updates['read_count'] = newBook.readCount;
     }
     if (existing['my_rating'] == null && newBook.myRating != null) {
       updates['my_rating'] = newBook.myRating;
     }
-    if ((existing['my_review'] == null || existing['my_review'].toString().isEmpty) && 
-        newBook.myReview != null && newBook.myReview!.isNotEmpty) {
+    if ((existing['my_review'] == null ||
+            existing['my_review'].toString().isEmpty) &&
+        newBook.myReview != null &&
+        newBook.myReview!.isNotEmpty) {
       updates['my_review'] = newBook.myReview;
     }
-    
+
     // Apply updates if any
     if (updates.isNotEmpty) {
       await db.update(
@@ -708,24 +738,28 @@ class BookRepository {
         whereArgs: [existingBookId],
       );
     }
-    
+
     // Update authors if existing book has no authors
     final existingAuthors = await db.query(
       'books_by_author',
       where: 'book_id = ?',
       whereArgs: [existingBookId],
     );
-    if (existingAuthors.isEmpty && newBook.author != null && newBook.author!.isNotEmpty) {
+    if (existingAuthors.isEmpty &&
+        newBook.author != null &&
+        newBook.author!.isNotEmpty) {
       await _linkAuthors(existingBookId, newBook.author);
     }
-    
+
     // Update genres if existing book has no genres
     final existingGenres = await db.query(
       'books_by_genre',
       where: 'book_id = ?',
       whereArgs: [existingBookId],
     );
-    if (existingGenres.isEmpty && newBook.genre != null && newBook.genre!.isNotEmpty) {
+    if (existingGenres.isEmpty &&
+        newBook.genre != null &&
+        newBook.genre!.isNotEmpty) {
       await _linkGenres(existingBookId, newBook.genre);
     }
   }
@@ -802,13 +836,17 @@ class BookRepository {
       'notification_datetime': book.notificationDatetime,
       'bundle_parent_id': book.bundleParentId,
     };
-    
+
     // If book has an ID, preserve it (for updates)
     if (book.bookId != null) {
       bookData['book_id'] = book.bookId;
     }
-    
-    final bookId = await db.insert('book', bookData, conflictAlgorithm: ConflictAlgorithm.replace);
+
+    final bookId = await db.insert(
+      'book',
+      bookData,
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
 
     // Link authors (many-to-many relationship)
     await _linkAuthors(bookId, book.author);
@@ -823,37 +861,46 @@ class BookRepository {
 
   /// Get all read dates for a specific book
   /// If bundleBookIndex is provided, only returns dates for that bundle book
-  Future<List<ReadDate>> getReadDatesForBook(int bookId, {int? bundleBookIndex}) async {
+  Future<List<ReadDate>> getReadDatesForBook(
+    int bookId, {
+    int? bundleBookIndex,
+  }) async {
     String whereClause = 'book_id = ?';
     List<dynamic> whereArgs = [bookId];
-    
+
     if (bundleBookIndex != null) {
       whereClause += ' AND bundle_book_index = ?';
       whereArgs.add(bundleBookIndex);
     }
     // Note: We don't filter by bundle_book_index IS NULL anymore
     // This allows individual bundle books to load their own reading sessions
-    
+
     final result = await db.query(
       'book_read_dates',
       where: whereClause,
       whereArgs: whereArgs,
       orderBy: 'date_started DESC',
     );
-    
+
     // Debug logging
     if (result.isEmpty) {
       // Check if there are ANY sessions for this book with different conditions
-      final allForBook = await db.query('book_read_dates', where: 'book_id = ?', whereArgs: [bookId]);
-      debugPrint('BookRepository: No read dates found for book $bookId with bundleBookIndex=$bundleBookIndex. Total for this book_id: ${allForBook.length}');
+      final allForBook = await db.query(
+        'book_read_dates',
+        where: 'book_id = ?',
+        whereArgs: [bookId],
+      );
+      debugPrint(
+        'BookRepository: No read dates found for book $bookId with bundleBookIndex=$bundleBookIndex. Total for this book_id: ${allForBook.length}',
+      );
       if (allForBook.isNotEmpty) {
         debugPrint('  Sample: ${allForBook.first}');
       }
     }
-    
+
     return result.map((row) => ReadDate.fromMap(row)).toList();
   }
-  
+
   /// Get all read dates for all books in a bundle
   /// Returns a map of bundleBookIndex -> List<ReadDate>
   Future<Map<int, List<ReadDate>>> getAllBundleReadDates(int bookId) async {
@@ -863,7 +910,7 @@ class BookRepository {
       whereArgs: [bookId],
       orderBy: 'bundle_book_index, date_started DESC',
     );
-    
+
     final Map<int, List<ReadDate>> bundleDates = {};
     for (var row in result) {
       final readDate = ReadDate.fromMap(row);
@@ -873,7 +920,7 @@ class BookRepository {
       }
       bundleDates[index]!.add(readDate);
     }
-    
+
     return bundleDates;
   }
 
@@ -922,7 +969,7 @@ class BookRepository {
   /// Helper method to parse date strings that can be either full dates (YYYY-MM-DD) or year-only (YYYY)
   DateTime? _parseFlexibleDate(String? dateStr) {
     if (dateStr == null || dateStr.isEmpty) return null;
-    
+
     try {
       // Try parsing as full date first
       return DateTime.parse(dateStr);
@@ -974,88 +1021,93 @@ class BookRepository {
         -- Exclude whole bundle books (only include individual bundle books or non-bundle books)
         AND NOT (COALESCE(orig.is_bundle, b.is_bundle, 0) = 1 AND rd.bundle_book_index IS NULL)
     ''');
-    
+
     final Map<int, int> booksPerYear = {};
     final Map<int, int> pagesPerYear = {};
-    
+
     // Track which books have been counted in which years to avoid duplicates
     // Key: "bookId_bundleIndex" (or just "bookId" for non-bundle books)
     final Map<String, Set<int>> countedBooksPerYear = {};
-    
-    debugPrint('📊 getBooksAndPagesPerYear: Processing ${result.length} read dates');
-    
+
+    debugPrint(
+      '📊 getBooksAndPagesPerYear: Processing ${result.length} read dates',
+    );
+
     for (var row in result) {
       try {
         final dateFinishedStr = row['date_finished'] as String;
         final dateFinished = _parseFlexibleDate(dateFinishedStr);
-        
+
         if (dateFinished == null) {
           debugPrint('  ⚠️  Could not parse date: $dateFinishedStr');
           continue;
         }
-        
+
         final bookId = row['book_id'] as int;
         final pages = row['pages'] as int;
         final isBundle = (row['is_bundle'] as int) == 1;
         final bundleBookIndex = row['bundle_book_index'] as int?;
         final bundlePagesJson = row['bundle_pages'] as String?;
-        
+
         // Skip whole bundle books (only count individual bundle books)
         if (isBundle && bundleBookIndex == null) {
           debugPrint('  ⏭️  Skipping whole bundle book: bookId=$bookId');
           continue;
         }
-        
+
         // Use the year from date_finished to match the book list logic
         final targetYear = dateFinished.year;
-        
+
         // Create unique key for this book/bundle book
-        final bookKey = bundleBookIndex != null 
-            ? '${bookId}_$bundleBookIndex' 
-            : bookId.toString();
-        
+        final bookKey =
+            bundleBookIndex != null
+                ? '${bookId}_$bundleBookIndex'
+                : bookId.toString();
+
         // Check if this book has already been counted for this year
         if (!countedBooksPerYear.containsKey(bookKey)) {
           countedBooksPerYear[bookKey] = {};
         }
-        
+
         // Only count if not already counted for this year
         if (!countedBooksPerYear[bookKey]!.contains(targetYear)) {
           countedBooksPerYear[bookKey]!.add(targetYear);
           booksPerYear[targetYear] = (booksPerYear[targetYear] ?? 0) + 1;
-          debugPrint('  ✅ Counted: bookKey=$bookKey, year=$targetYear, isBundle=$isBundle, bundleIndex=$bundleBookIndex');
-          
+          debugPrint(
+            '  ✅ Counted: bookKey=$bookKey, year=$targetYear, isBundle=$isBundle, bundleIndex=$bundleBookIndex',
+          );
+
           // For pages: use individual bundle book pages if available
           int pagesToAdd = pages;
           if (isBundle && bundleBookIndex != null && bundlePagesJson != null) {
             try {
               final List<dynamic> bundlePagesList = jsonDecode(bundlePagesJson);
-              if (bundleBookIndex < bundlePagesList.length && bundlePagesList[bundleBookIndex] != null) {
+              if (bundleBookIndex < bundlePagesList.length &&
+                  bundlePagesList[bundleBookIndex] != null) {
                 pagesToAdd = bundlePagesList[bundleBookIndex] as int;
               }
             } catch (e) {
               // If parsing fails, use total pages
             }
           }
-          
-          pagesPerYear[targetYear] = (pagesPerYear[targetYear] ?? 0) + pagesToAdd;
+
+          pagesPerYear[targetYear] =
+              (pagesPerYear[targetYear] ?? 0) + pagesToAdd;
         }
       } catch (e) {
         debugPrint('Error parsing dates for book: $e');
       }
     }
-    
+
     debugPrint('📊 Final counts: $booksPerYear');
-    
-    return {
-      'books': booksPerYear,
-      'pages': pagesPerYear,
-    };
+
+    return {'books': booksPerYear, 'pages': pagesPerYear};
   }
 
   /// Get books read in a specific year (including original books for repeated reads)
   Future<List<Map<String, dynamic>>> getBooksReadInYear(int year) async {
-    final result = await db.rawQuery('''
+    final result = await db.rawQuery(
+      '''
       SELECT DISTINCT 
         COALESCE(orig.book_id, b.book_id) as book_id,
         COALESCE(orig_s.value, s.value) as statusValue,
@@ -1153,8 +1205,10 @@ class BookRepository {
         AND NOT (COALESCE(orig.is_bundle, b.is_bundle, 0) = 1 AND rd.bundle_book_index IS NULL)
       GROUP BY COALESCE(orig.book_id, b.book_id), rd.bundle_book_index
       ORDER BY latest_read_date DESC
-    ''', [year]);
-    
+    ''',
+      [year],
+    );
+
     return result;
   }
 
@@ -1171,7 +1225,8 @@ class BookRepository {
 
   /// Get all individual books that belong to a bundle
   Future<List<Book>> getBundleBooks(int parentBookId) async {
-    final result = await db.rawQuery('''
+    final result = await db.rawQuery(
+      '''
       select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
         b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
         p.name as placeValue, f.value as formatValue,
@@ -1197,7 +1252,9 @@ class BookRepository {
       where b.bundle_parent_id = ?
       group by b.book_id
       order by b.n_saga, b.name
-    ''', [parentBookId]);
+    ''',
+      [parentBookId],
+    );
 
     return result.map((row) => Book.fromMap(row)).toList();
   }
@@ -1206,7 +1263,7 @@ class BookRepository {
   Future<void> deleteBundleBooks(int parentBookId) async {
     // Get all bundle books first
     final bundleBooks = await getBundleBooks(parentBookId);
-    
+
     // Delete each bundle book (this will also delete their relationships)
     for (var book in bundleBooks) {
       if (book.bookId != null) {
@@ -1217,7 +1274,8 @@ class BookRepository {
 
   /// Get book by ID
   Future<Book?> getBookById(int bookId) async {
-    final result = await db.rawQuery('''
+    final result = await db.rawQuery(
+      '''
       select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
         b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
         p.name as placeValue, f.value as formatValue,
@@ -1242,7 +1300,9 @@ class BookRepository {
       left join format_saga fs on b.format_saga_id = fs.format_id
       where b.book_id = ?
       group by b.book_id
-    ''', [bookId]);
+    ''',
+      [bookId],
+    );
 
     if (result.isEmpty) return null;
     return Book.fromMap(result.first);

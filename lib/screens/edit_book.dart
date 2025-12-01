@@ -800,13 +800,44 @@ class _EditBookScreenState extends State<EditBookScreen> {
         debugPrint(
           'EditBook: Saving ${_readDates.length} read dates for book ${widget.book.bookId} (${widget.book.name}), isBundle=$_isBundle',
         );
+        
+        // Check if any read date has a finished date
+        bool hasFinishedDate = false;
         for (final readDate in _readDates) {
+          if (readDate.dateFinished != null && readDate.dateFinished!.isNotEmpty) {
+            hasFinishedDate = true;
+          }
+          
           await repository.addReadDate(
             ReadDate(
               bookId: widget.book.bookId!,
               dateStarted: readDate.dateStarted,
               dateFinished: readDate.dateFinished,
+              readingProgress: bookToUpdate.readingProgress,
             ),
+          );
+        }
+        
+        // If any read date has a finished date, update book status to "Yes" and increment read count
+        if (hasFinishedDate) {
+          final statusList = await repository.getLookupValues('status');
+          final readStatus = statusList.firstWhere(
+            (s) => (s['value'] as String).toLowerCase() == 'yes',
+            orElse: () => statusList.first,
+          );
+          
+          final currentReadCount = bookToUpdate.readCount ?? 0;
+          
+          await db.update(
+            'book',
+            {
+              'status_id': readStatus['status_id'],
+              'read_count': currentReadCount + 1,
+              'reading_progress': 0,
+              'progress_type': null,
+            },
+            where: 'book_id = ?',
+            whereArgs: [widget.book.bookId!],
           );
         }
       } else {
