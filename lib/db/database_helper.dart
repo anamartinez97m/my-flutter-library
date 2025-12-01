@@ -23,7 +23,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 21,
+      version: 23,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -615,6 +615,46 @@ class DatabaseHelper {
       // Add bundle_parent_id column for new bundle architecture
       await db.execute(
         'ALTER TABLE book ADD COLUMN bundle_parent_id INTEGER REFERENCES book(book_id) ON DELETE CASCADE',
+      );
+    }
+    if (oldVersion < 22) {
+      // Remove UNIQUE constraint from year_challenges.year to allow multiple challenges per year
+      // SQLite doesn't support dropping constraints, so we need to recreate the table
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS year_challenges_new (
+          challenge_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          year INTEGER NOT NULL,
+          target_books INTEGER NOT NULL,
+          target_pages INTEGER,
+          created_at TEXT NOT NULL,
+          notes TEXT,
+          custom_challenges TEXT
+        )
+      ''');
+      
+      // Copy data from old table
+      await db.execute('''
+        INSERT INTO year_challenges_new 
+        SELECT challenge_id, year, target_books, target_pages, created_at, notes, custom_challenges 
+        FROM year_challenges
+      ''');
+      
+      // Drop old table and rename new one
+      await db.execute('DROP TABLE year_challenges');
+      await db.execute('ALTER TABLE year_challenges_new RENAME TO year_challenges');
+      
+      // Recreate index
+      await db.execute('''
+        CREATE INDEX IF NOT EXISTS idx_year_challenges_year ON year_challenges(year)
+      ''');
+    }
+    if (oldVersion < 23) {
+      // Add reading progress fields
+      await db.execute(
+        'ALTER TABLE book ADD COLUMN reading_progress INTEGER',
+      );
+      await db.execute(
+        'ALTER TABLE book ADD COLUMN progress_type TEXT',
       );
     }
   }

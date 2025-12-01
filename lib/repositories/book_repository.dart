@@ -44,6 +44,7 @@ class BookRepository {
         b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
         b.tbr, b.is_tandem, b.original_book_id,
         b.notification_enabled, b.notification_datetime, b.bundle_parent_id,
+        b.reading_progress, b.progress_type,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -103,6 +104,7 @@ class BookRepository {
         b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
         b.tbr, b.is_tandem, b.original_book_id,
         b.notification_enabled, b.notification_datetime, b.bundle_parent_id,
+        b.reading_progress, b.progress_type,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 

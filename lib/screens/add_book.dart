@@ -15,6 +15,7 @@ import 'package:myrandomlibrary/widgets/read_dates_widget.dart';
 import 'package:myrandomlibrary/services/notification_service.dart';
 import 'package:provider/provider.dart';
 import 'package:myrandomlibrary/widgets/heart_rating_input.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
 class AddBookScreen extends StatefulWidget {
   const AddBookScreen({super.key});
@@ -511,16 +512,28 @@ class _AddBookScreenState extends State<AddBookScreen> {
       // Schedule notification if enabled
       if (_notificationEnabled && _notificationDateTime != null) {
         try {
+          debugPrint('📅 Attempting to schedule notification...');
+          debugPrint('📅 Book ID: $bookId');
+          debugPrint('📅 Scheduled date: $_notificationDateTime');
+          debugPrint('📅 Current time: ${DateTime.now()}');
+          
           final notificationService = NotificationService();
-          await notificationService.requestPermissions();
-          await notificationService.scheduleBookReleaseNotification(
-            bookId: bookId,
-            bookTitle: _nameController.text.trim(),
-            scheduledDate: _notificationDateTime!,
-          );
-          debugPrint('📅 Notification scheduled for book ID: $bookId');
+          final permissionGranted = await notificationService.requestPermissions();
+          debugPrint('📅 Permission granted: $permissionGranted');
+          
+          // Only schedule if the datetime is in the future
+          if (_notificationDateTime!.isAfter(DateTime.now())) {
+            await notificationService.scheduleBookReleaseNotification(
+              bookId: bookId,
+              bookTitle: _nameController.text.trim(),
+              scheduledDate: _notificationDateTime!,
+            );
+            debugPrint('✅ Notification scheduled successfully for book ID: $bookId');
+          } else {
+            debugPrint('⚠️ Notification time is in the past, not scheduling');
+          }
         } catch (e) {
-          debugPrint('Error scheduling notification: $e');
+          debugPrint('❌ Error scheduling notification: $e');
         }
       }
 
@@ -784,10 +797,15 @@ class _AddBookScreenState extends State<AddBookScreen> {
               // ISBN field
               TextFormField(
                 controller: _isbnController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'ISBN',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.numbers),
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.numbers),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.qr_code_scanner_outlined),
+                    onPressed: () => _scanISBN(),
+                    tooltip: 'Scan ISBN',
+                  ),
                 ),
                 keyboardType: TextInputType.number,
               ),
@@ -1426,6 +1444,108 @@ class _AddBookScreenState extends State<AddBookScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Future<void> _scanISBN() async {
+    try {
+      final result = await Navigator.push<String>(
+        context,
+        MaterialPageRoute(builder: (context) => const ISBNScannerScreen()),
+      );
+
+      if (result != null && result.isNotEmpty) {
+        setState(() {
+          _isbnController.text = result;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error scanning ISBN: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+}
+
+class ISBNScannerScreen extends StatefulWidget {
+  const ISBNScannerScreen({super.key});
+
+  @override
+  State<ISBNScannerScreen> createState() => _ISBNScannerScreenState();
+}
+
+class _ISBNScannerScreenState extends State<ISBNScannerScreen> {
+  late MobileScannerController controller;
+  bool _scanned = false;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = MobileScannerController(
+      formats: const [
+        BarcodeFormat.ean13,
+        BarcodeFormat.ean8,
+        BarcodeFormat.code128,
+      ],
+    );
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Scan ISBN'), centerTitle: true),
+      body: Stack(
+        children: [
+          MobileScanner(
+            controller: controller,
+            onDetect: (capture) {
+              if (_scanned) return;
+
+              final List<Barcode> barcodes = capture.barcodes;
+              for (final barcode in barcodes) {
+                if (barcode.rawValue != null && barcode.rawValue!.isNotEmpty) {
+                  _scanned = true;
+                  // Return the scanned ISBN
+                  Navigator.pop(context, barcode.rawValue);
+                  return;
+                }
+              }
+            },
+          ),
+          Positioned(
+            bottom: 32,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.7),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text(
+                  'Point camera at barcode',
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

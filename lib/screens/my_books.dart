@@ -5,8 +5,15 @@ import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/screens/book_detail.dart';
 import 'package:provider/provider.dart';
 
-class MyBooksScreen extends StatelessWidget {
+class MyBooksScreen extends StatefulWidget {
   const MyBooksScreen({super.key});
+
+  @override
+  State<MyBooksScreen> createState() => _MyBooksScreenState();
+}
+
+class _MyBooksScreenState extends State<MyBooksScreen> {
+  bool _showCurrentlyReading = true;
 
   @override
   Widget build(BuildContext context) {
@@ -26,13 +33,25 @@ class MyBooksScreen extends StatelessWidget {
                   book.dateReadFinal == null);
         }).toList();
 
+    // Filter books with standby status
+    final standbyBooks =
+        provider.allBooks.where((book) {
+          final statusLower = book.statusValue?.toLowerCase();
+          return statusLower == 'standby';
+        }).toList();
+
+    final booksToDisplay = _showCurrentlyReading ? currentlyReading : standbyBooks;
+    final emptyMessage = _showCurrentlyReading 
+        ? 'No books currently reading' 
+        : 'No books on standby';
+
     return Scaffold(
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Currently Reading Card
+            // Currently Reading / Standby Card
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
@@ -46,37 +65,137 @@ class MyBooksScreen extends StatelessWidget {
                     Row(
                       children: [
                         Icon(
-                          Icons.menu_book,
+                          _showCurrentlyReading 
+                              ? Icons.menu_book 
+                              : Icons.pause_circle,
                           size: 28,
                           color: Colors.deepPurple,
                         ),
                         const SizedBox(width: 12),
-                        Text(
-                          'Currently Reading',
-                          style: Theme.of(
-                            context,
-                          ).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.deepPurple,
+                        Flexible(
+                          child: Text(
+                            _showCurrentlyReading 
+                                ? 'Currently Reading' 
+                                : 'On Standby',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.deepPurple,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        // Toggle buttons
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: Colors.deepPurple.withOpacity(0.3),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    _showCurrentlyReading = true;
+                                  });
+                                },
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(7),
+                                  bottomLeft: Radius.circular(7),
+                                ),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: _showCurrentlyReading
+                                        ? Colors.deepPurple.withOpacity(0.1)
+                                        : Colors.transparent,
+                                    borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(7),
+                                      bottomLeft: Radius.circular(7),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'Reading',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: _showCurrentlyReading
+                                          ? Colors.deepPurple
+                                          : Colors.grey[600],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                width: 1,
+                                height: 20,
+                                color: Colors.deepPurple.withOpacity(0.2),
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    _showCurrentlyReading = false;
+                                  });
+                                },
+                                borderRadius: const BorderRadius.only(
+                                  topRight: Radius.circular(7),
+                                  bottomRight: Radius.circular(7),
+                                ),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: !_showCurrentlyReading
+                                        ? Colors.deepPurple.withOpacity(0.1)
+                                        : Colors.transparent,
+                                    borderRadius: const BorderRadius.only(
+                                      topRight: Radius.circular(7),
+                                      bottomRight: Radius.circular(7),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'Standby',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: !_showCurrentlyReading
+                                          ? Colors.deepPurple
+                                          : Colors.grey[600],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 16),
-                    if (currentlyReading.isEmpty)
+                    if (booksToDisplay.isEmpty)
                       Center(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 24),
                           child: Column(
                             children: [
                               Icon(
-                                Icons.menu_book_outlined,
+                                _showCurrentlyReading
+                                    ? Icons.menu_book_outlined
+                                    : Icons.pause_circle_outline,
                                 size: 48,
                                 color: Colors.grey[400],
                               ),
                               const SizedBox(height: 12),
                               Text(
-                                'No books currently reading',
+                                emptyMessage,
                                 style: Theme.of(context).textTheme.bodyMedium
                                     ?.copyWith(color: Colors.grey[600]),
                               ),
@@ -85,7 +204,7 @@ class MyBooksScreen extends StatelessWidget {
                         ),
                       )
                     else
-                      ...currentlyReading.map((book) {
+                      ...booksToDisplay.map((book) {
                         return InkWell(
                           onTap: () {
                             Navigator.push(
@@ -133,6 +252,49 @@ class MyBooksScreen extends StatelessWidget {
                                           ).textTheme.bodySmall?.copyWith(
                                             color: Colors.grey[600],
                                           ),
+                                        ),
+                                      ],
+                                      // Progress bar (always show for reading/standby books)
+                                      if (book.statusValue?.toLowerCase() ==
+                                              'started' ||
+                                          book.statusValue?.toLowerCase() ==
+                                              'standby') ...[
+                                        const SizedBox(height: 8),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                                child: LinearProgressIndicator(
+                                                  value: (book.readingProgress ??
+                                                          0) /
+                                                      100,
+                                                  minHeight: 6,
+                                                  backgroundColor:
+                                                      Colors.grey[300],
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation<
+                                                          Color>(
+                                                    Colors.deepPurple,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              '${book.readingProgress ?? 0}%',
+                                              style: Theme.of(context)
+                                                  .textTheme.bodySmall
+                                                  ?.copyWith(
+                                                    fontWeight:
+                                                        FontWeight.bold,
+                                                    color: Colors.deepPurple,
+                                                  ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ],
