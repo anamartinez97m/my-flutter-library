@@ -23,7 +23,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 23,
+      version: 24,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -655,6 +655,12 @@ class DatabaseHelper {
       );
       await db.execute(
         'ALTER TABLE book ADD COLUMN progress_type TEXT',
+      );
+    }
+    if (oldVersion < 24) {
+      // Add reading progress to read dates table
+      await db.execute(
+        'ALTER TABLE book_read_dates ADD COLUMN reading_progress INTEGER',
       );
     }
   }
