@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -8,7 +9,8 @@ class NotificationService {
   factory NotificationService() => _instance;
   NotificationService._internal();
 
-  final FlutterLocalNotificationsPlugin _notifications = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _notifications =
+      FlutterLocalNotificationsPlugin();
   bool _initialized = false;
 
   Future<void> initialize() async {
@@ -18,7 +20,9 @@ class NotificationService {
     tz.initializeTimeZones();
 
     // Android initialization settings
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
 
     // iOS initialization settings
     const iosSettings = DarwinInitializationSettings(
@@ -43,26 +47,28 @@ class NotificationService {
   void _onNotificationTapped(NotificationResponse response) {
     // Handle notification tap
     // You can navigate to specific screen based on payload
-    print('Notification tapped: ${response.payload}');
+    debugPrint('Notification tapped: ${response.payload}');
   }
 
   Future<bool> requestPermissions() async {
     if (!_initialized) await initialize();
 
     // Request permissions for iOS
-    final iosPlugin = _notifications.resolvePlatformSpecificImplementation<
-        IOSFlutterLocalNotificationsPlugin>();
+    final iosPlugin =
+        _notifications
+            .resolvePlatformSpecificImplementation<
+              IOSFlutterLocalNotificationsPlugin
+            >();
     if (iosPlugin != null) {
-      await iosPlugin.requestPermissions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
+      await iosPlugin.requestPermissions(alert: true, badge: true, sound: true);
     }
 
     // Request permissions for Android 13+
-    final androidPlugin = _notifications.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
+    final androidPlugin =
+        _notifications
+            .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin
+            >();
     if (androidPlugin != null) {
       final granted = await androidPlugin.requestNotificationsPermission();
       return granted ?? false;
@@ -77,29 +83,29 @@ class NotificationService {
     try {
       // Check if we're on Android 12+ where exact alarms need permission
       final status = await Permission.scheduleExactAlarm.status;
-      
+
       if (status.isGranted) {
-        print('✅ Exact alarm permission already granted');
+        debugPrint('✅ Exact alarm permission already granted');
         return true;
       }
-      
+
       if (status.isDenied) {
         // Request the permission
         final result = await Permission.scheduleExactAlarm.request();
-        print('🔔 Exact alarm permission request result: $result');
+        debugPrint('🔔 Exact alarm permission request result: $result');
         return result.isGranted;
       }
-      
+
       // If permanently denied, we can't request again
       // User needs to go to settings manually
       if (status.isPermanentlyDenied) {
-        print('⚠️ Exact alarm permission permanently denied');
+        debugPrint('⚠️ Exact alarm permission permanently denied');
         return false;
       }
-      
+
       return false;
     } catch (e) {
-      print('❌ Error requesting exact alarm permission: $e');
+      debugPrint('❌ Error requesting exact alarm permission: $e');
       return false;
     }
   }
@@ -133,7 +139,7 @@ class NotificationService {
 
     // Request exact alarm permission first
     final hasExactAlarmPermission = await requestExactAlarmPermission();
-    
+
     try {
       // Try with exact timing if permission granted
       if (hasExactAlarmPermission) {
@@ -148,7 +154,7 @@ class NotificationService {
               UILocalNotificationDateInterpretation.absoluteTime,
           payload: 'book_release_$bookId',
         );
-        print('✅ Notification scheduled with exact timing');
+        debugPrint('✅ Notification scheduled with exact timing');
       } else {
         // Use inexact timing if permission not granted
         await _notifications.zonedSchedule(
@@ -162,11 +168,13 @@ class NotificationService {
               UILocalNotificationDateInterpretation.absoluteTime,
           payload: 'book_release_$bookId',
         );
-        print('⚠️ Notification scheduled with inexact timing (permission not granted)');
+        debugPrint(
+          '⚠️ Notification scheduled with inexact timing (permission not granted)',
+        );
       }
     } catch (e) {
       // If exact alarms still fail, fall back to inexact timing
-      print('⚠️ Exact alarms failed, using inexact timing: $e');
+      debugPrint('⚠️ Exact alarms failed, using inexact timing: $e');
       await _notifications.zonedSchedule(
         bookId,
         'Book Release Reminder',

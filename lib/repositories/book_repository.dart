@@ -902,7 +902,7 @@ class BookRepository {
   }
 
   /// Get all read dates for all books in a bundle
-  /// Returns a map of bundleBookIndex -> List<ReadDate>
+  /// Returns a map of bundleBookIndex
   Future<Map<int, List<ReadDate>>> getAllBundleReadDates(int bookId) async {
     final result = await db.query(
       'book_read_dates',

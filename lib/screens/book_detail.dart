@@ -32,7 +32,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   Map<int, List<ReadDate>> _bundleReadDates = {};
   List<ReadingSession> _chronometerSessions = [];
   Map<int, List<ReadingSession>> _bundleChronometerSessions = {};
-  Map<int, String> _bundleBookTitles = {}; // Map of index -> book title
+  final Map<int, String> _bundleBookTitles = {}; // Map of index -> book title
   bool _loadingReadDates = true;
   int _bundleBooksKey = 0; // Key to force FutureBuilder rebuild
 
@@ -1597,8 +1597,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                 ) {
                                   final readDates =
                                       _bundleReadDates[bundleIndex] ?? [];
-                                  if (readDates.isEmpty)
+                                  if (readDates.isEmpty) {
                                     return const SizedBox.shrink();
+                                  }
 
                                   return Padding(
                                     padding: const EdgeInsets.only(bottom: 12),
@@ -1719,8 +1720,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   final sessions =
                                       _bundleChronometerSessions[bundleIndex] ??
                                       [];
-                                  if (sessions.isEmpty)
+                                  if (sessions.isEmpty) {
                                     return const SizedBox.shrink();
+                                  }
 
                                   return Padding(
                                     padding: const EdgeInsets.only(bottom: 12),
@@ -2758,7 +2760,7 @@ class _TandemBooksCardState extends State<_TandemBooksCard> {
                     ),
                   ),
                 );
-              }).toList(),
+              }),
           ],
         ),
       ),

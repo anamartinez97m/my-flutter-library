@@ -70,201 +70,228 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
       context: context,
       builder:
           (context) => StatefulBuilder(
-            builder: (context, setDialogState) => AlertDialog(
-              title: const Text('New Year Challenge'),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      controller: yearController,
-                      decoration: const InputDecoration(
-                        labelText: 'Year',
-                        border: OutlineInputBorder(),
-                      ),
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: booksController,
-                      decoration: const InputDecoration(
-                        labelText: 'Target Books *',
-                        border: OutlineInputBorder(),
-                        hintText: 'e.g., 50',
-                      ),
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: pagesController,
-                      decoration: const InputDecoration(
-                        labelText: 'Target Pages (optional)',
-                        border: OutlineInputBorder(),
-                        hintText: 'e.g., 10000',
-                      ),
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: notesController,
-                      decoration: const InputDecoration(
-                        labelText: 'Notes (optional)',
-                        border: OutlineInputBorder(),
-                        hintText: 'Any notes about this challenge',
-                      ),
-                      maxLines: 3,
-                    ),
-                    const SizedBox(height: 24),
-                    const Divider(),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            builder:
+                (context, setDialogState) => AlertDialog(
+                  title: const Text('New Year Challenge'),
+                  content: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          'Custom Challenges',
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
+                        TextField(
+                          controller: yearController,
+                          decoration: const InputDecoration(
+                            labelText: 'Year',
+                            border: OutlineInputBorder(),
+                          ),
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.add_circle),
-                          onPressed: null,
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: booksController,
+                          decoration: const InputDecoration(
+                            labelText: 'Target Books *',
+                            border: OutlineInputBorder(),
+                            hintText: 'e.g., 50',
+                          ),
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
                         ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: pagesController,
+                          decoration: const InputDecoration(
+                            labelText: 'Target Pages (optional)',
+                            border: OutlineInputBorder(),
+                            hintText: 'e.g., 10000',
+                          ),
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: notesController,
+                          decoration: const InputDecoration(
+                            labelText: 'Notes (optional)',
+                            border: OutlineInputBorder(),
+                            hintText: 'Any notes about this challenge',
+                          ),
+                          maxLines: 3,
+                        ),
+                        const SizedBox(height: 24),
+                        const Divider(),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Custom Challenges',
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.add_circle),
+                              onPressed: null,
+                            ),
+                          ],
+                        ),
+                        const Text(
+                          'Add custom reading goals (e.g., "Read 5 classics", "Finish 3 series")',
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                        if (customChallenges.isNotEmpty) ...[
+                          const SizedBox(height: 16),
+                          ...customChallenges.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final challenge = entry.value;
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey[300]!),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: const EdgeInsets.all(12),
+                                child: Column(
+                                  children: [
+                                    // Goal name row
+                                    TextField(
+                                      controller: challenge['name'],
+                                      decoration: const InputDecoration(
+                                        labelText: 'Goal name',
+                                        hintText: 'e.g., Read 5 classics',
+                                        border: OutlineInputBorder(),
+                                        isDense: true,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    // Target row
+                                    TextField(
+                                      controller: challenge['target'],
+                                      decoration: const InputDecoration(
+                                        labelText: 'Target',
+                                        hintText: 'e.g., 5',
+                                        border: OutlineInputBorder(),
+                                        isDense: true,
+                                      ),
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.digitsOnly,
+                                      ],
+                                    ),
+                                    const SizedBox(height: 12),
+                                    // Unit row
+                                    TextField(
+                                      controller: challenge['unit'],
+                                      decoration: const InputDecoration(
+                                        labelText: 'Unit',
+                                        hintText:
+                                            'e.g., books, chapters, pages',
+                                        border: OutlineInputBorder(),
+                                        isDense: true,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    // Delete button row
+                                    Align(
+                                      alignment: Alignment.centerRight,
+                                      child: IconButton(
+                                        icon: const Icon(
+                                          Icons.delete,
+                                          size: 20,
+                                        ),
+                                        onPressed: () {
+                                          setDialogState(() {
+                                            customChallenges.removeAt(index);
+                                          });
+                                        },
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }),
+                        ],
                       ],
                     ),
-                    const Text(
-                      'Add custom reading goals (e.g., "Read 5 classics", "Finish 3 series")',
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Cancel'),
                     ),
-                    if (customChallenges.isNotEmpty) ...[
-                      const SizedBox(height: 16),
-                      ...customChallenges.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final challenge = entry.value;
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey[300]!),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            padding: const EdgeInsets.all(12),
-                            child: Column(
-                              children: [
-                                // Goal name row
-                                TextField(
-                                  controller: challenge['name'],
-                                  decoration: const InputDecoration(
-                                    labelText: 'Goal name',
-                                    hintText: 'e.g., Read 5 classics',
-                                    border: OutlineInputBorder(),
-                                    isDense: true,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                // Target row
-                                TextField(
-                                  controller: challenge['target'],
-                                  decoration: const InputDecoration(
-                                    labelText: 'Target',
-                                    hintText: 'e.g., 5',
-                                    border: OutlineInputBorder(),
-                                    isDense: true,
-                                  ),
-                                  keyboardType: TextInputType.number,
-                                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                                ),
-                                const SizedBox(height: 12),
-                                // Unit row
-                                TextField(
-                                  controller: challenge['unit'],
-                                  decoration: const InputDecoration(
-                                    labelText: 'Unit',
-                                    hintText: 'e.g., books, chapters, pages',
-                                    border: OutlineInputBorder(),
-                                    isDense: true,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                // Delete button row
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: IconButton(
-                                    icon: const Icon(Icons.delete, size: 20),
-                                    onPressed: () {
-                                      setDialogState(() {
-                                        customChallenges.removeAt(index);
-                                      });
-                                    },
-                                    padding: EdgeInsets.zero,
-                                    constraints: const BoxConstraints(),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                    ElevatedButton(
+                      onPressed: () {
+                        final year =
+                            int.tryParse(yearController.text) ?? currentYear;
+                        final targetBooks = int.tryParse(booksController.text);
+                        final hasCustomChallenges = customChallenges.any(
+                          (c) =>
+                              c['name']!.text.isNotEmpty &&
+                              c['target']!.text.isNotEmpty,
                         );
-                      }).toList(),
-                    ],
+
+                        // Target books is required only if no custom challenges are added
+                        if (!hasCustomChallenges &&
+                            (targetBooks == null || targetBooks <= 0)) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Please enter valid target books or add custom challenges',
+                              ),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+
+                        // Build custom challenges list
+                        final customChallengesList =
+                            customChallenges
+                                .where(
+                                  (c) =>
+                                      c['name']!.text.isNotEmpty &&
+                                      c['target']!.text.isNotEmpty,
+                                )
+                                .map((c) {
+                                  return CustomChallenge(
+                                    name: c['name']!.text,
+                                    unit: c['unit']!.text,
+                                    target:
+                                        int.tryParse(c['target']!.text) ?? 0,
+                                  );
+                                })
+                                .toList();
+
+                        final challenge = YearChallenge(
+                          year: year,
+                          targetBooks: targetBooks ?? 0,
+                          targetPages: int.tryParse(pagesController.text),
+                          notes:
+                              notesController.text.isEmpty
+                                  ? null
+                                  : notesController.text,
+                          customChallenges:
+                              customChallengesList.isNotEmpty
+                                  ? customChallengesList
+                                  : null,
+                        );
+
+                        Navigator.pop(context, challenge);
+                      },
+                      child: const Text('Create'),
+                    ),
                   ],
                 ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    final year = int.tryParse(yearController.text) ?? currentYear;
-                    final targetBooks = int.tryParse(booksController.text);
-                    final hasCustomChallenges = customChallenges.any(
-                      (c) => c['name']!.text.isNotEmpty && c['target']!.text.isNotEmpty,
-                    );
-
-                    // Target books is required only if no custom challenges are added
-                    if (!hasCustomChallenges && (targetBooks == null || targetBooks <= 0)) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Please enter valid target books or add custom challenges',
-                          ),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                      return;
-                    }
-
-                    // Build custom challenges list
-                    final customChallengesList = customChallenges
-                        .where((c) => c['name']!.text.isNotEmpty && c['target']!.text.isNotEmpty)
-                        .map((c) {
-                      return CustomChallenge(
-                        name: c['name']!.text,
-                        unit: c['unit']!.text,
-                        target: int.tryParse(c['target']!.text) ?? 0,
-                      );
-                    }).toList();
-
-                    final challenge = YearChallenge(
-                      year: year,
-                      targetBooks: targetBooks ?? 0,
-                      targetPages: int.tryParse(pagesController.text),
-                      notes:
-                          notesController.text.isEmpty
-                              ? null
-                              : notesController.text,
-                      customChallenges: customChallengesList.isNotEmpty ? customChallengesList : null,
-                    );
-
-                    Navigator.pop(context, challenge);
-                  },
-                  child: const Text('Create'),
-                ),
-              ],
-            ),
           ),
     );
 
@@ -469,14 +496,16 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
     final booksComplete = booksRead >= challenge.targetBooks;
     final pagesComplete =
         challenge.targetPages != null && pagesRead >= challenge.targetPages!;
-    final isFinished = booksComplete && (challenge.targetPages == null || pagesComplete);
+    final isFinished =
+        booksComplete && (challenge.targetPages == null || pagesComplete);
 
     return Card(
       elevation: isCurrentYear ? 4 : 2,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      color: isFinished || (isPastYear && !isFinished)
-          ? Colors.grey.shade200
-          : null,
+      color:
+          isFinished || (isPastYear && !isFinished)
+              ? Colors.grey.shade200
+              : null,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side:
@@ -486,10 +515,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                   width: 2,
                 )
                 : isFinished
-                ? BorderSide(
-                  color: Colors.green.withOpacity(0.3),
-                  width: 2,
-                )
+                ? BorderSide(color: Colors.green.withOpacity(0.3), width: 2)
                 : BorderSide.none,
       ),
       child: InkWell(
@@ -610,27 +636,35 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                 ),
               ],
 
-              if (challenge.customChallenges != null && challenge.customChallenges!.isNotEmpty) ...[
+              if (challenge.customChallenges != null &&
+                  challenge.customChallenges!.isNotEmpty) ...[
                 const SizedBox(height: 16),
                 const Divider(),
                 const SizedBox(height: 8),
                 Text(
                   'Custom Challenges',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 12),
                 ...challenge.customChallenges!.map((customChallenge) {
-                  final isComplete = customChallenge.current >= customChallenge.target;
+                  final isComplete =
+                      customChallenge.current >= customChallenge.target;
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: isComplete ? Colors.green.withOpacity(0.1) : Colors.transparent,
+                        color:
+                            isComplete
+                                ? Colors.green.withOpacity(0.1)
+                                : Colors.transparent,
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: isComplete ? Colors.green.withOpacity(0.3) : Colors.grey[300]!,
+                          color:
+                              isComplete
+                                  ? Colors.green.withOpacity(0.3)
+                                  : Colors.grey[300]!,
                           width: 1,
                         ),
                       ),
@@ -645,14 +679,20 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                               Expanded(
                                 child: Text(
                                   customChallenge.name,
-                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.bodyMedium?.copyWith(
                                     fontWeight: FontWeight.w600,
                                     color: isComplete ? Colors.green : null,
                                   ),
                                 ),
                               ),
                               if (isComplete)
-                                const Icon(Icons.check_circle, color: Colors.green, size: 18),
+                                const Icon(
+                                  Icons.check_circle,
+                                  color: Colors.green,
+                                  size: 18,
+                                ),
                             ],
                           ),
                           const SizedBox(height: 10),
@@ -660,13 +700,18 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                           ClipRRect(
                             borderRadius: BorderRadius.circular(4),
                             child: LinearProgressIndicator(
-                              value: customChallenge.target > 0
-                                  ? (customChallenge.current / customChallenge.target).clamp(0.0, 1.0)
-                                  : 0.0,
+                              value:
+                                  customChallenge.target > 0
+                                      ? (customChallenge.current /
+                                              customChallenge.target)
+                                          .clamp(0.0, 1.0)
+                                      : 0.0,
                               minHeight: 8,
                               backgroundColor: Colors.grey[200],
                               valueColor: AlwaysStoppedAnimation<Color>(
-                                isComplete ? Colors.green : Theme.of(context).colorScheme.primary,
+                                isComplete
+                                    ? Colors.green
+                                    : Theme.of(context).colorScheme.primary,
                               ),
                             ),
                           ),
@@ -674,16 +719,19 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                           // Progress text row
                           Text(
                             '${customChallenge.current} / ${customChallenge.target} ${customChallenge.unit}',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodySmall?.copyWith(
                               fontWeight: FontWeight.w500,
-                              color: isComplete ? Colors.green : Colors.grey[600],
+                              color:
+                                  isComplete ? Colors.green : Colors.grey[600],
                             ),
                           ),
                         ],
                       ),
                     ),
                   );
-                }).toList(),
+                }),
               ],
 
               if (challenge.notes != null && challenge.notes!.isNotEmpty) ...[
@@ -744,7 +792,9 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                 ),
               )
               : ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 16).copyWith(bottom: 56),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 16,
+                ).copyWith(bottom: 56),
                 itemCount: _challenges.length,
                 itemBuilder: (context, index) {
                   return _buildChallengeCard(_challenges[index]);

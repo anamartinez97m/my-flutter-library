@@ -64,8 +64,19 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
   String _getMonthName(int month) {
     const monthNames = [
-      '', 'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      '',
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     return month >= 1 && month <= 12 ? monthNames[month] : '';
   }
@@ -105,7 +116,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           }
         } catch (e) {
           if (bookName != null) {
-            debugPrint('Error parsing date "$dateStr" for book "$bookName": $e');
+            debugPrint(
+              'Error parsing date "$dateStr" for book "$bookName": $e',
+            );
           }
           return null;
         }
@@ -199,26 +212,31 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     int totalDaysRead = 0;
     int totalPagesRead = 0;
     int booksWithValidDates = 0;
-    
+
     for (var book in books) {
       // Skip books without dates
-      if (book.dateReadInitial == null || 
+      if (book.dateReadInitial == null ||
           book.dateReadInitial!.isEmpty ||
-          book.dateReadFinal == null || 
+          book.dateReadFinal == null ||
           book.dateReadFinal!.isEmpty) {
         continue;
       }
-      
-      final startDate = _tryParseDate(book.dateReadInitial!, bookName: book.name);
+
+      final startDate = _tryParseDate(
+        book.dateReadInitial!,
+        bookName: book.name,
+      );
       final endDate = _tryParseDate(book.dateReadFinal!, bookName: book.name);
-      
+
       if (startDate != null && endDate != null && endDate.isAfter(startDate)) {
-        final daysToRead = endDate.difference(startDate).inDays + 1; // +1 to include both start and end day
+        final daysToRead =
+            endDate.difference(startDate).inDays +
+            1; // +1 to include both start and end day
         if (daysToRead > 0) {
           // Count for average days calculation
           averageDaysToFinish += daysToRead;
           booksWithValidDates++;
-          
+
           // Only count for velocity if book has pages
           if (book.pages != null && book.pages! > 0) {
             totalDaysRead += daysToRead;
@@ -227,11 +245,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         }
       }
     }
-    
+
     if (totalDaysRead > 0 && totalPagesRead > 0) {
       readingVelocity = totalPagesRead / totalDaysRead;
     }
-    
+
     if (booksWithValidDates > 0) {
       averageDaysToFinish = averageDaysToFinish / booksWithValidDates;
     }
@@ -239,7 +257,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     // Calculate average books read per year
     double averageBooksPerYear = 0.0;
     int yearsWithBooks = 0;
-    
+
     if (_booksReadPerYear != null && _booksReadPerYear!.isNotEmpty) {
       final totalBooks = _booksReadPerYear!.values.reduce((a, b) => a + b);
       yearsWithBooks = _booksReadPerYear!.length;
@@ -286,7 +304,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       // Filter based on toggle: if ON show only read books, if OFF show all books
       final isRead = book.readCount != null && book.readCount! > 0;
       final shouldInclude = _showReadBooksDecade ? isRead : true;
-      
+
       if (shouldInclude && book.originalPublicationYear != null) {
         int pubYear = book.originalPublicationYear!;
 
@@ -333,19 +351,25 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     };
     for (var book in books) {
       if (book.myRating == null || book.myRating == 0) {
-        ratingDistribution['Unrated'] = (ratingDistribution['Unrated'] ?? 0) + 1;
+        ratingDistribution['Unrated'] =
+            (ratingDistribution['Unrated'] ?? 0) + 1;
       } else if (book.myRating! >= 5.0) {
         ratingDistribution['5.0'] = (ratingDistribution['5.0'] ?? 0) + 1;
       } else if (book.myRating! >= 4.0) {
-        ratingDistribution['4.0-4.9'] = (ratingDistribution['4.0-4.9'] ?? 0) + 1;
+        ratingDistribution['4.0-4.9'] =
+            (ratingDistribution['4.0-4.9'] ?? 0) + 1;
       } else if (book.myRating! >= 3.0) {
-        ratingDistribution['3.0-3.9'] = (ratingDistribution['3.0-3.9'] ?? 0) + 1;
+        ratingDistribution['3.0-3.9'] =
+            (ratingDistribution['3.0-3.9'] ?? 0) + 1;
       } else if (book.myRating! >= 2.0) {
-        ratingDistribution['2.0-2.9'] = (ratingDistribution['2.0-2.9'] ?? 0) + 1;
+        ratingDistribution['2.0-2.9'] =
+            (ratingDistribution['2.0-2.9'] ?? 0) + 1;
       } else if (book.myRating! >= 1.0) {
-        ratingDistribution['1.0-1.9'] = (ratingDistribution['1.0-1.9'] ?? 0) + 1;
+        ratingDistribution['1.0-1.9'] =
+            (ratingDistribution['1.0-1.9'] ?? 0) + 1;
       } else {
-        ratingDistribution['0.0-0.9'] = (ratingDistribution['0.0-0.9'] ?? 0) + 1;
+        ratingDistribution['0.0-0.9'] =
+            (ratingDistribution['0.0-0.9'] ?? 0) + 1;
       }
     }
 
@@ -383,15 +407,27 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         if (!sagaStats.containsKey(book.saga!)) {
           sagaStats[book.saga!] = {'total': 0, 'read': 0};
         }
-        sagaStats[book.saga!]!['total'] = (sagaStats[book.saga!]!['total'] ?? 0) + 1;
+        sagaStats[book.saga!]!['total'] =
+            (sagaStats[book.saga!]!['total'] ?? 0) + 1;
         if (book.readCount != null && book.readCount! > 0) {
-          sagaStats[book.saga!]!['read'] = (sagaStats[book.saga!]!['read'] ?? 0) + 1;
+          sagaStats[book.saga!]!['read'] =
+              (sagaStats[book.saga!]!['read'] ?? 0) + 1;
         }
       }
     }
-    final completedSagas = sagaStats.entries.where((e) => e.value['read'] == e.value['total']).length;
-    final partialSagas = sagaStats.entries.where((e) => e.value['read']! > 0 && e.value['read'] != e.value['total']).length;
-    final unstartedSagas = sagaStats.entries.where((e) => e.value['read'] == 0).length;
+    final completedSagas =
+        sagaStats.entries
+            .where((e) => e.value['read'] == e.value['total'])
+            .length;
+    final partialSagas =
+        sagaStats.entries
+            .where(
+              (e) =>
+                  e.value['read']! > 0 && e.value['read'] != e.value['total'],
+            )
+            .length;
+    final unstartedSagas =
+        sagaStats.entries.where((e) => e.value['read'] == 0).length;
 
     // #20: Seasonal Reading Patterns
     final Map<String, int> seasonalReading = {
@@ -419,7 +455,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         }
       }
     }
-    final int yearsCount = yearsWithReading.isNotEmpty ? yearsWithReading.length : 1;
+    final int yearsCount =
+        yearsWithReading.isNotEmpty ? yearsWithReading.length : 1;
 
     // #12: Monthly Reading Heatmap data
     final Map<int, Map<int, int>> monthlyHeatmap = {}; // year -> month -> count
@@ -432,13 +469,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           if (!monthlyHeatmap.containsKey(year)) {
             monthlyHeatmap[year] = {};
           }
-          monthlyHeatmap[year]![month] = (monthlyHeatmap[year]![month] ?? 0) + 1;
+          monthlyHeatmap[year]![month] =
+              (monthlyHeatmap[year]![month] ?? 0) + 1;
         }
       }
     }
 
     // NEW STATISTICS
-    
+
     // Average Rating
     double averageRating = 0.0;
     int ratedBooksCount = 0;
@@ -458,14 +496,15 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     String? oldestBookName;
     String? newestBookName;
     for (var book in books) {
-      if (book.originalPublicationYear != null && book.originalPublicationYear! > 0) {
+      if (book.originalPublicationYear != null &&
+          book.originalPublicationYear! > 0) {
         int pubYear = book.originalPublicationYear!;
-        
+
         // Handle full date format (YYYYMMDD) - extract year only
         if (pubYear > 9999) {
           pubYear = pubYear ~/ 10000;
         }
-        
+
         if (oldestYear == null || pubYear < oldestYear) {
           oldestYear = pubYear;
           oldestBookName = book.name;
@@ -489,20 +528,25 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         if (book.bundlePages != null && book.bundlePages!.isNotEmpty) {
           try {
             final List<dynamic> pagesList = jsonDecode(book.bundlePages!);
-            final List<String?>? titles = book.bundleTitles != null && book.bundleTitles!.isNotEmpty
-                ? (jsonDecode(book.bundleTitles!) as List<dynamic>).map((e) => e as String?).toList()
-                : null;
-            
+            final List<String?>? titles =
+                book.bundleTitles != null && book.bundleTitles!.isNotEmpty
+                    ? (jsonDecode(book.bundleTitles!) as List<dynamic>)
+                        .map((e) => e as String?)
+                        .toList()
+                    : null;
+
             for (int i = 0; i < pagesList.length; i++) {
-              final pages = pagesList[i] is int 
-                  ? pagesList[i] as int 
-                  : int.tryParse(pagesList[i]?.toString() ?? '');
-              
+              final pages =
+                  pagesList[i] is int
+                      ? pagesList[i] as int
+                      : int.tryParse(pagesList[i]?.toString() ?? '');
+
               if (pages != null && pages > 0) {
-                final bookTitle = titles != null && i < titles.length && titles[i] != null
-                    ? '${book.name} - ${titles[i]}'
-                    : '${book.name} (Book ${i + 1})';
-                
+                final bookTitle =
+                    titles != null && i < titles.length && titles[i] != null
+                        ? '${book.name} - ${titles[i]}'
+                        : '${book.name} (Book ${i + 1})';
+
                 // Shortest book
                 if (shortestPages == null || pages < shortestPages) {
                   shortestPages = pages;
@@ -547,13 +591,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       }
     }
     readDates.sort();
-    
+
     int currentStreak = 0;
     int longestStreak = 0;
     int tempStreak = 0;
     DateTime? lastDate;
     final today = DateTime.now();
-    
+
     for (var date in readDates) {
       if (lastDate == null) {
         tempStreak = 1;
@@ -569,7 +613,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       lastDate = date;
     }
     if (tempStreak > longestStreak) longestStreak = tempStreak;
-    
+
     // Calculate current streak
     if (lastDate != null) {
       final daysSinceLastRead = today.difference(lastDate).inDays;
@@ -581,9 +625,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     // #32: DNF (Did Not Finish) Rate - Books with "Abandoned" status
     int dnfCount = 0;
     for (var book in books) {
-      if (book.statusValue != null && 
-          (book.statusValue!.toLowerCase().contains('abandoned') || 
-           book.statusValue!.toLowerCase().contains('dnf'))) {
+      if (book.statusValue != null &&
+          (book.statusValue!.toLowerCase().contains('abandoned') ||
+              book.statusValue!.toLowerCase().contains('dnf'))) {
         dnfCount++;
       }
     }
@@ -595,13 +639,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     for (var book in books) {
       if (book.readCount != null && book.readCount! > 1) {
         rereadCount++;
-        rereadBooks.add({
-          'name': book.name,
-          'count': book.readCount,
-        });
+        rereadBooks.add({'name': book.name, 'count': book.readCount});
       }
     }
-    rereadBooks.sort((a, b) => (b['count'] as int).compareTo(a['count'] as int));
+    rereadBooks.sort(
+      (a, b) => (b['count'] as int).compareTo(a['count'] as int),
+    );
     final mostRereadBook = rereadBooks.isNotEmpty ? rereadBooks.first : null;
 
     // #34: Reading Time of Day (placeholder for future chronometer feature)
@@ -619,7 +662,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         standaloneBooks++;
       }
     }
-    final seriesPercentage = totalCount > 0 ? (seriesBooks / totalCount) * 100 : 0.0;
+    final seriesPercentage =
+        totalCount > 0 ? (seriesBooks / totalCount) * 100 : 0.0;
     final seriesCount = uniqueSeries.length;
 
     // #53: Reading Goals Progress (placeholder for future goals feature)
@@ -636,13 +680,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         }
       }
     }
-    
+
     // Fastest book (shortest reading time)
     int? fastestDays;
     String? fastestBookName;
     for (var book in books) {
       if (book.dateReadInitial != null && book.dateReadFinal != null) {
-        final startDate = _tryParseDate(book.dateReadInitial!, bookName: book.name);
+        final startDate = _tryParseDate(
+          book.dateReadInitial!,
+          bookName: book.name,
+        );
         final endDate = _tryParseDate(book.dateReadFinal!, bookName: book.name);
         if (startDate != null && endDate != null) {
           final days = endDate.difference(startDate).inDays + 1;
@@ -659,49 +706,67 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     if (totalCount >= 100) milestones['100'] = true;
     if (totalCount >= 500) milestones['500'] = true;
     if (totalCount >= 1000) milestones['1000'] = true;
-    final nextMilestoneOwned = totalCount < 100 ? 100 : 
-                          totalCount < 500 ? 500 : 
-                          totalCount < 1000 ? 1000 : 
-                          ((totalCount ~/ 1000) + 1) * 1000;
+    final nextMilestoneOwned =
+        totalCount < 100
+            ? 100
+            : totalCount < 500
+            ? 500
+            : totalCount < 1000
+            ? 1000
+            : ((totalCount ~/ 1000) + 1) * 1000;
     final booksToMilestoneOwned = nextMilestoneOwned - totalCount;
-    
+
     // Books read milestone
-    final readBooks = books.where((b) => b.readCount != null && b.readCount! > 0).length;
-    final nextMilestoneRead = readBooks < 100 ? 100 : 
-                          readBooks < 500 ? 500 : 
-                          readBooks < 1000 ? 1000 : 
-                          ((readBooks ~/ 1000) + 1) * 1000;
+    final readBooks =
+        books.where((b) => b.readCount != null && b.readCount! > 0).length;
+    final nextMilestoneRead =
+        readBooks < 100
+            ? 100
+            : readBooks < 500
+            ? 500
+            : readBooks < 1000
+            ? 1000
+            : ((readBooks ~/ 1000) + 1) * 1000;
     final booksToMilestoneRead = nextMilestoneRead - readBooks;
 
     // #65: Binge Reading Patterns (books read in quick succession)
     final List<Map<String, dynamic>> bingeReading = [];
-    final sortedReadBooks = books.where((b) => 
-      b.dateReadFinal != null && b.dateReadFinal!.isNotEmpty
-    ).toList();
-    
+    final sortedReadBooks =
+        books
+            .where(
+              (b) => b.dateReadFinal != null && b.dateReadFinal!.isNotEmpty,
+            )
+            .toList();
+
     sortedReadBooks.sort((a, b) {
       final dateA = _tryParseDate(a.dateReadFinal!, bookName: a.name);
       final dateB = _tryParseDate(b.dateReadFinal!, bookName: b.name);
       if (dateA == null || dateB == null) return 0;
       return dateA.compareTo(dateB);
     });
-    
+
     int bingeCount = 0;
     for (int i = 1; i < sortedReadBooks.length; i++) {
-      final prevDate = _tryParseDate(sortedReadBooks[i-1].dateReadFinal!, 
-                                     bookName: sortedReadBooks[i-1].name);
-      final currDate = _tryParseDate(sortedReadBooks[i].dateReadFinal!, 
-                                     bookName: sortedReadBooks[i].name);
+      final prevDate = _tryParseDate(
+        sortedReadBooks[i - 1].dateReadFinal!,
+        bookName: sortedReadBooks[i - 1].name,
+      );
+      final currDate = _tryParseDate(
+        sortedReadBooks[i].dateReadFinal!,
+        bookName: sortedReadBooks[i].name,
+      );
       if (prevDate != null && currDate != null) {
         final daysDiff = currDate.difference(prevDate).inDays;
-        if (daysDiff <= 14) { // Books finished within 14 days
+        if (daysDiff <= 14) {
+          // Books finished within 14 days
           bingeCount++;
         }
       }
     }
-    final bingePercentage = sortedReadBooks.length > 1 
-        ? (bingeCount / (sortedReadBooks.length - 1)) * 100 
-        : 0.0;
+    final bingePercentage =
+        sortedReadBooks.length > 1
+            ? (bingeCount / (sortedReadBooks.length - 1)) * 100
+            : 0.0;
 
     // #66: Mood Reading (Genre by Season)
     final Map<String, Map<String, int>> genreBySeason = {
@@ -711,7 +776,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       'Fall': {},
     };
     for (var book in books) {
-      if (book.dateReadFinal != null && book.genre != null && book.genre!.isNotEmpty) {
+      if (book.dateReadFinal != null &&
+          book.genre != null &&
+          book.genre!.isNotEmpty) {
         final endDate = _tryParseDate(book.dateReadFinal!, bookName: book.name);
         if (endDate != null) {
           final month = endDate.month;
@@ -725,18 +792,19 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           } else {
             season = 'Fall';
           }
-          genreBySeason[season]![book.genre!] = 
+          genreBySeason[season]![book.genre!] =
               (genreBySeason[season]![book.genre!] ?? 0) + 1;
         }
       }
     }
-    
+
     // Find most popular genre per season
     final Map<String, String> topGenreBySeason = {};
     for (var season in genreBySeason.keys) {
       if (genreBySeason[season]!.isNotEmpty) {
-        final topGenre = genreBySeason[season]!.entries
-            .reduce((a, b) => a.value > b.value ? a : b);
+        final topGenre = genreBySeason[season]!.entries.reduce(
+          (a, b) => a.value > b.value ? a : b,
+        );
         topGenreBySeason[season] = topGenre.key;
       }
     }
@@ -789,9 +857,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         children: [
                           Text(
                             'Books Read Per Year',
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(fontWeight: FontWeight.w600),
                           ),
                           const SizedBox(width: 8),
                           Icon(
@@ -896,14 +963,27 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                                         ),
                                                         Container(
                                                           height: 24,
-                                                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                                                          alignment: Alignment.centerLeft,
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                horizontal: 8,
+                                                              ),
+                                                          alignment:
+                                                              Alignment
+                                                                  .centerLeft,
                                                           child: Text(
                                                             '${entry.value}',
                                                             style: TextStyle(
-                                                              color: percentage > 0.15 ? Colors.white : Colors.black87,
+                                                              color:
+                                                                  percentage >
+                                                                          0.15
+                                                                      ? Colors
+                                                                          .white
+                                                                      : Colors
+                                                                          .black87,
                                                               fontSize: 11,
-                                                              fontWeight: FontWeight.bold,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
                                                             ),
                                                           ),
                                                         ),
@@ -1010,14 +1090,23 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                                   ),
                                                   Container(
                                                     height: 24,
-                                                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                                                    alignment: Alignment.centerLeft,
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 8,
+                                                        ),
+                                                    alignment:
+                                                        Alignment.centerLeft,
                                                     child: Text(
                                                       '${entry.value}',
                                                       style: TextStyle(
-                                                        color: percentage > 0.15 ? Colors.white : Colors.black87,
+                                                        color:
+                                                            percentage > 0.15
+                                                                ? Colors.white
+                                                                : Colors
+                                                                    .black87,
                                                         fontSize: 11,
-                                                        fontWeight: FontWeight.bold,
+                                                        fontWeight:
+                                                            FontWeight.bold,
                                                       ),
                                                     ),
                                                   ),
@@ -1256,12 +1345,17 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                         ),
                                         Container(
                                           height: 24,
-                                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                          ),
                                           alignment: Alignment.centerLeft,
                                           child: Text(
                                             '${entry.value}',
                                             style: TextStyle(
-                                              color: percentage > 0.15 ? Colors.white : Colors.black87,
+                                              color:
+                                                  percentage > 0.15
+                                                      ? Colors.white
+                                                      : Colors.black87,
                                               fontSize: 11,
                                               fontWeight: FontWeight.bold,
                                             ),
@@ -1273,8 +1367,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                 ],
                               ),
                             );
-                          })
-                          .toList(),
+                          }),
                   ],
                 ),
               ),
@@ -1448,7 +1541,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         children: [
                           Text(
                             readingVelocity.toStringAsFixed(1),
-                            style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                            style: Theme.of(
+                              context,
+                            ).textTheme.displayLarge?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: Theme.of(context).colorScheme.primary,
                             ),
@@ -1456,9 +1551,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           const SizedBox(width: 8),
                           Text(
                             'pages/day',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: Colors.grey[600],
-                            ),
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(color: Colors.grey[600]),
                           ),
                         ],
                       ),
@@ -1473,8 +1567,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   ),
                 ),
               ),
-            if (readingVelocity > 0)
-              const SizedBox(height: 16),
+            if (readingVelocity > 0) const SizedBox(height: 16),
             // Average Days to Finish a Book Card
             if (averageDaysToFinish > 0)
               Card(
@@ -1501,7 +1594,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         children: [
                           Text(
                             averageDaysToFinish.toStringAsFixed(1),
-                            style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                            style: Theme.of(
+                              context,
+                            ).textTheme.displayLarge?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: Theme.of(context).colorScheme.primary,
                             ),
@@ -1509,9 +1604,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           const SizedBox(width: 8),
                           Text(
                             'days',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: Colors.grey[600],
-                            ),
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(color: Colors.grey[600]),
                           ),
                         ],
                       ),
@@ -1526,8 +1620,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   ),
                 ),
               ),
-            if (averageDaysToFinish > 0)
-              const SizedBox(height: 16),
+            if (averageDaysToFinish > 0) const SizedBox(height: 16),
             // Average Books Per Year Card
             if (averageBooksPerYear > 0)
               Card(
@@ -1554,7 +1647,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         children: [
                           Text(
                             averageBooksPerYear.toStringAsFixed(1),
-                            style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                            style: Theme.of(
+                              context,
+                            ).textTheme.displayLarge?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: Theme.of(context).colorScheme.primary,
                             ),
@@ -1562,9 +1657,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           const SizedBox(width: 8),
                           Text(
                             'books/year',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: Colors.grey[600],
-                            ),
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(color: Colors.grey[600]),
                           ),
                         ],
                       ),
@@ -1579,8 +1673,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   ),
                 ),
               ),
-            if (averageBooksPerYear > 0)
-              const SizedBox(height: 16),
+            if (averageBooksPerYear > 0) const SizedBox(height: 16),
             // Top 5 Genres Horizontal Bar Chart
             Card(
               elevation: 2,
@@ -1596,9 +1689,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       children: [
                         Text(
                           AppLocalizations.of(context)!.top_5_genres,
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 8),
                         Row(
@@ -1669,12 +1761,17 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                     ),
                                     Container(
                                       height: 24,
-                                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                      ),
                                       alignment: Alignment.centerLeft,
                                       child: Text(
                                         '${entry.value}',
                                         style: TextStyle(
-                                          color: percentage > 0.15 ? Colors.white : Colors.black87,
+                                          color:
+                                              percentage > 0.15
+                                                  ? Colors.white
+                                                  : Colors.black87,
                                           fontSize: 11,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -1686,7 +1783,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             ],
                           ),
                         );
-                      }).toList(),
+                      }),
                   ],
                 ),
               ),
@@ -1707,9 +1804,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       children: [
                         Text(
                           AppLocalizations.of(context)!.top_10_editorials,
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 8),
                         Row(
@@ -1775,12 +1871,17 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                   ),
                                   Container(
                                     height: 24,
-                                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                    ),
                                     alignment: Alignment.centerLeft,
                                     child: Text(
                                       '${entry.value}',
                                       style: TextStyle(
-                                        color: percentage > 0.15 ? Colors.white : Colors.black87,
+                                        color:
+                                            percentage > 0.15
+                                                ? Colors.white
+                                                : Colors.black87,
                                         fontSize: 11,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -1792,7 +1893,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           ],
                         ),
                       );
-                    }).toList(),
+                    }),
                   ],
                 ),
               ),
@@ -1813,9 +1914,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       children: [
                         Text(
                           AppLocalizations.of(context)!.top_10_authors,
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 8),
                         Row(
@@ -1881,12 +1981,17 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                   ),
                                   Container(
                                     height: 24,
-                                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                    ),
                                     alignment: Alignment.centerLeft,
                                     child: Text(
                                       '${entry.value}',
                                       style: TextStyle(
-                                        color: percentage > 0.15 ? Colors.white : Colors.black87,
+                                        color:
+                                            percentage > 0.15
+                                                ? Colors.white
+                                                : Colors.black87,
                                         fontSize: 11,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -1898,7 +2003,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           ],
                         ),
                       );
-                    }).toList(),
+                    }),
                   ],
                 ),
               ),
@@ -1912,7 +2017,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   Expanded(
                     child: Divider(
                       thickness: 2,
-                      color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withOpacity(0.3),
                     ),
                   ),
                   Padding(
@@ -1929,7 +2036,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   Expanded(
                     child: Divider(
                       thickness: 2,
-                      color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withOpacity(0.3),
                     ),
                   ),
                 ],
@@ -2000,10 +2109,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             const SizedBox(height: 16),
             // Placeholder cards for future features
             ResponsiveStatGrid(
-              children: [
-                ReadingTimePlaceholderCard(),
-                ReadingGoalsCard(),
-              ],
+              children: [ReadingTimePlaceholderCard(), ReadingGoalsCard()],
             ),
             const SizedBox(height: 24),
           ],
