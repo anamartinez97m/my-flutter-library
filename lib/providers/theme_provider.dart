@@ -3,18 +3,36 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 enum AppThemeMode { light, dark, system }
 
-enum LightThemeVariant { warmEarth, vibrantSunset, softPastel, deepOcean }
+enum LightThemeVariant { warmEarth, vibrantSunset, softPastel, deepOcean, custom }
 
-enum DarkThemeVariant { mysticPurple, deepSea, warmAutumn }
+enum DarkThemeVariant { mysticPurple, deepSea, warmAutumn, custom }
 
 class ThemeProvider with ChangeNotifier {
   AppThemeMode _themeMode = AppThemeMode.system;
   LightThemeVariant _lightThemeVariant = LightThemeVariant.warmEarth;
   DarkThemeVariant _darkThemeVariant = DarkThemeVariant.mysticPurple;
+  
+  // Custom colors (3 colors: primary, secondary, tertiary)
+  Color _customLightPrimary = const Color(0xFFa36361);
+  Color _customLightSecondary = const Color(0xFFd3a29d);
+  Color _customLightTertiary = const Color(0xFFe8b298);
+  
+  Color _customDarkPrimary = const Color(0xFF854f6c);
+  Color _customDarkSecondary = const Color(0xFF522b5b);
+  Color _customDarkTertiary = const Color(0xFFdfb6b2);
 
   AppThemeMode get themeMode => _themeMode;
   LightThemeVariant get lightThemeVariant => _lightThemeVariant;
   DarkThemeVariant get darkThemeVariant => _darkThemeVariant;
+  
+  // Getters for custom colors
+  Color get customLightPrimary => _customLightPrimary;
+  Color get customLightSecondary => _customLightSecondary;
+  Color get customLightTertiary => _customLightTertiary;
+  
+  Color get customDarkPrimary => _customDarkPrimary;
+  Color get customDarkSecondary => _customDarkSecondary;
+  Color get customDarkTertiary => _customDarkTertiary;
 
   ThemeProvider() {
     _loadThemeMode();
@@ -39,6 +57,34 @@ class ThemeProvider with ChangeNotifier {
       (variant) => variant.toString() == 'DarkThemeVariant.$darkVariantString',
       orElse: () => DarkThemeVariant.mysticPurple,
     );
+    
+    // Load custom light colors if they exist
+    final customLightPrimaryInt = prefs.getInt('custom_light_primary');
+    if (customLightPrimaryInt != null) {
+      _customLightPrimary = Color(customLightPrimaryInt);
+    }
+    final customLightSecondaryInt = prefs.getInt('custom_light_secondary');
+    if (customLightSecondaryInt != null) {
+      _customLightSecondary = Color(customLightSecondaryInt);
+    }
+    final customLightTertiaryInt = prefs.getInt('custom_light_tertiary');
+    if (customLightTertiaryInt != null) {
+      _customLightTertiary = Color(customLightTertiaryInt);
+    }
+    
+    // Load custom dark colors if they exist
+    final customDarkPrimaryInt = prefs.getInt('custom_dark_primary');
+    if (customDarkPrimaryInt != null) {
+      _customDarkPrimary = Color(customDarkPrimaryInt);
+    }
+    final customDarkSecondaryInt = prefs.getInt('custom_dark_secondary');
+    if (customDarkSecondaryInt != null) {
+      _customDarkSecondary = Color(customDarkSecondaryInt);
+    }
+    final customDarkTertiaryInt = prefs.getInt('custom_dark_tertiary');
+    if (customDarkTertiaryInt != null) {
+      _customDarkTertiary = Color(customDarkTertiaryInt);
+    }
     
     notifyListeners();
   }
@@ -65,6 +111,34 @@ class ThemeProvider with ChangeNotifier {
     
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('dark_theme_variant', variant.toString().split('.').last);
+  }
+  
+  Future<void> setCustomLightColors(Color primary, Color secondary, Color tertiary) async {
+    _customLightPrimary = primary;
+    _customLightSecondary = secondary;
+    _customLightTertiary = tertiary;
+    _lightThemeVariant = LightThemeVariant.custom;
+    notifyListeners();
+    
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('custom_light_primary', primary.value);
+    await prefs.setInt('custom_light_secondary', secondary.value);
+    await prefs.setInt('custom_light_tertiary', tertiary.value);
+    await prefs.setString('light_theme_variant', 'custom');
+  }
+  
+  Future<void> setCustomDarkColors(Color primary, Color secondary, Color tertiary) async {
+    _customDarkPrimary = primary;
+    _customDarkSecondary = secondary;
+    _customDarkTertiary = tertiary;
+    _darkThemeVariant = DarkThemeVariant.custom;
+    notifyListeners();
+    
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('custom_dark_primary', primary.value);
+    await prefs.setInt('custom_dark_secondary', secondary.value);
+    await prefs.setInt('custom_dark_tertiary', tertiary.value);
+    await prefs.setString('dark_theme_variant', 'custom');
   }
 
   ColorScheme _getLightColorScheme() {
@@ -129,6 +203,21 @@ class ThemeProvider with ChangeNotifier {
           onBackground: Colors.black87,
           onError: Colors.white,
         );
+      case LightThemeVariant.custom:
+        return ColorScheme.light(
+          primary: _customLightPrimary,
+          secondary: _customLightSecondary,
+          tertiary: _customLightTertiary,
+          surface: const Color(0xFFffffff),
+          background: const Color(0xFFfafafa),
+          error: const Color(0xFFba1a1a),
+          onPrimary: Colors.white,
+          onSecondary: Colors.white,
+          onTertiary: Colors.white,
+          onSurface: Colors.black87,
+          onBackground: Colors.black87,
+          onError: Colors.white,
+        );
     }
   }
 
@@ -171,6 +260,21 @@ class ThemeProvider with ChangeNotifier {
           tertiary: const Color(0xFFf39f5a),
           surface: const Color(0xFF1a1a1a),
           background: const Color(0xFF1d1a39),
+          error: const Color(0xFFcf6679),
+          onPrimary: Colors.white,
+          onSecondary: Colors.white,
+          onTertiary: Colors.white,
+          onSurface: Colors.white,
+          onBackground: Colors.white,
+          onError: Colors.black,
+        );
+      case DarkThemeVariant.custom:
+        return ColorScheme.dark(
+          primary: _customDarkPrimary,
+          secondary: _customDarkSecondary,
+          tertiary: _customDarkTertiary,
+          surface: const Color(0xFF1a1a1a),
+          background: const Color(0xFF121212),
           error: const Color(0xFFcf6679),
           onPrimary: Colors.white,
           onSecondary: Colors.white,

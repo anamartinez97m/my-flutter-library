@@ -17,6 +17,7 @@ import 'package:myrandomlibrary/model/reading_session.dart';
 import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
 import 'package:myrandomlibrary/services/notification_service.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
 class EditBookScreen extends StatefulWidget {
   final Book book;
@@ -1080,10 +1081,15 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 // ISBN field
                 TextFormField(
                   controller: _isbnController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'ISBN',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.numbers),
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.numbers),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.qr_code_scanner_outlined),
+                      onPressed: () => _scanISBN(),
+                      tooltip: 'Scan ISBN',
+                    ),
                   ),
                   keyboardType: TextInputType.number,
                 ),
@@ -1856,6 +1862,108 @@ class _EditBookScreenState extends State<EditBookScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Future<void> _scanISBN() async {
+    try {
+      final result = await Navigator.push<String>(
+        context,
+        MaterialPageRoute(builder: (context) => const ISBNScannerScreen()),
+      );
+
+      if (result != null && result.isNotEmpty) {
+        setState(() {
+          _isbnController.text = result;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error scanning ISBN: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+}
+
+class ISBNScannerScreen extends StatefulWidget {
+  const ISBNScannerScreen({super.key});
+
+  @override
+  State<ISBNScannerScreen> createState() => _ISBNScannerScreenState();
+}
+
+class _ISBNScannerScreenState extends State<ISBNScannerScreen> {
+  late MobileScannerController controller;
+  bool _scanned = false;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = MobileScannerController(
+      formats: const [
+        BarcodeFormat.ean13,
+        BarcodeFormat.ean8,
+        BarcodeFormat.code128,
+      ],
+    );
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Scan ISBN'), centerTitle: true),
+      body: Stack(
+        children: [
+          MobileScanner(
+            controller: controller,
+            onDetect: (capture) {
+              if (_scanned) return;
+
+              final List<Barcode> barcodes = capture.barcodes;
+              for (final barcode in barcodes) {
+                if (barcode.rawValue != null && barcode.rawValue!.isNotEmpty) {
+                  _scanned = true;
+                  // Return the scanned ISBN
+                  Navigator.pop(context, barcode.rawValue);
+                  return;
+                }
+              }
+            },
+          ),
+          Positioned(
+            bottom: 32,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.7),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text(
+                  'Point camera at barcode',
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

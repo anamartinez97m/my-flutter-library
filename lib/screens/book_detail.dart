@@ -318,6 +318,243 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     }
   }
 
+  Future<void> _markAsRead() async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final repository = BookRepository(db);
+      final today = DateTime.now().toIso8601String().split('T')[0];
+
+      // Get status values
+      final statusList = await repository.getLookupValues('status');
+      final readStatus = statusList.firstWhere(
+        (s) => (s['value'] as String).toLowerCase() == 'yes',
+        orElse: () => statusList.first,
+      );
+
+      // Get current read count
+      final currentReadCount = _currentBook.readCount ?? 0;
+
+      // Only increment read count if it's 0
+      final newReadCount = currentReadCount == 0 ? 1 : currentReadCount;
+
+      // Update status and conditionally increment read count
+      await db.update(
+        'book',
+        {
+          'status_id': readStatus['status_id'],
+          'date_read_final': today,
+          'read_count': newReadCount,
+        },
+        where: 'book_id = ?',
+        whereArgs: [_currentBook.bookId!],
+      );
+
+      // Reload book data
+      final updatedBooks = await repository.getAllBooks();
+      final updatedBook = updatedBooks.firstWhere(
+        (b) => b.bookId == _currentBook.bookId,
+      );
+
+      setState(() {
+        _currentBook = updatedBook;
+      });
+      await _loadReadDates();
+
+      // Update provider
+      if (mounted) {
+        final provider = Provider.of<BookProvider?>(context, listen: false);
+        await provider?.loadBooks();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Marked as read!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error marking as read: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+
+  Future<void> _showProgressModal() async {
+    final isPercentage = _currentBook.progressType == 'percentage';
+    final currentProgress = _currentBook.readingProgress ?? 0;
+    
+    final progressController = TextEditingController(
+      text: currentProgress.toString(),
+    );
+
+    bool usePercentage = isPercentage;
+
+    final result = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Update Reading Progress'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Toggle between percentage and pages
+                Row(
+                  children: [
+                    Expanded(
+                      child: SegmentedButton<bool>(
+                        segments: const [
+                          ButtonSegment(
+                            value: true,
+                            label: Text('Percentage'),
+                          ),
+                          ButtonSegment(
+                            value: false,
+                            label: Text('Pages'),
+                          ),
+                        ],
+                        selected: {usePercentage},
+                        onSelectionChanged: (Set<bool> newSelection) {
+                          setDialogState(() {
+                            usePercentage = newSelection.first;
+                            progressController.clear();
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: progressController,
+                  decoration: InputDecoration(
+                    labelText: usePercentage ? 'Progress (%)' : 'Current Page',
+                    border: const OutlineInputBorder(),
+                    hintText: usePercentage ? '0-100' : '1-${_currentBook.pages ?? 0}',
+                  ),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                ),
+                if (!usePercentage && _currentBook.pages != null) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    'Total pages: ${_currentBook.pages}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final value = int.tryParse(progressController.text);
+                if (value == null || value < 0) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please enter a valid number'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
+
+                if (usePercentage && value > 100) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Percentage cannot exceed 100'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
+
+                if (!usePercentage && _currentBook.pages != null && value > _currentBook.pages!) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Page number cannot exceed ${_currentBook.pages}'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
+
+                // Calculate percentage if pages mode
+                final progressValue = usePercentage
+                    ? value
+                    : (_currentBook.pages != null && _currentBook.pages! > 0)
+                    ? ((value / _currentBook.pages!) * 100).toInt()
+                    : 0;
+
+                Navigator.pop(context, {
+                  'progress': progressValue,
+                  'type': usePercentage ? 'percentage' : 'pages',
+                  'pages': !usePercentage ? value : null,
+                });
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (result != null) {
+      try {
+        final db = await DatabaseHelper.instance.database;
+        await db.update(
+          'book',
+          {
+            'reading_progress': result['progress'],
+            'progress_type': result['type'],
+          },
+          where: 'book_id = ?',
+          whereArgs: [_currentBook.bookId!],
+        );
+
+        // Reload book data
+        final repository = BookRepository(db);
+        final updatedBooks = await repository.getAllBooks();
+        final updatedBook = updatedBooks.firstWhere(
+          (b) => b.bookId == _currentBook.bookId,
+        );
+
+        setState(() {
+          _currentBook = updatedBook;
+        });
+
+        // Update provider
+        if (mounted) {
+          final provider = Provider.of<BookProvider?>(context, listen: false);
+          await provider?.loadBooks();
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Progress updated!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        debugPrint('Error updating progress: $e');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          );
+        }
+      }
+    }
+  }
+
   String _formatDateTime(String isoString) {
     try {
       final dateTime = DateTime.parse(isoString);
@@ -740,6 +977,104 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                       ),
                     ),
                     AppTheme.verticalSpaceLarge,
+
+                    // Mark as Read button (full width)
+                    Container(
+                      height: 48,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 2,
+                        ),
+                      ),
+                      child: InkWell(
+                        onTap: _markAsRead,
+                        borderRadius: BorderRadius.circular(6),
+                        child: Container(
+                          alignment: Alignment.center,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.done_all,
+                                color: Theme.of(context).colorScheme.primary,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Mark as Read',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    AppTheme.verticalSpaceLarge,
+
+                    // Progress bar (only show for Started or Standby status)
+                    if (_currentBook.statusValue?.toLowerCase() == 'started' ||
+                        _currentBook.statusValue?.toLowerCase() == 'standby') ...[
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.blue.withOpacity(0.2)),
+                        ),
+                        child: InkWell(
+                          onTap: _showProgressModal,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Reading Progress',
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${_currentBook.readingProgress ?? 0}%',
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context).colorScheme.primary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: LinearProgressIndicator(
+                                  value: (_currentBook.readingProgress ?? 0) / 100,
+                                  minHeight: 8,
+                                  backgroundColor: Colors.grey[300],
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Theme.of(context).colorScheme.primary,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Tap to update progress',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Colors.grey[600],
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      AppTheme.verticalSpaceLarge,
+                    ],
 
                     // Description (from API - future implementation)
                     Container(

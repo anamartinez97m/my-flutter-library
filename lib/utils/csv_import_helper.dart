@@ -25,18 +25,18 @@ class CsvImportHelper {
   /// Handles various input formats: yyyy/mm/dd, dd/mm/yyyy, mm/dd/yyyy, yyyy-mm-dd
   static String? normalizeDateFormat(String? dateStr) {
     if (dateStr == null || dateStr.trim().isEmpty) return null;
-    
+
     final trimmed = dateStr.trim();
-    
+
     // Already in yyyy-mm-dd format
     if (RegExp(r'^\d{4}-\d{2}-\d{2}').hasMatch(trimmed)) {
       return trimmed.split('T')[0]; // Remove time component if present
     }
-    
+
     try {
       // Try to parse various formats
       DateTime? date;
-      
+
       // Format: yyyy/mm/dd or yyyy-mm-dd
       if (RegExp(r'^\d{4}[/-]\d{1,2}[/-]\d{1,2}').hasMatch(trimmed)) {
         final parts = trimmed.split(RegExp(r'[/-]'));
@@ -55,38 +55,49 @@ class CsvImportHelper {
           int.parse(parts[0]),
         );
       }
-      
+
       if (date != null) {
         return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
       }
     } catch (e) {
       debugPrint('Error normalizing date "$dateStr": $e');
     }
-    
+
     return trimmed; // Return as-is if we can't parse it
   }
 
   /// Map status values across languages
   /// Returns the database value that matches the input status semantically
-  static Future<String?> mapStatusValue(String? inputStatus, DatabaseHelper dbHelper) async {
+  static Future<String?> mapStatusValue(
+    String? inputStatus,
+    DatabaseHelper dbHelper,
+  ) async {
     if (inputStatus == null || inputStatus.isEmpty) return null;
-    
+
     final normalized = inputStatus.toLowerCase().trim();
-    
+
     // Get all existing status values from database
     final db = await dbHelper.database;
     final statusList = await db.query('status', columns: ['value']);
-    final existingStatuses = statusList.map((s) => s['value'] as String).toList();
-    
-    
+    final existingStatuses =
+        statusList.map((s) => s['value'] as String).toList();
+
     // Define semantic mappings
     // "read" / "yes" / "si" / "sí" -> all mean "read"
-    final readVariants = ['read', 'yes', 'si', 'sí', 'y', 'finished', 'completed'];
+    final readVariants = [
+      'read',
+      'yes',
+      'si',
+      'sí',
+      'y',
+      'finished',
+      'completed',
+    ];
     // "to-read" / "no" / "tbr" -> all mean "not read yet"
     final toReadVariants = ['to-read', 'no', 'n', 'tbr', 'unread', 'pending'];
     // "tbreleased" -> special status for unreleased books
     final tbReleasedVariants = ['tbreleased', 'unreleased', 'upcoming'];
-    
+
     // Check which semantic group the input belongs to
     String? semanticGroup;
     if (readVariants.contains(normalized)) {
@@ -96,29 +107,32 @@ class CsvImportHelper {
     } else if (tbReleasedVariants.contains(normalized)) {
       semanticGroup = 'tbreleased';
     }
-    
+
     if (semanticGroup == null) {
       // Unknown status, return as-is
       return inputStatus;
     }
-    
+
     // Find matching status in database
     for (final existing in existingStatuses) {
       final existingNormalized = existing.toLowerCase().trim();
-      
-      if (semanticGroup == 'read' && readVariants.contains(existingNormalized)) {
+
+      if (semanticGroup == 'read' &&
+          readVariants.contains(existingNormalized)) {
         return existing;
-      } else if (semanticGroup == 'to-read' && toReadVariants.contains(existingNormalized)) {
+      } else if (semanticGroup == 'to-read' &&
+          toReadVariants.contains(existingNormalized)) {
         return existing;
-      } else if (semanticGroup == 'tbreleased' && tbReleasedVariants.contains(existingNormalized)) {
+      } else if (semanticGroup == 'tbreleased' &&
+          tbReleasedVariants.contains(existingNormalized)) {
         return existing;
       }
     }
-    
+
     // No match found, return the input as-is (will be created as new status)
     return inputStatus;
   }
-  
+
   /// Detect CSV format based on headers
   static CsvFormat detectCsvFormat(List<dynamic> headers) {
     final headerStr = headers.map((h) => h.toString().toLowerCase()).toList();
@@ -146,13 +160,14 @@ class CsvImportHelper {
   static Book? parseBookFromCsv(
     List<dynamic> row,
     CsvFormat format,
-    List<dynamic> headers,
-  ) {
+    List<dynamic> headers, {
+    String? filterTag,
+  }) {
     try {
       if (format == CsvFormat.format1) {
         return _parseFormat1(row, headers);
       } else if (format == CsvFormat.format2) {
-        return _parseFormat2(row, headers);
+        return _parseFormat2(row, headers, filterTag: filterTag);
       }
       return null;
     } catch (e) {
@@ -255,12 +270,16 @@ class CsvImportHelper {
   /// Parse Format 2: Title, Author, ISBN13, ASIN, My Rating, Publisher, Binding,
   /// Number of Pages, Original Publication Year, Date Read, Date Added,
   /// Bookshelves, Exclusive Shelf, My Review, Read Count
-  static Book? _parseFormat2(List<dynamic> row, List<dynamic> headers) {
+  /// If [filterTag] is provided, only books with that tag in bookshelves will be imported
+  static Book? _parseFormat2(
+    List<dynamic> row,
+    List<dynamic> headers, {
+    String? filterTag,
+  }) {
     final headerMap = <String, int>{};
     for (int i = 0; i < headers.length; i++) {
       headerMap[headers[i].toString().toLowerCase()] = i;
     }
-    
 
     String? getValue(String key) {
       final index = headerMap[key];
@@ -293,9 +312,15 @@ class CsvImportHelper {
       isOwned = shelvesLower.contains('owned');
       isReadLoaned = shelvesLower.contains('read-loaned');
     }
-    
-    // Only import if bookshelves contains "owned" or "read-loaned"
-    if (headerMap.containsKey('bookshelves')) {
+
+    // Filter by tag if provided
+    if (filterTag != null && headerMap.containsKey('bookshelves')) {
+      if (bookshelves == null ||
+          !bookshelves.toLowerCase().contains(filterTag.toLowerCase())) {
+        return null;
+      }
+    } else if (filterTag == null && headerMap.containsKey('bookshelves')) {
+      // Default behavior: only import if bookshelves contains "owned" or "read-loaned"
       if (!isOwned && !isReadLoaned) {
         return null;
       }
@@ -378,8 +403,12 @@ class CsvImportHelper {
       formatValue: format,
       createdAt: createdAt,
       genre: null,
-      dateReadInitial: normalizeDateFormat(dateAdded), // Date Added -> Date Read Started
-      dateReadFinal: normalizeDateFormat(dateRead),     // Date Read -> Date Read Finished
+      dateReadInitial: normalizeDateFormat(
+        dateAdded,
+      ), // Date Added -> Date Read Started
+      dateReadFinal: normalizeDateFormat(
+        dateRead,
+      ), // Date Read -> Date Read Finished
       readCount: readCountStr != null ? int.tryParse(readCountStr) : 0,
       myRating: myRatingStr != null ? double.tryParse(myRatingStr) : null,
       myReview: myReview,

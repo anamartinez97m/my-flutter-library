@@ -177,7 +177,10 @@ class _RandomScreenState extends State<RandomScreen> {
       }).toList();
     }
 
-    if (filtered.isEmpty) {
+    // Apply saga-aware filtering: if a book is part of a saga, only recommend the next unread book
+    final sagaFilteredBooks = _filterBySagaOrder(filtered, provider.allBooks);
+
+    if (sagaFilteredBooks.isEmpty) {
       setState(() {
         _randomBook = null;
       });
@@ -189,8 +192,76 @@ class _RandomScreenState extends State<RandomScreen> {
 
     final random = Random();
     setState(() {
-      _randomBook = filtered[random.nextInt(filtered.length)];
+      _randomBook = sagaFilteredBooks[random.nextInt(sagaFilteredBooks.length)];
     });
+  }
+
+  /// Filter books to only recommend the next unread book in a saga
+  List<Book> _filterBySagaOrder(List<Book> filtered, List<Book> allBooks) {
+    final result = <Book>[];
+    
+    for (final book in filtered) {
+      // If book is not part of a saga, include it
+      if (book.saga == null || book.saga!.isEmpty) {
+        result.add(book);
+        continue;
+      }
+      
+      // Book is part of a saga - check if it's the next unread book
+      final sagaName = book.saga!;
+      final bookNSaga = book.nSaga;
+      
+      if (bookNSaga == null || bookNSaga.isEmpty) {
+        // No saga number, include it
+        result.add(book);
+        continue;
+      }
+      
+      final currentNumber = int.tryParse(bookNSaga);
+      if (currentNumber == null) {
+        // Can't parse saga number, include it
+        result.add(book);
+        continue;
+      }
+      
+      // Get all books in this saga
+      final sagaBooks = allBooks
+          .where((b) => b.saga == sagaName && b.nSaga != null && b.nSaga!.isNotEmpty)
+          .toList();
+      
+      // Sort by saga number
+      sagaBooks.sort((a, b) {
+        final aNum = int.tryParse(a.nSaga ?? '0') ?? 0;
+        final bNum = int.tryParse(b.nSaga ?? '0') ?? 0;
+        return aNum.compareTo(bNum);
+      });
+      
+      // Check if all previous books in the saga have been read
+      bool canRecommend = true;
+      for (final sagaBook in sagaBooks) {
+        final sagaBookNumber = int.tryParse(sagaBook.nSaga ?? '0') ?? 0;
+        
+        if (sagaBookNumber < currentNumber) {
+          // This is a previous book - check if it's been read
+          final isRead = sagaBook.statusValue != null && 
+                        (sagaBook.statusValue!.toLowerCase().contains('read') ||
+                         sagaBook.statusValue!.toLowerCase().contains('leído') ||
+                         sagaBook.statusValue!.toLowerCase().contains('reread'));
+          
+          if (!isRead) {
+            // Previous book not read, don't recommend this one
+            canRecommend = false;
+            break;
+          }
+        }
+      }
+      
+      if (canRecommend) {
+        result.add(book);
+      }
+    }
+    
+    return result;
   }
 
   void _clearFilters() {

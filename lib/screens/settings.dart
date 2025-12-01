@@ -30,7 +30,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _isAdmin = false;
   Set<String> _enabledFilters = {};
-  
+
   // Available filters
   static const List<Map<String, String>> _availableFilters = [
     {'key': 'title', 'label': 'Title'},
@@ -51,13 +51,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     {'key': 'saga_format_without_saga', 'label': 'Saga Format Without Saga'},
     {'key': 'saga_format_without_nsaga', 'label': 'Saga Format Without N_Saga'},
   ];
-  
+
   @override
   void initState() {
     super.initState();
     _loadEnabledFilters();
   }
-  
+
   Future<void> _loadEnabledFilters() async {
     final prefs = await SharedPreferences.getInstance();
     final savedFilters = prefs.getStringList('enabled_filters');
@@ -70,74 +70,77 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
     });
   }
-  
+
   Future<void> _saveEnabledFilters() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('enabled_filters', _enabledFilters.toList());
   }
-  
+
   void _showFiltersDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Customize Home Filters'),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: _availableFilters.length,
-              itemBuilder: (context, index) {
-                final filter = _availableFilters[index];
-                final key = filter['key']!;
-                final label = filter['label']!;
-                
-                return CheckboxListTile(
-                  title: Text(label),
-                  value: _enabledFilters.contains(key),
-                  onChanged: (value) {
-                    setState(() {
-                      if (value == true) {
-                        _enabledFilters.add(key);
-                      } else {
-                        _enabledFilters.remove(key);
-                      }
-                    });
-                    setDialogState(() {}); // Rebuild dialog
-                    _saveEnabledFilters();
-                  },
-                );
-              },
-            ),
+      builder:
+          (context) => StatefulBuilder(
+            builder:
+                (context, setDialogState) => AlertDialog(
+                  title: const Text('Customize Home Filters'),
+                  content: SizedBox(
+                    width: double.maxFinite,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: _availableFilters.length,
+                      itemBuilder: (context, index) {
+                        final filter = _availableFilters[index];
+                        final key = filter['key']!;
+                        final label = filter['label']!;
+
+                        return CheckboxListTile(
+                          title: Text(label),
+                          value: _enabledFilters.contains(key),
+                          onChanged: (value) {
+                            setState(() {
+                              if (value == true) {
+                                _enabledFilters.add(key);
+                              } else {
+                                _enabledFilters.remove(key);
+                              }
+                            });
+                            setDialogState(() {}); // Rebuild dialog
+                            _saveEnabledFilters();
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _enabledFilters =
+                              _availableFilters.map((f) => f['key']!).toSet();
+                        });
+                        setDialogState(() {}); // Rebuild dialog
+                        _saveEnabledFilters();
+                      },
+                      child: const Text('Select All'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _enabledFilters.clear();
+                        });
+                        setDialogState(() {}); // Rebuild dialog
+                        _saveEnabledFilters();
+                      },
+                      child: const Text('Clear All'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Close'),
+                    ),
+                  ],
+                ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _enabledFilters = _availableFilters.map((f) => f['key']!).toSet();
-                });
-                setDialogState(() {}); // Rebuild dialog
-                _saveEnabledFilters();
-              },
-              child: const Text('Select All'),
-            ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _enabledFilters.clear();
-                });
-                setDialogState(() {}); // Rebuild dialog
-                _saveEnabledFilters();
-              },
-              child: const Text('Clear All'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Close'),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -229,32 +232,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
     } catch (e) {
       debugPrint('Backup error: $e');
-      
+
       // Check if it's a permission error
       final errorStr = e.toString().toLowerCase();
-      if (errorStr.contains('permission') || 
-          errorStr.contains('denied') || 
+      if (errorStr.contains('permission') ||
+          errorStr.contains('denied') ||
           errorStr.contains('eacces')) {
         // Permission error - try to request again
         if (context.mounted) {
           final shouldRetry = await showDialog<bool>(
             context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('Permission Required'),
-              content: const Text('Storage permission is needed to create backups. Would you like to grant permission?'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context, false),
-                  child: const Text('Cancel'),
+            builder:
+                (context) => AlertDialog(
+                  title: const Text('Permission Required'),
+                  content: const Text(
+                    'Storage permission is needed to create backups. Would you like to grant permission?',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text('Grant Permission'),
+                    ),
+                  ],
                 ),
-                TextButton(
-                  onPressed: () => Navigator.pop(context, true),
-                  child: const Text('Grant Permission'),
-                ),
-              ],
-            ),
           );
-          
+
           if (shouldRetry == true) {
             // Retry the backup operation
             await _createBackup(context);
@@ -266,7 +272,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                AppLocalizations.of(context)!.error_creating_backup(e.toString()),
+                AppLocalizations.of(
+                  context,
+                )!.error_creating_backup(e.toString()),
               ),
               backgroundColor: Colors.red,
               duration: const Duration(seconds: 5),
@@ -381,17 +389,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // Get predefined status values from database
           final db = await DatabaseHelper.instance.database;
           final statusList = await db.query('status', columns: ['value']);
-          final predefinedStatuses = statusList
-              .map((s) => s['value'] as String)
-              .toList();
+          final predefinedStatuses =
+              statusList.map((s) => s['value'] as String).toList();
 
           // Show mapping dialog
           statusMappings = await showDialog<Map<String, String>>(
             context: context,
             barrierDismissible: false,
-            builder: (context) => StatusMappingDialog(
-              predefinedStatuses: predefinedStatuses,
-            ),
+            builder:
+                (context) =>
+                    StatusMappingDialog(predefinedStatuses: predefinedStatuses),
           );
 
           // User canceled
@@ -471,7 +478,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           if (csvFormat == CsvFormat.format1 && statusMappings != null) {
             // Use user-provided mappings for Format 1
             final bookStatusLower = book.statusValue?.toLowerCase().trim();
-            if (bookStatusLower != null && statusMappings.containsKey(bookStatusLower)) {
+            if (bookStatusLower != null &&
+                statusMappings.containsKey(bookStatusLower)) {
               mappedStatus = statusMappings[bookStatusLower];
             } else {
               // If no mapping found, keep original value
@@ -734,82 +742,85 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _migrateReadingSessions(BuildContext context) async {
     // Get statistics first
     final stats = await ReadingSessionMigration.getStats();
-    
+
     if (!stats.needsMigration) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('No reading sessions to migrate. All sessions are already on individual books!'),
+            content: Text(
+              'No reading sessions to migrate. All sessions are already on individual books!',
+            ),
             backgroundColor: Colors.green,
           ),
         );
       }
       return;
     }
-    
+
     // Show confirmation dialog
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.history, color: Colors.blue),
-            SizedBox(width: 8),
-            Text('Migrate Reading Sessions?'),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'This will migrate ${stats.oldStyleSessions} reading session${stats.oldStyleSessions == 1 ? '' : 's'} '
-              'from ${stats.bundlesWithOldSessions} bundle${stats.bundlesWithOldSessions == 1 ? '' : 's'} '
-              'to individual books.',
+      builder:
+          (context) => AlertDialog(
+            title: const Row(
+              children: [
+                Icon(Icons.history, color: Colors.blue),
+                SizedBox(width: 8),
+                Text('Migrate Reading Sessions?'),
+              ],
             ),
-            const SizedBox(height: 12),
-            const Text(
-              'What will happen:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const Text(
-              '• Reading sessions will be copied to individual books\n'
-              '• Old bundle reading sessions will be deleted\n'
-              '• This fixes inconsistencies in bundle reading history',
-              style: TextStyle(fontSize: 14),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.blue.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Text(
-                'ℹ️ This is safe and can be run multiple times',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue,
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'This will migrate ${stats.oldStyleSessions} reading session${stats.oldStyleSessions == 1 ? '' : 's'} '
+                  'from ${stats.bundlesWithOldSessions} bundle${stats.bundlesWithOldSessions == 1 ? '' : 's'} '
+                  'to individual books.',
                 ),
+                const SizedBox(height: 12),
+                const Text(
+                  'What will happen:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const Text(
+                  '• Reading sessions will be copied to individual books\n'
+                  '• Old bundle reading sessions will be deleted\n'
+                  '• This fixes inconsistencies in bundle reading history',
+                  style: TextStyle(fontSize: 14),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'ℹ️ This is safe and can be run multiple times',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
               ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Migrate'),
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Migrate'),
-          ),
-        ],
-      ),
     );
 
     if (confirmed != true) return;
@@ -831,45 +842,52 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (context.mounted) {
         showDialog(
           context: context,
-          builder: (context) => AlertDialog(
-            title: Text(
-              result.hasErrors ? 'Migration Completed with Errors' : 'Migration Successful!',
-              style: TextStyle(
-                color: result.hasErrors ? Colors.orange : Colors.green,
-              ),
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('✅ Successful: ${result.successfulBundles} bundles'),
-                  Text('⏭️  Skipped: ${result.skippedBundles} bundles'),
-                  Text('❌ Failed: ${result.failedBundles} bundles'),
-                  Text('📚 Total sessions migrated: ${result.totalSessionsMigrated}'),
-                  if (result.errors.isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Errors:',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    ...result.errors.map((error) => Text(
-                      '• $error',
-                      style: const TextStyle(fontSize: 12),
-                    )),
-                  ],
+          builder:
+              (context) => AlertDialog(
+                title: Text(
+                  result.hasErrors
+                      ? 'Migration Completed with Errors'
+                      : 'Migration Successful!',
+                  style: TextStyle(
+                    color: result.hasErrors ? Colors.orange : Colors.green,
+                  ),
+                ),
+                content: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('✅ Successful: ${result.successfulBundles} bundles'),
+                      Text('⏭️  Skipped: ${result.skippedBundles} bundles'),
+                      Text('❌ Failed: ${result.failedBundles} bundles'),
+                      Text(
+                        '📚 Total sessions migrated: ${result.totalSessionsMigrated}',
+                      ),
+                      if (result.errors.isNotEmpty) ...[
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Errors:',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        ...result.errors.map(
+                          (error) => Text(
+                            '• $error',
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Close'),
+                  ),
                 ],
               ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Close'),
-              ),
-            ],
-          ),
         );
-        
+
         // Refresh the settings screen to update badges
         setState(() {});
       }
@@ -1012,7 +1030,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       // Create CSV data
       List<List<dynamic>> csvData = [];
-      
+
       // Add header row
       csvData.add([
         'Title',
@@ -1110,9 +1128,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              'Exported ${allBooks.length} books to:\n$filePath',
-            ),
+            content: Text('Exported ${allBooks.length} books to:\n$filePath'),
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 4),
           ),
@@ -1120,32 +1136,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
     } catch (e) {
       debugPrint('Export error: $e');
-      
+
       // Check if it's a permission error
       final errorStr = e.toString().toLowerCase();
-      if (errorStr.contains('permission') || 
-          errorStr.contains('denied') || 
+      if (errorStr.contains('permission') ||
+          errorStr.contains('denied') ||
           errorStr.contains('eacces')) {
         // Permission error - try to request again
         if (context.mounted) {
           final shouldRetry = await showDialog<bool>(
             context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('Permission Required'),
-              content: const Text('Storage permission is needed to export CSV files. Would you like to grant permission?'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context, false),
-                  child: const Text('Cancel'),
+            builder:
+                (context) => AlertDialog(
+                  title: const Text('Permission Required'),
+                  content: const Text(
+                    'Storage permission is needed to export CSV files. Would you like to grant permission?',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text('Grant Permission'),
+                    ),
+                  ],
                 ),
-                TextButton(
-                  onPressed: () => Navigator.pop(context, true),
-                  child: const Text('Grant Permission'),
-                ),
-              ],
-            ),
           );
-          
+
           if (shouldRetry == true) {
             // Retry the export operation
             await _exportToCsv(context);
@@ -1225,6 +1244,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
           themeProvider.lightThemeVariant == LightThemeVariant.deepOcean,
           () => themeProvider.setLightThemeVariant(LightThemeVariant.deepOcean),
         ),
+        _buildThemePreview(
+          context,
+          'Custom',
+          [
+            themeProvider.customLightPrimary,
+            themeProvider.customLightSecondary,
+            themeProvider.customLightTertiary,
+          ],
+          themeProvider.lightThemeVariant == LightThemeVariant.custom,
+          () {
+            themeProvider.setLightThemeVariant(LightThemeVariant.custom);
+            _showCustomLightPaletteDialog(context, themeProvider);
+          },
+        ),
       ],
     );
   }
@@ -1275,7 +1308,147 @@ class _SettingsScreenState extends State<SettingsScreen> {
           themeProvider.darkThemeVariant == DarkThemeVariant.warmAutumn,
           () => themeProvider.setDarkThemeVariant(DarkThemeVariant.warmAutumn),
         ),
+        _buildThemePreview(
+          context,
+          'Custom',
+          [
+            themeProvider.customDarkPrimary,
+            themeProvider.customDarkSecondary,
+            themeProvider.customDarkTertiary,
+          ],
+          themeProvider.darkThemeVariant == DarkThemeVariant.custom,
+          () {
+            themeProvider.setDarkThemeVariant(DarkThemeVariant.custom);
+            _showCustomDarkPaletteDialog(context, themeProvider);
+          },
+        ),
       ],
+    );
+  }
+
+  void _showCustomLightPaletteDialog(
+    BuildContext context,
+    ThemeProvider themeProvider,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Custom Light Palette'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildColorPickerRow(
+                context,
+                'Primary',
+                themeProvider.customLightPrimary,
+                (color) async {
+                  await themeProvider.setCustomLightColors(
+                    color,
+                    themeProvider.customLightSecondary,
+                    themeProvider.customLightTertiary,
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              _buildColorPickerRow(
+                context,
+                'Secondary',
+                themeProvider.customLightSecondary,
+                (color) async {
+                  await themeProvider.setCustomLightColors(
+                    themeProvider.customLightPrimary,
+                    color,
+                    themeProvider.customLightTertiary,
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              _buildColorPickerRow(
+                context,
+                'Tertiary',
+                themeProvider.customLightTertiary,
+                (color) async {
+                  await themeProvider.setCustomLightColors(
+                    themeProvider.customLightPrimary,
+                    themeProvider.customLightSecondary,
+                    color,
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showCustomDarkPaletteDialog(
+    BuildContext context,
+    ThemeProvider themeProvider,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Custom Dark Palette'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildColorPickerRow(
+                context,
+                'Primary',
+                themeProvider.customDarkPrimary,
+                (color) async {
+                  await themeProvider.setCustomDarkColors(
+                    color,
+                    themeProvider.customDarkSecondary,
+                    themeProvider.customDarkTertiary,
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              _buildColorPickerRow(
+                context,
+                'Secondary',
+                themeProvider.customDarkSecondary,
+                (color) async {
+                  await themeProvider.setCustomDarkColors(
+                    themeProvider.customDarkPrimary,
+                    color,
+                    themeProvider.customDarkTertiary,
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              _buildColorPickerRow(
+                context,
+                'Tertiary',
+                themeProvider.customDarkTertiary,
+                (color) async {
+                  await themeProvider.setCustomDarkColors(
+                    themeProvider.customDarkPrimary,
+                    themeProvider.customDarkSecondary,
+                    color,
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1284,10 +1457,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     String name,
     List<Color> colors,
     bool isSelected,
-    VoidCallback onTap,
-  ) {
+    VoidCallback onTap, {
+    VoidCallback? onLongPress,
+  }) {
     return GestureDetector(
       onTap: onTap,
+      onLongPress: onLongPress,
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
@@ -1450,247 +1625,545 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               const SizedBox(height: 16),
             ],
-            // TBR Limit Setting
-            const TBRLimitSetting(),
-            const SizedBox(height: 16),
-            // Home Filters Configuration
+
+            // ===== DEFAULT VALUES SECTION (COLLAPSIBLE) =====
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: InkWell(
-                onTap: () => _showFiltersDialog(context),
-                borderRadius: BorderRadius.circular(12),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.filter_list,
-                        size: 36,
-                        color: Theme.of(context).colorScheme.primary,
+              child: ExpansionTile(
+                title: Row(
+                  children: [
+                    Icon(
+                      Icons.tune,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Default Values',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Customize Home Filters',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.titleLarge
-                            ?.copyWith(fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Select which filters to show in the home screen',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyMedium
-                            ?.copyWith(color: Colors.grey[600]),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
+                subtitle: const Text('TBR Limit, Sort Order, Home Filters'),
+                initiallyExpanded: false,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // TBR Limit Setting
+                        const TBRLimitSetting(),
+                        const SizedBox(height: 16),
+
+                        // Home Filters Configuration
+                        Card(
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: InkWell(
+                            onTap: () => _showFiltersDialog(context),
+                            borderRadius: BorderRadius.circular(12),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                children: [
+                                  Icon(
+                                    Icons.filter_list,
+                                    size: 36,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    'Customize Home Filters',
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Select which filters to show in the home screen',
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          color: Colors.grey[600],
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Default Sort Order setting
+                        Card(
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Consumer<BookProvider>(
+                              builder: (context, provider, child) {
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.sort,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Text(
+                                          'Default Sort Order',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      'Set the default order for your book list',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(
+                                            color: Colors.grey[600],
+                                          ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    DropdownButtonFormField<String>(
+                                      value: provider.currentSortBy,
+                                      decoration: const InputDecoration(
+                                        labelText: 'Sort By',
+                                        border: OutlineInputBorder(),
+                                        contentPadding: EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 8,
+                                        ),
+                                      ),
+                                      items: const [
+                                        DropdownMenuItem(
+                                          value: 'name',
+                                          child: Text('Title'),
+                                        ),
+                                        DropdownMenuItem(
+                                          value: 'author',
+                                          child: Text('Author'),
+                                        ),
+                                        DropdownMenuItem(
+                                          value: 'created_at',
+                                          child: Text('Date Added'),
+                                        ),
+                                      ],
+                                      onChanged: (value) {
+                                        if (value != null) {
+                                          provider.setDefaultSortOrder(
+                                            value,
+                                            provider.currentSortAscending,
+                                          );
+                                        }
+                                      },
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: SegmentedButton<bool>(
+                                            segments: const [
+                                              ButtonSegment(
+                                                value: true,
+                                                label: Text('Ascending'),
+                                                icon: Icon(
+                                                  Icons.arrow_upward,
+                                                  size: 16,
+                                                ),
+                                              ),
+                                              ButtonSegment(
+                                                value: false,
+                                                label: Text('Descending'),
+                                                icon: Icon(
+                                                  Icons.arrow_downward,
+                                                  size: 16,
+                                                ),
+                                              ),
+                                            ],
+                                            selected: {
+                                              provider.currentSortAscending
+                                            },
+                                            onSelectionChanged:
+                                                (Set<bool> newSelection) {
+                                              provider.setDefaultSortOrder(
+                                                provider.currentSortBy,
+                                                newSelection.first,
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: InkWell(
-                      onTap: () => _createBackup(context),
-                      borderRadius: BorderRadius.circular(12),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.backup_outlined,
-                              size: 36,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              AppLocalizations.of(
-                                context,
-                              )!.create_database_backup,
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.titleMedium
-                                  ?.copyWith(fontWeight: FontWeight.w600),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              AppLocalizations.of(
-                                context,
-                              )!.save_a_copy_of_your_library_database,
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: Colors.grey[600]),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: InkWell(
-                      onTap: () => _importBackup(context),
-                      borderRadius: BorderRadius.circular(12),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.cloud_download_outlined,
-                              size: 36,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              AppLocalizations.of(
-                                context,
-                              )!.import_database_backup,
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.titleMedium
-                                  ?.copyWith(fontWeight: FontWeight.w600),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              AppLocalizations.of(
-                                context,
-                              )!.restore_a_copy_of_your_library_database,
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: Colors.grey[600]),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
+
+            // ===== IMPORT/EXPORT SECTION (COLLAPSIBLE) =====
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: InkWell(
-                onTap: () => _importFromCsv(context),
-                borderRadius: BorderRadius.circular(12),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.upload_file,
-                        size: 36,
-                        color: Theme.of(context).colorScheme.primary,
+              child: ExpansionTile(
+                title: Row(
+                  children: [
+                    Icon(
+                      Icons.import_export,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Import/Export',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        AppLocalizations.of(context)!.import_from_csv,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        AppLocalizations.of(context)!.import_from_csv_file,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.blue[50],
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.blue[200]!),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.info_outline,
-                              color: Colors.blue[700],
-                              size: 20,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                AppLocalizations.of(
-                                  context,
-                                )!.import_from_csv_tbreleased,
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.bodySmall?.copyWith(
-                                  color: Colors.blue[900],
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.green[50],
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.green[200]!),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.info_outline,
-                              color: Colors.green[700],
-                              size: 20,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'For Goodreads CSV: Books must have "owned" or "read-loaned" in bookshelves to be imported',
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.bodySmall?.copyWith(
-                                  color: Colors.green[900],
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        AppLocalizations.of(context)!.import_from_csv_hint,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[500],
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
+                subtitle: const Text('CSV & Database Backup'),
+                initiallyExpanded: false,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Backup and Restore buttons
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Card(
+                                elevation: 1,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: InkWell(
+                                  onTap: () => _createBackup(context),
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Column(
+                                      children: [
+                                        Icon(
+                                          Icons.backup_outlined,
+                                          size: 36,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                        ),
+                                        const SizedBox(height: 12),
+                                        Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.create_database_backup,
+                                          textAlign: TextAlign.center,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          )!
+                                              .save_a_copy_of_your_library_database,
+                                          textAlign: TextAlign.center,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                color: Colors.grey[600],
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Card(
+                                elevation: 1,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: InkWell(
+                                  onTap: () => _importBackup(context),
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Column(
+                                      children: [
+                                        Icon(
+                                          Icons.cloud_download_outlined,
+                                          size: 36,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                        ),
+                                        const SizedBox(height: 12),
+                                        Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.import_database_backup,
+                                          textAlign: TextAlign.center,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          )!
+                                              .restore_a_copy_of_your_library_database,
+                                          textAlign: TextAlign.center,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                color: Colors.grey[600],
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Import from CSV
+                        Card(
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: InkWell(
+                            onTap: () => _importFromCsv(context),
+                            borderRadius: BorderRadius.circular(12),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                children: [
+                                  Icon(
+                                    Icons.upload_file,
+                                    size: 36,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    AppLocalizations.of(context)!
+                                        .import_from_csv,
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    AppLocalizations.of(context)!
+                                        .import_from_csv_file,
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          color: Colors.grey[600],
+                                        ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue[50],
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: Colors.blue[200]!,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.info_outline,
+                                          color: Colors.blue[700],
+                                          size: 20,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.import_from_csv_tbreleased,
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.bodySmall?.copyWith(
+                                              color: Colors.blue[900],
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green[50],
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: Colors.green[200]!,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.info_outline,
+                                          color: Colors.green[700],
+                                          size: 20,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            'For Goodreads CSV: Books must have "owned" or "read-loaned" in bookshelves to be imported',
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.bodySmall?.copyWith(
+                                              color: Colors.green[900],
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    AppLocalizations.of(context)!
+                                        .import_from_csv_hint,
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                          color: Colors.grey[500],
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Export to CSV
+                        Card(
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: InkWell(
+                            onTap: () => _exportToCsv(context),
+                            borderRadius: BorderRadius.circular(12),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                children: [
+                                  Icon(
+                                    Icons.file_download,
+                                    size: 36,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    'Export to CSV',
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Export all books to a CSV file',
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          color: Colors.grey[600],
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 16),
+
+            // ===== OTHER SETTINGS (NO GROUPING) =====
+            // Manage Dropdown Values
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
@@ -1735,109 +2208,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ],
                   ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Default Sort Order setting
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Consumer<BookProvider>(
-                  builder: (context, provider, child) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.sort,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              'Default Sort Order',
-                              style: Theme.of(context).textTheme.titleMedium
-                                  ?.copyWith(fontWeight: FontWeight.w600),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'Set the default order for your book list',
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: Colors.grey[600]),
-                        ),
-                        const SizedBox(height: 16),
-                        DropdownButtonFormField<String>(
-                          value: provider.currentSortBy,
-                          decoration: const InputDecoration(
-                            labelText: 'Sort By',
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                          ),
-                          items: const [
-                            DropdownMenuItem(
-                              value: 'name',
-                              child: Text('Title'),
-                            ),
-                            DropdownMenuItem(
-                              value: 'author',
-                              child: Text('Author'),
-                            ),
-                            DropdownMenuItem(
-                              value: 'created_at',
-                              child: Text('Date Added'),
-                            ),
-                          ],
-                          onChanged: (value) {
-                            if (value != null) {
-                              provider.setDefaultSortOrder(
-                                value,
-                                provider.currentSortAscending,
-                              );
-                            }
-                          },
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: SegmentedButton<bool>(
-                                segments: const [
-                                  ButtonSegment(
-                                    value: true,
-                                    label: Text('Ascending'),
-                                    icon: Icon(Icons.arrow_upward, size: 16),
-                                  ),
-                                  ButtonSegment(
-                                    value: false,
-                                    label: Text('Descending'),
-                                    icon: Icon(Icons.arrow_downward, size: 16),
-                                  ),
-                                ],
-                                selected: {provider.currentSortAscending},
-                                onSelectionChanged: (Set<bool> newSelection) {
-                                  provider.setDefaultSortOrder(
-                                    provider.currentSortBy,
-                                    newSelection.first,
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    );
-                  },
                 ),
               ),
             ),
@@ -2050,47 +2420,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Export to CSV button
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: InkWell(
-                onTap: () => _exportToCsv(context),
-                borderRadius: BorderRadius.circular(12),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.file_download,
-                        size: 36,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Export to CSV',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Export all books to a CSV file',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
             // Bundle Migration
             Card(
               elevation: 2,
@@ -2106,17 +2435,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     trailing: FutureBuilder<bool>(
                       future: BundleMigration.isMigrationNeeded(),
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
                           return const SizedBox(
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           );
                         }
-                        
+
                         if (snapshot.data == true) {
                           return Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.orange,
                               borderRadius: BorderRadius.circular(12),
@@ -2131,8 +2464,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                           );
                         }
-                        
-                        return const Icon(Icons.check_circle, color: Colors.green);
+
+                        return const Icon(
+                          Icons.check_circle,
+                          color: Colors.green,
+                        );
                       },
                     ),
                     onTap: () {
@@ -2148,21 +2484,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ListTile(
                     leading: const Icon(Icons.history, color: Colors.blue),
                     title: const Text('Migrate Reading Sessions'),
-                    subtitle: const Text('Move reading sessions to individual books'),
+                    subtitle: const Text(
+                      'Move reading sessions to individual books',
+                    ),
                     trailing: FutureBuilder<bool>(
                       future: ReadingSessionMigration.needsMigration(),
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
                           return const SizedBox(
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           );
                         }
-                        
+
                         if (snapshot.data == true) {
                           return Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.blue,
                               borderRadius: BorderRadius.circular(12),
@@ -2177,8 +2519,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                           );
                         }
-                        
-                        return const Icon(Icons.check_circle, color: Colors.green);
+
+                        return const Icon(
+                          Icons.check_circle,
+                          color: Colors.green,
+                        );
                       },
                     ),
                     onTap: () => _migrateReadingSessions(context),
@@ -2207,6 +2552,482 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildColorPickerRow(
+    BuildContext context,
+    String label,
+    Color color,
+    Function(Color) onColorChanged,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: GestureDetector(
+                onTap:
+                    () =>
+                        _showColorPickerDialog(context, color, onColorChanged),
+                child: Container(
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey[300]!, width: 2),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '#${color.value.toRadixString(16).toUpperCase().padLeft(8, '0')}',
+                      style: TextStyle(
+                        color:
+                            color.computeLuminance() > 0.5
+                                ? Colors.black
+                                : Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: () => _showHexInputDialog(color, onColorChanged),
+              child: Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[300]!, width: 2),
+                ),
+                child: Icon(Icons.palette, color: Colors.grey[600]),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  void _showColorPickerDialog(
+    BuildContext context,
+    Color initialColor,
+    Function(Color) onColorChanged,
+  ) {
+    Color selectedColor = initialColor;
+    bool showHueSlider = false;
+    double hue = HSVColor.fromColor(initialColor).hue;
+
+    showDialog(
+      context: context,
+      builder:
+          (context) => StatefulBuilder(
+            builder:
+                (context, setDialogState) => AlertDialog(
+                  title: const Text('Pick a Color'),
+                  content: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Big square showing current color
+                        Container(
+                          width: 200,
+                          height: 200,
+                          decoration: BoxDecoration(
+                            color: selectedColor,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.grey[300]!,
+                              width: 2,
+                            ),
+                          ),
+                          child: Center(
+                            child: Text(
+                              '#${selectedColor.value.toRadixString(16).toUpperCase().padLeft(8, '0')}',
+                              style: TextStyle(
+                                color:
+                                    selectedColor.computeLuminance() > 0.5
+                                        ? Colors.black
+                                        : Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        // 7 quick color options + 1 hue picker
+                        Wrap(
+                          spacing: 12,
+                          runSpacing: 12,
+                          alignment: WrapAlignment.center,
+                          children: [
+                            // 7 quick color options
+                            _buildColorOption(
+                              const Color(0xFFa36361),
+                              selectedColor,
+                              (color) {
+                                setDialogState(() {
+                                  selectedColor = color;
+                                  showHueSlider = false;
+                                });
+                              },
+                            ),
+                            _buildColorOption(
+                              const Color(0xFFef476f),
+                              selectedColor,
+                              (color) {
+                                setDialogState(() {
+                                  selectedColor = color;
+                                  showHueSlider = false;
+                                });
+                              },
+                            ),
+                            _buildColorOption(
+                              const Color(0xFFc8a8e9),
+                              selectedColor,
+                              (color) {
+                                setDialogState(() {
+                                  selectedColor = color;
+                                  showHueSlider = false;
+                                });
+                              },
+                            ),
+                            _buildColorOption(
+                              const Color(0xFF14919b),
+                              selectedColor,
+                              (color) {
+                                setDialogState(() {
+                                  selectedColor = color;
+                                  showHueSlider = false;
+                                });
+                              },
+                            ),
+                            _buildColorOption(
+                              const Color(0xFF854f6c),
+                              selectedColor,
+                              (color) {
+                                setDialogState(() {
+                                  selectedColor = color;
+                                  showHueSlider = false;
+                                });
+                              },
+                            ),
+                            _buildColorOption(
+                              const Color(0xFF0c7075),
+                              selectedColor,
+                              (color) {
+                                setDialogState(() {
+                                  selectedColor = color;
+                                  showHueSlider = false;
+                                });
+                              },
+                            ),
+                            _buildColorOption(
+                              const Color(0xFF662549),
+                              selectedColor,
+                              (color) {
+                                setDialogState(() {
+                                  selectedColor = color;
+                                  showHueSlider = false;
+                                });
+                              },
+                            ),
+                            // 8th square: colorized palette icon for hue picker
+                            GestureDetector(
+                              onTap: () {
+                                setDialogState(() {
+                                  showHueSlider = !showHueSlider;
+                                  hue = HSVColor.fromColor(selectedColor).hue;
+                                });
+                              },
+                              child: Container(
+                                width: 60,
+                                height: 60,
+                                decoration: BoxDecoration(
+                                  color: selectedColor,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.grey[300]!,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Icon(
+                                  Icons.palette,
+                                  color: selectedColor.computeLuminance() > 0.5
+                                      ? Colors.black54
+                                      : Colors.white54,
+                                  size: 32,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        // Hue slider (shown when palette icon is tapped)
+                        if (showHueSlider) ...[
+                          const SizedBox(height: 24),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Hue',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                              const SizedBox(height: 8),
+                              Container(
+                                height: 30,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      HSVColor.fromAHSV(1, 0, 1, 1).toColor(),
+                                      HSVColor.fromAHSV(1, 60, 1, 1).toColor(),
+                                      HSVColor.fromAHSV(1, 120, 1, 1).toColor(),
+                                      HSVColor.fromAHSV(1, 180, 1, 1).toColor(),
+                                      HSVColor.fromAHSV(1, 240, 1, 1).toColor(),
+                                      HSVColor.fromAHSV(1, 300, 1, 1).toColor(),
+                                      HSVColor.fromAHSV(1, 360, 1, 1).toColor(),
+                                    ],
+                                  ),
+                                ),
+                                child: Slider(
+                                  value: hue,
+                                  min: 0,
+                                  max: 360,
+                                  onChanged: (newHue) {
+                                    setDialogState(() {
+                                      hue = newHue;
+                                      selectedColor =
+                                          HSVColor.fromAHSV(
+                                            1,
+                                            hue,
+                                            1,
+                                            1,
+                                          ).toColor();
+                                    });
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Cancel'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        onColorChanged(selectedColor);
+                        Navigator.pop(context);
+                      },
+                      child: const Text('Apply'),
+                    ),
+                  ],
+                ),
+          ),
+    );
+  }
+
+  Widget _buildColorOption(
+    Color color,
+    Color selectedColor,
+    Function(Color) onTap,
+  ) {
+    final isSelected = color.value == selectedColor.value;
+    return GestureDetector(
+      onTap: () => onTap(color),
+      onLongPress: () => _showHexInputDialog(color, onTap),
+      child: Container(
+        width: 50,
+        height: 50,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? Colors.black : Colors.grey[300]!,
+            width: isSelected ? 3 : 1,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showHexInputDialog(Color initialColor, Function(Color) onColorChanged) {
+    Color selectedColor = initialColor;
+    double hue = HSVColor.fromColor(initialColor).hue;
+
+    showDialog(
+      context: context,
+      builder:
+          (context) => StatefulBuilder(
+            builder:
+                (context, setDialogState) => AlertDialog(
+                  title: const Text('Pick a Custom Color'),
+                  content: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 150,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: selectedColor,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.grey[300]!,
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          '#${selectedColor.value.toRadixString(16).toUpperCase().padLeft(8, '0')}',
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 16),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Hue',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              height: 30,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                gradient: LinearGradient(
+                                  colors: [
+                                    HSVColor.fromAHSV(1, 0, 1, 1).toColor(),
+                                    HSVColor.fromAHSV(1, 60, 1, 1).toColor(),
+                                    HSVColor.fromAHSV(1, 120, 1, 1).toColor(),
+                                    HSVColor.fromAHSV(1, 180, 1, 1).toColor(),
+                                    HSVColor.fromAHSV(1, 240, 1, 1).toColor(),
+                                    HSVColor.fromAHSV(1, 300, 1, 1).toColor(),
+                                    HSVColor.fromAHSV(1, 360, 1, 1).toColor(),
+                                  ],
+                                ),
+                              ),
+                              child: Slider(
+                                value: hue,
+                                min: 0,
+                                max: 360,
+                                onChanged: (newHue) {
+                                  setDialogState(() {
+                                    hue = newHue;
+                                    selectedColor =
+                                        HSVColor.fromAHSV(
+                                          1,
+                                          hue,
+                                          1,
+                                          1,
+                                        ).toColor();
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            _buildColorOption(
+                              const Color(0xFFa36361),
+                              selectedColor,
+                              (color) {
+                                setDialogState(() {
+                                  selectedColor = color;
+                                });
+                              },
+                            ),
+                            _buildColorOption(
+                              const Color(0xFFef476f),
+                              selectedColor,
+                              (color) {
+                                setDialogState(() {
+                                  selectedColor = color;
+                                });
+                              },
+                            ),
+                            _buildColorOption(
+                              const Color(0xFFc8a8e9),
+                              selectedColor,
+                              (color) {
+                                setDialogState(() {
+                                  selectedColor = color;
+                                });
+                              },
+                            ),
+                            _buildColorOption(
+                              const Color(0xFF14919b),
+                              selectedColor,
+                              (color) {
+                                setDialogState(() {
+                                  selectedColor = color;
+                                });
+                              },
+                            ),
+                            _buildColorOption(
+                              const Color(0xFF854f6c),
+                              selectedColor,
+                              (color) {
+                                setDialogState(() {
+                                  selectedColor = color;
+                                });
+                              },
+                            ),
+                            _buildColorOption(
+                              const Color(0xFF0c7075),
+                              selectedColor,
+                              (color) {
+                                setDialogState(() {
+                                  selectedColor = color;
+                                });
+                              },
+                            ),
+                            _buildColorOption(
+                              const Color(0xFF662549),
+                              selectedColor,
+                              (color) {
+                                setDialogState(() {
+                                  selectedColor = color;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Cancel'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        onColorChanged(selectedColor);
+                        Navigator.pop(context);
+                      },
+                      child: const Text('Apply'),
+                    ),
+                  ],
+                ),
+          ),
     );
   }
 }

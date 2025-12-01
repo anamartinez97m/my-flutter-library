@@ -35,6 +35,9 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     'no',
     'started',
     'tbreleased',
+    'abandoned',
+    'repeated',
+    'standby',
   };
 
   bool _isCoreStatusValue(String value) {
@@ -248,7 +251,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
             title: const Text('Cannot Delete'),
             content: const Text(
               'This is a core status value and cannot be deleted. '
-              'The app logic depends on these values: Yes, No, Started, and TBReleased.',
+              'The app logic depends on these values: Yes, No, Started, TBReleased, Abandoned, Repeated, and Standby.',
             ),
             actions: [
               TextButton(
