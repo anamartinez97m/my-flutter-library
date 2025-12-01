@@ -22,10 +22,11 @@ class BooksByDecadeCard extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => BooksByDecadeScreen(
-                initialDecade: sortedBooksByDecade.first.key,
-                showReadOnly: showReadBooks,
-              ),
+              builder:
+                  (context) => BooksByDecadeScreen(
+                    initialDecade: sortedBooksByDecade.first.key,
+                    showReadOnly: showReadBooks,
+                  ),
             ),
           );
         }
@@ -34,9 +35,7 @@ class BooksByDecadeCard extends StatelessWidget {
       child: Card(
         elevation: 2,
         margin: const EdgeInsets.symmetric(horizontal: 8),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Column(
@@ -65,14 +64,8 @@ class BooksByDecadeCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        'All',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                      Switch(
-                        value: showReadBooks,
-                        onChanged: onToggleChanged,
-                      ),
+                      Text('All', style: Theme.of(context).textTheme.bodySmall),
+                      Switch(value: showReadBooks, onChanged: onToggleChanged),
                       Text(
                         'Read',
                         style: Theme.of(context).textTheme.bodySmall,
@@ -91,9 +84,7 @@ class BooksByDecadeCard extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               if (sortedBooksByDecade.isEmpty)
-                Center(
-                  child: Text(AppLocalizations.of(context)!.no_data),
-                )
+                Center(child: Text(AppLocalizations.of(context)!.no_data))
               else
                 ...sortedBooksByDecade.map((entry) {
                   final maxValue = sortedBooksByDecade
@@ -107,10 +98,11 @@ class BooksByDecadeCard extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => BooksByDecadeScreen(
-                              initialDecade: entry.key,
-                              showReadOnly: showReadBooks,
-                            ),
+                            builder:
+                                (context) => BooksByDecadeScreen(
+                                  initialDecade: entry.key,
+                                  showReadOnly: showReadBooks,
+                                ),
                           ),
                         );
                       },
@@ -152,12 +144,17 @@ class BooksByDecadeCard extends StatelessWidget {
                                   ),
                                   Container(
                                     height: 24,
-                                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                    ),
                                     alignment: Alignment.centerLeft,
                                     child: Text(
                                       '${entry.value}',
                                       style: TextStyle(
-                                        color: percentage > 0.15 ? Colors.white : Colors.black87,
+                                        color:
+                                            percentage > 0.15
+                                                ? Colors.white
+                                                : Colors.black87,
                                         fontSize: 11,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -171,7 +168,7 @@ class BooksByDecadeCard extends StatelessWidget {
                       ),
                     ),
                   );
-                }).toList(),
+                }),
             ],
           ),
         ),

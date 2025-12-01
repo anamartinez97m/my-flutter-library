@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
-import 'package:myrandomlibrary/providers/theme_provider.dart';
 import 'package:myrandomlibrary/screens/book_detail.dart';
 
 class BookListView extends StatelessWidget {
@@ -85,9 +84,7 @@ class BookListView extends StatelessWidget {
       elevation: 1,
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       color: backgroundColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: InkWell(
         onTap: () {
           Navigator.push(
@@ -149,9 +146,9 @@ class BookListView extends StatelessWidget {
                   AppLocalizations.of(
                     context,
                   )!.author_with_colon(book.author ?? ''),
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
                 ),
               if (book.author != null && book.author!.isNotEmpty)
                 const SizedBox(height: 3),
@@ -168,13 +165,7 @@ class BookListView extends StatelessWidget {
               if (book.saga != null && book.saga!.isNotEmpty)
                 const SizedBox(height: 3),
               Text(
-                AppLocalizations.of(
-                      context,
-                    )!.format_with_colon(book.formatValue ?? 'N/A') +
-                    ' • ' +
-                    AppLocalizations.of(
-                      context,
-                    )!.language_with_colon(book.languageValue ?? 'N/A'),
+                '${AppLocalizations.of(context)!.format_with_colon(book.formatValue ?? 'N/A')} • ${AppLocalizations.of(context)!.language_with_colon(book.languageValue ?? 'N/A')}',
                 style: Theme.of(
                   context,
                 ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),

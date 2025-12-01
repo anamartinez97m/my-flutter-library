@@ -55,7 +55,9 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
           PRIMARY KEY (session_id, book_hash)
         )
       ''');
-      debugPrint('Initialized temp_reviewed_books and temp_ignored_books tables');
+      debugPrint(
+        'Initialized temp_reviewed_books and temp_ignored_books tables',
+      );
     } catch (e) {
       debugPrint('Error initializing temporary tables: $e');
     }
@@ -75,23 +77,19 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
     final author = book.author ?? '';
     final saga = book.saga ?? '';
     final nSaga = book.nSaga ?? '';
-    return 'book_${title}_${author}_${saga}_${nSaga}'.toLowerCase();
+    return 'book_${title}_${author}_${saga}_$nSaga'.toLowerCase();
   }
 
   /// Mark a book as reviewed in the database
   Future<void> _markBookAsReviewed(String bookHash) async {
     if (_currentFileIdentifier == null) return;
-    
+
     try {
       final db = await DatabaseHelper.instance.database;
-      await db.insert(
-        'temp_reviewed_books',
-        {
-          'session_id': _currentFileIdentifier!,
-          'book_hash': bookHash,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+      await db.insert('temp_reviewed_books', {
+        'session_id': _currentFileIdentifier!,
+        'book_hash': bookHash,
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
       _reviewedBookHashes.add(bookHash);
     } catch (e) {
       debugPrint('Error marking book as reviewed: $e');
@@ -101,7 +99,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
   /// Load previously reviewed books for this session
   Future<void> _loadReviewedBooks() async {
     if (_currentFileIdentifier == null) return;
-    
+
     try {
       final db = await DatabaseHelper.instance.database;
       final results = await db.query(
@@ -110,13 +108,15 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         where: 'session_id = ?',
         whereArgs: [_currentFileIdentifier!],
       );
-      
+
       _reviewedBookHashes.clear();
       for (final row in results) {
         _reviewedBookHashes.add(row['book_hash'] as String);
       }
-      
-      debugPrint('Loaded ${_reviewedBookHashes.length} reviewed books for session: $_currentFileIdentifier');
+
+      debugPrint(
+        'Loaded ${_reviewedBookHashes.length} reviewed books for session: $_currentFileIdentifier',
+      );
     } catch (e) {
       debugPrint('Error loading reviewed books: $e');
     }
@@ -125,7 +125,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
   /// Clear reviewed books for a specific session
   Future<void> _clearReviewedBooks() async {
     if (_currentFileIdentifier == null) return;
-    
+
     try {
       final db = await DatabaseHelper.instance.database;
       final deletedCount = await db.delete(
@@ -134,12 +134,14 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         whereArgs: [_currentFileIdentifier!],
       );
       _reviewedBookHashes.clear();
-      debugPrint('Cleared $deletedCount reviewed books for session: $_currentFileIdentifier');
+      debugPrint(
+        'Cleared $deletedCount reviewed books for session: $_currentFileIdentifier',
+      );
     } catch (e) {
       debugPrint('Error clearing reviewed books: $e');
     }
   }
-  
+
   /// Clear ALL reviewed books from all sessions (for debugging/cleanup)
   Future<void> _clearAllReviewedBooks() async {
     try {
@@ -155,19 +157,17 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
   /// Mark a book as ignored in the database
   Future<void> _markBookAsIgnored(String bookHash) async {
     if (_currentFileIdentifier == null) return;
-    
+
     try {
       final db = await DatabaseHelper.instance.database;
-      await db.insert(
-        'temp_ignored_books',
-        {
-          'session_id': _currentFileIdentifier!,
-          'book_hash': bookHash,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+      await db.insert('temp_ignored_books', {
+        'session_id': _currentFileIdentifier!,
+        'book_hash': bookHash,
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
       _ignoredBookHashes.add(bookHash);
-      debugPrint('✓ Marked book as ignored: $bookHash (session: $_currentFileIdentifier)');
+      debugPrint(
+        '✓ Marked book as ignored: $bookHash (session: $_currentFileIdentifier)',
+      );
     } catch (e) {
       debugPrint('❌ Error marking book as ignored: $e');
     }
@@ -176,7 +176,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
   /// Load previously ignored books for this session
   Future<void> _loadIgnoredBooks() async {
     if (_currentFileIdentifier == null) return;
-    
+
     try {
       final db = await DatabaseHelper.instance.database;
       final results = await db.query(
@@ -185,15 +185,17 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         where: 'session_id = ?',
         whereArgs: [_currentFileIdentifier!],
       );
-      
+
       _ignoredBookHashes.clear();
       for (final row in results) {
         final hash = row['book_hash'] as String;
         _ignoredBookHashes.add(hash);
         debugPrint('  📋 Loaded ignored book: $hash');
       }
-      
-      debugPrint('✓ Loaded ${_ignoredBookHashes.length} ignored books for session: $_currentFileIdentifier');
+
+      debugPrint(
+        '✓ Loaded ${_ignoredBookHashes.length} ignored books for session: $_currentFileIdentifier',
+      );
     } catch (e) {
       debugPrint('❌ Error loading ignored books: $e');
     }
@@ -322,7 +324,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
 
       final file = result.files.single;
       final fileName = file.name;
-      
+
       if (!fileName.toLowerCase().endsWith('.csv')) {
         throw Exception('Please select a CSV file');
       }
@@ -333,7 +335,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
 
       // Try to get file path, if not available use bytes
       String filePath;
-      
+
       if (file.path == null || file.path!.isEmpty) {
         // Path not available (e.g., web or cloud storage), use bytes
         if (file.bytes != null) {
@@ -343,7 +345,9 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
           await tempFile.writeAsBytes(file.bytes!);
           filePath = tempFile.path;
         } else {
-          throw Exception('Could not access file. Please try downloading it first.');
+          throw Exception(
+            'Could not access file. Please try downloading it first.',
+          );
         }
       } else {
         filePath = file.path!;
@@ -363,12 +367,16 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
     }
   }
 
-  Future<void> _parseCsvFile(String filePath, {int startFromIndex = 0, bool clearReviewed = false}) async {
+  Future<void> _parseCsvFile(
+    String filePath, {
+    int startFromIndex = 0,
+    bool clearReviewed = false,
+  }) async {
     try {
       // Generate and save file identifier
       _currentFileIdentifier = _generateFileIdentifier(filePath);
       _currentFilePath = filePath;
-      
+
       // Clear reviewed books if starting fresh
       if (clearReviewed) {
         debugPrint('Clearing reviewed books for fresh start...');
@@ -513,10 +521,12 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
             );
             if (existingRows.isNotEmpty) {
               existingBook = Book.fromMap(existingRows.first);
-              
+
               // Fetch read dates from book_read_dates table if dates are empty
-              if ((existingBook.dateReadInitial == null || existingBook.dateReadInitial!.isEmpty) &&
-                  (existingBook.dateReadFinal == null || existingBook.dateReadFinal!.isEmpty)) {
+              if ((existingBook.dateReadInitial == null ||
+                      existingBook.dateReadInitial!.isEmpty) &&
+                  (existingBook.dateReadFinal == null ||
+                      existingBook.dateReadFinal!.isEmpty)) {
                 final readDatesRows = await db.query(
                   'book_read_dates',
                   where: 'book_id = ? AND bundle_book_index IS NULL',
@@ -537,7 +547,8 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                     sagaUniverse: existingBook.sagaUniverse,
                     formatSagaValue: existingBook.formatSagaValue,
                     pages: existingBook.pages,
-                    originalPublicationYear: existingBook.originalPublicationYear,
+                    originalPublicationYear:
+                        existingBook.originalPublicationYear,
                     loaned: existingBook.loaned,
                     statusValue: existingBook.statusValue,
                     editorialValue: existingBook.editorialValue,
@@ -696,33 +707,42 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
       // Load reviewed and ignored books for this session
       await _loadReviewedBooks();
       await _loadIgnoredBooks();
-      
+
       debugPrint('Session ID: $_currentFileIdentifier');
-      debugPrint('Loaded ${_reviewedBookHashes.length} reviewed book hashes from database');
-      debugPrint('Loaded ${_ignoredBookHashes.length} ignored book hashes from database');
-      
+      debugPrint(
+        'Loaded ${_reviewedBookHashes.length} reviewed book hashes from database',
+      );
+      debugPrint(
+        'Loaded ${_ignoredBookHashes.length} ignored book hashes from database',
+      );
+
       // Filter out reviewed and ignored books
       int reviewedCount = 0;
       int ignoredCount = 0;
-      final unreviewedItems = items.where((item) {
-        final hash = _generateBookHash(item);
-        final isReviewed = _reviewedBookHashes.contains(hash);
-        final isIgnored = _ignoredBookHashes.contains(hash);
-        if (isReviewed) {
-          reviewedCount++;
-          if (reviewedCount <= 5) {
-            debugPrint('  ✓ Filtering out reviewed book: ${item.book.name} (hash: $hash)');
-          }
-        }
-        if (isIgnored) {
-          ignoredCount++;
-          if (ignoredCount <= 5) {
-            debugPrint('  🚫 Filtering out ignored book: ${item.book.name} (hash: $hash)');
-          }
-        }
-        return !isReviewed && !isIgnored;
-      }).toList();
-      
+      final unreviewedItems =
+          items.where((item) {
+            final hash = _generateBookHash(item);
+            final isReviewed = _reviewedBookHashes.contains(hash);
+            final isIgnored = _ignoredBookHashes.contains(hash);
+            if (isReviewed) {
+              reviewedCount++;
+              if (reviewedCount <= 5) {
+                debugPrint(
+                  '  ✓ Filtering out reviewed book: ${item.book.name} (hash: $hash)',
+                );
+              }
+            }
+            if (isIgnored) {
+              ignoredCount++;
+              if (ignoredCount <= 5) {
+                debugPrint(
+                  '  🚫 Filtering out ignored book: ${item.book.name} (hash: $hash)',
+                );
+              }
+            }
+            return !isReviewed && !isIgnored;
+          }).toList();
+
       // Sort items: ISBN/ASIN matches first, then name matches, then rest
       unreviewedItems.sort((a, b) {
         // Determine match type for each item
@@ -730,32 +750,34 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
           final hasIsbn = item.book.isbn != null && item.book.isbn!.isNotEmpty;
           final hasAsin = item.book.asin != null && item.book.asin!.isNotEmpty;
           final hasName = item.book.name != null && item.book.name!.isNotEmpty;
-          
+
           // Priority 1: Has ISBN or ASIN match (UPDATE or DUPLICATE with ISBN/ASIN)
-          if ((hasIsbn || hasAsin) && (item.importType == 'UPDATE' || item.importType == 'DUPLICATE')) {
+          if ((hasIsbn || hasAsin) &&
+              (item.importType == 'UPDATE' || item.importType == 'DUPLICATE')) {
             return 1;
           }
           // Priority 2: Has name match (UPDATE or DUPLICATE without ISBN/ASIN)
-          if (hasName && (item.importType == 'UPDATE' || item.importType == 'DUPLICATE')) {
+          if (hasName &&
+              (item.importType == 'UPDATE' || item.importType == 'DUPLICATE')) {
             return 2;
           }
           // Priority 3: Everything else (NEW books)
           return 3;
         }
-        
+
         final aPriority = getMatchPriority(a);
         final bPriority = getMatchPriority(b);
-        
+
         return aPriority.compareTo(bPriority);
       });
-      
+
       if (reviewedCount > 5) {
         debugPrint('  ... and ${reviewedCount - 5} more reviewed books');
       }
       if (ignoredCount > 5) {
         debugPrint('  ... and ${ignoredCount - 5} more ignored books');
       }
-      
+
       debugPrint('=== IMPORT SUMMARY ===');
       debugPrint('Total items parsed: ${items.length}');
       debugPrint('Unreviewed items: ${unreviewedItems.length}');
@@ -796,7 +818,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         // Mark this book as reviewed (even if skipped)
         final bookHash = _generateBookHash(item);
         await _markBookAsReviewed(bookHash);
-        
+
         if (!item.shouldImport) {
           skipped++;
           continue;
@@ -805,13 +827,18 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         if (item.importType == 'NEW') {
           final bookId = await repository.addBook(item.book);
           // Save dates to book_read_dates table if they exist
-          if (item.book.dateReadInitial != null && item.book.dateReadInitial!.isNotEmpty) {
-            await repository.addReadDate(ReadDate(
-              bookId: bookId,
-              dateStarted: item.book.dateReadInitial,
-              dateFinished: item.book.dateReadFinal,
-            ));
-            debugPrint('📅 Saved read dates for new book $bookId: ${item.book.dateReadInitial} - ${item.book.dateReadFinal}');
+          if (item.book.dateReadInitial != null &&
+              item.book.dateReadInitial!.isNotEmpty) {
+            await repository.addReadDate(
+              ReadDate(
+                bookId: bookId,
+                dateStarted: item.book.dateReadInitial,
+                dateFinished: item.book.dateReadFinal,
+              ),
+            );
+            debugPrint(
+              '📅 Saved read dates for new book $bookId: ${item.book.dateReadInitial} - ${item.book.dateReadFinal}',
+            );
           }
           imported++;
         } else if (item.importType == 'UPDATE' &&
@@ -862,15 +889,20 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               notificationDatetime: item.existingBook?.notificationDatetime,
             );
             await repository.addBook(bookToAdd);
-            
+
             // Save dates to book_read_dates table if they exist
-            if (item.book.dateReadInitial != null && item.book.dateReadInitial!.isNotEmpty) {
-              await repository.addReadDate(ReadDate(
-                bookId: id,
-                dateStarted: item.book.dateReadInitial,
-                dateFinished: item.book.dateReadFinal,
-              ));
-              debugPrint('📅 Saved read dates for updated book $id: ${item.book.dateReadInitial} - ${item.book.dateReadFinal}');
+            if (item.book.dateReadInitial != null &&
+                item.book.dateReadInitial!.isNotEmpty) {
+              await repository.addReadDate(
+                ReadDate(
+                  bookId: id,
+                  dateStarted: item.book.dateReadInitial,
+                  dateFinished: item.book.dateReadFinal,
+                ),
+              );
+              debugPrint(
+                '📅 Saved read dates for updated book $id: ${item.book.dateReadInitial} - ${item.book.dateReadFinal}',
+              );
             }
           }
           updated++;
@@ -943,7 +975,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
       // Only process items up to the specified index
       for (int i = 0; i < upToIndex && i < _importItems.length; i++) {
         final item = _importItems[i];
-        
+
         // Mark this book as reviewed
         final bookHash = _generateBookHash(item);
         await _markBookAsReviewed(bookHash);
@@ -956,13 +988,18 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         if (item.importType == 'NEW') {
           final bookId = await repository.addBook(item.book);
           // Save dates to book_read_dates table if they exist
-          if (item.book.dateReadInitial != null && item.book.dateReadInitial!.isNotEmpty) {
-            await repository.addReadDate(ReadDate(
-              bookId: bookId,
-              dateStarted: item.book.dateReadInitial,
-              dateFinished: item.book.dateReadFinal,
-            ));
-            debugPrint('📅 Saved read dates for new book $bookId: ${item.book.dateReadInitial} - ${item.book.dateReadFinal}');
+          if (item.book.dateReadInitial != null &&
+              item.book.dateReadInitial!.isNotEmpty) {
+            await repository.addReadDate(
+              ReadDate(
+                bookId: bookId,
+                dateStarted: item.book.dateReadInitial,
+                dateFinished: item.book.dateReadFinal,
+              ),
+            );
+            debugPrint(
+              '📅 Saved read dates for new book $bookId: ${item.book.dateReadInitial} - ${item.book.dateReadFinal}',
+            );
           }
           imported++;
         } else if (item.importType == 'UPDATE' &&
@@ -1013,15 +1050,20 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               notificationDatetime: item.existingBook?.notificationDatetime,
             );
             await repository.addBook(bookToAdd);
-            
+
             // Save dates to book_read_dates table if they exist
-            if (item.book.dateReadInitial != null && item.book.dateReadInitial!.isNotEmpty) {
-              await repository.addReadDate(ReadDate(
-                bookId: id,
-                dateStarted: item.book.dateReadInitial,
-                dateFinished: item.book.dateReadFinal,
-              ));
-              debugPrint('📅 Saved read dates for updated book $id: ${item.book.dateReadInitial} - ${item.book.dateReadFinal}');
+            if (item.book.dateReadInitial != null &&
+                item.book.dateReadInitial!.isNotEmpty) {
+              await repository.addReadDate(
+                ReadDate(
+                  bookId: id,
+                  dateStarted: item.book.dateReadInitial,
+                  dateFinished: item.book.dateReadFinal,
+                ),
+              );
+              debugPrint(
+                '📅 Saved read dates for updated book $id: ${item.book.dateReadInitial} - ${item.book.dateReadFinal}',
+              );
             }
           }
           updated++;
@@ -1130,34 +1172,39 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                       onPressed: () async {
                         final confirmed = await showDialog<bool>(
                           context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text('Clear Reviewed Books?'),
-                            content: const Text(
-                              'This will clear all tracked reviewed books from all import sessions. Use this if the count seems wrong.',
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context, false),
-                                child: const Text('Cancel'),
-                              ),
-                              ElevatedButton(
-                                onPressed: () => Navigator.pop(context, true),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red,
-                                  foregroundColor: Colors.white,
+                          builder:
+                              (context) => AlertDialog(
+                                title: const Text('Clear Reviewed Books?'),
+                                content: const Text(
+                                  'This will clear all tracked reviewed books from all import sessions. Use this if the count seems wrong.',
                                 ),
-                                child: const Text('Clear All'),
+                                actions: [
+                                  TextButton(
+                                    onPressed:
+                                        () => Navigator.pop(context, false),
+                                    child: const Text('Cancel'),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed:
+                                        () => Navigator.pop(context, true),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.red,
+                                      foregroundColor: Colors.white,
+                                    ),
+                                    child: const Text('Clear All'),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
                         );
-                        
+
                         if (confirmed == true) {
                           await _clearAllReviewedBooks();
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Cleared all reviewed books tracking'),
+                                content: Text(
+                                  'Cleared all reviewed books tracking',
+                                ),
                                 backgroundColor: Colors.green,
                               ),
                             );
@@ -1166,9 +1213,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                       },
                       icon: const Icon(Icons.delete_sweep, size: 18),
                       label: const Text('Clear Reviewed Books Cache'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.grey,
-                      ),
+                      style: TextButton.styleFrom(foregroundColor: Colors.grey),
                     ),
                   ],
                 ),
@@ -1302,14 +1347,23 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                                     _currentIndex < _importItems.length - 1
                                         ? () async {
                                           // Mark current book as ignored, don't import, and move to next
-                                          final currentItem = _importItems[_currentIndex];
-                                          final currentHash = _generateBookHash(currentItem);
-                                          debugPrint('🚫 Ignoring book: ${currentItem.book.name} (hash: $currentHash)');
+                                          final currentItem =
+                                              _importItems[_currentIndex];
+                                          final currentHash = _generateBookHash(
+                                            currentItem,
+                                          );
+                                          debugPrint(
+                                            '🚫 Ignoring book: ${currentItem.book.name} (hash: $currentHash)',
+                                          );
                                           await _markBookAsIgnored(currentHash);
-                                          
+
                                           setState(() {
                                             // Mark as not to import
-                                            _importItems[_currentIndex] = _importItems[_currentIndex].copyWith(shouldImport: false);
+                                            _importItems[_currentIndex] =
+                                                _importItems[_currentIndex]
+                                                    .copyWith(
+                                                      shouldImport: false,
+                                                    );
                                             _currentIndex++;
                                           });
                                           await _saveCheckpoint();
@@ -1328,9 +1382,13 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                                     _currentIndex < _importItems.length - 1
                                         ? () async {
                                           // Mark current book as reviewed before moving to next
-                                          final currentHash = _generateBookHash(_importItems[_currentIndex]);
-                                          await _markBookAsReviewed(currentHash);
-                                          
+                                          final currentHash = _generateBookHash(
+                                            _importItems[_currentIndex],
+                                          );
+                                          await _markBookAsReviewed(
+                                            currentHash,
+                                          );
+
                                           setState(() {
                                             _currentIndex++;
                                           });
@@ -2006,59 +2064,113 @@ class _BookImportPreview extends StatelessWidget {
         break;
       case 'review':
         updatedBook = Book(
-          bookId: book.bookId, name: book.name, isbn: book.isbn, asin: book.asin,
-          author: book.author, saga: book.saga, nSaga: book.nSaga,
-          formatSagaValue: book.formatSagaValue, pages: book.pages,
-          originalPublicationYear: book.originalPublicationYear, loaned: book.loaned,
-          statusValue: book.statusValue, editorialValue: book.editorialValue,
-          languageValue: book.languageValue, placeValue: book.placeValue,
-          formatValue: book.formatValue, createdAt: book.createdAt, genre: book.genre,
-          dateReadInitial: book.dateReadInitial, dateReadFinal: book.dateReadFinal,
-          readCount: book.readCount, myRating: book.myRating,
+          bookId: book.bookId,
+          name: book.name,
+          isbn: book.isbn,
+          asin: book.asin,
+          author: book.author,
+          saga: book.saga,
+          nSaga: book.nSaga,
+          formatSagaValue: book.formatSagaValue,
+          pages: book.pages,
+          originalPublicationYear: book.originalPublicationYear,
+          loaned: book.loaned,
+          statusValue: book.statusValue,
+          editorialValue: book.editorialValue,
+          languageValue: book.languageValue,
+          placeValue: book.placeValue,
+          formatValue: book.formatValue,
+          createdAt: book.createdAt,
+          genre: book.genre,
+          dateReadInitial: book.dateReadInitial,
+          dateReadFinal: book.dateReadFinal,
+          readCount: book.readCount,
+          myRating: book.myRating,
           myReview: trimmedValue.isEmpty ? null : trimmedValue,
           sagaUniverse: book.sagaUniverse,
         );
         break;
       case 'sagaUniverse':
         updatedBook = Book(
-          bookId: book.bookId, name: book.name, isbn: book.isbn, asin: book.asin,
-          author: book.author, saga: book.saga, nSaga: book.nSaga,
-          formatSagaValue: book.formatSagaValue, pages: book.pages,
-          originalPublicationYear: book.originalPublicationYear, loaned: book.loaned,
-          statusValue: book.statusValue, editorialValue: book.editorialValue,
-          languageValue: book.languageValue, placeValue: book.placeValue,
-          formatValue: book.formatValue, createdAt: book.createdAt, genre: book.genre,
-          dateReadInitial: book.dateReadInitial, dateReadFinal: book.dateReadFinal,
-          readCount: book.readCount, myRating: book.myRating, myReview: book.myReview,
+          bookId: book.bookId,
+          name: book.name,
+          isbn: book.isbn,
+          asin: book.asin,
+          author: book.author,
+          saga: book.saga,
+          nSaga: book.nSaga,
+          formatSagaValue: book.formatSagaValue,
+          pages: book.pages,
+          originalPublicationYear: book.originalPublicationYear,
+          loaned: book.loaned,
+          statusValue: book.statusValue,
+          editorialValue: book.editorialValue,
+          languageValue: book.languageValue,
+          placeValue: book.placeValue,
+          formatValue: book.formatValue,
+          createdAt: book.createdAt,
+          genre: book.genre,
+          dateReadInitial: book.dateReadInitial,
+          dateReadFinal: book.dateReadFinal,
+          readCount: book.readCount,
+          myRating: book.myRating,
+          myReview: book.myReview,
           sagaUniverse: trimmedValue.isEmpty ? null : trimmedValue,
         );
         break;
       case 'formatSaga':
         updatedBook = Book(
-          bookId: book.bookId, name: book.name, isbn: book.isbn, asin: book.asin,
-          author: book.author, saga: book.saga, nSaga: book.nSaga,
-          formatSagaValue: trimmedValue.isEmpty ? null : trimmedValue, pages: book.pages,
-          originalPublicationYear: book.originalPublicationYear, loaned: book.loaned,
-          statusValue: book.statusValue, editorialValue: book.editorialValue,
-          languageValue: book.languageValue, placeValue: book.placeValue,
-          formatValue: book.formatValue, createdAt: book.createdAt, genre: book.genre,
-          dateReadInitial: book.dateReadInitial, dateReadFinal: book.dateReadFinal,
-          readCount: book.readCount, myRating: book.myRating, myReview: book.myReview,
+          bookId: book.bookId,
+          name: book.name,
+          isbn: book.isbn,
+          asin: book.asin,
+          author: book.author,
+          saga: book.saga,
+          nSaga: book.nSaga,
+          formatSagaValue: trimmedValue.isEmpty ? null : trimmedValue,
+          pages: book.pages,
+          originalPublicationYear: book.originalPublicationYear,
+          loaned: book.loaned,
+          statusValue: book.statusValue,
+          editorialValue: book.editorialValue,
+          languageValue: book.languageValue,
+          placeValue: book.placeValue,
+          formatValue: book.formatValue,
+          createdAt: book.createdAt,
+          genre: book.genre,
+          dateReadInitial: book.dateReadInitial,
+          dateReadFinal: book.dateReadFinal,
+          readCount: book.readCount,
+          myRating: book.myRating,
+          myReview: book.myReview,
           sagaUniverse: book.sagaUniverse,
         );
         break;
       case 'loaned':
         updatedBook = Book(
-          bookId: book.bookId, name: book.name, isbn: book.isbn, asin: book.asin,
-          author: book.author, saga: book.saga, nSaga: book.nSaga,
-          formatSagaValue: book.formatSagaValue, pages: book.pages,
+          bookId: book.bookId,
+          name: book.name,
+          isbn: book.isbn,
+          asin: book.asin,
+          author: book.author,
+          saga: book.saga,
+          nSaga: book.nSaga,
+          formatSagaValue: book.formatSagaValue,
+          pages: book.pages,
           originalPublicationYear: book.originalPublicationYear,
           loaned: trimmedValue.isEmpty ? null : trimmedValue.toLowerCase(),
-          statusValue: book.statusValue, editorialValue: book.editorialValue,
-          languageValue: book.languageValue, placeValue: book.placeValue,
-          formatValue: book.formatValue, createdAt: book.createdAt, genre: book.genre,
-          dateReadInitial: book.dateReadInitial, dateReadFinal: book.dateReadFinal,
-          readCount: book.readCount, myRating: book.myRating, myReview: book.myReview,
+          statusValue: book.statusValue,
+          editorialValue: book.editorialValue,
+          languageValue: book.languageValue,
+          placeValue: book.placeValue,
+          formatValue: book.formatValue,
+          createdAt: book.createdAt,
+          genre: book.genre,
+          dateReadInitial: book.dateReadInitial,
+          dateReadFinal: book.dateReadFinal,
+          readCount: book.readCount,
+          myRating: book.myRating,
+          myReview: book.myReview,
           sagaUniverse: book.sagaUniverse,
         );
         break;
@@ -2274,7 +2386,10 @@ class _BookImportPreview extends StatelessWidget {
           const SizedBox(height: 8),
           // Skip checkbox
           CheckboxListTile(
-            title: const Text('Import this book', style: TextStyle(fontSize: 13)),
+            title: const Text(
+              'Import this book',
+              style: TextStyle(fontSize: 13),
+            ),
             value: item.shouldImport,
             onChanged: (value) {
               onChanged(item.copyWith(shouldImport: value ?? false));
@@ -2585,7 +2700,8 @@ class _EditableDetailRowState extends State<_EditableDetailRow> {
                           ],
                         ),
                       ),
-                      onFieldSubmitted: widget.maxLines == 1 ? (_) => _stopEditing() : null,
+                      onFieldSubmitted:
+                          widget.maxLines == 1 ? (_) => _stopEditing() : null,
                     )
                     : Row(
                       children: [
@@ -2595,54 +2711,58 @@ class _EditableDetailRowState extends State<_EditableDetailRow> {
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 2),
                               child: RichText(
-                          text: TextSpan(
-                            style: const TextStyle(fontSize: 11, height: 1.3),
-                            children: [
-                              // Show old value if exists and different
-                              if (widget.oldValue != null &&
-                                  widget.oldValue!.isNotEmpty &&
-                                  widget.oldValue != widget.value)
-                                TextSpan(
-                                  text: widget.oldValue,
-                                  style: TextStyle(
-                                    color: Colors.grey[600],
-                                    decoration: TextDecoration.lineThrough,
+                                text: TextSpan(
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    height: 1.3,
                                   ),
-                                ),
-                              // Space between old and new
-                              if (widget.oldValue != null &&
-                                  widget.oldValue!.isNotEmpty &&
-                                  widget.oldValue != widget.value)
-                                const TextSpan(text: ' → '),
-                              // Show new value (or placeholder if empty)
-                              TextSpan(
-                                text:
-                                    widget.value.isEmpty
-                                        ? '(empty)'
-                                        : widget.value,
-                                style: TextStyle(
-                                  color:
-                                      widget.value.isEmpty
-                                          ? Colors.grey[400]
-                                          : (widget.isHighlighted
-                                              ? Colors.green[700]
-                                              : Colors.black87),
-                                  fontWeight:
-                                      widget.isHighlighted
-                                          ? FontWeight.w600
-                                          : FontWeight.normal,
-                                  fontStyle:
-                                      widget.value.isEmpty
-                                          ? FontStyle.italic
-                                          : FontStyle.normal,
+                                  children: [
+                                    // Show old value if exists and different
+                                    if (widget.oldValue != null &&
+                                        widget.oldValue!.isNotEmpty &&
+                                        widget.oldValue != widget.value)
+                                      TextSpan(
+                                        text: widget.oldValue,
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          decoration:
+                                              TextDecoration.lineThrough,
+                                        ),
+                                      ),
+                                    // Space between old and new
+                                    if (widget.oldValue != null &&
+                                        widget.oldValue!.isNotEmpty &&
+                                        widget.oldValue != widget.value)
+                                      const TextSpan(text: ' → '),
+                                    // Show new value (or placeholder if empty)
+                                    TextSpan(
+                                      text:
+                                          widget.value.isEmpty
+                                              ? '(empty)'
+                                              : widget.value,
+                                      style: TextStyle(
+                                        color:
+                                            widget.value.isEmpty
+                                                ? Colors.grey[400]
+                                                : (widget.isHighlighted
+                                                    ? Colors.green[700]
+                                                    : Colors.black87),
+                                        fontWeight:
+                                            widget.isHighlighted
+                                                ? FontWeight.w600
+                                                : FontWeight.normal,
+                                        fontStyle:
+                                            widget.value.isEmpty
+                                                ? FontStyle.italic
+                                                : FontStyle.normal,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                      ),
                             ),
                           ),
+                        ),
                       ],
                     ),
           ),

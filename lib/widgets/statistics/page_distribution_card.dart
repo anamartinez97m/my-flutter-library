@@ -3,32 +3,29 @@ import 'package:flutter/material.dart';
 class PageDistributionCard extends StatelessWidget {
   final Map<String, int> pageDistribution;
 
-  const PageDistributionCard({
-    super.key,
-    required this.pageDistribution,
-  });
+  const PageDistributionCard({super.key, required this.pageDistribution});
 
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
       margin: const EdgeInsets.symmetric(horizontal: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
             Text(
               'Page Count Distribution',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 16),
             ...pageDistribution.entries.map((entry) {
-              final maxValue = pageDistribution.values.reduce((a, b) => a > b ? a : b);
+              final maxValue = pageDistribution.values.reduce(
+                (a, b) => a > b ? a : b,
+              );
               final percentage = maxValue > 0 ? (entry.value / maxValue) : 0.0;
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
@@ -69,7 +66,10 @@ class PageDistributionCard extends StatelessWidget {
                             child: Text(
                               '${entry.value}',
                               style: TextStyle(
-                                color: percentage > 0.15 ? Colors.white : Colors.black87,
+                                color:
+                                    percentage > 0.15
+                                        ? Colors.white
+                                        : Colors.black87,
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -81,7 +81,7 @@ class PageDistributionCard extends StatelessWidget {
                   ],
                 ),
               );
-            }).toList(),
+            }),
           ],
         ),
       ),
