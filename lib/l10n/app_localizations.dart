@@ -1216,6 +1216,240 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Previous'**
   String get previous;
+
+  /// No description provided for @stop_timer_question.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop Timer?'**
+  String get stop_timer_question;
+
+  /// No description provided for @confirm_restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Restore'**
+  String get confirm_restore;
+
+  /// No description provided for @confirm_restore_message.
+  ///
+  /// In en, this message translates to:
+  /// **'This will replace your current database. Make sure you have a backup!'**
+  String get confirm_restore_message;
+
+  /// No description provided for @restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get restore;
+
+  /// No description provided for @add_another.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Another'**
+  String get add_another;
+
+  /// No description provided for @go_to_home.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Home'**
+  String get go_to_home;
+
+  /// No description provided for @missing_information.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing Information'**
+  String get missing_information;
+
+  /// No description provided for @enable_release_notification.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Release Notification'**
+  String get enable_release_notification;
+
+  /// No description provided for @add_to_tbr.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to TBR (To Be Read)'**
+  String get add_to_tbr;
+
+  /// No description provided for @tbr_limit_reached.
+  ///
+  /// In en, this message translates to:
+  /// **'TBR Limit Reached'**
+  String get tbr_limit_reached;
+
+  /// No description provided for @mark_as_tandem_book.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as Tandem Book'**
+  String get mark_as_tandem_book;
+
+  /// No description provided for @scan_isbn.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan ISBN'**
+  String get scan_isbn;
+
+  /// No description provided for @customize_home_filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Customize Home Filters'**
+  String get customize_home_filters;
+
+  /// No description provided for @select_all.
+  ///
+  /// In en, this message translates to:
+  /// **'Select All'**
+  String get select_all;
+
+  /// No description provided for @clear_all.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear All'**
+  String get clear_all;
+
+  /// No description provided for @books_removed_from_tbr.
+  ///
+  /// In en, this message translates to:
+  /// **'{bookName} removed from TBR'**
+  String books_removed_from_tbr(Object bookName);
+
+  /// No description provided for @error_occurred.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String error_occurred(Object error);
+
+  /// No description provided for @tbr_books_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}'**
+  String tbr_books_count(Object count);
+
+  /// No description provided for @no_books_from_decade.
+  ///
+  /// In en, this message translates to:
+  /// **'No books read from this decade'**
+  String get no_books_from_decade;
+
+  /// No description provided for @decade_book_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{decade} ({totalCount} books)'**
+  String decade_book_count(Object decade, Object totalCount);
+
+  /// No description provided for @migrate_bundle_books.
+  ///
+  /// In en, this message translates to:
+  /// **'Migrate Bundle Books?'**
+  String get migrate_bundle_books;
+
+  /// No description provided for @migrate.
+  ///
+  /// In en, this message translates to:
+  /// **'Migrate'**
+  String get migrate;
+
+  /// No description provided for @successful_migrations.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Successful: {count}'**
+  String successful_migrations(Object count);
+
+  /// No description provided for @skipped_migrations.
+  ///
+  /// In en, this message translates to:
+  /// **'⏭️  Skipped: {count}'**
+  String skipped_migrations(Object count);
+
+  /// No description provided for @failed_migrations.
+  ///
+  /// In en, this message translates to:
+  /// **'❌ Failed: {count}'**
+  String failed_migrations(Object count);
+
+  /// No description provided for @import_from_goodreads.
+  ///
+  /// In en, this message translates to:
+  /// **'Import from Goodreads'**
+  String get import_from_goodreads;
+
+  /// No description provided for @import_all_books.
+  ///
+  /// In en, this message translates to:
+  /// **'Import all books'**
+  String get import_all_books;
+
+  /// No description provided for @import_books_from_tag.
+  ///
+  /// In en, this message translates to:
+  /// **'Import books from a specific tag'**
+  String get import_books_from_tag;
+
+  /// No description provided for @add_dropdown_value.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {valueType}'**
+  String add_dropdown_value(Object valueType);
+
+  /// No description provided for @edit_dropdown_value.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit {valueType}'**
+  String edit_dropdown_value(Object valueType);
+
+  /// No description provided for @cannot_delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot Delete'**
+  String get cannot_delete;
+
+  /// No description provided for @delete_value.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Value'**
+  String get delete_value;
+
+  /// No description provided for @replace_with_existing_value.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace with existing value'**
+  String get replace_with_existing_value;
+
+  /// No description provided for @create_new_value.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new value'**
+  String get create_new_value;
+
+  /// No description provided for @delete_completely.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete completely (may fail)'**
+  String get delete_completely;
+
+  /// No description provided for @new_year_challenge.
+  ///
+  /// In en, this message translates to:
+  /// **'New Year Challenge'**
+  String get new_year_challenge;
+
+  /// No description provided for @edit_year_challenge.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit {year} Challenge'**
+  String edit_year_challenge(Object year);
+
+  /// No description provided for @delete_challenge.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Challenge'**
+  String get delete_challenge;
+
+  /// No description provided for @year_challenges.
+  ///
+  /// In en, this message translates to:
+  /// **'Year Challenges'**
+  String get year_challenges;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

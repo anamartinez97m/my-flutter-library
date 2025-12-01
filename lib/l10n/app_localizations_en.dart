@@ -612,4 +612,141 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get previous => 'Previous';
+
+  @override
+  String get stop_timer_question => 'Stop Timer?';
+
+  @override
+  String get confirm_restore => 'Confirm Restore';
+
+  @override
+  String get confirm_restore_message => 'This will replace your current database. Make sure you have a backup!';
+
+  @override
+  String get restore => 'Restore';
+
+  @override
+  String get add_another => 'Add Another';
+
+  @override
+  String get go_to_home => 'Go to Home';
+
+  @override
+  String get missing_information => 'Missing Information';
+
+  @override
+  String get enable_release_notification => 'Enable Release Notification';
+
+  @override
+  String get add_to_tbr => 'Add to TBR (To Be Read)';
+
+  @override
+  String get tbr_limit_reached => 'TBR Limit Reached';
+
+  @override
+  String get mark_as_tandem_book => 'Mark as Tandem Book';
+
+  @override
+  String get scan_isbn => 'Scan ISBN';
+
+  @override
+  String get customize_home_filters => 'Customize Home Filters';
+
+  @override
+  String get select_all => 'Select All';
+
+  @override
+  String get clear_all => 'Clear All';
+
+  @override
+  String books_removed_from_tbr(Object bookName) {
+    return '$bookName removed from TBR';
+  }
+
+  @override
+  String error_occurred(Object error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String tbr_books_count(Object count) {
+    return '$count';
+  }
+
+  @override
+  String get no_books_from_decade => 'No books read from this decade';
+
+  @override
+  String decade_book_count(Object decade, Object totalCount) {
+    return '$decade ($totalCount books)';
+  }
+
+  @override
+  String get migrate_bundle_books => 'Migrate Bundle Books?';
+
+  @override
+  String get migrate => 'Migrate';
+
+  @override
+  String successful_migrations(Object count) {
+    return '✅ Successful: $count';
+  }
+
+  @override
+  String skipped_migrations(Object count) {
+    return '⏭️  Skipped: $count';
+  }
+
+  @override
+  String failed_migrations(Object count) {
+    return '❌ Failed: $count';
+  }
+
+  @override
+  String get import_from_goodreads => 'Import from Goodreads';
+
+  @override
+  String get import_all_books => 'Import all books';
+
+  @override
+  String get import_books_from_tag => 'Import books from a specific tag';
+
+  @override
+  String add_dropdown_value(Object valueType) {
+    return 'Add $valueType';
+  }
+
+  @override
+  String edit_dropdown_value(Object valueType) {
+    return 'Edit $valueType';
+  }
+
+  @override
+  String get cannot_delete => 'Cannot Delete';
+
+  @override
+  String get delete_value => 'Delete Value';
+
+  @override
+  String get replace_with_existing_value => 'Replace with existing value';
+
+  @override
+  String get create_new_value => 'Create new value';
+
+  @override
+  String get delete_completely => 'Delete completely (may fail)';
+
+  @override
+  String get new_year_challenge => 'New Year Challenge';
+
+  @override
+  String edit_year_challenge(Object year) {
+    return 'Edit $year Challenge';
+  }
+
+  @override
+  String get delete_challenge => 'Delete Challenge';
+
+  @override
+  String get year_challenges => 'Year Challenges';
 }
