@@ -179,7 +179,8 @@ class AppLocalizationsEs extends AppLocalizations {
   String get replace_database => 'Reemplazar Base de Datos';
 
   @override
-  String get database_restored_successfully => 'Base de Datos Restaurada Exitosamente!';
+  String get database_restored_successfully =>
+      'Base de Datos Restaurada Exitosamente!';
 
   @override
   String import_backup_error(Object error) {
@@ -198,7 +199,8 @@ class AppLocalizationsEs extends AppLocalizations {
   String get import_database_backup => 'Importar Base de Datos';
 
   @override
-  String get import_backup_confirmation => 'Esta acción reemplazará tu base de datos actual con la copia de seguridad. Todos los datos actuales se perderán. ¿Estás seguro?';
+  String get import_backup_confirmation =>
+      'Esta acción reemplazará tu base de datos actual con la copia de seguridad. Todos los datos actuales se perderán. ¿Estás seguro?';
 
   @override
   String get select_backup_file => 'Seleccionar archivo de copia de seguridad';
@@ -219,7 +221,8 @@ class AppLocalizationsEs extends AppLocalizations {
   String get deleting_all_data => 'Eliminando Todos los Datos...';
 
   @override
-  String get delete_all_data_confirmation => 'Esta acción eliminará permanentemente todos los libros de tu biblioteca. Esta acción no se puede deshacer!\n\n¿Estás seguro de que quieres continuar?';
+  String get delete_all_data_confirmation =>
+      'Esta acción eliminará permanentemente todos los libros de tu biblioteca. Esta acción no se puede deshacer!\n\n¿Estás seguro de que quieres continuar?';
 
   @override
   String deleted_books(Object count) {
@@ -247,7 +250,8 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get import_completed_with_duplicates => 'Importación completada con duplicados!';
+  String get import_completed_with_duplicates =>
+      'Importación completada con duplicados!';
 
   @override
   String imported_books(Object importedCount) {
@@ -265,10 +269,12 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get duplicate_books_not_imported => 'Libros duplicados (no importados):';
+  String get duplicate_books_not_imported =>
+      'Libros duplicados (no importados):';
 
   @override
-  String get books_already_exist => 'Estos libros ya existen en tu biblioteca. Puedes añadirlos manualmente si lo deseas.';
+  String get books_already_exist =>
+      'Estos libros ya existen en tu biblioteca. Puedes añadirlos manualmente si lo deseas.';
 
   @override
   String more_books(Object count) {
@@ -279,7 +285,8 @@ class AppLocalizationsEs extends AppLocalizations {
   String get ok => 'OK';
 
   @override
-  String get permanently_delete_all_books_from_the_database => 'Eliminar permanentemente todos los libros de la base de datos';
+  String get permanently_delete_all_books_from_the_database =>
+      'Eliminar permanentemente todos los libros de la base de datos';
 
   @override
   String get light_theme_colors => 'Colores de Tema Claro';
@@ -294,19 +301,23 @@ class AppLocalizationsEs extends AppLocalizations {
   String get create_database_backup => 'Crear Copia de Seguridad';
 
   @override
-  String get save_a_copy_of_your_library_database => 'Guardar una copia de tu base de datos de biblioteca';
+  String get save_a_copy_of_your_library_database =>
+      'Guardar una copia de tu base de datos de biblioteca';
 
   @override
   String get manage_dropdown_values => 'Gestionar valores de desplegable';
 
   @override
-  String get manage_dropdown_values_hint => 'Gestionar valores de desplegable para estado, idioma, lugar, formato y formato saga.';
+  String get manage_dropdown_values_hint =>
+      'Gestionar valores de desplegable para estado, idioma, lugar, formato y formato saga.';
 
   @override
-  String get import_from_csv_hint => 'Columnas esperadas: read, title, author, publisher, genre, saga, n_saga, format_saga, isbn13, number of pages, original publication year, language, place, binding, loaned';
+  String get import_from_csv_hint =>
+      'Columnas esperadas: read, title, author, publisher, genre, saga, n_saga, format_saga, isbn13, number of pages, original publication year, language, place, binding, loaned';
 
   @override
-  String get import_from_csv_tbreleased => 'Para libros no publicados use estado TBReleased';
+  String get import_from_csv_tbreleased =>
+      'Para libros no publicados use estado TBReleased';
 
   @override
   String get import_from_csv => 'Importar libro desde CSV';
@@ -315,7 +326,8 @@ class AppLocalizationsEs extends AppLocalizations {
   String get import_from_csv_file => 'Importar libros desde un archivo CSV';
 
   @override
-  String get restore_a_copy_of_your_library_database => 'Restaurar una copia de tu base de datos de biblioteca';
+  String get restore_a_copy_of_your_library_database =>
+      'Restaurar una copia de tu base de datos de biblioteca';
 
   @override
   String get theme => 'Tema';
@@ -372,10 +384,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get any => 'Cualquiera';
 
   @override
-  String get confirm_delete => '¿Estás seguro de que quieres eliminar este libro?';
+  String get confirm_delete =>
+      '¿Estás seguro de que quieres eliminar este libro?';
 
   @override
-  String get confirm_delete_all => 'Esto eliminará permanentemente TODOS los libros de tu biblioteca. ¡Esta acción no se puede deshacer!\\n\\n¿Estás seguro de que quieres continuar?';
+  String get confirm_delete_all =>
+      'Esto eliminará permanentemente TODOS los libros de tu biblioteca. ¡Esta acción no se puede deshacer!\\n\\n¿Estás seguro de que quieres continuar?';
 
   @override
   String get book_added_successfully => '¡Libro añadido con éxito!';
@@ -399,13 +413,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String get add_read => 'Añadir Lectura';
 
   @override
-  String get tap_hearts_to_rate => 'Toca los corazones para valorar (toca de nuevo para medio corazón)';
+  String get tap_hearts_to_rate =>
+      'Toca los corazones para valorar (toca de nuevo para medio corazón)';
 
   @override
   String get top_5_genres => 'Top 5 Géneros';
 
   @override
-  String get about_box_children => 'Aplicación desarrollada con Flutter/Dart.\n Permite gestionar tu biblioteca personal y recibir recomendaciones de lectura personalizadas.';
+  String get about_box_children =>
+      'Aplicación desarrollada con Flutter/Dart.\n Permite gestionar tu biblioteca personal y recibir recomendaciones de lectura personalizadas.';
 
   @override
   String get sort_and_filter => 'Ordenar y Filtrar';
@@ -440,7 +456,8 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get max_tbr_books_description => 'Número máximo de libros que puedes marcar como \'Por Leer\' a la vez:';
+  String get max_tbr_books_description =>
+      'Número máximo de libros que puedes marcar como \'Por Leer\' a la vez:';
 
   @override
   String max_tbr_books_subtitle(Object tbrLimit) {
@@ -457,11 +474,158 @@ class AppLocalizationsEs extends AppLocalizations {
   String get books => 'libros';
 
   @override
-  String get please_enter_valid_number => 'Por favor ingresa un número válido mayor a 0';
+  String get please_enter_valid_number =>
+      'Por favor ingresa un número válido mayor a 0';
 
   @override
   String get maximum_limit_200_books => 'Límite máximo es de 200 libros';
 
   @override
   String get range_1_200_books => 'Rango: 1-200 libros';
+
+  @override
+  String get this_is_a_bundle => 'Esto es un paquete';
+
+  @override
+  String get check_if_this_book_contains_multiple_books =>
+      'Marca si este libro contiene múltiples libros en un volumen';
+
+  @override
+  String get number_of_books_in_bundle => 'Número de libros en el paquete';
+
+  @override
+  String get saga_numbers_optional => 'Números de saga (opcional)';
+
+  @override
+  String get saga_number_n_saga => 'Número de saga (N_Saga)';
+
+  @override
+  String get book_title => 'Título del libro';
+
+  @override
+  String get authors => 'Autor(es)';
+
+  @override
+  String get original_publication_year => 'Año de publicación original';
+
+  @override
+  String get started => 'Iniciado';
+
+  @override
+  String get finished => 'Terminado';
+
+  @override
+  String get year => 'Año';
+
+  @override
+  String get search_books_by_title => 'Buscar libros por título';
+
+  @override
+  String get stop_timer => 'Detener temporizador';
+
+  @override
+  String get do_you_want_to_stop_the_reading_timer =>
+      '¿Quieres detener el temporizador de lectura?';
+
+  @override
+  String get stop => 'Detener';
+
+  @override
+  String get timer_is_running => 'El temporizador está en ejecución';
+
+  @override
+  String get exit => 'Salir';
+
+  @override
+  String get start => 'Iniciar';
+
+  @override
+  String get pause => 'Pausar';
+
+  @override
+  String get resume => 'Reanudar';
+
+  @override
+  String get stop_save => 'Detener y guardar';
+
+  @override
+  String get quick_add => 'Agregar rápido';
+
+  @override
+  String add_book_s(Object count) => 'Agregar $count libro(s)';
+
+  @override
+  String get bundle_book_details => 'Detalles del libro del paquete';
+
+  @override
+  String select_label(Object label) => 'Seleccionar $label';
+
+  @override
+  String get full_date => 'Fecha completa';
+
+  @override
+  String get year_only => 'Solo año';
+
+  @override
+  String get add_session => 'Agregar sesión';
+
+  @override
+  String get enter_year => 'Ingresar año';
+
+  @override
+  String get please_enter_valid_year => 'Por favor ingresa un año válido';
+
+  @override
+  String get add => 'Agregar';
+
+  @override
+  String get edit => 'Editar';
+
+  @override
+  String get close => 'Cerrar';
+
+  @override
+  String get proceed => 'Continuar';
+
+  @override
+  String get create => 'Crear';
+
+  @override
+  String get confirm => 'Confirmar';
+
+  @override
+  String get error => 'Error';
+
+  @override
+  String get success => 'Éxito';
+
+  @override
+  String get warning => 'Advertencia';
+
+  @override
+  String get info => 'Información';
+
+  @override
+  String get loading => 'Cargando';
+
+  @override
+  String get search => 'Buscar';
+
+  @override
+  String get filter => 'Filtrar';
+
+  @override
+  String get sort => 'Ordenar';
+
+  @override
+  String get reset => 'Restablecer';
+
+  @override
+  String get back => 'Atrás';
+
+  @override
+  String get next => 'Siguiente';
+
+  @override
+  String get previous => 'Anterior';
 }

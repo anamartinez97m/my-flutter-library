@@ -179,7 +179,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get replace_database => 'Replace Database';
 
   @override
-  String get database_restored_successfully => 'Database restored successfully!';
+  String get database_restored_successfully =>
+      'Database restored successfully!';
 
   @override
   String import_backup_error(Object error) {
@@ -198,7 +199,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get import_database_backup => 'Import Database Backup';
 
   @override
-  String get import_backup_confirmation => 'This will replace your current database with the backup. All current data will be lost. Are you sure?';
+  String get import_backup_confirmation =>
+      'This will replace your current database with the backup. All current data will be lost. Are you sure?';
 
   @override
   String get select_backup_file => 'Select backup file';
@@ -219,7 +221,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleting_all_data => 'Deleting All Data...';
 
   @override
-  String get delete_all_data_confirmation => 'This will permanently delete ALL books from your library. This action cannot be undone!\n\nAre you sure you want to continue?';
+  String get delete_all_data_confirmation =>
+      'This will permanently delete ALL books from your library. This action cannot be undone!\n\nAre you sure you want to continue?';
 
   @override
   String deleted_books(Object count) {
@@ -247,7 +250,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get import_completed_with_duplicates => 'Import completed with duplicates!';
+  String get import_completed_with_duplicates =>
+      'Import completed with duplicates!';
 
   @override
   String imported_books(Object importedCount) {
@@ -268,7 +272,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get duplicate_books_not_imported => 'Duplicate books (not imported):';
 
   @override
-  String get books_already_exist => 'These books already exist in your library. You can add them manually if needed.';
+  String get books_already_exist =>
+      'These books already exist in your library. You can add them manually if needed.';
 
   @override
   String more_books(Object count) {
@@ -279,7 +284,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ok => 'OK';
 
   @override
-  String get permanently_delete_all_books_from_the_database => 'Permanently delete all books from the database';
+  String get permanently_delete_all_books_from_the_database =>
+      'Permanently delete all books from the database';
 
   @override
   String get light_theme_colors => 'Light Theme Colors';
@@ -294,19 +300,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get create_database_backup => 'Create Database Backup';
 
   @override
-  String get save_a_copy_of_your_library_database => 'Save a copy of your library database';
+  String get save_a_copy_of_your_library_database =>
+      'Save a copy of your library database';
 
   @override
   String get manage_dropdown_values => 'Manage Dropdown Values';
 
   @override
-  String get manage_dropdown_values_hint => 'Manage dropdown values for status, language, place, format, and format saga.';
+  String get manage_dropdown_values_hint =>
+      'Manage dropdown values for status, language, place, format, and format saga.';
 
   @override
-  String get import_from_csv_hint => 'Expected columns: read, title, author, publisher, genre, saga, n_saga, format_saga, isbn13, number of pages, original publication year, language, place, binding, loaned';
+  String get import_from_csv_hint =>
+      'Expected columns: read, title, author, publisher, genre, saga, n_saga, format_saga, isbn13, number of pages, original publication year, language, place, binding, loaned';
 
   @override
-  String get import_from_csv_tbreleased => 'For unreleased books use status tb_released';
+  String get import_from_csv_tbreleased =>
+      'For unreleased books use status tb_released';
 
   @override
   String get import_from_csv => 'Import book from CSV';
@@ -315,7 +325,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get import_from_csv_file => 'Import books from a CSV file';
 
   @override
-  String get restore_a_copy_of_your_library_database => 'Restore a copy of your library database';
+  String get restore_a_copy_of_your_library_database =>
+      'Restore a copy of your library database';
 
   @override
   String get theme => 'Theme';
@@ -375,7 +386,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirm_delete => 'Are you sure you want to delete this book?';
 
   @override
-  String get confirm_delete_all => 'This will permanently delete ALL books from your library. This action cannot be undone!\\n\\nAre you sure you want to continue?';
+  String get confirm_delete_all =>
+      'This will permanently delete ALL books from your library. This action cannot be undone!\\n\\nAre you sure you want to continue?';
 
   @override
   String get book_added_successfully => 'Book added successfully!';
@@ -405,7 +417,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get top_5_genres => 'Top 5 Genres';
 
   @override
-  String get about_box_children => 'Aplicación desarrollada con Flutter/Dart.\n Permite gestionar tu biblioteca personal y recibir recomendaciones de lectura personalizadas.';
+  String get about_box_children =>
+      'Aplicación desarrollada con Flutter/Dart.\n Permite gestionar tu biblioteca personal y recibir recomendaciones de lectura personalizadas.';
 
   @override
   String get sort_and_filter => 'Sort & Filter';
@@ -440,7 +453,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get max_tbr_books_description => 'Maximum number of books you can mark as \'To Be Read\' at once:';
+  String get max_tbr_books_description =>
+      'Maximum number of books you can mark as \'To Be Read\' at once:';
 
   @override
   String max_tbr_books_subtitle(Object tbrLimit) {
@@ -457,11 +471,158 @@ class AppLocalizationsEn extends AppLocalizations {
   String get books => 'books';
 
   @override
-  String get please_enter_valid_number => 'Please enter a valid number greater than 0';
+  String get please_enter_valid_number =>
+      'Please enter a valid number greater than 0';
 
   @override
   String get maximum_limit_200_books => 'Maximum limit is 200 books';
 
   @override
   String get range_1_200_books => 'Range: 1-200 books';
+
+  @override
+  String get this_is_a_bundle => 'This is a bundle';
+
+  @override
+  String get check_if_this_book_contains_multiple_books =>
+      'Check if this book contains multiple books in one volume';
+
+  @override
+  String get number_of_books_in_bundle => 'Number of Books in Bundle';
+
+  @override
+  String get saga_numbers_optional => 'Saga Numbers (optional)';
+
+  @override
+  String get saga_number_n_saga => 'Saga Number (N_Saga)';
+
+  @override
+  String get book_title => 'Book Title';
+
+  @override
+  String get authors => 'Author(s)';
+
+  @override
+  String get original_publication_year => 'Original Publication Year';
+
+  @override
+  String get started => 'Started';
+
+  @override
+  String get finished => 'Finished';
+
+  @override
+  String get year => 'Year';
+
+  @override
+  String get search_books_by_title => 'Search books by title';
+
+  @override
+  String get stop_timer => 'Stop Timer';
+
+  @override
+  String get do_you_want_to_stop_the_reading_timer =>
+      'Do you want to stop the reading timer?';
+
+  @override
+  String get stop => 'Stop';
+
+  @override
+  String get timer_is_running => 'Timer is Running';
+
+  @override
+  String get exit => 'Exit';
+
+  @override
+  String get start => 'Start';
+
+  @override
+  String get pause => 'Pause';
+
+  @override
+  String get resume => 'Resume';
+
+  @override
+  String get stop_save => 'Stop & Save';
+
+  @override
+  String get quick_add => 'Quick Add';
+
+  @override
+  String add_book_s(Object count) => 'Add $count Book(s)';
+
+  @override
+  String get bundle_book_details => 'Bundle Book Details';
+
+  @override
+  String select_label(Object label) => 'Select $label';
+
+  @override
+  String get full_date => 'Full Date';
+
+  @override
+  String get year_only => 'Year Only';
+
+  @override
+  String get add_session => 'Add Session';
+
+  @override
+  String get enter_year => 'Enter Year';
+
+  @override
+  String get please_enter_valid_year => 'Please enter a valid year';
+
+  @override
+  String get add => 'Add';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get proceed => 'Proceed';
+
+  @override
+  String get create => 'Create';
+
+  @override
+  String get confirm => 'Confirm';
+
+  @override
+  String get error => 'Error';
+
+  @override
+  String get success => 'Success';
+
+  @override
+  String get warning => 'Warning';
+
+  @override
+  String get info => 'Information';
+
+  @override
+  String get loading => 'Loading';
+
+  @override
+  String get search => 'Search';
+
+  @override
+  String get filter => 'Filter';
+
+  @override
+  String get sort => 'Sort';
+
+  @override
+  String get reset => 'Reset';
+
+  @override
+  String get back => 'Back';
+
+  @override
+  String get next => 'Next';
+
+  @override
+  String get previous => 'Previous';
 }

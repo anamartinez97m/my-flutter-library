@@ -203,10 +203,8 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CheckboxListTile(
-          title: const Text('This is a bundle'),
-          subtitle: const Text(
-            'Check if this book contains multiple books in one volume',
-          ),
+          title: Text(AppLocalizations.of(context)!.this_is_a_bundle),
+          subtitle: Text(AppLocalizations.of(context)!.check_if_this_book_contains_multiple_books),
           value: _isBundle,
           onChanged: (value) {
             setState(() {
@@ -220,14 +218,14 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
           const SizedBox(height: 16),
           TextFormField(
             controller: _bundleCountController,
-            decoration: const InputDecoration(
-              labelText: 'Number of Books in Bundle',
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.library_books),
-              hintText: 'e.g., 3',
-            ),
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration: InputDecoration(
+              labelText: AppLocalizations.of(context)!.number_of_books_in_bundle,
+              border: const OutlineInputBorder(),
+              isDense: true,
+              hintText: 'e.g., 3',
+            ),
           ),
           const SizedBox(height: 16),
           TextFormField(
