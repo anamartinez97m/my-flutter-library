@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
 /// Data class to hold information about a single book in a bundle
 class BundleBookData {
@@ -47,7 +48,8 @@ class BundleInputWidgetV2 extends StatefulWidget {
   final int? initialBundleCount;
   final List<BundleBookData>? initialBundleBooks;
   final List<Map<String, dynamic>>? statusOptions; // List of status options
-  final Function(bool isBundle, int? count, List<BundleBookData>? bundleBooks) onChanged;
+  final Function(bool isBundle, int? count, List<BundleBookData>? bundleBooks)
+  onChanged;
   final bool editMode; // If true, only show title and nsaga fields
 
   const BundleInputWidgetV2({
@@ -76,12 +78,13 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
     _bundleCountController = TextEditingController(
       text: widget.initialBundleCount?.toString() ?? '',
     );
-    
+
     // Initialize bundle books
-    if (widget.initialBundleBooks != null && widget.initialBundleBooks!.isNotEmpty) {
+    if (widget.initialBundleBooks != null &&
+        widget.initialBundleBooks!.isNotEmpty) {
       _bundleBooks = List.from(widget.initialBundleBooks!);
     }
-    
+
     _bundleCountController.addListener(_onCountChanged);
   }
 
@@ -123,7 +126,9 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
       children: [
         CheckboxListTile(
           title: const Text('This is a bundle'),
-          subtitle: const Text('Check if this book contains multiple books in one volume'),
+          subtitle: const Text(
+            'Check if this book contains multiple books in one volume',
+          ),
           value: _isBundle,
           onChanged: (value) {
             setState(() {
@@ -150,18 +155,19 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
           if (_bundleBooks.isNotEmpty) ...[
             Text(
               'Bundle Book Details',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             ...List.generate(_bundleBooks.length, (index) {
               final bookData = _bundleBooks[index];
-              final bookTitle = (bookData.title != null && bookData.title!.isNotEmpty)
-                  ? bookData.title!
-                  : 'Book ${index + 1}';
+              final bookTitle =
+                  (bookData.title != null && bookData.title!.isNotEmpty)
+                      ? bookData.title!
+                      : 'Book ${index + 1}';
               final statusValue = bookData.status ?? 'No';
-              
+
               // Determine icon and color based on status
               IconData statusIcon;
               Color statusColor;
@@ -175,7 +181,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                 statusIcon = Icons.circle_outlined;
                 statusColor = Colors.grey;
               }
-              
+
               return Card(
                 key: ValueKey('bundle_card_$index'),
                 margin: const EdgeInsets.only(bottom: 12),
@@ -191,11 +197,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                       // Header with icon and title
                       Row(
                         children: [
-                          Icon(
-                            statusIcon,
-                            color: statusColor,
-                            size: 28,
-                          ),
+                          Icon(statusIcon, color: statusColor, size: 28),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Column(
@@ -206,7 +208,10 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
-                                    color: statusValue == 'Yes' ? Colors.green.shade700 : null,
+                                    color:
+                                        statusValue == 'Yes'
+                                            ? Colors.green.shade700
+                                            : null,
                                   ),
                                 ),
                                 Text(
@@ -223,7 +228,9 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                       ),
                       const SizedBox(height: 16),
                       // Status dropdown - only show when NOT in edit mode
-                      if (!widget.editMode && widget.statusOptions != null && widget.statusOptions!.isNotEmpty)
+                      if (!widget.editMode &&
+                          widget.statusOptions != null &&
+                          widget.statusOptions!.isNotEmpty)
                         DropdownButtonFormField<String>(
                           value: statusValue,
                           decoration: const InputDecoration(
@@ -231,13 +238,14 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                             border: OutlineInputBorder(),
                             isDense: true,
                           ),
-                          items: widget.statusOptions!.map((status) {
-                            final value = status['value'] as String;
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
+                          items:
+                              widget.statusOptions!.map((status) {
+                                final value = status['value'] as String;
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
                           onChanged: (value) {
                             setState(() {
                               _bundleBooks[index].status = value;
@@ -245,8 +253,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                             _notifyChange();
                           },
                         ),
-                      if (!widget.editMode)
-                        const SizedBox(height: 8),
+                      if (!widget.editMode) const SizedBox(height: 8),
                       // N_Saga input
                       TextFormField(
                         key: ValueKey('saga_$index'),
@@ -259,7 +266,8 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                         ),
                         onChanged: (value) {
                           setState(() {
-                            _bundleBooks[index].sagaNumber = value.isEmpty ? null : value;
+                            _bundleBooks[index].sagaNumber =
+                                value.isEmpty ? null : value;
                           });
                           _notifyChange();
                         },
@@ -277,7 +285,8 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                         ),
                         onChanged: (value) {
                           setState(() {
-                            _bundleBooks[index].title = value.isEmpty ? null : value;
+                            _bundleBooks[index].title =
+                                value.isEmpty ? null : value;
                           });
                           _notifyChange();
                         },
@@ -286,63 +295,65 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                       // Author input - only show when NOT in edit mode
                       if (!widget.editMode)
                         TextFormField(
-                        key: ValueKey('author_$index'),
-                        initialValue: bookData.author ?? '',
-                        decoration: const InputDecoration(
-                          labelText: 'Author(s)',
-                          border: OutlineInputBorder(),
-                          isDense: true,
-                          hintText: 'Enter author name(s), separate with commas',
+                          key: ValueKey('author_$index'),
+                          initialValue: bookData.author ?? '',
+                          decoration: const InputDecoration(
+                            labelText: 'Author(s)',
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                            hintText:
+                                'Enter author name(s), separate with commas',
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              _bundleBooks[index].author =
+                                  value.isEmpty ? null : value;
+                            });
+                            _notifyChange();
+                          },
                         ),
-                        onChanged: (value) {
-                          setState(() {
-                            _bundleBooks[index].author = value.isEmpty ? null : value;
-                          });
-                          _notifyChange();
-                        },
-                      ),
-                      if (!widget.editMode)
-                        const SizedBox(height: 8),
+                      if (!widget.editMode) const SizedBox(height: 8),
                       // Pages input - only show when NOT in edit mode
                       if (!widget.editMode)
                         TextFormField(
-                        key: ValueKey('pages_$index'),
-                        initialValue: bookData.pages?.toString() ?? '',
-                        decoration: const InputDecoration(
-                          labelText: 'Pages',
-                          border: OutlineInputBorder(),
-                          isDense: true,
-                          hintText: 'e.g., 250',
+                          key: ValueKey('pages_$index'),
+                          initialValue: bookData.pages?.toString() ?? '',
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.pages,
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                            hintText: 'e.g., 250',
+                          ),
+                          keyboardType: TextInputType.number,
+                          onChanged: (value) {
+                            setState(() {
+                              _bundleBooks[index].pages = int.tryParse(value);
+                            });
+                            _notifyChange();
+                          },
                         ),
-                        keyboardType: TextInputType.number,
-                        onChanged: (value) {
-                          setState(() {
-                            _bundleBooks[index].pages = int.tryParse(value);
-                          });
-                          _notifyChange();
-                        },
-                      ),
-                      if (!widget.editMode)
-                        const SizedBox(height: 8),
+                      if (!widget.editMode) const SizedBox(height: 8),
                       // Original Publication Year input - only show when NOT in edit mode
                       if (!widget.editMode)
                         TextFormField(
-                        key: ValueKey('year_$index'),
-                        initialValue: bookData.publicationYear?.toString() ?? '',
-                        decoration: const InputDecoration(
-                          labelText: 'Original Publication Year',
-                          border: OutlineInputBorder(),
-                          isDense: true,
-                          hintText: 'e.g., 2020',
+                          key: ValueKey('year_$index'),
+                          initialValue:
+                              bookData.publicationYear?.toString() ?? '',
+                          decoration: const InputDecoration(
+                            labelText: 'Original Publication Year',
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                            hintText: 'e.g., 2020',
+                          ),
+                          keyboardType: TextInputType.number,
+                          onChanged: (value) {
+                            setState(() {
+                              _bundleBooks[index]
+                                  .publicationYear = int.tryParse(value);
+                            });
+                            _notifyChange();
+                          },
                         ),
-                        keyboardType: TextInputType.number,
-                        onChanged: (value) {
-                          setState(() {
-                            _bundleBooks[index].publicationYear = int.tryParse(value);
-                          });
-                          _notifyChange();
-                        },
-                      ),
                     ],
                   ),
                 ),

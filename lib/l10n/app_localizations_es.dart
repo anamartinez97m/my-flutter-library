@@ -73,6 +73,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get saga => 'Saga';
 
   @override
+  String get saga_universe => 'Universo de la Saga';
+
+  @override
   String saga_with_colon(Object saga) {
     return 'Saga: $saga';
   }
@@ -403,4 +406,62 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get about_box_children => 'Aplicación desarrollada con Flutter/Dart.\n Permite gestionar tu biblioteca personal y recibir recomendaciones de lectura personalizadas.';
+
+  @override
+  String get sort_and_filter => 'Ordenar y Filtrar';
+
+  @override
+  String get empty => 'Vacío';
+
+  @override
+  String get yes => 'Sí';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get isbn_asin => 'ISBN/ASIN';
+
+  @override
+  String get bundle => 'Paquete';
+
+  @override
+  String get tandem => 'Tándem';
+
+  @override
+  String get saga_format_without_saga => 'Formato de Saga Sin Saga';
+
+  @override
+  String get saga_format_without_n_saga => 'Formato de Saga Sin N_Saga';
+
+  @override
+  String pages_with_colon(Object pages) {
+    return 'Páginas: $pages';
+  }
+
+  @override
+  String get max_tbr_books_description => 'Número máximo de libros que puedes marcar como \'Por Leer\' a la vez:';
+
+  @override
+  String max_tbr_books_subtitle(Object tbrLimit) {
+    return 'Libros máximos en \'Por Leer\': $tbrLimit';
+  }
+
+  @override
+  String get set_tbr_limit => 'Establecer Límite TBR';
+
+  @override
+  String get tbr_limit => 'Límite TBR';
+
+  @override
+  String get books => 'libros';
+
+  @override
+  String get please_enter_valid_number => 'Por favor ingresa un número válido mayor a 0';
+
+  @override
+  String get maximum_limit_200_books => 'Límite máximo es de 200 libros';
+
+  @override
+  String get range_1_200_books => 'Rango: 1-200 libros';
 }

@@ -876,7 +876,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         _currentBook.editorialValue!.isNotEmpty)
                       _DetailCard(
                         icon: Icons.business,
-                        label: 'Editorial',
+                        label: AppLocalizations.of(context)!.editorial,
                         value: _currentBook.editorialValue!,
                       ),
                     if (_currentBook.genre != null &&
@@ -903,7 +903,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         },
                         child: _DetailCard(
                           icon: Icons.collections_bookmark,
-                          label: 'Saga',
+                          label: AppLocalizations.of(context)!.saga,
                           value:
                               '${_currentBook.saga}${_currentBook.nSaga != null ? ' #${_currentBook.nSaga}' : ''}',
                           trailingIcon: Icons.open_in_new,
@@ -926,7 +926,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         },
                         child: _DetailCard(
                           icon: Icons.public,
-                          label: 'Saga Universe',
+                          label: AppLocalizations.of(context)!.saga_universe,
                           value: _currentBook.sagaUniverse!,
                           trailingIcon: Icons.open_in_new,
                         ),
@@ -934,7 +934,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                     if (_currentBook.pages != null)
                       _DetailCard(
                         icon: Icons.description,
-                        label: 'Pages',
+                        label: AppLocalizations.of(context)!.pages,
                         value: _currentBook.pages.toString(),
                       ),
                     if (_currentBook.originalPublicationYear != null)
@@ -945,7 +945,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         _currentBook.formatSagaValue!.isNotEmpty)
                       _DetailCard(
                         icon: Icons.format_shapes,
-                        label: 'Format Saga',
+                        label: AppLocalizations.of(context)!.format_saga,
                         value: _currentBook.formatSagaValue!,
                       ),
                     if (_currentBook.languageValue != null &&

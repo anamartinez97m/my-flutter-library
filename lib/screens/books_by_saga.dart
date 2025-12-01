@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/widgets/booklist.dart';
@@ -24,26 +25,31 @@ class BooksBySagaScreen extends StatelessWidget {
     if (provider == null || provider.isLoading) {
       return Scaffold(
         appBar: AppBar(
-          title: Text(isSagaUniverse ? 'Saga Universe' : 'Saga'),
+          title: Text(
+            isSagaUniverse
+                ? AppLocalizations.of(context)!.saga_universe
+                : AppLocalizations.of(context)!.saga,
+          ),
         ),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     // Filter books by saga or saga universe
-    final filteredBooks = provider.allBooks.where((book) {
-      if (isSagaUniverse) {
-        return book.sagaUniverse?.toLowerCase() == sagaName.toLowerCase();
-      } else {
-        return book.saga?.toLowerCase() == sagaName.toLowerCase();
-      }
-    }).toList();
+    final filteredBooks =
+        provider.allBooks.where((book) {
+          if (isSagaUniverse) {
+            return book.sagaUniverse?.toLowerCase() == sagaName.toLowerCase();
+          } else {
+            return book.saga?.toLowerCase() == sagaName.toLowerCase();
+          }
+        }).toList();
 
     // Sort by saga number if available
     filteredBooks.sort((a, b) {
       final aSagaNum = int.tryParse(a.nSaga ?? '');
       final bSagaNum = int.tryParse(b.nSaga ?? '');
-      
+
       if (aSagaNum != null && bSagaNum != null) {
         return aSagaNum.compareTo(bSagaNum);
       } else if (aSagaNum != null) {
@@ -51,7 +57,7 @@ class BooksBySagaScreen extends StatelessWidget {
       } else if (bSagaNum != null) {
         return 1;
       }
-      
+
       // Fallback to name sorting
       return (a.name ?? '').compareTo(b.name ?? '');
     });
@@ -64,19 +70,22 @@ class BooksBySagaScreen extends StatelessWidget {
         onPressed: () async {
           final result = await showDialog<int>(
             context: context,
-            builder: (context) => QuickAddBookDialog(
-              sagaName: isSagaUniverse ? null : sagaName,
-              sagaUniverse: isSagaUniverse ? sagaName : sagaUniverse,
-            ),
+            builder:
+                (context) => QuickAddBookDialog(
+                  sagaName: isSagaUniverse ? null : sagaName,
+                  sagaUniverse: isSagaUniverse ? sagaName : sagaUniverse,
+                ),
           );
-          
+
           if (result != null && result > 0) {
             // Reload books
             provider.loadBooks();
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Added $result book(s) to ${isSagaUniverse ? 'universe' : 'saga'}'),
+                  content: Text(
+                    'Added $result book(s) to ${isSagaUniverse ? 'universe' : 'saga'}',
+                  ),
                 ),
               );
             }
@@ -85,81 +94,80 @@ class BooksBySagaScreen extends StatelessWidget {
         icon: const Icon(Icons.add),
         label: const Text('Quick Add'),
       ),
-      body: filteredBooks.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+      body:
+          filteredBooks.isEmpty
+              ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.collections_bookmark_outlined,
+                      size: 64,
+                      color: Colors.grey[400],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No books found in this ${isSagaUniverse ? 'universe' : 'saga'}',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              )
+              : Column(
                 children: [
-                  Icon(
-                    Icons.collections_bookmark_outlined,
-                    size: 64,
-                    color: Colors.grey[400],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No books found in this ${isSagaUniverse ? 'universe' : 'saga'}',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Colors.grey[600],
-                        ),
-                  ),
-                ],
-              ),
-            )
-          : Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Card(
-                    elevation: 2,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Column(
-                            children: [
-                              Text(
-                                '${filteredBooks.length}',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineMedium
-                                    ?.copyWith(
-                                      color: Colors.deepPurple,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Total Books',
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                            ],
-                          ),
-                          if (!isSagaUniverse && sagaUniverse != null)
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Card(
+                      elevation: 2,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
                             Column(
                               children: [
-                                Icon(
-                                  Icons.public,
-                                  color: Colors.deepPurple,
-                                  size: 32,
+                                Text(
+                                  '${filteredBooks.length}',
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.headlineMedium?.copyWith(
+                                    color: Colors.deepPurple,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  sagaUniverse!,
+                                  'Total Books',
                                   style: Theme.of(context).textTheme.bodySmall,
                                 ),
                               ],
                             ),
-                        ],
+                            if (!isSagaUniverse && sagaUniverse != null)
+                              Column(
+                                children: [
+                                  Icon(
+                                    Icons.public,
+                                    color: Colors.deepPurple,
+                                    size: 32,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    sagaUniverse!,
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall,
+                                  ),
+                                ],
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                Expanded(
-                  child: BookListView(books: filteredBooks),
-                ),
-              ],
-            ),
+                  Expanded(child: BookListView(books: filteredBooks)),
+                ],
+              ),
     );
   }
 }
