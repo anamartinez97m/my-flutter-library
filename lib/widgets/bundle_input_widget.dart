@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
 class BundleInputWidget extends StatefulWidget {
   final bool initialIsBundle;
@@ -9,10 +10,21 @@ class BundleInputWidget extends StatefulWidget {
   final List<int?>? initialBundlePublicationYears;
   final List<String?>? initialBundleTitles;
   final List<String?>? initialBundleAuthors;
-  final Map<int, bool>? bundleBooksReadStatus; // Map of bundle index to read status
+  final Map<int, bool>?
+  bundleBooksReadStatus; // Map of bundle index to read status
   final Map<int, bool>? bundleBooksHasReadingSessions;
-  final Function(bool isBundle, int? count, String? numbers, List<int?>? bundlePages, List<int?>? bundlePublicationYears, List<String?>? bundleTitles, List<String?>? bundleAuthors) onChanged;
-  final Function(int bundleIndex, bool isRead)? onReadStatusChanged; // Callback for manual read status changes
+  final Function(
+    bool isBundle,
+    int? count,
+    String? numbers,
+    List<int?>? bundlePages,
+    List<int?>? bundlePublicationYears,
+    List<String?>? bundleTitles,
+    List<String?>? bundleAuthors,
+  )
+  onChanged;
+  final Function(int bundleIndex, bool isRead)?
+  onReadStatusChanged; // Callback for manual read status changes
 
   const BundleInputWidget({
     super.key,
@@ -53,12 +65,14 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
     _bundleNumbersController = TextEditingController(
       text: widget.initialBundleNumbers ?? '',
     );
-    
+
     if (widget.initialBundlePages != null) {
       _bundlePages = List.from(widget.initialBundlePages!);
     }
     if (widget.initialBundlePublicationYears != null) {
-      _bundlePublicationYears = List.from(widget.initialBundlePublicationYears!);
+      _bundlePublicationYears = List.from(
+        widget.initialBundlePublicationYears!,
+      );
     }
     if (widget.initialBundleTitles != null) {
       _bundleTitles = List.from(widget.initialBundleTitles!);
@@ -66,12 +80,13 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
     if (widget.initialBundleAuthors != null) {
       _bundleAuthors = List.from(widget.initialBundleAuthors!);
     }
-    
+
     // Initialize saga numbers from bundleNumbers string if available
-    if (widget.initialBundleNumbers != null && widget.initialBundleNumbers!.isNotEmpty) {
+    if (widget.initialBundleNumbers != null &&
+        widget.initialBundleNumbers!.isNotEmpty) {
       _bundleSagaNumbers = _parseSagaNumbers(widget.initialBundleNumbers!);
     }
-    
+
     _bundleCountController.addListener(_onCountChanged);
   }
 
@@ -85,7 +100,7 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
   List<String?> _parseSagaNumbers(String numbersStr) {
     // Parse formats like "1-3", "1, 2, 3", "1,2,3"
     final List<String?> result = [];
-    
+
     if (numbersStr.contains('-')) {
       // Range format: "1-3"
       final parts = numbersStr.split('-');
@@ -111,7 +126,7 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
       // Single number
       result.add(numbersStr.trim());
     }
-    
+
     return result;
   }
 
@@ -157,10 +172,11 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
 
   void _notifyChange() {
     final count = int.tryParse(_bundleCountController.text);
-    
+
     // Build bundleNumbers string from individual saga numbers if they exist
     String? bundleNumbersStr;
-    if (_bundleSagaNumbers.isNotEmpty && _bundleSagaNumbers.any((n) => n != null && n.isNotEmpty)) {
+    if (_bundleSagaNumbers.isNotEmpty &&
+        _bundleSagaNumbers.any((n) => n != null && n.isNotEmpty)) {
       // Use comma-separated format for individual saga numbers
       bundleNumbersStr = _bundleSagaNumbers
           .where((n) => n != null && n.isNotEmpty)
@@ -169,7 +185,7 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
       // Fall back to the text field value
       bundleNumbersStr = _bundleNumbersController.text.trim();
     }
-    
+
     widget.onChanged(
       _isBundle,
       count,
@@ -188,7 +204,9 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
       children: [
         CheckboxListTile(
           title: const Text('This is a bundle'),
-          subtitle: const Text('Check if this book contains multiple books in one volume'),
+          subtitle: const Text(
+            'Check if this book contains multiple books in one volume',
+          ),
           value: _isBundle,
           onChanged: (value) {
             setState(() {
@@ -226,17 +244,20 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
           if (_bundlePages.isNotEmpty) ...[
             Text(
               'Bundle Book Details',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             ...List.generate(_bundlePages.length, (index) {
               final isRead = widget.bundleBooksReadStatus?[index] ?? false;
-              final bookTitle = (index < _bundleTitles.length && _bundleTitles[index] != null && _bundleTitles[index]!.isNotEmpty)
-                  ? _bundleTitles[index]!
-                  : 'Book ${index + 1}';
-              
+              final bookTitle =
+                  (index < _bundleTitles.length &&
+                          _bundleTitles[index] != null &&
+                          _bundleTitles[index]!.isNotEmpty)
+                      ? _bundleTitles[index]!
+                      : 'Book ${index + 1}';
+
               return Card(
                 key: ValueKey('bundle_card_$index'),
                 margin: const EdgeInsets.only(bottom: 12),
@@ -267,7 +288,8 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
-                                    color: isRead ? Colors.green.shade700 : null,
+                                    color:
+                                        isRead ? Colors.green.shade700 : null,
                                   ),
                                 ),
                                 Text(
@@ -297,12 +319,18 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
                                 scale: 0.8,
                                 child: Checkbox(
                                   value: isRead,
-                                  onChanged: (widget.bundleBooksHasReadingSessions?[index] ?? false)
-                                      ? null
-                                      : (value) {
-                                          widget.onReadStatusChanged!(index, value ?? false);
-                                        },
-                                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  onChanged:
+                                      (widget.bundleBooksHasReadingSessions?[index] ??
+                                              false)
+                                          ? null
+                                          : (value) {
+                                            widget.onReadStatusChanged!(
+                                              index,
+                                              value ?? false,
+                                            );
+                                          },
+                                  materialTapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
                                 ),
                               ),
                             ],
@@ -311,9 +339,11 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
                       // N_Saga input
                       TextFormField(
                         key: ValueKey('saga_$index'),
-                        initialValue: (index < _bundleSagaNumbers.length && _bundleSagaNumbers[index] != null) 
-                            ? _bundleSagaNumbers[index] 
-                            : '',
+                        initialValue:
+                            (index < _bundleSagaNumbers.length &&
+                                    _bundleSagaNumbers[index] != null)
+                                ? _bundleSagaNumbers[index]
+                                : '',
                         decoration: const InputDecoration(
                           labelText: 'Saga Number (N_Saga)',
                           border: OutlineInputBorder(),
@@ -325,7 +355,8 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
                             while (_bundleSagaNumbers.length <= index) {
                               _bundleSagaNumbers.add(null);
                             }
-                            _bundleSagaNumbers[index] = value.isEmpty ? null : value;
+                            _bundleSagaNumbers[index] =
+                                value.isEmpty ? null : value;
                           });
                           _notifyChange();
                         },
@@ -334,9 +365,11 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
                       // Book Title input
                       TextFormField(
                         key: ValueKey('title_$index'),
-                        initialValue: (index < _bundleTitles.length && _bundleTitles[index] != null) 
-                            ? _bundleTitles[index] 
-                            : '',
+                        initialValue:
+                            (index < _bundleTitles.length &&
+                                    _bundleTitles[index] != null)
+                                ? _bundleTitles[index]
+                                : '',
                         decoration: const InputDecoration(
                           labelText: 'Book Title',
                           border: OutlineInputBorder(),
@@ -357,21 +390,25 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
                       // Author input
                       TextFormField(
                         key: ValueKey('author_$index'),
-                        initialValue: (index < _bundleAuthors.length && _bundleAuthors[index] != null) 
-                            ? _bundleAuthors[index] 
-                            : '',
+                        initialValue:
+                            (index < _bundleAuthors.length &&
+                                    _bundleAuthors[index] != null)
+                                ? _bundleAuthors[index]
+                                : '',
                         decoration: const InputDecoration(
                           labelText: 'Author(s)',
                           border: OutlineInputBorder(),
                           isDense: true,
-                          hintText: 'Enter author name(s), separate with commas',
+                          hintText:
+                              'Enter author name(s), separate with commas',
                         ),
                         onChanged: (value) {
                           setState(() {
                             while (_bundleAuthors.length <= index) {
                               _bundleAuthors.add(null);
                             }
-                            _bundleAuthors[index] = value.isEmpty ? null : value;
+                            _bundleAuthors[index] =
+                                value.isEmpty ? null : value;
                           });
                           _notifyChange();
                         },
@@ -380,11 +417,13 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
                       // Pages input
                       TextFormField(
                         key: ValueKey('pages_$index'),
-                        initialValue: (index < _bundlePages.length && _bundlePages[index] != null) 
-                            ? _bundlePages[index].toString() 
-                            : '',
-                        decoration: const InputDecoration(
-                          labelText: 'Pages',
+                        initialValue:
+                            (index < _bundlePages.length &&
+                                    _bundlePages[index] != null)
+                                ? _bundlePages[index].toString()
+                                : '',
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.pages,
                           border: OutlineInputBorder(),
                           isDense: true,
                           hintText: 'e.g., 250',
@@ -404,9 +443,11 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
                       // Original Publication Year input
                       TextFormField(
                         key: ValueKey('year_$index'),
-                        initialValue: (index < _bundlePublicationYears.length && _bundlePublicationYears[index] != null) 
-                            ? _bundlePublicationYears[index].toString() 
-                            : '',
+                        initialValue:
+                            (index < _bundlePublicationYears.length &&
+                                    _bundlePublicationYears[index] != null)
+                                ? _bundlePublicationYears[index].toString()
+                                : '',
                         decoration: const InputDecoration(
                           labelText: 'Original Publication Year',
                           border: OutlineInputBorder(),
@@ -419,7 +460,9 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
                             while (_bundlePublicationYears.length <= index) {
                               _bundlePublicationYears.add(null);
                             }
-                            _bundlePublicationYears[index] = int.tryParse(value);
+                            _bundlePublicationYears[index] = int.tryParse(
+                              value,
+                            );
                           });
                           _notifyChange();
                         },

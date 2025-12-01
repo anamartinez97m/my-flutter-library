@@ -10,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   final void Function(VoidCallback)? onRegisterClearSearch;
-  
+
   const HomeScreen({super.key, this.onRegisterClearSearch});
 
   @override
@@ -51,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _selectedIsTandem;
   String? _selectedSagaFormatWithoutSaga;
   String? _selectedSagaFormatWithoutNSaga;
-  
+
   Set<String> _enabledFilters = {};
 
   void clearSearch() {
@@ -70,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
     widget.onRegisterClearSearch?.call(clearSearch);
     _loadEnabledFilters();
     _loadFilterOptions();
-    
+
     // Restore filter and sort state from provider
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<BookProvider?>(context, listen: false);
@@ -92,8 +92,10 @@ class _HomeScreenState extends State<HomeScreen> {
           _selectedPagesEmpty = provider.currentFilters['pages_empty'];
           _selectedIsBundle = provider.currentFilters['is_bundle'];
           _selectedIsTandem = provider.currentFilters['is_tandem'];
-          _selectedSagaFormatWithoutSaga = provider.currentFilters['saga_format_without_saga'];
-          _selectedSagaFormatWithoutNSaga = provider.currentFilters['saga_format_without_nsaga'];
+          _selectedSagaFormatWithoutSaga =
+              provider.currentFilters['saga_format_without_saga'];
+          _selectedSagaFormatWithoutNSaga =
+              provider.currentFilters['saga_format_without_nsaga'];
 
           // Restore sort state from provider
           _sortBy = provider.currentSortBy;
@@ -102,7 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     });
   }
-  
+
   Future<void> _loadEnabledFilters() async {
     final prefs = await SharedPreferences.getInstance();
     final savedFilters = prefs.getStringList('enabled_filters');
@@ -112,14 +114,26 @@ class _HomeScreenState extends State<HomeScreen> {
       } else {
         // Default: enable all filters
         _enabledFilters = {
-          'title', 'isbn', 'author', 'status', 'format', 'genre', 'language', 
-          'place', 'editorial', 'saga', 'saga_universe', 'format_saga', 
-          'pages_empty', 'is_bundle', 'is_tandem'
+          'title',
+          'isbn',
+          'author',
+          'status',
+          'format',
+          'genre',
+          'language',
+          'place',
+          'editorial',
+          'saga',
+          'saga_universe',
+          'format_saga',
+          'pages_empty',
+          'is_bundle',
+          'is_tandem',
         };
       }
     });
   }
-  
+
   bool _isFilterEnabled(String filterKey) {
     return _enabledFilters.contains(filterKey);
   }
@@ -136,7 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final status = await repository.getLookupValues('status');
       final editorial = await repository.getLookupValues('editorial');
       final formatSaga = await repository.getLookupValues('format_saga');
-      
+
       // Get distinct sagas and saga universes
       final sagasResult = await db.rawQuery('''
         SELECT DISTINCT saga as name FROM book 
@@ -175,788 +189,902 @@ class _HomeScreenState extends State<HomeScreen> {
             minChildSize: 0.5,
             maxChildSize: 0.95,
             expand: false,
-            builder: (context, scrollController) => StatefulBuilder(
-              builder:
-                  (context, setModalState) => Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: ListView(
-                      controller: scrollController,
-                      children: [
-                        const SizedBox(height: 12),
-                        Text(
-                          'Sort & Filter',
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                        const Divider(),
-                        ListTile(
-                          leading: const Icon(Icons.sort),
-                          title: DropdownButton<String>(
-                            value: _sortBy,
-                            isExpanded: true,
-                            underline: const SizedBox(),
-                            items: [
-                              DropdownMenuItem(
-                                value: 'name',
-                                child: Text(
-                                  AppLocalizations.of(context)!.book_name,
-                                ),
-                              ),
-                              DropdownMenuItem(
-                                value: 'author',
-                                child: Text(
-                                  AppLocalizations.of(context)!.author,
-                                ),
-                              ),
-                              DropdownMenuItem(
-                                value: 'created_at',
-                                child: Text(
-                                  AppLocalizations.of(context)!.date_created,
-                                ),
-                              ),
-                            ],
-                            onChanged: (value) {
-                              if (value != null) {
-                                setState(() => _sortBy = value);
-                                provider.sortBooks(_sortBy, _ascending);
-                                setModalState(() {});
-                              }
-                            },
-                          ),
-                          trailing: IconButton(
-                            icon: Icon(
-                              _ascending
-                                  ? Icons.arrow_upward
-                                  : Icons.arrow_downward,
-                            ),
-                            onPressed: () {
-                              setState(() => _ascending = !_ascending);
-                              provider.sortBooks(_sortBy, _ascending);
-                              setModalState(() {});
-                            },
-                          ),
-                        ),
-                        const Divider(height: 24),
-                        Text(
-                          AppLocalizations.of(context)!.filters,
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                        const SizedBox(height: 8),
-                        // Title filter
-                        if (_isFilterEnabled('title'))
-                        DropdownButtonFormField<String>(
-                          value: _selectedTitle,
-                          isExpanded: true,
-                          decoration: InputDecoration(
-                            labelText: AppLocalizations.of(context)!.book_name,
-                            border: const OutlineInputBorder(),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            isDense: true,
-                          ),
-                          items: [
-                            DropdownMenuItem(
-                              value: null,
-                              child: Text(AppLocalizations.of(context)!.any),
-                            ),
-                            const DropdownMenuItem<String>(
-                              value: '__EMPTY__',
-                              child: Text('Empty'),
-                            ),
-                          ],
-                          onChanged: (value) {
-                            setState(() => _selectedTitle = value);
-                            if (value != null) {
-                              provider.filterBooks('title', value);
-                            } else {
-                              provider.filterBooks('all', null);
-                            }
-                            setModalState(() {});
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        // ISBN/ASIN filter
-                        if (_isFilterEnabled('isbn'))
-                        DropdownButtonFormField<String>(
-                          value: _selectedIsbnAsin,
-                          isExpanded: true,
-                          decoration: const InputDecoration(
-                            labelText: 'ISBN/ASIN',
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            isDense: true,
-                          ),
-                          items: [
-                            DropdownMenuItem(
-                              value: null,
-                              child: Text(AppLocalizations.of(context)!.any),
-                            ),
-                            const DropdownMenuItem<String>(
-                              value: '__EMPTY__',
-                              child: Text('Empty'),
-                            ),
-                          ],
-                          onChanged: (value) {
-                            setState(() => _selectedIsbnAsin = value);
-                            if (value != null) {
-                              provider.filterBooks('isbn', value);
-                            } else {
-                              provider.filterBooks('all', null);
-                            }
-                            setModalState(() {});
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        // Author filter
-                        if (_isFilterEnabled('author'))
-                        DropdownButtonFormField<String>(
-                          value: _selectedAuthor,
-                          isExpanded: true,
-                          decoration: InputDecoration(
-                            labelText: AppLocalizations.of(context)!.author,
-                            border: const OutlineInputBorder(),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            isDense: true,
-                          ),
-                          items: [
-                            DropdownMenuItem(
-                              value: null,
-                              child: Text(AppLocalizations.of(context)!.any),
-                            ),
-                            const DropdownMenuItem<String>(
-                              value: '__EMPTY__',
-                              child: Text('Empty'),
-                            ),
-                          ],
-                          onChanged: (value) {
-                            setState(() => _selectedAuthor = value);
-                            if (value != null) {
-                              provider.filterBooks('author', value);
-                            } else {
-                              provider.filterBooks('all', null);
-                            }
-                            setModalState(() {});
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        // Status filter
-                        if (_isFilterEnabled('status'))
-                        DropdownButtonFormField<String>(
-                          value: _selectedStatus,
-                          isExpanded: true,
-                          decoration: InputDecoration(
-                            labelText: AppLocalizations.of(context)!.status,
-                            border: const OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            isDense: true,
-                          ),
-                          items: [
-                            DropdownMenuItem(
-                              value: null,
-                              child: Text(AppLocalizations.of(context)!.any),
-                            ),
-                            ..._statusList.map((item) {
-                              return DropdownMenuItem<String>(
-                                value: item['value'] as String,
-                                child: Text(item['value'] as String),
-                              );
-                            }),
-                          ],
-                          onChanged: (value) {
-                            setState(() => _selectedStatus = value);
-                            if (value != null) {
-                              provider.filterBooks('status', value);
-                            } else {
-                              provider.filterBooks('all', null);
-                            }
-                            setModalState(() {});
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        // Format filter
-                        if (_isFilterEnabled('format'))
-                        DropdownButtonFormField<String>(
-                          value: _selectedFormat,
-                          isExpanded: true,
-                          decoration: InputDecoration(
-                            labelText: AppLocalizations.of(context)!.format,
-                            border: const OutlineInputBorder(),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            isDense: true,
-                          ),
-                          items: [
-                            DropdownMenuItem(
-                              value: null,
-                              child: Text(AppLocalizations.of(context)!.any),
-                            ),
-                            const DropdownMenuItem<String>(
-                              value: '__EMPTY__',
-                              child: Text('Empty'),
-                            ),
-                            ..._formatList.map((item) {
-                              return DropdownMenuItem<String>(
-                                value: item['value'] as String,
-                                child: Text(item['value'] as String),
-                              );
-                            }),
-                          ],
-                          onChanged: (value) {
-                            setState(() => _selectedFormat = value);
-                            if (value != null) {
-                              provider.filterBooks('format', value);
-                            } else {
-                              provider.filterBooks('all', null);
-                            }
-                            setModalState(() {});
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        // Genre filter
-                        if (_isFilterEnabled('genre'))
-                        DropdownButtonFormField<String>(
-                          value: _selectedGenre,
-                          isExpanded: true,
-                          decoration: InputDecoration(
-                            labelText: AppLocalizations.of(context)!.genre,
-                            border: const OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            isDense: true,
-                          ),
-                          items: [
-                            DropdownMenuItem(
-                              value: null,
-                              child: Text(AppLocalizations.of(context)!.any),
-                            ),
-                            const DropdownMenuItem<String>(
-                              value: '__EMPTY__',
-                              child: Text('Empty'),
-                            ),
-                            ..._genreList.map((item) {
-                              return DropdownMenuItem<String>(
-                                value: item['name'] as String,
-                                child: Text(item['name'] as String),
-                              );
-                            }),
-                          ],
-                          onChanged: (value) {
-                            setState(() => _selectedGenre = value);
-                            if (value != null) {
-                              provider.filterBooks('genre', value);
-                            } else {
-                              provider.filterBooks('all', null);
-                            }
-                            setModalState(() {});
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        // Language filter
-                        if (_isFilterEnabled('language'))
-                        DropdownButtonFormField<String>(
-                          value: _selectedLanguage,
-                          isExpanded: true,
-                          decoration: InputDecoration(
-                            labelText: AppLocalizations.of(context)!.language,
-                            border: const OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            isDense: true,
-                          ),
-                          items: [
-                            DropdownMenuItem(
-                              value: null,
-                              child: Text(AppLocalizations.of(context)!.any),
-                            ),
-                            const DropdownMenuItem<String>(
-                              value: '__EMPTY__',
-                              child: Text('Empty'),
-                            ),
-                            ..._languageList.map((item) {
-                              return DropdownMenuItem<String>(
-                                value: item['name'] as String,
-                                child: Text(item['name'] as String),
-                              );
-                            }),
-                          ],
-                          onChanged: (value) {
-                            setState(() => _selectedLanguage = value);
-                            if (value != null) {
-                              provider.filterBooks('language', value);
-                            } else {
-                              provider.filterBooks('all', null);
-                            }
-                            setModalState(() {});
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        // Place filter
-                        if (_isFilterEnabled('place'))
-                        DropdownButtonFormField<String>(
-                          value: _selectedPlace,
-                          isExpanded: true,
-                          decoration: InputDecoration(
-                            labelText: AppLocalizations.of(context)!.place,
-                            border: const OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            isDense: true,
-                          ),
-                          items: [
-                            DropdownMenuItem(
-                              value: null,
-                              child: Text(AppLocalizations.of(context)!.any),
-                            ),
-                            const DropdownMenuItem<String>(
-                              value: '__EMPTY__',
-                              child: Text('Empty'),
-                            ),
-                            ..._placeList.map((item) {
-                              return DropdownMenuItem<String>(
-                                value: item['name'] as String,
-                                child: Text(item['name'] as String),
-                              );
-                            }),
-                          ],
-                          onChanged: (value) {
-                            setState(() => _selectedPlace = value);
-                            if (value != null) {
-                              provider.filterBooks('place', value);
-                            } else {
-                              provider.filterBooks('all', null);
-                            }
-                            setModalState(() {});
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        // Editorial filter
-                        if (_isFilterEnabled('editorial'))
-                        DropdownButtonFormField<String>(
-                          value: _selectedEditorial,
-                          isExpanded: true,
-                          decoration: const InputDecoration(
-                            labelText: 'Editorial',
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            isDense: true,
-                          ),
-                          items: [
-                            DropdownMenuItem(
-                              value: null,
-                              child: Text(AppLocalizations.of(context)!.any),
-                            ),
-                            const DropdownMenuItem<String>(
-                              value: '__EMPTY__',
-                              child: Text('Empty'),
-                            ),
-                            ..._editorialList.map((item) {
-                              return DropdownMenuItem<String>(
-                                value: item['name'] as String,
-                                child: Text(item['name'] as String),
-                              );
-                            }),
-                          ],
-                          onChanged: (value) {
-                            setState(() => _selectedEditorial = value);
-                            if (value != null) {
-                              provider.filterBooks('editorial', value);
-                            } else {
-                              provider.filterBooks('all', null);
-                            }
-                            setModalState(() {});
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        // Saga filter
-                        if (_isFilterEnabled('saga'))
-                        DropdownButtonFormField<String>(
-                          value: _selectedSaga,
-                          isExpanded: true,
-                          decoration: const InputDecoration(
-                            labelText: 'Saga',
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            isDense: true,
-                          ),
-                          items: [
-                            DropdownMenuItem(
-                              value: null,
-                              child: Text(AppLocalizations.of(context)!.any),
-                            ),
-                            const DropdownMenuItem<String>(
-                              value: '__EMPTY__',
-                              child: Text('Empty'),
-                            ),
-                            ..._sagaList.map((item) {
-                              return DropdownMenuItem<String>(
-                                value: item['name'] as String,
-                                child: Text(item['name'] as String),
-                              );
-                            }),
-                          ],
-                          onChanged: (value) {
-                            setState(() => _selectedSaga = value);
-                            if (value != null) {
-                              provider.filterBooks('saga', value);
-                            } else {
-                              provider.filterBooks('all', null);
-                            }
-                            setModalState(() {});
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        // Saga Universe filter
-                        if (_isFilterEnabled('saga_universe'))
-                        DropdownButtonFormField<String>(
-                          value: _selectedSagaUniverse,
-                          isExpanded: true,
-                          decoration: const InputDecoration(
-                            labelText: 'Saga Universe',
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            isDense: true,
-                          ),
-                          items: [
-                            DropdownMenuItem(
-                              value: null,
-                              child: Text(AppLocalizations.of(context)!.any),
-                            ),
-                            const DropdownMenuItem<String>(
-                              value: '__EMPTY__',
-                              child: Text('Empty'),
-                            ),
-                            ..._sagaUniverseList.map((item) {
-                              return DropdownMenuItem<String>(
-                                value: item['name'] as String,
-                                child: Text(item['name'] as String),
-                              );
-                            }),
-                          ],
-                          onChanged: (value) {
-                            setState(() => _selectedSagaUniverse = value);
-                            if (value != null) {
-                              provider.filterBooks('saga_universe', value);
-                            } else {
-                              provider.filterBooks('all', null);
-                            }
-                            setModalState(() {});
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        // Format Saga filter
-                        if (_isFilterEnabled('format_saga'))
-                        DropdownButtonFormField<String>(
-                          value: _selectedFormatSaga,
-                          isExpanded: true,
-                          decoration: const InputDecoration(
-                            labelText: 'Format Saga',
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            isDense: true,
-                          ),
-                          items: [
-                            DropdownMenuItem(
-                              value: null,
-                              child: Text(AppLocalizations.of(context)!.any),
-                            ),
-                            const DropdownMenuItem<String>(
-                              value: '__EMPTY__',
-                              child: Text('Empty'),
-                            ),
-                            ..._formatSagaList.map((item) {
-                              return DropdownMenuItem<String>(
-                                value: item['value'] as String,
-                                child: Text(item['value'] as String),
-                              );
-                            }),
-                          ],
-                          onChanged: (value) {
-                            setState(() => _selectedFormatSaga = value);
-                            if (value != null) {
-                              provider.filterBooks('format_saga', value);
-                            } else {
-                              provider.filterBooks('all', null);
-                            }
-                            setModalState(() {});
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        // Pages Empty filter
-                        if (_isFilterEnabled('pages_empty'))
-                        DropdownButtonFormField<String>(
-                          value: _selectedPagesEmpty,
-                          isExpanded: true,
-                          decoration: const InputDecoration(
-                            labelText: 'Pages',
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            isDense: true,
-                          ),
-                          items: [
-                            DropdownMenuItem(
-                              value: null,
-                              child: Text(AppLocalizations.of(context)!.any),
-                            ),
-                            const DropdownMenuItem<String>(
-                              value: '__EMPTY__',
-                              child: Text('Empty'),
-                            ),
-                          ],
-                          onChanged: (value) {
-                            setState(() => _selectedPagesEmpty = value);
-                            if (value != null) {
-                              provider.filterBooks('pages_empty', value);
-                            } else {
-                              provider.filterBooks('all', null);
-                            }
-                            setModalState(() {});
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        // Is Bundle filter
-                        if (_isFilterEnabled('is_bundle'))
-                        DropdownButtonFormField<String>(
-                          value: _selectedIsBundle,
-                          isExpanded: true,
-                          decoration: const InputDecoration(
-                            labelText: 'Bundle',
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            isDense: true,
-                          ),
-                          items: [
-                            DropdownMenuItem(
-                              value: null,
-                              child: Text(AppLocalizations.of(context)!.any),
-                            ),
-                            const DropdownMenuItem<String>(
-                              value: 'true',
-                              child: Text('Yes'),
-                            ),
-                            const DropdownMenuItem<String>(
-                              value: 'false',
-                              child: Text('No'),
-                            ),
-                          ],
-                          onChanged: (value) {
-                            setState(() => _selectedIsBundle = value);
-                            if (value != null) {
-                              provider.filterBooks('is_bundle', value);
-                            } else {
-                              provider.filterBooks('all', null);
-                            }
-                            setModalState(() {});
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        // Is Tandem filter
-                        if (_isFilterEnabled('is_tandem'))
-                        DropdownButtonFormField<String>(
-                          value: _selectedIsTandem,
-                          isExpanded: true,
-                          decoration: const InputDecoration(
-                            labelText: 'Tandem',
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            isDense: true,
-                          ),
-                          items: [
-                            DropdownMenuItem(
-                              value: null,
-                              child: Text(AppLocalizations.of(context)!.any),
-                            ),
-                            const DropdownMenuItem<String>(
-                              value: 'true',
-                              child: Text('Yes'),
-                            ),
-                            const DropdownMenuItem<String>(
-                              value: 'false',
-                              child: Text('No'),
-                            ),
-                          ],
-                          onChanged: (value) {
-                            setState(() => _selectedIsTandem = value);
-                            if (value != null) {
-                              provider.filterBooks('is_tandem', value);
-                            } else {
-                              provider.filterBooks('all', null);
-                            }
-                            setModalState(() {});
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        // Saga Format Without Saga filter
-                        if (_isFilterEnabled('saga_format_without_saga'))
-                        DropdownButtonFormField<String>(
-                          value: _selectedSagaFormatWithoutSaga,
-                          isExpanded: true,
-                          decoration: const InputDecoration(
-                            labelText: 'Saga Format Without Saga',
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            isDense: true,
-                          ),
-                          items: [
-                            DropdownMenuItem(
-                              value: null,
-                              child: Text(AppLocalizations.of(context)!.any),
-                            ),
-                            const DropdownMenuItem<String>(
-                              value: 'true',
-                              child: Text('Yes'),
-                            ),
-                            const DropdownMenuItem<String>(
-                              value: 'false',
-                              child: Text('No'),
-                            ),
-                          ],
-                          onChanged: (value) {
-                            setState(() => _selectedSagaFormatWithoutSaga = value);
-                            if (value != null) {
-                              provider.filterBooks('saga_format_without_saga', value);
-                            } else {
-                              provider.filterBooks('all', null);
-                            }
-                            setModalState(() {});
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        // Saga Format Without N_Saga filter
-                        if (_isFilterEnabled('saga_format_without_nsaga'))
-                        DropdownButtonFormField<String>(
-                          value: _selectedSagaFormatWithoutNSaga,
-                          isExpanded: true,
-                          decoration: const InputDecoration(
-                            labelText: 'Saga Format Without N_Saga',
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            isDense: true,
-                          ),
-                          items: [
-                            DropdownMenuItem(
-                              value: null,
-                              child: Text(AppLocalizations.of(context)!.any),
-                            ),
-                            const DropdownMenuItem<String>(
-                              value: 'true',
-                              child: Text('Yes'),
-                            ),
-                            const DropdownMenuItem<String>(
-                              value: 'false',
-                              child: Text('No'),
-                            ),
-                          ],
-                          onChanged: (value) {
-                            setState(() => _selectedSagaFormatWithoutNSaga = value);
-                            if (value != null) {
-                              provider.filterBooks('saga_format_without_nsaga', value);
-                            } else {
-                              provider.filterBooks('all', null);
-                            }
-                            setModalState(() {});
-                          },
-                        ),
-                        const SizedBox(height: 24),
-                        Row(
+            builder:
+                (context, scrollController) => StatefulBuilder(
+                  builder:
+                      (context, setModalState) => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: ListView(
+                          controller: scrollController,
                           children: [
-                            Expanded(
-                              child: ElevatedButton(
+                            const SizedBox(height: 12),
+                            Text(
+                              AppLocalizations.of(context)!.sort_and_filter,
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                            const Divider(),
+                            ListTile(
+                              leading: const Icon(Icons.sort),
+                              title: DropdownButton<String>(
+                                value: _sortBy,
+                                isExpanded: true,
+                                underline: const SizedBox(),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: 'name',
+                                    child: Text(
+                                      AppLocalizations.of(context)!.book_name,
+                                    ),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'author',
+                                    child: Text(
+                                      AppLocalizations.of(context)!.author,
+                                    ),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'created_at',
+                                    child: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.date_created,
+                                    ),
+                                  ),
+                                ],
+                                onChanged: (value) {
+                                  if (value != null) {
+                                    setState(() => _sortBy = value);
+                                    provider.sortBooks(_sortBy, _ascending);
+                                    setModalState(() {});
+                                  }
+                                },
+                              ),
+                              trailing: IconButton(
+                                icon: Icon(
+                                  _ascending
+                                      ? Icons.arrow_upward
+                                      : Icons.arrow_downward,
+                                ),
                                 onPressed: () {
-                                  setState(() {
-                                    _selectedFormat = null;
-                                    _selectedLanguage = null;
-                                    _selectedGenre = null;
-                                    _selectedPlace = null;
-                                    _selectedStatus = null;
-                                    _selectedTitle = null;
-                                    _selectedIsbnAsin = null;
-                                    _selectedAuthor = null;
-                                    _selectedEditorial = null;
-                                    _selectedSaga = null;
-                                    _selectedSagaUniverse = null;
-                                    _selectedFormatSaga = null;
-                                    _selectedPagesEmpty = null;
-                                    _selectedIsBundle = null;
-                                    _selectedIsTandem = null;
-                                    _selectedSagaFormatWithoutSaga = null;
-                                    _selectedSagaFormatWithoutNSaga = null;
-                                  });
-                                  provider.clearAllFilters();
+                                  setState(() => _ascending = !_ascending);
+                                  provider.sortBooks(_sortBy, _ascending);
                                   setModalState(() {});
                                 },
-                                child: Text(
-                                  AppLocalizations.of(context)!.clear,
-                                ),
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              flex: 2,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
+                            const Divider(height: 24),
+                            Text(
+                              AppLocalizations.of(context)!.filters,
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                            const SizedBox(height: 8),
+                            // Title filter
+                            if (_isFilterEnabled('title'))
+                              DropdownButtonFormField<String>(
+                                value: _selectedTitle,
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  labelText:
+                                      AppLocalizations.of(context)!.book_name,
+                                  border: const OutlineInputBorder(),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  isDense: true,
+                                ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: null,
+                                    child: Text(
+                                      AppLocalizations.of(context)!.any,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: '__EMPTY__',
+                                    child: Text(
+                                      AppLocalizations.of(context)!.empty,
+                                    ),
+                                  ),
+                                ],
+                                onChanged: (value) {
+                                  setState(() => _selectedTitle = value);
+                                  if (value != null) {
+                                    provider.filterBooks('title', value);
+                                  } else {
+                                    provider.filterBooks('all', null);
+                                  }
+                                  setModalState(() {});
                                 },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.deepPurple,
-                                  foregroundColor: Colors.white,
-                                ),
-                                child: Text(
-                                  AppLocalizations.of(context)!.apply,
-                                ),
                               ),
+                            const SizedBox(height: 8),
+                            // ISBN/ASIN filter
+                            if (_isFilterEnabled('isbn'))
+                              DropdownButtonFormField<String>(
+                                value: _selectedIsbnAsin,
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  labelText:
+                                      AppLocalizations.of(context)!.isbn_asin,
+                                  border: OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  isDense: true,
+                                ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: null,
+                                    child: Text(
+                                      AppLocalizations.of(context)!.any,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: '__EMPTY__',
+                                    child: Text(
+                                      AppLocalizations.of(context)!.empty,
+                                    ),
+                                  ),
+                                ],
+                                onChanged: (value) {
+                                  setState(() => _selectedIsbnAsin = value);
+                                  if (value != null) {
+                                    provider.filterBooks('isbn', value);
+                                  } else {
+                                    provider.filterBooks('all', null);
+                                  }
+                                  setModalState(() {});
+                                },
+                              ),
+                            const SizedBox(height: 8),
+                            // Author filter
+                            if (_isFilterEnabled('author'))
+                              DropdownButtonFormField<String>(
+                                value: _selectedAuthor,
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  labelText:
+                                      AppLocalizations.of(context)!.author,
+                                  border: const OutlineInputBorder(),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  isDense: true,
+                                ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: null,
+                                    child: Text(
+                                      AppLocalizations.of(context)!.any,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: '__EMPTY__',
+                                    child: Text(
+                                      AppLocalizations.of(context)!.empty,
+                                    ),
+                                  ),
+                                ],
+                                onChanged: (value) {
+                                  setState(() => _selectedAuthor = value);
+                                  if (value != null) {
+                                    provider.filterBooks('author', value);
+                                  } else {
+                                    provider.filterBooks('all', null);
+                                  }
+                                  setModalState(() {});
+                                },
+                              ),
+                            const SizedBox(height: 8),
+                            // Status filter
+                            if (_isFilterEnabled('status'))
+                              DropdownButtonFormField<String>(
+                                value: _selectedStatus,
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  labelText:
+                                      AppLocalizations.of(context)!.status,
+                                  border: const OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  isDense: true,
+                                ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: null,
+                                    child: Text(
+                                      AppLocalizations.of(context)!.any,
+                                    ),
+                                  ),
+                                  ..._statusList.map((item) {
+                                    return DropdownMenuItem<String>(
+                                      value: item['value'] as String,
+                                      child: Text(item['value'] as String),
+                                    );
+                                  }),
+                                ],
+                                onChanged: (value) {
+                                  setState(() => _selectedStatus = value);
+                                  if (value != null) {
+                                    provider.filterBooks('status', value);
+                                  } else {
+                                    provider.filterBooks('all', null);
+                                  }
+                                  setModalState(() {});
+                                },
+                              ),
+                            const SizedBox(height: 8),
+                            // Format filter
+                            if (_isFilterEnabled('format'))
+                              DropdownButtonFormField<String>(
+                                value: _selectedFormat,
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  labelText:
+                                      AppLocalizations.of(context)!.format,
+                                  border: const OutlineInputBorder(),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  isDense: true,
+                                ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: null,
+                                    child: Text(
+                                      AppLocalizations.of(context)!.any,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: '__EMPTY__',
+                                    child: Text(
+                                      AppLocalizations.of(context)!.empty,
+                                    ),
+                                  ),
+                                  ..._formatList.map((item) {
+                                    return DropdownMenuItem<String>(
+                                      value: item['value'] as String,
+                                      child: Text(item['value'] as String),
+                                    );
+                                  }),
+                                ],
+                                onChanged: (value) {
+                                  setState(() => _selectedFormat = value);
+                                  if (value != null) {
+                                    provider.filterBooks('format', value);
+                                  } else {
+                                    provider.filterBooks('all', null);
+                                  }
+                                  setModalState(() {});
+                                },
+                              ),
+                            const SizedBox(height: 8),
+                            // Genre filter
+                            if (_isFilterEnabled('genre'))
+                              DropdownButtonFormField<String>(
+                                value: _selectedGenre,
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  labelText:
+                                      AppLocalizations.of(context)!.genre,
+                                  border: const OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  isDense: true,
+                                ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: null,
+                                    child: Text(
+                                      AppLocalizations.of(context)!.any,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: '__EMPTY__',
+                                    child: Text(
+                                      AppLocalizations.of(context)!.empty,
+                                    ),
+                                  ),
+                                  ..._genreList.map((item) {
+                                    return DropdownMenuItem<String>(
+                                      value: item['name'] as String,
+                                      child: Text(item['name'] as String),
+                                    );
+                                  }),
+                                ],
+                                onChanged: (value) {
+                                  setState(() => _selectedGenre = value);
+                                  if (value != null) {
+                                    provider.filterBooks('genre', value);
+                                  } else {
+                                    provider.filterBooks('all', null);
+                                  }
+                                  setModalState(() {});
+                                },
+                              ),
+                            const SizedBox(height: 8),
+                            // Language filter
+                            if (_isFilterEnabled('language'))
+                              DropdownButtonFormField<String>(
+                                value: _selectedLanguage,
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  labelText:
+                                      AppLocalizations.of(context)!.language,
+                                  border: const OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  isDense: true,
+                                ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: null,
+                                    child: Text(
+                                      AppLocalizations.of(context)!.any,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: '__EMPTY__',
+                                    child: Text(
+                                      AppLocalizations.of(context)!.empty,
+                                    ),
+                                  ),
+                                  ..._languageList.map((item) {
+                                    return DropdownMenuItem<String>(
+                                      value: item['name'] as String,
+                                      child: Text(item['name'] as String),
+                                    );
+                                  }),
+                                ],
+                                onChanged: (value) {
+                                  setState(() => _selectedLanguage = value);
+                                  if (value != null) {
+                                    provider.filterBooks('language', value);
+                                  } else {
+                                    provider.filterBooks('all', null);
+                                  }
+                                  setModalState(() {});
+                                },
+                              ),
+                            const SizedBox(height: 8),
+                            // Place filter
+                            if (_isFilterEnabled('place'))
+                              DropdownButtonFormField<String>(
+                                value: _selectedPlace,
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  labelText:
+                                      AppLocalizations.of(context)!.place,
+                                  border: const OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  isDense: true,
+                                ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: null,
+                                    child: Text(
+                                      AppLocalizations.of(context)!.any,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: '__EMPTY__',
+                                    child: Text(
+                                      AppLocalizations.of(context)!.empty,
+                                    ),
+                                  ),
+                                  ..._placeList.map((item) {
+                                    return DropdownMenuItem<String>(
+                                      value: item['name'] as String,
+                                      child: Text(item['name'] as String),
+                                    );
+                                  }),
+                                ],
+                                onChanged: (value) {
+                                  setState(() => _selectedPlace = value);
+                                  if (value != null) {
+                                    provider.filterBooks('place', value);
+                                  } else {
+                                    provider.filterBooks('all', null);
+                                  }
+                                  setModalState(() {});
+                                },
+                              ),
+                            const SizedBox(height: 8),
+                            // Editorial filter
+                            if (_isFilterEnabled('editorial'))
+                              DropdownButtonFormField<String>(
+                                value: _selectedEditorial,
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  labelText:
+                                      AppLocalizations.of(context)!.editorial,
+                                  border: OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  isDense: true,
+                                ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: null,
+                                    child: Text(
+                                      AppLocalizations.of(context)!.any,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: '__EMPTY__',
+                                    child: Text(
+                                      AppLocalizations.of(context)!.empty,
+                                    ),
+                                  ),
+                                  ..._editorialList.map((item) {
+                                    return DropdownMenuItem<String>(
+                                      value: item['name'] as String,
+                                      child: Text(item['name'] as String),
+                                    );
+                                  }),
+                                ],
+                                onChanged: (value) {
+                                  setState(() => _selectedEditorial = value);
+                                  if (value != null) {
+                                    provider.filterBooks('editorial', value);
+                                  } else {
+                                    provider.filterBooks('all', null);
+                                  }
+                                  setModalState(() {});
+                                },
+                              ),
+                            const SizedBox(height: 8),
+                            // Saga filter
+                            if (_isFilterEnabled('saga'))
+                              DropdownButtonFormField<String>(
+                                value: _selectedSaga,
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  labelText: AppLocalizations.of(context)!.saga,
+                                  border: OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  isDense: true,
+                                ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: null,
+                                    child: Text(
+                                      AppLocalizations.of(context)!.any,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: '__EMPTY__',
+                                    child: Text(
+                                      AppLocalizations.of(context)!.empty,
+                                    ),
+                                  ),
+                                  ..._sagaList.map((item) {
+                                    return DropdownMenuItem<String>(
+                                      value: item['name'] as String,
+                                      child: Text(item['name'] as String),
+                                    );
+                                  }),
+                                ],
+                                onChanged: (value) {
+                                  setState(() => _selectedSaga = value);
+                                  if (value != null) {
+                                    provider.filterBooks('saga', value);
+                                  } else {
+                                    provider.filterBooks('all', null);
+                                  }
+                                  setModalState(() {});
+                                },
+                              ),
+                            const SizedBox(height: 8),
+                            // Saga Universe filter
+                            if (_isFilterEnabled('saga_universe'))
+                              DropdownButtonFormField<String>(
+                                value: _selectedSagaUniverse,
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  labelText:
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.saga_universe,
+                                  border: OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  isDense: true,
+                                ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: null,
+                                    child: Text(
+                                      AppLocalizations.of(context)!.any,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: '__EMPTY__',
+                                    child: Text(
+                                      AppLocalizations.of(context)!.empty,
+                                    ),
+                                  ),
+                                  ..._sagaUniverseList.map((item) {
+                                    return DropdownMenuItem<String>(
+                                      value: item['name'] as String,
+                                      child: Text(item['name'] as String),
+                                    );
+                                  }),
+                                ],
+                                onChanged: (value) {
+                                  setState(() => _selectedSagaUniverse = value);
+                                  if (value != null) {
+                                    provider.filterBooks(
+                                      'saga_universe',
+                                      value,
+                                    );
+                                  } else {
+                                    provider.filterBooks('all', null);
+                                  }
+                                  setModalState(() {});
+                                },
+                              ),
+                            const SizedBox(height: 8),
+                            // Format Saga filter
+                            if (_isFilterEnabled('format_saga'))
+                              DropdownButtonFormField<String>(
+                                value: _selectedFormatSaga,
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  labelText:
+                                      AppLocalizations.of(context)!.format_saga,
+                                  border: OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  isDense: true,
+                                ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: null,
+                                    child: Text(
+                                      AppLocalizations.of(context)!.any,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: '__EMPTY__',
+                                    child: Text(
+                                      AppLocalizations.of(context)!.empty,
+                                    ),
+                                  ),
+                                  ..._formatSagaList.map((item) {
+                                    return DropdownMenuItem<String>(
+                                      value: item['value'] as String,
+                                      child: Text(item['value'] as String),
+                                    );
+                                  }),
+                                ],
+                                onChanged: (value) {
+                                  setState(() => _selectedFormatSaga = value);
+                                  if (value != null) {
+                                    provider.filterBooks('format_saga', value);
+                                  } else {
+                                    provider.filterBooks('all', null);
+                                  }
+                                  setModalState(() {});
+                                },
+                              ),
+                            const SizedBox(height: 8),
+                            // Pages Empty filter
+                            if (_isFilterEnabled('pages_empty'))
+                              DropdownButtonFormField<String>(
+                                value: _selectedPagesEmpty,
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  labelText:
+                                      AppLocalizations.of(context)!.pages,
+                                  border: OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  isDense: true,
+                                ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: null,
+                                    child: Text(
+                                      AppLocalizations.of(context)!.any,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: '__EMPTY__',
+                                    child: Text(
+                                      AppLocalizations.of(context)!.empty,
+                                    ),
+                                  ),
+                                ],
+                                onChanged: (value) {
+                                  setState(() => _selectedPagesEmpty = value);
+                                  if (value != null) {
+                                    provider.filterBooks('pages_empty', value);
+                                  } else {
+                                    provider.filterBooks('all', null);
+                                  }
+                                  setModalState(() {});
+                                },
+                              ),
+                            const SizedBox(height: 8),
+                            // Is Bundle filter
+                            if (_isFilterEnabled('is_bundle'))
+                              DropdownButtonFormField<String>(
+                                value: _selectedIsBundle,
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  labelText:
+                                      AppLocalizations.of(context)!.bundle,
+                                  border: OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  isDense: true,
+                                ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: null,
+                                    child: Text(
+                                      AppLocalizations.of(context)!.any,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: 'true',
+                                    child: Text(
+                                      AppLocalizations.of(context)!.yes,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: 'false',
+                                    child: Text(
+                                      AppLocalizations.of(context)!.no,
+                                    ),
+                                  ),
+                                ],
+                                onChanged: (value) {
+                                  setState(() => _selectedIsBundle = value);
+                                  if (value != null) {
+                                    provider.filterBooks('is_bundle', value);
+                                  } else {
+                                    provider.filterBooks('all', null);
+                                  }
+                                  setModalState(() {});
+                                },
+                              ),
+                            const SizedBox(height: 8),
+                            // Is Tandem filter
+                            if (_isFilterEnabled('is_tandem'))
+                              DropdownButtonFormField<String>(
+                                value: _selectedIsTandem,
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  labelText:
+                                      AppLocalizations.of(context)!.tandem,
+                                  border: OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  isDense: true,
+                                ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: null,
+                                    child: Text(
+                                      AppLocalizations.of(context)!.any,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: 'true',
+                                    child: Text(
+                                      AppLocalizations.of(context)!.yes,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: 'false',
+                                    child: Text(
+                                      AppLocalizations.of(context)!.no,
+                                    ),
+                                  ),
+                                ],
+                                onChanged: (value) {
+                                  setState(() => _selectedIsTandem = value);
+                                  if (value != null) {
+                                    provider.filterBooks('is_tandem', value);
+                                  } else {
+                                    provider.filterBooks('all', null);
+                                  }
+                                  setModalState(() {});
+                                },
+                              ),
+                            const SizedBox(height: 8),
+                            // Saga Format Without Saga filter
+                            if (_isFilterEnabled('saga_format_without_saga'))
+                              DropdownButtonFormField<String>(
+                                value: _selectedSagaFormatWithoutSaga,
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  labelText:
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.saga_format_without_saga,
+                                  border: OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  isDense: true,
+                                ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: null,
+                                    child: Text(
+                                      AppLocalizations.of(context)!.any,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: 'true',
+                                    child: Text(
+                                      AppLocalizations.of(context)!.yes,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: 'false',
+                                    child: Text(
+                                      AppLocalizations.of(context)!.no,
+                                    ),
+                                  ),
+                                ],
+                                onChanged: (value) {
+                                  setState(
+                                    () =>
+                                        _selectedSagaFormatWithoutSaga = value,
+                                  );
+                                  if (value != null) {
+                                    provider.filterBooks(
+                                      'saga_format_without_saga',
+                                      value,
+                                    );
+                                  } else {
+                                    provider.filterBooks('all', null);
+                                  }
+                                  setModalState(() {});
+                                },
+                              ),
+                            const SizedBox(height: 8),
+                            // Saga Format Without N_Saga filter
+                            if (_isFilterEnabled('saga_format_without_nsaga'))
+                              DropdownButtonFormField<String>(
+                                value: _selectedSagaFormatWithoutNSaga,
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  labelText:
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.saga_format_without_n_saga,
+                                  border: OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  isDense: true,
+                                ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: null,
+                                    child: Text(
+                                      AppLocalizations.of(context)!.any,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: 'true',
+                                    child: Text(
+                                      AppLocalizations.of(context)!.yes,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: 'false',
+                                    child: Text(
+                                      AppLocalizations.of(context)!.no,
+                                    ),
+                                  ),
+                                ],
+                                onChanged: (value) {
+                                  setState(
+                                    () =>
+                                        _selectedSagaFormatWithoutNSaga = value,
+                                  );
+                                  if (value != null) {
+                                    provider.filterBooks(
+                                      'saga_format_without_nsaga',
+                                      value,
+                                    );
+                                  } else {
+                                    provider.filterBooks('all', null);
+                                  }
+                                  setModalState(() {});
+                                },
+                              ),
+                            const SizedBox(height: 24),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        _selectedFormat = null;
+                                        _selectedLanguage = null;
+                                        _selectedGenre = null;
+                                        _selectedPlace = null;
+                                        _selectedStatus = null;
+                                        _selectedTitle = null;
+                                        _selectedIsbnAsin = null;
+                                        _selectedAuthor = null;
+                                        _selectedEditorial = null;
+                                        _selectedSaga = null;
+                                        _selectedSagaUniverse = null;
+                                        _selectedFormatSaga = null;
+                                        _selectedPagesEmpty = null;
+                                        _selectedIsBundle = null;
+                                        _selectedIsTandem = null;
+                                        _selectedSagaFormatWithoutSaga = null;
+                                        _selectedSagaFormatWithoutNSaga = null;
+                                      });
+                                      provider.clearAllFilters();
+                                      setModalState(() {});
+                                    },
+                                    child: Text(
+                                      AppLocalizations.of(context)!.clear,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  flex: 2,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.deepPurple,
+                                      foregroundColor: Colors.white,
+                                    ),
+                                    child: Text(
+                                      AppLocalizations.of(context)!.apply,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
+                            const SizedBox(height: 24),
                           ],
                         ),
-                        const SizedBox(height: 24),
-                      ],
-                    ),
-                  ),
-            ),
+                      ),
+                ),
           ),
     );
   }
@@ -1031,9 +1159,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const AddBookScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => const AddBookScreen()),
               );
             },
             backgroundColor: Colors.deepPurple,

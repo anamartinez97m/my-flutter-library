@@ -40,6 +40,7 @@
     }
   },
   "saga": "Saga",
+  "saga_universe": "Universo de la Saga",
   "saga_with_colon": "Saga: {saga}",
   "@saga_with_colon": {
     "description": "Saga con dos puntos",
@@ -249,5 +250,33 @@
   
   "top_5_genres": "Top 5 Géneros",
 
-  "about_box_children": "Aplicación desarrollada con Flutter/Dart.\n Permite gestionar tu biblioteca personal y recibir recomendaciones de lectura personalizadas."
+  "about_box_children": "Aplicación desarrollada con Flutter/Dart.\n Permite gestionar tu biblioteca personal y recibir recomendaciones de lectura personalizadas.",
+  
+  "sort_and_filter": "Ordenar y Filtrar",
+  "empty": "Vacío",
+  "yes": "Sí",
+  "no": "No",
+  "isbn_asin": "ISBN/ASIN",
+  "bundle": "Paquete",
+  "tandem": "Tándem",
+  "saga_format_without_saga": "Formato de Saga Sin Saga",
+  "saga_format_without_n_saga": "Formato de Saga Sin N_Saga",
+  "pages_with_colon": "Páginas: {pages}",
+  "@pages_with_colon": {
+    "description": "Páginas con dos puntos",
+    "placeholders": {
+      "pages": {}
+    }
+  },
+  
+  "max_tbr_books_description": "Número máximo de libros que puedes marcar como 'Por Leer' a la vez:",
+  "max_tbr_books_subtitle": "Libros máximos en 'Por Leer': {tbrLimit}",
+  
+  "set_tbr_limit": "Establecer Límite TBR",
+  "tbr_limit": "Límite TBR",
+  "books": "libros",
+  
+  "please_enter_valid_number": "Por favor ingresa un número válido mayor a 0",
+  "maximum_limit_200_books": "Límite máximo es de 200 libros",
+  "range_1_200_books": "Rango: 1-200 libros"
 }

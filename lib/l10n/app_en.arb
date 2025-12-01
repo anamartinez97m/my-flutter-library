@@ -40,6 +40,7 @@
     }
   },
   "saga": "Saga",
+  "saga_universe": "Saga Universe",
   "saga_with_colon": "Saga: {saga}",
   "@saga_with_colon": {
     "description": "Saga with colon",
@@ -243,5 +244,33 @@
   
   "top_5_genres": "Top 5 Genres",
 
-  "about_box_children": "Aplicación desarrollada con Flutter/Dart.\n Permite gestionar tu biblioteca personal y recibir recomendaciones de lectura personalizadas."
+  "about_box_children": "Aplicación desarrollada con Flutter/Dart.\n Permite gestionar tu biblioteca personal y recibir recomendaciones de lectura personalizadas.",
+  
+  "sort_and_filter": "Sort & Filter",
+  "empty": "Empty",
+  "yes": "Yes",
+  "no": "No",
+  "isbn_asin": "ISBN/ASIN",
+  "bundle": "Bundle",
+  "tandem": "Tandem",
+  "saga_format_without_saga": "Saga Format Without Saga",
+  "saga_format_without_n_saga": "Saga Format Without N_Saga",
+  "pages_with_colon": "Pages: {pages}",
+  "@pages_with_colon": {
+    "description": "Pages with colon",
+    "placeholders": {
+      "pages": {}
+    }
+  },
+  
+  "max_tbr_books_description": "Maximum number of books you can mark as 'To Be Read' at once:",
+  "max_tbr_books_subtitle": "Maximum books in 'To Be Read': {tbrLimit}",
+  
+  "set_tbr_limit": "Set TBR Limit",
+  "tbr_limit": "TBR Limit",
+  "books": "books",
+  
+  "please_enter_valid_number": "Please enter a valid number greater than 0",
+  "maximum_limit_200_books": "Maximum limit is 200 books",
+  "range_1_200_books": "Range: 1-200 books"
 }

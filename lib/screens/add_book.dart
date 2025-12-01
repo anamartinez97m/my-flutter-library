@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/model/read_date.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
@@ -41,10 +42,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
   final _myReviewController = TextEditingController();
   double _myRating = 0.0;
   int _readCount = 0;
-  
+
   // Read dates (new multi-session system)
   List<ReadDate> _readDates = [];
-  
+
   // Bundle fields
   bool _isBundle = false;
   int? _bundleCount;
@@ -53,7 +54,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   // TBR and Tandem fields
   bool _tbr = false;
   bool _isTandem = false;
-  
+
   // Notification fields
   bool _notificationEnabled = false;
   DateTime? _notificationDateTime;
@@ -247,7 +248,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
             actions: [
               TextButton.icon(
                 onPressed: () async {
-                  debugPrint('📚 Add Another clicked - reloading dropdown data...');
+                  debugPrint(
+                    '📚 Add Another clicked - reloading dropdown data...',
+                  );
                   Navigator.of(dialogContext).pop();
                   // Reload dropdown data to include newly added authors, sagas, etc.
                   await _loadDropdownData();
@@ -284,30 +287,31 @@ class _AddBookScreenState extends State<AddBookScreen> {
     }
 
     // Validate Tandem book requires saga or saga universe
-    if (_isTandem && 
-        _sagaController.text.trim().isEmpty && 
+    if (_isTandem &&
+        _sagaController.text.trim().isEmpty &&
         _sagaUniverseController.text.trim().isEmpty) {
       showDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          title: Row(
-            children: [
-              Icon(Icons.error_outline, color: Colors.red),
-              const SizedBox(width: 8),
-              const Text('Missing Information'),
-            ],
-          ),
-          content: const Text(
-            'Tandem books must have a Saga or Saga Universe.\n\n'
-            'Please fill in at least one of these fields to mark this book as Tandem.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
+        builder:
+            (context) => AlertDialog(
+              title: Row(
+                children: [
+                  Icon(Icons.error_outline, color: Colors.red),
+                  const SizedBox(width: 8),
+                  const Text('Missing Information'),
+                ],
+              ),
+              content: const Text(
+                'Tandem books must have a Saga or Saga Universe.\n\n'
+                'Please fill in at least one of these fields to mark this book as Tandem.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'),
+                ),
+              ],
             ),
-          ],
-        ),
       );
       return;
     }
@@ -419,9 +423,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
         isTandem: _isTandem,
         originalBookId: _selectedOriginalBookId,
         notificationEnabled: _notificationEnabled,
-        notificationDatetime: _notificationEnabled && _notificationDateTime != null 
-            ? _notificationDateTime!.toIso8601String() 
-            : null,
+        notificationDatetime:
+            _notificationEnabled && _notificationDateTime != null
+                ? _notificationDateTime!.toIso8601String()
+                : null,
         bundleParentId: null, // This is the parent book
       );
 
@@ -431,27 +436,38 @@ class _AddBookScreenState extends State<AddBookScreen> {
       if (_isBundle && _bundleBooks != null && _bundleBooks!.isNotEmpty) {
         for (int i = 0; i < _bundleBooks!.length; i++) {
           final bundleBookData = _bundleBooks![i];
-          
+
           // Create individual book with parent's shared data
           final individualBook = Book(
             bookId: null,
             name: bundleBookData.title ?? 'Book ${i + 1}',
             isbn: null, // Individual books don't have ISBN
             asin: null,
-            saga: _sagaController.text.trim().isEmpty ? null : _sagaController.text.trim(),
+            saga:
+                _sagaController.text.trim().isEmpty
+                    ? null
+                    : _sagaController.text.trim(),
             nSaga: bundleBookData.sagaNumber,
-            sagaUniverse: _sagaUniverseController.text.trim().isEmpty ? null : _sagaUniverseController.text.trim(),
+            sagaUniverse:
+                _sagaUniverseController.text.trim().isEmpty
+                    ? null
+                    : _sagaUniverseController.text.trim(),
             pages: bundleBookData.pages,
             originalPublicationYear: bundleBookData.publicationYear,
             loaned: (_selectedLoaned ?? 'no').toLowerCase(),
             statusValue: bundleBookData.status ?? 'No',
-            editorialValue: _editorialController.text.trim().isEmpty ? null : _editorialController.text.trim(),
+            editorialValue:
+                _editorialController.text.trim().isEmpty
+                    ? null
+                    : _editorialController.text.trim(),
             languageValue: languageValue,
             placeValue: placeValue,
             formatValue: formatValue,
             formatSagaValue: formatSagaValue,
             createdAt: DateTime.now().toIso8601String(),
-            author: bundleBookData.author ?? (_selectedAuthors.isEmpty ? null : _selectedAuthors.join(', ')),
+            author:
+                bundleBookData.author ??
+                (_selectedAuthors.isEmpty ? null : _selectedAuthors.join(', ')),
             genre: _selectedGenres.isEmpty ? null : _selectedGenres.join(', '),
             dateReadInitial: null,
             dateReadFinal: null,
@@ -474,7 +490,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
             notificationDatetime: null,
             bundleParentId: bookId, // Link to parent bundle
           );
-          
+
           await repository.addBook(individualBook);
         }
       }
@@ -482,11 +498,13 @@ class _AddBookScreenState extends State<AddBookScreen> {
       // Save read dates for non-bundle books only
       if (!_isBundle) {
         for (final readDate in _readDates) {
-          await repository.addReadDate(ReadDate(
-            bookId: bookId,
-            dateStarted: readDate.dateStarted,
-            dateFinished: readDate.dateFinished,
-          ));
+          await repository.addReadDate(
+            ReadDate(
+              bookId: bookId,
+              dateStarted: readDate.dateStarted,
+              dateFinished: readDate.dateFinished,
+            ),
+          );
         }
       }
 
@@ -513,7 +531,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
         debugPrint('📖 Book saved successfully with ID: $bookId');
         debugPrint('🧹 Clearing form and resetting state...');
-        
+
         // Clear form first
         _formKey.currentState!.reset();
         _nameController.clear();
@@ -667,7 +685,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              
+
               // Original Book Selection (shown only for Repeated status)
               if (_selectedStatusValue == 'Repeated')
                 FutureBuilder<List<Book>>(
@@ -679,7 +697,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                         child: Center(child: CircularProgressIndicator()),
                       );
                     }
-                    
+
                     final books = snapshot.data!;
                     Book? selectedBook;
                     if (_selectedOriginalBookId != null) {
@@ -691,31 +709,42 @@ class _AddBookScreenState extends State<AddBookScreen> {
                         selectedBook = null;
                       }
                     }
-                    
+
                     return Autocomplete<Book>(
-                      initialValue: _selectedOriginalBookId != null && selectedBook != null
-                          ? TextEditingValue(
-                              text: '${selectedBook.name}${selectedBook.author != null ? " - ${selectedBook.author}" : ""}',
-                            )
-                          : const TextEditingValue(),
+                      initialValue:
+                          _selectedOriginalBookId != null &&
+                                  selectedBook != null
+                              ? TextEditingValue(
+                                text:
+                                    '${selectedBook.name}${selectedBook.author != null ? " - ${selectedBook.author}" : ""}',
+                              )
+                              : const TextEditingValue(),
                       optionsBuilder: (TextEditingValue textEditingValue) {
                         if (textEditingValue.text.isEmpty) {
                           return books;
                         }
                         return books.where((book) {
-                          final searchText = textEditingValue.text.toLowerCase();
-                          final bookText = '${book.name} ${book.author ?? ""}'.toLowerCase();
+                          final searchText =
+                              textEditingValue.text.toLowerCase();
+                          final bookText =
+                              '${book.name} ${book.author ?? ""}'.toLowerCase();
                           return bookText.contains(searchText);
                         });
                       },
-                      displayStringForOption: (Book book) =>
-                          '${book.name}${book.author != null ? " - ${book.author}" : ""}',
+                      displayStringForOption:
+                          (Book book) =>
+                              '${book.name}${book.author != null ? " - ${book.author}" : ""}',
                       onSelected: (Book book) {
                         setState(() {
                           _selectedOriginalBookId = book.bookId;
                         });
                       },
-                      fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                      fieldViewBuilder: (
+                        context,
+                        controller,
+                        focusNode,
+                        onFieldSubmitted,
+                      ) {
                         return TextFormField(
                           controller: controller,
                           focusNode: focusNode,
@@ -726,7 +755,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
                             hintText: 'Search for the original book...',
                           ),
                           validator: (value) {
-                            if (_selectedStatusValue == 'Repeated' && _selectedOriginalBookId == null) {
+                            if (_selectedStatusValue == 'Repeated' &&
+                                _selectedOriginalBookId == null) {
                               return 'Original book is required';
                             }
                             return null;
@@ -738,7 +768,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 ),
               if (_selectedStatusValue == 'Repeated')
                 const SizedBox(height: 16),
-              
+
               // Name field
               TextFormField(
                 controller: _nameController,
@@ -792,7 +822,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
               // Editorial field
               AutocompleteTextField(
                 controller: _editorialController,
-                labelText: 'Editorial',
+                labelText: AppLocalizations.of(context)!.editorial,
                 prefixIcon: Icons.business,
                 suggestions: _editorialSuggestions,
                 textCapitalization: TextCapitalization.words,
@@ -817,7 +847,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
               // Saga field
               AutocompleteTextField(
                 controller: _sagaController,
-                labelText: 'Saga',
+                labelText: AppLocalizations.of(context)!.saga,
                 prefixIcon: Icons.collections_bookmark,
                 suggestions: _sagaSuggestions,
                 textCapitalization: TextCapitalization.words,
@@ -838,7 +868,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
               // Saga Universe field
               AutocompleteTextField(
                 controller: _sagaUniverseController,
-                labelText: 'Saga Universe',
+                labelText: AppLocalizations.of(context)!.saga_universe,
                 prefixIcon: Icons.public,
                 suggestions: _sagaUniverseSuggestions,
                 textCapitalization: TextCapitalization.words,
@@ -848,8 +878,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
               // Pages field
               TextFormField(
                 controller: _pagesController,
-                decoration: const InputDecoration(
-                  labelText: 'Pages',
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.pages,
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.description),
                 ),
@@ -923,27 +953,42 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Notification checkbox
                     CheckboxListTile(
                       title: const Text('Enable Release Notification'),
-                      subtitle: const Text('Get notified when this book is released'),
+                      subtitle: const Text(
+                        'Get notified when this book is released',
+                      ),
                       value: _notificationEnabled,
                       onChanged: (value) {
                         setState(() {
                           _notificationEnabled = value ?? false;
-                          if (_notificationEnabled && _notificationDateTime == null) {
+                          if (_notificationEnabled &&
+                              _notificationDateTime == null) {
                             // Set default notification time to release date at 9 AM
-                            _notificationDateTime = _releaseDate != null
-                                ? DateTime(_releaseDate!.year, _releaseDate!.month, _releaseDate!.day, 9, 0)
-                                : DateTime.now().add(const Duration(days: 1));
-                            _notificationTime = const TimeOfDay(hour: 9, minute: 0);
+                            _notificationDateTime =
+                                _releaseDate != null
+                                    ? DateTime(
+                                      _releaseDate!.year,
+                                      _releaseDate!.month,
+                                      _releaseDate!.day,
+                                      9,
+                                      0,
+                                    )
+                                    : DateTime.now().add(
+                                      const Duration(days: 1),
+                                    );
+                            _notificationTime = const TimeOfDay(
+                              hour: 9,
+                              minute: 0,
+                            );
                           }
                         });
                       },
                       controlAffinity: ListTileControlAffinity.leading,
                     ),
-                    
+
                     // Notification datetime picker
                     if (_notificationEnabled) ...[
                       const SizedBox(height: 8),
@@ -951,14 +996,17 @@ class _AddBookScreenState extends State<AddBookScreen> {
                         onTap: () async {
                           final pickedDate = await showDatePicker(
                             context: context,
-                            initialDate: _notificationDateTime ?? DateTime.now(),
+                            initialDate:
+                                _notificationDateTime ?? DateTime.now(),
                             firstDate: DateTime.now(),
                             lastDate: DateTime(2100),
                           );
                           if (pickedDate != null) {
                             final pickedTime = await showTimePicker(
                               context: context,
-                              initialTime: _notificationTime ?? const TimeOfDay(hour: 9, minute: 0),
+                              initialTime:
+                                  _notificationTime ??
+                                  const TimeOfDay(hour: 9, minute: 0),
                             );
                             if (pickedTime != null) {
                               setState(() {
@@ -985,7 +1033,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
                                 ? '${_notificationDateTime!.day}/${_notificationDateTime!.month}/${_notificationDateTime!.year} at ${_notificationTime!.format(context)}'
                                 : 'Select notification date and time',
                             style: TextStyle(
-                              color: _notificationDateTime != null ? null : Colors.grey,
+                              color:
+                                  _notificationDateTime != null
+                                      ? null
+                                      : Colors.grey,
                             ),
                           ),
                         ),
@@ -998,8 +1049,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
               // Format Saga dropdown
               DropdownButtonFormField<int>(
                 value: _selectedFormatSagaId,
-                decoration: const InputDecoration(
-                  labelText: 'Format Saga',
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.format_saga,
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.format_shapes),
                 ),
@@ -1095,9 +1146,15 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.swap_horiz),
                 ),
-                items: const [
-                  DropdownMenuItem(value: 'yes', child: Text('Yes')),
-                  DropdownMenuItem(value: 'no', child: Text('No')),
+                items: [
+                  DropdownMenuItem(
+                    value: 'yes',
+                    child: Text(AppLocalizations.of(context)!.yes),
+                  ),
+                  DropdownMenuItem(
+                    value: 'no',
+                    child: Text(AppLocalizations.of(context)!.no),
+                  ),
                 ],
                 onChanged: (value) {
                   setState(() {
@@ -1136,7 +1193,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     children: [
                       Text(
                         'Book Lists',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        style: Theme.of(
+                          context,
+                        ).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: Theme.of(context).colorScheme.primary,
                         ),
@@ -1144,7 +1203,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       const SizedBox(height: 12),
                       CheckboxListTile(
                         title: const Text('Add to TBR (To Be Read)'),
-                        subtitle: const Text('Mark this book for your reading list'),
+                        subtitle: const Text(
+                          'Mark this book for your reading list',
+                        ),
                         value: _tbr,
                         onChanged: (value) async {
                           if (value == true) {
@@ -1153,30 +1214,35 @@ class _AddBookScreenState extends State<AddBookScreen> {
                             final repository = BookRepository(db);
                             final currentCount = await repository.getTBRCount();
                             final limit = await getTBRLimit();
-                            
+
                             if (currentCount >= limit) {
                               if (mounted) {
                                 showDialog(
                                   context: context,
-                                  builder: (context) => AlertDialog(
-                                    title: Row(
-                                      children: [
-                                        Icon(Icons.warning_amber, color: Colors.orange),
-                                        const SizedBox(width: 8),
-                                        const Text('TBR Limit Reached'),
-                                      ],
-                                    ),
-                                    content: Text(
-                                      'You have reached your TBR limit of $limit books.\n\n'
-                                      'Please uncheck some books in the My Books screen to add more.',
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(context),
-                                        child: const Text('OK'),
+                                  builder:
+                                      (context) => AlertDialog(
+                                        title: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.warning_amber,
+                                              color: Colors.orange,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            const Text('TBR Limit Reached'),
+                                          ],
+                                        ),
+                                        content: Text(
+                                          'You have reached your TBR limit of $limit books.\n\n'
+                                          'Please uncheck some books in the My Books screen to add more.',
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed:
+                                                () => Navigator.pop(context),
+                                            child: const Text('OK'),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
                                 );
                               }
                               return;
@@ -1190,14 +1256,18 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       ),
                       CheckboxListTile(
                         title: const Text('Mark as Tandem Book'),
-                        subtitle: const Text('Read together with other books in this saga'),
+                        subtitle: const Text(
+                          'Read together with other books in this saga',
+                        ),
                         value: _isTandem,
                         onChanged: (value) {
                           setState(() {
                             _isTandem = value ?? false;
                           });
                         },
-                        secondary: const Icon(Icons.swap_horizontal_circle_outlined),
+                        secondary: const Icon(
+                          Icons.swap_horizontal_circle_outlined,
+                        ),
                       ),
                     ],
                   ),
@@ -1308,7 +1378,14 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     setState(() {
                       _readDates = readDates;
                       // Update read count based on finished sessions
-                      _readCount = readDates.where((rd) => rd.dateFinished != null && rd.dateFinished!.isNotEmpty).length;
+                      _readCount =
+                          readDates
+                              .where(
+                                (rd) =>
+                                    rd.dateFinished != null &&
+                                    rd.dateFinished!.isNotEmpty,
+                              )
+                              .length;
                     });
                   },
                 ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/model/read_date.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
@@ -45,13 +46,13 @@ class _EditBookScreenState extends State<EditBookScreen> {
   late TextEditingController _myReviewController;
   late double _myRating;
   late int _readCount;
-  
+
   // Read dates (new multi-session system)
   List<ReadDate> _readDates = [];
-  
+
   // Chronometer sessions
   List<ReadingSession> _chronometerSessions = [];
-  
+
   // Bundle fields
   late bool _isBundle = false;
   int? _bundleCount;
@@ -60,12 +61,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
   // TBR and Tandem fields
   late bool _tbr;
   late bool _isTandem;
-  
+
   // Notification fields
   bool _notificationEnabled = false;
   DateTime? _notificationDateTime;
   TimeOfDay? _notificationTime;
-  
+
   // Repeated books
   String? _selectedStatusValue;
   int? _selectedOriginalBookId;
@@ -95,7 +96,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   // Multi-value fields
   List<String> _selectedAuthors = [];
   List<String> _selectedGenres = [];
-  
+
   bool _isLoading = true;
 
   /// Capitalize only the first letter, rest lowercase
@@ -143,15 +144,21 @@ class _EditBookScreenState extends State<EditBookScreen> {
     _loadReadDates();
     _loadBundleBooks();
   }
-  
+
   Future<void> _loadReadDates() async {
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
       final sessionRepository = ReadingSessionRepository(db);
-      final readDates = await repository.getReadDatesForBook(widget.book.bookId!);
-      final sessions = await sessionRepository.getSessionsForBook(widget.book.bookId!);
-      debugPrint('EditBook: Loaded ${readDates.length} read dates and ${sessions.length} sessions for book ${widget.book.bookId} (${widget.book.name})');
+      final readDates = await repository.getReadDatesForBook(
+        widget.book.bookId!,
+      );
+      final sessions = await sessionRepository.getSessionsForBook(
+        widget.book.bookId!,
+      );
+      debugPrint(
+        'EditBook: Loaded ${readDates.length} read dates and ${sessions.length} sessions for book ${widget.book.bookId} (${widget.book.name})',
+      );
       setState(() {
         _readDates = readDates;
         _chronometerSessions = sessions;
@@ -160,29 +167,30 @@ class _EditBookScreenState extends State<EditBookScreen> {
       debugPrint('Error loading read dates: $e');
     }
   }
-  
+
   Future<void> _loadBundleBooks() async {
     if (widget.book.isBundle != true) return;
-    
+
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
-      
+
       // Load individual bundle books
       final bundleBooks = await repository.getBundleBooks(widget.book.bookId!);
-      
+
       // Convert to BundleBookData
-      final bundleBookDataList = bundleBooks.map((book) {
-        return BundleBookData(
-          sagaNumber: book.nSaga,
-          title: book.name,
-          author: book.author,
-          pages: book.pages,
-          publicationYear: book.originalPublicationYear,
-          status: book.statusValue,
-        );
-      }).toList();
-      
+      final bundleBookDataList =
+          bundleBooks.map((book) {
+            return BundleBookData(
+              sagaNumber: book.nSaga,
+              title: book.name,
+              author: book.author,
+              pages: book.pages,
+              publicationYear: book.originalPublicationYear,
+              status: book.statusValue,
+            );
+          }).toList();
+
       setState(() {
         _bundleBooks = bundleBookDataList;
         _bundleCount = bundleBookDataList.length;
@@ -191,16 +199,19 @@ class _EditBookScreenState extends State<EditBookScreen> {
       debugPrint('Error loading bundle books: $e');
     }
   }
-  
+
   Future<List<Book>> _loadAllBooksForSelection() async {
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
       final books = await repository.getAllBooks();
       // Filter out books with status "Repeated" and the current book
-      return books.where((b) => 
-        b.statusValue != 'Repeated' && b.bookId != widget.book.bookId
-      ).toList();
+      return books
+          .where(
+            (b) =>
+                b.statusValue != 'Repeated' && b.bookId != widget.book.bookId,
+          )
+          .toList();
     } catch (e) {
       debugPrint('Error loading books for selection: $e');
       return [];
@@ -279,18 +290,21 @@ class _EditBookScreenState extends State<EditBookScreen> {
     _isTandem = widget.book.isTandem ?? false;
     _selectedStatusValue = widget.book.statusValue;
     _selectedOriginalBookId = widget.book.originalBookId;
-    
+
     // Initialize notification fields
     _notificationEnabled = widget.book.notificationEnabled ?? false;
-    if (widget.book.notificationDatetime != null && widget.book.notificationDatetime!.isNotEmpty) {
+    if (widget.book.notificationDatetime != null &&
+        widget.book.notificationDatetime!.isNotEmpty) {
       try {
-        _notificationDateTime = DateTime.parse(widget.book.notificationDatetime!);
+        _notificationDateTime = DateTime.parse(
+          widget.book.notificationDatetime!,
+        );
         _notificationTime = TimeOfDay.fromDateTime(_notificationDateTime!);
       } catch (e) {
         debugPrint('Error parsing notification datetime: $e');
       }
     }
-    
+
     // Old date fields removed - now using book_read_dates table
   }
 
@@ -554,10 +568,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
         isTandem: _isTandem,
         originalBookId: _selectedOriginalBookId,
         notificationEnabled: _notificationEnabled,
-        notificationDatetime: _notificationEnabled && _notificationDateTime != null 
-            ? _notificationDateTime!.toIso8601String() 
-            : null,
-        bundleParentId: widget.book.bundleParentId, // Preserve bundle relationship
+        notificationDatetime:
+            _notificationEnabled && _notificationDateTime != null
+                ? _notificationDateTime!.toIso8601String()
+                : null,
+        bundleParentId:
+            widget.book.bundleParentId, // Preserve bundle relationship
       );
 
       // Update the book using direct update instead of delete+add
@@ -600,12 +616,14 @@ class _EditBookScreenState extends State<EditBookScreen> {
         isTandem: _isTandem,
         originalBookId: _selectedOriginalBookId,
         notificationEnabled: _notificationEnabled,
-        notificationDatetime: _notificationEnabled && _notificationDateTime != null 
-            ? _notificationDateTime!.toIso8601String() 
-            : null,
-        bundleParentId: updatedBook.bundleParentId, // Preserve bundle relationship
+        notificationDatetime:
+            _notificationEnabled && _notificationDateTime != null
+                ? _notificationDateTime!.toIso8601String()
+                : null,
+        bundleParentId:
+            updatedBook.bundleParentId, // Preserve bundle relationship
       );
-      
+
       // Use repository.addBook with the book ID to update in place
       // The repository properly converts field names and handles the update
       await repository.addBook(bookToUpdate);
@@ -613,13 +631,15 @@ class _EditBookScreenState extends State<EditBookScreen> {
       // If this is a bundle, manage individual books
       if (_isBundle && widget.book.bookId != null) {
         // Get existing bundle books
-        final existingBooks = await repository.getBundleBooks(widget.book.bookId!);
-        
+        final existingBooks = await repository.getBundleBooks(
+          widget.book.bookId!,
+        );
+
         // Update existing books with new title and nsaga
         if (_bundleBooks != null && _bundleBooks!.isNotEmpty) {
           for (int i = 0; i < _bundleBooks!.length; i++) {
             final bundleBookData = _bundleBooks![i];
-            
+
             if (i < existingBooks.length) {
               // Update existing book - only title and nsaga
               final existingBook = existingBooks[i];
@@ -662,49 +682,67 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 originalBookId: existingBook.originalBookId,
                 notificationEnabled: existingBook.notificationEnabled,
                 notificationDatetime: existingBook.notificationDatetime,
-                bundleParentId: widget.book.bookId, // Preserve bundle relationship
+                bundleParentId:
+                    widget.book.bookId, // Preserve bundle relationship
               );
-              
+
               await repository.addBook(updatedIndividualBook);
             } else {
               // Add new book if count increased
-              final languageValue = _languageList.firstWhere(
-                (l) => l['language_id'] == _selectedLanguageId,
-                orElse: () => {},
-              )['name'];
-              final placeValue = _placeList.firstWhere(
-                (p) => p['place_id'] == _selectedPlaceId,
-                orElse: () => {},
-              )['name'];
-              final formatValue = _formatList.firstWhere(
-                (f) => f['format_id'] == _selectedFormatId,
-                orElse: () => {},
-              )['value'];
-              final formatSagaValue = _formatSagaList.firstWhere(
-                (fs) => fs['format_id'] == _selectedFormatSagaId,
-                orElse: () => {},
-              )['value'];
-              
+              final languageValue =
+                  _languageList.firstWhere(
+                    (l) => l['language_id'] == _selectedLanguageId,
+                    orElse: () => {},
+                  )['name'];
+              final placeValue =
+                  _placeList.firstWhere(
+                    (p) => p['place_id'] == _selectedPlaceId,
+                    orElse: () => {},
+                  )['name'];
+              final formatValue =
+                  _formatList.firstWhere(
+                    (f) => f['format_id'] == _selectedFormatId,
+                    orElse: () => {},
+                  )['value'];
+              final formatSagaValue =
+                  _formatSagaList.firstWhere(
+                    (fs) => fs['format_id'] == _selectedFormatSagaId,
+                    orElse: () => {},
+                  )['value'];
+
               final newBook = Book(
                 bookId: null,
                 name: bundleBookData.title ?? 'Book ${i + 1}',
                 isbn: null,
                 asin: null,
-                saga: _sagaController.text.trim().isEmpty ? null : _sagaController.text.trim(),
+                saga:
+                    _sagaController.text.trim().isEmpty
+                        ? null
+                        : _sagaController.text.trim(),
                 nSaga: bundleBookData.sagaNumber,
-                sagaUniverse: _sagaUniverseController.text.trim().isEmpty ? null : _sagaUniverseController.text.trim(),
+                sagaUniverse:
+                    _sagaUniverseController.text.trim().isEmpty
+                        ? null
+                        : _sagaUniverseController.text.trim(),
                 pages: null,
                 originalPublicationYear: null,
                 loaned: _selectedLoaned,
                 statusValue: 'No',
-                editorialValue: _editorialController.text.trim().isEmpty ? null : _editorialController.text.trim(),
+                editorialValue:
+                    _editorialController.text.trim().isEmpty
+                        ? null
+                        : _editorialController.text.trim(),
                 languageValue: languageValue,
                 placeValue: placeValue,
                 formatValue: formatValue,
                 formatSagaValue: formatSagaValue,
                 createdAt: DateTime.now().toIso8601String(),
-                author: _selectedAuthors.isEmpty ? null : _selectedAuthors.join(', '),
-                genre: _selectedGenres.isEmpty ? null : _selectedGenres.join(', '),
+                author:
+                    _selectedAuthors.isEmpty
+                        ? null
+                        : _selectedAuthors.join(', '),
+                genre:
+                    _selectedGenres.isEmpty ? null : _selectedGenres.join(', '),
                 dateReadInitial: null,
                 dateReadFinal: null,
                 readCount: 0,
@@ -726,11 +764,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 notificationDatetime: null,
                 bundleParentId: widget.book.bookId,
               );
-              
+
               await repository.addBook(newBook);
             }
           }
-          
+
           // Delete extra books if count decreased
           if (existingBooks.length > _bundleBooks!.length) {
             for (int i = _bundleBooks!.length; i < existingBooks.length; i++) {
@@ -743,29 +781,37 @@ class _EditBookScreenState extends State<EditBookScreen> {
       // Update read dates in the new table
       // First, delete all existing read dates for this book
       await repository.deleteAllReadDatesForBook(widget.book.bookId!);
-      
+
       // Update chronometer sessions (delete all and re-add remaining ones)
       final sessionRepository = ReadingSessionRepository(db);
       await sessionRepository.deleteSessionsForBook(widget.book.bookId!);
       for (final session in _chronometerSessions) {
-        await sessionRepository.createSession(session.copyWith(
-          sessionId: null, // Let database assign new ID
-          bookId: widget.book.bookId!,
-        ));
+        await sessionRepository.createSession(
+          session.copyWith(
+            sessionId: null, // Let database assign new ID
+            bookId: widget.book.bookId!,
+          ),
+        );
       }
-      
+
       // Save read dates for non-bundle books only
       if (!_isBundle) {
-        debugPrint('EditBook: Saving ${_readDates.length} read dates for book ${widget.book.bookId} (${widget.book.name}), isBundle=$_isBundle');
+        debugPrint(
+          'EditBook: Saving ${_readDates.length} read dates for book ${widget.book.bookId} (${widget.book.name}), isBundle=$_isBundle',
+        );
         for (final readDate in _readDates) {
-          await repository.addReadDate(ReadDate(
-            bookId: widget.book.bookId!,
-            dateStarted: readDate.dateStarted,
-            dateFinished: readDate.dateFinished,
-          ));
+          await repository.addReadDate(
+            ReadDate(
+              bookId: widget.book.bookId!,
+              dateStarted: readDate.dateStarted,
+              dateFinished: readDate.dateFinished,
+            ),
+          );
         }
       } else {
-        debugPrint('EditBook: NOT saving read dates for book ${widget.book.bookId} (${widget.book.name}) because isBundle=$_isBundle');
+        debugPrint(
+          'EditBook: NOT saving read dates for book ${widget.book.bookId} (${widget.book.name}) because isBundle=$_isBundle',
+        );
       }
 
       // Reload books in provider
@@ -779,24 +825,29 @@ class _EditBookScreenState extends State<EditBookScreen> {
         // Schedule notification if enabled
         if (_notificationEnabled && _notificationDateTime != null) {
           try {
-            debugPrint('🔔 Scheduling notification for book: ${_nameController.text.trim()}');
+            debugPrint(
+              '🔔 Scheduling notification for book: ${_nameController.text.trim()}',
+            );
             debugPrint('🔔 Scheduled date: $_notificationDateTime');
             final notificationService = NotificationService();
-            final permissionGranted = await notificationService.requestPermissions();
+            final permissionGranted =
+                await notificationService.requestPermissions();
             debugPrint('🔔 Permission granted: $permissionGranted');
-            
+
             await notificationService.scheduleBookReleaseNotification(
               bookId: widget.book.bookId!,
               bookTitle: _nameController.text.trim(),
               scheduledDate: _notificationDateTime!,
             );
             debugPrint('🔔 Notification scheduled successfully');
-            
+
             // Show confirmation to user
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Notification scheduled for ${_notificationDateTime!.toString().split('.')[0]}'),
+                  content: Text(
+                    'Notification scheduled for ${_notificationDateTime!.toString().split('.')[0]}',
+                  ),
                   backgroundColor: Colors.green,
                 ),
               );
@@ -818,7 +869,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
           try {
             final notificationService = NotificationService();
             await notificationService.cancelNotification(widget.book.bookId!);
-            debugPrint('🔔 Notification cancelled for book ${widget.book.bookId}');
+            debugPrint(
+              '🔔 Notification cancelled for book ${widget.book.bookId}',
+            );
           } catch (e) {
             debugPrint('Error canceling notification: $e');
           }
@@ -927,7 +980,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Original Book Selection (shown only for Repeated status)
                 if (_selectedStatusValue == 'Repeated')
                   FutureBuilder<List<Book>>(
@@ -939,7 +992,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                           child: Center(child: CircularProgressIndicator()),
                         );
                       }
-                      
+
                       final books = snapshot.data!;
                       Book? selectedBook;
                       if (_selectedOriginalBookId != null) {
@@ -951,31 +1004,43 @@ class _EditBookScreenState extends State<EditBookScreen> {
                           selectedBook = null;
                         }
                       }
-                      
+
                       return Autocomplete<Book>(
-                        initialValue: _selectedOriginalBookId != null && selectedBook != null
-                            ? TextEditingValue(
-                                text: '${selectedBook.name}${selectedBook.author != null ? " - ${selectedBook.author}" : ""}',
-                              )
-                            : const TextEditingValue(),
+                        initialValue:
+                            _selectedOriginalBookId != null &&
+                                    selectedBook != null
+                                ? TextEditingValue(
+                                  text:
+                                      '${selectedBook.name}${selectedBook.author != null ? " - ${selectedBook.author}" : ""}',
+                                )
+                                : const TextEditingValue(),
                         optionsBuilder: (TextEditingValue textEditingValue) {
                           if (textEditingValue.text.isEmpty) {
                             return books;
                           }
                           return books.where((book) {
-                            final searchText = textEditingValue.text.toLowerCase();
-                            final bookText = '${book.name} ${book.author ?? ""}'.toLowerCase();
+                            final searchText =
+                                textEditingValue.text.toLowerCase();
+                            final bookText =
+                                '${book.name} ${book.author ?? ""}'
+                                    .toLowerCase();
                             return bookText.contains(searchText);
                           });
                         },
-                        displayStringForOption: (Book book) =>
-                            '${book.name}${book.author != null ? " - ${book.author}" : ""}',
+                        displayStringForOption:
+                            (Book book) =>
+                                '${book.name}${book.author != null ? " - ${book.author}" : ""}',
                         onSelected: (Book book) {
                           setState(() {
                             _selectedOriginalBookId = book.bookId;
                           });
                         },
-                        fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                        fieldViewBuilder: (
+                          context,
+                          controller,
+                          focusNode,
+                          onFieldSubmitted,
+                        ) {
                           return TextFormField(
                             controller: controller,
                             focusNode: focusNode,
@@ -986,7 +1051,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
                               hintText: 'Search for the original book...',
                             ),
                             validator: (value) {
-                              if (_selectedStatusValue == 'Repeated' && _selectedOriginalBookId == null) {
+                              if (_selectedStatusValue == 'Repeated' &&
+                                  _selectedOriginalBookId == null) {
                                 return 'Original book is required';
                               }
                               return null;
@@ -1052,7 +1118,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 // Editorial field
                 AutocompleteTextField(
                   controller: _editorialController,
-                  labelText: 'Editorial',
+                  labelText: AppLocalizations.of(context)!.editorial,
                   prefixIcon: Icons.business,
                   suggestions: _editorialSuggestions,
                   textCapitalization: TextCapitalization.words,
@@ -1077,7 +1143,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 // Saga field
                 AutocompleteTextField(
                   controller: _sagaController,
-                  labelText: 'Saga',
+                  labelText: AppLocalizations.of(context)!.saga,
                   prefixIcon: Icons.collections_bookmark,
                   suggestions: _sagaSuggestions,
                   textCapitalization: TextCapitalization.words,
@@ -1098,7 +1164,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 // Saga Universe field
                 AutocompleteTextField(
                   controller: _sagaUniverseController,
-                  labelText: 'Saga Universe',
+                  labelText: AppLocalizations.of(context)!.saga_universe,
                   prefixIcon: Icons.public,
                   suggestions: _sagaUniverseSuggestions,
                   textCapitalization: TextCapitalization.words,
@@ -1108,8 +1174,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 // Pages field
                 TextFormField(
                   controller: _pagesController,
-                  decoration: const InputDecoration(
-                    labelText: 'Pages',
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.pages,
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.description),
                   ),
@@ -1183,27 +1249,42 @@ class _EditBookScreenState extends State<EditBookScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Notification checkbox
                       CheckboxListTile(
                         title: const Text('Enable Release Notification'),
-                        subtitle: const Text('Get notified when this book is released'),
+                        subtitle: const Text(
+                          'Get notified when this book is released',
+                        ),
                         value: _notificationEnabled,
                         onChanged: (value) {
                           setState(() {
                             _notificationEnabled = value ?? false;
-                            if (_notificationEnabled && _notificationDateTime == null) {
+                            if (_notificationEnabled &&
+                                _notificationDateTime == null) {
                               // Set default notification time to release date at 9 AM
-                              _notificationDateTime = _releaseDate != null
-                                  ? DateTime(_releaseDate!.year, _releaseDate!.month, _releaseDate!.day, 9, 0)
-                                  : DateTime.now().add(const Duration(days: 1));
-                              _notificationTime = const TimeOfDay(hour: 9, minute: 0);
+                              _notificationDateTime =
+                                  _releaseDate != null
+                                      ? DateTime(
+                                        _releaseDate!.year,
+                                        _releaseDate!.month,
+                                        _releaseDate!.day,
+                                        9,
+                                        0,
+                                      )
+                                      : DateTime.now().add(
+                                        const Duration(days: 1),
+                                      );
+                              _notificationTime = const TimeOfDay(
+                                hour: 9,
+                                minute: 0,
+                              );
                             }
                           });
                         },
                         controlAffinity: ListTileControlAffinity.leading,
                       ),
-                      
+
                       // Notification datetime picker
                       if (_notificationEnabled) ...[
                         const SizedBox(height: 8),
@@ -1211,14 +1292,17 @@ class _EditBookScreenState extends State<EditBookScreen> {
                           onTap: () async {
                             final pickedDate = await showDatePicker(
                               context: context,
-                              initialDate: _notificationDateTime ?? DateTime.now(),
+                              initialDate:
+                                  _notificationDateTime ?? DateTime.now(),
                               firstDate: DateTime.now(),
                               lastDate: DateTime(2100),
                             );
                             if (pickedDate != null) {
                               final pickedTime = await showTimePicker(
                                 context: context,
-                                initialTime: _notificationTime ?? const TimeOfDay(hour: 9, minute: 0),
+                                initialTime:
+                                    _notificationTime ??
+                                    const TimeOfDay(hour: 9, minute: 0),
                               );
                               if (pickedTime != null) {
                                 setState(() {
@@ -1245,7 +1329,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
                                   ? '${_notificationDateTime!.day}/${_notificationDateTime!.month}/${_notificationDateTime!.year} at ${_notificationTime!.format(context)}'
                                   : 'Select notification date and time',
                               style: TextStyle(
-                                color: _notificationDateTime != null ? null : Colors.grey,
+                                color:
+                                    _notificationDateTime != null
+                                        ? null
+                                        : Colors.grey,
                               ),
                             ),
                           ),
@@ -1260,7 +1347,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
                               await notificationService.showImmediateNotification(
                                 id: 999999,
                                 title: 'Test Notification',
-                                body: 'If you see this, notifications are working!',
+                                body:
+                                    'If you see this, notifications are working!',
                               );
                               if (mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -1297,8 +1385,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 // Format Saga dropdown
                 DropdownButtonFormField<int>(
                   value: _selectedFormatSagaId,
-                  decoration: const InputDecoration(
-                    labelText: 'Format Saga',
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.format_saga,
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.format_shapes),
                   ),
@@ -1394,9 +1482,15 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.swap_horiz),
                   ),
-                  items: const [
-                    DropdownMenuItem(value: 'yes', child: Text('Yes')),
-                    DropdownMenuItem(value: 'no', child: Text('No')),
+                  items: [
+                    DropdownMenuItem(
+                      value: 'yes',
+                      child: Text(AppLocalizations.of(context)!.yes),
+                    ),
+                    DropdownMenuItem(
+                      value: 'no',
+                      child: Text(AppLocalizations.of(context)!.no),
+                    ),
                   ],
                   onChanged: (value) {
                     setState(() {
@@ -1412,7 +1506,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   initialBundleCount: _bundleCount,
                   initialBundleBooks: _bundleBooks,
                   statusOptions: _statusList,
-                  editMode: widget.book.bookId != null, // Edit mode when editing existing book
+                  editMode:
+                      widget.book.bookId !=
+                      null, // Edit mode when editing existing book
                   onChanged: (isBundle, count, bundleBooks) {
                     setState(() {
                       _isBundle = isBundle;
@@ -1624,12 +1720,19 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       setState(() {
                         _readDates = readDates;
                         // Update read count based on finished sessions
-                        _readCount = readDates.where((rd) => rd.dateFinished != null && rd.dateFinished!.isNotEmpty).length;
+                        _readCount =
+                            readDates
+                                .where(
+                                  (rd) =>
+                                      rd.dateFinished != null &&
+                                      rd.dateFinished!.isNotEmpty,
+                                )
+                                .length;
                       });
                     },
                   ),
                 if (!_isBundle) const SizedBox(height: 16),
-                
+
                 // Chronometer Sessions (hidden for bundles)
                 if (!_isBundle && _chronometerSessions.isNotEmpty)
                   Card(
@@ -1648,9 +1751,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
                               const SizedBox(width: 8),
                               Text(
                                 'Timed Reading Sessions',
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
@@ -1670,14 +1772,15 @@ class _EditBookScreenState extends State<EditBookScreen> {
                             } else {
                               durationStr = '${seconds}s';
                             }
-                            
+
                             // Format clicked_at time if available
                             String clickedAtStr = '';
                             if (session.clickedAt != null) {
                               final clickedTime = session.clickedAt!;
-                              clickedAtStr = '\nStarted: ${clickedTime.hour.toString().padLeft(2, '0')}:${clickedTime.minute.toString().padLeft(2, '0')}';
+                              clickedAtStr =
+                                  '\nStarted: ${clickedTime.hour.toString().padLeft(2, '0')}:${clickedTime.minute.toString().padLeft(2, '0')}';
                             }
-                            
+
                             return Card(
                               margin: const EdgeInsets.only(bottom: 8),
                               child: ListTile(
@@ -1686,12 +1789,21 @@ class _EditBookScreenState extends State<EditBookScreen> {
                                   child: Text('${index + 1}'),
                                 ),
                                 title: Text(
-                                  session.startTime.toIso8601String().split('T')[0],
-                                  style: const TextStyle(fontWeight: FontWeight.w500),
+                                  session.startTime.toIso8601String().split(
+                                    'T',
+                                  )[0],
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
-                                subtitle: Text('Duration: $durationStr$clickedAtStr'),
+                                subtitle: Text(
+                                  'Duration: $durationStr$clickedAtStr',
+                                ),
                                 trailing: IconButton(
-                                  icon: const Icon(Icons.delete, color: Colors.red),
+                                  icon: const Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                  ),
                                   onPressed: () {
                                     setState(() {
                                       _chronometerSessions.removeAt(index);
@@ -1705,7 +1817,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       ),
                     ),
                   ),
-                if (!_isBundle && _chronometerSessions.isNotEmpty) const SizedBox(height: 16),
+                if (!_isBundle && _chronometerSessions.isNotEmpty)
+                  const SizedBox(height: 16),
 
                 // My Review field
                 TextFormField(

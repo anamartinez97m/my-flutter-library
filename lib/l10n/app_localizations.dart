@@ -215,6 +215,12 @@ abstract class AppLocalizations {
   /// **'Saga'**
   String get saga;
 
+  /// No description provided for @saga_universe.
+  ///
+  /// In en, this message translates to:
+  /// **'Saga Universe'**
+  String get saga_universe;
+
   /// Saga with colon
   ///
   /// In en, this message translates to:
@@ -814,6 +820,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Aplicación desarrollada con Flutter/Dart.\n Permite gestionar tu biblioteca personal y recibir recomendaciones de lectura personalizadas.'**
   String get about_box_children;
+
+  /// No description provided for @sort_and_filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort & Filter'**
+  String get sort_and_filter;
+
+  /// No description provided for @empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty'**
+  String get empty;
+
+  /// No description provided for @yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yes;
+
+  /// No description provided for @no.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get no;
+
+  /// No description provided for @isbn_asin.
+  ///
+  /// In en, this message translates to:
+  /// **'ISBN/ASIN'**
+  String get isbn_asin;
+
+  /// No description provided for @bundle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bundle'**
+  String get bundle;
+
+  /// No description provided for @tandem.
+  ///
+  /// In en, this message translates to:
+  /// **'Tandem'**
+  String get tandem;
+
+  /// No description provided for @saga_format_without_saga.
+  ///
+  /// In en, this message translates to:
+  /// **'Saga Format Without Saga'**
+  String get saga_format_without_saga;
+
+  /// No description provided for @saga_format_without_n_saga.
+  ///
+  /// In en, this message translates to:
+  /// **'Saga Format Without N_Saga'**
+  String get saga_format_without_n_saga;
+
+  /// Pages with colon
+  ///
+  /// In en, this message translates to:
+  /// **'Pages: {pages}'**
+  String pages_with_colon(Object pages);
+
+  /// No description provided for @max_tbr_books_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum number of books you can mark as \'To Be Read\' at once:'**
+  String get max_tbr_books_description;
+
+  /// No description provided for @max_tbr_books_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum books in \'To Be Read\': {tbrLimit}'**
+  String max_tbr_books_subtitle(Object tbrLimit);
+
+  /// No description provided for @set_tbr_limit.
+  ///
+  /// In en, this message translates to:
+  /// **'Set TBR Limit'**
+  String get set_tbr_limit;
+
+  /// No description provided for @tbr_limit.
+  ///
+  /// In en, this message translates to:
+  /// **'TBR Limit'**
+  String get tbr_limit;
+
+  /// No description provided for @books.
+  ///
+  /// In en, this message translates to:
+  /// **'books'**
+  String get books;
+
+  /// No description provided for @please_enter_valid_number.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid number greater than 0'**
+  String get please_enter_valid_number;
+
+  /// No description provided for @maximum_limit_200_books.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum limit is 200 books'**
+  String get maximum_limit_200_books;
+
+  /// No description provided for @range_1_200_books.
+  ///
+  /// In en, this message translates to:
+  /// **'Range: 1-200 books'**
+  String get range_1_200_books;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
