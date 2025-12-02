@@ -23,10 +23,28 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 24,
+      version: 25, // Increment from 24 to 25 to force upgrade
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
+      onOpen: _onOpen, // Add onOpen callback
     );
+  }
+
+  Future<void> _onOpen(Database db) async {
+    // Ensure reading progress columns exist in book table
+    try {
+      await db.execute('SELECT reading_progress FROM book LIMIT 1');
+    } catch (e) {
+      // Column doesn't exist, add it
+      await db.execute('ALTER TABLE book ADD COLUMN reading_progress INTEGER');
+    }
+    
+    try {
+      await db.execute('SELECT progress_type FROM book LIMIT 1');
+    } catch (e) {
+      // Column doesn't exist, add it
+      await db.execute('ALTER TABLE book ADD COLUMN progress_type TEXT');
+    }
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -126,6 +144,8 @@ class DatabaseHelper {
         notification_enabled BOOLEAN DEFAULT 0,
         notification_datetime TEXT,
         bundle_parent_id INTEGER,
+        reading_progress INTEGER,
+        progress_type TEXT,
         FOREIGN KEY (status_id) REFERENCES status (status_id),
         FOREIGN KEY (original_book_id) REFERENCES book (book_id) ON DELETE SET NULL,
         FOREIGN KEY (bundle_parent_id) REFERENCES book (book_id) ON DELETE CASCADE,
@@ -662,6 +682,22 @@ class DatabaseHelper {
       await db.execute(
         'ALTER TABLE book_read_dates ADD COLUMN reading_progress INTEGER',
       );
+    }
+    if (oldVersion < 25) {
+      // Ensure reading progress columns exist in book table
+      try {
+        await db.execute('SELECT reading_progress FROM book LIMIT 1');
+      } catch (e) {
+        // Column doesn't exist, add it
+        await db.execute('ALTER TABLE book ADD COLUMN reading_progress INTEGER');
+      }
+      
+      try {
+        await db.execute('SELECT progress_type FROM book LIMIT 1');
+      } catch (e) {
+        // Column doesn't exist, add it
+        await db.execute('ALTER TABLE book ADD COLUMN progress_type TEXT');
+      }
     }
   }
 
