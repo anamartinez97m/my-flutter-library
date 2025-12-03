@@ -437,13 +437,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
         );
       }
 
-      int importedCount = 0;
-      int skippedCount = 0;
-      int updatedCount = 0;
-      final List<String> skippedReasons = [];
-
-      debugPrint('=== Starting Import ===');
+      // Parse all books first to show import choice dialog
+      final List<_BookImportItem> importItems = [];
+      final Set<String> allTags = {};
+      debugPrint('=== Parsing CSV for Import Choice ===');
       debugPrint('Processing ${rows.length - 1} rows from CSV');
+
+      // Create header map for efficient lookups
+      final headerMap = <String, int>{};
+      for (int j = 0; j < headers.length; j++) {
+        headerMap[headers[j].toString().toLowerCase()] = j;
+      }
 
       // Skip header row (index 0) and process data rows
       for (int i = 1; i < rows.length; i++) {
@@ -458,6 +462,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
         }
 
         try {
+          // Extract tags from bookshelves if available (for Goodreads format)
+          List<String> bookTags = [];
+          if (csvFormat == CsvFormat.format2 && headerMap.containsKey('bookshelves')) {
+            final bookshelvesIndex = headerMap['bookshelves'];
+            if (bookshelvesIndex != null && bookshelvesIndex < row.length) {
+              final bookshelves = row[bookshelvesIndex]?.toString();
+              if (bookshelves != null && bookshelves.isNotEmpty) {
+                bookTags = bookshelves.split(',').map((tag) => tag.trim()).where((tag) => tag.isNotEmpty).toList();
+                allTags.addAll(bookTags);
+              }
+            }
+          }
+
           // Parse book from CSV based on format
           final book = CsvImportHelper.parseBookFromCsv(
             row,
@@ -466,10 +483,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           );
 
           if (book == null) {
-            skippedCount++;
-            skippedReasons.add(
-              'Row $i: Failed to parse (possibly filtered out)',
-            );
             continue;
           }
 
@@ -525,24 +538,99 @@ class _SettingsScreenState extends State<SettingsScreen> {
           final duplicateIds = await repository.findDuplicateBooks(
             bookWithMappedStatus,
           );
-          if (duplicateIds.isNotEmpty) {
+
+          String importType;
+          Book? existingBook;
+          if (duplicateIds.isEmpty) {
+            importType = 'NEW';
+          } else if (duplicateIds.length == 1) {
+            importType = 'UPDATE';
+            existingBook = bookWithMappedStatus; // Simplified for settings import
+          } else {
+            importType = 'DUPLICATE';
+          }
+
+          importItems.add(
+            _BookImportItem(
+              book: bookWithMappedStatus,
+              importType: importType,
+              duplicateIds: duplicateIds,
+              existingBook: existingBook,
+              tags: bookTags,
+            ),
+          );
+        } catch (e) {
+          debugPrint('Error parsing row $i: $e');
+        }
+      }
+
+      debugPrint('=== Parse Complete ===');
+      debugPrint('Total books parsed: ${importItems.length}');
+      debugPrint('Available tags: ${allTags.length}');
+
+      // Show import choice dialog
+      Map<String, dynamic>? importChoice;
+      if (context.mounted) {
+        importChoice = await showDialog<Map<String, dynamic>>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => _ImportChoiceDialog(
+            availableTags: allTags.toList()..sort(),
+            csvFormat: csvFormat == CsvFormat.format1 ? 'Format 1' : 'Goodreads',
+          ),
+        );
+      }
+
+      if (importChoice == null) {
+        // User canceled - close loading dialog
+        if (context.mounted) {
+          Navigator.of(context, rootNavigator: true).pop();
+        }
+        return;
+      }
+
+      // Filter books based on user choice
+      List<_BookImportItem> selectedItems;
+      if (importChoice['importFromTag'] == true) {
+        final selectedTag = importChoice['selectedTag'] as String;
+        selectedItems = importItems.where((item) => item.tags.contains(selectedTag)).toList();
+        debugPrint('=== Importing from tag: $selectedTag ===');
+        debugPrint('Books with tag: ${selectedItems.length}');
+      } else {
+        selectedItems = importItems;
+        debugPrint('=== Importing All Books ===');
+        debugPrint('Total books to import: ${selectedItems.length}');
+      }
+
+      // Now process the selected books
+      int importedCount = 0;
+      int skippedCount = 0;
+      int updatedCount = 0;
+      final List<String> skippedReasons = [];
+
+      for (final item in selectedItems) {
+        try {
+          if (item.importType == 'NEW') {
+            await repository.addBook(item.book);
+            importedCount++;
+          } else if (item.importType == 'UPDATE' &&
+              item.duplicateIds.isNotEmpty) {
             // Update all existing books with the same ISBN
-            for (final duplicateId in duplicateIds) {
+            for (final duplicateId in item.duplicateIds) {
               await repository.updateBookWithNewData(
                 duplicateId,
-                bookWithMappedStatus,
+                item.book,
               );
               updatedCount++;
             }
-            continue;
+          } else {
+            skippedCount++;
+            skippedReasons.add('Duplicate: ${item.book.name}');
           }
-
-          await repository.addBook(bookWithMappedStatus);
-          importedCount++;
         } catch (e) {
           skippedCount++;
-          skippedReasons.add('Row $i: Error - $e');
-          debugPrint('Error importing row $i: $e');
+          skippedReasons.add('Error importing ${item.book.name}: $e');
+          debugPrint('Error importing ${item.book.name}: $e');
         }
       }
 
@@ -3028,6 +3116,137 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                 ),
           ),
+    );
+  }
+}
+
+// Book import item class for import processing
+class _BookImportItem {
+  final Book book;
+  final String importType; // 'NEW', 'UPDATE', 'DUPLICATE'
+  final List<int> duplicateIds;
+  final Book? existingBook;
+  final List<String> tags;
+
+  _BookImportItem({
+    required this.book,
+    required this.importType,
+    required this.duplicateIds,
+    this.existingBook,
+    this.tags = const [],
+  });
+}
+
+// Simple import choice dialog
+class _ImportChoiceDialog extends StatefulWidget {
+  final List<String> availableTags;
+  final String csvFormat;
+
+  const _ImportChoiceDialog({
+    required this.availableTags,
+    required this.csvFormat,
+  });
+
+  @override
+  State<_ImportChoiceDialog> createState() => _ImportChoiceDialogState();
+}
+
+class _ImportChoiceDialogState extends State<_ImportChoiceDialog> {
+  String? _selectedTag;
+  bool _importFromTag = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Row(
+        children: [
+          const Icon(Icons.import_export, color: Colors.blue),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Import Options (${widget.csvFormat})',
+              style: const TextStyle(fontSize: 16),
+            ),
+          ),
+        ],
+      ),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            RadioListTile<bool>(
+              title: const Text('Import All Books'),
+              value: false,
+              groupValue: _importFromTag,
+              onChanged: (value) {
+                setState(() {
+                  _importFromTag = value!;
+                });
+              },
+              contentPadding: EdgeInsets.zero,
+            ),
+            if (widget.availableTags.isNotEmpty) ...[
+              RadioListTile<bool>(
+                title: const Text('Import from Tag'),
+                value: true,
+                groupValue: _importFromTag,
+                onChanged: (value) {
+                  setState(() {
+                    _importFromTag = value!;
+                  });
+                },
+                contentPadding: EdgeInsets.zero,
+              ),
+              if (_importFromTag) ...[
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  value: _selectedTag,
+                  decoration: const InputDecoration(
+                    labelText: 'Select tag',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.tag),
+                    isDense: true,
+                  ),
+                  isExpanded: true,
+                  items: widget.availableTags.map((tag) => DropdownMenuItem(
+                    value: tag,
+                    child: Text(
+                      tag,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  )).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedTag = value;
+                    });
+                  },
+                ),
+              ],
+            ],
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: (_importFromTag && _selectedTag == null) ? null : () {
+            Navigator.pop(context, {
+              'importFromTag': _importFromTag,
+              'selectedTag': _selectedTag,
+            });
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue,
+            foregroundColor: Colors.white,
+          ),
+          child: Text(_importFromTag ? 'Import from Tag' : 'Import All Books'),
+        ),
+      ],
     );
   }
 }
