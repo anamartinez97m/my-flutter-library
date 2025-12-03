@@ -23,7 +23,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 24,
+      version: 25,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -182,6 +182,35 @@ class DatabaseHelper {
 
     await db.execute('''
       CREATE INDEX IF NOT EXISTS idx_book_read_dates_book_id ON book_read_dates (book_id)
+    ''');
+
+    // Create book_competition table for best book of the year tracking
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS book_competition (
+        competition_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        year INTEGER NOT NULL,
+        competition_type TEXT NOT NULL, -- 'monthly', 'quarterly', 'semifinal', 'final'
+        month INTEGER, -- 1-12 for monthly competitions
+        quarter INTEGER, -- 1-4 for quarterly competitions
+        round_number INTEGER, -- 1, 2 for semifinals; 3 for final
+        book_id INTEGER NOT NULL,
+        book_name TEXT NOT NULL,
+        opponent_book_id INTEGER, -- For comparison tracking
+        opponent_book_name TEXT,
+        winner_book_id INTEGER NOT NULL, -- The book that won this match
+        created_at TEXT DEFAULT (datetime('now')),
+        FOREIGN KEY (book_id) REFERENCES book (book_id) ON DELETE CASCADE,
+        FOREIGN KEY (opponent_book_id) REFERENCES book (book_id) ON DELETE SET NULL,
+        FOREIGN KEY (winner_book_id) REFERENCES book (book_id) ON DELETE CASCADE
+      )
+    ''');
+
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_book_competition_year ON book_competition (year)
+    ''');
+
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_book_competition_type ON book_competition (competition_type)
     ''');
 
     // Insert default status values if table is empty
@@ -664,6 +693,36 @@ class DatabaseHelper {
       await db.execute(
         'ALTER TABLE book_read_dates ADD COLUMN reading_progress INTEGER',
       );
+    }
+    if (oldVersion < 25) {
+      // Create book_competition table for best book of the year tracking
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS book_competition (
+          competition_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          year INTEGER NOT NULL,
+          competition_type TEXT NOT NULL, -- 'monthly', 'quarterly', 'semifinal', 'final'
+          month INTEGER, -- 1-12 for monthly competitions
+          quarter INTEGER, -- 1-4 for quarterly competitions
+          round_number INTEGER, -- 1, 2 for semifinals; 3 for final
+          book_id INTEGER NOT NULL,
+          book_name TEXT NOT NULL,
+          opponent_book_id INTEGER, -- For comparison tracking
+          opponent_book_name TEXT,
+          winner_book_id INTEGER NOT NULL, -- The book that won this match
+          created_at TEXT DEFAULT (datetime('now')),
+          FOREIGN KEY (book_id) REFERENCES book (book_id) ON DELETE CASCADE,
+          FOREIGN KEY (opponent_book_id) REFERENCES book (book_id) ON DELETE SET NULL,
+          FOREIGN KEY (winner_book_id) REFERENCES book (book_id) ON DELETE CASCADE
+        )
+      ''');
+
+      await db.execute('''
+        CREATE INDEX IF NOT EXISTS idx_book_competition_year ON book_competition (year)
+      ''');
+
+      await db.execute('''
+        CREATE INDEX IF NOT EXISTS idx_book_competition_type ON book_competition (competition_type)
+      ''');
     }
   }
 

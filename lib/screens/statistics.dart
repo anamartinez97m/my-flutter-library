@@ -20,6 +20,9 @@ import 'package:myrandomlibrary/widgets/statistics/book_extremes_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/reading_insights_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/reading_time_placeholder_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/reading_goals_card.dart';
+import 'package:myrandomlibrary/widgets/statistics/book_competition_card.dart';
+import 'package:myrandomlibrary/model/book_competition.dart';
+import 'package:myrandomlibrary/repositories/book_competition_repository.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -39,11 +42,17 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   bool _showReadBooksAuthors = false;
   Map<int, int>? _booksReadPerYear;
   Map<int, int>? _pagesReadPerYear;
+  
+  // Competition data
+  BookCompetition? _yearlyWinner;
+  List<BookCompetition> _nominees = [];
+  bool _isLoadingCompetition = true;
 
   @override
   void initState() {
     super.initState();
     _loadYearData();
+    _loadCompetitionData();
   }
 
   Future<void> _loadYearData() async {
@@ -59,6 +68,38 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       }
     } catch (e) {
       debugPrint('Error loading year statistics: $e');
+    }
+  }
+
+  Future<void> _loadCompetitionData() async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final repository = BookCompetitionRepository(db);
+      final currentYear = DateTime.now().year;
+      
+      // Try to get existing competition results
+      final competitionResult = await repository.getCompetitionResults(currentYear);
+      
+      if (competitionResult != null) {
+        _yearlyWinner = competitionResult.yearlyWinner;
+        _nominees = await repository.getYearNominees(currentYear);
+      } else {
+        // No competition data exists for this year yet
+        _nominees = [];
+      }
+      
+      if (mounted) {
+        setState(() {
+          _isLoadingCompetition = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading competition data: $e');
+      if (mounted) {
+        setState(() {
+          _isLoadingCompetition = false;
+        });
+      }
     }
   }
 
@@ -823,6 +864,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 const SizedBox(width: 8),
                 Expanded(child: LatestBookCard(latestBookName: latestBookName)),
               ],
+            ),
+            const SizedBox(height: 16),
+            // Book Competition Card
+            BookCompetitionCard(
+              currentYear: DateTime.now().year,
+              yearlyWinner: _yearlyWinner,
+              nominees: _nominees,
             ),
             const SizedBox(height: 16),
             // Books Read Per Year
