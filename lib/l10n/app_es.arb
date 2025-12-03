@@ -377,5 +377,24 @@
   "new_year_challenge": "Nuevo reto anual",
   "edit_year_challenge": "Editar reto {year}",
   "delete_challenge": "Eliminar reto",
-  "year_challenges": "Retos anuales"
+  "year_challenges": "Retos anuales",
+  
+  "best_book_of_year": "Mejor libro de {year}",
+  "best_book_competition": "Competencia del Mejor Libro",
+  "winner": "Ganador",
+  "nominees": "Nominados",
+  "tournament_tree": "Árbol del Torneo",
+  "quarterly_winners": "Ganadores Trimestrales",
+  "semifinals": "Semifinales",
+  "last": "Final",
+  "monthly_winners": "Ganadores Mensuales",
+  "no_books_read_year": "No hay libros leídos en {year}",
+  "no_competition_data": "No hay datos de competencia disponibles",
+  "error_loading_competition": "Error al cargar datos de competencia: {error}",
+  "@error_loading_competition": {
+    "description": "Error loading competition data",
+    "placeholders": {
+      "error": {}
+    }
+  }
 }

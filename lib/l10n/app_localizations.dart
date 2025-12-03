@@ -1450,6 +1450,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Year Challenges'**
   String get year_challenges;
+
+  /// No description provided for @best_book_of_year.
+  ///
+  /// In en, this message translates to:
+  /// **'Best Book of {year}'**
+  String best_book_of_year(Object year);
+
+  /// No description provided for @best_book_competition.
+  ///
+  /// In en, this message translates to:
+  /// **'Best Book Competition'**
+  String get best_book_competition;
+
+  /// No description provided for @winner.
+  ///
+  /// In en, this message translates to:
+  /// **'Winner'**
+  String get winner;
+
+  /// No description provided for @nominees.
+  ///
+  /// In en, this message translates to:
+  /// **'Nominees'**
+  String get nominees;
+
+  /// No description provided for @tournament_tree.
+  ///
+  /// In en, this message translates to:
+  /// **'Tournament Tree'**
+  String get tournament_tree;
+
+  /// No description provided for @quarterly_winners.
+  ///
+  /// In en, this message translates to:
+  /// **'Quarterly Winners'**
+  String get quarterly_winners;
+
+  /// No description provided for @semifinals.
+  ///
+  /// In en, this message translates to:
+  /// **'Semifinals'**
+  String get semifinals;
+
+  /// No description provided for @last.
+  ///
+  /// In en, this message translates to:
+  /// **'Last'**
+  String get last;
+
+  /// No description provided for @monthly_winners.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly Winners'**
+  String get monthly_winners;
+
+  /// No description provided for @no_books_read_year.
+  ///
+  /// In en, this message translates to:
+  /// **'No books read in {year}'**
+  String no_books_read_year(Object year);
+
+  /// No description provided for @no_competition_data.
+  ///
+  /// In en, this message translates to:
+  /// **'No competition data available'**
+  String get no_competition_data;
+
+  /// Error loading competition data
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading competition data: {error}'**
+  String error_loading_competition(Object error);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

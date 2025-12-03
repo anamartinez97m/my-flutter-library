@@ -749,4 +749,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get year_challenges => 'Year Challenges';
+
+  @override
+  String best_book_of_year(Object year) {
+    return 'Best Book of $year';
+  }
+
+  @override
+  String get best_book_competition => 'Best Book Competition';
+
+  @override
+  String get winner => 'Winner';
+
+  @override
+  String get nominees => 'Nominees';
+
+  @override
+  String get tournament_tree => 'Tournament Tree';
+
+  @override
+  String get quarterly_winners => 'Quarterly Winners';
+
+  @override
+  String get semifinals => 'Semifinals';
+
+  @override
+  String get last => 'Last';
+
+  @override
+  String get monthly_winners => 'Monthly Winners';
+
+  @override
+  String no_books_read_year(Object year) {
+    return 'No books read in $year';
+  }
+
+  @override
+  String get no_competition_data => 'No competition data available';
+
+  @override
+  String error_loading_competition(Object error) {
+    return 'Error loading competition data: $error';
+  }
 }
