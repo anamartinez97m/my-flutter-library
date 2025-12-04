@@ -193,65 +193,11 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
     }
   }
 
-  Future<void> _cleanup2025Data() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Clean 2025 Competition Data'),
-            content: const Text(
-              'This will delete all quarterly, semifinal, and yearly winners for 2025, '
-              'but keep the monthly winners. Are you sure?',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Clean'),
-              ),
-            ],
-          ),
-    );
-
-    if (confirmed == true) {
-      try {
-        final db = await DatabaseHelper.instance.database;
-        final repository = BookCompetitionRepository(db);
-
-        await repository.cleanupYearData(2025);
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('2025 competition data cleaned')),
-          );
-          _loadCompetitionData();
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Error cleaning data: $e')));
-        }
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Best Book of ${widget.year}'),
-        actions: [
-          if (widget.year == 2025)
-            IconButton(
-              icon: const Icon(Icons.cleaning_services),
-              onPressed: _cleanup2025Data,
-              tooltip: 'Clean 2025 Competition Data',
-            ),
-        ],
       ),
       body:
           isLoading

@@ -133,81 +133,102 @@ class _SemifinalWinnerSelectionScreenState
               : Column(
                 children: [
                   Expanded(
-                    child: ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                      itemCount: quarterlyWinnerBooks.length,
-                      itemBuilder: (context, index) {
-                        final book = quarterlyWinnerBooks[index];
-                        final isSelected = selectedBookId == book.bookId;
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxHeight: MediaQuery.of(context).size.height - 200,
+                        ),
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                            vertical: 8.0,
+                          ),
+                          itemCount: quarterlyWinnerBooks.length,
+                          itemBuilder: (context, index) {
+                            final book = quarterlyWinnerBooks[index];
+                            final isSelected = selectedBookId == book.bookId;
 
-                        return Center(
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              maxWidth: MediaQuery.of(context).size.width * 0.8,
-                            ),
-                            child: Card(
-                              elevation: isSelected ? 8 : 4,
-                              color:
-                                  isSelected
-                                      ? Theme.of(
-                                        context,
-                                      ).colorScheme.primaryContainer
-                                      : null,
-                              child: Container(
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4.0),
+                              child: ConstrainedBox(
                                 constraints: BoxConstraints(
-                                  minHeight: 100,
+                                  maxWidth: MediaQuery.of(context).size.width * 0.8,
                                 ),
-                                child: ListTile(
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-                                  title: Text(
-                                    book.name ?? 'Unknown',
-                                    style:
-                                        isSelected
-                                            ? const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                            )
-                                            : const TextStyle(fontSize: 18),
-                                    textAlign: TextAlign.center,
+                                child: Card(
+                                  elevation: isSelected ? 8 : 4,
+                                  color:
+                                      isSelected
+                                          ? Theme.of(
+                                            context,
+                                          ).colorScheme.primaryContainer
+                                          : null,
+                                  child: Container(
+                                    constraints: BoxConstraints(minHeight: 100),
+                                    child: ListTile(
+                                      contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 20.0,
+                                        vertical: 16.0,
+                                      ),
+                                      title: Text(
+                                        book.name ?? 'Unknown',
+                                        style:
+                                            isSelected
+                                                ? const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 18,
+                                                )
+                                                : const TextStyle(fontSize: 18),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      subtitle: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          const SizedBox(height: 8),
+                                          if (book.author != null)
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                bottom: 4.0,
+                                              ),
+                                              child: Text(
+                                                'Author: ${book.author}',
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
+                                          if (book.myRating != null &&
+                                              book.myRating! > 0)
+                                            Text(
+                                              'Rating: ${book.myRating}/5',
+                                              textAlign: TextAlign.center,
+                                            ),
+                                        ],
+                                      ),
+                                      trailing:
+                                          isSelected
+                                              ? Icon(
+                                                Icons.check_circle,
+                                                color:
+                                                    Theme.of(
+                                                      context,
+                                                    ).colorScheme.primary,
+                                                size: 32,
+                                              )
+                                              : const SizedBox.shrink(),
+                                      onTap: () {
+                                        setState(() {
+                                          selectedBookId =
+                                              isSelected ? null : book.bookId;
+                                        });
+                                      },
+                                    ),
                                   ),
-                                  subtitle: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      const SizedBox(height: 8),
-                                      if (book.author != null)
-                                        Padding(
-                                          padding: const EdgeInsets.only(bottom: 4.0),
-                                          child: Text(
-                                            'Author: ${book.author}',
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ),
-                                      if (book.myRating != null && book.myRating! > 0)
-                                        Text(
-                                          'Rating: ${book.myRating}/5',
-                                          textAlign: TextAlign.center,
-                                        ),
-                                    ],
-                                  ),
-                                  trailing: isSelected
-                                      ? Icon(
-                                          Icons.check_circle,
-                                          color: Theme.of(context).colorScheme.primary,
-                                          size: 32,
-                                        )
-                                      : const SizedBox.shrink(),
-                                  onTap: () {
-                                    setState(() {
-                                      selectedBookId =
-                                          isSelected ? null : book.bookId;
-                                    });
-                                  },
                                 ),
                               ),
-                            ),
-                          ),
-                        );
-                      },
+                            );
+                          },
+                        ),
+                      ),
                     ),
                   ),
                   if (selectedBookId != null)

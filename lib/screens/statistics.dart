@@ -21,6 +21,7 @@ import 'package:myrandomlibrary/widgets/statistics/reading_insights_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/reading_time_placeholder_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/reading_goals_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/book_competition_card.dart';
+import 'package:myrandomlibrary/widgets/statistics/past_years_competition_card.dart';
 import 'package:myrandomlibrary/model/book_competition.dart';
 import 'package:myrandomlibrary/repositories/book_competition_repository.dart';
 import 'package:myrandomlibrary/screens/book_competition_screen.dart';
@@ -47,6 +48,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   // Competition data
   BookCompetition? _yearlyWinner;
   List<BookCompetition> _nominees = [];
+  List<BookCompetition> _pastWinners = [];
   bool _isLoadingCompetition = true;
 
   @override
@@ -88,6 +90,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         // No competition data exists for this year yet
         _nominees = [];
       }
+      
+      // Load past years winners
+      _pastWinners = await repository.getPastYearsWinners(currentYear);
       
       if (mounted) {
         setState(() {
@@ -2217,6 +2222,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             ResponsiveStatGrid(
               children: [ReadingTimePlaceholderCard(), ReadingGoalsCard()],
             ),
+            const SizedBox(height: 16),
+            // Past Years Competition Card
+            PastYearsCompetitionCard(pastWinners: _pastWinners),
             const SizedBox(height: 24),
           ],
         ),

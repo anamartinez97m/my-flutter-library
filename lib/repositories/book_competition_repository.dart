@@ -411,4 +411,16 @@ class BookCompetitionRepository {
 
     return booksPerMonth;
   }
+
+  // Get past years winners (excluding current year)
+  Future<List<BookCompetition>> getPastYearsWinners(int currentYear) async {
+    final maps = await _database.query(
+      'book_competition',
+      where: 'year < ? AND competition_type = ?',
+      whereArgs: [currentYear, 'final'],
+      orderBy: 'year DESC',
+    );
+
+    return maps.map((map) => BookCompetition.fromMap(map)).toList();
+  }
 }
