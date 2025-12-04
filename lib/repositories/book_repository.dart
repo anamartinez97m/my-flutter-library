@@ -510,6 +510,18 @@ class BookRepository {
       whereArgs: [bookId],
     );
 
+    // Delete reading sessions if table exists (added in version 16)
+    try {
+      await db.delete(
+        'reading_sessions',
+        where: 'book_id = ?',
+        whereArgs: [bookId],
+      );
+    } catch (e) {
+      // Table doesn't exist (database version < 16), ignore
+      debugPrint('reading_sessions table does not exist: $e');
+    }
+
     // Delete the book
     await db.delete('book', where: 'book_id = ?', whereArgs: [bookId]);
   }

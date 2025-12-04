@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:myrandomlibrary/model/year_challenge.dart';
 
@@ -8,48 +9,73 @@ class YearChallengeRepository {
 
   /// Create a new year challenge
   Future<int> createChallenge(YearChallenge challenge) async {
-    return await db.insert('year_challenges', challenge.toMap());
+    try {
+      return await db.insert('year_challenges', challenge.toMap());
+    } catch (e) {
+      debugPrint('year_challenges table does not exist: $e');
+      rethrow;
+    }
   }
 
   /// Get challenge for a specific year
   Future<YearChallenge?> getChallengeForYear(int year) async {
-    final results = await db.query(
-      'year_challenges',
-      where: 'year = ?',
-      whereArgs: [year],
-    );
+    try {
+      final results = await db.query(
+        'year_challenges',
+        where: 'year = ?',
+        whereArgs: [year],
+      );
 
-    if (results.isEmpty) return null;
-    return YearChallenge.fromMap(results.first);
+      if (results.isEmpty) return null;
+      return YearChallenge.fromMap(results.first);
+    } catch (e) {
+      debugPrint('year_challenges table does not exist: $e');
+      return null;
+    }
   }
 
   /// Get all challenges
   Future<List<YearChallenge>> getAllChallenges() async {
-    final results = await db.query(
-      'year_challenges',
-      orderBy: 'year DESC',
-    );
+    try {
+      final results = await db.query(
+        'year_challenges',
+        orderBy: 'year DESC',
+      );
 
-    return results.map((map) => YearChallenge.fromMap(map)).toList();
+      return results.map((map) => YearChallenge.fromMap(map)).toList();
+    } catch (e) {
+      debugPrint('year_challenges table does not exist: $e');
+      return [];
+    }
   }
 
   /// Update a challenge
   Future<int> updateChallenge(YearChallenge challenge) async {
-    return await db.update(
-      'year_challenges',
-      challenge.toMap(),
-      where: 'challenge_id = ?',
-      whereArgs: [challenge.challengeId],
-    );
+    try {
+      return await db.update(
+        'year_challenges',
+        challenge.toMap(),
+        where: 'challenge_id = ?',
+        whereArgs: [challenge.challengeId],
+      );
+    } catch (e) {
+      debugPrint('year_challenges table does not exist: $e');
+      return 0;
+    }
   }
 
   /// Delete a challenge
   Future<int> deleteChallenge(int challengeId) async {
-    return await db.delete(
-      'year_challenges',
-      where: 'challenge_id = ?',
-      whereArgs: [challengeId],
-    );
+    try {
+      return await db.delete(
+        'year_challenges',
+        where: 'challenge_id = ?',
+        whereArgs: [challengeId],
+      );
+    } catch (e) {
+      debugPrint('year_challenges table does not exist: $e');
+      return 0;
+    }
   }
 
   /// Get challenge progress for a year

@@ -30,6 +30,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _isAdmin = false;
   Set<String> _enabledFilters = {};
+  Set<String> _enabledCardFields = {};
 
   // Available filters
   static const List<Map<String, String>> _availableFilters = [
@@ -52,10 +53,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
     {'key': 'saga_format_without_nsaga', 'label': 'Saga Format Without N_Saga'},
   ];
 
+  // Available card fields for customization
+  static const List<Map<String, String>> _availableCardFields = [
+    {'key': 'title', 'label': 'Title'},
+    {'key': 'author', 'label': 'Author'},
+    {'key': 'saga', 'label': 'Saga'},
+    {'key': 'format', 'label': 'Format'},
+    {'key': 'language', 'label': 'Language'},
+    {'key': 'isbn', 'label': 'ISBN/ASIN'},
+    {'key': 'pages', 'label': 'Pages'},
+    {'key': 'genre', 'label': 'Genre'},
+    {'key': 'editorial', 'label': 'Editorial'},
+    {'key': 'publication_year', 'label': 'Publication Year'},
+    {'key': 'rating', 'label': 'Rating'},
+    {'key': 'read_count', 'label': 'Read Count'},
+    {'key': 'status', 'label': 'Status'},
+    {'key': 'progress', 'label': 'Reading Progress'},
+  ];
+
   @override
   void initState() {
     super.initState();
     _loadEnabledFilters();
+    _loadEnabledCardFields();
   }
 
   Future<void> _loadEnabledFilters() async {
@@ -74,6 +94,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _saveEnabledFilters() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('enabled_filters', _enabledFilters.toList());
+  }
+
+  Future<void> _loadEnabledCardFields() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedCardFields = prefs.getStringList('enabled_card_fields');
+    setState(() {
+      if (savedCardFields != null) {
+        _enabledCardFields = savedCardFields.toSet();
+      } else {
+        // Default: show essential fields
+        _enabledCardFields = {'title', 'author', 'saga', 'format', 'language'};
+      }
+    });
+  }
+
+  Future<void> _saveEnabledCardFields() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('enabled_card_fields', _enabledCardFields.toList());
   }
 
   void _showFiltersDialog(BuildContext context) {
@@ -131,6 +169,74 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         });
                         setDialogState(() {}); // Rebuild dialog
                         _saveEnabledFilters();
+                      },
+                      child: const Text('Clear All'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Close'),
+                    ),
+                  ],
+                ),
+          ),
+    );
+  }
+
+  void _showCardFieldsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => StatefulBuilder(
+            builder:
+                (context, setDialogState) => AlertDialog(
+                  title: const Text('Customize Card Fields'),
+                  content: SizedBox(
+                    width: double.maxFinite,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: _availableCardFields.length,
+                      itemBuilder: (context, index) {
+                        final field = _availableCardFields[index];
+                        final key = field['key']!;
+                        final label = field['label']!;
+
+                        return CheckboxListTile(
+                          title: Text(label),
+                          value: _enabledCardFields.contains(key),
+                          onChanged: (value) {
+                            setState(() {
+                              if (value == true) {
+                                _enabledCardFields.add(key);
+                              } else {
+                                _enabledCardFields.remove(key);
+                              }
+                            });
+                            setDialogState(() {}); // Rebuild dialog
+                            _saveEnabledCardFields();
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _enabledCardFields =
+                              _availableCardFields.map((f) => f['key']!).toSet();
+                        });
+                        setDialogState(() {}); // Rebuild dialog
+                        _saveEnabledCardFields();
+                      },
+                      child: const Text('Select All'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _enabledCardFields.clear();
+                        });
+                        setDialogState(() {}); // Rebuild dialog
+                        _saveEnabledCardFields();
                       },
                       child: const Text('Clear All'),
                     ),
@@ -1736,7 +1842,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ],
                 ),
-                subtitle: const Text('TBR Limit, Sort Order, Home Filters'),
+                subtitle: const Text('TBR Limit, Sort Order, Home Filters, Card Fields'),
                 initiallyExpanded: false,
                 children: [
                   Padding(
@@ -1912,6 +2018,65 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   ],
                                 );
                               },
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Card Fields Configuration
+                        Card(
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: InkWell(
+                            onTap: () => _showCardFieldsDialog(context),
+                            borderRadius: BorderRadius.circular(12),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                children: [
+                                  Icon(
+                                    Icons.view_agenda,
+                                    size: 36,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    'Customize Card Fields',
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Select which data to show in book cards',
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          color: Colors.grey[600],
+                                        ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    '${_enabledCardFields.length} fields selected',
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                          color: Theme.of(context).colorScheme.primary,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
