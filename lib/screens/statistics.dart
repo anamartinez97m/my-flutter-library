@@ -23,6 +23,7 @@ import 'package:myrandomlibrary/widgets/statistics/reading_goals_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/book_competition_card.dart';
 import 'package:myrandomlibrary/model/book_competition.dart';
 import 'package:myrandomlibrary/repositories/book_competition_repository.dart';
+import 'package:myrandomlibrary/screens/book_competition_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -82,7 +83,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       
       if (competitionResult != null) {
         _yearlyWinner = competitionResult.yearlyWinner;
-        _nominees = await repository.getYearNominees(currentYear);
+        _nominees = _calculateCurrentNominees(competitionResult);
       } else {
         // No competition data exists for this year yet
         _nominees = [];
@@ -101,6 +102,49 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         });
       }
     }
+  }
+
+  List<BookCompetition> _calculateCurrentNominees(CompetitionResult competitionResult) {
+    List<BookCompetition> nominees = [];
+    
+    // If we have a yearly winner, return just that
+    if (competitionResult.yearlyWinner != null) {
+      return [competitionResult.yearlyWinner!];
+    }
+    
+    // If we have both semifinal winners, return those
+    if (competitionResult.semifinalWinners.length == 2) {
+      return competitionResult.semifinalWinners.map((s) => s.winner).toList();
+    }
+    
+    // If we have quarterly winners, return those plus any remaining monthly winners
+    if (competitionResult.quarterlyWinners.isNotEmpty) {
+      // Add quarterly winners
+      nominees.addAll(competitionResult.quarterlyWinners.map((q) => q.winner));
+      
+      // Find months that don't belong to completed quarters
+      Set<int> quarterMonths = {};
+      for (final quarterWinner in competitionResult.quarterlyWinners) {
+        final quarter = quarterWinner.quarter!;
+        final startMonth = (quarter - 1) * 3 + 1;
+        final endMonth = quarter * 3;
+        for (int month = startMonth; month <= endMonth; month++) {
+          quarterMonths.add(month);
+        }
+      }
+      
+      // Add monthly winners from months not in completed quarters
+      for (final monthlyWinner in competitionResult.monthlyWinners) {
+        if (!quarterMonths.contains(monthlyWinner.month)) {
+          nominees.add(monthlyWinner.winner);
+        }
+      }
+      
+      return nominees;
+    }
+    
+    // If we only have monthly winners, return those
+    return competitionResult.monthlyWinners.map((m) => m.winner).toList();
   }
 
   String _getMonthName(int month) {
@@ -867,10 +911,24 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             ),
             const SizedBox(height: 16),
             // Book Competition Card
-            BookCompetitionCard(
-              currentYear: DateTime.now().year,
-              yearlyWinner: _yearlyWinner,
-              nominees: _nominees,
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BookCompetitionScreen(year: DateTime.now().year),
+                  ),
+                ).then((_) {
+                  // Refresh competition data when returning from competition screen
+                  _loadCompetitionData();
+                });
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: BookCompetitionCard(
+                currentYear: DateTime.now().year,
+                yearlyWinner: _yearlyWinner,
+                nominees: _nominees,
+              ),
             ),
             const SizedBox(height: 16),
             // Books Read Per Year

@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
+import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/model/book_competition.dart';
 import 'package:myrandomlibrary/repositories/book_competition_repository.dart';
 import 'package:myrandomlibrary/screens/monthly_winner_selection_screen.dart';
+import 'package:myrandomlibrary/screens/quarterly_winner_selection_screen.dart';
+import 'package:myrandomlibrary/screens/semifinal_winner_selection_screen.dart';
+import 'package:myrandomlibrary/screens/yearly_winner_selection_screen.dart';
 
 class BookCompetitionScreen extends StatefulWidget {
   final int year;
@@ -17,6 +21,7 @@ class BookCompetitionScreen extends StatefulWidget {
 class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
   CompetitionResult? competitionResult;
   bool isLoading = true;
+  Map<int, List<Book>> monthBooksCache = {};
 
   @override
   void initState() {
@@ -31,28 +36,145 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
       final db = await DatabaseHelper.instance.database;
       final repository = BookCompetitionRepository(db);
 
-      // First try to get existing results
-      var result = await repository.getCompetitionResults(widget.year);
+      // Load competition results
+      final result = await repository.getCompetitionResults(widget.year);
 
-      // If no results exist, run the competition (but monthly winners will need user selection)
-      if (result == null || result.monthlyWinners.isEmpty) {
-        result = await repository.runFullCompetition(widget.year);
-      }
+      // Load books read per month for the current year
+      final booksPerMonth = await repository.getBooksReadPerMonth(widget.year);
 
       if (mounted) {
         setState(() {
           competitionResult = result;
+          monthBooksCache = booksPerMonth;
           isLoading = false;
         });
       }
     } catch (e) {
+      print('Error loading competition data: $e');
       if (mounted) {
-        setState(() => isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading competition data: $e')),
-        );
+        setState(() {
+          isLoading = false;
+        });
       }
     }
+  }
+
+  bool _canRunQuarterlyCompetition(int quarter) {
+    final startMonth = (quarter - 1) * 3 + 1;
+    final endMonth = quarter * 3;
+
+    final monthlyWinnersInQuarter =
+        competitionResult?.monthlyWinners
+            .where((m) => m.month >= startMonth && m.month <= endMonth)
+            .toList() ??
+        [];
+
+    final hasQuarterlyWinner =
+        competitionResult?.quarterlyWinners.any((q) => q.quarter == quarter) ??
+        false;
+
+    return !hasQuarterlyWinner && monthlyWinnersInQuarter.length >= 2;
+  }
+
+  bool _canRunSemifinalCompetition(int roundNumber) {
+    final requiredQuarters = roundNumber == 1 ? [1, 3] : [2, 4];
+
+    final availableQuarterlyWinners =
+        competitionResult?.quarterlyWinners
+            .where((q) => requiredQuarters.contains(q.quarter))
+            .toList() ??
+        [];
+
+    final hasSemifinalWinner =
+        competitionResult?.semifinalWinners.any(
+          (s) => s.roundNumber == roundNumber,
+        ) ??
+        false;
+
+    return !hasSemifinalWinner && availableQuarterlyWinners.length >= 2;
+  }
+
+  Future<void> _runQuarterlyCompetition(int quarter) async {
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) => QuarterlyWinnerSelectionScreen(
+              year: widget.year,
+              quarter: quarter,
+            ),
+      ),
+    );
+
+    if (result == true) {
+      // Reload competition data after selection
+      await _loadCompetitionData();
+    }
+  }
+
+  Future<void> _runSemifinalCompetition(int roundNumber) async {
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) => SemifinalWinnerSelectionScreen(
+              year: widget.year,
+              roundNumber: roundNumber,
+            ),
+      ),
+    );
+
+    if (result == true) {
+      // Reload competition data after selection
+      await _loadCompetitionData();
+    }
+  }
+
+  Future<void> _runFinalCompetition() async {
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => YearlyWinnerSelectionScreen(year: widget.year),
+      ),
+    );
+
+    if (result == true) {
+      // Reload competition data after selection
+      await _loadCompetitionData();
+    }
+  }
+
+  bool _canRunFinalCompetition() {
+    final hasSemifinalWinners = competitionResult?.semifinalWinners.length == 2;
+    final hasYearlyWinner = competitionResult?.yearlyWinner != null;
+    return hasSemifinalWinners && !hasYearlyWinner;
+  }
+
+  bool _hasMonthPassed(int month) {
+    final now = DateTime.now();
+    final monthDate = DateTime(widget.year, month);
+    return monthDate.isBefore(DateTime(now.year, now.month, now.day)) ||
+        (monthDate.year == now.year && monthDate.month == now.month);
+  }
+
+  bool _hasBooksInMonth(int month) {
+    final books = monthBooksCache[month];
+    return books != null && books.isNotEmpty;
+  }
+
+  bool _isMonthDisabled(int month) {
+    return _hasMonthPassed(month) && !_hasBooksInMonth(month);
+  }
+
+  bool _isCurrentMonth(int month) {
+    final now = DateTime.now();
+    return month == now.month && widget.year == now.year;
+  }
+
+  bool _isFutureMonth(int month) {
+    final now = DateTime.now();
+    final monthDate = DateTime(widget.year, month);
+    return monthDate.isAfter(DateTime(now.year, now.month, now.day));
   }
 
   Future<void> _selectMonthlyWinner(int month) async {
@@ -71,10 +193,66 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
     }
   }
 
+  Future<void> _cleanup2025Data() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Clean 2025 Competition Data'),
+            content: const Text(
+              'This will delete all quarterly, semifinal, and yearly winners for 2025, '
+              'but keep the monthly winners. Are you sure?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Clean'),
+              ),
+            ],
+          ),
+    );
+
+    if (confirmed == true) {
+      try {
+        final db = await DatabaseHelper.instance.database;
+        final repository = BookCompetitionRepository(db);
+
+        await repository.cleanupYearData(2025);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('2025 competition data cleaned')),
+          );
+          _loadCompetitionData();
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error cleaning data: $e')));
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Best Book of ${widget.year} Competition')),
+      appBar: AppBar(
+        title: Text('Best Book of ${widget.year}'),
+        actions: [
+          if (widget.year == 2025)
+            IconButton(
+              icon: const Icon(Icons.cleaning_services),
+              onPressed: _cleanup2025Data,
+              tooltip: 'Clean 2025 Competition Data',
+            ),
+        ],
+      ),
       body:
           isLoading
               ? const Center(child: CircularProgressIndicator())
@@ -191,15 +369,23 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 12),
-        Row(
+        Column(
           children: [
-            Expanded(child: _buildQuarterCard(1)),
-            const SizedBox(width: 8),
-            Expanded(child: _buildQuarterCard(2)),
-            const SizedBox(width: 8),
-            Expanded(child: _buildQuarterCard(3)),
-            const SizedBox(width: 8),
-            Expanded(child: _buildQuarterCard(4)),
+            Row(
+              children: [
+                Expanded(child: _buildQuarterCard(1)),
+                const SizedBox(width: 8),
+                Expanded(child: _buildQuarterCard(2)),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(child: _buildQuarterCard(3)),
+                const SizedBox(width: 8),
+                Expanded(child: _buildQuarterCard(4)),
+              ],
+            ),
           ],
         ),
       ],
@@ -212,41 +398,69 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
             .where((q) => q.quarter == quarter)
             .firstOrNull;
 
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color:
-            quarterlyWinner != null
-                ? Theme.of(context).colorScheme.primaryContainer
-                : Colors.grey.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
+    final canRunCompetition = _canRunQuarterlyCompetition(quarter);
+
+    return InkWell(
+      onTap:
+          canRunCompetition || quarterlyWinner != null
+              ? () => _runQuarterlyCompetition(quarter)
+              : null,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        height: 100, // Increased height for quarterly cards
+        decoration: BoxDecoration(
           color:
               quarterlyWinner != null
-                  ? Theme.of(context).colorScheme.primary
-                  : Colors.grey.withOpacity(0.3),
-        ),
-      ),
-      child: Column(
-        children: [
-          Text(
-            'Q$quarter',
-            style: Theme.of(
-              context,
-            ).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w600),
+                  ? Theme.of(
+                    context,
+                  ).colorScheme.primaryContainer.withValues(alpha: 0.7)
+                  : canRunCompetition
+                  ? Theme.of(
+                    context,
+                  ).colorScheme.primaryContainer.withValues(alpha: 0.4)
+                  : Colors.grey.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color:
+                quarterlyWinner != null
+                    ? Theme.of(context).colorScheme.primary
+                    : canRunCompetition
+                    ? Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.5)
+                    : Colors.grey.withValues(alpha: 0.3),
           ),
-          const SizedBox(height: 4),
-          if (quarterlyWinner != null)
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
             Text(
-              quarterlyWinner.winner.bookName,
-              style: Theme.of(context).textTheme.bodySmall,
+              'Q$quarter',
+              style: Theme.of(
+                context,
+              ).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w600),
               textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            )
-          else
-            Icon(Icons.help_outline, size: 16, color: Colors.grey),
-        ],
+            ),
+            const SizedBox(height: 4),
+            if (quarterlyWinner != null)
+              Text(
+                quarterlyWinner.winner.bookName,
+                style: Theme.of(context).textTheme.bodySmall,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              )
+            else if (canRunCompetition)
+              Icon(
+                Icons.add_circle_outline,
+                size: 16,
+                color: Theme.of(context).colorScheme.primary,
+              )
+            else
+              Icon(Icons.help_outline, size: 16, color: Colors.grey),
+          ],
+        ),
       ),
     );
   }
@@ -279,48 +493,79 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
             .where((s) => s.roundNumber == roundNumber)
             .firstOrNull;
 
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color:
-            semifinalWinner != null
-                ? Theme.of(context).colorScheme.secondaryContainer
-                : Colors.grey.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
+    final canRunCompetition = _canRunSemifinalCompetition(roundNumber);
+
+    return InkWell(
+      onTap:
+          canRunCompetition || semifinalWinner != null
+              ? () => _runSemifinalCompetition(roundNumber)
+              : null,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        height: 100, // Same height as quarterly cards
+        decoration: BoxDecoration(
           color:
               semifinalWinner != null
-                  ? Theme.of(context).colorScheme.secondary
-                  : Colors.grey.withOpacity(0.3),
-        ),
-      ),
-      child: Column(
-        children: [
-          Text(
-            matchup,
-            style: Theme.of(
-              context,
-            ).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w600),
+                  ? Theme.of(
+                    context,
+                  ).colorScheme.secondaryContainer.withValues(alpha: 0.7)
+                  : canRunCompetition
+                  ? Theme.of(
+                    context,
+                  ).colorScheme.secondaryContainer.withValues(alpha: 0.4)
+                  : Colors.grey.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color:
+                semifinalWinner != null
+                    ? Theme.of(context).colorScheme.secondary
+                    : canRunCompetition
+                    ? Theme.of(
+                      context,
+                    ).colorScheme.secondary.withValues(alpha: 0.5)
+                    : Colors.grey.withValues(alpha: 0.3),
           ),
-          const SizedBox(height: 8),
-          if (semifinalWinner != null)
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
             Text(
-              semifinalWinner.winner.bookName,
+              matchup,
               style: Theme.of(
                 context,
-              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+              ).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w600),
               textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            )
-          else
-            Icon(Icons.help_outline, size: 20, color: Colors.grey),
-        ],
+            ),
+            const SizedBox(height: 8),
+            if (semifinalWinner != null)
+              Text(
+                semifinalWinner.winner.bookName,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              )
+            else if (canRunCompetition)
+              Icon(
+                Icons.add_circle_outline,
+                size: 20,
+                color: Theme.of(context).colorScheme.secondary,
+              )
+            else
+              Icon(Icons.help_outline, size: 20, color: Colors.grey),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildFinalSection() {
+    final yearlyWinner = competitionResult!.yearlyWinner;
+    final canRunCompetition = _canRunFinalCompetition();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -331,35 +576,84 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 12),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Colors.amber.withOpacity(0.2),
-                Colors.amber.withOpacity(0.1),
-              ],
+        InkWell(
+          onTap:
+              canRunCompetition || yearlyWinner != null
+                  ? () => _runFinalCompetition()
+                  : null,
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient:
+                  yearlyWinner != null
+                      ? LinearGradient(
+                        colors: [
+                          Theme.of(
+                            context,
+                          ).colorScheme.inversePrimary.withValues(alpha: 0.2),
+                          Theme.of(
+                            context,
+                          ).colorScheme.inversePrimary.withValues(alpha: 0.1),
+                        ],
+                      )
+                      : canRunCompetition
+                      ? LinearGradient(
+                        colors: [
+                          Theme.of(
+                            context,
+                          ).colorScheme.inversePrimary.withValues(alpha: 0.1),
+                          Theme.of(
+                            context,
+                          ).colorScheme.inversePrimary.withValues(alpha: 0.05),
+                        ],
+                      )
+                      : null,
+              color:
+                  yearlyWinner == null && !canRunCompetition
+                      ? Colors.grey.withValues(alpha: 0.1)
+                      : null,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color:
+                    yearlyWinner != null
+                        ? Theme.of(
+                          context,
+                        ).colorScheme.inversePrimary.withValues(alpha: 0.5)
+                        : canRunCompetition
+                        ? Theme.of(
+                          context,
+                        ).colorScheme.inversePrimary.withValues(alpha: 0.3)
+                        : Colors.grey.withValues(alpha: 0.3),
+              ),
             ),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.amber.withOpacity(0.5)),
-          ),
-          child:
-              competitionResult!.yearlyWinner != null
-                  ? Column(
-                    children: [
-                      Icon(Icons.emoji_events, color: Colors.amber, size: 32),
-                      const SizedBox(height: 8),
-                      Text(
-                        competitionResult!.yearlyWinner!.bookName,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
+            child:
+                yearlyWinner != null
+                    ? Column(
+                      children: [
+                        Icon(
+                          Icons.emoji_events,
+                          color: Theme.of(context).colorScheme.inversePrimary,
+                          size: 32,
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  )
-                  : Icon(Icons.help_outline, size: 32, color: Colors.grey),
+                        const SizedBox(height: 8),
+                        Text(
+                          yearlyWinner.bookName,
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    )
+                    : canRunCompetition
+                    ? Icon(
+                      Icons.add_circle_outline,
+                      size: 32,
+                      color: Theme.of(context).colorScheme.inversePrimary,
+                    )
+                    : Icon(Icons.help_outline, size: 32, color: Colors.grey),
+          ),
         ),
       ],
     );
@@ -385,7 +679,7 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
-                childAspectRatio: 1.8,
+                childAspectRatio: 1.4,
                 crossAxisSpacing: 8,
                 mainAxisSpacing: 8,
               ),
@@ -398,11 +692,13 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
                         .firstOrNull;
 
                 return Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color:
                         monthlyWinner != null
                             ? Theme.of(context).colorScheme.surfaceVariant
+                            : _isMonthDisabled(month)
+                            ? Colors.grey.withOpacity(0.3)
                             : Colors.grey.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
@@ -411,40 +707,57 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
                               ? Theme.of(
                                 context,
                               ).colorScheme.outline.withOpacity(0.3)
+                              : _isMonthDisabled(month)
+                              ? Colors.grey.withOpacity(0.4)
                               : Colors.grey.withOpacity(0.2),
                     ),
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        _getMonthName(month),
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 11,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 2),
-                      if (monthlyWinner != null)
-                        Expanded(
-                          child: Center(
-                            child: Text(
-                              monthlyWinner.winner.bookName,
-                              style: Theme.of(
-                                context,
-                              ).textTheme.bodySmall?.copyWith(fontSize: 9),
-                              textAlign: TextAlign.center,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                  child: InkWell(
+                    onTap: () => _selectMonthlyWinner(month),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          _getMonthName(month),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.labelSmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 11,
+                            color:
+                                _isMonthDisabled(month)
+                                    ? Colors.grey[600]
+                                    : null,
                           ),
-                        )
-                      else
-                        InkWell(
-                          onTap: () => _selectMonthlyWinner(month),
-                          child: Container(
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 2),
+                        if (monthlyWinner != null)
+                          Expanded(
+                            child: Center(
+                              child: Text(
+                                monthlyWinner.winner.bookName,
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.bodySmall?.copyWith(fontSize: 9),
+                                textAlign: TextAlign.center,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          )
+                        else if (_isMonthDisabled(month))
+                          Icon(Icons.block, size: 12, color: Colors.grey[600])
+                        else if (_isFutureMonth(month))
+                          Icon(
+                            Icons.help_outline,
+                            size: 12,
+                            color: Colors.grey[600],
+                          )
+                        else
+                          Container(
                             padding: const EdgeInsets.all(3),
                             decoration: BoxDecoration(
                               color: Theme.of(context).colorScheme.primary,
@@ -456,8 +769,8 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
                               color: Theme.of(context).colorScheme.onPrimary,
                             ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
               },

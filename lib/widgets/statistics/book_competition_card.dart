@@ -17,63 +17,52 @@ class BookCompetitionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => BookCompetitionScreen(year: currentYear),
-          ),
-        );
-      },
-      borderRadius: BorderRadius.circular(12),
-      child: Card(
-        elevation: 2,
-        margin: const EdgeInsets.symmetric(horizontal: 8),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.emoji_events,
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 28,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Best Book of $currentYear',
-                    style: Theme.of(context).textTheme.titleLarge
-                        ?.copyWith(fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(width: 8),
-                  Icon(
-                    Icons.chevron_right,
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 28,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              if (yearlyWinner != null)
-                _buildWinnerSection(context)
-              else if (nominees.isNotEmpty)
-                _buildNomineesSection(context)
-              else
-                Center(
-                  child: Text(
-                    'No books read in $currentYear',
-                    style: Theme.of(context).textTheme.bodyMedium
-                        ?.copyWith(color: Colors.grey),
-                  ),
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.emoji_events,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 28,
                 ),
-            ],
-          ),
+                const SizedBox(width: 8),
+                Text(
+                  'Best Book of $currentYear',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(width: 8),
+                Icon(
+                  Icons.chevron_right,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 28,
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            if (yearlyWinner != null)
+              _buildWinnerSection(context)
+            else if (nominees.isNotEmpty)
+              _buildNomineesSection(context)
+            else
+              Center(
+                child: Text(
+                  'No books read in $currentYear',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
+                ),
+              ),
+          ],
         ),
       ),
     );
@@ -85,16 +74,13 @@ class BookCompetitionCard extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.star,
-              color: Colors.amber,
-              size: 24,
-            ),
+            Icon(Icons.star, color: Colors.amber, size: 24),
             const SizedBox(width: 8),
             Text(
               'Winner:',
-              style: Theme.of(context).textTheme.titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w500),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -107,8 +93,9 @@ class BookCompetitionCard extends StatelessWidget {
           ),
           child: Text(
             yearlyWinner!.bookName,
-            style: Theme.of(context).textTheme.bodyLarge
-                ?.copyWith(fontWeight: FontWeight.w600),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -132,8 +119,9 @@ class BookCompetitionCard extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               'Nominees:',
-              style: Theme.of(context).textTheme.titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w500),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -142,32 +130,39 @@ class BookCompetitionCard extends StatelessWidget {
           spacing: 8,
           runSpacing: 4,
           alignment: WrapAlignment.center,
-          children: nominees.take(6).map((nominee) {
-            return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceVariant,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
-                ),
-              ),
-              child: Text(
-                nominee.bookName,
-                style: Theme.of(context).textTheme.bodySmall,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            );
-          }).toList(),
+          children:
+              nominees.take(6).map((nominee) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceVariant,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.outline.withOpacity(0.3),
+                    ),
+                  ),
+                  child: Text(
+                    nominee.bookName,
+                    style: Theme.of(context).textTheme.bodySmall,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                );
+              }).toList(),
         ),
         if (nominees.length > 6)
           Padding(
             padding: const EdgeInsets.only(top: 4),
             child: Text(
               '... and ${nominees.length - 6} more',
-              style: Theme.of(context).textTheme.bodySmall
-                  ?.copyWith(color: Colors.grey),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey),
             ),
           ),
       ],

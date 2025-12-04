@@ -1073,9 +1073,6 @@ class BookRepository {
         if (!countedBooksPerYear[bookKey]!.contains(targetYear)) {
           countedBooksPerYear[bookKey]!.add(targetYear);
           booksPerYear[targetYear] = (booksPerYear[targetYear] ?? 0) + 1;
-          debugPrint(
-            '  ✅ Counted: bookKey=$bookKey, year=$targetYear, isBundle=$isBundle, bundleIndex=$bundleBookIndex',
-          );
 
           // For pages: use individual bundle book pages if available
           int pagesToAdd = pages;

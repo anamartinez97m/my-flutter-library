@@ -28,8 +28,7 @@ class BookCompetition {
   });
 
   Map<String, dynamic> toMap() {
-    return {
-      'competition_id': competitionId,
+    final map = {
       'year': year,
       'competition_type': competitionType,
       'month': month,
@@ -40,8 +39,19 @@ class BookCompetition {
       'opponent_book_id': opponentBookId,
       'opponent_book_name': opponentBookName,
       'winner_book_id': winnerBookId,
-      'created_at': createdAt,
     };
+    
+    // Only include competition_id if it's not null (for updates, not inserts)
+    if (competitionId != null) {
+      map['competition_id'] = competitionId;
+    }
+    
+    // Only include created_at if it's not null (let database use default)
+    if (createdAt != null) {
+      map['created_at'] = createdAt;
+    }
+    
+    return map;
   }
 
   factory BookCompetition.fromMap(Map<String, dynamic> map) {
