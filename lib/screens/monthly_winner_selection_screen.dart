@@ -15,10 +15,12 @@ class MonthlyWinnerSelectionScreen extends StatefulWidget {
   });
 
   @override
-  State<MonthlyWinnerSelectionScreen> createState() => _MonthlyWinnerSelectionScreenState();
+  State<MonthlyWinnerSelectionScreen> createState() =>
+      _MonthlyWinnerSelectionScreenState();
 }
 
-class _MonthlyWinnerSelectionScreenState extends State<MonthlyWinnerSelectionScreen> {
+class _MonthlyWinnerSelectionScreenState
+    extends State<MonthlyWinnerSelectionScreen> {
   List<Book> books = [];
   bool isLoading = true;
   int? selectedBookId;
@@ -31,12 +33,15 @@ class _MonthlyWinnerSelectionScreenState extends State<MonthlyWinnerSelectionScr
 
   Future<void> _loadBooks() async {
     setState(() => isLoading = true);
-    
+
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookCompetitionRepository(db);
-      final monthBooks = await repository.getBooksReadInMonth(widget.year, widget.month);
-      
+      final monthBooks = await repository.getBooksReadInMonth(
+        widget.year,
+        widget.month,
+      );
+
       if (mounted) {
         setState(() {
           books = monthBooks;
@@ -46,34 +51,36 @@ class _MonthlyWinnerSelectionScreenState extends State<MonthlyWinnerSelectionScr
     } catch (e) {
       if (mounted) {
         setState(() => isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading books: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error loading books: $e')));
       }
     }
   }
 
   Future<void> _saveWinner() async {
     if (selectedBookId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a book')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select a book')));
       return;
     }
 
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookCompetitionRepository(db);
-      
-      final selectedBook = books.firstWhere((book) => book.bookId == selectedBookId);
-      
+
+      final selectedBook = books.firstWhere(
+        (book) => book.bookId == selectedBookId,
+      );
+
       await repository.saveMonthlyWinner(
         widget.year,
         widget.month,
         selectedBook.bookId!,
         selectedBook.name!,
       );
-      
+
       if (mounted) {
         Navigator.of(context).pop(true); // Return true to indicate success
         ScaffoldMessenger.of(context).showSnackBar(
@@ -82,9 +89,9 @@ class _MonthlyWinnerSelectionScreenState extends State<MonthlyWinnerSelectionScr
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving winner: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error saving winner: $e')));
       }
     }
   }
@@ -112,64 +119,94 @@ class _MonthlyWinnerSelectionScreenState extends State<MonthlyWinnerSelectionScr
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Select ${_getMonthName(widget.month)} ${widget.year} Winner'),
-        actions: [
-          if (!isLoading && books.isNotEmpty)
-            TextButton(
-              onPressed: _saveWinner,
-              child: const Text('Save'),
-            ),
-        ],
+        title: Text(
+          'Select ${_getMonthName(widget.month)} ${widget.year} Winner',
+        ),
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : books.isEmpty
+      body:
+          isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : books.isEmpty
               ? const Center(child: Text('No books read this month'))
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16.0),
-                  itemCount: books.length,
-                  itemBuilder: (context, index) {
-                    final book = books[index];
-                    final isSelected = selectedBookId == book.bookId;
-                    
-                    return Card(
-                      elevation: isSelected ? 4 : 1,
-                      color: isSelected 
-                          ? Theme.of(context).colorScheme.primaryContainer
-                          : null,
-                      child: ListTile(
-                        title: Text(
-                          book.name ?? 'Unknown',
-                          style: isSelected
-                              ? const TextStyle(fontWeight: FontWeight.bold)
-                              : null,
+              : Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(16.0),
+                      itemCount: books.length,
+                      itemBuilder: (context, index) {
+                        final book = books[index];
+                        final isSelected = selectedBookId == book.bookId;
+
+                        return Card(
+                          elevation: isSelected ? 4 : 1,
+                          color:
+                              isSelected
+                                  ? Theme.of(
+                                    context,
+                                  ).colorScheme.primaryContainer
+                                  : null,
+                          child: ListTile(
+                            title: Text(
+                              book.name ?? 'Unknown',
+                              style:
+                                  isSelected
+                                      ? TextStyle(fontWeight: FontWeight.bold)
+                                      : null,
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (book.author != null)
+                                  Text('Author: ${book.author}'),
+                                if (book.myRating != null && book.myRating! > 0)
+                                  Text('Rating: ${book.myRating}/5'),
+                              ],
+                            ),
+                            trailing:
+                                isSelected
+                                    ? Icon(
+                                      Icons.check_circle,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                    )
+                                    : null,
+                            onTap: () {
+                              setState(() {
+                                selectedBookId =
+                                    isSelected ? null : book.bookId;
+                              });
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  if (selectedBookId != null)
+                    Container(
+                      padding: const EdgeInsets.all(16.0),
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _saveWinner,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
+                          foregroundColor:
+                              Theme.of(context).colorScheme.onPrimary,
                         ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (book.author != null)
-                              Text('Author: ${book.author}'),
-                            if (book.myRating != null && book.myRating! > 0)
-                              Text('Rating: ${book.myRating}/5'),
-                            if (book.pages != null)
-                              Text('Pages: ${book.pages}'),
-                          ],
+                        child: const Text(
+                          'Select',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                        trailing: isSelected
-                            ? Icon(
-                                Icons.check_circle,
-                                color: Theme.of(context).colorScheme.primary,
-                              )
-                            : null,
-                        onTap: () {
-                          setState(() {
-                            selectedBookId = isSelected ? null : book.bookId;
-                          });
-                        },
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  const SizedBox(height: 50),
+                ],
+              ),
     );
   }
 }

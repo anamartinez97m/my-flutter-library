@@ -31,6 +31,8 @@ class BookCompetitionRepository {
 
   // Get competition results for a specific year
   Future<CompetitionResult?> getCompetitionResults(int year) async {
+    print('Repository: Getting competition results for year $year');
+
     // Get monthly winners
     final monthlyMaps = await _database.query(
       'book_competition',
@@ -86,17 +88,16 @@ class BookCompetitionRepository {
             .toList();
 
     // Get yearly winner
-    final yearlyMaps = await _database.query(
+    final finalMaps = await _database.query(
       'book_competition',
       where: 'year = ? AND competition_type = ?',
       whereArgs: [year, 'final'],
+      orderBy: 'competition_id DESC',
       limit: 1,
     );
 
     final yearlyWinner =
-        yearlyMaps.isNotEmpty
-            ? BookCompetition.fromMap(yearlyMaps.first)
-            : null;
+        finalMaps.isNotEmpty ? BookCompetition.fromMap(finalMaps.first) : null;
 
     return CompetitionResult(
       year: year,
@@ -107,13 +108,52 @@ class BookCompetitionRepository {
     );
   }
 
-  // Save a competition result
+  // Save a competition result (update if exists, insert if not)
   Future<void> saveCompetitionResult(BookCompetition competition) async {
-    await _database.insert(
+    print('Repository: Saving competition result: ${competition.toMap()}');
+    
+    // Check if record already exists
+    String whereClause = 'year = ? AND competition_type = ?';
+    List<dynamic> whereArgs = [competition.year, competition.competitionType];
+    
+    if (competition.month != null) {
+      whereClause += ' AND month = ?';
+      whereArgs.add(competition.month);
+    }
+    if (competition.quarter != null) {
+      whereClause += ' AND quarter = ?';
+      whereArgs.add(competition.quarter);
+    }
+    if (competition.roundNumber != null) {
+      whereClause += ' AND round_number = ?';
+      whereArgs.add(competition.roundNumber);
+    }
+    
+    final existing = await _database.query(
       'book_competition',
-      competition.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
+      where: whereClause,
+      whereArgs: whereArgs,
+      limit: 1,
     );
+    
+    if (existing.isNotEmpty) {
+      // Update existing record
+      final result = await _database.update(
+        'book_competition',
+        competition.toMap(),
+        where: whereClause,
+        whereArgs: whereArgs,
+      );
+      print('Repository: Updated existing record: $result');
+    } else {
+      // Insert new record
+      final result = await _database.insert(
+        'book_competition',
+        competition.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      print('Repository: Inserted new record: $result');
+    }
   }
 
   // Check if competition exists for a specific year and type
@@ -172,7 +212,9 @@ class BookCompetitionRepository {
         whereArgs: [year, 'monthly', month],
         limit: 1,
       );
-      return existing.isNotEmpty ? BookCompetition.fromMap(existing.first) : null;
+      return existing.isNotEmpty
+          ? BookCompetition.fromMap(existing.first)
+          : null;
     }
 
     // Get books read in this month - don't automatically select a winner
@@ -184,11 +226,75 @@ class BookCompetitionRepository {
   }
 
   // Save monthly winner selected by user
-  Future<void> saveMonthlyWinner(int year, int month, int bookId, String bookName) async {
+  Future<void> saveMonthlyWinner(
+    int year,
+    int month,
+    int bookId,
+    String bookName,
+  ) async {
     final competition = BookCompetition(
       year: year,
       competitionType: 'monthly',
       month: month,
+      bookId: bookId,
+      bookName: bookName,
+      winnerBookId: bookId,
+    );
+
+    await saveCompetitionResult(competition);
+  }
+
+  // Save quarterly winner selected by user
+  Future<void> saveQuarterlyWinner(
+    int year,
+    int quarter,
+    int bookId,
+    String bookName,
+  ) async {
+    print(
+      'Repository: Saving quarterly winner - Year: $year, Quarter: $quarter, Book ID: $bookId, Book: $bookName',
+    );
+
+    final competition = BookCompetition(
+      year: year,
+      competitionType: 'quarterly',
+      quarter: quarter,
+      bookId: bookId,
+      bookName: bookName,
+      winnerBookId: bookId,
+    );
+
+    print('Repository: Competition object created: ${competition.toMap()}');
+
+    await saveCompetitionResult(competition);
+
+    print('Repository: Quarterly winner saved to database');
+  }
+
+  // Save semifinal winner selected by user
+  Future<void> saveSemifinalWinner(
+    int year,
+    int roundNumber,
+    int bookId,
+    String bookName,
+  ) async {
+    final competition = BookCompetition(
+      year: year,
+      competitionType: 'semifinal',
+      roundNumber: roundNumber,
+      bookId: bookId,
+      bookName: bookName,
+      winnerBookId: bookId,
+    );
+
+    await saveCompetitionResult(competition);
+  }
+
+  // Save yearly winner selected by user
+  Future<void> saveYearlyWinner(int year, int bookId, String bookName) async {
+    final competition = BookCompetition(
+      year: year,
+      competitionType: 'final',
       bookId: bookId,
       bookName: bookName,
       winnerBookId: bookId,
@@ -215,39 +321,8 @@ class BookCompetitionRepository {
           : null;
     }
 
-    // Get monthly winners for this quarter
-    final startMonth = (quarter - 1) * 3 + 1;
-    final endMonth = quarter * 3;
-
-    final monthlyWinners = <BookCompetition>[];
-    for (int month = startMonth; month <= endMonth; month++) {
-      final monthlyWinner = await runMonthlyCompetition(year, month);
-      if (monthlyWinner != null) {
-        monthlyWinners.add(monthlyWinner);
-      }
-    }
-
-    if (monthlyWinners.length < 2) return null;
-
-    // Competition between monthly winners
-    final winner = monthlyWinners.reduce((a, b) {
-      // Get book details to compare ratings
-      return a.bookName.compareTo(b.bookName) < 0
-          ? a
-          : b; // Simple alphabetical for now
-    });
-
-    final competition = BookCompetition(
-      year: year,
-      competitionType: 'quarterly',
-      quarter: quarter,
-      bookId: winner.bookId,
-      bookName: winner.bookName,
-      winnerBookId: winner.bookId,
-    );
-
-    await saveCompetitionResult(competition);
-    return competition;
+    // Don't auto-run quarterly competition - wait for user selection
+    return null;
   }
 
   // Run semifinal competition
@@ -268,54 +343,8 @@ class BookCompetitionRepository {
           : null;
     }
 
-    // Get quarterly winners
-    final quarterlyWinners = <BookCompetition>[];
-    for (int quarter = 1; quarter <= 4; quarter++) {
-      final quarterlyWinner = await runQuarterlyCompetition(year, quarter);
-      if (quarterlyWinner != null) {
-        quarterlyWinners.add(quarterlyWinner);
-      }
-    }
-
-    if (quarterlyWinners.length < 2) return null;
-
-    // Semifinal 1: Q1 vs Q3, Semifinal 2: Q2 vs Q4
-    BookCompetition winner;
-    if (roundNumber == 1) {
-      // Q1 vs Q3
-      final q1Winner =
-          quarterlyWinners.length >= 1 ? quarterlyWinners[0] : null;
-      final q3Winner =
-          quarterlyWinners.length >= 3 ? quarterlyWinners[2] : null;
-      if (q1Winner == null || q3Winner == null) return null;
-      winner =
-          q1Winner.bookName.compareTo(q3Winner.bookName) < 0
-              ? q1Winner
-              : q3Winner;
-    } else {
-      // Q2 vs Q4
-      final q2Winner =
-          quarterlyWinners.length >= 2 ? quarterlyWinners[1] : null;
-      final q4Winner =
-          quarterlyWinners.length >= 4 ? quarterlyWinners[3] : null;
-      if (q2Winner == null || q4Winner == null) return null;
-      winner =
-          q2Winner.bookName.compareTo(q4Winner.bookName) < 0
-              ? q2Winner
-              : q4Winner;
-    }
-
-    final competition = BookCompetition(
-      year: year,
-      competitionType: 'semifinal',
-      roundNumber: roundNumber,
-      bookId: winner.bookId,
-      bookName: winner.bookName,
-      winnerBookId: winner.bookId,
-    );
-
-    await saveCompetitionResult(competition);
-    return competition;
+    // Don't auto-run semifinal competition - wait for user selection
+    return null;
   }
 
   // Run final competition
@@ -333,29 +362,8 @@ class BookCompetitionRepository {
           : null;
     }
 
-    // Get semifinal winners
-    final semifinal1 = await runSemifinalCompetition(year, 1);
-    final semifinal2 = await runSemifinalCompetition(year, 2);
-
-    if (semifinal1 == null || semifinal2 == null) return null;
-
-    // Final competition
-    final winner =
-        semifinal1.bookName.compareTo(semifinal2.bookName) < 0
-            ? semifinal1
-            : semifinal2;
-
-    final competition = BookCompetition(
-      year: year,
-      competitionType: 'final',
-      roundNumber: 3,
-      bookId: winner.bookId,
-      bookName: winner.bookName,
-      winnerBookId: winner.bookId,
-    );
-
-    await saveCompetitionResult(competition);
-    return competition;
+    // Don't auto-run final competition - wait for user selection
+    return null;
   }
 
   // Run full competition for a year
@@ -367,6 +375,19 @@ class BookCompetitionRepository {
     return await getCompetitionResults(year);
   }
 
+  // Clean up competition data for a specific year (except monthly winners)
+  Future<void> cleanupYearData(int year) async {
+    print('Repository: Cleaning up competition data for year $year');
+    
+    final result = await _database.delete(
+      'book_competition',
+      where: 'year = ? AND competition_type IN (?, ?, ?)',
+      whereArgs: [year, 'quarterly', 'semifinal', 'final'],
+    );
+    
+    print('Repository: Deleted $result competition records for year $year');
+  }
+
   // Get all years with competitions
   Future<List<int>> getYearsWithCompetitions() async {
     final maps = await _database.rawQuery('''
@@ -375,5 +396,19 @@ class BookCompetitionRepository {
     ''');
 
     return maps.map((map) => map['year'] as int).toList();
+  }
+
+  // Get books read per month for a given year
+  Future<Map<int, List<Book>>> getBooksReadPerMonth(int year) async {
+    final Map<int, List<Book>> booksPerMonth = {};
+
+    for (int month = 1; month <= 12; month++) {
+      final books = await getBooksReadInMonth(year, month);
+      if (books.isNotEmpty) {
+        booksPerMonth[month] = books;
+      }
+    }
+
+    return booksPerMonth;
   }
 }
