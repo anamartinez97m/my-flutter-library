@@ -834,6 +834,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                 bookId: bookId,
                 dateStarted: item.book.dateReadInitial,
                 dateFinished: item.book.dateReadFinal,
+                readingProgress: 0,
               ),
             );
             debugPrint(
@@ -898,6 +899,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                   bookId: id,
                   dateStarted: item.book.dateReadInitial,
                   dateFinished: item.book.dateReadFinal,
+                  readingProgress: 0,
                 ),
               );
               debugPrint(
@@ -995,6 +997,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                 bookId: bookId,
                 dateStarted: item.book.dateReadInitial,
                 dateFinished: item.book.dateReadFinal,
+                readingProgress: 0,
               ),
             );
             debugPrint(
@@ -1059,6 +1062,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                   bookId: id,
                   dateStarted: item.book.dateReadInitial,
                   dateFinished: item.book.dateReadFinal,
+                  readingProgress: 0,
                 ),
               );
               debugPrint(

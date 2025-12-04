@@ -23,7 +23,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 25,
+      version: 26,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -722,6 +722,45 @@ class DatabaseHelper {
 
       await db.execute('''
         CREATE INDEX IF NOT EXISTS idx_book_competition_type ON book_competition (competition_type)
+      ''');
+    }
+    if (oldVersion < 26) {
+      // Ensure reading_sessions and year_challenges tables exist (for databases that missed version 16)
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS reading_sessions (
+          session_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          book_id INTEGER NOT NULL,
+          start_time TEXT NOT NULL,
+          end_time TEXT,
+          duration_seconds INTEGER,
+          is_active INTEGER NOT NULL DEFAULT 1,
+          clicked_at TEXT,
+          FOREIGN KEY (book_id) REFERENCES book(book_id) ON DELETE CASCADE
+        )
+      ''');
+      
+      await db.execute('''
+        CREATE INDEX IF NOT EXISTS idx_reading_sessions_book_id ON reading_sessions(book_id)
+      ''');
+      
+      await db.execute('''
+        CREATE INDEX IF NOT EXISTS idx_reading_sessions_is_active ON reading_sessions(is_active)
+      ''');
+      
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS year_challenges (
+          challenge_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          year INTEGER NOT NULL,
+          target_books INTEGER NOT NULL,
+          target_pages INTEGER,
+          created_at TEXT NOT NULL,
+          notes TEXT,
+          custom_challenges TEXT
+        )
+      ''');
+      
+      await db.execute('''
+        CREATE INDEX IF NOT EXISTS idx_year_challenges_year ON year_challenges(year)
       ''');
     }
   }

@@ -259,7 +259,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             const SizedBox(height: 8),
                             // Title filter
-                            if (_isFilterEnabled('title'))
+                            if (_isFilterEnabled('title')) ...[
                               DropdownButtonFormField<String>(
                                 value: _selectedTitle,
                                 isExpanded: true,
@@ -297,9 +297,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   setModalState(() {});
                                 },
                               ),
-                            const SizedBox(height: 8),
+                              const SizedBox(height: 8),
+                            ],
                             // ISBN/ASIN filter
-                            if (_isFilterEnabled('isbn'))
+                            if (_isFilterEnabled('isbn')) ...[
                               DropdownButtonFormField<String>(
                                 value: _selectedIsbnAsin,
                                 isExpanded: true,
@@ -337,9 +338,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   setModalState(() {});
                                 },
                               ),
-                            const SizedBox(height: 8),
+                              const SizedBox(height: 8),
+                            ],
                             // Author filter
-                            if (_isFilterEnabled('author'))
+                            if (_isFilterEnabled('author')) ...[
                               DropdownButtonFormField<String>(
                                 value: _selectedAuthor,
                                 isExpanded: true,
@@ -377,9 +379,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   setModalState(() {});
                                 },
                               ),
-                            const SizedBox(height: 8),
+                              const SizedBox(height: 8),
+                            ],
                             // Status filter
-                            if (_isFilterEnabled('status'))
+                            if (_isFilterEnabled('status')) ...[
                               DropdownButtonFormField<String>(
                                 value: _selectedStatus,
                                 isExpanded: true,
@@ -417,9 +420,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   setModalState(() {});
                                 },
                               ),
-                            const SizedBox(height: 8),
+                              const SizedBox(height: 8),
+                            ],
                             // Format filter
-                            if (_isFilterEnabled('format'))
+                            if (_isFilterEnabled('format')) ...[
                               DropdownButtonFormField<String>(
                                 value: _selectedFormat,
                                 isExpanded: true,
@@ -463,9 +467,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   setModalState(() {});
                                 },
                               ),
-                            const SizedBox(height: 8),
+                              const SizedBox(height: 8),
+                            ],
                             // Genre filter
-                            if (_isFilterEnabled('genre'))
+                            if (_isFilterEnabled('genre')) ...[
                               DropdownButtonFormField<String>(
                                 value: _selectedGenre,
                                 isExpanded: true,
@@ -509,9 +514,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   setModalState(() {});
                                 },
                               ),
-                            const SizedBox(height: 8),
+                              const SizedBox(height: 8),
+                            ],
                             // Language filter
-                            if (_isFilterEnabled('language'))
+                            if (_isFilterEnabled('language')) ...[
                               DropdownButtonFormField<String>(
                                 value: _selectedLanguage,
                                 isExpanded: true,
@@ -555,9 +561,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   setModalState(() {});
                                 },
                               ),
-                            const SizedBox(height: 8),
+                              const SizedBox(height: 8),
+                            ],
                             // Place filter
-                            if (_isFilterEnabled('place'))
+                            if (_isFilterEnabled('place')) ...[
                               DropdownButtonFormField<String>(
                                 value: _selectedPlace,
                                 isExpanded: true,
@@ -601,9 +608,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   setModalState(() {});
                                 },
                               ),
-                            const SizedBox(height: 8),
+                              const SizedBox(height: 8),
+                            ],
                             // Editorial filter
-                            if (_isFilterEnabled('editorial'))
+                            if (_isFilterEnabled('editorial')) ...[
                               DropdownButtonFormField<String>(
                                 value: _selectedEditorial,
                                 isExpanded: true,
@@ -647,9 +655,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   setModalState(() {});
                                 },
                               ),
-                            const SizedBox(height: 8),
+                              const SizedBox(height: 8),
+                            ],
                             // Saga filter
-                            if (_isFilterEnabled('saga'))
+                            if (_isFilterEnabled('saga')) ...[
                               DropdownButtonFormField<String>(
                                 value: _selectedSaga,
                                 isExpanded: true,
@@ -692,9 +701,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   setModalState(() {});
                                 },
                               ),
-                            const SizedBox(height: 8),
+                              const SizedBox(height: 8),
+                            ],
                             // Saga Universe filter
-                            if (_isFilterEnabled('saga_universe'))
+                            if (_isFilterEnabled('saga_universe')) ...[
                               DropdownButtonFormField<String>(
                                 value: _selectedSagaUniverse,
                                 isExpanded: true,
@@ -743,9 +753,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   setModalState(() {});
                                 },
                               ),
-                            const SizedBox(height: 8),
+                              const SizedBox(height: 8),
+                            ],
                             // Format Saga filter
-                            if (_isFilterEnabled('format_saga'))
+                            if (_isFilterEnabled('format_saga')) ...[
                               DropdownButtonFormField<String>(
                                 value: _selectedFormatSaga,
                                 isExpanded: true,
@@ -789,9 +800,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   setModalState(() {});
                                 },
                               ),
-                            const SizedBox(height: 8),
+                              const SizedBox(height: 8),
+                            ],
                             // Pages Empty filter
-                            if (_isFilterEnabled('pages_empty'))
+                            if (_isFilterEnabled('pages_empty')) ...[
                               DropdownButtonFormField<String>(
                                 value: _selectedPagesEmpty,
                                 isExpanded: true,
@@ -829,9 +841,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   setModalState(() {});
                                 },
                               ),
-                            const SizedBox(height: 8),
+                              const SizedBox(height: 8),
+                            ],
                             // Is Bundle filter
-                            if (_isFilterEnabled('is_bundle'))
+                            if (_isFilterEnabled('is_bundle')) ...[
                               DropdownButtonFormField<String>(
                                 value: _selectedIsBundle,
                                 isExpanded: true,
@@ -875,9 +888,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   setModalState(() {});
                                 },
                               ),
-                            const SizedBox(height: 8),
+                              const SizedBox(height: 8),
+                            ],
                             // Is Tandem filter
-                            if (_isFilterEnabled('is_tandem'))
+                            if (_isFilterEnabled('is_tandem')) ...[
                               DropdownButtonFormField<String>(
                                 value: _selectedIsTandem,
                                 isExpanded: true,
@@ -921,9 +935,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   setModalState(() {});
                                 },
                               ),
-                            const SizedBox(height: 8),
+                              const SizedBox(height: 8),
+                            ],
                             // Saga Format Without Saga filter
-                            if (_isFilterEnabled('saga_format_without_saga'))
+                            if (_isFilterEnabled('saga_format_without_saga')) ...[
                               DropdownButtonFormField<String>(
                                 value: _selectedSagaFormatWithoutSaga,
                                 isExpanded: true,
@@ -975,9 +990,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   setModalState(() {});
                                 },
                               ),
-                            const SizedBox(height: 8),
+                              const SizedBox(height: 8),
+                            ],
                             // Saga Format Without N_Saga filter
-                            if (_isFilterEnabled('saga_format_without_nsaga'))
+                            if (_isFilterEnabled('saga_format_without_nsaga')) ...[
                               DropdownButtonFormField<String>(
                                 value: _selectedSagaFormatWithoutNSaga,
                                 isExpanded: true,
@@ -1029,7 +1045,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   setModalState(() {});
                                 },
                               ),
-                            const SizedBox(height: 24),
+                              const SizedBox(height: 8),
+                            ],
                             Row(
                               children: [
                                 Expanded(
