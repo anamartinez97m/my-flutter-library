@@ -800,14 +800,15 @@ class _EditBookScreenState extends State<EditBookScreen> {
         debugPrint(
           'EditBook: Saving ${_readDates.length} read dates for book ${widget.book.bookId} (${widget.book.name}), isBundle=$_isBundle',
         );
-        
+
         // Check if any read date has a finished date
         bool hasFinishedDate = false;
         for (final readDate in _readDates) {
-          if (readDate.dateFinished != null && readDate.dateFinished!.isNotEmpty) {
+          if (readDate.dateFinished != null &&
+              readDate.dateFinished!.isNotEmpty) {
             hasFinishedDate = true;
           }
-          
+
           await repository.addReadDate(
             ReadDate(
               bookId: widget.book.bookId!,
@@ -817,7 +818,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
             ),
           );
         }
-        
+
         // If any read date has a finished date, update book status to "Yes" and increment read count
         if (hasFinishedDate) {
           final statusList = await repository.getLookupValues('status');
@@ -825,9 +826,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
             (s) => (s['value'] as String).toLowerCase() == 'yes',
             orElse: () => statusList.first,
           );
-          
+
           final currentReadCount = bookToUpdate.readCount ?? 0;
-          
+
           await db.update(
             'book',
             {
@@ -1826,9 +1827,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
                                   child: Text('${index + 1}'),
                                 ),
                                 title: Text(
-                                  session.startTime.toIso8601String().split(
+                                  session.startTime?.toIso8601String().split(
                                     'T',
-                                  )[0],
+                                  )[0] ?? 'No date',
                                   style: const TextStyle(
                                     fontWeight: FontWeight.w500,
                                   ),
