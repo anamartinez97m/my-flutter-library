@@ -23,7 +23,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 26,
+      version: 27,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -583,10 +583,12 @@ class DatabaseHelper {
         CREATE TABLE IF NOT EXISTS reading_sessions (
           session_id INTEGER PRIMARY KEY AUTOINCREMENT,
           book_id INTEGER NOT NULL,
-          start_time TEXT NOT NULL,
+          start_time TEXT,
           end_time TEXT,
           duration_seconds INTEGER,
           is_active INTEGER NOT NULL DEFAULT 1,
+          did_read INTEGER NOT NULL DEFAULT 0,
+          clicked_at TEXT,
           FOREIGN KEY (book_id) REFERENCES book(book_id) ON DELETE CASCADE
         )
       ''');
@@ -730,10 +732,11 @@ class DatabaseHelper {
         CREATE TABLE IF NOT EXISTS reading_sessions (
           session_id INTEGER PRIMARY KEY AUTOINCREMENT,
           book_id INTEGER NOT NULL,
-          start_time TEXT NOT NULL,
+          start_time TEXT,
           end_time TEXT,
           duration_seconds INTEGER,
           is_active INTEGER NOT NULL DEFAULT 1,
+          did_read INTEGER NOT NULL DEFAULT 0,
           clicked_at TEXT,
           FOREIGN KEY (book_id) REFERENCES book(book_id) ON DELETE CASCADE
         )
@@ -762,6 +765,12 @@ class DatabaseHelper {
       await db.execute('''
         CREATE INDEX IF NOT EXISTS idx_year_challenges_year ON year_challenges(year)
       ''');
+    }
+    if (oldVersion < 27) {
+      // Add did_read field to reading_sessions table
+      await db.execute(
+        'ALTER TABLE reading_sessions ADD COLUMN did_read INTEGER NOT NULL DEFAULT 0',
+      );
     }
   }
 

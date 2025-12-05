@@ -2,19 +2,21 @@
 class ReadingSession {
   final int? sessionId;
   final int bookId;
-  final DateTime startTime;
+  final DateTime? startTime;
   final DateTime? endTime;
   final int? durationSeconds; // Total reading time in seconds
   final bool isActive;
+  final bool didRead;
   final DateTime? clickedAt; // When the chronometer was clicked/started
 
   ReadingSession({
     this.sessionId,
     required this.bookId,
-    required this.startTime,
+    this.startTime,
     this.endTime,
     this.durationSeconds,
     this.isActive = true,
+    this.didRead = false,
     this.clickedAt,
   });
 
@@ -22,10 +24,11 @@ class ReadingSession {
     return {
       'session_id': sessionId,
       'book_id': bookId,
-      'start_time': startTime.toIso8601String(),
+      'start_time': startTime?.toIso8601String(),
       'end_time': endTime?.toIso8601String(),
       'duration_seconds': durationSeconds,
       'is_active': isActive ? 1 : 0,
+      'did_read': didRead ? 1 : 0,
       'clicked_at': clickedAt?.toIso8601String(),
     };
   }
@@ -34,10 +37,11 @@ class ReadingSession {
     return ReadingSession(
       sessionId: map['session_id'] as int?,
       bookId: map['book_id'] as int,
-      startTime: DateTime.parse(map['start_time'] as String),
+      startTime: map['start_time'] != null ? DateTime.parse(map['start_time'] as String) : null,
       endTime: map['end_time'] != null ? DateTime.parse(map['end_time'] as String) : null,
       durationSeconds: map['duration_seconds'] as int?,
       isActive: (map['is_active'] as int) == 1,
+      didRead: (map['did_read'] as int?) == 1,
       clickedAt: map['clicked_at'] != null ? DateTime.parse(map['clicked_at'] as String) : null,
     );
   }
@@ -49,6 +53,7 @@ class ReadingSession {
     DateTime? endTime,
     int? durationSeconds,
     bool? isActive,
+    bool? didRead,
     DateTime? clickedAt,
   }) {
     return ReadingSession(
@@ -58,6 +63,7 @@ class ReadingSession {
       endTime: endTime ?? this.endTime,
       durationSeconds: durationSeconds ?? this.durationSeconds,
       isActive: isActive ?? this.isActive,
+      didRead: didRead ?? this.didRead,
       clickedAt: clickedAt ?? this.clickedAt,
     );
   }

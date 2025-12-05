@@ -25,6 +25,8 @@ import 'package:myrandomlibrary/widgets/statistics/past_years_competition_card.d
 import 'package:myrandomlibrary/model/book_competition.dart';
 import 'package:myrandomlibrary/repositories/book_competition_repository.dart';
 import 'package:myrandomlibrary/screens/book_competition_screen.dart';
+import 'package:myrandomlibrary/model/reading_session.dart';
+import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -50,12 +52,17 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   List<BookCompetition> _nominees = [];
   List<BookCompetition> _pastWinners = [];
   bool _isLoadingCompetition = true;
+  
+  // Reading sessions data for statistics
+  Map<int, List<ReadingSession>> _bookSessions = {};
+  bool _isLoadingSessions = true;
 
   @override
   void initState() {
     super.initState();
     _loadYearData();
     _loadCompetitionData();
+    _loadReadingSessionsData();
   }
 
   Future<void> _loadYearData() async {
@@ -104,6 +111,42 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       if (mounted) {
         setState(() {
           _isLoadingCompetition = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _loadReadingSessionsData() async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final sessionRepository = ReadingSessionRepository(db);
+      final provider = Provider.of<BookProvider?>(context, listen: false);
+      
+      if (provider != null && !provider.isLoading) {
+        final books = provider.allBooks;
+        final Map<int, List<ReadingSession>> bookSessions = {};
+        
+        for (var book in books) {
+          if (book.bookId != null) {
+            final sessions = await sessionRepository.getDisplaySessionsForBook(book.bookId!);
+            if (sessions.isNotEmpty) {
+              bookSessions[book.bookId!] = sessions;
+            }
+          }
+        }
+        
+        if (mounted) {
+          setState(() {
+            _bookSessions = bookSessions;
+            _isLoadingSessions = false;
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Error loading reading sessions for stats: $e');
+      if (mounted) {
+        setState(() {
+          _isLoadingSessions = false;
         });
       }
     }
@@ -299,10 +342,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     // Calculate reading velocity (average pages per day) and average days to finish
     double readingVelocity = 0.0;
     double averageDaysToFinish = 0.0;
-    int totalDaysRead = 0;
     int totalPagesRead = 0;
     int booksWithValidDates = 0;
+    int totalReadingDays = 0; // Track unique reading days from sessions
 
+    // Process books with valid dates for velocity calculation
     for (var book in books) {
       // Skip books without dates
       if (book.dateReadInitial == null ||
@@ -327,17 +371,44 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           averageDaysToFinish += daysToRead;
           booksWithValidDates++;
 
-          // Only count for velocity if book has pages
+          // Get page count for this book
+          int effectivePages = 0;
+          
           if (book.pages != null && book.pages! > 0) {
-            totalDaysRead += daysToRead;
-            totalPagesRead += book.pages!;
+            effectivePages = book.pages!;
+          } else if (book.bookId != null && _bookSessions.containsKey(book.bookId!)) {
+            // For books without page count but with sessions, use estimated average
+            effectivePages = 250; // Average book pages estimate
+          }
+          
+          // Only include books with page data in velocity calculation
+          if (effectivePages > 0) {
+            totalPagesRead += effectivePages;
+            
+            // Count reading days from sessions for this specific book
+            if (book.bookId != null && _bookSessions.containsKey(book.bookId!)) {
+              final sessions = _bookSessions[book.bookId!]!;
+              final uniqueDays = sessions.map((session) {
+                if (session.startTime != null) {
+                  return DateTime(session.startTime!.year, session.startTime!.month, session.startTime!.day);
+                }
+                return null;
+              }).where((date) => date != null).toSet();
+              
+              // Use session days if available, otherwise use calendar days
+              totalReadingDays += uniqueDays.length > 0 ? uniqueDays.length : daysToRead;
+            } else {
+              // No session data, use calendar days
+              totalReadingDays += daysToRead;
+            }
           }
         }
       }
     }
 
-    if (totalDaysRead > 0 && totalPagesRead > 0) {
-      readingVelocity = totalPagesRead / totalDaysRead;
+    // Calculate reading velocity (pages per reading day)
+    if (totalReadingDays > 0 && totalPagesRead > 0) {
+      readingVelocity = totalPagesRead / totalReadingDays;
     }
 
     if (booksWithValidDates > 0) {
@@ -1669,7 +1740,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Based on $booksWithValidDates books with read dates',
+                        'Based on $booksWithValidDates books with read dates${totalReadingDays > 0 ? ' and $totalReadingDays reading days from sessions' : ''}',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.grey[600],
                         ),

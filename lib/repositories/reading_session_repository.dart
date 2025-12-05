@@ -25,11 +25,23 @@ class ReadingSessionRepository {
     return ReadingSession.fromMap(results.first);
   }
 
-  /// Get all sessions for a book
+  /// Get all sessions for a book (including did_read sessions)
   Future<List<ReadingSession>> getSessionsForBook(int bookId) async {
     final results = await db.query(
       'reading_sessions',
       where: 'book_id = ?',
+      whereArgs: [bookId],
+      orderBy: 'start_time DESC',
+    );
+
+    return results.map((map) => ReadingSession.fromMap(map)).toList();
+  }
+
+  /// Get display sessions for a book (duration > 0 or did_read = true)
+  Future<List<ReadingSession>> getDisplaySessionsForBook(int bookId) async {
+    final results = await db.query(
+      'reading_sessions',
+      where: 'book_id = ? AND (duration_seconds > 0 OR did_read = 1)',
       whereArgs: [bookId],
       orderBy: 'start_time DESC',
     );
@@ -115,5 +127,34 @@ class ReadingSessionRepository {
       where: 'book_id = ?',
       whereArgs: [bookId],
     );
+  }
+
+  /// Create a did_read session for today
+  Future<int> createDidReadSession(int bookId, bool didRead) async {
+    final now = DateTime.now();
+    final session = ReadingSession(
+      bookId: bookId,
+      startTime: DateTime(now.year, now.month, now.day), // Today at midnight
+      endTime: null,
+      durationSeconds: 0,
+      isActive: false,
+      didRead: didRead,
+      clickedAt: now,
+    );
+    return await db.insert('reading_sessions', session.toMap());
+  }
+
+  /// Create a custom reading session with specific date/time
+  Future<int> createCustomSession(int bookId, DateTime startTime, {bool didRead = true}) async {
+    final session = ReadingSession(
+      bookId: bookId,
+      startTime: startTime,
+      endTime: null,
+      durationSeconds: 0,
+      isActive: false,
+      didRead: didRead,
+      clickedAt: DateTime.now(),
+    );
+    return await db.insert('reading_sessions', session.toMap());
   }
 }

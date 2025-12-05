@@ -141,7 +141,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
 
         // Load reading sessions for this book (works for both regular books and individual bundle books)
         readDates = await repository.getReadDatesForBook(_currentBook.bookId!);
-        sessions = await sessionRepository.getSessionsForBook(
+        sessions = await sessionRepository.getDisplaySessionsForBook(
           _currentBook.bookId!,
         );
 
@@ -566,6 +566,317 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         }
       } catch (e) {
         debugPrint('Error updating progress: $e');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _showDidReadModal() async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Did you read today?'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Did you read this book today?'),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context, true);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('YES'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context, false);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('NO'),
+                ),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+
+    if (result != null) {
+      try {
+        final db = await DatabaseHelper.instance.database;
+        final sessionRepository = ReadingSessionRepository(db);
+
+        await sessionRepository.createDidReadSession(
+          _currentBook.bookId!,
+          result,
+        );
+
+        await _loadReadDates();
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result ? 'Marked as read today!' : 'Marked as not read today.'),
+              backgroundColor: result ? Colors.green : Colors.orange,
+            ),
+          );
+        }
+      } catch (e) {
+        debugPrint('Error saving did read status: $e');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _showEditSessionsModal() async {
+    if (_chronometerSessions.isEmpty) return;
+
+    // Create editable copies of sessions
+    List<ReadingSession> editableSessions = _chronometerSessions.map((session) => session).toList();
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Edit Reading Sessions'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ...List.generate(editableSessions.length, (index) {
+                    final session = editableSessions[index];
+                    final dateController = TextEditingController(
+                      text: session.startTime != null 
+                        ? session.startTime!.toIso8601String().split('T')[0]
+                        : '',
+                    );
+                    final timeController = TextEditingController(
+                      text: session.clickedAt != null
+                        ? '${session.clickedAt!.hour.toString().padLeft(2, '0')}:${session.clickedAt!.minute.toString().padLeft(2, '0')}'
+                        : '',
+                    );
+
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Session ${index + 1}',
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                            const SizedBox(height: 8),
+                            TextField(
+                              controller: dateController,
+                              decoration: const InputDecoration(
+                                labelText: 'Date',
+                                border: OutlineInputBorder(),
+                                hintText: 'YYYY-MM-DD',
+                              ),
+                              onChanged: (value) {
+                                try {
+                                  final newDate = DateTime.parse(value);
+                                  editableSessions[index] = session.copyWith(startTime: newDate);
+                                } catch (e) {
+                                  // Invalid date format
+                                }
+                              },
+                            ),
+                            const SizedBox(height: 8),
+                            TextField(
+                              controller: timeController,
+                              decoration: const InputDecoration(
+                                labelText: 'Time (HH:MM)',
+                                border: OutlineInputBorder(),
+                                hintText: '14:30',
+                              ),
+                              onChanged: (value) {
+                                try {
+                                  final parts = value.split(':');
+                                  if (parts.length == 2) {
+                                    final hour = int.parse(parts[0]);
+                                    final minute = int.parse(parts[1]);
+                                    final newClickedAt = DateTime(
+                                      session.clickedAt?.year ?? DateTime.now().year,
+                                      session.clickedAt?.month ?? DateTime.now().month,
+                                      session.clickedAt?.day ?? DateTime.now().day,
+                                      hour,
+                                      minute,
+                                    );
+                                    editableSessions[index] = session.copyWith(clickedAt: newClickedAt);
+                                  }
+                                } catch (e) {
+                                  // Invalid time format
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (result == true) {
+      try {
+        final db = await DatabaseHelper.instance.database;
+        final sessionRepository = ReadingSessionRepository(db);
+
+        for (final session in editableSessions) {
+          await sessionRepository.updateSession(session);
+        }
+
+        await _loadReadDates();
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Sessions updated!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        debugPrint('Error updating sessions: $e');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _showAddSessionModal() async {
+    final dateController = TextEditingController(
+      text: DateTime.now().toIso8601String().split('T')[0],
+    );
+    final timeController = TextEditingController(
+      text: '${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}',
+    );
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add Reading Session'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: dateController,
+              decoration: const InputDecoration(
+                labelText: 'Date',
+                border: OutlineInputBorder(),
+                hintText: 'YYYY-MM-DD',
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: timeController,
+              decoration: const InputDecoration(
+                labelText: 'Time (HH:MM)',
+                border: OutlineInputBorder(),
+                hintText: '14:30',
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+
+    if (result == true) {
+      try {
+        final dateStr = dateController.text;
+        final timeStr = timeController.text;
+        
+        final dateParts = dateStr.split('-');
+        final timeParts = timeStr.split(':');
+        
+        if (dateParts.length == 3 && timeParts.length == 2) {
+          final dateTime = DateTime(
+            int.parse(dateParts[0]),
+            int.parse(dateParts[1]),
+            int.parse(dateParts[2]),
+            int.parse(timeParts[0]),
+            int.parse(timeParts[1]),
+          );
+
+          final db = await DatabaseHelper.instance.database;
+          final sessionRepository = ReadingSessionRepository(db);
+
+          await sessionRepository.createCustomSession(
+            _currentBook.bookId!,
+            dateTime,
+            didRead: true,
+          );
+
+          await _loadReadDates();
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Session added!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        }
+      } catch (e) {
+        debugPrint('Error adding session: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
@@ -1035,6 +1346,47 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                       ),
                     ),
                     AppTheme.verticalSpaceLarge,
+
+                    // Did you read today? button (only for Started or Standby status)
+                    if (_currentBook.statusValue?.toLowerCase() == 'started' ||
+                        _currentBook.statusValue?.toLowerCase() == 'standby') ...[
+                      Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: Colors.orange,
+                            width: 2,
+                          ),
+                        ),
+                        child: InkWell(
+                          onTap: _showDidReadModal,
+                          borderRadius: BorderRadius.circular(6),
+                          child: Container(
+                            alignment: Alignment.center,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.help_outline,
+                                  color: Colors.orange,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Did you read today?',
+                                  style: TextStyle(
+                                    color: Colors.orange,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      AppTheme.verticalSpaceLarge,
+                    ],
 
                     // Progress bar (only show for Started or Standby status)
                     if (_currentBook.statusValue?.toLowerCase() == 'started' ||
@@ -1790,7 +2142,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                                 const SizedBox(width: 8),
                                                 Expanded(
                                                   child: Text(
-                                                    '${formatDateForDisplay(session.startTime.toIso8601String().split('T')[0])} - $durationStr$clickedAtStr',
+                                                    '${formatDateForDisplay(session.startTime?.toIso8601String().split('T')[0] ?? 'Unknown')} - $durationStr$clickedAtStr',
                                                     style:
                                                         Theme.of(
                                                           context,
@@ -2056,14 +2408,29 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     size: 24,
                                   ),
                                   const SizedBox(width: 16),
-                                  Text(
-                                    'Timed Reading Sessions (${_chronometerSessions.length})',
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.titleSmall?.copyWith(
-                                      color: Colors.grey[600],
-                                      fontWeight: FontWeight.w600,
+                                  Expanded(
+                                    child: Text(
+                                      'Timed Reading Sessions (${_chronometerSessions.length})',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleSmall?.copyWith(
+                                        color: Colors.grey[600],
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
+                                  ),
+                                  // Edit icon
+                                  if (_chronometerSessions.isNotEmpty)
+                                    IconButton(
+                                      onPressed: _showEditSessionsModal,
+                                      icon: const Icon(Icons.edit, size: 20),
+                                      tooltip: 'Edit Sessions',
+                                    ),
+                                  // Plus icon
+                                  IconButton(
+                                    onPressed: _showAddSessionModal,
+                                    icon: const Icon(Icons.add, size: 20),
+                                    tooltip: 'Add Session',
                                   ),
                                 ],
                               ),
@@ -2072,26 +2439,34 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                 index,
                               ) {
                                 final session = _chronometerSessions[index];
-                                final duration = session.durationSeconds ?? 0;
-                                final hours = duration ~/ 3600;
-                                final minutes = (duration % 3600) ~/ 60;
-                                final seconds = duration % 60;
-                                String durationStr;
-                                if (hours > 0) {
-                                  durationStr =
-                                      '${hours}h ${minutes}m ${seconds}s';
-                                } else if (minutes > 0) {
-                                  durationStr = '${minutes}m ${seconds}s';
+                                String displayText;
+                                
+                                if (session.didRead) {
+                                  // Did read session
+                                  displayText = '${formatDateForDisplay(session.startTime?.toIso8601String().split('T')[0] ?? 'Unknown')} - Read today ✓';
                                 } else {
-                                  durationStr = '${seconds}s';
-                                }
+                                  // Timed session
+                                  final duration = session.durationSeconds ?? 0;
+                                  final hours = duration ~/ 3600;
+                                  final minutes = (duration % 3600) ~/ 60;
+                                  final seconds = duration % 60;
+                                  String durationStr;
+                                  if (hours > 0) {
+                                    durationStr = '${hours}h ${minutes}m ${seconds}s';
+                                  } else if (minutes > 0) {
+                                    durationStr = '${minutes}m ${seconds}s';
+                                  } else {
+                                    durationStr = '${seconds}s';
+                                  }
 
-                                // Format clicked_at time if available
-                                String clickedAtStr = '';
-                                if (session.clickedAt != null) {
-                                  final clickedTime = session.clickedAt!;
-                                  clickedAtStr =
-                                      ' (Started: ${clickedTime.hour.toString().padLeft(2, '0')}:${clickedTime.minute.toString().padLeft(2, '0')})';
+                                  // Format clicked_at time if available
+                                  String clickedAtStr = '';
+                                  if (session.clickedAt != null) {
+                                    final clickedTime = session.clickedAt!;
+                                    clickedAtStr = ' (Started: ${clickedTime.hour.toString().padLeft(2, '0')}:${clickedTime.minute.toString().padLeft(2, '0')})';
+                                  }
+
+                                  displayText = '${formatDateForDisplay(session.startTime?.toIso8601String().split('T')[0] ?? 'Unknown')} - $durationStr$clickedAtStr';
                                 }
 
                                 return Padding(
@@ -2109,11 +2484,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                       const SizedBox(width: 8),
                                       Expanded(
                                         child: Text(
-                                          '${formatDateForDisplay(session.startTime.toIso8601String().split('T')[0])} - $durationStr$clickedAtStr',
-                                          style:
-                                              Theme.of(
-                                                context,
-                                              ).textTheme.bodySmall,
+                                          displayText,
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodySmall,
                                         ),
                                       ),
                                     ],

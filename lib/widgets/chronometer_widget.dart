@@ -51,11 +51,11 @@ class _ChronometerWidgetState extends State<ChronometerWidget> {
           _activeSession = session;
           _sessionStartTime = session.startTime;
           _elapsedSeconds = session.durationSeconds ?? 0;
-          if (session.isActive) {
+          if (session.isActive && session.startTime != null) {
             // Resume timer
             final now = DateTime.now();
             final additionalSeconds =
-                now.difference(session.startTime).inSeconds;
+                now.difference(session.startTime!).inSeconds;
             _elapsedSeconds += additionalSeconds;
             _startTimer();
           }
@@ -114,8 +114,17 @@ class _ChronometerWidgetState extends State<ChronometerWidget> {
           DateTime.now(),
           _elapsedSeconds,
         );
+        
+        // Also update the session to mark did_read = true
+        final updatedSession = _activeSession!.copyWith(
+          endTime: DateTime.now(),
+          durationSeconds: _elapsedSeconds,
+          isActive: false,
+          didRead: true,
+        );
+        await repository.updateSession(updatedSession);
       } else if (_sessionStartTime != null) {
-        // Create new session
+        // Create new session with did_read = true
         await repository.createSession(
           ReadingSession(
             bookId: widget.bookId,
@@ -123,6 +132,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget> {
             endTime: DateTime.now(),
             durationSeconds: _elapsedSeconds,
             isActive: false,
+            didRead: true,
           ),
         );
       }
@@ -169,6 +179,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget> {
         bookId: widget.bookId,
         startTime: now,
         isActive: true,
+        didRead: true, // Mark as read when starting chronometer
         clickedAt: now, // Save when the chronometer was clicked
       );
 
