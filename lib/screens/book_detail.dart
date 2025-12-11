@@ -681,6 +681,11 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         ? '${session.clickedAt!.hour.toString().padLeft(2, '0')}:${session.clickedAt!.minute.toString().padLeft(2, '0')}'
                         : '',
                     );
+                    final durationController = TextEditingController(
+                      text: session.durationSeconds != null && session.durationSeconds! > 0
+                        ? _formatDurationForDisplay(session.durationSeconds!)
+                        : '',
+                    );
 
                     return Card(
                       margin: const EdgeInsets.only(bottom: 8),
@@ -715,15 +720,15 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               controller: timeController,
                               decoration: const InputDecoration(
                                 labelText: 'Time (HH:MM)',
-                                border: OutlineInputBorder(),
-                                hintText: '14:30',
+                                hintText: 'HH:MM',
                               ),
                               onChanged: (value) {
                                 try {
-                                  final parts = value.split(':');
-                                  if (parts.length == 2) {
-                                    final hour = int.parse(parts[0]);
-                                    final minute = int.parse(parts[1]);
+                                  final timeParts = value.split(':');
+                                  if (timeParts.length >= 2) {
+                                    final hour = int.parse(timeParts[0]);
+                                    final minute = int.parse(timeParts[1]);
+                                    
                                     final newClickedAt = DateTime(
                                       session.clickedAt?.year ?? DateTime.now().year,
                                       session.clickedAt?.month ?? DateTime.now().month,
@@ -735,6 +740,29 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   }
                                 } catch (e) {
                                   // Invalid time format
+                                }
+                              },
+                            ),
+                            const SizedBox(height: 8),
+                            TextField(
+                              controller: durationController,
+                              decoration: const InputDecoration(
+                                labelText: 'Duration',
+                                hintText: 'e.g., 1h 30m 5s or 90m or 3600',
+                                helperText: 'Enter duration as: 1h 30m 5s, 90m, or just seconds',
+                              ),
+                              onChanged: (value) {
+                                try {
+                                  final duration = _parseDurationToSeconds(value);
+                                  editableSessions[index] = session.copyWith(durationSeconds: duration);
+                                } catch (e) {
+                                  // Invalid duration format, try parsing as plain seconds
+                                  try {
+                                    final duration = int.parse(value);
+                                    editableSessions[index] = session.copyWith(durationSeconds: duration);
+                                  } catch (e2) {
+                                    // Invalid format, ignore
+                                  }
                                 }
                               },
                             ),
@@ -909,6 +937,504 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
 
     // Use StatusHelper for consistent labeling
     return StatusHelper.getDisplayLabel(dbValue);
+  }
+
+  /// Calculate reading time for the book using three-case algorithm
+  Map<String, dynamic> _calculateReadingTime() {
+    if (_currentBook.isBundle == true) {
+      return _calculateBundleReadingTime();
+    } else {
+      return _calculateSingleBookReadingTime(_currentBook, _chronometerSessions);
+    }
+  }
+
+  /// Calculate reading time for a single book
+  Map<String, dynamic> _calculateSingleBookReadingTime(Book book, List<ReadingSession> sessions) {
+    // Only calculate for read books
+    if (book.statusValue?.toLowerCase() != 'yes' || book.readCount == null || book.readCount! <= 0) {
+      return {
+        'days': 0,
+        'method': 'Not read',
+        'hasData': false,
+      };
+    }
+
+    final dailyData = _mapSessionsToDailyReadings(sessions);
+    
+    if (dailyData.hasTimeReadData) {
+      // Case 1: Has timeRead data
+      return {
+        'days': dailyData.totalReadingDays,
+        'method': 'Time-based',
+        'hasData': true,
+        'details': {
+          'days_with_time': dailyData.totalDaysWithTimeRead,
+          'days_with_didread_only': dailyData.totalDaysWithDidReadOnly,
+          'total_hours': dailyData.totalSecondsRead / 3600,
+        }
+      };
+    } else if (dailyData.hasDidReadData) {
+      // Case 2: Only didReadToday data
+      return {
+        'days': dailyData.totalReadingDays,
+        'method': 'DidRead-based',
+        'hasData': true,
+        'details': {
+          'days_with_didread_only': dailyData.totalDaysWithDidReadOnly,
+        }
+      };
+    } else {
+      // Case 3: No session data, use dates
+      if (book.dateReadInitial != null && book.dateReadFinal != null) {
+        final startDate = _parseDate(book.dateReadInitial!);
+        final endDate = _parseDate(book.dateReadFinal!);
+        
+        if (startDate != null && endDate != null && endDate.isAfter(startDate)) {
+          final days = endDate.difference(startDate).inDays + 1;
+          return {
+            'days': days,
+            'method': 'Date-based',
+            'hasData': true,
+            'details': {
+              'start_date': book.dateReadInitial,
+              'end_date': book.dateReadFinal,
+            }
+          };
+        }
+      }
+      
+      return {
+        'days': 0,
+        'method': 'No data',
+        'hasData': false,
+      };
+    }
+  }
+
+  /// Calculate reading time for bundle books
+  Map<String, dynamic> _calculateBundleReadingTime() {
+    int totalDays = 0;
+    List<String> methodsUsed = [];
+    Map<String, int> methodCounts = {};
+    bool hasAnyData = false;
+
+    for (var entry in _bundleChronometerSessions.entries) {
+      final bookIndex = entry.key;
+      final sessions = entry.value;
+      
+      // Get the corresponding book title
+      final bookTitle = _bundleBookTitles[bookIndex] ?? 'Book ${bookIndex + 1}';
+      
+      // Create a temporary book object for calculation
+      final tempBook = Book(
+        bookId: -1, // Temporary ID
+        name: bookTitle,
+        saga: null,
+        nSaga: null,
+        sagaUniverse: null,
+        formatSagaValue: null,
+        isbn: null,
+        asin: null,
+        pages: null,
+        originalPublicationYear: null,
+        loaned: null,
+        statusValue: 'Yes',
+        editorialValue: null,
+        languageValue: null,
+        placeValue: null,
+        formatValue: null,
+        createdAt: null,
+        author: null,
+        genre: null,
+        dateReadInitial: null,
+        dateReadFinal: null,
+        readCount: 1,
+        myRating: null,
+        myReview: null,
+        isBundle: false,
+        bundleCount: null,
+        bundleNumbers: null,
+        bundleStartDates: null,
+        bundleEndDates: null,
+        bundlePages: null,
+        bundlePublicationYears: null,
+        bundleTitles: null,
+        bundleAuthors: null,
+        tbr: null,
+        isTandem: null,
+        originalBookId: null,
+        notificationEnabled: null,
+        notificationDatetime: null,
+        bundleParentId: null,
+        readingProgress: null,
+        progressType: null,
+      );
+
+      final result = _calculateSingleBookReadingTime(tempBook, sessions);
+      
+      if (result['hasData'] == true) {
+        totalDays += result['days'] as int;
+        hasAnyData = true;
+        methodsUsed.add(result['method'] as String);
+        methodCounts[result['method'] as String] = 
+            (methodCounts[result['method'] as String] ?? 0) + 1;
+      }
+    }
+
+    String primaryMethod = 'No data';
+    if (hasAnyData && methodCounts.isNotEmpty) {
+      primaryMethod = methodCounts.entries.reduce((a, b) => a.value > b.value ? a : b).key;
+    }
+
+    return {
+      'days': totalDays,
+      'method': primaryMethod,
+      'hasData': hasAnyData,
+      'details': {
+        'methods_used': methodsUsed,
+        'method_counts': methodCounts,
+        'books_calculated': _bundleChronometerSessions.length,
+      }
+    };
+  }
+
+  /// Convert reading sessions to daily reading data
+  _DailyReadingData _mapSessionsToDailyReadings(List<ReadingSession> sessions) {
+    final Map<String, List<ReadingSession>> dailySessions = {};
+    
+    for (var session in sessions) {
+      if (session.startTime != null) {
+        final dayKey = _getDayKey(session.startTime!);
+        dailySessions[dayKey] ??= [];
+        dailySessions[dayKey]!.add(session);
+      }
+    }
+
+    int totalDaysWithTimeRead = 0;
+    int totalDaysWithDidReadOnly = 0;
+    int totalSecondsRead = 0;
+    final Set<String> uniqueReadingDays = {};
+
+    for (var entry in dailySessions.entries) {
+      final daySessions = entry.value;
+      final dayKey = entry.key;
+      
+      int dayTimeSeconds = 0;
+      bool hasDidRead = false;
+      
+      for (var session in daySessions) {
+        if (session.durationSeconds != null && session.durationSeconds! > 0) {
+          dayTimeSeconds += session.durationSeconds!;
+        }
+        if (session.didRead) {
+          hasDidRead = true;
+        }
+      }
+      
+      // Apply counting rules
+      if (dayTimeSeconds > 0) {
+        totalDaysWithTimeRead++;
+        totalSecondsRead += dayTimeSeconds;
+        uniqueReadingDays.add(dayKey);
+      } else if (hasDidRead) {
+        totalDaysWithDidReadOnly++;
+        uniqueReadingDays.add(dayKey);
+      }
+    }
+
+    return _DailyReadingData(
+      totalDaysWithTimeRead: totalDaysWithTimeRead,
+      totalDaysWithDidReadOnly: totalDaysWithDidReadOnly,
+      totalSecondsRead: totalSecondsRead,
+      totalReadingDays: uniqueReadingDays.length,
+      hasTimeReadData: totalSecondsRead > 0,
+      hasDidReadData: totalDaysWithDidReadOnly > 0 || 
+                     (totalDaysWithTimeRead > 0 && totalDaysWithDidReadOnly >= 0),
+    );
+  }
+
+  /// Get day key in YYYY-MM-DD format
+  String _getDayKey(DateTime dateTime) {
+    return '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}';
+  }
+
+  /// Parse date string with multiple formats
+  DateTime? _parseDate(String dateStr) {
+    if (dateStr.trim().isEmpty) return null;
+
+    try {
+      return DateTime.parse(dateStr.trim());
+    } catch (e) {
+      // Try other formats if needed
+      if (dateStr.contains('/')) {
+        final parts = dateStr.split('/');
+        if (parts.length == 3) {
+          try {
+            final year = int.parse(parts[0]);
+            final month = int.parse(parts[1]);
+            final day = int.parse(parts[2]);
+            if (year > 1900) {
+              return DateTime(year, month, day);
+            }
+          } catch (e) {
+            // Continue to return null
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  /// Format duration in seconds to readable format (e.g., "1h 30m 5s")
+  String _formatDurationForDisplay(int seconds) {
+    final hours = seconds ~/ 3600;
+    final minutes = (seconds % 3600) ~/ 60;
+    final secs = seconds % 60;
+    
+    if (hours > 0) {
+      return '${hours}h ${minutes}m ${secs}s';
+    } else if (minutes > 0) {
+      return '${minutes}m ${secs}s';
+    } else {
+      return '${secs}s';
+    }
+  }
+
+  /// Parse duration string back to seconds
+  int _parseDurationToSeconds(String durationStr) {
+    if (durationStr.trim().isEmpty) return 0;
+    
+    int totalSeconds = 0;
+    final parts = durationStr.split(' ');
+    
+    for (final part in parts) {
+      if (part.endsWith('h')) {
+        final hours = int.tryParse(part.substring(0, part.length - 1)) ?? 0;
+        totalSeconds += hours * 3600;
+      } else if (part.endsWith('m')) {
+        final minutes = int.tryParse(part.substring(0, part.length - 1)) ?? 0;
+        totalSeconds += minutes * 60;
+      } else if (part.endsWith('s')) {
+        final seconds = int.tryParse(part.substring(0, part.length - 1)) ?? 0;
+        totalSeconds += seconds;
+      } else {
+        // Try parsing as plain number (assume seconds)
+        final seconds = int.tryParse(part) ?? 0;
+        totalSeconds += seconds;
+      }
+    }
+    
+    return totalSeconds;
+  }
+
+  /// Build reading time card showing how long it took to read the book
+  Widget _buildReadingTimeCard() {
+    final readingTimeData = _calculateReadingTime();
+    
+    if (!readingTimeData['hasData']) {
+      return const SizedBox.shrink();
+    }
+
+    final days = readingTimeData['days'] as int;
+    final method = readingTimeData['method'] as String;
+    final details = readingTimeData['details'] as Map<String, dynamic>;
+
+    String timeText;
+    IconData timeIcon;
+    Color timeColor;
+
+    // Build time text with hours if available
+    if (method == 'Time-based' && details.containsKey('total_hours')) {
+      final totalHours = details['total_hours'] as double;
+      final hoursText = totalHours.toStringAsFixed(1);
+      
+      if (days == 1) {
+        timeText = '$days day ($hoursText hours)';
+      } else {
+        timeText = '$days days ($hoursText hours)';
+      }
+    } else {
+      // No hours data, show only days
+      if (days == 1) {
+        timeText = '1 day';
+      } else {
+        timeText = '$days days';
+      }
+    }
+
+    // Choose icon and color based on method
+    switch (method) {
+      case 'Time-based':
+        timeIcon = Icons.timer;
+        timeColor = Colors.blue;
+        break;
+      case 'DidRead-based':
+        timeIcon = Icons.check_circle_outline;
+        timeColor = Colors.green;
+        break;
+      case 'Date-based':
+        timeIcon = Icons.date_range;
+        timeColor = Colors.orange;
+        break;
+      default:
+        timeIcon = Icons.help_outline;
+        timeColor = Colors.grey;
+    }
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: 1,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: InkWell(
+        onTap: () {
+          _showReadingTimeDetails(readingTimeData);
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    timeIcon,
+                    size: 20,
+                    color: timeColor,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Reading Time',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: timeColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      method,
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: timeColor,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Text(
+                    timeText,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Icon(
+                    Icons.info_outline,
+                    size: 16,
+                    color: Colors.grey[600],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Show detailed reading time information in a dialog
+  void _showReadingTimeDetails(Map<String, dynamic> readingTimeData) {
+    final days = readingTimeData['days'] as int;
+    final method = readingTimeData['method'] as String;
+    final details = readingTimeData['details'] as Map<String, dynamic>;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.timer_outlined, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 8),
+            Text('Reading Time Details'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'This book took $days ${days == 1 ? 'day' : 'days'} to read.',
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Calculation Method: $method',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 12),
+            if (method == 'Time-based' && details.containsKey('total_hours')) ...[
+              Text(
+                'Total reading time: ${(details['total_hours'] as double).toStringAsFixed(1)} hours',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              if (details['days_with_time'] > 0)
+                Text(
+                  'Days with time tracking: ${details['days_with_time']}',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              if (details['days_with_didread_only'] > 0)
+                Text(
+                  'Days with reading flag only: ${details['days_with_didread_only']}',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+            ] else if (method == 'DidRead-based' && details.containsKey('days_with_didread_only')) ...[
+              Text(
+                'Days marked as read: ${details['days_with_didread_only']}',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ] else if (method == 'Date-based' && details.containsKey('start_date')) ...[
+              Text(
+                'Start date: ${details['start_date']}',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              Text(
+                'End date: ${details['end_date']}',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+            if (_currentBook.isBundle == true && details.containsKey('books_calculated')) ...[
+              const SizedBox(height: 8),
+              Text(
+                'Bundle: ${details['books_calculated']} books calculated',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ],
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
   }
 
   /// Build publication info - shows year and optionally full date for TBReleased books
@@ -1537,6 +2063,14 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                           _currentBook.statusValue!,
                         ),
                       ),
+
+                    // Reading Time - only show for read books with data
+                    if (_currentBook.statusValue?.toLowerCase() == 'yes' && 
+                        (_chronometerSessions.isNotEmpty || 
+                         _currentBook.dateReadInitial != null || 
+                         _currentBook.dateReadFinal != null ||
+                         _bundleChronometerSessions.isNotEmpty))
+                      _buildReadingTimeCard(),
                     // Original Book (for repeated books)
                     if (_currentBook.statusValue?.toLowerCase() == 'repeated' &&
                         _currentBook.originalBookId != null)
@@ -2441,12 +2975,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                 final session = _chronometerSessions[index];
                                 String displayText;
                                 
-                                if (session.didRead) {
-                                  // Did read session
-                                  displayText = '${formatDateForDisplay(session.startTime?.toIso8601String().split('T')[0] ?? 'Unknown')} - Read today ✓';
-                                } else {
-                                  // Timed session
-                                  final duration = session.durationSeconds ?? 0;
+                                // Check if there's duration data first
+                                if (session.durationSeconds != null && session.durationSeconds! > 0) {
+                                  // Has duration - show it (regardless of didRead flag)
+                                  final duration = session.durationSeconds!;
                                   final hours = duration ~/ 3600;
                                   final minutes = (duration % 3600) ~/ 60;
                                   final seconds = duration % 60;
@@ -2458,15 +2990,14 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   } else {
                                     durationStr = '${seconds}s';
                                   }
-
-                                  // Format clicked_at time if available
-                                  String clickedAtStr = '';
-                                  if (session.clickedAt != null) {
-                                    final clickedTime = session.clickedAt!;
-                                    clickedAtStr = ' (Started: ${clickedTime.hour.toString().padLeft(2, '0')}:${clickedTime.minute.toString().padLeft(2, '0')})';
-                                  }
-
-                                  displayText = '${formatDateForDisplay(session.startTime?.toIso8601String().split('T')[0] ?? 'Unknown')} - $durationStr$clickedAtStr';
+                                  
+                                  displayText = '${formatDateForDisplay(session.startTime?.toIso8601String().split('T')[0] ?? 'Unknown')} - $durationStr';
+                                } else if (session.didRead) {
+                                  // No duration but didRead - show "Read today"
+                                  displayText = '${formatDateForDisplay(session.startTime?.toIso8601String().split('T')[0] ?? 'Unknown')} - Read today ✓';
+                                } else {
+                                  // No duration and not didRead - show date only
+                                  displayText = formatDateForDisplay(session.startTime?.toIso8601String().split('T')[0] ?? 'Unknown');
                                 }
 
                                 return Padding(
@@ -3140,4 +3671,23 @@ class _TandemBooksCardState extends State<_TandemBooksCard> {
       ),
     );
   }
+}
+
+/// Internal data structure representing the conceptual DailyReadings table
+class _DailyReadingData {
+  final int totalDaysWithTimeRead;      // Days where timeRead > 0
+  final int totalDaysWithDidReadOnly;   // Days where didReadToday = true but no timeRead
+  final int totalSecondsRead;           // Sum of all timeRead values (in seconds)
+  final int totalReadingDays;           // Total unique reading days
+  final bool hasTimeReadData;           // Whether any day has timeRead > 0
+  final bool hasDidReadData;            // Whether any day has didReadToday = true
+
+  _DailyReadingData({
+    required this.totalDaysWithTimeRead,
+    required this.totalDaysWithDidReadOnly,
+    required this.totalSecondsRead,
+    required this.totalReadingDays,
+    required this.hasTimeReadData,
+    required this.hasDidReadData,
+  });
 }

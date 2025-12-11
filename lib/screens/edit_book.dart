@@ -819,7 +819,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
           );
         }
 
-        // If any read date has a finished date, update book status to "Yes" and increment read count
+        // If any read date has a finished date, update book status to "Yes" and use user's read count
         if (hasFinishedDate) {
           final statusList = await repository.getLookupValues('status');
           final readStatus = statusList.firstWhere(
@@ -827,15 +827,23 @@ class _EditBookScreenState extends State<EditBookScreen> {
             orElse: () => statusList.first,
           );
 
-          final currentReadCount = bookToUpdate.readCount ?? 0;
-
           await db.update(
             'book',
             {
               'status_id': readStatus['status_id'],
-              'read_count': currentReadCount + 1,
+              'read_count': _readCount, // Use user's selected read count
               'reading_progress': 0,
               'progress_type': null,
+            },
+            where: 'book_id = ?',
+            whereArgs: [widget.book.bookId!],
+          );
+        } else {
+          // No finished date - ensure user's read count is still saved
+          await db.update(
+            'book',
+            {
+              'read_count': _readCount, // Use user's selected read count
             },
             where: 'book_id = ?',
             whereArgs: [widget.book.bookId!],
