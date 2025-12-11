@@ -4,6 +4,7 @@ import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
+import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/screens/books_by_year.dart';
 import 'package:myrandomlibrary/widgets/statistics/total_books_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/responsive_stat_grid.dart';
@@ -264,6 +265,194 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     return null;
   }
 
+  /// Calculate reading velocity using three-case algorithm
+  /// Case 1: Has timeRead data -> use sum of timeRead values + didReadToday only days
+  /// Case 2: Only didReadToday data -> use didReadToday days only
+  /// Case 3: No session data -> use date difference
+  double _calculateReadingVelocity(List<Book> books, Map<int, List<ReadingSession>> bookSessions) {
+    int totalPages = 0;
+    int totalReadingDays = 0;
+
+    for (var book in books) {
+      // Only include books that have been read and have page data
+      if (book.readCount == null || book.readCount! <= 0 || book.pages == null || book.pages! <= 0) {
+        continue;
+      }
+
+      final sessions = bookSessions[book.bookId] ?? [];
+      final dailyData = _mapSessionsToDailyReadings(sessions);
+      
+      if (dailyData.hasTimeReadData) {
+        // Case 1: Has timeRead data
+        totalReadingDays += dailyData.totalReadingDays;
+      } else if (dailyData.hasDidReadData) {
+        // Case 2: Only didReadToday data
+        totalReadingDays += dailyData.totalReadingDays;
+      } else {
+        // Case 3: No session data, use dates
+        if (book.dateReadInitial != null && book.dateReadFinal != null) {
+          final startDate = _tryParseDate(book.dateReadInitial!, bookName: book.name);
+          final endDate = _tryParseDate(book.dateReadFinal!, bookName: book.name);
+          
+          if (startDate != null && endDate != null && endDate.isAfter(startDate)) {
+            totalReadingDays += endDate.difference(startDate).inDays + 1;
+          }
+        }
+      }
+      
+      totalPages += book.pages!;
+    }
+
+    return (totalReadingDays > 0 && totalPages > 0) ? totalPages.toDouble() / totalReadingDays.toDouble() : 0.0;
+  }
+
+  /// Calculate average days to finish a book using three-case algorithm
+  /// Case 1: Has timeRead data -> use sum of timeRead values + didReadToday only days
+  /// Case 2: Only didReadToday data -> use didReadToday days only
+  /// Case 3: No session data -> use date difference
+  double _calculateAverageDaysToFinish(List<Book> books, Map<int, List<ReadingSession>> bookSessions) {
+    double totalDays = 0.0;
+    int booksWithValidData = 0;
+
+    for (var book in books) {
+      // Only include books that have been read
+      if (book.readCount == null || book.readCount! <= 0) {
+        continue;
+      }
+
+      final sessions = bookSessions[book.bookId] ?? [];
+      final dailyData = _mapSessionsToDailyReadings(sessions);
+      
+      int readingDays = 0;
+      
+      if (dailyData.hasTimeReadData) {
+        // Case 1: Has timeRead data
+        readingDays = dailyData.totalReadingDays;
+      } else if (dailyData.hasDidReadData) {
+        // Case 2: Only didReadToday data
+        readingDays = dailyData.totalReadingDays;
+      } else {
+        // Case 3: No session data, use dates
+        if (book.dateReadInitial != null && book.dateReadFinal != null) {
+          final startDate = _tryParseDate(book.dateReadInitial!, bookName: book.name);
+          final endDate = _tryParseDate(book.dateReadFinal!, bookName: book.name);
+          
+          if (startDate != null && endDate != null && endDate.isAfter(startDate)) {
+            readingDays = endDate.difference(startDate).inDays + 1;
+          }
+        }
+      }
+      
+      if (readingDays > 0) {
+        totalDays += readingDays;
+        booksWithValidData++;
+      }
+    }
+
+    return booksWithValidData > 0 ? totalDays / booksWithValidData : 0.0;
+  }
+
+  /// Get count of books used in average days calculation
+  int _getBooksUsedInAverageDaysCalculation(List<Book> books, Map<int, List<ReadingSession>> bookSessions) {
+    int count = 0;
+
+    for (var book in books) {
+      // Only include books that have been read
+      if (book.readCount == null || book.readCount! <= 0) {
+        continue;
+      }
+
+      final sessions = bookSessions[book.bookId] ?? [];
+      final dailyData = _mapSessionsToDailyReadings(sessions);
+      
+      int readingDays = 0;
+      
+      if (dailyData.hasTimeReadData) {
+        // Case 1: Has timeRead data
+        readingDays = dailyData.totalReadingDays;
+      } else if (dailyData.hasDidReadData) {
+        // Case 2: Only didReadToday data
+        readingDays = dailyData.totalReadingDays;
+      } else {
+        // Case 3: No session data, use dates
+        if (book.dateReadInitial != null && book.dateReadFinal != null) {
+          final startDate = _tryParseDate(book.dateReadInitial!, bookName: book.name);
+          final endDate = _tryParseDate(book.dateReadFinal!, bookName: book.name);
+          
+          if (startDate != null && endDate != null && endDate.isAfter(startDate)) {
+            readingDays = endDate.difference(startDate).inDays + 1;
+          }
+        }
+      }
+      
+      if (readingDays > 0) {
+        count++;
+      }
+    }
+
+    return count;
+  }
+
+  /// Convert reading sessions to daily reading data for algorithm
+  _DailyReadingData _mapSessionsToDailyReadings(List<ReadingSession> sessions) {
+    final Map<String, List<ReadingSession>> dailySessions = {};
+    
+    for (var session in sessions) {
+      if (session.startTime != null) {
+        final dayKey = _getDayKey(session.startTime!);
+        dailySessions[dayKey] ??= [];
+        dailySessions[dayKey]!.add(session);
+      }
+    }
+
+    int totalDaysWithTimeRead = 0;
+    int totalDaysWithDidReadOnly = 0;
+    int totalSecondsRead = 0;
+    final Set<String> uniqueReadingDays = {};
+
+    for (var entry in dailySessions.entries) {
+      final daySessions = entry.value;
+      final dayKey = entry.key;
+      
+      int dayTimeSeconds = 0;
+      bool hasDidRead = false;
+      
+      for (var session in daySessions) {
+        if (session.durationSeconds != null && session.durationSeconds! > 0) {
+          dayTimeSeconds += session.durationSeconds!;
+        }
+        if (session.didRead) {
+          hasDidRead = true;
+        }
+      }
+      
+      // Apply counting rules
+      if (dayTimeSeconds > 0) {
+        totalDaysWithTimeRead++;
+        totalSecondsRead += dayTimeSeconds;
+        uniqueReadingDays.add(dayKey);
+      } else if (hasDidRead) {
+        totalDaysWithDidReadOnly++;
+        uniqueReadingDays.add(dayKey);
+      }
+    }
+
+    return _DailyReadingData(
+      totalDaysWithTimeRead: totalDaysWithTimeRead,
+      totalDaysWithDidReadOnly: totalDaysWithDidReadOnly,
+      totalSecondsRead: totalSecondsRead,
+      totalReadingDays: uniqueReadingDays.length,
+      hasTimeReadData: totalSecondsRead > 0,
+      hasDidReadData: totalDaysWithDidReadOnly > 0 || 
+                     (totalDaysWithTimeRead > 0 && totalDaysWithDidReadOnly >= 0),
+    );
+  }
+
+  /// Get day key in YYYY-MM-DD format
+  String _getDayKey(DateTime dateTime) {
+    return '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}';
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<BookProvider?>(context);
@@ -339,81 +528,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       }
     }
 
-    // Calculate reading velocity (average pages per day) and average days to finish
-    double readingVelocity = 0.0;
-    double averageDaysToFinish = 0.0;
-    int totalPagesRead = 0;
-    int booksWithValidDates = 0;
-    int totalReadingDays = 0; // Track unique reading days from sessions
-
-    // Process books with valid dates for velocity calculation
-    for (var book in books) {
-      // Skip books without dates
-      if (book.dateReadInitial == null ||
-          book.dateReadInitial!.isEmpty ||
-          book.dateReadFinal == null ||
-          book.dateReadFinal!.isEmpty) {
-        continue;
-      }
-
-      final startDate = _tryParseDate(
-        book.dateReadInitial!,
-        bookName: book.name,
-      );
-      final endDate = _tryParseDate(book.dateReadFinal!, bookName: book.name);
-
-      if (startDate != null && endDate != null && endDate.isAfter(startDate)) {
-        final daysToRead =
-            endDate.difference(startDate).inDays +
-            1; // +1 to include both start and end day
-        if (daysToRead > 0) {
-          // Count for average days calculation
-          averageDaysToFinish += daysToRead;
-          booksWithValidDates++;
-
-          // Get page count for this book
-          int effectivePages = 0;
-          
-          if (book.pages != null && book.pages! > 0) {
-            effectivePages = book.pages!;
-          } else if (book.bookId != null && _bookSessions.containsKey(book.bookId!)) {
-            // For books without page count but with sessions, use estimated average
-            effectivePages = 250; // Average book pages estimate
-          }
-          
-          // Only include books with page data in velocity calculation
-          if (effectivePages > 0) {
-            totalPagesRead += effectivePages;
-            
-            // Count reading days from sessions for this specific book
-            if (book.bookId != null && _bookSessions.containsKey(book.bookId!)) {
-              final sessions = _bookSessions[book.bookId!]!;
-              final uniqueDays = sessions.map((session) {
-                if (session.startTime != null) {
-                  return DateTime(session.startTime!.year, session.startTime!.month, session.startTime!.day);
-                }
-                return null;
-              }).where((date) => date != null).toSet();
-              
-              // Use session days if available, otherwise use calendar days
-              totalReadingDays += uniqueDays.length > 0 ? uniqueDays.length : daysToRead;
-            } else {
-              // No session data, use calendar days
-              totalReadingDays += daysToRead;
-            }
-          }
-        }
-      }
-    }
-
-    // Calculate reading velocity (pages per reading day)
-    if (totalReadingDays > 0 && totalPagesRead > 0) {
-      readingVelocity = totalPagesRead / totalReadingDays;
-    }
-
-    if (booksWithValidDates > 0) {
-      averageDaysToFinish = averageDaysToFinish / booksWithValidDates;
-    }
+    // Calculate reading velocity using three-case algorithm
+    double readingVelocity = _calculateReadingVelocity(books, _bookSessions);
+    
+    // Calculate average days to finish using three-case algorithm
+    double averageDaysToFinish = _calculateAverageDaysToFinish(books, _bookSessions);
+    int booksUsedInAverageDays = _getBooksUsedInAverageDaysCalculation(books, _bookSessions);
 
     // Calculate average books read per year
     double averageBooksPerYear = 0.0;
@@ -1740,7 +1860,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Based on $booksWithValidDates books with read dates${totalReadingDays > 0 ? ' and $totalReadingDays reading days from sessions' : ''}',
+                        'Based on $booksUsedInAverageDays books with reading data',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.grey[600],
                         ),
@@ -1793,7 +1913,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Based on $booksWithValidDates books with read dates',
+                        'Based on $booksUsedInAverageDays books with reading data',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.grey[600],
                         ),
@@ -2302,4 +2422,23 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       ),
     );
   }
+}
+
+/// Internal data structure representing the conceptual DailyReadings table
+class _DailyReadingData {
+  final int totalDaysWithTimeRead;      // Days where timeRead > 0
+  final int totalDaysWithDidReadOnly;   // Days where didReadToday = true but no timeRead
+  final int totalSecondsRead;           // Sum of all timeRead values (in seconds)
+  final int totalReadingDays;           // Total unique reading days
+  final bool hasTimeReadData;           // Whether any day has timeRead > 0
+  final bool hasDidReadData;            // Whether any day has didReadToday = true
+
+  _DailyReadingData({
+    required this.totalDaysWithTimeRead,
+    required this.totalDaysWithDidReadOnly,
+    required this.totalSecondsRead,
+    required this.totalReadingDays,
+    required this.hasTimeReadData,
+    required this.hasDidReadData,
+  });
 }
