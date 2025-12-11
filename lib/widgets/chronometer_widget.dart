@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/model/reading_session.dart';
 import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ChronometerWidget extends StatefulWidget {
   final int bookId;
@@ -19,29 +22,151 @@ class ChronometerWidget extends StatefulWidget {
   State<ChronometerWidget> createState() => _ChronometerWidgetState();
 }
 
-class _ChronometerWidgetState extends State<ChronometerWidget> {
+class _ChronometerWidgetState extends State<ChronometerWidget> with WidgetsBindingObserver {
   Timer? _timer;
   int _elapsedSeconds = 0;
   bool _isRunning = false;
   ReadingSession? _activeSession;
   DateTime? _sessionStartTime;
+  DateTime? _pausedTime;
+  DateTime? _appPausedTime;
+  static const String _prefsKey = 'chronometer_session';
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadActiveSession();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
     // Disable wakelock when widget is disposed
     WakelockPlus.disable();
     super.dispose();
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    
+    switch (state) {
+      case AppLifecycleState.paused:
+        // App is going to background - pause the timer
+        if (_isRunning) {
+          _timer?.cancel(); // Stop the timer
+          _appPausedTime = DateTime.now();
+          _saveSessionState();
+        }
+        break;
+      case AppLifecycleState.resumed:
+        // App is coming to foreground - resume timer
+        if (_isRunning && _appPausedTime != null) {
+          final now = DateTime.now();
+          final backgroundDuration = now.difference(_appPausedTime!).inSeconds;
+          
+          setState(() {
+            _elapsedSeconds += backgroundDuration;
+            _appPausedTime = null;
+          });
+          
+          // Restart the timer
+          _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+            if (mounted) {
+              setState(() {
+                _elapsedSeconds++;
+              });
+            }
+          });
+          
+          // Update the session in database
+          _updateSessionInBackground();
+        }
+        break;
+      case AppLifecycleState.detached:
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.hidden:
+        break;
+    }
+  }
+
+  Future<void> _saveSessionState() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_prefsKey, jsonEncode({
+        'bookId': widget.bookId,
+        'startTime': _sessionStartTime?.toIso8601String(),
+        'elapsedSeconds': _elapsedSeconds,
+        'isRunning': _isRunning,
+        'appPausedTime': _appPausedTime?.toIso8601String(),
+      }));
+    } catch (e) {
+      debugPrint('Failed to save session state: $e');
+    }
+  }
+
+  Future<void> _clearSessionState() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_prefsKey);
+    } catch (e) {
+      debugPrint('Failed to clear session state: $e');
+    }
+  }
+
+  Future<void> _restoreSessionState() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final sessionData = prefs.getString(_prefsKey);
+      
+      if (sessionData != null) {
+        final data = jsonDecode(sessionData) as Map<String, dynamic>;
+        final savedBookId = data['bookId'] as int?;
+        final startTimeStr = data['startTime'] as String?;
+        final elapsed = data['elapsedSeconds'] as int?;
+        final wasRunning = data['isRunning'] as bool?;
+        
+        if (savedBookId == widget.bookId && 
+            startTimeStr != null && 
+            elapsed != null &&
+            wasRunning == true) {
+          
+          setState(() {
+            _sessionStartTime = DateTime.parse(startTimeStr);
+            _elapsedSeconds = elapsed;
+            _isRunning = true;
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Failed to restore session state: $e');
+    }
+  }
+
+  Future<void> _updateSessionInBackground() async {
+    try {
+      if (_activeSession != null) {
+        final db = await DatabaseHelper.instance.database;
+        final repository = ReadingSessionRepository(db);
+        
+        final updatedSession = _activeSession!.copyWith(
+          durationSeconds: _elapsedSeconds,
+        );
+        await repository.updateSession(updatedSession);
+        _activeSession = updatedSession;
+      }
+    } catch (e) {
+      debugPrint('Failed to update session in background: $e');
+    }
+  }
+
   Future<void> _loadActiveSession() async {
     try {
+      // First try to restore from background state
+      await _restoreSessionState();
+      
       final db = await DatabaseHelper.instance.database;
       final repository = ReadingSessionRepository(db);
       final session = await repository.getActiveSession(widget.bookId);
@@ -49,10 +174,12 @@ class _ChronometerWidgetState extends State<ChronometerWidget> {
       if (session != null && mounted) {
         setState(() {
           _activeSession = session;
-          _sessionStartTime = session.startTime;
-          _elapsedSeconds = session.durationSeconds ?? 0;
-          if (session.isActive && session.startTime != null) {
-            // Resume timer
+          if (_sessionStartTime == null) { // Only set if not already restored from background
+            _sessionStartTime = session.startTime;
+            _elapsedSeconds = session.durationSeconds ?? 0;
+          }
+          if (session.isActive && session.startTime != null && !_isRunning) {
+            // Resume timer if not already running from background restore
             final now = DateTime.now();
             final additionalSeconds =
                 now.difference(session.startTime!).inSeconds;
@@ -76,6 +203,9 @@ class _ChronometerWidgetState extends State<ChronometerWidget> {
 
     // Enable wakelock to keep screen awake during reading
     WakelockPlus.enable();
+    
+    // Save session state
+    _saveSessionState();
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
@@ -93,6 +223,8 @@ class _ChronometerWidgetState extends State<ChronometerWidget> {
     setState(() {
       _isRunning = false;
     });
+    // Clear session state when paused
+    _clearSessionState();
   }
 
   Future<void> _stopAndSaveSession() async {
@@ -100,6 +232,8 @@ class _ChronometerWidgetState extends State<ChronometerWidget> {
       _timer?.cancel();
       // Disable wakelock when stopping
       WakelockPlus.disable();
+      // Clear session state
+      _clearSessionState();
       
       // Save the duration before resetting
       final savedDuration = _elapsedSeconds;
