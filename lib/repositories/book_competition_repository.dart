@@ -9,6 +9,7 @@ class BookCompetitionRepository {
   BookCompetitionRepository(this._database);
 
   // Get all books read in a specific month and year
+  // This includes books that were started, in progress, or finished in that month
   Future<List<Book>> getBooksReadInMonth(int year, int month) async {
     final startDate = '$year-${month.toString().padLeft(2, '0')}-01';
     final endDate = '$year-${month.toString().padLeft(2, '0')}-31';
@@ -17,11 +18,16 @@ class BookCompetitionRepository {
       '''
       SELECT DISTINCT b.* FROM book b
       INNER JOIN book_read_dates brd ON b.book_id = brd.book_id
-      WHERE brd.date_finished >= ? AND brd.date_finished <= ?
-      AND b.read_count > 0
+      WHERE b.read_count > 0
+      AND (
+        -- Book finished in this month
+        (brd.date_finished >= ? AND brd.date_finished <= ?)
+        -- OR book was started in this month (date_started)
+        OR (brd.date_started >= ? AND brd.date_started <= ?)
+      )
       ORDER BY b.my_rating DESC, b.name ASC
     ''',
-      [startDate, endDate],
+      [startDate, endDate, startDate, endDate],
     );
 
     return List.generate(maps.length, (i) {

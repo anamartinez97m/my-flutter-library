@@ -18,12 +18,25 @@ class _MonthlyHeatmapCardState extends State<MonthlyHeatmapCard> {
   @override
   void initState() {
     super.initState();
+    _initializeYear();
+  }
+
+  void _initializeYear() {
     // Default to most recent year or current year
     if (widget.monthlyHeatmap.isNotEmpty) {
       final sortedYears = widget.monthlyHeatmap.keys.toList()..sort((a, b) => b.compareTo(a));
       _selectedYear = sortedYears.first;
     } else {
       _selectedYear = DateTime.now().year;
+    }
+  }
+
+  @override
+  void didUpdateWidget(MonthlyHeatmapCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Re-initialize year if the heatmap data changed
+    if (oldWidget.monthlyHeatmap != widget.monthlyHeatmap) {
+      _initializeYear();
     }
   }
 
