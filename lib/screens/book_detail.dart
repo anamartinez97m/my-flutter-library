@@ -207,6 +207,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       final updatedBooks = await repository.getAllBooks();
       final updatedBook = updatedBooks.firstWhere(
         (b) => b.bookId == _currentBook.bookId,
+        orElse: () => _currentBook,
       );
 
       setState(() {
@@ -296,6 +297,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       final updatedBooks = await repository.getAllBooks();
       final updatedBook = updatedBooks.firstWhere(
         (b) => b.bookId == _currentBook.bookId,
+        orElse: () => _currentBook,
       );
 
       setState(() {
@@ -1729,26 +1731,80 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Quick status change buttons (always visible)
-                    Container(
-                      height: 48,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.primary,
-                          width: 2,
+                    // Quick status change buttons (only for individual books, not bundles)
+                    if (_currentBook.isBundle != true) ...[
+                      Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.primary,
+                            width: 2,
+                          ),
                         ),
-                      ),
-                      child: Row(
-                        children: [
-                          if (_currentBook.statusValue?.toLowerCase() !=
-                              'started')
+                        child: Row(
+                          children: [
+                            if (_currentBook.statusValue?.toLowerCase() !=
+                                'started')
+                              Expanded(
+                                child: InkWell(
+                                  onTap: _quickStartReading,
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(6),
+                                    bottomLeft: Radius.circular(6),
+                                  ),
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.play_arrow,
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
+                                          size: 20,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          'Start Reading',
+                                          style: TextStyle(
+                                            color:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.primary,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            if (_currentBook.statusValue?.toLowerCase() !=
+                                'started')
+                              Container(
+                                width: 2,
+                                color: Theme.of(context).colorScheme.primary,
+                                margin: const EdgeInsets.symmetric(vertical: 8),
+                              ),
                             Expanded(
                               child: InkWell(
-                                onTap: _quickStartReading,
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(6),
-                                  bottomLeft: Radius.circular(6),
+                                onTap: _quickFinishReading,
+                                borderRadius: BorderRadius.only(
+                                  topRight: const Radius.circular(6),
+                                  bottomRight: const Radius.circular(6),
+                                  topLeft:
+                                      _currentBook.statusValue?.toLowerCase() ==
+                                              'started'
+                                          ? const Radius.circular(6)
+                                          : Radius.zero,
+                                  bottomLeft:
+                                      _currentBook.statusValue?.toLowerCase() ==
+                                              'started'
+                                          ? const Radius.circular(6)
+                                          : Radius.zero,
                                 ),
                                 child: Container(
                                   alignment: Alignment.center,
@@ -1756,16 +1812,14 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(
-                                        Icons.play_arrow,
+                                        Icons.check_circle,
                                         color:
-                                            Theme.of(
-                                              context,
-                                            ).colorScheme.primary,
+                                            Theme.of(context).colorScheme.primary,
                                         size: 20,
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
-                                        'Start Reading',
+                                        'Mark as Finished',
                                         style: TextStyle(
                                           color:
                                               Theme.of(
@@ -1779,99 +1833,49 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                 ),
                               ),
                             ),
-                          if (_currentBook.statusValue?.toLowerCase() !=
-                              'started')
-                            Container(
-                              width: 2,
-                              color: Theme.of(context).colorScheme.primary,
-                              margin: const EdgeInsets.symmetric(vertical: 8),
-                            ),
-                          Expanded(
-                            child: InkWell(
-                              onTap: _quickFinishReading,
-                              borderRadius: BorderRadius.only(
-                                topRight: const Radius.circular(6),
-                                bottomRight: const Radius.circular(6),
-                                topLeft:
-                                    _currentBook.statusValue?.toLowerCase() ==
-                                            'started'
-                                        ? const Radius.circular(6)
-                                        : Radius.zero,
-                                bottomLeft:
-                                    _currentBook.statusValue?.toLowerCase() ==
-                                            'started'
-                                        ? const Radius.circular(6)
-                                        : Radius.zero,
-                              ),
-                              child: Container(
-                                alignment: Alignment.center,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.check_circle,
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                      size: 20,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      'Mark as Finished',
-                                      style: TextStyle(
-                                        color:
-                                            Theme.of(
-                                              context,
-                                            ).colorScheme.primary,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    AppTheme.verticalSpaceLarge,
+                      AppTheme.verticalSpaceLarge,
 
-                    // Mark as Read button (full width)
-                    Container(
-                      height: 48,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.primary,
-                          width: 2,
+                      // Mark as Read button (full width)
+                      Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.primary,
+                            width: 2,
+                          ),
                         ),
-                      ),
-                      child: InkWell(
-                        onTap: _markAsRead,
-                        borderRadius: BorderRadius.circular(6),
-                        child: Container(
-                          alignment: Alignment.center,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.done_all,
-                                color: Theme.of(context).colorScheme.primary,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                'Mark as Read',
-                                style: TextStyle(
+                        child: InkWell(
+                          onTap: _markAsRead,
+                          borderRadius: BorderRadius.circular(6),
+                          child: Container(
+                            alignment: Alignment.center,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.done_all,
                                   color: Theme.of(context).colorScheme.primary,
-                                  fontWeight: FontWeight.w600,
+                                  size: 20,
                                 ),
-                              ),
-                            ],
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Mark as Read',
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    AppTheme.verticalSpaceLarge,
+                      AppTheme.verticalSpaceLarge,
+                    ],
 
                     // Did you read today? button (only for Started or Standby status)
                     if (_currentBook.statusValue?.toLowerCase() == 'started' ||
@@ -2064,181 +2068,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         ),
                       ),
 
-                    // Reading Time - only show for read books with data
-                    if (_currentBook.statusValue?.toLowerCase() == 'yes' && 
-                        (_chronometerSessions.isNotEmpty || 
-                         _currentBook.dateReadInitial != null || 
-                         _currentBook.dateReadFinal != null ||
-                         _bundleChronometerSessions.isNotEmpty))
-                      _buildReadingTimeCard(),
-                    // Original Book (for repeated books)
-                    if (_currentBook.statusValue?.toLowerCase() == 'repeated' &&
-                        _currentBook.originalBookId != null)
-                      FutureBuilder<Book?>(
-                        future: _loadOriginalBook(_currentBook.originalBookId!),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData && snapshot.data != null) {
-                            final originalBook = snapshot.data!;
-                            return InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) => BookDetailScreen(
-                                          book: originalBook,
-                                        ),
-                                  ),
-                                );
-                              },
-                              child: _DetailCard(
-                                icon: Icons.repeat,
-                                label: 'Original Book',
-                                value:
-                                    '${originalBook.name}${originalBook.author != null ? " - ${originalBook.author}" : ""}',
-                                trailingIcon: Icons.open_in_new,
-                              ),
-                            );
-                          }
-                          return const SizedBox.shrink();
-                        },
-                      ),
-                    if (_currentBook.author != null &&
-                        _currentBook.author!.isNotEmpty)
-                      _DetailCard(
-                        icon: Icons.person,
-                        label: 'Author(s)',
-                        value: _currentBook.author!,
-                      ),
-                    if (_currentBook.isbn != null &&
-                        _currentBook.isbn!.isNotEmpty)
-                      _DetailCard(
-                        icon: Icons.numbers,
-                        label: 'ISBN',
-                        value: _currentBook.isbn!,
-                      ),
-                    if (_currentBook.asin != null &&
-                        _currentBook.asin!.isNotEmpty)
-                      _DetailCard(
-                        icon: Icons.qr_code,
-                        label: 'ASIN',
-                        value: _currentBook.asin!,
-                      ),
-                    if (_currentBook.editorialValue != null &&
-                        _currentBook.editorialValue!.isNotEmpty)
-                      _DetailCard(
-                        icon: Icons.business,
-                        label: AppLocalizations.of(context)!.editorial,
-                        value: _currentBook.editorialValue!,
-                      ),
-                    if (_currentBook.genre != null &&
-                        _currentBook.genre!.isNotEmpty)
-                      _DetailCard(
-                        icon: Icons.category,
-                        label: 'Genre(s)',
-                        value: _currentBook.genre!,
-                      ),
-                    if (_currentBook.saga != null &&
-                        _currentBook.saga!.isNotEmpty)
-                      InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (context) => BooksBySagaScreen(
-                                    sagaName: _currentBook.saga!,
-                                    sagaUniverse: _currentBook.sagaUniverse,
-                                  ),
-                            ),
-                          );
-                        },
-                        child: _DetailCard(
-                          icon: Icons.collections_bookmark,
-                          label: AppLocalizations.of(context)!.saga,
-                          value:
-                              '${_currentBook.saga}${_currentBook.nSaga != null ? ' #${_currentBook.nSaga}' : ''}',
-                          trailingIcon: Icons.open_in_new,
-                        ),
-                      ),
-                    if (_currentBook.sagaUniverse != null &&
-                        _currentBook.sagaUniverse!.isNotEmpty)
-                      InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (context) => BooksBySagaScreen(
-                                    sagaName: _currentBook.sagaUniverse!,
-                                    isSagaUniverse: true,
-                                  ),
-                            ),
-                          );
-                        },
-                        child: _DetailCard(
-                          icon: Icons.public,
-                          label: AppLocalizations.of(context)!.saga_universe,
-                          value: _currentBook.sagaUniverse!,
-                          trailingIcon: Icons.open_in_new,
-                        ),
-                      ),
-                    if (_currentBook.pages != null)
-                      _DetailCard(
-                        icon: Icons.description,
-                        label: AppLocalizations.of(context)!.pages,
-                        value: _currentBook.pages.toString(),
-                      ),
-                    if (_currentBook.originalPublicationYear != null)
-                      ..._buildPublicationInfo(
-                        _currentBook.originalPublicationYear!,
-                      ),
-                    if (_currentBook.formatSagaValue != null &&
-                        _currentBook.formatSagaValue!.isNotEmpty)
-                      _DetailCard(
-                        icon: Icons.format_shapes,
-                        label: AppLocalizations.of(context)!.format_saga,
-                        value: _currentBook.formatSagaValue!,
-                      ),
-                    if (_currentBook.languageValue != null &&
-                        _currentBook.languageValue!.isNotEmpty)
-                      _DetailCard(
-                        icon: Icons.language,
-                        label: 'Language',
-                        value: _currentBook.languageValue!,
-                      ),
-                    if (_currentBook.placeValue != null &&
-                        _currentBook.placeValue!.isNotEmpty)
-                      _DetailCard(
-                        icon: Icons.place,
-                        label: 'Place',
-                        value: _currentBook.placeValue!,
-                      ),
-                    if (_currentBook.formatValue != null &&
-                        _currentBook.formatValue!.isNotEmpty)
-                      _DetailCard(
-                        icon: Icons.import_contacts,
-                        label: 'Format',
-                        value: _currentBook.formatValue!,
-                      ),
-                    if (_currentBook.loaned != null &&
-                        _currentBook.loaned!.isNotEmpty)
-                      _DetailCard(
-                        icon: Icons.swap_horiz,
-                        label: 'Loaned',
-                        value: _currentBook.loaned!,
-                      ),
-                    if (_currentBook.createdAt != null &&
-                        _currentBook.createdAt!.isNotEmpty)
-                      _DetailCard(
-                        icon: Icons.access_time,
-                        label: 'Created',
-                        value: _formatDateTime(_currentBook.createdAt!),
-                      ),
-
-                    // Bundle information
+                    // Bundle Books - Show immediately after status for bundles
                     if (_currentBook.isBundle == true) ...[
-                      // Individual Bundle Books Card
+                      const SizedBox(height: 12),
                       Card(
                         margin: const EdgeInsets.only(bottom: 12),
                         elevation: 1,
@@ -2425,11 +2257,15 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                                         ),
                                                       );
                                                   // Reload if book was modified
-                                                  if (result != null) {
-                                                    setState(() {
-                                                      _bundleBooksKey++; // Force bundle books to reload
-                                                    });
-                                                    _loadReadDates();
+                                                  if (result != null && mounted) {
+                                                    // First reload the read dates
+                                                    await _loadReadDates();
+                                                    // Then force bundle books to reload
+                                                    if (mounted) {
+                                                      setState(() {
+                                                        _bundleBooksKey++;
+                                                      });
+                                                    }
                                                   }
                                                 },
                                               ),
@@ -2443,9 +2279,182 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                           ),
                         ),
                       ),
+                    ],
 
-                      // Bundle Reading Sessions
-                      if (_bundleReadDates.isNotEmpty)
+                    // Reading Time - only show for read books with data
+                    if (_currentBook.statusValue?.toLowerCase() == 'yes' && 
+                        (_chronometerSessions.isNotEmpty || 
+                         _currentBook.dateReadInitial != null || 
+                         _currentBook.dateReadFinal != null ||
+                         _bundleChronometerSessions.isNotEmpty))
+                      _buildReadingTimeCard(),
+                    // Original Book (for repeated books)
+                    if (_currentBook.statusValue?.toLowerCase() == 'repeated' &&
+                        _currentBook.originalBookId != null)
+                      FutureBuilder<Book?>(
+                        future: _loadOriginalBook(_currentBook.originalBookId!),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData && snapshot.data != null) {
+                            final originalBook = snapshot.data!;
+                            return InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => BookDetailScreen(
+                                          book: originalBook,
+                                        ),
+                                  ),
+                                );
+                              },
+                              child: _DetailCard(
+                                icon: Icons.repeat,
+                                label: 'Original Book',
+                                value:
+                                    '${originalBook.name}${originalBook.author != null ? " - ${originalBook.author}" : ""}',
+                                trailingIcon: Icons.open_in_new,
+                              ),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
+                    if (_currentBook.author != null &&
+                        _currentBook.author!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.person,
+                        label: 'Author(s)',
+                        value: _currentBook.author!,
+                      ),
+                    if (_currentBook.isbn != null &&
+                        _currentBook.isbn!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.numbers,
+                        label: 'ISBN',
+                        value: _currentBook.isbn!,
+                      ),
+                    if (_currentBook.asin != null &&
+                        _currentBook.asin!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.qr_code,
+                        label: 'ASIN',
+                        value: _currentBook.asin!,
+                      ),
+                    if (_currentBook.editorialValue != null &&
+                        _currentBook.editorialValue!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.business,
+                        label: AppLocalizations.of(context)!.editorial,
+                        value: _currentBook.editorialValue!,
+                      ),
+                    if (_currentBook.genre != null &&
+                        _currentBook.genre!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.category,
+                        label: 'Genre(s)',
+                        value: _currentBook.genre!,
+                      ),
+                    if (_currentBook.saga != null &&
+                        _currentBook.saga!.isNotEmpty)
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => BooksBySagaScreen(
+                                    sagaName: _currentBook.saga!,
+                                    sagaUniverse: _currentBook.sagaUniverse,
+                                  ),
+                            ),
+                          );
+                        },
+                        child: _DetailCard(
+                          icon: Icons.collections_bookmark,
+                          label: AppLocalizations.of(context)!.saga,
+                          value:
+                              '${_currentBook.saga}${_currentBook.nSaga != null ? ' #${_currentBook.nSaga}' : ''}',
+                          trailingIcon: Icons.open_in_new,
+                        ),
+                      ),
+                    if (_currentBook.sagaUniverse != null &&
+                        _currentBook.sagaUniverse!.isNotEmpty)
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => BooksBySagaScreen(
+                                    sagaName: _currentBook.sagaUniverse!,
+                                    isSagaUniverse: true,
+                                  ),
+                            ),
+                          );
+                        },
+                        child: _DetailCard(
+                          icon: Icons.public,
+                          label: AppLocalizations.of(context)!.saga_universe,
+                          value: _currentBook.sagaUniverse!,
+                          trailingIcon: Icons.open_in_new,
+                        ),
+                      ),
+                    if (_currentBook.pages != null)
+                      _DetailCard(
+                        icon: Icons.description,
+                        label: AppLocalizations.of(context)!.pages,
+                        value: _currentBook.pages.toString(),
+                      ),
+                    if (_currentBook.originalPublicationYear != null)
+                      ..._buildPublicationInfo(
+                        _currentBook.originalPublicationYear!,
+                      ),
+                    if (_currentBook.formatSagaValue != null &&
+                        _currentBook.formatSagaValue!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.format_shapes,
+                        label: AppLocalizations.of(context)!.format_saga,
+                        value: _currentBook.formatSagaValue!,
+                      ),
+                    if (_currentBook.languageValue != null &&
+                        _currentBook.languageValue!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.language,
+                        label: 'Language',
+                        value: _currentBook.languageValue!,
+                      ),
+                    if (_currentBook.placeValue != null &&
+                        _currentBook.placeValue!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.place,
+                        label: 'Place',
+                        value: _currentBook.placeValue!,
+                      ),
+                    if (_currentBook.formatValue != null &&
+                        _currentBook.formatValue!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.import_contacts,
+                        label: 'Format',
+                        value: _currentBook.formatValue!,
+                      ),
+                    if (_currentBook.loaned != null &&
+                        _currentBook.loaned!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.swap_horiz,
+                        label: 'Loaned',
+                        value: _currentBook.loaned!,
+                      ),
+                    if (_currentBook.createdAt != null &&
+                        _currentBook.createdAt!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.access_time,
+                        label: 'Created',
+                        value: _formatDateTime(_currentBook.createdAt!),
+                      ),
+
+                    // Bundle Reading Sessions (only show for bundles)
+                    if (_bundleReadDates.isNotEmpty)
                         Card(
                           margin: const EdgeInsets.only(bottom: 12),
                           elevation: 1,
@@ -2695,7 +2704,6 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                             ),
                           ),
                         ),
-                    ],
 
                     // TBR Badge with Checkbox
                     if (_currentBook.tbr == true)
