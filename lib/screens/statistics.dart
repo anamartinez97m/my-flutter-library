@@ -41,19 +41,22 @@ class StatisticsScreen extends StatefulWidget {
 class _StatisticsScreenState extends State<StatisticsScreen> {
   bool _showStatusAsPercentage = false;
   bool _showFormatAsPercentage = true;
+  bool _showPlaceAsPercentage = true;
+  bool _showFormatCurrentYearToggle =
+      false; // false = total, true = current year
   bool _showReadBooksDecade = false;
   bool _showReadBooksGenres = false;
   bool _showReadBooksEditorials = false;
   bool _showReadBooksAuthors = false;
   Map<int, int>? _booksReadPerYear;
   Map<int, int>? _pagesReadPerYear;
-  
+
   // Competition data
   BookCompetition? _yearlyWinner;
   List<BookCompetition> _nominees = [];
   List<BookCompetition> _pastWinners = [];
   bool _isLoadingCompetition = true;
-  
+
   // Reading sessions data for statistics
   Map<int, List<ReadingSession>> _bookSessions = {};
   bool _isLoadingSessions = true;
@@ -87,10 +90,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       final db = await DatabaseHelper.instance.database;
       final repository = BookCompetitionRepository(db);
       final currentYear = DateTime.now().year;
-      
+
       // Try to get existing competition results
-      final competitionResult = await repository.getCompetitionResults(currentYear);
-      
+      final competitionResult = await repository.getCompetitionResults(
+        currentYear,
+      );
+
       if (competitionResult != null) {
         _yearlyWinner = competitionResult.yearlyWinner;
         _nominees = _calculateCurrentNominees(competitionResult);
@@ -98,10 +103,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         // No competition data exists for this year yet
         _nominees = [];
       }
-      
+
       // Load past years winners
       _pastWinners = await repository.getPastYearsWinners(currentYear);
-      
+
       if (mounted) {
         setState(() {
           _isLoadingCompetition = false;
@@ -122,20 +127,22 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       final db = await DatabaseHelper.instance.database;
       final sessionRepository = ReadingSessionRepository(db);
       final provider = Provider.of<BookProvider?>(context, listen: false);
-      
+
       if (provider != null && !provider.isLoading) {
         final books = provider.allBooks;
         final Map<int, List<ReadingSession>> bookSessions = {};
-        
+
         for (var book in books) {
           if (book.bookId != null) {
-            final sessions = await sessionRepository.getDisplaySessionsForBook(book.bookId!);
+            final sessions = await sessionRepository.getDisplaySessionsForBook(
+              book.bookId!,
+            );
             if (sessions.isNotEmpty) {
               bookSessions[book.bookId!] = sessions;
             }
           }
         }
-        
+
         if (mounted) {
           setState(() {
             _bookSessions = bookSessions;
@@ -153,24 +160,26 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     }
   }
 
-  List<BookCompetition> _calculateCurrentNominees(CompetitionResult competitionResult) {
+  List<BookCompetition> _calculateCurrentNominees(
+    CompetitionResult competitionResult,
+  ) {
     List<BookCompetition> nominees = [];
-    
+
     // If we have a yearly winner, return just that
     if (competitionResult.yearlyWinner != null) {
       return [competitionResult.yearlyWinner!];
     }
-    
+
     // If we have both semifinal winners, return those
     if (competitionResult.semifinalWinners.length == 2) {
       return competitionResult.semifinalWinners.map((s) => s.winner).toList();
     }
-    
+
     // If we have quarterly winners, return those plus any remaining monthly winners
     if (competitionResult.quarterlyWinners.isNotEmpty) {
       // Add quarterly winners
       nominees.addAll(competitionResult.quarterlyWinners.map((q) => q.winner));
-      
+
       // Find months that don't belong to completed quarters
       Set<int> quarterMonths = {};
       for (final quarterWinner in competitionResult.quarterlyWinners) {
@@ -181,17 +190,17 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           quarterMonths.add(month);
         }
       }
-      
+
       // Add monthly winners from months not in completed quarters
       for (final monthlyWinner in competitionResult.monthlyWinners) {
         if (!quarterMonths.contains(monthlyWinner.month)) {
           nominees.add(monthlyWinner.winner);
         }
       }
-      
+
       return nominees;
     }
-    
+
     // If we only have monthly winners, return those
     return competitionResult.monthlyWinners.map((m) => m.winner).toList();
   }
@@ -269,19 +278,25 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   /// Case 1: Has timeRead data -> use sum of timeRead values + didReadToday only days
   /// Case 2: Only didReadToday data -> use didReadToday days only
   /// Case 3: No session data -> use date difference
-  double _calculateReadingVelocity(List<Book> books, Map<int, List<ReadingSession>> bookSessions) {
+  double _calculateReadingVelocity(
+    List<Book> books,
+    Map<int, List<ReadingSession>> bookSessions,
+  ) {
     int totalPages = 0;
     int totalReadingDays = 0;
 
     for (var book in books) {
       // Only include books that have been read and have page data
-      if (book.readCount == null || book.readCount! <= 0 || book.pages == null || book.pages! <= 0) {
+      if (book.readCount == null ||
+          book.readCount! <= 0 ||
+          book.pages == null ||
+          book.pages! <= 0) {
         continue;
       }
 
       final sessions = bookSessions[book.bookId] ?? [];
       final dailyData = _mapSessionsToDailyReadings(sessions);
-      
+
       if (dailyData.hasTimeReadData) {
         // Case 1: Has timeRead data
         totalReadingDays += dailyData.totalReadingDays;
@@ -291,26 +306,39 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       } else {
         // Case 3: No session data, use dates
         if (book.dateReadInitial != null && book.dateReadFinal != null) {
-          final startDate = _tryParseDate(book.dateReadInitial!, bookName: book.name);
-          final endDate = _tryParseDate(book.dateReadFinal!, bookName: book.name);
-          
-          if (startDate != null && endDate != null && endDate.isAfter(startDate)) {
+          final startDate = _tryParseDate(
+            book.dateReadInitial!,
+            bookName: book.name,
+          );
+          final endDate = _tryParseDate(
+            book.dateReadFinal!,
+            bookName: book.name,
+          );
+
+          if (startDate != null &&
+              endDate != null &&
+              endDate.isAfter(startDate)) {
             totalReadingDays += endDate.difference(startDate).inDays + 1;
           }
         }
       }
-      
+
       totalPages += book.pages!;
     }
 
-    return (totalReadingDays > 0 && totalPages > 0) ? totalPages.toDouble() / totalReadingDays.toDouble() : 0.0;
+    return (totalReadingDays > 0 && totalPages > 0)
+        ? totalPages.toDouble() / totalReadingDays.toDouble()
+        : 0.0;
   }
 
   /// Calculate average days to finish a book using three-case algorithm
   /// Case 1: Has timeRead data -> use sum of timeRead values + didReadToday only days
   /// Case 2: Only didReadToday data -> use didReadToday days only
   /// Case 3: No session data -> use date difference
-  double _calculateAverageDaysToFinish(List<Book> books, Map<int, List<ReadingSession>> bookSessions) {
+  double _calculateAverageDaysToFinish(
+    List<Book> books,
+    Map<int, List<ReadingSession>> bookSessions,
+  ) {
     double totalDays = 0.0;
     int booksWithValidData = 0;
 
@@ -322,9 +350,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
       final sessions = bookSessions[book.bookId] ?? [];
       final dailyData = _mapSessionsToDailyReadings(sessions);
-      
+
       int readingDays = 0;
-      
+
       if (dailyData.hasTimeReadData) {
         // Case 1: Has timeRead data
         readingDays = dailyData.totalReadingDays;
@@ -334,15 +362,23 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       } else {
         // Case 3: No session data, use dates
         if (book.dateReadInitial != null && book.dateReadFinal != null) {
-          final startDate = _tryParseDate(book.dateReadInitial!, bookName: book.name);
-          final endDate = _tryParseDate(book.dateReadFinal!, bookName: book.name);
-          
-          if (startDate != null && endDate != null && endDate.isAfter(startDate)) {
+          final startDate = _tryParseDate(
+            book.dateReadInitial!,
+            bookName: book.name,
+          );
+          final endDate = _tryParseDate(
+            book.dateReadFinal!,
+            bookName: book.name,
+          );
+
+          if (startDate != null &&
+              endDate != null &&
+              endDate.isAfter(startDate)) {
             readingDays = endDate.difference(startDate).inDays + 1;
           }
         }
       }
-      
+
       if (readingDays > 0) {
         totalDays += readingDays;
         booksWithValidData++;
@@ -353,7 +389,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   /// Get count of books used in average days calculation
-  int _getBooksUsedInAverageDaysCalculation(List<Book> books, Map<int, List<ReadingSession>> bookSessions) {
+  int _getBooksUsedInAverageDaysCalculation(
+    List<Book> books,
+    Map<int, List<ReadingSession>> bookSessions,
+  ) {
     int count = 0;
 
     for (var book in books) {
@@ -364,9 +403,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
       final sessions = bookSessions[book.bookId] ?? [];
       final dailyData = _mapSessionsToDailyReadings(sessions);
-      
+
       int readingDays = 0;
-      
+
       if (dailyData.hasTimeReadData) {
         // Case 1: Has timeRead data
         readingDays = dailyData.totalReadingDays;
@@ -376,15 +415,23 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       } else {
         // Case 3: No session data, use dates
         if (book.dateReadInitial != null && book.dateReadFinal != null) {
-          final startDate = _tryParseDate(book.dateReadInitial!, bookName: book.name);
-          final endDate = _tryParseDate(book.dateReadFinal!, bookName: book.name);
-          
-          if (startDate != null && endDate != null && endDate.isAfter(startDate)) {
+          final startDate = _tryParseDate(
+            book.dateReadInitial!,
+            bookName: book.name,
+          );
+          final endDate = _tryParseDate(
+            book.dateReadFinal!,
+            bookName: book.name,
+          );
+
+          if (startDate != null &&
+              endDate != null &&
+              endDate.isAfter(startDate)) {
             readingDays = endDate.difference(startDate).inDays + 1;
           }
         }
       }
-      
+
       if (readingDays > 0) {
         count++;
       }
@@ -396,7 +443,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   /// Convert reading sessions to daily reading data for algorithm
   _DailyReadingData _mapSessionsToDailyReadings(List<ReadingSession> sessions) {
     final Map<String, List<ReadingSession>> dailySessions = {};
-    
+
     for (var session in sessions) {
       if (session.startTime != null) {
         final dayKey = _getDayKey(session.startTime!);
@@ -413,10 +460,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     for (var entry in dailySessions.entries) {
       final daySessions = entry.value;
       final dayKey = entry.key;
-      
+
       int dayTimeSeconds = 0;
       bool hasDidRead = false;
-      
+
       for (var session in daySessions) {
         if (session.durationSeconds != null && session.durationSeconds! > 0) {
           dayTimeSeconds += session.durationSeconds!;
@@ -425,7 +472,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           hasDidRead = true;
         }
       }
-      
+
       // Apply counting rules
       if (dayTimeSeconds > 0) {
         totalDaysWithTimeRead++;
@@ -443,8 +490,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       totalSecondsRead: totalSecondsRead,
       totalReadingDays: uniqueReadingDays.length,
       hasTimeReadData: totalSecondsRead > 0,
-      hasDidReadData: totalDaysWithDidReadOnly > 0 || 
-                     (totalDaysWithTimeRead > 0 && totalDaysWithDidReadOnly >= 0),
+      hasDidReadData:
+          totalDaysWithDidReadOnly > 0 ||
+          (totalDaysWithTimeRead > 0 && totalDaysWithDidReadOnly >= 0),
     );
   }
 
@@ -469,9 +517,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     final statusCounts = <String, int>{};
     final languageCounts = <String, int>{};
     final formatCounts = <String, int>{};
+    final formatCountsCurrentYear = <String, int>{};
+    final placeCounts = <String, int>{};
+    final formatByLanguageCounts = <String, Map<String, int>>{};
     final genreCounts = <String, int>{};
     final editorialCounts = <String, int>{};
     final authorCounts = <String, int>{};
+
+    final currentYear = DateTime.now().year;
 
     for (var book in books) {
       // Get multiplier for bundle books
@@ -496,10 +549,38 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       final format = book.formatValue;
       if (format != null && format.isNotEmpty) {
         formatCounts[format] = (formatCounts[format] ?? 0) + multiplier;
+
+        // Format by Language
+        if (language != null && language.isNotEmpty && language != 'Unknown') {
+          if (!formatByLanguageCounts.containsKey(format)) {
+            formatByLanguageCounts[format] = {};
+          }
+          formatByLanguageCounts[format]![language] =
+              (formatByLanguageCounts[format]![language] ?? 0) + multiplier;
+        }
+      }
+
+      // Place
+      final place = book.placeValue;
+      if (place != null && place.isNotEmpty) {
+        placeCounts[place] = (placeCounts[place] ?? 0) + multiplier;
+      }
+
+      // Format for current year (only read books)
+      final isRead = book.readCount != null && book.readCount! > 0;
+      if (isRead &&
+          book.dateReadFinal != null &&
+          book.dateReadFinal!.isNotEmpty) {
+        final endDate = _tryParseDate(book.dateReadFinal!, bookName: book.name);
+        if (endDate != null && endDate.year == currentYear) {
+          if (format != null && format.isNotEmpty) {
+            formatCountsCurrentYear[format] =
+                (formatCountsCurrentYear[format] ?? 0) + multiplier;
+          }
+        }
       }
 
       // Genre (filtered by read status)
-      final isRead = book.readCount != null && book.readCount! > 0;
       final shouldIncludeGenre = _showReadBooksGenres ? isRead : true;
       if (shouldIncludeGenre) {
         final genre = book.genre;
@@ -530,10 +611,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
     // Calculate reading velocity using three-case algorithm
     double readingVelocity = _calculateReadingVelocity(books, _bookSessions);
-    
+
     // Calculate average days to finish using three-case algorithm
-    double averageDaysToFinish = _calculateAverageDaysToFinish(books, _bookSessions);
-    int booksUsedInAverageDays = _getBooksUsedInAverageDaysCalculation(books, _bookSessions);
+    double averageDaysToFinish = _calculateAverageDaysToFinish(
+      books,
+      _bookSessions,
+    );
+    int booksUsedInAverageDays = _getBooksUsedInAverageDaysCalculation(
+      books,
+      _bookSessions,
+    );
 
     // Calculate average books read per year
     double averageBooksPerYear = 0.0;
@@ -746,7 +833,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       if (book.bundleParentId != null) {
         continue;
       }
-      
+
       if (book.dateReadFinal != null && book.dateReadFinal!.isNotEmpty) {
         final endDate = _tryParseDate(book.dateReadFinal!, bookName: book.name);
         if (endDate != null) {
@@ -755,13 +842,15 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           if (!monthlyHeatmap.containsKey(year)) {
             monthlyHeatmap[year] = {};
           }
-          
+
           // Count individual books in bundles, or 1 for regular books
           int bookCount = 1;
-          if (book.isBundle == true && book.bundleCount != null && book.bundleCount! > 0) {
+          if (book.isBundle == true &&
+              book.bundleCount != null &&
+              book.bundleCount! > 0) {
             bookCount = book.bundleCount!;
           }
-          
+
           monthlyHeatmap[year]![month] =
               (monthlyHeatmap[year]![month] ?? 0) + bookCount;
         }
@@ -1124,7 +1213,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => BookCompetitionScreen(year: DateTime.now().year),
+                    builder:
+                        (context) =>
+                            BookCompetitionScreen(year: DateTime.now().year),
                   ),
                 ).then((_) {
                   // Refresh competition data when returning from competition screen
@@ -1592,101 +1683,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            // Language Horizontal Bar Chart
-            Card(
-              elevation: 2,
-              margin: const EdgeInsets.symmetric(horizontal: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: [
-                    Text(
-                      AppLocalizations.of(context)!.books_by_language,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    if (languageCounts.isEmpty)
-                      Center(child: Text(AppLocalizations.of(context)!.no_data))
-                    else
-                      ...(languageCounts.entries.toList()
-                            ..sort((a, b) => b.value.compareTo(a.value)))
-                          .map((entry) {
-                            final maxValue = languageCounts.values.reduce(
-                              (a, b) => a > b ? a : b,
-                            );
-                            final percentage = (entry.value / maxValue);
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                    width: 80,
-                                    child: Text(
-                                      entry.key,
-                                      style:
-                                          Theme.of(context).textTheme.bodySmall,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Stack(
-                                      children: [
-                                        Container(
-                                          height: 24,
-                                          decoration: BoxDecoration(
-                                            color: Colors.grey[200],
-                                            borderRadius: BorderRadius.circular(
-                                              4,
-                                            ),
-                                          ),
-                                        ),
-                                        FractionallySizedBox(
-                                          widthFactor: percentage,
-                                          child: Container(
-                                            height: 24,
-                                            decoration: BoxDecoration(
-                                              color: Colors.deepPurple,
-                                              borderRadius:
-                                                  BorderRadius.circular(4),
-                                            ),
-                                          ),
-                                        ),
-                                        Container(
-                                          height: 24,
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                          ),
-                                          alignment: Alignment.centerLeft,
-                                          child: Text(
-                                            '${entry.value}',
-                                            style: TextStyle(
-                                              color:
-                                                  percentage > 0.15
-                                                      ? Colors.white
-                                                      : Colors.black87,
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
             // Format Pie Chart
             Card(
               elevation: 2,
@@ -1829,6 +1825,539 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               ),
             ),
             const SizedBox(height: 16),
+            // Books by Format - Current Year Card
+            if (formatCountsCurrentYear.isNotEmpty)
+              Card(
+                elevation: 2,
+                margin: const EdgeInsets.symmetric(horizontal: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Books by Format',
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                _showFormatCurrentYearToggle
+                                    ? 'Current'
+                                    : 'Total',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                              SizedBox(
+                                width: 48,
+                                child: Switch(
+                                  value: _showFormatCurrentYearToggle,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _showFormatCurrentYearToggle = value;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        height: 230,
+                        child: Builder(
+                          builder: (context) {
+                            final dataToShow =
+                                _showFormatCurrentYearToggle
+                                    ? formatCountsCurrentYear
+                                    : formatCounts;
+
+                            return dataToShow.isEmpty
+                                ? Center(
+                                  child: Text(
+                                    AppLocalizations.of(context)!.no_data,
+                                  ),
+                                )
+                                : PieChart(
+                                  PieChartData(
+                                    sections:
+                                        dataToShow.entries.map((entry) {
+                                          final colors = [
+                                            Colors.green,
+                                            Colors.lime,
+                                            Colors.lightGreen,
+                                            Colors.teal,
+                                          ];
+                                          final index = dataToShow.keys
+                                              .toList()
+                                              .indexOf(entry.key);
+                                          return PieChartSectionData(
+                                            value: entry.value.toDouble(),
+                                            title: '',
+                                            radius: 50,
+                                            color:
+                                                colors[index % colors.length],
+                                            badgeWidget: Container(
+                                              padding: const EdgeInsets.all(6),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                                border: Border.all(
+                                                  color:
+                                                      colors[index %
+                                                          colors.length],
+                                                  width: 2,
+                                                ),
+                                              ),
+                                              child: Text(
+                                                '${entry.value}',
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.bold,
+                                                  color:
+                                                      colors[index %
+                                                          colors.length],
+                                                ),
+                                              ),
+                                            ),
+                                            badgePositionPercentageOffset: 1.4,
+                                          );
+                                        }).toList(),
+                                    sectionsSpace: 2,
+                                    centerSpaceRadius: 45,
+                                  ),
+                                );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Wrap(
+                        spacing: 20,
+                        runSpacing: 12,
+                        alignment: WrapAlignment.center,
+                        children: [
+                          ...(() {
+                            final dataToShow =
+                                _showFormatCurrentYearToggle
+                                    ? formatCountsCurrentYear
+                                    : formatCounts;
+
+                            return dataToShow.entries.map((entry) {
+                              final colors = [
+                                Colors.green,
+                                Colors.lime,
+                                Colors.lightGreen,
+                                Colors.teal,
+                              ];
+                              final index = dataToShow.keys.toList().indexOf(
+                                entry.key,
+                              );
+                              return Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    width: 12,
+                                    height: 12,
+                                    decoration: BoxDecoration(
+                                      color: colors[index % colors.length],
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    entry.key,
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall,
+                                  ),
+                                ],
+                              );
+                            }).toList();
+                          }()),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            if (formatCountsCurrentYear.isNotEmpty) const SizedBox(height: 16),
+            // Books by Place Card
+            if (placeCounts.isNotEmpty)
+              Card(
+                elevation: 2,
+                margin: const EdgeInsets.symmetric(horizontal: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Books by Place',
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                          Row(
+                            children: [
+                              Text(
+                                _showPlaceAsPercentage ? '%' : '#',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                              Switch(
+                                value: _showPlaceAsPercentage,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _showPlaceAsPercentage = value;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        height: 230,
+                        child:
+                            placeCounts.isEmpty
+                                ? Center(
+                                  child: Text(
+                                    AppLocalizations.of(context)!.no_data,
+                                  ),
+                                )
+                                : PieChart(
+                                  PieChartData(
+                                    sections:
+                                        placeCounts.entries.map((entry) {
+                                          final colors = [
+                                            Colors.purple,
+                                            Colors.deepPurple,
+                                            Colors.indigo,
+                                            Colors.blue,
+                                          ];
+                                          final index = placeCounts.keys
+                                              .toList()
+                                              .indexOf(entry.key);
+                                          final percentage =
+                                              (entry.value /
+                                                  placeCounts.values.reduce(
+                                                    (a, b) => a + b,
+                                                  )) *
+                                              100;
+                                          return PieChartSectionData(
+                                            value: entry.value.toDouble(),
+                                            title: '',
+                                            radius: 50,
+                                            color:
+                                                colors[index % colors.length],
+                                            badgeWidget: Container(
+                                              padding: const EdgeInsets.all(6),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                                border: Border.all(
+                                                  color:
+                                                      colors[index %
+                                                          colors.length],
+                                                  width: 2,
+                                                ),
+                                              ),
+                                              child: Text(
+                                                _showPlaceAsPercentage
+                                                    ? '${percentage.toStringAsFixed(1)}%'
+                                                    : '${entry.value}',
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.bold,
+                                                  color:
+                                                      colors[index %
+                                                          colors.length],
+                                                ),
+                                              ),
+                                            ),
+                                            badgePositionPercentageOffset: 1.4,
+                                          );
+                                        }).toList(),
+                                    sectionsSpace: 2,
+                                    centerSpaceRadius: 45,
+                                  ),
+                                ),
+                      ),
+                      const SizedBox(height: 16),
+                      Wrap(
+                        spacing: 20,
+                        runSpacing: 12,
+                        alignment: WrapAlignment.center,
+                        children:
+                            placeCounts.entries.map((entry) {
+                              final colors = [
+                                Colors.purple,
+                                Colors.deepPurple,
+                                Colors.indigo,
+                                Colors.blue,
+                              ];
+                              final index = placeCounts.keys.toList().indexOf(
+                                entry.key,
+                              );
+                              return Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    width: 12,
+                                    height: 12,
+                                    decoration: BoxDecoration(
+                                      color: colors[index % colors.length],
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    entry.key,
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall,
+                                  ),
+                                ],
+                              );
+                            }).toList(),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            if (placeCounts.isNotEmpty) const SizedBox(height: 16),
+            // Books by Language - Horizontal Bar Chart
+            Card(
+              elevation: 2,
+              margin: const EdgeInsets.symmetric(horizontal: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.books_by_language,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    if (languageCounts.isEmpty)
+                      Center(child: Text(AppLocalizations.of(context)!.no_data))
+                    else
+                      ...(languageCounts.entries.toList()
+                            ..sort((a, b) => b.value.compareTo(a.value)))
+                          .map((entry) {
+                            final maxValue = languageCounts.values.reduce(
+                              (a, b) => a > b ? a : b,
+                            );
+                            final percentage = (entry.value / maxValue);
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Row(
+                                children: [
+                                  SizedBox(
+                                    width: 80,
+                                    child: Text(
+                                      entry.key,
+                                      style:
+                                          Theme.of(context).textTheme.bodySmall,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Stack(
+                                      children: [
+                                        Container(
+                                          height: 24,
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey[200],
+                                            borderRadius: BorderRadius.circular(
+                                              4,
+                                            ),
+                                          ),
+                                        ),
+                                        FractionallySizedBox(
+                                          widthFactor: percentage,
+                                          child: Container(
+                                            height: 24,
+                                            decoration: BoxDecoration(
+                                              color: Colors.deepPurple,
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                          ),
+                                        ),
+                                        Container(
+                                          height: 24,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                          ),
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            '${entry.value}',
+                                            style: TextStyle(
+                                              color:
+                                                  percentage > 0.15
+                                                      ? Colors.white
+                                                      : Colors.black87,
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Books by Format and Language Card
+            if (formatByLanguageCounts.isNotEmpty)
+              Card(
+                elevation: 2,
+                margin: const EdgeInsets.symmetric(horizontal: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      Text(
+                        'Format by Language',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children:
+                              formatByLanguageCounts.entries.map((formatEntry) {
+                                final format = formatEntry.key;
+                                final languages = formatEntry.value;
+                                final sortedLanguages =
+                                    languages.entries.toList()..sort(
+                                      (a, b) => b.value.compareTo(a.value),
+                                    );
+                                final maxValue =
+                                    sortedLanguages.isNotEmpty
+                                        ? sortedLanguages.first.value
+                                        : 1;
+
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 28),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        format,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.titleSmall?.copyWith(
+                                          fontWeight: FontWeight.w700,
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      ...sortedLanguages.asMap().entries.map((
+                                        entry,
+                                      ) {
+                                        final langEntry = entry.value;
+                                        final language = langEntry.key;
+                                        final count = langEntry.value;
+                                        final index = entry.key;
+                                        final colors = [
+                                          Colors.blue,
+                                          Colors.cyan,
+                                          Colors.teal,
+                                          Colors.green,
+                                          Colors.lime,
+                                          Colors.indigo,
+                                        ];
+                                        final color =
+                                            colors[index % colors.length];
+
+                                        return Padding(
+                                          padding: const EdgeInsets.only(
+                                            bottom: 12,
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                language,
+                                                style: Theme.of(
+                                                  context,
+                                                ).textTheme.bodySmall?.copyWith(
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 6),
+                                              CustomPaint(
+                                                painter:
+                                                    VerticalLineChartPainter(
+                                                      value: count.toDouble(),
+                                                      maxValue:
+                                                          maxValue.toDouble(),
+                                                      color: color,
+                                                    ),
+                                                size: Size(30, 80),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                '$count',
+                                                style: Theme.of(
+                                                  context,
+                                                ).textTheme.bodySmall?.copyWith(
+                                                  fontWeight: FontWeight.w600,
+                                                  color: color,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            if (formatByLanguageCounts.isNotEmpty) const SizedBox(height: 16),
             // Reading Velocity Card
             if (readingVelocity > 0)
               Card(
@@ -2438,12 +2967,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
 /// Internal data structure representing the conceptual DailyReadings table
 class _DailyReadingData {
-  final int totalDaysWithTimeRead;      // Days where timeRead > 0
-  final int totalDaysWithDidReadOnly;   // Days where didReadToday = true but no timeRead
-  final int totalSecondsRead;           // Sum of all timeRead values (in seconds)
-  final int totalReadingDays;           // Total unique reading days
-  final bool hasTimeReadData;           // Whether any day has timeRead > 0
-  final bool hasDidReadData;            // Whether any day has didReadToday = true
+  final int totalDaysWithTimeRead; // Days where timeRead > 0
+  final int
+  totalDaysWithDidReadOnly; // Days where didReadToday = true but no timeRead
+  final int totalSecondsRead; // Sum of all timeRead values (in seconds)
+  final int totalReadingDays; // Total unique reading days
+  final bool hasTimeReadData; // Whether any day has timeRead > 0
+  final bool hasDidReadData; // Whether any day has didReadToday = true
 
   _DailyReadingData({
     required this.totalDaysWithTimeRead,
@@ -2453,4 +2983,130 @@ class _DailyReadingData {
     required this.hasTimeReadData,
     required this.hasDidReadData,
   });
+}
+
+class LineChartPainter extends CustomPainter {
+  final double value;
+  final double maxValue;
+  final Color color;
+
+  LineChartPainter({
+    required this.value,
+    required this.maxValue,
+    required this.color,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final percentage = (value / maxValue).clamp(0.0, 1.0);
+    final width = size.width * percentage;
+    final height = size.height;
+    final centerY = height / 2;
+
+    // Draw background line
+    final backgroundPaint =
+        Paint()
+          ..color = Colors.grey[300]!
+          ..strokeWidth = 2;
+    canvas.drawLine(
+      Offset(0, centerY),
+      Offset(size.width, centerY),
+      backgroundPaint,
+    );
+
+    // Draw filled line
+    final linePaint =
+        Paint()
+          ..color = color
+          ..strokeWidth = 3
+          ..strokeCap = StrokeCap.round;
+    canvas.drawLine(Offset(0, centerY), Offset(width, centerY), linePaint);
+
+    // Draw end circle
+    final circlePaint =
+        Paint()
+          ..color = color
+          ..style = PaintingStyle.fill;
+    canvas.drawCircle(Offset(width, centerY), 5, circlePaint);
+
+    // Draw circle outline
+    final circleOutlinePaint =
+        Paint()
+          ..color = color.withOpacity(0.3)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2;
+    canvas.drawCircle(Offset(width, centerY), 8, circleOutlinePaint);
+  }
+
+  @override
+  bool shouldRepaint(LineChartPainter oldDelegate) {
+    return oldDelegate.value != value ||
+        oldDelegate.maxValue != maxValue ||
+        oldDelegate.color != color;
+  }
+}
+
+class VerticalLineChartPainter extends CustomPainter {
+  final double value;
+  final double maxValue;
+  final Color color;
+
+  VerticalLineChartPainter({
+    required this.value,
+    required this.maxValue,
+    required this.color,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final percentage = (value / maxValue).clamp(0.0, 1.0);
+    final height = size.height * (1 - percentage);
+    final width = size.width;
+    final centerX = width / 2;
+
+    // Draw background line
+    final backgroundPaint =
+        Paint()
+          ..color = Colors.grey[300]!
+          ..strokeWidth = 2;
+    canvas.drawLine(
+      Offset(centerX, 0),
+      Offset(centerX, size.height),
+      backgroundPaint,
+    );
+
+    // Draw filled line
+    final linePaint =
+        Paint()
+          ..color = color
+          ..strokeWidth = 3
+          ..strokeCap = StrokeCap.round;
+    canvas.drawLine(
+      Offset(centerX, size.height),
+      Offset(centerX, height),
+      linePaint,
+    );
+
+    // Draw end circle
+    final circlePaint =
+        Paint()
+          ..color = color
+          ..style = PaintingStyle.fill;
+    canvas.drawCircle(Offset(centerX, height), 5, circlePaint);
+
+    // Draw circle outline
+    final circleOutlinePaint =
+        Paint()
+          ..color = color.withOpacity(0.3)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2;
+    canvas.drawCircle(Offset(centerX, height), 8, circleOutlinePaint);
+  }
+
+  @override
+  bool shouldRepaint(VerticalLineChartPainter oldDelegate) {
+    return oldDelegate.value != value ||
+        oldDelegate.maxValue != maxValue ||
+        oldDelegate.color != color;
+  }
 }
