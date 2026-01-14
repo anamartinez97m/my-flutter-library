@@ -11,14 +11,29 @@ class ReadingGoalsCard extends StatefulWidget {
   State<ReadingGoalsCard> createState() => _ReadingGoalsCardState();
 }
 
-class _ReadingGoalsCardState extends State<ReadingGoalsCard> {
+class _ReadingGoalsCardState extends State<ReadingGoalsCard>
+    with WidgetsBindingObserver {
   Map<String, dynamic>? _currentYearProgress;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadCurrentYearProgress();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _loadCurrentYearProgress();
+    }
   }
 
   Future<void> _loadCurrentYearProgress() async {

@@ -742,6 +742,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     // #12: Monthly Reading Heatmap data
     final Map<int, Map<int, int>> monthlyHeatmap = {}; // year -> month -> count
     for (var book in books) {
+      // Skip child books of bundles (they're counted via the parent bundle)
+      if (book.bundleParentId != null) {
+        continue;
+      }
+      
       if (book.dateReadFinal != null && book.dateReadFinal!.isNotEmpty) {
         final endDate = _tryParseDate(book.dateReadFinal!, bookName: book.name);
         if (endDate != null) {
@@ -750,8 +755,15 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           if (!monthlyHeatmap.containsKey(year)) {
             monthlyHeatmap[year] = {};
           }
+          
+          // Count individual books in bundles, or 1 for regular books
+          int bookCount = 1;
+          if (book.isBundle == true && book.bundleCount != null && book.bundleCount! > 0) {
+            bookCount = book.bundleCount!;
+          }
+          
           monthlyHeatmap[year]![month] =
-              (monthlyHeatmap[year]![month] ?? 0) + 1;
+              (monthlyHeatmap[year]![month] ?? 0) + bookCount;
         }
       }
     }
