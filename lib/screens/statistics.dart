@@ -28,6 +28,7 @@ import 'package:myrandomlibrary/repositories/book_competition_repository.dart';
 import 'package:myrandomlibrary/screens/book_competition_screen.dart';
 import 'package:myrandomlibrary/model/reading_session.dart';
 import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
+import 'package:myrandomlibrary/model/read_date.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -40,8 +41,8 @@ class StatisticsScreen extends StatefulWidget {
 
 class _StatisticsScreenState extends State<StatisticsScreen> {
   bool _showStatusAsPercentage = false;
-  bool _showFormatAsPercentage = true;
-  bool _showPlaceAsPercentage = true;
+  bool _showFormatAsPercentage = false;
+  bool _showPlaceAsPercentage = false;
   bool _showFormatCurrentYearToggle =
       false; // false = total, true = current year
   bool _showReadBooksDecade = false;
@@ -61,12 +62,17 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   Map<int, List<ReadingSession>> _bookSessions = {};
   bool _isLoadingSessions = true;
 
+  // Read dates data for statistics (from book_read_dates table)
+  Map<int, List<ReadDate>> _bookReadDates = {};
+  bool _isLoadingReadDates = true;
+
   @override
   void initState() {
     super.initState();
     _loadYearData();
     _loadCompetitionData();
     _loadReadingSessionsData();
+    _loadReadDatesData();
   }
 
   Future<void> _loadYearData() async {
@@ -155,6 +161,44 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       if (mounted) {
         setState(() {
           _isLoadingSessions = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _loadReadDatesData() async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final repository = BookRepository(db);
+      final provider = Provider.of<BookProvider?>(context, listen: false);
+
+      if (provider != null && !provider.isLoading) {
+        final books = provider.allBooks;
+        final Map<int, List<ReadDate>> bookReadDates = {};
+
+        for (var book in books) {
+          if (book.bookId != null) {
+            final readDates = await repository.getReadDatesForBook(
+              book.bookId!,
+            );
+            if (readDates.isNotEmpty) {
+              bookReadDates[book.bookId!] = readDates;
+            }
+          }
+        }
+
+        if (mounted) {
+          setState(() {
+            _bookReadDates = bookReadDates;
+            _isLoadingReadDates = false;
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Error loading read dates for stats: $e');
+      if (mounted) {
+        setState(() {
+          _isLoadingReadDates = false;
         });
       }
     }
@@ -277,7 +321,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   /// Calculate reading velocity using three-case algorithm
   /// Case 1: Has timeRead data -> use sum of timeRead values + didReadToday only days
   /// Case 2: Only didReadToday data -> use didReadToday days only
-  /// Case 3: No session data -> use date difference
+  /// Case 3: No session data -> use date difference from book_read_dates table
   double _calculateReadingVelocity(
     List<Book> books,
     Map<int, List<ReadingSession>> bookSessions,
@@ -304,21 +348,29 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         // Case 2: Only didReadToday data
         totalReadingDays += dailyData.totalReadingDays;
       } else {
-        // Case 3: No session data, use dates
-        if (book.dateReadInitial != null && book.dateReadFinal != null) {
-          final startDate = _tryParseDate(
-            book.dateReadInitial!,
-            bookName: book.name,
-          );
-          final endDate = _tryParseDate(
-            book.dateReadFinal!,
-            bookName: book.name,
-          );
+        // Case 3: No session data, use dates from book_read_dates table
+        if (book.bookId != null) {
+          final readDates = _bookReadDates[book.bookId!] ?? [];
+          for (var readDate in readDates) {
+            if (readDate.dateStarted != null &&
+                readDate.dateStarted!.isNotEmpty &&
+                readDate.dateFinished != null &&
+                readDate.dateFinished!.isNotEmpty) {
+              final startDate = _tryParseDate(
+                readDate.dateStarted!,
+                bookName: book.name,
+              );
+              final endDate = _tryParseDate(
+                readDate.dateFinished!,
+                bookName: book.name,
+              );
 
-          if (startDate != null &&
-              endDate != null &&
-              endDate.isAfter(startDate)) {
-            totalReadingDays += endDate.difference(startDate).inDays + 1;
+              if (startDate != null &&
+                  endDate != null &&
+                  endDate.isAfter(startDate)) {
+                totalReadingDays += endDate.difference(startDate).inDays + 1;
+              }
+            }
           }
         }
       }
@@ -334,7 +386,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   /// Calculate average days to finish a book using three-case algorithm
   /// Case 1: Has timeRead data -> use sum of timeRead values + didReadToday only days
   /// Case 2: Only didReadToday data -> use didReadToday days only
-  /// Case 3: No session data -> use date difference
+  /// Case 3: No session data -> use date difference from book_read_dates table
   double _calculateAverageDaysToFinish(
     List<Book> books,
     Map<int, List<ReadingSession>> bookSessions,
@@ -360,21 +412,31 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         // Case 2: Only didReadToday data
         readingDays = dailyData.totalReadingDays;
       } else {
-        // Case 3: No session data, use dates
-        if (book.dateReadInitial != null && book.dateReadFinal != null) {
-          final startDate = _tryParseDate(
-            book.dateReadInitial!,
-            bookName: book.name,
-          );
-          final endDate = _tryParseDate(
-            book.dateReadFinal!,
-            bookName: book.name,
-          );
+        // Case 3: No session data, use dates from book_read_dates table
+        if (book.bookId != null) {
+          final readDates = _bookReadDates[book.bookId!] ?? [];
+          // Use the most recent read date for this calculation
+          if (readDates.isNotEmpty) {
+            final lastReadDate = readDates.last;
+            if (lastReadDate.dateStarted != null &&
+                lastReadDate.dateStarted!.isNotEmpty &&
+                lastReadDate.dateFinished != null &&
+                lastReadDate.dateFinished!.isNotEmpty) {
+              final startDate = _tryParseDate(
+                lastReadDate.dateStarted!,
+                bookName: book.name,
+              );
+              final endDate = _tryParseDate(
+                lastReadDate.dateFinished!,
+                bookName: book.name,
+              );
 
-          if (startDate != null &&
-              endDate != null &&
-              endDate.isAfter(startDate)) {
-            readingDays = endDate.difference(startDate).inDays + 1;
+              if (startDate != null &&
+                  endDate != null &&
+                  endDate.isAfter(startDate)) {
+                readingDays = endDate.difference(startDate).inDays + 1;
+              }
+            }
           }
         }
       }
@@ -413,21 +475,31 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         // Case 2: Only didReadToday data
         readingDays = dailyData.totalReadingDays;
       } else {
-        // Case 3: No session data, use dates
-        if (book.dateReadInitial != null && book.dateReadFinal != null) {
-          final startDate = _tryParseDate(
-            book.dateReadInitial!,
-            bookName: book.name,
-          );
-          final endDate = _tryParseDate(
-            book.dateReadFinal!,
-            bookName: book.name,
-          );
+        // Case 3: No session data, use dates from book_read_dates table
+        if (book.bookId != null) {
+          final readDates = _bookReadDates[book.bookId!] ?? [];
+          // Use the most recent read date for this calculation
+          if (readDates.isNotEmpty) {
+            final lastReadDate = readDates.last;
+            if (lastReadDate.dateStarted != null &&
+                lastReadDate.dateStarted!.isNotEmpty &&
+                lastReadDate.dateFinished != null &&
+                lastReadDate.dateFinished!.isNotEmpty) {
+              final startDate = _tryParseDate(
+                lastReadDate.dateStarted!,
+                bookName: book.name,
+              );
+              final endDate = _tryParseDate(
+                lastReadDate.dateFinished!,
+                bookName: book.name,
+              );
 
-          if (startDate != null &&
-              endDate != null &&
-              endDate.isAfter(startDate)) {
-            readingDays = endDate.difference(startDate).inDays + 1;
+              if (startDate != null &&
+                  endDate != null &&
+                  endDate.isAfter(startDate)) {
+                readingDays = endDate.difference(startDate).inDays + 1;
+              }
+            }
           }
         }
       }
@@ -566,17 +638,56 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         placeCounts[place] = (placeCounts[place] ?? 0) + multiplier;
       }
 
-      // Format for current year (only read books)
+      // Check if book has been read (used by genre, editorial, author filters)
       final isRead = book.readCount != null && book.readCount! > 0;
-      if (isRead &&
-          book.dateReadFinal != null &&
-          book.dateReadFinal!.isNotEmpty) {
-        final endDate = _tryParseDate(book.dateReadFinal!, bookName: book.name);
-        if (endDate != null && endDate.year == currentYear) {
-          if (format != null && format.isNotEmpty) {
-            formatCountsCurrentYear[format] =
-                (formatCountsCurrentYear[format] ?? 0) + multiplier;
+
+      // Format for current year (using read dates from book_read_dates table)
+      // Skip parent bundles - we count individual books instead
+      if (book.isBundle == true) {
+        debugPrint(
+          'DEBUG FORMAT SKIP: Book "${book.name}" (ID: ${book.bookId}) - is parent bundle',
+        );
+      } else if (book.bookId != null && format != null && format.isNotEmpty) {
+        final readDates = _bookReadDates[book.bookId!] ?? [];
+
+        // Debug: Log all books to see why they're included/excluded
+        debugPrint(
+          'DEBUG FORMAT CHECK: Book "${book.name}" (ID: ${book.bookId}) - Format: $format, ReadDates count: ${readDates.length}, bundleParentId: ${book.bundleParentId}',
+        );
+
+        // Check if any read date has a dateFinished in the current year
+        bool hasCurrentYearRead = false;
+        for (var readDate in readDates) {
+          if (readDate.dateFinished != null &&
+              readDate.dateFinished!.isNotEmpty) {
+            final endDate = _tryParseDate(
+              readDate.dateFinished!,
+              bookName: book.name,
+            );
+            debugPrint(
+              'DEBUG FORMAT PARSE: Book "${book.name}" - dateFinished: "${readDate.dateFinished}", Parsed year: ${endDate?.year}, Current year: $currentYear',
+            );
+            if (endDate != null && endDate.year == currentYear) {
+              hasCurrentYearRead = true;
+              debugPrint(
+                'DEBUG FORMAT FOUND CURRENT YEAR: Book "${book.name}" - ReadDate: ${readDate.dateFinished}',
+              );
+              break;
+            }
+          } else {
+            debugPrint(
+              'DEBUG FORMAT SKIP: Book "${book.name}" - dateFinished is null or empty',
+            );
           }
+        }
+
+        if (hasCurrentYearRead) {
+          // Count as 1 book (individual books or standalone books)
+          formatCountsCurrentYear[format] =
+              (formatCountsCurrentYear[format] ?? 0) + 1;
+          debugPrint(
+            'DEBUG FORMAT COUNTED: Book "${book.name}" (ID: ${book.bookId}) - Format: $format, bundleParentId: ${book.bundleParentId}',
+          );
         }
       }
 
@@ -606,6 +717,43 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         if (author != null && author.isNotEmpty) {
           authorCounts[author] = (authorCounts[author] ?? 0) + multiplier;
         }
+      }
+    }
+
+    // Debug: Log total books counted for current year format
+    int totalBooksCurrentYear = formatCountsCurrentYear.values.fold(
+      0,
+      (a, b) => a + b,
+    );
+    debugPrint(
+      'DEBUG: Total books in formatCountsCurrentYear: $totalBooksCurrentYear',
+    );
+    debugPrint(
+      'DEBUG: formatCountsCurrentYear breakdown: $formatCountsCurrentYear',
+    );
+    
+    // Debug: Check how many books we have in total and how many are bundles
+    int totalBooksCount = books.length;
+    int parentBundlesCount = books.where((b) => b.isBundle == true).length;
+    int individualBooksInBundlesCount = books.where((b) => b.bundleParentId != null).length;
+    int standaloneBooksCount = books.where((b) => b.isBundle != true && b.bundleParentId == null).length;
+    debugPrint('DEBUG BOOK COUNTS: Total: $totalBooksCount, Parent Bundles: $parentBundlesCount, Individual Books in Bundles: $individualBooksInBundlesCount, Standalone: $standaloneBooksCount');
+    
+    // Debug: List all individual books from bundles
+    final individualBooksFromBundles = books.where((b) => b.bundleParentId != null).toList();
+    debugPrint('DEBUG: Checking for individual books from bundles...');
+    debugPrint('DEBUG: Found ${individualBooksFromBundles.length} books with bundleParentId != null');
+    if (individualBooksFromBundles.isNotEmpty) {
+      debugPrint('DEBUG: Individual books from bundles:');
+      for (var book in individualBooksFromBundles) {
+        debugPrint('  - "${book.name}" (ID: ${book.bookId}, bundleParentId: ${book.bundleParentId})');
+      }
+    } else {
+      // Check if the field is being loaded correctly
+      debugPrint('DEBUG: Sample of first 5 books to check bundleParentId field:');
+      for (var i = 0; i < books.length && i < 5; i++) {
+        final book = books[i];
+        debugPrint('  - "${book.name}" (ID: ${book.bookId}, isBundle: ${book.isBundle}, bundleParentId: ${book.bundleParentId})');
       }
     }
 
@@ -826,36 +974,49 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     final int yearsCount =
         yearsWithReading.isNotEmpty ? yearsWithReading.length : 1;
 
-    // #12: Monthly Reading Heatmap data
+    // #12: Monthly Reading Heatmap data (using read dates from book_read_dates table)
+    // Skip parent bundles - count individual books instead
     final Map<int, Map<int, int>> monthlyHeatmap = {}; // year -> month -> count
     for (var book in books) {
-      // Skip child books of bundles (they're counted via the parent bundle)
-      if (book.bundleParentId != null) {
+      // Skip parent bundles (they're just containers)
+      if (book.isBundle == true) {
         continue;
       }
 
-      if (book.dateReadFinal != null && book.dateReadFinal!.isNotEmpty) {
-        final endDate = _tryParseDate(book.dateReadFinal!, bookName: book.name);
-        if (endDate != null) {
-          final year = endDate.year;
-          final month = endDate.month;
-          if (!monthlyHeatmap.containsKey(year)) {
-            monthlyHeatmap[year] = {};
-          }
+      if (book.bookId == null) continue;
 
-          // Count individual books in bundles, or 1 for regular books
-          int bookCount = 1;
-          if (book.isBundle == true &&
-              book.bundleCount != null &&
-              book.bundleCount! > 0) {
-            bookCount = book.bundleCount!;
-          }
+      final readDates = _bookReadDates[book.bookId!] ?? [];
 
-          monthlyHeatmap[year]![month] =
-              (monthlyHeatmap[year]![month] ?? 0) + bookCount;
+      // Process each read date for this book
+      for (var readDate in readDates) {
+        if (readDate.dateFinished != null &&
+            readDate.dateFinished!.isNotEmpty) {
+          final endDate = _tryParseDate(
+            readDate.dateFinished!,
+            bookName: book.name,
+          );
+          if (endDate != null) {
+            final year = endDate.year;
+            final month = endDate.month;
+            if (!monthlyHeatmap.containsKey(year)) {
+              monthlyHeatmap[year] = {};
+            }
+
+            // Count as 1 book (individual books or standalone books)
+            monthlyHeatmap[year]![month] =
+                (monthlyHeatmap[year]![month] ?? 0) + 1;
+          }
         }
       }
     }
+
+    // Debug: Log total books in heatmap
+    int totalBooksHeatmap = 0;
+    monthlyHeatmap.forEach((year, months) {
+      months.forEach((month, count) {
+        totalBooksHeatmap += count;
+      });
+    });
 
     // NEW STATISTICS
 
@@ -1856,6 +2017,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                     : 'Total',
                                 style: Theme.of(context).textTheme.bodySmall,
                               ),
+                              const SizedBox(width: 12),
                               SizedBox(
                                 width: 48,
                                 child: Switch(
