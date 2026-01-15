@@ -1877,9 +1877,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                       AppTheme.verticalSpaceLarge,
                     ],
 
-                    // Did you read today? button (only for Started or Standby status)
-                    if (_currentBook.statusValue?.toLowerCase() == 'started' ||
-                        _currentBook.statusValue?.toLowerCase() == 'standby') ...[
+                    // Did you read today? button (only for Started or Standby status, not for bundles)
+                    if ((_currentBook.statusValue?.toLowerCase() == 'started' ||
+                        _currentBook.statusValue?.toLowerCase() == 'standby') &&
+                        _currentBook.isBundle != true) ...[
                       Container(
                         height: 48,
                         decoration: BoxDecoration(

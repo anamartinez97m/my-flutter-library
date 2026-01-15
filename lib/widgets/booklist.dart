@@ -296,9 +296,12 @@ class _BookListViewState extends State<BookListView> {
                 const SizedBox(height: 3),
               ],
               
-              // Reading Progress
+              // Reading Progress (only for Started or Standby books)
               if (_enabledCardFields.contains('progress') && 
-                  book.readingProgress != null && book.readingProgress! > 0) ...[
+                  book.readingProgress != null && 
+                  book.readingProgress! > 0 &&
+                  (book.statusValue?.toLowerCase() == 'started' ||
+                   book.statusValue?.toLowerCase() == 'standby')) ...[
                 Row(
                   children: [
                     Icon(Icons.trending_up, size: 14, color: Colors.blue),
