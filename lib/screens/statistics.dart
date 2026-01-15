@@ -644,16 +644,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       // Format for current year (using read dates from book_read_dates table)
       // Skip parent bundles - we count individual books instead
       if (book.isBundle == true) {
-        debugPrint(
-          'DEBUG FORMAT SKIP: Book "${book.name}" (ID: ${book.bookId}) - is parent bundle',
-        );
       } else if (book.bookId != null && format != null && format.isNotEmpty) {
         final readDates = _bookReadDates[book.bookId!] ?? [];
-
-        // Debug: Log all books to see why they're included/excluded
-        debugPrint(
-          'DEBUG FORMAT CHECK: Book "${book.name}" (ID: ${book.bookId}) - Format: $format, ReadDates count: ${readDates.length}, bundleParentId: ${book.bundleParentId}',
-        );
 
         // Check if any read date has a dateFinished in the current year
         bool hasCurrentYearRead = false;
@@ -664,20 +656,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               readDate.dateFinished!,
               bookName: book.name,
             );
-            debugPrint(
-              'DEBUG FORMAT PARSE: Book "${book.name}" - dateFinished: "${readDate.dateFinished}", Parsed year: ${endDate?.year}, Current year: $currentYear',
-            );
             if (endDate != null && endDate.year == currentYear) {
               hasCurrentYearRead = true;
-              debugPrint(
-                'DEBUG FORMAT FOUND CURRENT YEAR: Book "${book.name}" - ReadDate: ${readDate.dateFinished}',
-              );
               break;
             }
-          } else {
-            debugPrint(
-              'DEBUG FORMAT SKIP: Book "${book.name}" - dateFinished is null or empty',
-            );
           }
         }
 
@@ -685,9 +667,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           // Count as 1 book (individual books or standalone books)
           formatCountsCurrentYear[format] =
               (formatCountsCurrentYear[format] ?? 0) + 1;
-          debugPrint(
-            'DEBUG FORMAT COUNTED: Book "${book.name}" (ID: ${book.bookId}) - Format: $format, bundleParentId: ${book.bundleParentId}',
-          );
         }
       }
 
@@ -717,43 +696,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         if (author != null && author.isNotEmpty) {
           authorCounts[author] = (authorCounts[author] ?? 0) + multiplier;
         }
-      }
-    }
-
-    // Debug: Log total books counted for current year format
-    int totalBooksCurrentYear = formatCountsCurrentYear.values.fold(
-      0,
-      (a, b) => a + b,
-    );
-    debugPrint(
-      'DEBUG: Total books in formatCountsCurrentYear: $totalBooksCurrentYear',
-    );
-    debugPrint(
-      'DEBUG: formatCountsCurrentYear breakdown: $formatCountsCurrentYear',
-    );
-    
-    // Debug: Check how many books we have in total and how many are bundles
-    int totalBooksCount = books.length;
-    int parentBundlesCount = books.where((b) => b.isBundle == true).length;
-    int individualBooksInBundlesCount = books.where((b) => b.bundleParentId != null).length;
-    int standaloneBooksCount = books.where((b) => b.isBundle != true && b.bundleParentId == null).length;
-    debugPrint('DEBUG BOOK COUNTS: Total: $totalBooksCount, Parent Bundles: $parentBundlesCount, Individual Books in Bundles: $individualBooksInBundlesCount, Standalone: $standaloneBooksCount');
-    
-    // Debug: List all individual books from bundles
-    final individualBooksFromBundles = books.where((b) => b.bundleParentId != null).toList();
-    debugPrint('DEBUG: Checking for individual books from bundles...');
-    debugPrint('DEBUG: Found ${individualBooksFromBundles.length} books with bundleParentId != null');
-    if (individualBooksFromBundles.isNotEmpty) {
-      debugPrint('DEBUG: Individual books from bundles:');
-      for (var book in individualBooksFromBundles) {
-        debugPrint('  - "${book.name}" (ID: ${book.bookId}, bundleParentId: ${book.bundleParentId})');
-      }
-    } else {
-      // Check if the field is being loaded correctly
-      debugPrint('DEBUG: Sample of first 5 books to check bundleParentId field:');
-      for (var i = 0; i < books.length && i < 5; i++) {
-        final book = books[i];
-        debugPrint('  - "${book.name}" (ID: ${book.bookId}, isBundle: ${book.isBundle}, bundleParentId: ${book.bundleParentId})');
       }
     }
 
@@ -2396,128 +2338,181 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            // Books by Format and Language Card
+            // Books by Format and Language Card (Heatmap)
             if (formatByLanguageCounts.isNotEmpty)
-              Card(
-                elevation: 2,
-                margin: const EdgeInsets.symmetric(horizontal: 8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    children: [
-                      Text(
-                        'Format by Language',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children:
-                              formatByLanguageCounts.entries.map((formatEntry) {
-                                final format = formatEntry.key;
-                                final languages = formatEntry.value;
-                                final sortedLanguages =
-                                    languages.entries.toList()..sort(
-                                      (a, b) => b.value.compareTo(a.value),
-                                    );
-                                final maxValue =
-                                    sortedLanguages.isNotEmpty
-                                        ? sortedLanguages.first.value
-                                        : 1;
-
-                                return Padding(
-                                  padding: const EdgeInsets.only(right: 28),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        format,
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.titleSmall?.copyWith(
+              Builder(
+                builder: (context) {
+                  // Get all unique languages
+                  final Set<String> allLanguages = {};
+                  
+                  for (var formatEntry in formatByLanguageCounts.entries) {
+                    allLanguages.addAll(formatEntry.value.keys);
+                  }
+                  
+                  // Sort languages and formats
+                  final sortedLanguages = allLanguages.toList()..sort();
+                  final sortedFormats = formatByLanguageCounts.keys.toList()..sort();
+                  
+                  // Find max value for color intensity
+                  int maxCount = 0;
+                  for (var formatMap in formatByLanguageCounts.values) {
+                    for (var count in formatMap.values) {
+                      if (count > maxCount) maxCount = count;
+                    }
+                  }
+                  
+                  // Calculate cell size based on available space
+                  final screenWidth = MediaQuery.of(context).size.width;
+                  final availableWidth = screenWidth - 80; // margins + padding
+                  final labelWidth = 80.0;
+                  final cellWidth = (availableWidth - labelWidth) / (sortedLanguages.length + 1);
+                  final cellHeight = 50.0;
+                  
+                  return Card(
+                    elevation: 2,
+                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        children: [
+                          Text(
+                            'Format by Language',
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          // Heatmap
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Header row with language names
+                                Row(
+                                  children: [
+                                    SizedBox(width: labelWidth), // Space for format labels
+                                    ...sortedLanguages.map((language) => Container(
+                                      width: cellWidth,
+                                      height: cellHeight,
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        language,
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                           fontWeight: FontWeight.w700,
-                                          color:
-                                              Theme.of(
-                                                context,
-                                              ).colorScheme.primary,
+                                          color: Theme.of(context).colorScheme.primary,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    )),
+                                  ],
+                                ),
+                                // Data rows
+                                ...sortedFormats.map((format) {
+                                  return Row(
+                                    children: [
+                                      // Format label
+                                      Container(
+                                        width: labelWidth,
+                                        height: cellHeight,
+                                        alignment: Alignment.centerRight,
+                                        padding: const EdgeInsets.only(right: 8),
+                                        child: Text(
+                                          format,
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                          textAlign: TextAlign.right,
+                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
-                                      const SizedBox(height: 16),
-                                      ...sortedLanguages.asMap().entries.map((
-                                        entry,
-                                      ) {
-                                        final langEntry = entry.value;
-                                        final language = langEntry.key;
-                                        final count = langEntry.value;
-                                        final index = entry.key;
-                                        final colors = [
-                                          Colors.blue,
-                                          Colors.cyan,
-                                          Colors.teal,
-                                          Colors.green,
-                                          Colors.lime,
-                                          Colors.indigo,
-                                        ];
-                                        final color =
-                                            colors[index % colors.length];
-
-                                        return Padding(
-                                          padding: const EdgeInsets.only(
-                                            bottom: 12,
+                                      // Cells for each language
+                                      ...sortedLanguages.map((language) {
+                                        final count = formatByLanguageCounts[format]?[language] ?? 0;
+                                        final intensity = maxCount > 0 ? count / maxCount : 0.0;
+                                        
+                                        // Color gradient from light to dark blue
+                                        final baseColor = Theme.of(context).colorScheme.primary;
+                                        final cellColor = count == 0
+                                            ? Colors.grey.shade200
+                                            : Color.lerp(
+                                                baseColor.withOpacity(0.2),
+                                                baseColor,
+                                                intensity,
+                                              )!;
+                                        
+                                        return Container(
+                                          width: cellWidth,
+                                          height: cellHeight,
+                                          margin: const EdgeInsets.all(2),
+                                          decoration: BoxDecoration(
+                                            color: cellColor,
+                                            borderRadius: BorderRadius.circular(4),
+                                            border: Border.all(
+                                              color: Colors.grey.shade300,
+                                              width: 0.5,
+                                            ),
                                           ),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                language,
-                                                style: Theme.of(
-                                                  context,
-                                                ).textTheme.bodySmall?.copyWith(
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 6),
-                                              CustomPaint(
-                                                painter:
-                                                    VerticalLineChartPainter(
-                                                      value: count.toDouble(),
-                                                      maxValue:
-                                                          maxValue.toDouble(),
-                                                      color: color,
-                                                    ),
-                                                size: Size(30, 80),
-                                              ),
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                '$count',
-                                                style: Theme.of(
-                                                  context,
-                                                ).textTheme.bodySmall?.copyWith(
-                                                  fontWeight: FontWeight.w600,
-                                                  color: color,
-                                                ),
-                                              ),
-                                            ],
+                                          alignment: Alignment.center,
+                                          child: Text(
+                                            count > 0 ? '$count' : '',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              color: intensity > 0.5 ? Colors.white : Colors.black87,
+                                            ),
                                           ),
                                         );
-                                      }).toList(),
+                                      }),
                                     ],
+                                  );
+                                }),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          // Legend
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Low',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                              const SizedBox(width: 8),
+                              ...List.generate(5, (index) {
+                                final intensity = (index + 1) / 5;
+                                final baseColor = Theme.of(context).colorScheme.primary;
+                                return Container(
+                                  width: 30,
+                                  height: 20,
+                                  margin: const EdgeInsets.symmetric(horizontal: 2),
+                                  decoration: BoxDecoration(
+                                    color: Color.lerp(
+                                      baseColor.withOpacity(0.2),
+                                      baseColor,
+                                      intensity,
+                                    ),
+                                    borderRadius: BorderRadius.circular(2),
                                   ),
                                 );
-                              }).toList(),
-                        ),
+                              }),
+                              const SizedBox(width: 8),
+                              Text(
+                                'High',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
               ),
             if (formatByLanguageCounts.isNotEmpty) const SizedBox(height: 16),
             // Reading Velocity Card
