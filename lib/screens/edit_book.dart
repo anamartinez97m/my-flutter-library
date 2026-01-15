@@ -42,7 +42,6 @@ class _EditBookScreenState extends State<EditBookScreen> {
   late TextEditingController _pagesController;
   late TextEditingController _publicationYearController;
   DateTime? _releaseDate;
-  late TextEditingController _editorialController;
   late TextEditingController _genreController;
   late TextEditingController _myReviewController;
   late double _myRating;
@@ -97,6 +96,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   // Multi-value fields
   List<String> _selectedAuthors = [];
   List<String> _selectedGenres = [];
+  List<String> _selectedEditorial = []; // Single value but displayed as chip
 
   bool _isLoading = true;
 
@@ -224,9 +224,6 @@ class _EditBookScreenState extends State<EditBookScreen> {
     _isbnController = TextEditingController(text: widget.book.isbn ?? '');
     _asinController = TextEditingController(text: widget.book.asin ?? '');
     _authorController = TextEditingController(text: widget.book.author ?? '');
-    _editorialController = TextEditingController(
-      text: widget.book.editorialValue ?? '',
-    );
     _genreController = TextEditingController(text: widget.book.genre ?? '');
 
     // Initialize chip values from comma-separated strings
@@ -245,6 +242,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
               .map((g) => g.trim())
               .where((g) => g.isNotEmpty)
               .toList();
+    }
+    if (widget.book.editorialValue != null && widget.book.editorialValue!.isNotEmpty) {
+      _selectedEditorial = [widget.book.editorialValue!];
     }
     _sagaController = TextEditingController(text: widget.book.saga);
     _nSagaController = TextEditingController(text: widget.book.nSaga);
@@ -272,9 +272,6 @@ class _EditBookScreenState extends State<EditBookScreen> {
         // Invalid date, just use the value as year
       }
     }
-    _editorialController = TextEditingController(
-      text: widget.book.editorialValue,
-    );
     _genreController = TextEditingController(text: widget.book.genre);
     _myReviewController = TextEditingController(text: widget.book.myReview);
     _myRating = widget.book.myRating ?? 0.0;
@@ -539,9 +536,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
         loaned: (_selectedLoaned ?? 'no').toLowerCase(),
         statusValue: statusValue,
         editorialValue:
-            _editorialController.text.trim().isEmpty
+            _selectedEditorial.isEmpty
                 ? null
-                : _editorialController.text.trim(),
+                : _selectedEditorial.first,
         languageValue: languageValue,
         placeValue: placeValue,
         formatValue: formatValue,
@@ -730,9 +727,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 loaned: _selectedLoaned,
                 statusValue: 'No',
                 editorialValue:
-                    _editorialController.text.trim().isEmpty
+                    _selectedEditorial.isEmpty
                         ? null
-                        : _editorialController.text.trim(),
+                        : _selectedEditorial.first,
                 languageValue: languageValue,
                 placeValue: placeValue,
                 formatValue: formatValue,
@@ -947,7 +944,6 @@ class _EditBookScreenState extends State<EditBookScreen> {
     _nSagaController.dispose();
     _pagesController.dispose();
     _publicationYearController.dispose();
-    _editorialController.dispose();
     _genreController.dispose();
     super.dispose();
   }
@@ -1161,13 +1157,19 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Editorial field
-                AutocompleteTextField(
-                  controller: _editorialController,
+                // Editorial field (single selection displayed as chip)
+                ChipAutocompleteField(
                   labelText: AppLocalizations.of(context)!.editorial,
                   prefixIcon: Icons.business,
                   suggestions: _editorialSuggestions,
-                  textCapitalization: TextCapitalization.words,
+                  initialValues: _selectedEditorial,
+                  maxSelections: 1, // Only allow one editorial
+                  hintText: 'Select publisher',
+                  onChanged: (values) {
+                    setState(() {
+                      _selectedEditorial = values;
+                    });
+                  },
                 ),
                 const SizedBox(height: 16),
 
