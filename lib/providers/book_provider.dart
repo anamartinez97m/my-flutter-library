@@ -81,10 +81,16 @@ class BookProvider extends ChangeNotifier {
 
   void _applyAllFilters() {
     if (_currentFilters.isEmpty) {
-      _filteredBooks = List<Book>.from(_books);
+      // Filter out individual books from bundles (they should only be accessible through the bundle)
+      _filteredBooks = _books.where((book) => book.bundleParentId == null).toList();
     } else {
       _filteredBooks =
           _books.where((book) {
+            // Filter out individual books from bundles
+            if (book.bundleParentId != null) {
+              return false;
+            }
+            
             // Check all active filters
             for (var entry in _currentFilters.entries) {
               final filterType = entry.key;

@@ -283,6 +283,61 @@ class _AddBookScreenState extends State<AddBookScreen> {
   }
 
   Future<void> _saveBook() async {
+    // Check for missing mandatory fields and show helpful message
+    List<String> missingFields = [];
+    
+    if (_selectedStatusId == null) {
+      missingFields.add('Reading Status');
+    }
+    
+    if (_selectedStatusValue == 'Repeated' && _selectedOriginalBookId == null) {
+      missingFields.add('Original Book (required for Repeated status)');
+    }
+    
+    // Show dialog with missing fields if any
+    if (missingFields.isNotEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.orange),
+              const SizedBox(width: 8),
+              const Text('Missing Required Fields'),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Please fill in the following required fields:',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 12),
+              ...missingFields.map((field) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: [
+                    const Icon(Icons.arrow_right, size: 20),
+                    const SizedBox(width: 4),
+                    Expanded(child: Text(field)),
+                  ],
+                ),
+              )),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+    
     if (!_formKey.currentState!.validate()) {
       return;
     }

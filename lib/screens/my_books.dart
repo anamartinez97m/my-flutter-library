@@ -338,14 +338,28 @@ class _TBRCard extends StatefulWidget {
   State<_TBRCard> createState() => _TBRCardState();
 }
 
-class _TBRCardState extends State<_TBRCard> {
+class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
   List<dynamic> _tbrBooks = [];
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadTBRBooks();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _loadTBRBooks();
+    }
   }
 
   Future<void> _loadTBRBooks() async {

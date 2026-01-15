@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
@@ -44,7 +45,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   bool _showFormatAsPercentage = false;
   bool _showPlaceAsPercentage = false;
   bool _showFormatCurrentYearToggle =
-      false; // false = total, true = current year
+      true; // false = total, true = current year
   bool _showReadBooksDecade = false;
   bool _showReadBooksGenres = false;
   bool _showReadBooksEditorials = false;
@@ -1065,32 +1066,44 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       }
     }
 
-    // #31: Reading Streaks
-    final List<DateTime> readDates = [];
-    for (var book in books) {
-      if (book.dateReadFinal != null && book.dateReadFinal!.isNotEmpty) {
-        final endDate = _tryParseDate(book.dateReadFinal!, bookName: book.name);
-        if (endDate != null) {
-          readDates.add(endDate);
+    // #31: Reading Streaks - Based on consecutive days of reading activity
+    final Set<String> uniqueReadingDays = {};
+    
+    // Collect all unique days where user had reading activity
+    for (var bookSessions in _bookSessions.values) {
+      for (var session in bookSessions) {
+        if (session.startTime != null) {
+          final dateKey = DateFormat('yyyy-MM-dd').format(session.startTime!);
+          uniqueReadingDays.add(dateKey);
         }
       }
     }
-    readDates.sort();
+    
+    // Convert to sorted list of dates
+    final sortedReadingDays = uniqueReadingDays.map((dateStr) {
+      return DateTime.parse(dateStr);
+    }).toList()..sort();
 
     int currentStreak = 0;
     int longestStreak = 0;
     int tempStreak = 0;
     DateTime? lastDate;
     final today = DateTime.now();
+    final todayDateOnly = DateTime(today.year, today.month, today.day);
 
-    for (var date in readDates) {
+    for (var date in sortedReadingDays) {
       if (lastDate == null) {
         tempStreak = 1;
       } else {
         final daysDiff = date.difference(lastDate).inDays;
-        if (daysDiff <= 1) {
+        if (daysDiff == 1) {
+          // Consecutive day
           tempStreak++;
+        } else if (daysDiff == 0) {
+          // Same day (shouldn't happen with unique days, but just in case)
+          continue;
         } else {
+          // Streak broken
           if (tempStreak > longestStreak) longestStreak = tempStreak;
           tempStreak = 1;
         }
@@ -1099,10 +1112,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     }
     if (tempStreak > longestStreak) longestStreak = tempStreak;
 
-    // Calculate current streak
+    // Calculate current streak - check if streak continues to today or yesterday
     if (lastDate != null) {
-      final daysSinceLastRead = today.difference(lastDate).inDays;
-      if (daysSinceLastRead <= 1) {
+      final daysSinceLastRead = todayDateOnly.difference(lastDate).inDays;
+      if (daysSinceLastRead == 0 || daysSinceLastRead == 1) {
         currentStreak = tempStreak;
       }
     }
@@ -1136,20 +1149,31 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     // Will be implemented when time tracking is added
 
     // #39: Series vs Standalone
-    int seriesBooks = 0;
+    int totalBooksInSeries = 0;
     int standaloneBooks = 0;
+    int totalBooksInSeriesRead = 0;
+    int standaloneBooksRead = 0;
     final Set<String> uniqueSeries = {};
+    final Set<String> uniqueSeriesRead = {};
+    
     for (var book in books) {
+      final isRead = book.readCount != null && book.readCount! > 0;
+      
       if (book.saga != null && book.saga!.isNotEmpty) {
-        seriesBooks++;
+        totalBooksInSeries++;
+        if (isRead) totalBooksInSeriesRead++;
         uniqueSeries.add(book.saga!);
+        if (isRead) uniqueSeriesRead.add(book.saga!);
       } else {
         standaloneBooks++;
+        if (isRead) standaloneBooksRead++;
       }
     }
-    final seriesPercentage =
-        totalCount > 0 ? (seriesBooks / totalCount) * 100 : 0.0;
+    
     final seriesCount = uniqueSeries.length;
+    final seriesCountRead = uniqueSeriesRead.length;
+    final seriesPercentage =
+        totalCount > 0 ? (totalBooksInSeries / totalCount) * 100 : 0.0;
 
     // #53: Reading Goals Progress (placeholder for future goals feature)
     // Will be implemented when goal tracking is added
@@ -2344,15 +2368,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 builder: (context) {
                   // Get all unique languages
                   final Set<String> allLanguages = {};
-                  
+
                   for (var formatEntry in formatByLanguageCounts.entries) {
                     allLanguages.addAll(formatEntry.value.keys);
                   }
-                  
+
                   // Sort languages and formats
                   final sortedLanguages = allLanguages.toList()..sort();
-                  final sortedFormats = formatByLanguageCounts.keys.toList()..sort();
-                  
+                  final sortedFormats =
+                      formatByLanguageCounts.keys.toList()..sort();
+
                   // Find max value for color intensity
                   int maxCount = 0;
                   for (var formatMap in formatByLanguageCounts.values) {
@@ -2360,14 +2385,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       if (count > maxCount) maxCount = count;
                     }
                   }
-                  
+
                   // Calculate cell size based on available space
                   final screenWidth = MediaQuery.of(context).size.width;
                   final availableWidth = screenWidth - 80; // margins + padding
                   final labelWidth = 80.0;
-                  final cellWidth = (availableWidth - labelWidth) / (sortedLanguages.length + 1);
+                  final cellWidth =
+                      (availableWidth - labelWidth) /
+                      (sortedLanguages.length + 1);
                   final cellHeight = 50.0;
-                  
+
                   return Card(
                     elevation: 2,
                     margin: const EdgeInsets.symmetric(horizontal: 8),
@@ -2380,9 +2407,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         children: [
                           Text(
                             'Format by Language',
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(fontWeight: FontWeight.w600),
                           ),
                           const SizedBox(height: 20),
                           // Heatmap
@@ -2394,21 +2420,30 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                 // Header row with language names
                                 Row(
                                   children: [
-                                    SizedBox(width: labelWidth), // Space for format labels
-                                    ...sortedLanguages.map((language) => Container(
-                                      width: cellWidth,
-                                      height: cellHeight,
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        language,
-                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                          fontWeight: FontWeight.w700,
-                                          color: Theme.of(context).colorScheme.primary,
+                                    SizedBox(
+                                      width: labelWidth,
+                                    ), // Space for format labels
+                                    ...sortedLanguages.map(
+                                      (language) => Container(
+                                        width: cellWidth,
+                                        height: cellHeight,
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          language,
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodySmall?.copyWith(
+                                            fontWeight: FontWeight.w700,
+                                            color:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.primary,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                          overflow: TextOverflow.ellipsis,
                                         ),
-                                        textAlign: TextAlign.center,
-                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                    )),
+                                    ),
                                   ],
                                 ),
                                 // Data rows
@@ -2420,10 +2455,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                         width: labelWidth,
                                         height: cellHeight,
                                         alignment: Alignment.centerRight,
-                                        padding: const EdgeInsets.only(right: 8),
+                                        padding: const EdgeInsets.only(
+                                          right: 8,
+                                        ),
                                         child: Text(
                                           format,
-                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodySmall?.copyWith(
                                             fontWeight: FontWeight.w600,
                                           ),
                                           textAlign: TextAlign.right,
@@ -2432,26 +2471,37 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                       ),
                                       // Cells for each language
                                       ...sortedLanguages.map((language) {
-                                        final count = formatByLanguageCounts[format]?[language] ?? 0;
-                                        final intensity = maxCount > 0 ? count / maxCount : 0.0;
-                                        
+                                        final count =
+                                            formatByLanguageCounts[format]?[language] ??
+                                            0;
+                                        final intensity =
+                                            maxCount > 0
+                                                ? count / maxCount
+                                                : 0.0;
+
                                         // Color gradient from light to dark blue
-                                        final baseColor = Theme.of(context).colorScheme.primary;
-                                        final cellColor = count == 0
-                                            ? Colors.grey.shade200
-                                            : Color.lerp(
-                                                baseColor.withOpacity(0.2),
-                                                baseColor,
-                                                intensity,
-                                              )!;
-                                        
+                                        final baseColor =
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.primary;
+                                        final cellColor =
+                                            count == 0
+                                                ? Colors.grey.shade200
+                                                : Color.lerp(
+                                                  baseColor.withOpacity(0.2),
+                                                  baseColor,
+                                                  intensity,
+                                                )!;
+
                                         return Container(
                                           width: cellWidth,
                                           height: cellHeight,
                                           margin: const EdgeInsets.all(2),
                                           decoration: BoxDecoration(
                                             color: cellColor,
-                                            borderRadius: BorderRadius.circular(4),
+                                            borderRadius: BorderRadius.circular(
+                                              4,
+                                            ),
                                             border: Border.all(
                                               color: Colors.grey.shade300,
                                               width: 0.5,
@@ -2463,7 +2513,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                             style: TextStyle(
                                               fontSize: 12,
                                               fontWeight: FontWeight.w600,
-                                              color: intensity > 0.5 ? Colors.white : Colors.black87,
+                                              color:
+                                                  intensity > 0.5
+                                                      ? Colors.white
+                                                      : Colors.black87,
                                             ),
                                           ),
                                         );
@@ -2486,11 +2539,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                               const SizedBox(width: 8),
                               ...List.generate(5, (index) {
                                 final intensity = (index + 1) / 5;
-                                final baseColor = Theme.of(context).colorScheme.primary;
+                                final baseColor =
+                                    Theme.of(context).colorScheme.primary;
                                 return Container(
                                   width: 30,
                                   height: 20,
-                                  margin: const EdgeInsets.symmetric(horizontal: 2),
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 2,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: Color.lerp(
                                       baseColor.withOpacity(0.2),
@@ -3073,8 +3129,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   dnfRate: dnfRate,
                   rereadCount: rereadCount,
                   mostRereadBook: mostRereadBook,
-                  seriesBooks: seriesBooks,
+                  seriesBooks: seriesCount,
                   standaloneBooks: standaloneBooks,
+                  seriesBooksRead: seriesCountRead,
+                  standaloneBooksRead: standaloneBooksRead,
                   seriesPercentage: seriesPercentage,
                   seriesCount: seriesCount,
                   mostBooksInMonth: mostBooksInMonth,

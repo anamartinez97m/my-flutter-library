@@ -200,7 +200,9 @@ class BookRepository {
       left join place p on b.place_id = p.place_id  
       left join format f on b.format_id = f.format_id
       left join format_saga fs on b.format_saga_id = fs.format_id
-      where b.tbr = 1 AND b.bundle_parent_id IS NULL
+      where b.tbr = 1 
+        AND b.bundle_parent_id IS NULL
+        AND LOWER(s.value) NOT IN ('started', 'standby')
       group by b.book_id
       order by b.name
     ''');
