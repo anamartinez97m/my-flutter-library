@@ -38,7 +38,6 @@ class _AddBookScreenState extends State<AddBookScreen> {
   final _pagesController = TextEditingController();
   final _publicationYearController = TextEditingController();
   DateTime? _releaseDate;
-  final _editorialController = TextEditingController();
   final _genreController = TextEditingController();
   final _myReviewController = TextEditingController();
   double _myRating = 0.0;
@@ -88,6 +87,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   // Multi-value fields
   List<String> _selectedAuthors = [];
   List<String> _selectedGenres = [];
+  List<String> _selectedEditorial = []; // Single value but displayed as chip
 
   bool _isLoading = true;
 
@@ -449,9 +449,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
             (_selectedLoaned ?? 'no').toLowerCase(), // Normalize to lowercase
         statusValue: statusValue,
         editorialValue:
-            _editorialController.text.trim().isEmpty
+            _selectedEditorial.isEmpty
                 ? null
-                : _editorialController.text.trim(),
+                : _selectedEditorial.first,
         languageValue: languageValue,
         placeValue: placeValue,
         formatValue: formatValue,
@@ -513,9 +513,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
             loaned: (_selectedLoaned ?? 'no').toLowerCase(),
             statusValue: bundleBookData.status ?? 'No',
             editorialValue:
-                _editorialController.text.trim().isEmpty
+                _selectedEditorial.isEmpty
                     ? null
-                    : _editorialController.text.trim(),
+                    : _selectedEditorial.first,
             languageValue: languageValue,
             placeValue: placeValue,
             formatValue: formatValue,
@@ -615,7 +615,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         _notificationEnabled = false;
         _notificationDateTime = null;
         _notificationTime = null;
-        _editorialController.clear();
+        _selectedEditorial = [];
         _genreController.clear();
         _myReviewController.clear();
 
@@ -685,7 +685,6 @@ class _AddBookScreenState extends State<AddBookScreen> {
     _nSagaController.dispose();
     _pagesController.dispose();
     _publicationYearController.dispose();
-    _editorialController.dispose();
     _genreController.dispose();
     super.dispose();
   }
@@ -892,13 +891,19 @@ class _AddBookScreenState extends State<AddBookScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Editorial field
-              AutocompleteTextField(
-                controller: _editorialController,
+              // Editorial field (single selection displayed as chip)
+              ChipAutocompleteField(
                 labelText: AppLocalizations.of(context)!.editorial,
                 prefixIcon: Icons.business,
                 suggestions: _editorialSuggestions,
-                textCapitalization: TextCapitalization.words,
+                initialValues: _selectedEditorial,
+                maxSelections: 1, // Only allow one editorial
+                hintText: 'Select publisher',
+                onChanged: (values) {
+                  setState(() {
+                    _selectedEditorial = values;
+                  });
+                },
               ),
               const SizedBox(height: 16),
 

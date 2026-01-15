@@ -7,6 +7,7 @@ class ChipAutocompleteField extends StatefulWidget {
   final List<String> initialValues;
   final Function(List<String>) onChanged;
   final String? hintText;
+  final int? maxSelections; // null = unlimited, 1 = single selection, etc.
 
   const ChipAutocompleteField({
     super.key,
@@ -16,6 +17,7 @@ class ChipAutocompleteField extends StatefulWidget {
     required this.initialValues,
     required this.onChanged,
     this.hintText,
+    this.maxSelections,
   });
 
   @override
@@ -56,6 +58,10 @@ class _ChipAutocompleteFieldState extends State<ChipAutocompleteField> {
     final trimmedValue = value.trim();
     if (trimmedValue.isNotEmpty && !_selectedValues.contains(trimmedValue)) {
       setState(() {
+        // If maxSelections is set and we're at the limit, replace the first value
+        if (widget.maxSelections != null && _selectedValues.length >= widget.maxSelections!) {
+          _selectedValues.clear(); // For single selection, clear all
+        }
         _selectedValues.add(trimmedValue);
       });
       widget.onChanged(_selectedValues);

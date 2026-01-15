@@ -119,12 +119,12 @@ class _RandomScreenState extends State<RandomScreen> {
             book.languageValue != _filterLanguage) {
           return false;
         }
-        // Genre filter (optional) - multiple selection
+        // Genre filter (optional) - multiple selection (AND logic)
         if (_filterGenre.isNotEmpty) {
           final bookGenres = book.genre?.split(',').map((g) => g.trim()).toList() ?? [];
-          final hasMatch = _filterGenre.any((selectedGenre) => 
+          final hasAllGenres = _filterGenre.every((selectedGenre) => 
             bookGenres.contains(selectedGenre));
-          if (!hasMatch) {
+          if (!hasAllGenres) {
             return false;
           }
         }
