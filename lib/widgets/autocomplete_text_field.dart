@@ -6,6 +6,7 @@ class AutocompleteTextField extends StatelessWidget {
   final IconData? prefixIcon;
   final List<String> suggestions;
   final TextCapitalization? textCapitalization;
+  final void Function(String)? onSelected;
 
   const AutocompleteTextField({
     super.key,
@@ -14,6 +15,7 @@ class AutocompleteTextField extends StatelessWidget {
     this.prefixIcon,
     required this.suggestions,
     this.textCapitalization,
+    this.onSelected,
   });
 
   @override
@@ -31,6 +33,7 @@ class AutocompleteTextField extends StatelessWidget {
       },
       onSelected: (String selection) {
         controller.text = selection;
+        onSelected?.call(selection);
       },
       fieldViewBuilder: (
         BuildContext context,

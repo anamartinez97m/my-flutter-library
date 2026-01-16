@@ -488,14 +488,16 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                     children: [
                       Expanded(
                         child: InkWell(
-                          onTap: () {
-                            Navigator.push(
+                          onTap: () async {
+                            await Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder:
                                     (context) => BookDetailScreen(book: book),
                               ),
                             );
+                            // Reload TBR list when returning from book detail
+                            _loadTBRBooks();
                           },
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,

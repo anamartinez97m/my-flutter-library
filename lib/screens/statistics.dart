@@ -42,7 +42,6 @@ class StatisticsScreen extends StatefulWidget {
 
 class _StatisticsScreenState extends State<StatisticsScreen> {
   bool _showStatusAsPercentage = false;
-  bool _showFormatAsPercentage = false;
   bool _showPlaceAsPercentage = false;
   bool _showFormatCurrentYearToggle =
       true; // false = total, true = current year
@@ -67,6 +66,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   Map<int, List<ReadDate>> _bookReadDates = {};
   bool _isLoadingReadDates = true;
 
+  // Format saga expected books mapping
+  Map<String, int?> _formatSagaMapping = {};
+  bool _isLoadingFormatSagaMapping = true;
+
   @override
   void initState() {
     super.initState();
@@ -74,6 +77,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     _loadCompetitionData();
     _loadReadingSessionsData();
     _loadReadDatesData();
+    _loadFormatSagaMapping();
   }
 
   Future<void> _loadYearData() async {
@@ -162,6 +166,27 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       if (mounted) {
         setState(() {
           _isLoadingSessions = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _loadFormatSagaMapping() async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final repository = BookRepository(db);
+      final mapping = await repository.getFormatSagaExpectedBooks();
+      if (mounted) {
+        setState(() {
+          _formatSagaMapping = mapping;
+          _isLoadingFormatSagaMapping = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading format saga mapping: $e');
+      if (mounted) {
+        setState(() {
+          _isLoadingFormatSagaMapping = false;
         });
       }
     }
@@ -860,33 +885,66 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     }
 
     // #18: Saga Completion Rate
-    final Map<String, Map<String, int>> sagaStats = {};
+    // Structure: sagaStats[sagaName] = {'total': expectedTotal, 'read': booksRead, 'formatSaga': formatSagaValue}
+    // For unknown totals (null in database), total is -1
+    final Map<String, Map<String, dynamic>> sagaStats = {};
+    
+    // Helper function to get expected total from formatSagaValue using database mapping
+    int _getExpectedTotal(String? formatSagaValue) {
+      if (formatSagaValue == null || formatSagaValue.isEmpty) return -1;
+      
+      // Look up in database mapping (loaded in initState)
+      final expectedBooks = _formatSagaMapping[formatSagaValue];
+      
+      // null in database means unknown (show as "?")
+      if (expectedBooks == null) return -1;
+      
+      return expectedBooks;
+    }
+    
     for (var book in books) {
       if (book.saga != null && book.saga!.isNotEmpty) {
         if (!sagaStats.containsKey(book.saga!)) {
-          sagaStats[book.saga!] = {'total': 0, 'read': 0};
+          final expectedTotal = _getExpectedTotal(book.formatSagaValue);
+          sagaStats[book.saga!] = {
+            'total': expectedTotal,
+            'read': 0,
+            'formatSaga': book.formatSagaValue ?? '',
+          };
         }
-        sagaStats[book.saga!]!['total'] =
-            (sagaStats[book.saga!]!['total'] ?? 0) + 1;
+        
+        // Count read books
         if (book.readCount != null && book.readCount! > 0) {
           sagaStats[book.saga!]!['read'] =
-              (sagaStats[book.saga!]!['read'] ?? 0) + 1;
+              (sagaStats[book.saga!]!['read'] as int) + 1;
         }
       }
     }
-    final completedSagas =
-        sagaStats.entries
-            .where((e) => e.value['read'] == e.value['total'])
-            .length;
-    final partialSagas =
-        sagaStats.entries
-            .where(
-              (e) =>
-                  e.value['read']! > 0 && e.value['read'] != e.value['total'],
-            )
-            .length;
-    final unstartedSagas =
-        sagaStats.entries.where((e) => e.value['read'] == 0).length;
+    
+    // Calculate completed, partial, and unstarted sagas
+    final completedSagas = sagaStats.entries
+        .where((e) {
+          final total = e.value['total'] as int;
+          final read = e.value['read'] as int;
+          // For unknown totals (-1), never consider completed
+          if (total == -1) return false;
+          return read == total;
+        })
+        .length;
+    
+    final partialSagas = sagaStats.entries
+        .where((e) {
+          final total = e.value['total'] as int;
+          final read = e.value['read'] as int;
+          // For unknown totals, consider partial if any books read
+          if (total == -1) return read > 0;
+          return read > 0 && read < total;
+        })
+        .length;
+    
+    final unstartedSagas = sagaStats.entries
+        .where((e) => (e.value['read'] as int) == 0)
+        .length;
 
     // #20: Seasonal Reading Patterns
     final Map<String, int> seasonalReading = {
@@ -1068,7 +1126,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
     // #31: Reading Streaks - Based on consecutive days of reading activity
     final Set<String> uniqueReadingDays = {};
-    
+
     // Collect all unique days where user had reading activity
     for (var bookSessions in _bookSessions.values) {
       for (var session in bookSessions) {
@@ -1078,11 +1136,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         }
       }
     }
-    
+
     // Convert to sorted list of dates
-    final sortedReadingDays = uniqueReadingDays.map((dateStr) {
-      return DateTime.parse(dateStr);
-    }).toList()..sort();
+    final sortedReadingDays =
+        uniqueReadingDays.map((dateStr) {
+            return DateTime.parse(dateStr);
+          }).toList()
+          ..sort();
 
     int currentStreak = 0;
     int longestStreak = 0;
@@ -1155,10 +1215,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     int standaloneBooksRead = 0;
     final Set<String> uniqueSeries = {};
     final Set<String> uniqueSeriesRead = {};
-    
+
     for (var book in books) {
       final isRead = book.readCount != null && book.readCount! > 0;
-      
+
       if (book.saga != null && book.saga!.isNotEmpty) {
         totalBooksInSeries++;
         if (isRead) totalBooksInSeriesRead++;
@@ -1169,7 +1229,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         if (isRead) standaloneBooksRead++;
       }
     }
-    
+
     final seriesCount = uniqueSeries.length;
     final seriesCountRead = uniqueSeriesRead.length;
     final seriesPercentage =
@@ -1810,148 +1870,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            // Format Pie Chart
-            Card(
-              elevation: 2,
-              margin: const EdgeInsets.symmetric(horizontal: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!.books_by_format,
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              _showFormatAsPercentage ? '%' : '#',
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                            Switch(
-                              value: _showFormatAsPercentage,
-                              onChanged: (value) {
-                                setState(() {
-                                  _showFormatAsPercentage = value;
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      height: 230,
-                      child:
-                          formatCounts.isEmpty
-                              ? Center(
-                                child: Text(
-                                  AppLocalizations.of(context)!.no_data,
-                                ),
-                              )
-                              : PieChart(
-                                PieChartData(
-                                  sections:
-                                      formatCounts.entries.map((entry) {
-                                        final colors = [
-                                          Colors.blue,
-                                          Colors.cyan,
-                                          Colors.teal,
-                                          Colors.lightBlue,
-                                        ];
-                                        final index = formatCounts.keys
-                                            .toList()
-                                            .indexOf(entry.key);
-                                        final percentage =
-                                            (entry.value / totalCount) * 100;
-                                        return PieChartSectionData(
-                                          value: entry.value.toDouble(),
-                                          title: '',
-                                          radius: 50,
-                                          color: colors[index % colors.length],
-                                          badgeWidget: Container(
-                                            padding: const EdgeInsets.all(6),
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius:
-                                                  BorderRadius.circular(4),
-                                              border: Border.all(
-                                                color:
-                                                    colors[index %
-                                                        colors.length],
-                                                width: 2,
-                                              ),
-                                            ),
-                                            child: Text(
-                                              _showFormatAsPercentage
-                                                  ? '${percentage.toStringAsFixed(1)}%'
-                                                  : '${entry.value}',
-                                              style: TextStyle(
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.bold,
-                                                color:
-                                                    colors[index %
-                                                        colors.length],
-                                              ),
-                                            ),
-                                          ),
-                                          badgePositionPercentageOffset: 1.4,
-                                        );
-                                      }).toList(),
-                                  sectionsSpace: 2,
-                                  centerSpaceRadius: 45,
-                                ),
-                              ),
-                    ),
-                    const SizedBox(height: 16),
-                    Wrap(
-                      spacing: 20,
-                      runSpacing: 12,
-                      alignment: WrapAlignment.center,
-                      children:
-                          formatCounts.entries.map((entry) {
-                            final colors = [
-                              Colors.blue,
-                              Colors.cyan,
-                              Colors.teal,
-                              Colors.lightBlue,
-                            ];
-                            final index = formatCounts.keys.toList().indexOf(
-                              entry.key,
-                            );
-                            return Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  width: 12,
-                                  height: 12,
-                                  decoration: BoxDecoration(
-                                    color: colors[index % colors.length],
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  entry.key,
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                              ],
-                            );
-                          }).toList(),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
             // Books by Format - Current Year Card
             if (formatCountsCurrentYear.isNotEmpty)
               Card(
@@ -1969,7 +1887,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         children: [
                           Expanded(
                             child: Text(
-                              'Books by Format',
+                              AppLocalizations.of(context)!.books_by_format,
                               style: Theme.of(context).textTheme.titleLarge
                                   ?.copyWith(fontWeight: FontWeight.w600),
                             ),
@@ -2595,20 +2513,26 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.baseline,
                         textBaseline: TextBaseline.alphabetic,
                         children: [
-                          Text(
-                            readingVelocity.toStringAsFixed(1),
-                            style: Theme.of(
-                              context,
-                            ).textTheme.displayLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.primary,
+                          Flexible(
+                            child: Text(
+                              readingVelocity.toStringAsFixed(1),
+                              style: Theme.of(
+                                context,
+                              ).textTheme.displayLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Text(
-                            'pages/day',
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(color: Colors.grey[600]),
+                          Flexible(
+                            child: Text(
+                              'pages/day',
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(color: Colors.grey[600]),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ],
                       ),
@@ -3153,6 +3077,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     completedSagas: completedSagas,
                     partialSagas: partialSagas,
                     unstartedSagas: unstartedSagas,
+                    sagaStats: sagaStats,
+                    books: books,
                   ),
                 SeasonalReadingCard(
                   seasonalReading: seasonalReading,

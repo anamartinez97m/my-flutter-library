@@ -61,6 +61,9 @@ class BookProvider extends ChangeNotifier {
     final db = await DatabaseHelper.instance.database;
     _repo = BookRepository(db);
 
+    // Update TBReleased books to Not Read if their notification date has passed
+    await _repo.updateExpiredTBReleasedBooks();
+
     _books = await _repo.getAllBooks();
     _latestBookAdded = await _repo.getLatestBookAdded();
     _isLoading = false;

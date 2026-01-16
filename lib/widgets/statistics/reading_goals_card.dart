@@ -41,11 +41,12 @@ class _ReadingGoalsCardState extends State<ReadingGoalsCard>
       final db = await DatabaseHelper.instance.database;
       final repository = YearChallengeRepository(db);
       final currentYear = DateTime.now().year;
-      
+
       // Try to get current year's challenge
       final challenges = await repository.getAllChallenges();
-      final currentChallenge = challenges.where((c) => c.year == currentYear).firstOrNull;
-      
+      final currentChallenge =
+          challenges.where((c) => c.year == currentYear).firstOrNull;
+
       if (currentChallenge != null) {
         final progress = await repository.getChallengeProgress(currentYear);
         setState(() {
@@ -130,9 +131,9 @@ class _ReadingGoalsCardState extends State<ReadingGoalsCard>
                   const SizedBox(height: 8),
                   Text(
                     'No challenge set for ${DateTime.now().year}',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[600],
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 12),
@@ -163,7 +164,7 @@ class _ReadingGoalsCardState extends State<ReadingGoalsCard>
     final targetPages = _currentYearProgress!['targetPages'];
     final booksProgress = _currentYearProgress!['booksProgress'] ?? 0.0;
     final pagesProgress = _currentYearProgress!['pagesProgress'] ?? 0.0;
-    
+
     final booksComplete = booksRead >= targetBooks;
     final pagesComplete = targetPages != null && pagesRead >= targetPages;
 
@@ -204,45 +205,56 @@ class _ReadingGoalsCardState extends State<ReadingGoalsCard>
                   ),
                   Icon(
                     Icons.chevron_right,
-                    color: Colors.grey[400],
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-              
-              // Books progress
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Books:', style: TextStyle(fontWeight: FontWeight.w500)),
-                  Text(
-                    '$booksRead / $targetBooks',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: booksComplete ? Colors.green : null,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: LinearProgressIndicator(
-                  value: booksProgress.clamp(0.0, 1.0),
-                  minHeight: 12,
-                  backgroundColor: Colors.grey[200],
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    booksComplete ? Colors.green : Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              ),
-              
-              if (targetPages != null) ...[
-                const SizedBox(height: 16),
+
+              // Books progress (only show if target is set)
+              if (targetBooks > 0) ...[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Pages:', style: TextStyle(fontWeight: FontWeight.w500)),
+                    const Text(
+                      'Books:',
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    Text(
+                      '$booksRead / $targetBooks',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: booksComplete ? Colors.green : null,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: LinearProgressIndicator(
+                    value: booksProgress.clamp(0.0, 1.0),
+                    minHeight: 12,
+                    backgroundColor: Colors.grey[200],
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      booksComplete
+                          ? Colors.green
+                          : Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ),
+              ],
+
+              // Pages progress (only show if target is set)
+              if (targetPages != null && targetPages > 0) ...[
+                if (targetBooks > 0) const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Pages:',
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
                     Text(
                       '$pagesRead / $targetPages',
                       style: TextStyle(
