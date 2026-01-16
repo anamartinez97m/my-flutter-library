@@ -51,6 +51,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     {'key': 'is_tandem', 'label': 'Is Tandem'},
     {'key': 'saga_format_without_saga', 'label': 'Saga Format Without Saga'},
     {'key': 'saga_format_without_nsaga', 'label': 'Saga Format Without N_Saga'},
+    {'key': 'saga_without_format_saga', 'label': 'Saga Without Format Saga'},
+    {'key': 'publication_year_empty', 'label': 'Publication Year Empty'},
   ];
 
   // Available card fields for customization

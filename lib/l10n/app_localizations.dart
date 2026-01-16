@@ -875,6 +875,18 @@ abstract class AppLocalizations {
   /// **'Saga Format Without N_Saga'**
   String get saga_format_without_n_saga;
 
+  /// No description provided for @saga_without_format_saga.
+  ///
+  /// In en, this message translates to:
+  /// **'Saga Without Format Saga'**
+  String get saga_without_format_saga;
+
+  /// No description provided for @publication_year_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Publication Year'**
+  String get publication_year_empty;
+
   /// Pages with colon
   ///
   /// In en, this message translates to:
