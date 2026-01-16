@@ -65,6 +65,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     {'key': 'genre', 'label': 'Genre'},
     {'key': 'editorial', 'label': 'Editorial'},
     {'key': 'publication_year', 'label': 'Publication Year'},
+    {'key': 'publication_date', 'label': 'Publication Date'},
     {'key': 'rating', 'label': 'Rating'},
     {'key': 'read_count', 'label': 'Read Count'},
     {'key': 'status', 'label': 'Status'},

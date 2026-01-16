@@ -260,6 +260,17 @@ class _BookListViewState extends State<BookListView> {
                 const SizedBox(height: 3),
               ],
               
+              // Publication Date (shows if date is filled, regardless of notification status)
+              if (_enabledCardFields.contains('publication_date') && 
+                  book.notificationDatetime != null && 
+                  book.notificationDatetime!.isNotEmpty) ...[
+                Text(
+                  'Publication Date: ${book.notificationDatetime!.split('T')[0]}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                ),
+                const SizedBox(height: 3),
+              ],
+              
               // Rating
               if (_enabledCardFields.contains('rating') && 
                   book.myRating != null) ...[

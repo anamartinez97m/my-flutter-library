@@ -1195,6 +1195,22 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   prefixIcon: Icons.collections_bookmark,
                   suggestions: _sagaSuggestions,
                   textCapitalization: TextCapitalization.words,
+                  onSelected: (selectedSaga) async {
+                    // Auto-fill format saga from existing books with this saga
+                    try {
+                      final db = await DatabaseHelper.instance.database;
+                      final repository = BookRepository(db);
+                      final formatSagaId = await repository.getFormatSagaIdForSaga(selectedSaga);
+                      
+                      if (formatSagaId != null && mounted) {
+                        setState(() {
+                          _selectedFormatSagaId = formatSagaId;
+                        });
+                      }
+                    } catch (e) {
+                      debugPrint('Error auto-filling format saga: $e');
+                    }
+                  },
                 ),
                 const SizedBox(height: 16),
 

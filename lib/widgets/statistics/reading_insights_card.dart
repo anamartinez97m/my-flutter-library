@@ -131,7 +131,7 @@ class ReadingInsightsCard extends StatelessWidget {
               value:
                   '$seriesBooks series (${seriesPercentage.toStringAsFixed(1)}%) | $standaloneBooks standalone',
               subtitle:
-                  'Total: $seriesBooks series + $standaloneBooks standalone\nRead: $seriesBooksRead series + $standaloneBooksRead standalone',
+                  'Read: $seriesBooksRead series + $standaloneBooksRead standalone',
             ),
             const Divider(height: 20),
 

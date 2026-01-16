@@ -23,7 +23,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 27,
+      version: 29,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -83,7 +83,8 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE IF NOT EXISTS format_saga (
         format_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        value VARCHAR(50) NOT NULL
+        value VARCHAR(50) NOT NULL,
+        expected_books INTEGER
       )
     ''');
 
@@ -221,6 +222,19 @@ class DatabaseHelper {
       await db.insert('status', {'value': 'Started'});
       await db.insert('status', {'value': 'TBReleased'});
       await db.insert('status', {'value': 'Abandoned'});
+    }
+
+    // Insert default format_saga values if table is empty
+    final formatSagaCount = await db.rawQuery('SELECT COUNT(*) as count FROM format_saga');
+    if (formatSagaCount.first['count'] == 0) {
+      await db.insert('format_saga', {'value': 'Standalone', 'expected_books': 1});
+      await db.insert('format_saga', {'value': 'Bilogy', 'expected_books': 2});
+      await db.insert('format_saga', {'value': 'Trilogy', 'expected_books': 3});
+      await db.insert('format_saga', {'value': 'Tetralogy', 'expected_books': 4});
+      await db.insert('format_saga', {'value': 'Pentalogy', 'expected_books': 5});
+      await db.insert('format_saga', {'value': 'Hexalogy', 'expected_books': 6});
+      await db.insert('format_saga', {'value': '6+', 'expected_books': null});
+      await db.insert('format_saga', {'value': 'Saga', 'expected_books': null});
     }
   }
 
@@ -771,6 +785,53 @@ class DatabaseHelper {
       await db.execute(
         'ALTER TABLE reading_sessions ADD COLUMN did_read INTEGER NOT NULL DEFAULT 0',
       );
+    }
+    if (oldVersion < 28) {
+      // Ensure default format_saga values exist
+      final formatSagaCount = await db.rawQuery('SELECT COUNT(*) as count FROM format_saga');
+      if (formatSagaCount.first['count'] == 0) {
+        await db.insert('format_saga', {'value': 'Standalone'});
+        await db.insert('format_saga', {'value': 'Bilogy'});
+        await db.insert('format_saga', {'value': 'Trilogy'});
+        await db.insert('format_saga', {'value': 'Tetralogy'});
+        await db.insert('format_saga', {'value': 'Pentalogy'});
+        await db.insert('format_saga', {'value': 'Hexalogy'});
+        await db.insert('format_saga', {'value': '6+'});
+        await db.insert('format_saga', {'value': 'Saga'});
+      }
+    }
+    if (oldVersion < 29) {
+      // Add expected_books column to format_saga table
+      await db.execute(
+        'ALTER TABLE format_saga ADD COLUMN expected_books INTEGER',
+      );
+      
+      // Update default values with their expected book counts
+      await db.rawUpdate(
+        'UPDATE format_saga SET expected_books = 1 WHERE LOWER(value) = ?',
+        ['standalone'],
+      );
+      await db.rawUpdate(
+        'UPDATE format_saga SET expected_books = 2 WHERE LOWER(value) = ?',
+        ['bilogy'],
+      );
+      await db.rawUpdate(
+        'UPDATE format_saga SET expected_books = 3 WHERE LOWER(value) = ?',
+        ['trilogy'],
+      );
+      await db.rawUpdate(
+        'UPDATE format_saga SET expected_books = 4 WHERE LOWER(value) = ?',
+        ['tetralogy'],
+      );
+      await db.rawUpdate(
+        'UPDATE format_saga SET expected_books = 5 WHERE LOWER(value) = ?',
+        ['pentalogy'],
+      );
+      await db.rawUpdate(
+        'UPDATE format_saga SET expected_books = 6 WHERE LOWER(value) = ?',
+        ['hexalogy'],
+      );
+      // 6+ and Saga remain NULL (unknown)
     }
   }
 

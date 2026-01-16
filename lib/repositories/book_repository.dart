@@ -425,8 +425,51 @@ class BookRepository {
     return result;
   }
 
+  /// Get format saga expected books mapping
+  /// Returns a map of format saga value to expected books count
+  /// null means unknown (will show as "?")
+  Future<Map<String, int?>> getFormatSagaExpectedBooks() async {
+    final result = await db.query(
+      'format_saga',
+      columns: ['value', 'expected_books'],
+    );
+    
+    final Map<String, int?> mapping = {};
+    for (final row in result) {
+      final value = row['value'] as String;
+      final expectedBooks = row['expected_books'] as int?;
+      mapping[value] = expectedBooks;
+    }
+    
+    return mapping;
+  }
+
+  /// Get the format saga ID for a given saga name
+  /// Returns the format_saga_id from the first book with that saga name
+  /// Returns null if no book found with that saga or if the book has no format saga
+  Future<int?> getFormatSagaIdForSaga(String sagaName) async {
+    final result = await db.rawQuery('''
+      SELECT format_saga_id 
+      FROM book 
+      WHERE saga = ? AND format_saga_id IS NOT NULL
+      LIMIT 1
+    ''', [sagaName]);
+    
+    if (result.isEmpty) {
+      return null;
+    }
+    
+    final formatSagaId = result.first['format_saga_id'];
+    if (formatSagaId == null) {
+      return null;
+    }
+    
+    return int.tryParse(formatSagaId.toString());
+  }
+
   /// Add a new value to a lookup table
-  Future<int> addLookupValue(String tableName, String value) async {
+  /// For format_saga, expectedBooks can be provided to set the expected book count
+  Future<int> addLookupValue(String tableName, String value, {int? expectedBooks}) async {
     // saga and saga_universe are text fields in book table, not lookup tables
     // Return a fake ID for compatibility
     if (tableName == 'saga' || tableName == 'saga_universe') {
@@ -440,7 +483,14 @@ class BookRepository {
             ? 'value'
             : 'name';
 
-    return await db.insert(tableName, {valueColumn: value});
+    final data = <String, dynamic>{valueColumn: value};
+    
+    // Add expected_books for format_saga table
+    if (tableName == 'format_saga' && expectedBooks != null) {
+      data['expected_books'] = expectedBooks;
+    }
+
+    return await db.insert(tableName, data);
   }
 
   /// Update a value in a lookup table
@@ -904,9 +954,6 @@ class BookRepository {
         where: 'book_id = ?',
         whereArgs: [bookId],
       );
-      debugPrint(
-        'BookRepository: No read dates found for book $bookId with bundleBookIndex=$bundleBookIndex. Total for this book_id: ${allForBook.length}',
-      );
       if (allForBook.isNotEmpty) {
         debugPrint('  Sample: ${allForBook.first}');
       }
@@ -1317,5 +1364,52 @@ class BookRepository {
 
     if (result.isEmpty) return null;
     return Book.fromMap(result.first);
+  }
+
+  /// Update TBReleased books to Not Read status when their notification date has passed
+  Future<int> updateExpiredTBReleasedBooks() async {
+    try {
+      final today = DateTime.now().toIso8601String().split('T')[0];
+
+      // Get the status IDs for TBReleased and Not Read
+      final statusList = await getLookupValues('status');
+      final tbReleasedStatus = statusList.firstWhere(
+        (s) => (s['value'] as String).toLowerCase() == 'tbreleased',
+        orElse: () => <String, dynamic>{},
+      );
+      final notReadStatus = statusList.firstWhere(
+        (s) => (s['value'] as String).toLowerCase() == 'no',
+        orElse: () => <String, dynamic>{},
+      );
+
+      if (tbReleasedStatus.isEmpty || notReadStatus.isEmpty) {
+        debugPrint('⚠️ Could not find TBReleased or Not Read status');
+        return 0;
+      }
+
+      // Update books where:
+      // 1. Status is TBReleased
+      // 2. notification_datetime is set and <= today
+      final result = await db.rawUpdate(
+        '''
+        UPDATE book
+        SET status_id = ?
+        WHERE status_id = ?
+          AND notification_datetime IS NOT NULL
+          AND notification_datetime != ''
+          AND notification_datetime <= ?
+      ''',
+        [notReadStatus['status_id'], tbReleasedStatus['status_id'], today],
+      );
+
+      if (result > 0) {
+        debugPrint('✅ Updated $result TBReleased book(s) to Not Read status');
+      }
+
+      return result;
+    } catch (e) {
+      debugPrint('❌ Error updating expired TBReleased books: $e');
+      return 0;
+    }
   }
 }

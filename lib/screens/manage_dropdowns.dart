@@ -40,9 +40,30 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     'standby',
   };
 
+  // Core format saga values that cannot be deleted (case-insensitive)
+  final Set<String> _coreFormatSagaValues = {
+    'standalone',
+    'bilogy',
+    'trilogy',
+    'tetralogy',
+    'pentalogy',
+    'hexalogy',
+    '6+',
+    'saga',
+  };
+
   bool _isCoreStatusValue(String value) {
     return _selectedTable == 'status' && 
            _coreStatusValues.contains(value.toLowerCase());
+  }
+
+  bool _isCoreFormatSagaValue(String value) {
+    return _selectedTable == 'format_saga' && 
+           _coreFormatSagaValues.contains(value.toLowerCase());
+  }
+
+  bool _isCoreValue(String value) {
+    return _isCoreStatusValue(value) || _isCoreFormatSagaValue(value);
   }
 
   @override
@@ -71,6 +92,174 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         _isLoading = false;
       });
     }
+  }
+
+  /// Shows a dialog to ask for expected books count for format_saga values
+  Future<int?> _showFormatSagaHelper(String formatSagaName) async {
+    final controller = TextEditingController();
+    String? selectedOption = 'number'; // 'number' or 'unknown'
+    
+    return await showDialog<int?>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.info_outline, color: Colors.blue.shade700),
+              const SizedBox(width: 8),
+              const Expanded(child: Text('Saga Completion Setup')),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'You are adding: "$formatSagaName"',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.blue.shade200),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'How many books should this saga show in statistics?',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue.shade900,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'The saga completion card will show "X / Y" where Y is the number you specify.',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.blue.shade900,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                RadioListTile<String>(
+                  title: const Text('Specific number of books'),
+                  value: 'number',
+                  groupValue: selectedOption,
+                  onChanged: (value) {
+                    setState(() {
+                      selectedOption = value;
+                    });
+                  },
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+                if (selectedOption == 'number')
+                  Padding(
+                    padding: const EdgeInsets.only(left: 32, right: 16, bottom: 8),
+                    child: TextField(
+                      controller: controller,
+                      decoration: const InputDecoration(
+                        labelText: 'Number of books',
+                        hintText: 'e.g., 7 for a heptalogy',
+                        border: OutlineInputBorder(),
+                        isDense: true,
+                      ),
+                      keyboardType: TextInputType.number,
+                      autofocus: true,
+                    ),
+                  ),
+                RadioListTile<String>(
+                  title: const Text('Unknown (show as "?")'),
+                  subtitle: const Text(
+                    'For sagas with unknown or variable length',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                  value: 'unknown',
+                  groupValue: selectedOption,
+                  onChanged: (value) {
+                    setState(() {
+                      selectedOption = value;
+                    });
+                  },
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Examples:',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                ),
+                const SizedBox(height: 8),
+                _buildFormatExample('Trilogy', '3 books'),
+                _buildFormatExample('Heptalogy', '7 books'),
+                _buildFormatExample('Saga', '? (unknown)'),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, null),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (selectedOption == 'unknown') {
+                  Navigator.pop(context, -1); // -1 means unknown
+                } else {
+                  final value = int.tryParse(controller.text.trim());
+                  if (value == null || value < 1) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please enter a valid number (1 or greater)'),
+                        backgroundColor: Colors.orange,
+                      ),
+                    );
+                    return;
+                  }
+                  Navigator.pop(context, value);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepPurple,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Continue'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFormatExample(String format, String total) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16, bottom: 4),
+      child: Row(
+        children: [
+          Icon(Icons.circle, size: 6, color: Colors.grey.shade600),
+          const SizedBox(width: 8),
+          Text(
+            '$format: ',
+            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
+          ),
+          Text(
+            total,
+            style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _addValue() async {
@@ -107,10 +296,24 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     );
 
     if (result != null && result.isNotEmpty) {
+      int? expectedBooks;
+      
+      // For format_saga, show helper modal to get expected books count
+      if (_selectedTable == 'format_saga') {
+        expectedBooks = await _showFormatSagaHelper(result);
+        if (expectedBooks == null) {
+          return; // User cancelled
+        }
+        // Convert -1 (unknown) to null for database
+        if (expectedBooks == -1) {
+          expectedBooks = null;
+        }
+      }
+
       try {
         final db = await DatabaseHelper.instance.database;
         final repository = BookRepository(db);
-        await repository.addLookupValue(_selectedTable, result);
+        await repository.addLookupValue(_selectedTable, result, expectedBooks: expectedBooks);
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -144,6 +347,8 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
   Future<void> _editValue(int id, String currentValue) async {
     final controller = TextEditingController(text: currentValue);
     final isCoreStatus = _isCoreStatusValue(currentValue);
+    final isCoreFormatSaga = _isCoreFormatSagaValue(currentValue);
+    final isCoreValue = isCoreStatus || isCoreFormatSaga;
 
     final result = await showDialog<String>(
       context: context,
@@ -154,7 +359,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (isCoreStatus)
+                if (isCoreValue)
                   Container(
                     padding: const EdgeInsets.all(12),
                     margin: const EdgeInsets.only(bottom: 16),
@@ -169,7 +374,9 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'Core status: Only the label will change, not the database value or logic.',
+                            isCoreStatus
+                                ? 'Core status: Only the label will change, not the database value or logic.'
+                                : 'Core format saga: Only the label can be changed, this value cannot be deleted.',
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.orange.shade900,
@@ -242,17 +449,22 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
   }
 
   Future<void> _deleteValue(int id, String value) async {
-    // Prevent deletion of core status values
-    if (_isCoreStatusValue(value)) {
+    // Prevent deletion of core values
+    if (_isCoreValue(value)) {
       if (mounted) {
+        String message;
+        if (_isCoreStatusValue(value)) {
+          message = 'This is a core status value and cannot be deleted. '
+              'The app logic depends on these values: Yes, No, Started, TBReleased, Abandoned, Repeated, and Standby.';
+        } else {
+          message = 'This is a core format saga value and cannot be deleted. '
+              'The app logic depends on these values: Standalone, Bilogy, Trilogy, Tetralogy, Pentalogy, Hexalogy, 6+, and Saga.';
+        }
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
             title: const Text('Cannot Delete'),
-            content: const Text(
-              'This is a core status value and cannot be deleted. '
-              'The app logic depends on these values: Yes, No, Started, TBReleased, Abandoned, Repeated, and Standby.',
-            ),
+            content: Text(message),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
@@ -538,13 +750,13 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                                 IconButton(
                                   icon: Icon(
                                     Icons.delete,
-                                    color: _isCoreStatusValue(value) ? Colors.grey : Colors.red,
+                                    color: _isCoreValue(value) ? Colors.grey : Colors.red,
                                   ),
-                                  onPressed: _isCoreStatusValue(value) 
+                                  onPressed: _isCoreValue(value) 
                                       ? null 
                                       : () => _deleteValue(id, value),
-                                  tooltip: _isCoreStatusValue(value)
-                                      ? 'Core status cannot be deleted'
+                                  tooltip: _isCoreValue(value)
+                                      ? 'Core value cannot be deleted'
                                       : 'Delete',
                                 ),
                               ],
