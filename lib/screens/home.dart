@@ -51,6 +51,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _selectedIsTandem;
   String? _selectedSagaFormatWithoutSaga;
   String? _selectedSagaFormatWithoutNSaga;
+  String? _selectedSagaWithoutFormatSaga;
+  String? _selectedPublicationYearEmpty;
 
   Set<String> _enabledFilters = {};
 
@@ -96,6 +98,10 @@ class _HomeScreenState extends State<HomeScreen> {
               provider.currentFilters['saga_format_without_saga'];
           _selectedSagaFormatWithoutNSaga =
               provider.currentFilters['saga_format_without_nsaga'];
+          _selectedSagaWithoutFormatSaga =
+              provider.currentFilters['saga_without_format_saga'];
+          _selectedPublicationYearEmpty =
+              provider.currentFilters['publication_year_empty'];
 
           // Restore sort state from provider
           _sortBy = provider.currentSortBy;
@@ -129,6 +135,8 @@ class _HomeScreenState extends State<HomeScreen> {
           'pages_empty',
           'is_bundle',
           'is_tandem',
+          'saga_without_format_saga',
+          'publication_year_empty',
         };
       }
     });
@@ -1047,6 +1055,110 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               const SizedBox(height: 8),
                             ],
+                            // Publication Year Empty filter
+                            if (_isFilterEnabled('publication_year_empty')) ...[
+                              DropdownButtonFormField<String>(
+                                value: _selectedPublicationYearEmpty,
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  labelText:
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.publication_year_empty,
+                                  border: OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  isDense: true,
+                                ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: null,
+                                    child: Text(
+                                      AppLocalizations.of(context)!.any,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: '__EMPTY__',
+                                    child: Text(
+                                      AppLocalizations.of(context)!.empty,
+                                    ),
+                                  ),
+                                ],
+                                onChanged: (value) {
+                                  setState(
+                                    () =>
+                                        _selectedPublicationYearEmpty = value,
+                                  );
+                                  if (value != null) {
+                                    provider.filterBooks(
+                                      'publication_year_empty',
+                                      value,
+                                    );
+                                  } else {
+                                    provider.filterBooks('all', null);
+                                  }
+                                  setModalState(() {});
+                                },
+                              ),
+                              const SizedBox(height: 8),
+                            ],
+                            // Saga Without Format Saga filter
+                            if (_isFilterEnabled('saga_without_format_saga')) ...[
+                              DropdownButtonFormField<String>(
+                                value: _selectedSagaWithoutFormatSaga,
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  labelText:
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.saga_without_format_saga,
+                                  border: OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  isDense: true,
+                                ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: null,
+                                    child: Text(
+                                      AppLocalizations.of(context)!.any,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: 'true',
+                                    child: Text(
+                                      AppLocalizations.of(context)!.yes,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: 'false',
+                                    child: Text(
+                                      AppLocalizations.of(context)!.no,
+                                    ),
+                                  ),
+                                ],
+                                onChanged: (value) {
+                                  setState(
+                                    () =>
+                                        _selectedSagaWithoutFormatSaga = value,
+                                  );
+                                  if (value != null) {
+                                    provider.filterBooks(
+                                      'saga_without_format_saga',
+                                      value,
+                                    );
+                                  } else {
+                                    provider.filterBooks('all', null);
+                                  }
+                                  setModalState(() {});
+                                },
+                              ),
+                              const SizedBox(height: 8),
+                            ],
                             Row(
                               children: [
                                 Expanded(
@@ -1070,6 +1182,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         _selectedIsTandem = null;
                                         _selectedSagaFormatWithoutSaga = null;
                                         _selectedSagaFormatWithoutNSaga = null;
+                                        _selectedSagaWithoutFormatSaga = null;
+                                        _selectedPublicationYearEmpty = null;
                                       });
                                       provider.clearAllFilters();
                                       setModalState(() {});

@@ -261,6 +261,8 @@
   "tandem": "Tándem",
   "saga_format_without_saga": "Formato de Saga Sin Saga",
   "saga_format_without_n_saga": "Formato de Saga Sin N_Saga",
+  "saga_without_format_saga": "Saga Sin Formato de Saga",
+  "publication_year_empty": "Año de Publicación",
   "pages_with_colon": "Páginas: {pages}",
   "@pages_with_colon": {
     "description": "Páginas con dos puntos",

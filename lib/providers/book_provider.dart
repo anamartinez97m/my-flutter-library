@@ -168,6 +168,12 @@ class BookProvider extends ChangeNotifier {
                   case 'pages_empty':
                     if (book.pages != null && book.pages! > 0) return false;
                     break;
+                  case 'publication_year_empty':
+                    if (book.originalPublicationYear != null &&
+                        book.originalPublicationYear! > 0) {
+                      return false;
+                    }
+                    break;
                 }
               } else if (filterValue == '__NOT_EMPTY__') {
                 // Special case for "not empty" filters
@@ -246,6 +252,19 @@ class BookProvider extends ChangeNotifier {
                     }
                     if (filterValue == 'false' &&
                         (hasNonStandaloneFormat && !hasNSaga)) {
+                      return false;
+                    }
+                    break;
+                  case 'saga_without_format_saga':
+                    // Filter books where saga is not empty but format_saga is empty
+                    final hasSaga = book.saga != null && book.saga!.isNotEmpty;
+                    final hasFormatSaga =
+                        book.formatSagaValue != null &&
+                        book.formatSagaValue!.isNotEmpty;
+                    if (filterValue == 'true' && !(hasSaga && !hasFormatSaga)) {
+                      return false;
+                    }
+                    if (filterValue == 'false' && (hasSaga && !hasFormatSaga)) {
                       return false;
                     }
                     break;

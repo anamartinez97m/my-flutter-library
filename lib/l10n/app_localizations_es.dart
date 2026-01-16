@@ -435,6 +435,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get saga_format_without_n_saga => 'Formato de Saga Sin N_Saga';
 
   @override
+  String get saga_without_format_saga => 'Saga Sin Formato de Saga';
+
+  @override
+  String get publication_year_empty => 'Año de Publicación';
+
+  @override
   String pages_with_colon(Object pages) {
     return 'Páginas: $pages';
   }
