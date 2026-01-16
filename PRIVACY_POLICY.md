@@ -1,6 +1,6 @@
 # Privacy Policy for My Book Vault
 
-**Last Updated**: November 28, 2025
+**Last Updated**: January 16, 2026
 
 ## Introduction
 
@@ -33,6 +33,11 @@ The App requests the following permissions:
 3. **Exact Alarms** (SCHEDULE_EXACT_ALARM)
    - Purpose: To schedule precise reading reminder notifications
    - Usage: Only if you enable reading reminders
+
+4. **Camera** (CAMERA)
+   - Purpose: To scan ISBN barcodes when adding or editing books
+   - Usage: Only when you explicitly choose to scan a barcode
+   - Note: No images or barcode data are stored or transmitted
 
 ## Data Sharing
 
