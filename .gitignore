@@ -13,6 +13,7 @@
 migrate_working_dir/
 assets/my_library.db
 pubspec.lock
+.assets/ai_plans
 
 # IntelliJ related
 *.iml
