@@ -48,7 +48,6 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     'tetralogy',
     'pentalogy',
     'hexalogy',
-    '6+',
     'saga',
   };
 
@@ -593,7 +592,21 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
               [newValue, value],
             );
           } else {
-            final newId = await repository.addLookupValue(_selectedTable, newValue);
+            int? expectedBooks;
+            
+            // For format_saga, show helper modal to get expected books count
+            if (_selectedTable == 'format_saga') {
+              expectedBooks = await _showFormatSagaHelper(newValue);
+              if (expectedBooks == null) {
+                return; // User cancelled
+              }
+              // Convert -1 (unknown) to null for database
+              if (expectedBooks == -1) {
+                expectedBooks = null;
+              }
+            }
+            
+            final newId = await repository.addLookupValue(_selectedTable, newValue, expectedBooks: expectedBooks);
             if (_selectedTable == 'author') {
               // Update junction table
               await db.rawUpdate(
