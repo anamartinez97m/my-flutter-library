@@ -4,8 +4,10 @@ import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/model/read_date.dart';
+import 'package:myrandomlibrary/model/book_rating_field.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
+import 'package:myrandomlibrary/repositories/book_rating_field_repository.dart';
 import 'package:myrandomlibrary/utils/status_helper.dart';
 import 'package:myrandomlibrary/widgets/autocomplete_text_field.dart';
 import 'package:myrandomlibrary/widgets/bundle_input_widget_v2.dart';
@@ -44,8 +46,23 @@ class _EditBookScreenState extends State<EditBookScreen> {
   DateTime? _releaseDate;
   late TextEditingController _genreController;
   late TextEditingController _myReviewController;
+  late TextEditingController _notesController;
+  late TextEditingController _priceController;
   late double _myRating;
   late int _readCount;
+
+  // Rating fields
+  List<BookRatingField> _ratingFields = [];
+  bool _ratingOverride = false;
+  List<String> _ratingFieldSuggestions = [
+    'Plot',
+    'Characters',
+    'Writing Style',
+    'Pacing',
+    'World Building',
+    'Dialogue',
+    'Atmosphere',
+  ];
 
   // Read dates (new multi-session system)
   List<ReadDate> _readDates = [];
@@ -144,6 +161,28 @@ class _EditBookScreenState extends State<EditBookScreen> {
     _loadDropdownData();
     _loadReadDates();
     _loadBundleBooks();
+    _loadRatingFields();
+    _loadRatingFieldSuggestions();
+  }
+
+  Future<void> _loadRatingFieldSuggestions() async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final repository = BookRatingFieldRepository(db);
+      final names = await repository.getDistinctFieldNames();
+      
+      // Combine default suggestions with used field names
+      final allNames = <String>{
+        ..._ratingFieldSuggestions,
+        ...names,
+      }.toList()..sort();
+      
+      setState(() {
+        _ratingFieldSuggestions = allNames;
+      });
+    } catch (e) {
+      debugPrint('Error loading rating field suggestions: $e');
+    }
   }
 
   Future<void> _loadReadDates() async {
@@ -198,6 +237,22 @@ class _EditBookScreenState extends State<EditBookScreen> {
       });
     } catch (e) {
       debugPrint('Error loading bundle books: $e');
+    }
+  }
+
+  Future<void> _loadRatingFields() async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final ratingRepository = BookRatingFieldRepository(db);
+      final fields = await ratingRepository.getRatingFieldsForBook(
+        widget.book.bookId!,
+      );
+      setState(() {
+        _ratingFields = fields;
+      });
+      debugPrint('Loaded ${fields.length} rating fields for book ${widget.book.bookId}');
+    } catch (e) {
+      debugPrint('Error loading rating fields: $e');
     }
   }
 
@@ -274,8 +329,13 @@ class _EditBookScreenState extends State<EditBookScreen> {
     }
     _genreController = TextEditingController(text: widget.book.genre);
     _myReviewController = TextEditingController(text: widget.book.myReview);
+    _notesController = TextEditingController(text: widget.book.notes ?? '');
+    _priceController = TextEditingController(
+      text: widget.book.price != null ? widget.book.price.toString() : '',
+    );
     _myRating = widget.book.myRating ?? 0.0;
     _readCount = widget.book.readCount ?? 0;
+    _ratingOverride = widget.book.ratingOverride ?? false;
     _selectedLoaned = widget.book.loaned?.toLowerCase() ?? 'no';
 
     // Initialize bundle fields
@@ -572,6 +632,15 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 : null,
         bundleParentId:
             widget.book.bundleParentId, // Preserve bundle relationship
+        notes:
+            _notesController.text.trim().isEmpty
+                ? null
+                : _notesController.text.trim(),
+        price:
+            _priceController.text.trim().isEmpty
+                ? null
+                : double.tryParse(_priceController.text.trim()),
+        ratingOverride: _ratingOverride,
       );
 
       // Update the book using direct update instead of delete+add
@@ -620,11 +689,29 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 : null,
         bundleParentId:
             updatedBook.bundleParentId, // Preserve bundle relationship
+        notes: updatedBook.notes,
+        price: updatedBook.price,
+        ratingOverride: updatedBook.ratingOverride,
       );
 
       // Use repository.addBook with the book ID to update in place
       // The repository properly converts field names and handles the update
       await repository.addBook(bookToUpdate);
+
+      // Save rating fields
+      final ratingRepository = BookRatingFieldRepository(db);
+      // Delete existing rating fields
+      await ratingRepository.deleteAllRatingFieldsForBook(widget.book.bookId!);
+      // Insert new rating fields
+      for (final field in _ratingFields) {
+        await ratingRepository.insertRatingField(
+          BookRatingField(
+            bookId: widget.book.bookId!,
+            fieldName: field.fieldName,
+            ratingValue: field.ratingValue,
+          ),
+        );
+      }
 
       // If this is a bundle, manage individual books
       if (_isBundle && widget.book.bookId != null) {
@@ -958,6 +1045,37 @@ class _EditBookScreenState extends State<EditBookScreen> {
     }
   }
 
+  // Rating field helper methods
+  double _calculateAverageRating() {
+    if (_ratingFields.isEmpty) return 0.0;
+    double sum = _ratingFields.fold(0.0, (prev, field) => prev + field.ratingValue);
+    return sum / _ratingFields.length;
+  }
+
+  double _calculateDisplayRating() {
+    return _ratingOverride ? _myRating : _calculateAverageRating();
+  }
+
+  void _addRatingField() {
+    setState(() {
+      _ratingFields.add(BookRatingField(
+        bookId: widget.book.bookId ?? 0,
+        fieldName: 'Plot', // Default
+        ratingValue: 0.0,
+      ));
+    });
+  }
+
+  void _removeRatingField(int index) {
+    setState(() {
+      _ratingFields.removeAt(index);
+      // Update general rating if not overridden
+      if (!_ratingOverride) {
+        _myRating = _calculateAverageRating();
+      }
+    });
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -969,6 +1087,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
     _pagesController.dispose();
     _publicationYearController.dispose();
     _genreController.dispose();
+    _myReviewController.dispose();
+    _notesController.dispose();
+    _priceController.dispose();
     super.dispose();
   }
 
@@ -1715,14 +1836,158 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // My Rating with hearts
-                HeartRatingInput(
-                  initialRating: _myRating,
-                  onRatingChanged: (rating) {
-                    setState(() {
-                      _myRating = rating;
-                    });
-                  },
+                // Custom Rating Fields Section
+                Card(
+                  elevation: 2,
+                  child: ExpansionTile(
+                    leading: const Icon(Icons.star_rate),
+                    title: const Text('Rating'),
+                    subtitle: Text(_ratingFields.isEmpty 
+                        ? 'No ratings yet' 
+                        : 'Average: ${_calculateDisplayRating().toStringAsFixed(1)}'),
+                    initiallyExpanded: false,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // List of rating fields
+                            ..._ratingFields.asMap().entries.map((entry) {
+                              final index = entry.key;
+                              final field = entry.value;
+                              
+                              return Card(
+                                margin: const EdgeInsets.only(bottom: 12.0),
+                                elevation: 1,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: DropdownButtonFormField<String>(
+                                              value: field.fieldName,
+                                              decoration: const InputDecoration(
+                                                labelText: 'Criterion',
+                                                border: OutlineInputBorder(),
+                                              ),
+                                              items: () {
+                                                // Combine suggestions with existing field names to avoid missing values
+                                                final allNames = <String>{
+                                                  ..._ratingFieldSuggestions,
+                                                  ..._ratingFields.map((f) => f.fieldName),
+                                                }.toList()..sort();
+                                                
+                                                return allNames.map((name) {
+                                                  return DropdownMenuItem(
+                                                    value: name,
+                                                    child: Text(name),
+                                                  );
+                                                }).toList();
+                                              }(),
+                                              onChanged: (value) {
+                                                if (value != null) {
+                                                  setState(() {
+                                                    _ratingFields[index] = BookRatingField(
+                                                      ratingFieldId: field.ratingFieldId,
+                                                      bookId: field.bookId,
+                                                      fieldName: value,
+                                                      ratingValue: field.ratingValue,
+                                                    );
+                                                  });
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(Icons.delete, color: Colors.red),
+                                            onPressed: () => _removeRatingField(index),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 12),
+                                      HeartRatingInput(
+                                        initialRating: field.ratingValue,
+                                        onRatingChanged: (rating) {
+                                          setState(() {
+                                            _ratingFields[index] = BookRatingField(
+                                              ratingFieldId: field.ratingFieldId,
+                                              bookId: field.bookId,
+                                              fieldName: field.fieldName,
+                                              ratingValue: rating,
+                                            );
+                                            if (!_ratingOverride) {
+                                              _myRating = _calculateAverageRating();
+                                            }
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                            
+                            TextButton.icon(
+                              onPressed: _addRatingField,
+                              icon: const Icon(Icons.add),
+                              label: const Text('Add Rating Criterion'),
+                            ),
+                            
+                            const Divider(),
+                            
+                            Row(
+                              children: [
+                                const Text(
+                                  'General Rating:',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                const SizedBox(width: 12),
+                                if (!_ratingOverride)
+                                  Text(
+                                    '${_calculateAverageRating().toStringAsFixed(1)} (auto-calculated)',
+                                    style: TextStyle(color: Colors.grey[600]),
+                                  )
+                                else
+                                  Text(
+                                    '${_myRating.toStringAsFixed(1)} (manual)',
+                                    style: const TextStyle(color: Colors.deepPurple),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            
+                            SwitchListTile(
+                              title: const Text('Override auto-calculation'),
+                              subtitle: const Text('Manually set the general rating'),
+                              value: _ratingOverride,
+                              onChanged: (value) {
+                                setState(() {
+                                  _ratingOverride = value;
+                                  if (!value) {
+                                    _myRating = _calculateAverageRating();
+                                  }
+                                });
+                              },
+                            ),
+                            
+                            if (_ratingOverride)
+                              HeartRatingInput(
+                                initialRating: _myRating,
+                                onRatingChanged: (rating) {
+                                  setState(() {
+                                    _myRating = rating;
+                                  });
+                                },
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 16),
 
@@ -1916,6 +2181,37 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.rate_review),
                     hintText: 'Write your thoughts about this book...',
+                  ),
+                  maxLines: 5,
+                  keyboardType: TextInputType.multiline,
+                  textCapitalization: TextCapitalization.sentences,
+                ),
+                const SizedBox(height: 16),
+
+                // Price field
+                TextFormField(
+                  controller: _priceController,
+                  decoration: const InputDecoration(
+                    labelText: 'Price',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.attach_money),
+                    hintText: 'Enter book price',
+                  ),
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Notes field
+                TextFormField(
+                  controller: _notesController,
+                  decoration: const InputDecoration(
+                    labelText: 'Notes',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.notes),
+                    hintText: 'Add any additional notes about this book...',
                   ),
                   maxLines: 5,
                   keyboardType: TextInputType.multiline,

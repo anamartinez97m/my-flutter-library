@@ -46,6 +46,9 @@ class Book {
   final int? bundleParentId; // For individual bundle books, links to the parent bundle book
   final int? readingProgress; // Progress in pages or percentage (0-100 for percentage)
   final String? progressType; // 'pages' or 'percentage'
+  final String? notes; // User notes about the book
+  final double? price; // Book price
+  final bool? ratingOverride; // true if user manually overrode the auto-calculated rating
 
   Book({
     required this.bookId,
@@ -89,6 +92,9 @@ class Book {
     this.bundleParentId,
     this.readingProgress,
     this.progressType,
+    this.notes,
+    this.price,
+    this.ratingOverride,
   });
 
   factory Book.fromMap(Map<String, dynamic> map) {
@@ -150,6 +156,11 @@ class Book {
           ? map['reading_progress'] as int
           : int.tryParse(map['reading_progress']?.toString() ?? ''),
       progressType: map['progress_type'] as String?,
+      notes: map['notes'] as String?,
+      price: map['price'] is double
+          ? map['price'] as double
+          : double.tryParse(map['price']?.toString() ?? ''),
+      ratingOverride: map['rating_override'] == 1,
     );
   }
 
@@ -196,6 +207,9 @@ class Book {
       'bundleParentId': bundleParentId,
       'readingProgress': readingProgress,
       'progressType': progressType,
+      'notes': notes,
+      'price': price,
+      'ratingOverride': ratingOverride,
     };
   }
 

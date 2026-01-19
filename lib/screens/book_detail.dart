@@ -5,8 +5,10 @@ import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/model/read_date.dart';
+import 'package:myrandomlibrary/model/book_rating_field.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
+import 'package:myrandomlibrary/repositories/book_rating_field_repository.dart';
 import 'package:myrandomlibrary/screens/books_by_author.dart';
 import 'package:myrandomlibrary/screens/books_by_saga.dart';
 import 'package:myrandomlibrary/screens/edit_book.dart';
@@ -114,6 +116,17 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     } catch (e) {
       debugPrint('Error loading individual bundle books sessions: $e');
       return {};
+    }
+  }
+
+  Future<List<BookRatingField>> _loadRatingFieldsForBook(int bookId) async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final repository = BookRatingFieldRepository(db);
+      return await repository.getRatingFieldsForBook(bookId);
+    } catch (e) {
+      debugPrint('Error loading rating fields: $e');
+      return [];
     }
   }
 
@@ -2860,6 +2873,77 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         label: 'My Rating',
                         rating: _currentBook.myRating!,
                       ),
+                    
+                    // Rating Breakdown
+                    if (_currentBook.myRating != null &&
+                        _currentBook.myRating! > 0)
+                      FutureBuilder<List<BookRatingField>>(
+                        future: _loadRatingFieldsForBook(_currentBook.bookId!),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                            return const SizedBox.shrink();
+                          }
+                          
+                          return Card(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            elevation: 1,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: ExpansionTile(
+                              leading: Icon(
+                                Icons.analytics,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                              title: Text(
+                                'Rating Breakdown',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall
+                                    ?.copyWith(
+                                      color: Colors.grey[600],
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                              ),
+                              subtitle: Text(
+                                _currentBook.ratingOverride == true
+                                    ? 'Manual rating'
+                                    : 'Auto-calculated',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                              children: snapshot.data!
+                                  .map(
+                                    (field) => ListTile(
+                                      title: Text(field.fieldName),
+                                      trailing: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: List.generate(
+                                          5,
+                                          (i) => Icon(
+                                            i < field.ratingValue.round()
+                                                ? Icons.favorite
+                                                : Icons.favorite_border,
+                                            color: Colors.red,
+                                            size: 20,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                            ),
+                          );
+                        },
+                      ),
+                    
+                    // Price
+                    if (_currentBook.price != null && _currentBook.price! > 0)
+                      _DetailCard(
+                        icon: Icons.attach_money,
+                        label: 'Price',
+                        value: '\$${_currentBook.price!.toStringAsFixed(2)}',
+                      ),
+                    
                     if (_currentBook.readCount != null &&
                         _currentBook.readCount! > 0)
                       _DetailCard(
@@ -3103,6 +3187,50 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               AppTheme.verticalSpaceMedium,
                               Text(
                                 _currentBook.myReview!,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    
+                    // Notes
+                    if (_currentBook.notes != null &&
+                        _currentBook.notes!.isNotEmpty)
+                      Card(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        elevation: 1,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Padding(
+                          padding: AppTheme.cardPadding,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.notes,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                    size: 24,
+                                  ),
+                                  AppTheme.horizontalSpaceLarge,
+                                  Text(
+                                    'Notes',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium?.copyWith(
+                                      color: Colors.grey[600],
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              AppTheme.verticalSpaceMedium,
+                              Text(
+                                _currentBook.notes!,
                                 style: Theme.of(context).textTheme.bodyMedium,
                               ),
                             ],
