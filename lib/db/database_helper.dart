@@ -23,7 +23,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 29,
+      version: 31,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -129,6 +129,9 @@ class DatabaseHelper {
         bundle_parent_id INTEGER,
         reading_progress INTEGER,
         progress_type TEXT,
+        notes TEXT,
+        price REAL,
+        rating_override INTEGER DEFAULT 0,
         FOREIGN KEY (status_id) REFERENCES status (status_id),
         FOREIGN KEY (original_book_id) REFERENCES book (book_id) ON DELETE SET NULL,
         FOREIGN KEY (bundle_parent_id) REFERENCES book (book_id) ON DELETE CASCADE,
@@ -212,6 +215,21 @@ class DatabaseHelper {
 
     await db.execute('''
       CREATE INDEX IF NOT EXISTS idx_book_competition_type ON book_competition (competition_type)
+    ''');
+
+    // Create book_rating_fields table for custom rating criteria
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS book_rating_fields (
+        rating_field_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        book_id INTEGER NOT NULL,
+        field_name VARCHAR(100) NOT NULL,
+        rating_value REAL NOT NULL,
+        FOREIGN KEY (book_id) REFERENCES book(book_id) ON DELETE CASCADE
+      )
+    ''');
+
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_book_rating_fields_book_id ON book_rating_fields (book_id)
     ''');
 
     // Insert default status values if table is empty
@@ -831,6 +849,50 @@ class DatabaseHelper {
         ['hexalogy'],
       );
       // 6+ and Saga remain NULL (unknown)
+    }
+    if (oldVersion < 30) {
+      // Add notes and price columns to book table
+      await db.execute(
+        'ALTER TABLE book ADD COLUMN notes TEXT',
+      );
+      await db.execute(
+        'ALTER TABLE book ADD COLUMN price REAL',
+      );
+    }
+    if (oldVersion < 31) {
+      // Create book_rating_fields table for custom rating criteria
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS book_rating_fields (
+          rating_field_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          book_id INTEGER NOT NULL,
+          field_name VARCHAR(100) NOT NULL,
+          rating_value REAL NOT NULL,
+          FOREIGN KEY (book_id) REFERENCES book(book_id) ON DELETE CASCADE
+        )
+      ''');
+      
+      await db.execute('''
+        CREATE INDEX IF NOT EXISTS idx_book_rating_fields_book_id ON book_rating_fields (book_id)
+      ''');
+      
+      // Add rating_override column to book table
+      await db.execute('''
+        ALTER TABLE book ADD COLUMN rating_override INTEGER DEFAULT 0
+      ''');
+      
+      // Migrate existing ratings to "General Rating" field
+      final booksWithRatings = await db.query(
+        'book',
+        where: 'my_rating IS NOT NULL AND my_rating > 0',
+      );
+      
+      for (final book in booksWithRatings) {
+        await db.insert('book_rating_fields', {
+          'book_id': book['book_id'],
+          'field_name': 'General Rating',
+          'rating_value': book['my_rating'],
+        });
+      }
     }
   }
 

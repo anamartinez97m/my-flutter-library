@@ -48,6 +48,7 @@ class BookRepository {
         b.tbr, b.is_tandem, b.original_book_id,
         b.notification_enabled, b.notification_datetime, b.bundle_parent_id,
         b.reading_progress, b.progress_type,
+        b.notes, b.price, b.rating_override,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -106,6 +107,7 @@ class BookRepository {
         b.tbr, b.is_tandem, b.original_book_id,
         b.notification_enabled, b.notification_datetime, b.bundle_parent_id,
         b.reading_progress, b.progress_type,
+        b.notes, b.price, b.rating_override,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -187,6 +189,8 @@ class BookRepository {
         b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
         b.tbr, b.is_tandem, b.original_book_id,
         b.notification_enabled, b.notification_datetime, b.bundle_parent_id,
+        b.reading_progress, b.progress_type,
+        b.notes, b.price, b.rating_override,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -238,6 +242,8 @@ class BookRepository {
         b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
         b.tbr, b.is_tandem, b.original_book_id,
         b.notification_enabled, b.notification_datetime, b.bundle_parent_id,
+        b.reading_progress, b.progress_type,
+        b.notes, b.price, b.rating_override,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -899,6 +905,11 @@ class BookRepository {
       'notification_enabled': book.notificationEnabled == true ? 1 : 0,
       'notification_datetime': book.notificationDatetime,
       'bundle_parent_id': book.bundleParentId,
+      'reading_progress': book.readingProgress,
+      'progress_type': book.progressType,
+      'notes': book.notes,
+      'price': book.price,
+      'rating_override': book.ratingOverride == true ? 1 : 0,
     };
 
     // If book has an ID, preserve it (for updates)
@@ -1294,6 +1305,8 @@ class BookRepository {
         b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
         b.tbr, b.is_tandem, b.original_book_id,
         b.notification_enabled, b.notification_datetime, b.bundle_parent_id,
+        b.reading_progress, b.progress_type,
+        b.notes, b.price, b.rating_override,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -1343,6 +1356,8 @@ class BookRepository {
         b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
         b.tbr, b.is_tandem, b.original_book_id,
         b.notification_enabled, b.notification_datetime, b.bundle_parent_id,
+        b.reading_progress, b.progress_type,
+        b.notes, b.price, b.rating_override,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
