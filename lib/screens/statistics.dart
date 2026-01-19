@@ -904,6 +904,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     
     for (var book in books) {
       if (book.saga != null && book.saga!.isNotEmpty) {
+        // Skip books with "Repeated" status to avoid double counting
+        // Only count the original book (with "Read" or other statuses)
+        if (book.statusValue != null && 
+            book.statusValue!.toLowerCase() == 'repeated') {
+          continue;
+        }
+        
         if (!sagaStats.containsKey(book.saga!)) {
           final expectedTotal = _getExpectedTotal(book.formatSagaValue);
           sagaStats[book.saga!] = {

@@ -1412,4 +1412,31 @@ class BookRepository {
       return 0;
     }
   }
+
+  /// Update format_saga_id for all books in a saga
+  /// Returns the number of books updated
+  Future<int> updateFormatSagaForAllBooksInSaga(
+    String sagaName,
+    int formatSagaId,
+  ) async {
+    try {
+      final result = await db.rawUpdate(
+        '''
+        UPDATE book
+        SET format_saga_id = ?
+        WHERE saga = ?
+      ''',
+        [formatSagaId, sagaName],
+      );
+
+      debugPrint(
+        '✅ Updated format_saga for $result book(s) in saga "$sagaName"',
+      );
+
+      return result;
+    } catch (e) {
+      debugPrint('❌ Error updating format_saga for saga "$sagaName": $e');
+      return 0;
+    }
+  }
 }

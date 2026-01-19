@@ -852,6 +852,30 @@ class _EditBookScreenState extends State<EditBookScreen> {
         );
       }
 
+      // If format_saga changed and book belongs to a saga, update all books in that saga
+      if (updatedBook.saga != null && 
+          updatedBook.saga!.isNotEmpty && 
+          _selectedFormatSagaId != null &&
+          widget.book.formatSagaValue != updatedBook.formatSagaValue) {
+        debugPrint(
+          '📚 Format saga changed for saga "${updatedBook.saga}": ${widget.book.formatSagaValue} → ${updatedBook.formatSagaValue}',
+        );
+        final updatedCount = await repository.updateFormatSagaForAllBooksInSaga(
+          updatedBook.saga!,
+          _selectedFormatSagaId!,
+        );
+        if (mounted && updatedCount > 1) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Updated format saga for $updatedCount books in "${updatedBook.saga}"',
+              ),
+              backgroundColor: Colors.blue,
+            ),
+          );
+        }
+      }
+
       // Reload books in provider
       if (mounted) {
         final provider = Provider.of<BookProvider?>(context, listen: false);

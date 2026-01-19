@@ -233,7 +233,6 @@ class DatabaseHelper {
       await db.insert('format_saga', {'value': 'Tetralogy', 'expected_books': 4});
       await db.insert('format_saga', {'value': 'Pentalogy', 'expected_books': 5});
       await db.insert('format_saga', {'value': 'Hexalogy', 'expected_books': 6});
-      await db.insert('format_saga', {'value': '6+', 'expected_books': null});
       await db.insert('format_saga', {'value': 'Saga', 'expected_books': null});
     }
   }
