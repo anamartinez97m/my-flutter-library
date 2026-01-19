@@ -7,6 +7,7 @@ import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/model/read_date.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
+import 'package:myrandomlibrary/screens/books_by_author.dart';
 import 'package:myrandomlibrary/screens/books_by_saga.dart';
 import 'package:myrandomlibrary/screens/edit_book.dart';
 import 'package:myrandomlibrary/utils/status_helper.dart';
@@ -946,12 +947,12 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     if (_currentBook.isBundle == true) {
       return _calculateBundleReadingTime();
     } else {
-      return _calculateSingleBookReadingTime(_currentBook, _chronometerSessions);
+      return _calculateSingleBookReadingTime(_currentBook, _chronometerSessions, _readDates);
     }
   }
 
   /// Calculate reading time for a single book
-  Map<String, dynamic> _calculateSingleBookReadingTime(Book book, List<ReadingSession> sessions) {
+  Map<String, dynamic> _calculateSingleBookReadingTime(Book book, List<ReadingSession> sessions, List<ReadDate> readDates) {
     // Only calculate for read books
     if (book.statusValue?.toLowerCase() != 'yes' || book.readCount == null || book.readCount! <= 0) {
       return {
@@ -986,22 +987,27 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         }
       };
     } else {
-      // Case 3: No session data, use dates
-      if (book.dateReadInitial != null && book.dateReadFinal != null) {
-        final startDate = _parseDate(book.dateReadInitial!);
-        final endDate = _parseDate(book.dateReadFinal!);
+      // Case 3: No session data, use dates from readDates
+      if (readDates.isNotEmpty) {
+        // Use the most recent read date entry
+        final latestReadDate = readDates.first;
         
-        if (startDate != null && endDate != null && endDate.isAfter(startDate)) {
-          final days = endDate.difference(startDate).inDays + 1;
-          return {
-            'days': days,
-            'method': 'Date-based',
-            'hasData': true,
-            'details': {
-              'start_date': book.dateReadInitial,
-              'end_date': book.dateReadFinal,
-            }
-          };
+        if (latestReadDate.dateStarted != null && latestReadDate.dateFinished != null) {
+          final startDate = _parseDate(latestReadDate.dateStarted!);
+          final endDate = _parseDate(latestReadDate.dateFinished!);
+          
+          if (startDate != null && endDate != null && endDate.isAfter(startDate)) {
+            final days = endDate.difference(startDate).inDays + 1;
+            return {
+              'days': days,
+              'method': 'Date-based',
+              'hasData': true,
+              'details': {
+                'start_date': latestReadDate.dateStarted,
+                'end_date': latestReadDate.dateFinished,
+              }
+            };
+          }
         }
       }
       
@@ -1072,7 +1078,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         progressType: null,
       );
 
-      final result = _calculateSingleBookReadingTime(tempBook, sessions);
+      // Get read dates for this bundle book
+      final bundleBookReadDates = _bundleReadDates[bookIndex] ?? [];
+      
+      final result = _calculateSingleBookReadingTime(tempBook, sessions, bundleBookReadDates);
       
       if (result['hasData'] == true) {
         totalDays += result['days'] as int;
@@ -2285,8 +2294,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                     // Reading Time - only show for read books with data
                     if (_currentBook.statusValue?.toLowerCase() == 'yes' && 
                         (_chronometerSessions.isNotEmpty || 
-                         _currentBook.dateReadInitial != null || 
-                         _currentBook.dateReadFinal != null ||
+                         _readDates.isNotEmpty ||
                          _bundleChronometerSessions.isNotEmpty))
                       _buildReadingTimeCard(),
                     // Original Book (for repeated books)
@@ -2323,10 +2331,30 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                       ),
                     if (_currentBook.author != null &&
                         _currentBook.author!.isNotEmpty)
-                      _DetailCard(
-                        icon: Icons.person,
-                        label: 'Author(s)',
-                        value: _currentBook.author!,
+                      InkWell(
+                        onTap: () {
+                          // Parse authors (comma-separated)
+                          final authors = _currentBook.author!
+                              .split(',')
+                              .map((a) => a.trim())
+                              .where((a) => a.isNotEmpty)
+                              .toList();
+                          
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => BooksByAuthorScreen(
+                                authors: authors,
+                              ),
+                            ),
+                          );
+                        },
+                        child: _DetailCard(
+                          icon: Icons.person,
+                          label: 'Author(s)',
+                          value: _currentBook.author!,
+                          trailingIcon: Icons.open_in_new,
+                        ),
                       ),
                     if (_currentBook.isbn != null &&
                         _currentBook.isbn!.isNotEmpty)
