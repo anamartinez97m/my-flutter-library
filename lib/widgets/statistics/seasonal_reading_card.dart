@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 
 class SeasonalReadingCard extends StatelessWidget {
   final Map<String, int> seasonalReading;
+  final Map<int, Map<String, int>> seasonalReadingPerYear;
   final int yearsCount;
 
   const SeasonalReadingCard({
     super.key,
     required this.seasonalReading,
+    required this.seasonalReadingPerYear,
     this.yearsCount = 1,
   });
 
@@ -27,20 +29,45 @@ class SeasonalReadingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final totalBooks = seasonalReading.values.fold(
-      0,
-      (sum, count) => sum + count,
-    );
+    // Calculate average per season correctly:
+    // 1. Sum each season across all years
+    // 2. Calculate mean for each season (total / number of years)
+    // 3. Average those 4 seasonal means together
+    double avgPerYearPerSeason = 0.0;
+    if (seasonalReadingPerYear.isNotEmpty) {
+      final numYears = seasonalReadingPerYear.length;
 
-    // Calculate average per season (total books / 4 seasons)
-    final avgPerSeason =
-        totalBooks > 0 ? (totalBooks / 4).toStringAsFixed(1) : '0.0';
-    
-    // Calculate average per year per season (average books per season / years)
-    final avgPerYearPerSeason =
-        totalBooks > 0 && yearsCount > 0 
-            ? ((totalBooks / 4) / yearsCount).toStringAsFixed(1) 
-            : '0.0';
+      // Sum each season across all years
+      final Map<String, int> seasonTotals = {
+        'Winter': 0,
+        'Spring': 0,
+        'Summer': 0,
+        'Fall': 0,
+      };
+
+      for (var yearData in seasonalReadingPerYear.values) {
+        seasonTotals['Winter'] =
+            (seasonTotals['Winter'] ?? 0) + (yearData['Winter'] ?? 0);
+        seasonTotals['Spring'] =
+            (seasonTotals['Spring'] ?? 0) + (yearData['Spring'] ?? 0);
+        seasonTotals['Summer'] =
+            (seasonTotals['Summer'] ?? 0) + (yearData['Summer'] ?? 0);
+        seasonTotals['Fall'] =
+            (seasonTotals['Fall'] ?? 0) + (yearData['Fall'] ?? 0);
+      }
+
+      // Calculate mean for each season
+      final winterMean = seasonTotals['Winter']! / numYears;
+      final springMean = seasonTotals['Spring']! / numYears;
+      final summerMean = seasonTotals['Summer']! / numYears;
+      final fallMean = seasonTotals['Fall']! / numYears;
+
+      // Average the 4 seasonal means
+      avgPerYearPerSeason =
+          (winterMean + springMean + summerMean + fallMean) / 4;
+    }
+
+    final avgPerYearPerSeasonStr = avgPerYearPerSeason.toStringAsFixed(1);
 
     // Find most and least productive seasons
     final sortedSeasons =
@@ -104,7 +131,7 @@ class SeasonalReadingCard extends StatelessWidget {
                       const SizedBox(width: 6),
                       Flexible(
                         child: Text(
-                          'Average: $avgPerSeason books per season',
+                          'Average: $avgPerYearPerSeasonStr books per season',
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 12,
@@ -113,15 +140,6 @@ class SeasonalReadingCard extends StatelessWidget {
                         ),
                       ),
                     ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '$avgPerYearPerSeason books per year per season',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey[700],
-                      fontWeight: FontWeight.w500,
-                    ),
                   ),
                 ],
               ),

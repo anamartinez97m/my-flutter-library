@@ -53,6 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _selectedSagaFormatWithoutNSaga;
   String? _selectedSagaWithoutFormatSaga;
   String? _selectedPublicationYearEmpty;
+  String? _selectedRating;
 
   Set<String> _enabledFilters = {};
 
@@ -102,6 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
               provider.currentFilters['saga_without_format_saga'];
           _selectedPublicationYearEmpty =
               provider.currentFilters['publication_year_empty'];
+          _selectedRating = provider.currentFilters['rating'];
 
           // Restore sort state from provider
           _sortBy = provider.currentSortBy;
@@ -137,6 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
           'is_tandem',
           'saga_without_format_saga',
           'publication_year_empty',
+          'rating',
         };
       }
     });
@@ -1104,6 +1107,61 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               const SizedBox(height: 8),
                             ],
+                            // Rating filter
+                            if (_isFilterEnabled('rating')) ...[
+                              DropdownButtonFormField<String>(
+                                value: _selectedRating,
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  labelText:
+                                      AppLocalizations.of(context)!.rating_filter,
+                                  border: OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  isDense: true,
+                                ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: null,
+                                    child: Text(
+                                      AppLocalizations.of(context)!.any,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: '0-1',
+                                    child: Text('0-1 ⭐'),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: '1-2',
+                                    child: Text('1-2 ⭐'),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: '2-3',
+                                    child: Text('2-3 ⭐'),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: '3-4',
+                                    child: Text('3-4 ⭐'),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: '4-5',
+                                    child: Text('4-5 ⭐'),
+                                  ),
+                                ],
+                                onChanged: (value) {
+                                  setState(() => _selectedRating = value);
+                                  if (value != null) {
+                                    provider.filterBooks('rating', value);
+                                  } else {
+                                    provider.filterBooks('all', null);
+                                  }
+                                  setModalState(() {});
+                                },
+                              ),
+                              const SizedBox(height: 8),
+                            ],
                             // Saga Without Format Saga filter
                             if (_isFilterEnabled('saga_without_format_saga')) ...[
                               DropdownButtonFormField<String>(
@@ -1184,6 +1242,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         _selectedSagaFormatWithoutNSaga = null;
                                         _selectedSagaWithoutFormatSaga = null;
                                         _selectedPublicationYearEmpty = null;
+                                        _selectedRating = null;
                                       });
                                       provider.clearAllFilters();
                                       setModalState(() {});

@@ -441,6 +441,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get publication_year_empty => 'Publication Year';
 
   @override
+  String get rating_filter => 'Rating';
+
+  @override
   String pages_with_colon(Object pages) {
     return 'Pages: $pages';
   }

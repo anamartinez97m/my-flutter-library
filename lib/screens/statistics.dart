@@ -954,33 +954,50 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         .length;
 
     // #20: Seasonal Reading Patterns
+    // Track seasonal reading per year for correct average calculation
+    final Map<int, Map<String, int>> seasonalReadingPerYear = {};
     final Map<String, int> seasonalReading = {
       'Winter': 0,
       'Spring': 0,
       'Summer': 0,
       'Fall': 0,
     };
-    final Set<int> yearsWithReading = {};
+    
     for (var book in books) {
       if (book.dateReadFinal != null && book.dateReadFinal!.isNotEmpty) {
         final endDate = _tryParseDate(book.dateReadFinal!, bookName: book.name);
         if (endDate != null) {
-          yearsWithReading.add(endDate.year);
+          final year = endDate.year;
           final month = endDate.month;
+          
+          // Initialize year if not exists
+          seasonalReadingPerYear.putIfAbsent(year, () => {
+            'Winter': 0,
+            'Spring': 0,
+            'Summer': 0,
+            'Fall': 0,
+          });
+          
+          // Determine season and increment both total and per-year counts
+          String season;
           if (month >= 12 || month <= 2) {
-            seasonalReading['Winter'] = (seasonalReading['Winter'] ?? 0) + 1;
+            season = 'Winter';
           } else if (month >= 3 && month <= 5) {
-            seasonalReading['Spring'] = (seasonalReading['Spring'] ?? 0) + 1;
+            season = 'Spring';
           } else if (month >= 6 && month <= 8) {
-            seasonalReading['Summer'] = (seasonalReading['Summer'] ?? 0) + 1;
+            season = 'Summer';
           } else {
-            seasonalReading['Fall'] = (seasonalReading['Fall'] ?? 0) + 1;
+            season = 'Fall';
           }
+          
+          seasonalReading[season] = (seasonalReading[season] ?? 0) + 1;
+          seasonalReadingPerYear[year]![season] = 
+              (seasonalReadingPerYear[year]![season] ?? 0) + 1;
         }
       }
     }
     final int yearsCount =
-        yearsWithReading.isNotEmpty ? yearsWithReading.length : 1;
+        seasonalReadingPerYear.isNotEmpty ? seasonalReadingPerYear.length : 1;
 
     // #12: Monthly Reading Heatmap data (using read dates from book_read_dates table)
     // Skip parent bundles - count individual books instead
@@ -3089,6 +3106,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   ),
                 SeasonalReadingCard(
                   seasonalReading: seasonalReading,
+                  seasonalReadingPerYear: seasonalReadingPerYear,
                   yearsCount: yearsCount,
                 ),
                 // Monthly Reading Heatmap - Full calendar view (always full width)

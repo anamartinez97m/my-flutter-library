@@ -887,6 +887,12 @@ abstract class AppLocalizations {
   /// **'Publication Year'**
   String get publication_year_empty;
 
+  /// No description provided for @rating_filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating'**
+  String get rating_filter;
+
   /// Pages with colon
   ///
   /// In en, this message translates to:

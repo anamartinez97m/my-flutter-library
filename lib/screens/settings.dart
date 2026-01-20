@@ -55,6 +55,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     {'key': 'saga_format_without_nsaga', 'label': 'Saga Format Without N_Saga'},
     {'key': 'saga_without_format_saga', 'label': 'Saga Without Format Saga'},
     {'key': 'publication_year_empty', 'label': 'Publication Year Empty'},
+    {'key': 'rating', 'label': 'Rating'},
   ];
 
   // Available card fields for customization
