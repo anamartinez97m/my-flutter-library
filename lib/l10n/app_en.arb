@@ -257,6 +257,7 @@
   "saga_format_without_n_saga": "Saga Format Without N_Saga",
   "saga_without_format_saga": "Saga Without Format Saga",
   "publication_year_empty": "Publication Year",
+  "rating_filter": "Rating",
   "pages_with_colon": "Pages: {pages}",
   "@pages_with_colon": {
     "description": "Pages with colon",

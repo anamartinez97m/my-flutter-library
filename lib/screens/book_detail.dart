@@ -39,6 +39,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   final Map<int, String> _bundleBookTitles = {}; // Map of index -> book title
   bool _loadingReadDates = true;
   int _bundleBooksKey = 0; // Key to force FutureBuilder rebuild
+  bool _isDescriptionExpanded = false; // Track description expansion state
 
   @override
   void initState() {
@@ -2013,18 +2014,34 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                       AppTheme.verticalSpaceLarge,
                     ],
 
-                    // Description (from API - future implementation)
+                    // Description placeholder - Collapsible
                     Container(
-                      padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: Colors.grey[100],
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: Colors.grey[300]!),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
+                      child: Theme(
+                        data: Theme.of(context).copyWith(
+                          dividerColor: Colors.transparent,
+                        ),
+                        child: ExpansionTile(
+                          initiallyExpanded: _isDescriptionExpanded,
+                          onExpansionChanged: (expanded) {
+                            setState(() {
+                              _isDescriptionExpanded = expanded;
+                            });
+                          },
+                          tilePadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 4,
+                          ),
+                          childrenPadding: const EdgeInsets.only(
+                            left: 12,
+                            right: 12,
+                            bottom: 12,
+                          ),
+                          title: Row(
                             children: [
                               Icon(
                                 Icons.description,
@@ -2065,17 +2082,18 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'This is a placeholder for the book description that will be fetched from an external API in future development. The description will provide a summary of the book\'s content, themes, and other relevant information.',
-                            style: Theme.of(
-                              context,
-                            ).textTheme.bodySmall?.copyWith(
-                              color: Colors.grey[700],
-                              fontStyle: FontStyle.italic,
+                          children: [
+                            Text(
+                              'This is a placeholder for the book description that will be fetched from an external API in future development. The description will provide a summary of the book\'s content, themes, and other relevant information.',
+                              style: Theme.of(
+                                context,
+                              ).textTheme.bodySmall?.copyWith(
+                                color: Colors.grey[700],
+                                fontStyle: FontStyle.italic,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                     AppTheme.verticalSpaceXLarge,

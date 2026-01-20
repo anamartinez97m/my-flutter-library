@@ -268,6 +268,17 @@ class BookProvider extends ChangeNotifier {
                       return false;
                     }
                     break;
+                  case 'rating':
+                    // Filter books by rating range
+                    final rating = book.myRating ?? 0.0;
+                    // filterValue format: "min-max" (e.g., "0-1", "1-2", "2-3", "3-4", "4-5")
+                    final parts = filterValue.split('-');
+                    if (parts.length == 2) {
+                      final min = double.tryParse(parts[0]) ?? 0.0;
+                      final max = double.tryParse(parts[1]) ?? 5.0;
+                      if (rating < min || rating > max) return false;
+                    }
+                    break;
                 }
               }
             }
