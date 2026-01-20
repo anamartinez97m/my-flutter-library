@@ -12,6 +12,7 @@ import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/screens/admin_csv_import.dart';
 import 'package:myrandomlibrary/screens/manage_dropdowns.dart';
 import 'package:myrandomlibrary/screens/manage_rating_fields.dart';
+import 'package:myrandomlibrary/screens/manage_club_names.dart';
 import 'package:myrandomlibrary/screens/bundle_migration_screen.dart';
 import 'package:myrandomlibrary/utils/csv_import_helper.dart';
 import 'package:myrandomlibrary/utils/bundle_migration.dart';
@@ -1229,7 +1230,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       // Create CSV data
       List<List<dynamic>> csvData = [];
 
-      // Add header row
+      // Add header row with ALL book fields (proper CSV format for re-import)
       csvData.add([
         'Title',
         'Author',
@@ -1256,10 +1257,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
         'Is Bundle',
         'Bundle Count',
         'Bundle Numbers',
+        'Bundle Start Dates',
+        'Bundle End Dates',
+        'Bundle Pages',
+        'Bundle Publication Years',
+        'Bundle Titles',
+        'Bundle Authors',
+        'TBR',
+        'Is Tandem',
+        'Original Book ID',
+        'Notification Enabled',
+        'Notification Datetime',
+        'Bundle Parent ID',
+        'Reading Progress',
+        'Progress Type',
+        'Notes',
+        'Price',
+        'Rating Override',
         'Created At',
       ]);
 
-      // Add book data
+      // Add book data with ALL fields
       for (var book in allBooks) {
         csvData.add([
           book.name ?? '',
@@ -1287,6 +1305,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
           book.isBundle == true ? 'yes' : 'no',
           book.bundleCount?.toString() ?? '',
           book.bundleNumbers ?? '',
+          book.bundleStartDates ?? '',
+          book.bundleEndDates ?? '',
+          book.bundlePages ?? '',
+          book.bundlePublicationYears ?? '',
+          book.bundleTitles ?? '',
+          book.bundleAuthors ?? '',
+          book.tbr == true ? 'yes' : 'no',
+          book.isTandem == true ? 'yes' : 'no',
+          book.originalBookId?.toString() ?? '',
+          book.notificationEnabled == true ? 'yes' : 'no',
+          book.notificationDatetime ?? '',
+          book.bundleParentId?.toString() ?? '',
+          book.readingProgress?.toString() ?? '',
+          book.progressType ?? '',
+          book.notes ?? '',
+          book.price?.toString() ?? '',
+          book.ratingOverride == true ? 'yes' : 'no',
           book.createdAt ?? '',
         ]);
       }
@@ -1366,6 +1401,226 @@ class _SettingsScreenState extends State<SettingsScreen> {
           if (shouldRetry == true) {
             // Retry the export operation
             await _exportToCsv(context);
+          }
+        }
+      } else {
+        // Other error
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error exporting to CSV: $e'),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 5),
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _exportToExcel(BuildContext context) async {
+    try {
+      // Show loading indicator
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Preparing CSV export...'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+
+      // Get all books from the database
+      final db = await DatabaseHelper.instance.database;
+      final repository = BookRepository(db);
+      final allBooks = await repository.getAllBooks();
+
+      if (allBooks.isEmpty) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No books to export'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+        return;
+      }
+
+      // Create CSV data
+      List<List<dynamic>> csvData = [];
+
+      // Add header row with ALL book fields
+      csvData.add([
+        'Title',
+        'Author',
+        'ISBN',
+        'ASIN',
+        'Saga',
+        'N_Saga',
+        'Saga Universe',
+        'Format Saga',
+        'Status',
+        'Editorial',
+        'Language',
+        'Place',
+        'Format',
+        'Genre',
+        'Pages',
+        'Original Publication Year',
+        'Loaned',
+        'Date Read Initial',
+        'Date Read Final',
+        'Read Count',
+        'My Rating',
+        'My Review',
+        'Is Bundle',
+        'Bundle Count',
+        'Bundle Numbers',
+        'Bundle Start Dates',
+        'Bundle End Dates',
+        'Bundle Pages',
+        'Bundle Publication Years',
+        'Bundle Titles',
+        'Bundle Authors',
+        'TBR',
+        'Is Tandem',
+        'Original Book ID',
+        'Notification Enabled',
+        'Notification Datetime',
+        'Bundle Parent ID',
+        'Reading Progress',
+        'Progress Type',
+        'Notes',
+        'Price',
+        'Rating Override',
+        'Created At',
+      ]);
+
+      // Add book data with ALL fields
+      for (var book in allBooks) {
+        csvData.add([
+          book.name ?? '',
+          book.author ?? '',
+          book.isbn ?? '',
+          book.asin ?? '',
+          book.saga ?? '',
+          book.nSaga ?? '',
+          book.sagaUniverse ?? '',
+          book.formatSagaValue ?? '',
+          book.statusValue ?? '',
+          book.editorialValue ?? '',
+          book.languageValue ?? '',
+          book.placeValue ?? '',
+          book.formatValue ?? '',
+          book.genre ?? '',
+          book.pages?.toString() ?? '',
+          book.originalPublicationYear?.toString() ?? '',
+          book.loaned ?? '',
+          book.dateReadInitial ?? '',
+          book.dateReadFinal ?? '',
+          book.readCount?.toString() ?? '',
+          book.myRating?.toString() ?? '',
+          book.myReview ?? '',
+          book.isBundle == true ? 'yes' : 'no',
+          book.bundleCount?.toString() ?? '',
+          book.bundleNumbers ?? '',
+          book.bundleStartDates ?? '',
+          book.bundleEndDates ?? '',
+          book.bundlePages ?? '',
+          book.bundlePublicationYears ?? '',
+          book.bundleTitles ?? '',
+          book.bundleAuthors ?? '',
+          book.tbr == true ? 'yes' : 'no',
+          book.isTandem == true ? 'yes' : 'no',
+          book.originalBookId?.toString() ?? '',
+          book.notificationEnabled == true ? 'yes' : 'no',
+          book.notificationDatetime ?? '',
+          book.bundleParentId?.toString() ?? '',
+          book.readingProgress?.toString() ?? '',
+          book.progressType ?? '',
+          book.notes ?? '',
+          book.price?.toString() ?? '',
+          book.ratingOverride == true ? 'yes' : 'no',
+          book.createdAt ?? '',
+        ]);
+      }
+
+      // Convert to CSV string
+      String csv = const ListToCsvConverter().convert(csvData);
+
+      // Create file name with timestamp (Excel-compatible CSV)
+      final timestamp =
+          DateTime.now().toIso8601String().replaceAll(':', '-').split('.')[0];
+      final fileName = 'my_library_export_excel_$timestamp.csv';
+
+      // Let user pick a directory
+      String? selectedDirectory = await FilePicker.platform.getDirectoryPath(
+        dialogTitle: 'Select folder to save Excel CSV',
+      );
+
+      if (selectedDirectory == null) {
+        // User canceled
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Export canceled'),
+              backgroundColor: Colors.grey,
+            ),
+          );
+        }
+        return;
+      }
+
+      // Create the full path for the CSV file
+      final filePath = '$selectedDirectory/$fileName';
+
+      // Write the CSV file
+      await File(filePath).writeAsString(csv);
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Exported ${allBooks.length} books to:\n$filePath'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Export error: $e');
+
+      // Check if it's a permission error
+      final errorStr = e.toString().toLowerCase();
+      if (errorStr.contains('permission') ||
+          errorStr.contains('denied') ||
+          errorStr.contains('eacces')) {
+        // Permission error - try to request again
+        if (context.mounted) {
+          final shouldRetry = await showDialog<bool>(
+            context: context,
+            builder:
+                (context) => AlertDialog(
+                  title: const Text('Permission Required'),
+                  content: const Text(
+                    'Storage permission is needed to export CSV files. Would you like to grant permission?',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text('Grant Permission'),
+                    ),
+                  ],
+                ),
+          );
+
+          if (shouldRetry == true) {
+            // Retry the export operation
+            await _exportToExcel(context);
           }
         }
       } else {
@@ -2365,50 +2620,107 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Export to CSV
-                        Card(
-                          elevation: 1,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: InkWell(
-                            onTap: () => _exportToCsv(context),
-                            borderRadius: BorderRadius.circular(12),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                children: [
-                                  Icon(
-                                    Icons.file_download,
-                                    size: 36,
-                                    color: Theme.of(context).colorScheme.primary,
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Text(
-                                    'Export to CSV',
-                                    textAlign: TextAlign.center,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleLarge
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.w600,
+                        // Export buttons
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Card(
+                                elevation: 1,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: InkWell(
+                                  onTap: () => _exportToCsv(context),
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Column(
+                                      children: [
+                                        Icon(
+                                          Icons.file_download,
+                                          size: 36,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
                                         ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Export all books to a CSV file',
-                                    textAlign: TextAlign.center,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(
-                                          color: Colors.grey[600],
+                                        const SizedBox(height: 12),
+                                        Text(
+                                          'Export to CSV',
+                                          textAlign: TextAlign.center,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w600,
+                                              ),
                                         ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'For re-import',
+                                          textAlign: TextAlign.center,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                color: Colors.grey[600],
+                                              ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ],
+                                ),
                               ),
                             ),
-                          ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Card(
+                                elevation: 1,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: InkWell(
+                                  onTap: () => _exportToExcel(context),
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Column(
+                                      children: [
+                                        Icon(
+                                          Icons.table_chart,
+                                          size: 36,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                        ),
+                                        const SizedBox(height: 12),
+                                        Text(
+                                          'Export to Excel',
+                                          textAlign: TextAlign.center,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Excel-compatible',
+                                          textAlign: TextAlign.center,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                color: Colors.grey[600],
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 16),
                       ],
@@ -2456,6 +2768,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const SizedBox(height: 8),
                       Text(
                         'Add, edit, or remove rating criterion names',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            // Manage Club Names
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ManageClubNamesScreen(),
+                    ),
+                  );
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.groups,
+                        size: 36,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Manage Club Names',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Rename or delete reading clubs',
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Colors.grey[600],
