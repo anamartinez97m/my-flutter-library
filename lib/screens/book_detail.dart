@@ -15,6 +15,7 @@ import 'package:myrandomlibrary/screens/edit_book.dart';
 import 'package:myrandomlibrary/utils/status_helper.dart';
 import 'package:myrandomlibrary/utils/date_formatter.dart';
 import 'package:myrandomlibrary/widgets/chronometer_widget.dart';
+import 'package:myrandomlibrary/widgets/book_clubs_card.dart';
 import 'package:myrandomlibrary/model/reading_session.dart';
 import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
 import 'package:provider/provider.dart';
@@ -3237,6 +3238,14 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                           ),
                         ),
                       ),
+                    
+                    // Reading Clubs
+                    BookClubsCard(
+                      bookId: _currentBook.bookId!,
+                      onClubsChanged: () {
+                        // Optionally reload book data if needed
+                      },
+                    ),
                   ],
                 ),
               ),

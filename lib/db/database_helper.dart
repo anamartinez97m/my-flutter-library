@@ -23,7 +23,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 31,
+      version: 32,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -230,6 +230,27 @@ class DatabaseHelper {
 
     await db.execute('''
       CREATE INDEX IF NOT EXISTS idx_book_rating_fields_book_id ON book_rating_fields (book_id)
+    ''');
+
+    // Create reading_clubs table for book club tracking
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS reading_clubs (
+        club_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        book_id INTEGER NOT NULL,
+        club_name VARCHAR(100) NOT NULL,
+        target_date TEXT,
+        reading_progress INTEGER DEFAULT 0,
+        created_at TEXT DEFAULT (datetime('now')),
+        FOREIGN KEY (book_id) REFERENCES book(book_id) ON DELETE CASCADE
+      )
+    ''');
+
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_reading_clubs_book_id ON reading_clubs (book_id)
+    ''');
+
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_reading_clubs_club_name ON reading_clubs (club_name)
     ''');
 
     // Insert default status values if table is empty
@@ -893,6 +914,28 @@ class DatabaseHelper {
           'rating_value': book['my_rating'],
         });
       }
+    }
+    if (oldVersion < 32) {
+      // Create reading_clubs table for book club tracking
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS reading_clubs (
+          club_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          book_id INTEGER NOT NULL,
+          club_name VARCHAR(100) NOT NULL,
+          target_date TEXT,
+          reading_progress INTEGER DEFAULT 0,
+          created_at TEXT DEFAULT (datetime('now')),
+          FOREIGN KEY (book_id) REFERENCES book(book_id) ON DELETE CASCADE
+        )
+      ''');
+      
+      await db.execute('''
+        CREATE INDEX IF NOT EXISTS idx_reading_clubs_book_id ON reading_clubs (book_id)
+      ''');
+      
+      await db.execute('''
+        CREATE INDEX IF NOT EXISTS idx_reading_clubs_club_name ON reading_clubs (club_name)
+      ''');
     }
   }
 
