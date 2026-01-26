@@ -137,7 +137,15 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                             ),
                             IconButton(
                               icon: const Icon(Icons.add_circle),
-                              onPressed: null,
+                              onPressed: () {
+                                setDialogState(() {
+                                  customChallenges.add({
+                                    'name': TextEditingController(),
+                                    'target': TextEditingController(),
+                                    'unit': TextEditingController(),
+                                  });
+                                });
+                              },
                             ),
                           ],
                         ),
@@ -484,6 +492,99 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
     }
   }
 
+  Future<void> _showUpdateCustomChallengeDialog(
+    YearChallenge challenge,
+    int challengeIndex,
+    CustomChallenge customChallenge,
+  ) async {
+    final currentController = TextEditingController(
+      text: customChallenge.current.toString(),
+    );
+
+    final result = await showDialog<int>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text('Update: ${customChallenge.name}'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Target: ${customChallenge.target} ${customChallenge.unit}',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: currentController,
+                  decoration: InputDecoration(
+                    labelText: 'Current Progress',
+                    border: const OutlineInputBorder(),
+                    suffixText: customChallenge.unit,
+                  ),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  autofocus: true,
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  final current = int.tryParse(currentController.text) ?? 0;
+                  Navigator.pop(context, current);
+                },
+                child: const Text('Update'),
+              ),
+            ],
+          ),
+    );
+
+    if (result != null) {
+      try {
+        // Update the custom challenge in the list
+        final updatedCustomChallenges =
+            List<CustomChallenge>.from(challenge.customChallenges!);
+        updatedCustomChallenges[challengeIndex] =
+            customChallenge.copyWith(current: result);
+
+        // Update the challenge with the new custom challenges list
+        final updatedChallenge =
+            challenge.copyWith(customChallenges: updatedCustomChallenges);
+
+        final db = await DatabaseHelper.instance.database;
+        final repository = YearChallengeRepository(db);
+        await repository.updateChallenge(updatedChallenge);
+        _loadChallenges();
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Challenge progress updated!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error updating challenge: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
   Widget _buildChallengeCard(YearChallenge challenge) {
     final progress = _progressData[challenge.year];
     final booksRead = progress?['booksRead'] ?? 0;
@@ -648,30 +749,39 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                   ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 12),
-                ...challenge.customChallenges!.map((customChallenge) {
+                ...challenge.customChallenges!.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final customChallenge = entry.value;
                   final isComplete =
                       customChallenge.current >= customChallenge.target;
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color:
-                            isComplete
-                                ? Colors.green.withOpacity(0.1)
-                                : Colors.transparent,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
+                    child: InkWell(
+                      onTap: () => _showUpdateCustomChallengeDialog(
+                        challenge,
+                        index,
+                        customChallenge,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        decoration: BoxDecoration(
                           color:
                               isComplete
-                                  ? Colors.green.withOpacity(0.3)
-                                  : Colors.grey[300]!,
-                          width: 1,
+                                  ? Colors.green.withOpacity(0.1)
+                                  : Colors.transparent,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color:
+                                isComplete
+                                    ? Colors.green.withOpacity(0.3)
+                                    : Colors.grey[300]!,
+                            width: 1,
+                          ),
                         ),
-                      ),
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                           // Challenge name row
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -729,6 +839,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                           ),
                         ],
                       ),
+                    ),
                     ),
                   );
                 }),

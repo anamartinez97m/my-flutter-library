@@ -18,6 +18,18 @@ class NotificationService {
 
     // Initialize timezone
     tz.initializeTimeZones();
+    
+    // Set the local timezone to the device's timezone
+    // This is crucial for scheduled notifications to fire at the correct time
+    final String timeZoneName = DateTime.now().timeZoneName;
+    try {
+      tz.setLocalLocation(tz.getLocation(timeZoneName));
+      debugPrint('✅ Timezone set to: $timeZoneName');
+    } catch (e) {
+      // Fallback to UTC if timezone name is not recognized
+      debugPrint('⚠️ Could not set timezone $timeZoneName, using UTC: $e');
+      tz.setLocalLocation(tz.getLocation('UTC'));
+    }
 
     // Android initialization settings
     const androidSettings = AndroidInitializationSettings(
@@ -114,8 +126,42 @@ class NotificationService {
     required int bookId,
     required String bookTitle,
     required DateTime scheduledDate,
+    DateTime? releaseDate,
   }) async {
     if (!_initialized) await initialize();
+
+    // Convert to TZDateTime with local timezone
+    final tzScheduledDate = tz.TZDateTime.from(scheduledDate, tz.local);
+    
+    // Calculate days remaining until release
+    String notificationBody;
+    if (releaseDate != null) {
+      final daysRemaining = releaseDate.difference(scheduledDate).inDays;
+      if (daysRemaining == 0) {
+        notificationBody = '$bookTitle is being released today!';
+      } else if (daysRemaining == 1) {
+        notificationBody = '$bookTitle will be released tomorrow!';
+      } else if (daysRemaining > 1) {
+        notificationBody = '$bookTitle will be released in $daysRemaining days!';
+      } else {
+        // Release date is in the past (shouldn't happen, but handle it)
+        notificationBody = '$bookTitle has been released!';
+      }
+    } else {
+      // Fallback if no release date provided
+      notificationBody = '$bookTitle is being released today!';
+    }
+    
+    // Debug logging
+    debugPrint('📅 Scheduling notification for book: $bookTitle (ID: $bookId)');
+    debugPrint('📅 Input DateTime: $scheduledDate');
+    debugPrint('📅 Release Date: $releaseDate');
+    debugPrint('📅 TZDateTime: $tzScheduledDate');
+    debugPrint('📅 Current time: ${DateTime.now()}');
+    debugPrint('📅 Current TZ time: ${tz.TZDateTime.now(tz.local)}');
+    debugPrint('📅 Timezone: ${tz.local.name}');
+    debugPrint('📅 Is in future: ${tzScheduledDate.isAfter(tz.TZDateTime.now(tz.local))}');
+    debugPrint('📅 Notification body: $notificationBody');
 
     const androidDetails = AndroidNotificationDetails(
       'book_releases',
@@ -139,6 +185,7 @@ class NotificationService {
 
     // Request exact alarm permission first
     final hasExactAlarmPermission = await requestExactAlarmPermission();
+    debugPrint('📅 Exact alarm permission: $hasExactAlarmPermission');
 
     try {
       // Try with exact timing if permission granted
@@ -146,8 +193,8 @@ class NotificationService {
         await _notifications.zonedSchedule(
           bookId, // Use bookId as notification ID
           'Book Release Reminder',
-          '$bookTitle is being released today!',
-          tz.TZDateTime.from(scheduledDate, tz.local),
+          notificationBody,
+          tzScheduledDate,
           notificationDetails,
           androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
           uiLocalNotificationDateInterpretation:
@@ -160,8 +207,8 @@ class NotificationService {
         await _notifications.zonedSchedule(
           bookId,
           'Book Release Reminder',
-          '$bookTitle is being released today!',
-          tz.TZDateTime.from(scheduledDate, tz.local),
+          notificationBody,
+          tzScheduledDate,
           notificationDetails,
           androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
           uiLocalNotificationDateInterpretation:
@@ -172,14 +219,24 @@ class NotificationService {
           '⚠️ Notification scheduled with inexact timing (permission not granted)',
         );
       }
+      
+      // Verify the notification was scheduled
+      final pendingNotifications = await _notifications.pendingNotificationRequests();
+      final thisNotification = pendingNotifications.where((n) => n.id == bookId);
+      if (thisNotification.isNotEmpty) {
+        debugPrint('✅ Verified: Notification is in pending list');
+      } else {
+        debugPrint('⚠️ Warning: Notification not found in pending list');
+      }
+      debugPrint('📅 Total pending notifications: ${pendingNotifications.length}');
     } catch (e) {
       // If exact alarms still fail, fall back to inexact timing
-      debugPrint('⚠️ Exact alarms failed, using inexact timing: $e');
+      debugPrint('❌ Error scheduling notification: $e');
       await _notifications.zonedSchedule(
         bookId,
         'Book Release Reminder',
-        '$bookTitle is being released today!',
-        tz.TZDateTime.from(scheduledDate, tz.local),
+        notificationBody,
+        tzScheduledDate,
         notificationDetails,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         uiLocalNotificationDateInterpretation:

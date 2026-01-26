@@ -43,6 +43,7 @@ class Book {
   final int? originalBookId; // For repeated books, links to the original book
   final bool? notificationEnabled;
   final String? notificationDatetime;
+  final String? releaseDate; // Release date for TBReleased books (ISO 8601 format)
   final int? bundleParentId; // For individual bundle books, links to the parent bundle book
   final int? readingProgress; // Progress in pages or percentage (0-100 for percentage)
   final String? progressType; // 'pages' or 'percentage'
@@ -89,6 +90,7 @@ class Book {
     this.originalBookId,
     this.notificationEnabled,
     this.notificationDatetime,
+    this.releaseDate,
     this.bundleParentId,
     this.readingProgress,
     this.progressType,
@@ -151,6 +153,7 @@ class Book {
       originalBookId: map['original_book_id'] as int?,
       notificationEnabled: map['notification_enabled'] == 1,
       notificationDatetime: map['notification_datetime'] as String?,
+      releaseDate: map['release_date'] as String?,
       bundleParentId: map['bundle_parent_id'] as int?,
       readingProgress: map['reading_progress'] is int
           ? map['reading_progress'] as int
@@ -204,6 +207,7 @@ class Book {
       'originalBookId': originalBookId,
       'notificationEnabled': notificationEnabled,
       'notificationDatetime': notificationDatetime,
+      'releaseDate': releaseDate,
       'bundleParentId': bundleParentId,
       'readingProgress': readingProgress,
       'progressType': progressType,

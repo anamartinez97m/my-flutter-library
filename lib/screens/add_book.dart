@@ -521,6 +521,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
             _notificationEnabled && _notificationDateTime != null
                 ? _notificationDateTime!.toIso8601String()
                 : null,
+        releaseDate: _releaseDate != null
+                ? _releaseDate!.toIso8601String()
+                : null,
         bundleParentId: null, // This is the parent book
         notes:
             _notesController.text.trim().isEmpty
@@ -641,6 +644,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
               bookId: bookId,
               bookTitle: _nameController.text.trim(),
               scheduledDate: _notificationDateTime!,
+              releaseDate: _releaseDate,
             );
             debugPrint('✅ Notification scheduled successfully for book ID: $bookId');
           } else {
