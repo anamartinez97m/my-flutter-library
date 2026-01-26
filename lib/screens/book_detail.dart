@@ -18,6 +18,8 @@ import 'package:myrandomlibrary/widgets/chronometer_widget.dart';
 import 'package:myrandomlibrary/widgets/book_clubs_card.dart';
 import 'package:myrandomlibrary/model/reading_session.dart';
 import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
+import 'package:myrandomlibrary/services/book_metadata_service.dart';
+import 'package:myrandomlibrary/model/book_metadata.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 
@@ -40,12 +42,14 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   bool _loadingReadDates = true;
   int _bundleBooksKey = 0; // Key to force FutureBuilder rebuild
   bool _isDescriptionExpanded = false; // Track description expansion state
+  bool _isFetchingMetadata = false; // Track if metadata is being fetched
 
   @override
   void initState() {
     super.initState();
     _currentBook = widget.book;
     _loadReadDates();
+    _fetchMetadataIfMissing();
   }
 
   Future<List<Book>> _loadBundleBooks() async {
@@ -175,6 +179,119 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       setState(() {
         _loadingReadDates = false;
       });
+    }
+  }
+
+  /// Automatically fetch and cache metadata if missing
+  Future<void> _fetchMetadataIfMissing() async {
+    // Skip if already fetching or if metadata already exists
+    if (_isFetchingMetadata) return;
+    
+    final hasCover = _currentBook.coverUrl != null && _currentBook.coverUrl!.isNotEmpty;
+    final hasDescription = _currentBook.description != null && _currentBook.description!.isNotEmpty;
+    
+    // If both exist, no need to fetch
+    if (hasCover && hasDescription) {
+      debugPrint('[BookDetail] Metadata already exists, skipping fetch');
+      return;
+    }
+
+    // Need at least ISBN or title to fetch metadata
+    final hasIsbn = _currentBook.isbn != null && _currentBook.isbn!.isNotEmpty;
+    final hasTitle = _currentBook.name != null && _currentBook.name!.isNotEmpty;
+    
+    if (!hasIsbn && !hasTitle) {
+      debugPrint('[BookDetail] No ISBN or title available, cannot fetch metadata');
+      return;
+    }
+
+    setState(() {
+      _isFetchingMetadata = true;
+    });
+
+    try {
+      debugPrint('[BookDetail] Fetching metadata for book: ${_currentBook.name}');
+      
+      final metadataService = BookMetadataService();
+      BookMetadata? metadata;
+      
+      // Try ISBN first (10 or 13)
+      if (_currentBook.isbn != null && _currentBook.isbn!.isNotEmpty) {
+        debugPrint('[BookDetail] Trying with ISBN: ${_currentBook.isbn}');
+        metadata = await metadataService.fetchMetadata(
+          isbn: _currentBook.isbn,
+          title: _currentBook.name,
+          author: _currentBook.author,
+        );
+      }
+      
+      // If no result, try ASIN
+      if (metadata == null && _currentBook.asin != null && _currentBook.asin!.isNotEmpty) {
+        debugPrint('[BookDetail] ISBN failed, trying with ASIN: ${_currentBook.asin}');
+        metadata = await metadataService.fetchMetadata(
+          isbn: _currentBook.asin, // ASIN can be used as ISBN parameter
+          title: _currentBook.name,
+          author: _currentBook.author,
+        );
+      }
+      
+      // If still no result, try title + author
+      if (metadata == null && _currentBook.name != null && _currentBook.name!.isNotEmpty) {
+        debugPrint('[BookDetail] ASIN failed, trying with title + author');
+        metadata = await metadataService.fetchMetadata(
+          title: _currentBook.name,
+          author: _currentBook.author,
+        );
+      }
+
+      if (metadata != null && mounted) {
+        debugPrint('[BookDetail] Metadata fetched successfully from ${metadata.source}');
+        
+        // Update database with fetched metadata
+        final db = await DatabaseHelper.instance.database;
+        await db.update(
+          'book',
+          {
+            'cover_url': metadata.bestCoverUrl,
+            'description': metadata.description,
+            'metadata_source': metadata.source,
+            'metadata_fetched_at': DateTime.now().toIso8601String(),
+          },
+          where: 'book_id = ?',
+          whereArgs: [_currentBook.bookId!],
+        );
+
+        // Reload book to get updated metadata
+        final repository = BookRepository(db);
+        final updatedBooks = await repository.getAllBooks();
+        final updatedBook = updatedBooks.firstWhere(
+          (b) => b.bookId == _currentBook.bookId,
+          orElse: () => _currentBook,
+        );
+
+        if (mounted) {
+          setState(() {
+            _currentBook = updatedBook;
+            _isFetchingMetadata = false;
+          });
+          
+          debugPrint('[BookDetail] Book updated with fetched metadata');
+        }
+      } else {
+        debugPrint('[BookDetail] No metadata found');
+        if (mounted) {
+          setState(() {
+            _isFetchingMetadata = false;
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('[BookDetail] Error fetching metadata: $e');
+      if (mounted) {
+        setState(() {
+          _isFetchingMetadata = false;
+        });
+      }
     }
   }
 
@@ -1639,23 +1756,66 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Image placeholder
+              // Book cover image
               Container(
-                height: 180,
+                height: 250,
                 color: Colors.grey[300],
-                child: const Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.book, size: 60, color: Colors.grey),
-                      SizedBox(height: 6),
-                      Text(
-                        'Image coming soon',
-                        style: TextStyle(color: Colors.grey, fontSize: 13),
+                child: _currentBook.coverUrl != null && _currentBook.coverUrl!.isNotEmpty
+                    ? Center(
+                        child: Image.network(
+                          _currentBook.coverUrl!,
+                          fit: BoxFit.contain,
+                          height: 250,
+                          loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                  : null,
+                            ),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.broken_image, size: 60, color: Colors.grey),
+                                SizedBox(height: 6),
+                                Text(
+                                  'Failed to load image',
+                                  style: TextStyle(color: Colors.grey, fontSize: 13),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
-                    ],
-                  ),
-                ),
+                    )
+                    : Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (_isFetchingMetadata) ...[
+                              const CircularProgressIndicator(),
+                              const SizedBox(height: 12),
+                              const Text(
+                                'Fetching cover...',
+                                style: TextStyle(color: Colors.grey, fontSize: 13),
+                              ),
+                            ] else ...[
+                              const Icon(Icons.book, size: 60, color: Colors.grey),
+                              const SizedBox(height: 6),
+                              const Text(
+                                'No cover image',
+                                style: TextStyle(color: Colors.grey, fontSize: 13),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
               ),
               Padding(
                 padding: const EdgeInsets.all(20.0),
@@ -2042,7 +2202,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                       AppTheme.verticalSpaceLarge,
                     ],
 
-                    // Description placeholder - Collapsible
+                    // Description - Collapsible (always shown)
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.grey[100],
@@ -2086,40 +2246,79 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              const SizedBox(width: 4),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.primary.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  'API',
-                                  style: TextStyle(
-                                    fontSize: 9,
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    fontWeight: FontWeight.bold,
+                              if (_currentBook.metadataSource != null) ...[
+                                const SizedBox(width: 4),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    _currentBook.metadataSource == 'google_books'
+                                        ? 'Google Books'
+                                        : _currentBook.metadataSource == 'open_library'
+                                            ? 'Open Library'
+                                            : 'API',
+                                    style: TextStyle(
+                                      fontSize: 9,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
-                              ),
+                              ],
                             ],
                           ),
                           children: [
-                            Text(
-                              'This is a placeholder for the book description that will be fetched from an external API in future development. The description will provide a summary of the book\'s content, themes, and other relevant information.',
-                              style: Theme.of(
-                                context,
-                              ).textTheme.bodySmall?.copyWith(
-                                color: Colors.grey[700],
-                                fontStyle: FontStyle.italic,
+                            if (_isFetchingMetadata)
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 12.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                    ),
+                                    SizedBox(width: 12),
+                                    Text(
+                                      'Fetching description...',
+                                      style: TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 13,
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            else if (_currentBook.description != null && _currentBook.description!.isNotEmpty)
+                              Text(
+                                _currentBook.description!,
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.bodySmall?.copyWith(
+                                  color: Colors.grey[700],
+                                ),
+                              )
+                            else
+                              Text(
+                                'No description available for this book.',
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.bodySmall?.copyWith(
+                                  color: Colors.grey[600],
+                                  fontStyle: FontStyle.italic,
+                                ),
                               ),
-                            ),
                           ],
                         ),
                       ),

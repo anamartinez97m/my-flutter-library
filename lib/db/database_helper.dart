@@ -23,7 +23,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 35,
+      version: 36,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -133,6 +133,10 @@ class DatabaseHelper {
         notes TEXT,
         price REAL,
         rating_override INTEGER DEFAULT 0,
+        cover_url TEXT,
+        description TEXT,
+        metadata_source TEXT,
+        metadata_fetched_at TEXT,
         FOREIGN KEY (status_id) REFERENCES status (status_id),
         FOREIGN KEY (original_book_id) REFERENCES book (book_id) ON DELETE SET NULL,
         FOREIGN KEY (bundle_parent_id) REFERENCES book (book_id) ON DELETE CASCADE,
@@ -1022,6 +1026,21 @@ class DatabaseHelper {
         'rating_field_names',
         where: 'name = ?',
         whereArgs: ['General Rating'],
+      );
+    }
+    if (oldVersion < 36) {
+      // Add book metadata fields for external API integration
+      await db.execute(
+        'ALTER TABLE book ADD COLUMN cover_url TEXT',
+      );
+      await db.execute(
+        'ALTER TABLE book ADD COLUMN description TEXT',
+      );
+      await db.execute(
+        'ALTER TABLE book ADD COLUMN metadata_source TEXT',
+      );
+      await db.execute(
+        'ALTER TABLE book ADD COLUMN metadata_fetched_at TEXT',
       );
     }
   }

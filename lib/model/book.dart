@@ -50,6 +50,10 @@ class Book {
   final String? notes; // User notes about the book
   final double? price; // Book price
   final bool? ratingOverride; // true if user manually overrode the auto-calculated rating
+  final String? coverUrl; // Book cover image URL from external APIs
+  final String? description; // Book description/synopsis from external APIs
+  final String? metadataSource; // Source of metadata: 'google_books', 'open_library', 'merged'
+  final String? metadataFetchedAt; // Timestamp when metadata was fetched
 
   Book({
     required this.bookId,
@@ -97,6 +101,10 @@ class Book {
     this.notes,
     this.price,
     this.ratingOverride,
+    this.coverUrl,
+    this.description,
+    this.metadataSource,
+    this.metadataFetchedAt,
   });
 
   factory Book.fromMap(Map<String, dynamic> map) {
@@ -164,6 +172,10 @@ class Book {
           ? map['price'] as double
           : double.tryParse(map['price']?.toString() ?? ''),
       ratingOverride: map['rating_override'] == 1,
+      coverUrl: map['cover_url'] as String?,
+      description: map['description'] as String?,
+      metadataSource: map['metadata_source'] as String?,
+      metadataFetchedAt: map['metadata_fetched_at'] as String?,
     );
   }
 
@@ -214,6 +226,10 @@ class Book {
       'notes': notes,
       'price': price,
       'ratingOverride': ratingOverride,
+      'coverUrl': coverUrl,
+      'description': description,
+      'metadataSource': metadataSource,
+      'metadataFetchedAt': metadataFetchedAt,
     };
   }
 
