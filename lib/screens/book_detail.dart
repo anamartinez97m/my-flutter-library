@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:ui';
 import 'package:myrandomlibrary/config/app_theme.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
@@ -182,26 +183,32 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     }
   }
 
-  /// Automatically fetch and cache metadata if missing
+  /// Automatically fetch and cache metadata if missing or if ISBN/ASIN changed
   Future<void> _fetchMetadataIfMissing() async {
-    // Skip if already fetching or if metadata already exists
+    // Skip if already fetching
     if (_isFetchingMetadata) return;
     
     final hasCover = _currentBook.coverUrl != null && _currentBook.coverUrl!.isNotEmpty;
     final hasDescription = _currentBook.description != null && _currentBook.description!.isNotEmpty;
+    final hasMetadata = hasCover && hasDescription;
     
-    // If both exist, no need to fetch
-    if (hasCover && hasDescription) {
+    // Check if ISBN or ASIN has changed since last fetch
+    // If metadata exists but we have a new ISBN/ASIN, refetch
+    final hasIsbn = _currentBook.isbn != null && _currentBook.isbn!.isNotEmpty;
+    final hasAsin = _currentBook.asin != null && _currentBook.asin!.isNotEmpty;
+    final hasTitle = _currentBook.name != null && _currentBook.name!.isNotEmpty;
+    
+    // If metadata exists and we have identifiers, assume it's current
+    // (In a more sophisticated implementation, you could store the ISBN used for fetching
+    // and compare it, but for now we'll refetch only if metadata is missing)
+    if (hasMetadata) {
       debugPrint('[BookDetail] Metadata already exists, skipping fetch');
       return;
     }
-
-    // Need at least ISBN or title to fetch metadata
-    final hasIsbn = _currentBook.isbn != null && _currentBook.isbn!.isNotEmpty;
-    final hasTitle = _currentBook.name != null && _currentBook.name!.isNotEmpty;
     
-    if (!hasIsbn && !hasTitle) {
-      debugPrint('[BookDetail] No ISBN or title available, cannot fetch metadata');
+    // Need at least ISBN, ASIN, or title to fetch metadata
+    if (!hasIsbn && !hasAsin && !hasTitle) {
+      debugPrint('[BookDetail] No ISBN, ASIN, or title available, cannot fetch metadata');
       return;
     }
 
@@ -291,6 +298,54 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         setState(() {
           _isFetchingMetadata = false;
         });
+      }
+    }
+  }
+
+  /// Force refetch metadata (useful when ISBN/ASIN changes)
+  Future<void> _refetchMetadata() async {
+    if (_isFetchingMetadata) return;
+
+    try {
+      // Clear existing metadata first
+      final db = await DatabaseHelper.instance.database;
+      await db.update(
+        'book',
+        {
+          'cover_url': null,
+          'description': null,
+          'metadata_source': null,
+          'metadata_fetched_at': null,
+        },
+        where: 'book_id = ?',
+        whereArgs: [_currentBook.bookId!],
+      );
+
+      // Reload book
+      final repository = BookRepository(db);
+      final updatedBooks = await repository.getAllBooks();
+      final updatedBook = updatedBooks.firstWhere(
+        (b) => b.bookId == _currentBook.bookId,
+        orElse: () => _currentBook,
+      );
+
+      if (mounted) {
+        setState(() {
+          _currentBook = updatedBook;
+        });
+        
+        // Now fetch new metadata
+        await _fetchMetadataIfMissing();
+      }
+    } catch (e) {
+      debugPrint('[BookDetail] Error refetching metadata: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error refetching metadata: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }
@@ -1723,6 +1778,11 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           title: const Text('Book Details'),
           actions: [
             IconButton(
+              icon: const Icon(Icons.refresh),
+              tooltip: 'Refresh metadata',
+              onPressed: _refetchMetadata,
+            ),
+            IconButton(
               icon: const Icon(Icons.edit),
               onPressed: () async {
                 final updatedBook = await Navigator.push<Book>(
@@ -1743,6 +1803,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                     // Pop with result to notify parent bundle detail screen
                     Navigator.pop(context, updatedBook);
                   }
+                  
+                  // Check if metadata needs refetching after edit
+                  await _fetchMetadataIfMissing();
                 }
               },
             ),
@@ -1756,44 +1819,101 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Book cover image
+              // Book cover image with glassmorphism effect
               Container(
                 height: 250,
-                color: Colors.grey[300],
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                ),
                 child: _currentBook.coverUrl != null && _currentBook.coverUrl!.isNotEmpty
-                    ? Center(
-                        child: Image.network(
-                          _currentBook.coverUrl!,
-                          fit: BoxFit.contain,
-                          height: 250,
-                          loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Center(
-                            child: CircularProgressIndicator(
-                              value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded /
-                                      loadingProgress.expectedTotalBytes!
-                                  : null,
+                    ? Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          // Blurred background image
+                          Image.network(
+                            _currentBook.coverUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Container(),
+                          ),
+                          // Blur effect
+                          BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                            child: Container(
+                              color: Colors.black.withOpacity(0.1),
                             ),
-                          );
-                        },
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.broken_image, size: 60, color: Colors.grey),
-                                SizedBox(height: 6),
-                                Text(
-                                  'Failed to load image',
-                                  style: TextStyle(color: Colors.grey, fontSize: 13),
+                          ),
+                          // Centered cover with glassmorphism
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: BackdropFilter(
+                                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.15),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: Colors.white.withOpacity(0.2),
+                                        width: 1.5,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.1),
+                                          blurRadius: 20,
+                                          spreadRadius: 5,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Image.network(
+                                        _currentBook.coverUrl!,
+                                        fit: BoxFit.contain,
+                                        height: 210,
+                                        loadingBuilder: (context, child, loadingProgress) {
+                                          if (loadingProgress == null) return child;
+                                          return SizedBox(
+                                            height: 210,
+                                            child: Center(
+                                              child: CircularProgressIndicator(
+                                                value: loadingProgress.expectedTotalBytes != null
+                                                    ? loadingProgress.cumulativeBytesLoaded /
+                                                        loadingProgress.expectedTotalBytes!
+                                                    : null,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        errorBuilder: (context, error, stackTrace) {
+                                          return const SizedBox(
+                                            height: 210,
+                                            child: Center(
+                                              child: Column(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                  Icon(Icons.broken_image, size: 60, color: Colors.white70),
+                                                  SizedBox(height: 6),
+                                                  Text(
+                                                    'Failed to load image',
+                                                    style: TextStyle(color: Colors.white70, fontSize: 13),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ],
+                              ),
                             ),
-                          );
-                        },
-                      ),
-                    )
+                          ),
+                        ],
+                      )
                     : Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -1817,6 +1937,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         ),
                       ),
               ),
+              const SizedBox(height: 24), // Spacing between cover and content
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
