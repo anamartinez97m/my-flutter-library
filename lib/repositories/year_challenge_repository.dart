@@ -110,11 +110,13 @@ class YearChallengeRepository {
 
     return {
       'hasChallenge': true,
-      'targetBooks': challenge.targetBooks,
+      'targetBooks': challenge.targetBooks ?? 0,
       'targetPages': challenge.targetPages ?? 0,
       'booksRead': booksRead,
       'pagesRead': pagesRead,
-      'booksProgress': challenge.targetBooks > 0 ? (booksRead / challenge.targetBooks) : 0.0,
+      'booksProgress': (challenge.targetBooks != null && challenge.targetBooks! > 0) 
+          ? (booksRead / challenge.targetBooks!) 
+          : 0.0,
       'pagesProgress': (challenge.targetPages != null && challenge.targetPages! > 0) 
           ? (pagesRead / challenge.targetPages!) 
           : 0.0,

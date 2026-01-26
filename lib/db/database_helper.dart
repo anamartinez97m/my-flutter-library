@@ -23,7 +23,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 33,
+      version: 35,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -231,6 +231,14 @@ class DatabaseHelper {
 
     await db.execute('''
       CREATE INDEX IF NOT EXISTS idx_book_rating_fields_book_id ON book_rating_fields (book_id)
+    ''');
+
+    // Create rating_field_names table for available rating field names
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS rating_field_names (
+        field_name_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name VARCHAR(100) NOT NULL UNIQUE
+      )
     ''');
 
     // Create reading_clubs table for book club tracking
@@ -901,20 +909,6 @@ class DatabaseHelper {
       await db.execute('''
         ALTER TABLE book ADD COLUMN rating_override INTEGER DEFAULT 0
       ''');
-      
-      // Migrate existing ratings to "General Rating" field
-      final booksWithRatings = await db.query(
-        'book',
-        where: 'my_rating IS NOT NULL AND my_rating > 0',
-      );
-      
-      for (final book in booksWithRatings) {
-        await db.insert('book_rating_fields', {
-          'book_id': book['book_id'],
-          'field_name': 'General Rating',
-          'rating_value': book['my_rating'],
-        });
-      }
     }
     if (oldVersion < 32) {
       // Create reading_clubs table for book club tracking
@@ -943,6 +937,92 @@ class DatabaseHelper {
       await db.execute('''
         ALTER TABLE book ADD COLUMN release_date TEXT
       ''');
+    }
+    if (oldVersion < 34) {
+      // Create rating_field_names table for available rating field names
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS rating_field_names (
+          field_name_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name VARCHAR(100) NOT NULL UNIQUE
+        )
+      ''');
+      
+      // Populate with default suggestions
+      final defaultNames = [
+        'Plot',
+        'Characters',
+        'Writing Style',
+        'Pacing',
+        'World Building',
+        'Dialogue',
+        'Atmosphere',
+      ];
+      
+      for (final name in defaultNames) {
+        await db.insert('rating_field_names', {'name': name});
+      }
+      
+      // Add any existing field names from book_rating_fields
+      final existingFields = await db.rawQuery('''
+        SELECT DISTINCT field_name 
+        FROM book_rating_fields
+      ''');
+      
+      for (final field in existingFields) {
+        final fieldName = field['field_name'] as String;
+        if (!defaultNames.contains(fieldName)) {
+          try {
+            await db.insert('rating_field_names', {'name': fieldName});
+          } catch (e) {
+            // Ignore duplicates
+          }
+        }
+      }
+    }
+    if (oldVersion < 35) {
+      // Make target_books nullable to support custom-only challenges
+      // SQLite doesn't support ALTER COLUMN, so we need to recreate the table
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS year_challenges_temp (
+          challenge_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          year INTEGER NOT NULL,
+          target_books INTEGER,
+          target_pages INTEGER,
+          created_at TEXT NOT NULL,
+          notes TEXT,
+          custom_challenges TEXT
+        )
+      ''');
+      
+      // Copy data from old table
+      await db.execute('''
+        INSERT INTO year_challenges_temp 
+        SELECT challenge_id, year, target_books, target_pages, created_at, notes, custom_challenges 
+        FROM year_challenges
+      ''');
+      
+      // Drop old table and rename new one
+      await db.execute('DROP TABLE year_challenges');
+      await db.execute('ALTER TABLE year_challenges_temp RENAME TO year_challenges');
+      
+      // Recreate index
+      await db.execute('''
+        CREATE INDEX IF NOT EXISTS idx_year_challenges_year ON year_challenges(year)
+      ''');
+      
+      // Delete "General Rating" entries since we use my_rating field instead
+      await db.delete(
+        'book_rating_fields',
+        where: 'field_name = ?',
+        whereArgs: ['General Rating'],
+      );
+      
+      // Remove "General Rating" from rating_field_names if it exists
+      await db.delete(
+        'rating_field_names',
+        where: 'name = ?',
+        whereArgs: ['General Rating'],
+      );
     }
   }
 

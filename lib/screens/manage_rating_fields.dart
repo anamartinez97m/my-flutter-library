@@ -33,22 +33,16 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRatingFieldRepository(db);
-      final names = await repository.getDistinctFieldNames();
-      
-      // Combine default suggestions with used field names
-      final allNames = <String>{
-        ..._defaultSuggestions,
-        ...names,
-      }.toList()..sort();
+      final names = await repository.getAllFieldNames();
       
       setState(() {
-        _fieldNames = allNames;
+        _fieldNames = names;
         _isLoading = false;
       });
     } catch (e) {
       debugPrint('Error loading rating field names: $e');
       setState(() {
-        _fieldNames = List.from(_defaultSuggestions);
+        _fieldNames = [];
         _isLoading = false;
       });
     }
@@ -102,18 +96,31 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         return;
       }
 
-      setState(() {
-        _fieldNames.add(result);
-        _fieldNames.sort();
-      });
+      try {
+        final db = await DatabaseHelper.instance.database;
+        final repository = BookRatingFieldRepository(db);
+        await repository.addFieldName(result);
+        
+        await _loadFieldNames();
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Added "$result"'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Added "$result"'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        debugPrint('Error adding field name: $e');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error adding field name: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     }
   }
@@ -165,32 +172,31 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         return;
       }
 
-      // Update in database if the field name is actually used
       try {
         final db = await DatabaseHelper.instance.database;
-        await db.rawUpdate(
-          'UPDATE book_rating_fields SET field_name = ? WHERE field_name = ?',
-          [result, oldName],
-        );
-      } catch (e) {
-        debugPrint('Error updating field name in database: $e');
-      }
+        final repository = BookRatingFieldRepository(db);
+        await repository.updateFieldName(oldName, result);
+        
+        await _loadFieldNames();
 
-      setState(() {
-        final index = _fieldNames.indexOf(oldName);
-        if (index != -1) {
-          _fieldNames[index] = result;
-          _fieldNames.sort();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Updated "$oldName" to "$result"'),
+              backgroundColor: Colors.green,
+            ),
+          );
         }
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Updated "$oldName" to "$result"'),
-            backgroundColor: Colors.green,
-          ),
-        );
+      } catch (e) {
+        debugPrint('Error updating field name: $e');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error updating field name: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     }
   }
@@ -256,27 +262,30 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
     );
 
     if (confirmed == true) {
-      // Delete from database
       try {
-        await db.rawDelete(
-          'DELETE FROM book_rating_fields WHERE field_name = ?',
-          [name],
-        );
+        final repository = BookRatingFieldRepository(db);
+        await repository.deleteFieldName(name);
+        
+        await _loadFieldNames();
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Deleted "$name"'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       } catch (e) {
-        debugPrint('Error deleting field name from database: $e');
-      }
-
-      setState(() {
-        _fieldNames.remove(name);
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Deleted "$name"'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        debugPrint('Error deleting field name: $e');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error deleting field name: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     }
   }
