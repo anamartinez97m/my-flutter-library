@@ -254,6 +254,17 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   }
 
   Future<void> _quickFinishReading() async {
+    // Show modal to collect ratings and review
+    final result = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (context) => _FinishBookDialog(
+        bookId: _currentBook.bookId!,
+        bookName: _currentBook.name ?? '',
+      ),
+    );
+
+    if (result == null) return; // User cancelled
+
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
@@ -276,17 +287,32 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       // Get current read count
       final currentReadCount = _currentBook.readCount ?? 0;
 
-      // Update status and increment read count
+      // Update status, increment read count, and save review
       await db.update(
         'book',
         {
           'status_id': targetStatus['status_id'],
           'date_read_final': today,
           'read_count': currentReadCount + 1,
+          'my_review': result['review'],
+          'reading_progress': 0, // Reset progress
         },
         where: 'book_id = ?',
         whereArgs: [_currentBook.bookId!],
       );
+
+      // Save rating fields
+      final ratingFieldRepository = BookRatingFieldRepository(db);
+      final ratings = result['ratings'] as List<Map<String, dynamic>>;
+      for (final rating in ratings) {
+        await ratingFieldRepository.insertRatingField(
+          BookRatingField(
+            bookId: _currentBook.bookId!,
+            fieldName: rating['fieldName'],
+            ratingValue: rating['ratingValue'],
+          ),
+        );
+      }
 
       // If there's an open reading session, close it
       if (_readDates.isNotEmpty && _readDates.last.dateFinished == null) {
@@ -296,6 +322,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           dateStarted: _readDates.last.dateStarted,
           dateFinished: today,
           bundleBookIndex: _readDates.last.bundleBookIndex,
+          readingProgress: _currentBook.readingProgress,
         );
         await repository.updateReadDate(updatedReadDate);
       } else {
@@ -305,6 +332,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
             bookId: _currentBook.bookId!,
             dateStarted: _currentBook.dateReadInitial ?? today,
             dateFinished: today,
+            readingProgress: _currentBook.readingProgress,
           ),
         );
       }
@@ -3861,6 +3889,162 @@ class _TandemBooksCardState extends State<_TandemBooksCard> {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Dialog for collecting ratings and review when finishing a book
+class _FinishBookDialog extends StatefulWidget {
+  final int bookId;
+  final String bookName;
+
+  const _FinishBookDialog({
+    required this.bookId,
+    required this.bookName,
+  });
+
+  @override
+  State<_FinishBookDialog> createState() => _FinishBookDialogState();
+}
+
+class _FinishBookDialogState extends State<_FinishBookDialog> {
+  final TextEditingController _reviewController = TextEditingController();
+  List<String> _availableFieldNames = [];
+  final Map<String, double> _ratings = {};
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFieldNames();
+  }
+
+  Future<void> _loadFieldNames() async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final repository = BookRatingFieldRepository(db);
+      final names = await repository.getAllFieldNames();
+      
+      setState(() {
+        _availableFieldNames = names;
+        _isLoading = false;
+      });
+    } catch (e) {
+      debugPrint('Error loading field names: $e');
+      setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _reviewController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('Finish "${widget.bookName}"'),
+      content: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Rate your reading experience:',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const SizedBox(height: 12),
+                  if (_availableFieldNames.isEmpty)
+                    const Text(
+                      'No rating fields available. You can add them in Settings.',
+                      style: TextStyle(color: Colors.grey),
+                    )
+                  else
+                    ..._availableFieldNames.map((fieldName) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              fieldName,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: List.generate(5, (index) {
+                                final starValue = (index + 1).toDouble();
+                                return IconButton(
+                                  icon: Icon(
+                                    _ratings[fieldName] != null &&
+                                            _ratings[fieldName]! >= starValue
+                                        ? Icons.star
+                                        : Icons.star_border,
+                                    color: Colors.amber,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _ratings[fieldName] = starValue;
+                                    });
+                                  },
+                                );
+                              }),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                  const SizedBox(height: 16),
+                  const Divider(),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Write a review (optional):',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _reviewController,
+                    decoration: const InputDecoration(
+                      hintText: 'Share your thoughts...',
+                      border: OutlineInputBorder(),
+                    ),
+                    maxLines: 4,
+                  ),
+                ],
+              ),
+            ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            // Convert ratings map to list format
+            final ratingsList = _ratings.entries
+                .map((e) => {
+                      'fieldName': e.key,
+                      'ratingValue': e.value,
+                    })
+                .toList();
+
+            Navigator.pop(context, {
+              'ratings': ratingsList,
+              'review': _reviewController.text.trim(),
+            });
+          },
+          child: const Text('Finish Book'),
+        ),
+      ],
     );
   }
 }

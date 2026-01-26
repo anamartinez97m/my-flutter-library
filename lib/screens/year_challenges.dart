@@ -280,9 +280,11 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                                 })
                                 .toList();
 
+                        // Only set targetBooks if user entered a value
+                        // If only custom challenges, don't create a general challenge
                         final challenge = YearChallenge(
                           year: year,
-                          targetBooks: targetBooks ?? 0,
+                          targetBooks: targetBooks,
                           targetPages: int.tryParse(pagesController.text),
                           notes:
                               notesController.text.isEmpty

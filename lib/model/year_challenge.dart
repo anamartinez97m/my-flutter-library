@@ -5,7 +5,7 @@ import 'custom_challenge.dart';
 class YearChallenge {
   final int? challengeId;
   final int year;
-  final int targetBooks;
+  final int? targetBooks;
   final int? targetPages;
   final DateTime createdAt;
   final String? notes;
@@ -14,7 +14,7 @@ class YearChallenge {
   YearChallenge({
     this.challengeId,
     required this.year,
-    required this.targetBooks,
+    this.targetBooks,
     this.targetPages,
     DateTime? createdAt,
     this.notes,

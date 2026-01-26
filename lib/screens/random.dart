@@ -18,7 +18,7 @@ class RandomScreen extends StatefulWidget {
 
 class _RandomScreenState extends State<RandomScreen> {
   // Filter values
-  String? _filterFormat;
+  List<String> _filterFormat = [];
   String? _filterLanguage;
   List<String> _filterGenre = [];
   String? _filterPlace;
@@ -29,6 +29,10 @@ class _RandomScreenState extends State<RandomScreen> {
   String? _filterYear;
   String? _filterAuthor;
   bool? _filterTBR;
+
+  // Logic toggles for multi-select filters
+  bool _genreUseAndLogic = true; // true = AND, false = OR
+  bool _statusUseAndLogic = false; // true = AND, false = OR
 
   // Dropdown options
   List<Map<String, dynamic>> _formatList = [];
@@ -43,7 +47,7 @@ class _RandomScreenState extends State<RandomScreen> {
   // Random book
   Book? _randomBook;
   bool _isLoading = true;
-  
+
   // Custom book selection
   List<String> _selectedBookTitles = [];
   bool _useCustomList = false;
@@ -92,89 +96,122 @@ class _RandomScreenState extends State<RandomScreen> {
     if (provider == null) return;
 
     List<Book> filtered;
-    
+
     // If using custom list, filter by selected titles only
     if (_useCustomList && _selectedBookTitles.isNotEmpty) {
-      filtered = provider.allBooks.where((book) {
-        return _selectedBookTitles.contains(book.name);
-      }).toList();
+      filtered =
+          provider.allBooks.where((book) {
+            return _selectedBookTitles.contains(book.name);
+          }).toList();
     } else {
       // Use regular filters
-      filtered = provider.allBooks.where((book) {
-        // Status filter (optional) - multiple selection
-        if (_filterStatus.isNotEmpty && 
-            (book.statusValue == null || !_filterStatus.contains(book.statusValue))) {
-          return false;
-        }
-        
-        // TBR filter (optional)
-        if (_filterTBR != null && book.tbr != _filterTBR) {
-          return false;
-        }
-        
-        if (_filterFormat != null && book.formatValue != _filterFormat) {
-          return false;
-        }
-        if (_filterLanguage != null &&
-            book.languageValue != _filterLanguage) {
-          return false;
-        }
-        // Genre filter (optional) - multiple selection (AND logic)
-        if (_filterGenre.isNotEmpty) {
-          final bookGenres = book.genre?.split(',').map((g) => g.trim()).toList() ?? [];
-          final hasAllGenres = _filterGenre.every((selectedGenre) => 
-            bookGenres.contains(selectedGenre));
-          if (!hasAllGenres) {
-            return false;
-          }
-        }
-        if (_filterPlace != null && book.placeValue != _filterPlace) {
-          return false;
-        }
-        if (_filterEditorial != null && book.editorialValue != _filterEditorial) {
-          return false;
-        }
-        if (_filterFormatSaga != null && book.formatSagaValue != _filterFormatSaga) {
-          return false;
-        }
-        if (_filterAuthor != null && !(book.author?.contains(_filterAuthor!) ?? false)) {
-          return false;
-        }
-        
-        // Pages filter with ranges
-        if (_filterPages != null && book.pages != null) {
-          final pages = book.pages!;
-          switch (_filterPages) {
-            case '0-200':
-              if (pages < 0 || pages > 200) return false;
-              break;
-            case '200-400':
-              if (pages < 200 || pages > 400) return false;
-              break;
-            case '400-600':
-              if (pages < 400 || pages > 600) return false;
-              break;
-            case '600-900':
-              if (pages < 600 || pages > 900) return false;
-              break;
-            case '900+':
-              if (pages < 900) return false;
-              break;
-          }
-        }
-        
-        // Year filter with decades
-        if (_filterYear != null && book.originalPublicationYear != null) {
-          final year = book.originalPublicationYear!;
-          final decade = (year ~/ 10) * 10;
-          final filterDecade = int.tryParse(_filterYear!);
-          if (filterDecade != null && decade != filterDecade) {
-            return false;
-          }
-        }
-        
-        return true;
-      }).toList();
+      filtered =
+          provider.allBooks.where((book) {
+            // Status filter (optional) - multiple selection with AND/OR toggle
+            if (_filterStatus.isNotEmpty) {
+              if (_statusUseAndLogic) {
+                // AND logic: not practical for status (book can only have one status)
+                // Fall back to OR logic
+                if (book.statusValue == null ||
+                    !_filterStatus.contains(book.statusValue)) {
+                  return false;
+                }
+              } else {
+                // OR logic: matches any selected status
+                if (book.statusValue == null ||
+                    !_filterStatus.contains(book.statusValue)) {
+                  return false;
+                }
+              }
+            }
+
+            // TBR filter (optional)
+            if (_filterTBR != null && book.tbr != _filterTBR) {
+              return false;
+            }
+
+            // Format filter (optional) - multiple selection
+            if (_filterFormat.isNotEmpty) {
+              if (book.formatValue == null || !_filterFormat.contains(book.formatValue)) {
+                return false;
+              }
+            }
+            if (_filterLanguage != null &&
+                book.languageValue != _filterLanguage) {
+              return false;
+            }
+            // Genre filter (optional) - multiple selection with AND/OR toggle
+            if (_filterGenre.isNotEmpty) {
+              final bookGenres =
+                  book.genre?.split(',').map((g) => g.trim()).toList() ?? [];
+              if (_genreUseAndLogic) {
+                // AND logic: must have all selected genres
+                final hasAllGenres = _filterGenre.every(
+                  (selectedGenre) => bookGenres.contains(selectedGenre),
+                );
+                if (!hasAllGenres) {
+                  return false;
+                }
+              } else {
+                // OR logic: must have at least one selected genre
+                final hasAnyGenre = _filterGenre.any(
+                  (selectedGenre) => bookGenres.contains(selectedGenre),
+                );
+                if (!hasAnyGenre) {
+                  return false;
+                }
+              }
+            }
+            if (_filterPlace != null && book.placeValue != _filterPlace) {
+              return false;
+            }
+            if (_filterEditorial != null &&
+                book.editorialValue != _filterEditorial) {
+              return false;
+            }
+            if (_filterFormatSaga != null &&
+                book.formatSagaValue != _filterFormatSaga) {
+              return false;
+            }
+            if (_filterAuthor != null &&
+                !(book.author?.contains(_filterAuthor!) ?? false)) {
+              return false;
+            }
+
+            // Pages filter with ranges
+            if (_filterPages != null && book.pages != null) {
+              final pages = book.pages!;
+              switch (_filterPages) {
+                case '0-200':
+                  if (pages < 0 || pages > 200) return false;
+                  break;
+                case '200-400':
+                  if (pages < 200 || pages > 400) return false;
+                  break;
+                case '400-600':
+                  if (pages < 400 || pages > 600) return false;
+                  break;
+                case '600-900':
+                  if (pages < 600 || pages > 900) return false;
+                  break;
+                case '900+':
+                  if (pages < 900) return false;
+                  break;
+              }
+            }
+
+            // Year filter with decades
+            if (_filterYear != null && book.originalPublicationYear != null) {
+              final year = book.originalPublicationYear!;
+              final decade = (year ~/ 10) * 10;
+              final filterDecade = int.tryParse(_filterYear!);
+              if (filterDecade != null && decade != filterDecade) {
+                return false;
+              }
+            }
+
+            return true;
+          }).toList();
     }
 
     // Apply saga-aware filtering: if a book is part of a saga, only recommend the next unread book
@@ -199,55 +236,62 @@ class _RandomScreenState extends State<RandomScreen> {
   /// Filter books to only recommend the next unread book in a saga
   List<Book> _filterBySagaOrder(List<Book> filtered, List<Book> allBooks) {
     final result = <Book>[];
-    
+
     for (final book in filtered) {
       // If book is not part of a saga, include it
       if (book.saga == null || book.saga!.isEmpty) {
         result.add(book);
         continue;
       }
-      
+
       // Book is part of a saga - check if it's the next unread book
       final sagaName = book.saga!;
       final bookNSaga = book.nSaga;
-      
+
       if (bookNSaga == null || bookNSaga.isEmpty) {
         // No saga number, include it
         result.add(book);
         continue;
       }
-      
+
       final currentNumber = int.tryParse(bookNSaga);
       if (currentNumber == null) {
         // Can't parse saga number, include it
         result.add(book);
         continue;
       }
-      
+
       // Get all books in this saga
-      final sagaBooks = allBooks
-          .where((b) => b.saga == sagaName && b.nSaga != null && b.nSaga!.isNotEmpty)
-          .toList();
-      
+      final sagaBooks =
+          allBooks
+              .where(
+                (b) =>
+                    b.saga == sagaName &&
+                    b.nSaga != null &&
+                    b.nSaga!.isNotEmpty,
+              )
+              .toList();
+
       // Sort by saga number
       sagaBooks.sort((a, b) {
         final aNum = int.tryParse(a.nSaga ?? '0') ?? 0;
         final bNum = int.tryParse(b.nSaga ?? '0') ?? 0;
         return aNum.compareTo(bNum);
       });
-      
+
       // Check if all previous books in the saga have been read
       bool canRecommend = true;
       for (final sagaBook in sagaBooks) {
         final sagaBookNumber = int.tryParse(sagaBook.nSaga ?? '0') ?? 0;
-        
+
         if (sagaBookNumber < currentNumber) {
           // This is a previous book - check if it's been read
-          final isRead = sagaBook.statusValue != null && 
-                        (sagaBook.statusValue!.toLowerCase().contains('read') ||
-                         sagaBook.statusValue!.toLowerCase().contains('leído') ||
-                         sagaBook.statusValue!.toLowerCase().contains('reread'));
-          
+          final isRead =
+              sagaBook.statusValue != null &&
+              (sagaBook.statusValue!.toLowerCase().contains('read') ||
+                  sagaBook.statusValue!.toLowerCase().contains('leído') ||
+                  sagaBook.statusValue!.toLowerCase().contains('reread'));
+
           if (!isRead) {
             // Previous book not read, don't recommend this one
             canRecommend = false;
@@ -255,18 +299,18 @@ class _RandomScreenState extends State<RandomScreen> {
           }
         }
       }
-      
+
       if (canRecommend) {
         result.add(book);
       }
     }
-    
+
     return result;
   }
 
   void _clearFilters() {
     setState(() {
-      _filterFormat = null;
+      _filterFormat = [];
       _filterLanguage = null;
       _filterGenre = [];
       _filterPlace = null;
@@ -333,34 +377,44 @@ class _RandomScreenState extends State<RandomScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Format filter
-                    DropdownButtonFormField<String>(
-                      value: _filterFormat,
-                      isExpanded: true,
-                      decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)!.format,
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
+                    // Format filter - Multi-select dropdown
+                    InkWell(
+                      onTap: () async {
+                        final selected = await showDialog<List<String>>(
+                          context: context,
+                          builder: (context) => _MultiSelectDialog(
+                            title: AppLocalizations.of(context)!.format,
+                            items: _formatList
+                                .map((f) => f['value'] as String)
+                                .toList(),
+                            initialSelected: _filterFormat,
+                          ),
+                        );
+                        if (selected != null) {
+                          setState(() {
+                            _filterFormat = selected;
+                          });
+                        }
+                      },
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.format,
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          suffixIcon: Icon(Icons.arrow_drop_down),
+                        ),
+                        child: Text(
+                          _filterFormat.isEmpty
+                              ? AppLocalizations.of(context)!.any
+                              : _filterFormat.join(', '),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      items: [
-                        DropdownMenuItem(value: null, child: Text(AppLocalizations.of(context)!.any)),
-                        ..._formatList.map((format) {
-                          return DropdownMenuItem<String>(
-                            value: format['value'] as String,
-                            child: Text(format['value'] as String),
-                          );
-                        }),
-                      ],
-                      onChanged: (value) {
-                        setState(() {
-                          _filterFormat = value;
-                        });
-                      },
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
 
                     // Language filter
                     DropdownButtonFormField<String>(
@@ -375,7 +429,10 @@ class _RandomScreenState extends State<RandomScreen> {
                         ),
                       ),
                       items: [
-                        DropdownMenuItem(value: null, child: Text(AppLocalizations.of(context)!.any)),
+                        DropdownMenuItem(
+                          value: null,
+                          child: Text(AppLocalizations.of(context)!.any),
+                        ),
                         ..._languageList.map((lang) {
                           return DropdownMenuItem<String>(
                             value: lang['name'] as String,
@@ -391,20 +448,101 @@ class _RandomScreenState extends State<RandomScreen> {
                     ),
                     const SizedBox(height: 12),
 
-                    // Genre filter - Multiple selection
-                    ChipAutocompleteField(
-                      labelText: AppLocalizations.of(context)!.genre,
-                      prefixIcon: Icons.category,
-                      suggestions: _genreList
-                          .map((genre) => genre['name'] as String)
-                          .toList(),
-                      initialValues: _filterGenre,
-                      hintText: 'Select one or more genres',
-                      onChanged: (values) {
-                        setState(() {
-                          _filterGenre = values;
-                        });
-                      },
+                    // Genre filter - Multi-select dropdown
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        InkWell(
+                          onTap: () async {
+                            final selected = await showDialog<List<String>>(
+                              context: context,
+                              builder: (context) => _MultiSelectDialog(
+                                title: AppLocalizations.of(context)!.genre,
+                                items: _genreList
+                                    .map((g) => g['name'] as String)
+                                    .toList(),
+                                initialSelected: _filterGenre,
+                              ),
+                            );
+                            if (selected != null) {
+                              setState(() {
+                                _filterGenre = selected;
+                              });
+                            }
+                          },
+                          child: InputDecorator(
+                            decoration: InputDecoration(
+                              labelText: AppLocalizations.of(context)!.genre,
+                              border: OutlineInputBorder(),
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              suffixIcon: Icon(Icons.arrow_drop_down),
+                            ),
+                            child: Text(
+                              _filterGenre.isEmpty
+                                  ? AppLocalizations.of(context)!.any
+                                  : _filterGenre.join(', '),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+                        if (_filterGenre.length > 1) ...[
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 12),
+                                  child: Text(
+                                    _genreUseAndLogic
+                                        ? 'AND: must have all selected genres'
+                                        : 'OR: matches any selected genre',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.grey[600],
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: ToggleButtons(
+                                  isSelected: [
+                                    _genreUseAndLogic,
+                                    !_genreUseAndLogic,
+                                  ],
+                                  onPressed: (index) {
+                                    setState(() {
+                                      _genreUseAndLogic = index == 0;
+                                    });
+                                  },
+                                  borderRadius: BorderRadius.circular(8),
+                                  constraints: const BoxConstraints(
+                                    minHeight: 32,
+                                    minWidth: 40,
+                                  ),
+                                  children: const [
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 6),
+                                      child: Text('AND', style: TextStyle(fontSize: 10)),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 6),
+                                      child: Text('OR', style: TextStyle(fontSize: 10)),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ],
                     ),
                     const SizedBox(height: 12),
 
@@ -421,7 +559,10 @@ class _RandomScreenState extends State<RandomScreen> {
                         ),
                       ),
                       items: [
-                        DropdownMenuItem(value: null, child: Text(AppLocalizations.of(context)!.any)),
+                        DropdownMenuItem(
+                          value: null,
+                          child: Text(AppLocalizations.of(context)!.any),
+                        ),
                         ..._placeList.map((place) {
                           return DropdownMenuItem<String>(
                             value: place['name'] as String,
@@ -437,20 +578,101 @@ class _RandomScreenState extends State<RandomScreen> {
                     ),
                     const SizedBox(height: 12),
 
-                    // Status filter - Multiple selection
-                    ChipAutocompleteField(
-                      labelText: AppLocalizations.of(context)!.status,
-                      prefixIcon: Icons.bookmark,
-                      suggestions: _statusList
-                          .map((status) => status['value'] as String)
-                          .toList(),
-                      initialValues: _filterStatus,
-                      hintText: 'Select one or more statuses',
-                      onChanged: (values) {
-                        setState(() {
-                          _filterStatus = values;
-                        });
-                      },
+                    // Status filter - Multi-select dropdown
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        InkWell(
+                          onTap: () async {
+                            final selected = await showDialog<List<String>>(
+                              context: context,
+                              builder: (context) => _MultiSelectDialog(
+                                title: AppLocalizations.of(context)!.status,
+                                items: _statusList
+                                    .map((s) => s['value'] as String)
+                                    .toList(),
+                                initialSelected: _filterStatus,
+                              ),
+                            );
+                            if (selected != null) {
+                              setState(() {
+                                _filterStatus = selected;
+                              });
+                            }
+                          },
+                          child: InputDecorator(
+                            decoration: InputDecoration(
+                              labelText: AppLocalizations.of(context)!.status,
+                              border: OutlineInputBorder(),
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              suffixIcon: Icon(Icons.arrow_drop_down),
+                            ),
+                            child: Text(
+                              _filterStatus.isEmpty
+                                  ? AppLocalizations.of(context)!.any
+                                  : _filterStatus.join(', '),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+                        if (_filterStatus.length > 1) ...[
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 12),
+                                  child: Text(
+                                    _statusUseAndLogic
+                                        ? 'AND: not practical (book has one status)'
+                                        : 'OR: matches any selected status',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.grey[600],
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: ToggleButtons(
+                                  isSelected: [
+                                    _statusUseAndLogic,
+                                    !_statusUseAndLogic,
+                                  ],
+                                  onPressed: (index) {
+                                    setState(() {
+                                      _statusUseAndLogic = index == 0;
+                                    });
+                                  },
+                                  borderRadius: BorderRadius.circular(8),
+                                  constraints: const BoxConstraints(
+                                    minHeight: 32,
+                                    minWidth: 40,
+                                  ),
+                                  children: const [
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 6),
+                                      child: Text('AND', style: TextStyle(fontSize: 10)),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 6),
+                                      child: Text('OR', style: TextStyle(fontSize: 10)),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ],
                     ),
                     const SizedBox(height: 12),
 
@@ -468,8 +690,14 @@ class _RandomScreenState extends State<RandomScreen> {
                       ),
                       items: const [
                         DropdownMenuItem(value: null, child: Text('Any')),
-                        DropdownMenuItem(value: true, child: Text('Yes - In TBR')),
-                        DropdownMenuItem(value: false, child: Text('No - Not in TBR')),
+                        DropdownMenuItem(
+                          value: true,
+                          child: Text('Yes - In TBR'),
+                        ),
+                        DropdownMenuItem(
+                          value: false,
+                          child: Text('No - Not in TBR'),
+                        ),
                       ],
                       onChanged: (value) {
                         setState(() {
@@ -492,7 +720,10 @@ class _RandomScreenState extends State<RandomScreen> {
                         ),
                       ),
                       items: [
-                        DropdownMenuItem(value: null, child: Text(AppLocalizations.of(context)!.any)),
+                        DropdownMenuItem(
+                          value: null,
+                          child: Text(AppLocalizations.of(context)!.any),
+                        ),
                         ..._editorialList.map((editorial) {
                           return DropdownMenuItem<String>(
                             value: editorial['name'] as String,
@@ -521,7 +752,10 @@ class _RandomScreenState extends State<RandomScreen> {
                         ),
                       ),
                       items: [
-                        DropdownMenuItem(value: null, child: Text(AppLocalizations.of(context)!.any)),
+                        DropdownMenuItem(
+                          value: null,
+                          child: Text(AppLocalizations.of(context)!.any),
+                        ),
                         ..._formatSagaList.map((formatSaga) {
                           return DropdownMenuItem<String>(
                             value: formatSaga['value'] as String,
@@ -552,9 +786,18 @@ class _RandomScreenState extends State<RandomScreen> {
                       items: const [
                         DropdownMenuItem(value: null, child: Text('Any')),
                         DropdownMenuItem(value: '0-200', child: Text('0-200')),
-                        DropdownMenuItem(value: '200-400', child: Text('200-400')),
-                        DropdownMenuItem(value: '400-600', child: Text('400-600')),
-                        DropdownMenuItem(value: '600-900', child: Text('600-900')),
+                        DropdownMenuItem(
+                          value: '200-400',
+                          child: Text('200-400'),
+                        ),
+                        DropdownMenuItem(
+                          value: '400-600',
+                          child: Text('400-600'),
+                        ),
+                        DropdownMenuItem(
+                          value: '600-900',
+                          child: Text('600-900'),
+                        ),
                         DropdownMenuItem(value: '900+', child: Text('900+')),
                       ],
                       onChanged: (value) {
@@ -614,7 +857,10 @@ class _RandomScreenState extends State<RandomScreen> {
                         ),
                       ),
                       items: [
-                        DropdownMenuItem(value: null, child: Text(AppLocalizations.of(context)!.any)),
+                        DropdownMenuItem(
+                          value: null,
+                          child: Text(AppLocalizations.of(context)!.any),
+                        ),
                         ..._authorList.map((author) {
                           return DropdownMenuItem<String>(
                             value: author['name'] as String,
@@ -629,11 +875,11 @@ class _RandomScreenState extends State<RandomScreen> {
                       },
                     ),
                     const SizedBox(height: 24),
-                    
+
                     // Divider
                     const Divider(),
                     const SizedBox(height: 16),
-                    
+
                     // Custom book selection
                     Text(
                       'Or select specific books',
@@ -644,20 +890,21 @@ class _RandomScreenState extends State<RandomScreen> {
                     const SizedBox(height: 8),
                     Text(
                       'Search and select books by title to pick randomly from your custom list',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                     ),
                     const SizedBox(height: 12),
-                    
+
                     Consumer<BookProvider>(
                       builder: (context, provider, child) {
-                        final bookTitles = provider.allBooks
-                            .map((book) => book.name ?? '')
-                            .where((name) => name.isNotEmpty)
-                            .toList()
-                          ..sort();
-                        
+                        final bookTitles =
+                            provider.allBooks
+                                .map((book) => book.name ?? '')
+                                .where((name) => name.isNotEmpty)
+                                .toList()
+                              ..sort();
+
                         return ChipAutocompleteField(
                           labelText: 'Select Books',
                           prefixIcon: Icons.library_books,
@@ -682,9 +929,11 @@ class _RandomScreenState extends State<RandomScreen> {
                             onPressed: _getRandomBook,
                             icon: const Icon(Icons.casino),
                             label: Text(
-                              _useCustomList 
-                                ? 'Random from Selected (${_selectedBookTitles.length})'
-                                : AppLocalizations.of(context)!.get_random_book
+                              _useCustomList
+                                  ? 'Random from Selected (${_selectedBookTitles.length})'
+                                  : AppLocalizations.of(
+                                    context,
+                                  )!.get_random_book,
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.deepPurple,
@@ -788,6 +1037,82 @@ class _RandomScreenState extends State<RandomScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Multi-select dialog for choosing multiple items from a list
+class _MultiSelectDialog extends StatefulWidget {
+  final String title;
+  final List<String> items;
+  final List<String> initialSelected;
+
+  const _MultiSelectDialog({
+    required this.title,
+    required this.items,
+    required this.initialSelected,
+  });
+
+  @override
+  State<_MultiSelectDialog> createState() => _MultiSelectDialogState();
+}
+
+class _MultiSelectDialogState extends State<_MultiSelectDialog> {
+  late List<String> _selectedItems;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedItems = List.from(widget.initialSelected);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(widget.title),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: ListView.builder(
+          shrinkWrap: true,
+          itemCount: widget.items.length,
+          itemBuilder: (context, index) {
+            final item = widget.items[index];
+            final isSelected = _selectedItems.contains(item);
+
+            return CheckboxListTile(
+              title: Text(item),
+              value: isSelected,
+              onChanged: (bool? checked) {
+                setState(() {
+                  if (checked == true) {
+                    _selectedItems.add(item);
+                  } else {
+                    _selectedItems.remove(item);
+                  }
+                });
+              },
+            );
+          },
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            setState(() {
+              _selectedItems.clear();
+            });
+          },
+          child: const Text('Clear All'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: () => Navigator.pop(context, _selectedItems),
+          child: const Text('OK'),
+        ),
+      ],
     );
   }
 }

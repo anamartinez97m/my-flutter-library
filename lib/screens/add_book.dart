@@ -156,16 +156,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRatingFieldRepository(db);
-      final names = await repository.getDistinctFieldNames();
-      
-      // Combine default suggestions with used field names
-      final allNames = <String>{
-        ..._ratingFieldSuggestions,
-        ...names,
-      }.toList()..sort();
+      final names = await repository.getAllFieldNames();
       
       setState(() {
-        _ratingFieldSuggestions = allNames;
+        _ratingFieldSuggestions = names;
       });
     } catch (e) {
       debugPrint('Error loading rating field suggestions: $e');

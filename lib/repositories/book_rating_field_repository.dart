@@ -68,4 +68,52 @@ class BookRatingFieldRepository {
     double sum = fields.fold(0.0, (prev, field) => prev + field.ratingValue);
     return sum / fields.length;
   }
+
+  /// Get all available rating field names
+  Future<List<String>> getAllFieldNames() async {
+    final List<Map<String, dynamic>> maps = await db.query(
+      'rating_field_names',
+      orderBy: 'name ASC',
+    );
+    return maps.map((map) => map['name'] as String).toList();
+  }
+
+  /// Add a new rating field name
+  Future<void> addFieldName(String name) async {
+    await db.insert('rating_field_names', {'name': name});
+  }
+
+  /// Update a rating field name
+  Future<void> updateFieldName(String oldName, String newName) async {
+    // Update in rating_field_names table
+    await db.update(
+      'rating_field_names',
+      {'name': newName},
+      where: 'name = ?',
+      whereArgs: [oldName],
+    );
+    
+    // Update in book_rating_fields table
+    await db.rawUpdate(
+      'UPDATE book_rating_fields SET field_name = ? WHERE field_name = ?',
+      [newName, oldName],
+    );
+  }
+
+  /// Delete a rating field name
+  Future<void> deleteFieldName(String name) async {
+    // Delete from rating_field_names table
+    await db.delete(
+      'rating_field_names',
+      where: 'name = ?',
+      whereArgs: [name],
+    );
+    
+    // Delete all rating fields with this name from books
+    await db.delete(
+      'book_rating_fields',
+      where: 'field_name = ?',
+      whereArgs: [name],
+    );
+  }
 }
