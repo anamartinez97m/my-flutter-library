@@ -23,7 +23,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 32,
+      version: 33,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -126,6 +126,7 @@ class DatabaseHelper {
         original_book_id INTEGER,
         notification_enabled BOOLEAN DEFAULT 0,
         notification_datetime TEXT,
+        release_date TEXT,
         bundle_parent_id INTEGER,
         reading_progress INTEGER,
         progress_type TEXT,
@@ -935,6 +936,12 @@ class DatabaseHelper {
       
       await db.execute('''
         CREATE INDEX IF NOT EXISTS idx_reading_clubs_club_name ON reading_clubs (club_name)
+      ''');
+    }
+    if (oldVersion < 33) {
+      // Add release_date column to book table for TBReleased books
+      await db.execute('''
+        ALTER TABLE book ADD COLUMN release_date TEXT
       ''');
     }
   }

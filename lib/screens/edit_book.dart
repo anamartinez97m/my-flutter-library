@@ -362,6 +362,16 @@ class _EditBookScreenState extends State<EditBookScreen> {
         debugPrint('Error parsing notification datetime: $e');
       }
     }
+    
+    // Initialize release date
+    if (widget.book.releaseDate != null &&
+        widget.book.releaseDate!.isNotEmpty) {
+      try {
+        _releaseDate = DateTime.parse(widget.book.releaseDate!);
+      } catch (e) {
+        debugPrint('Error parsing release date: $e');
+      }
+    }
 
     // Old date fields removed - now using book_read_dates table
   }
@@ -630,6 +640,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
             _notificationEnabled && _notificationDateTime != null
                 ? _notificationDateTime!.toIso8601String()
                 : null,
+        releaseDate: _releaseDate != null
+                ? _releaseDate!.toIso8601String()
+                : null,
         bundleParentId:
             widget.book.bundleParentId, // Preserve bundle relationship
         notes:
@@ -686,6 +699,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
         notificationDatetime:
             _notificationEnabled && _notificationDateTime != null
                 ? _notificationDateTime!.toIso8601String()
+                : null,
+        releaseDate: _releaseDate != null
+                ? _releaseDate!.toIso8601String()
                 : null,
         bundleParentId:
             updatedBook.bundleParentId, // Preserve bundle relationship
@@ -987,6 +1003,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
               bookId: widget.book.bookId!,
               bookTitle: _nameController.text.trim(),
               scheduledDate: _notificationDateTime!,
+              releaseDate: _releaseDate,
             );
             debugPrint('🔔 Notification scheduled successfully');
 
