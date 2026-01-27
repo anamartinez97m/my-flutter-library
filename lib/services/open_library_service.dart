@@ -130,13 +130,24 @@ class OpenLibraryService {
   BookMetadata _parseOpenLibraryResponse(Map<String, dynamic> bookData, String isbn) {
     // Extract authors
     final authorsData = bookData['authors'] as List<dynamic>?;
-    final authors = authorsData?.map((a) => a['name'] as String).toList();
+    List<String>? authors;
+    if (authorsData != null) {
+      authors = authorsData.map((a) {
+        if (a is Map<String, dynamic>) {
+          return a['name'] as String? ?? '';
+        } else if (a is String) {
+          return a;
+        }
+        return '';
+      }).where((name) => name.isNotEmpty).toList();
+    }
 
     // Extract publication year
-    final publishDate = bookData['publish_date'] as String?;
+    final publishDate = bookData['publish_date'];
     int? publishedYear;
     if (publishDate != null) {
-      final yearMatch = RegExp(r'\d{4}').firstMatch(publishDate);
+      final dateStr = publishDate.toString();
+      final yearMatch = RegExp(r'\d{4}').firstMatch(dateStr);
       if (yearMatch != null) {
         publishedYear = int.tryParse(yearMatch.group(0)!);
       }
@@ -155,11 +166,27 @@ class OpenLibraryService {
       final isbn13List = identifiers['isbn_13'] as List<dynamic>?;
       
       if (isbn10List != null && isbn10List.isNotEmpty) {
-        isbn10 = isbn10List[0] as String;
+        isbn10 = isbn10List[0].toString();
       }
       if (isbn13List != null && isbn13List.isNotEmpty) {
-        isbn13 = isbn13List[0] as String;
+        isbn13 = isbn13List[0].toString();
       }
+    }
+
+    // Extract publisher safely
+    String? publisher;
+    final publishersData = bookData['publishers'];
+    if (publishersData is List && publishersData.isNotEmpty) {
+      final firstPublisher = publishersData[0];
+      if (firstPublisher is Map<String, dynamic>) {
+        publisher = firstPublisher['name'] as String?;
+      } else if (firstPublisher is String) {
+        publisher = firstPublisher;
+      } else {
+        publisher = firstPublisher.toString();
+      }
+    } else if (publishersData is String) {
+      publisher = publishersData;
     }
 
     return BookMetadata(
@@ -170,7 +197,7 @@ class OpenLibraryService {
       isbn13: isbn13,
       publishedYear: publishedYear,
       pageCount: bookData['number_of_pages'] as int?,
-      publisher: (bookData['publishers'] as List<dynamic>?)?.first as String?,
+      publisher: publisher,
       smallThumbnailUrl: coverUrls['small'],
       thumbnailUrl: coverUrls['medium'],
       coverUrl: coverUrls['medium'],
@@ -212,6 +239,15 @@ class OpenLibraryService {
       coverUrls = _buildCoverUrlsById(coverId);
     }
 
+    // Extract publisher safely
+    String? publisher;
+    final publisherData = bookData['publisher'];
+    if (publisherData is List && publisherData.isNotEmpty) {
+      publisher = publisherData[0].toString();
+    } else if (publisherData is String) {
+      publisher = publisherData;
+    }
+
     return BookMetadata(
       title: bookData['title'] as String?,
       authors: authorNames,
@@ -220,7 +256,7 @@ class OpenLibraryService {
       isbn13: isbn13,
       publishedYear: firstPublishYear,
       pageCount: bookData['number_of_pages_median'] as int?,
-      publisher: (bookData['publisher'] as List<dynamic>?)?.first as String?,
+      publisher: publisher,
       smallThumbnailUrl: coverUrls?['small'],
       thumbnailUrl: coverUrls?['medium'],
       coverUrl: coverUrls?['medium'],

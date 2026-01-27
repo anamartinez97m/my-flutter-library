@@ -16,7 +16,8 @@ class GoogleBooksService {
 
   /// Fetch book metadata by ISBN
   /// Preferred method as ISBN provides most accurate results
-  Future<BookMetadata?> fetchByIsbn(String isbn) async {
+  /// [language] - Optional language code to filter results (e.g., 'en', 'es')
+  Future<BookMetadata?> fetchByIsbn(String isbn, {String? language}) async {
     try {
       await _throttleRequest();
       
@@ -28,7 +29,16 @@ class GoogleBooksService {
         return null;
       }
 
-      final url = Uri.parse('$_baseUrl?q=isbn:$cleanIsbn');
+      // Build URL with optional language restriction
+      String urlString = '$_baseUrl?q=isbn:$cleanIsbn';
+      if (language != null && language.isNotEmpty) {
+        final langCode = _mapLanguageCode(language);
+        if (langCode != null) {
+          urlString += '&langRestrict=$langCode';
+          debugPrint('[GoogleBooks] Using language restriction: $langCode');
+        }
+      }
+      final url = Uri.parse(urlString);
       debugPrint('[GoogleBooks] Fetching by ISBN: $cleanIsbn');
       
       final response = await http.get(url).timeout(_timeout);
@@ -57,9 +67,11 @@ class GoogleBooksService {
 
   /// Fetch book metadata by title and author
   /// Fallback method when ISBN is not available
+  /// [language] - Optional language code to filter results (e.g., 'en', 'es')
   Future<BookMetadata?> fetchByTitleAndAuthor(
     String title, {
     String? author,
+    String? language,
   }) async {
     try {
       await _throttleRequest();
@@ -75,7 +87,16 @@ class GoogleBooksService {
         query += '+inauthor:${_sanitizeQuery(author)}';
       }
 
-      final url = Uri.parse('$_baseUrl?q=$query&maxResults=1');
+      // Build URL with optional language restriction
+      String urlString = '$_baseUrl?q=$query&maxResults=1';
+      if (language != null && language.isNotEmpty) {
+        final langCode = _mapLanguageCode(language);
+        if (langCode != null) {
+          urlString += '&langRestrict=$langCode';
+          debugPrint('[GoogleBooks] Using language restriction: $langCode');
+        }
+      }
+      final url = Uri.parse(urlString);
       debugPrint('[GoogleBooks] Fetching by title/author: $query');
       
       final response = await http.get(url).timeout(_timeout);
@@ -172,5 +193,73 @@ class GoogleBooksService {
       }
     }
     _lastRequestTime = DateTime.now();
+  }
+
+  /// Map book language codes to Google Books API language codes
+  /// Returns null if language is not supported or unknown
+  String? _mapLanguageCode(String language) {
+    final normalized = language.toLowerCase().trim();
+    
+    // Common language mappings
+    const languageMap = {
+      // English variants
+      'english': 'en',
+      'inglés': 'en',
+      'ingles': 'en',
+      'en': 'en',
+      
+      // Spanish variants
+      'spanish': 'es',
+      'español': 'es',
+      'espanol': 'es',
+      'es': 'es',
+      
+      // French variants
+      'french': 'fr',
+      'français': 'fr',
+      'francais': 'fr',
+      'fr': 'fr',
+      
+      // German variants
+      'german': 'de',
+      'deutsch': 'de',
+      'alemán': 'de',
+      'aleman': 'de',
+      'de': 'de',
+      
+      // Italian variants
+      'italian': 'it',
+      'italiano': 'it',
+      'it': 'it',
+      
+      // Portuguese variants
+      'portuguese': 'pt',
+      'português': 'pt',
+      'portugues': 'pt',
+      'pt': 'pt',
+      
+      // Japanese variants
+      'japanese': 'ja',
+      'japonés': 'ja',
+      'japones': 'ja',
+      'ja': 'ja',
+      
+      // Chinese variants
+      'chinese': 'zh',
+      'chino': 'zh',
+      'zh': 'zh',
+      
+      // Russian variants
+      'russian': 'ru',
+      'ruso': 'ru',
+      'ru': 'ru',
+      
+      // Korean variants
+      'korean': 'ko',
+      'coreano': 'ko',
+      'ko': 'ko',
+    };
+    
+    return languageMap[normalized];
   }
 }
