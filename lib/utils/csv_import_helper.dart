@@ -137,7 +137,16 @@ class CsvImportHelper {
   static CsvFormat detectCsvFormat(List<dynamic> headers) {
     final headerStr = headers.map((h) => h.toString().toLowerCase()).toList();
 
-    // Check for Format 1 (custom format)
+    // Check for exported format (from settings export)
+    // Has headers like: Title, Author, ISBN, ASIN, Status, etc.
+    if (headerStr.contains('title') &&
+        headerStr.contains('author') &&
+        headerStr.contains('status') &&
+        (headerStr.contains('isbn') || headerStr.contains('asin'))) {
+      return CsvFormat.format1;
+    }
+
+    // Check for Format 1 (legacy custom format with 'read' instead of 'status')
     if (headerStr.contains('read') &&
         headerStr.contains('title') &&
         headerStr.contains('publisher') &&
@@ -191,22 +200,33 @@ class CsvImportHelper {
       return value?.isEmpty ?? true ? null : value;
     }
 
-    final statusValue = getValue('read');
+    // Handle both 'read' (legacy) and 'status' (exported) column names
+    final statusValue = getValue('status') ?? getValue('read');
     var title = getValue('title');
     final author = getValue('author');
-    final publisher = getValue('publisher');
+    // Handle both 'publisher' and 'editorial' column names
+    final publisher = getValue('editorial') ?? getValue('publisher');
     final genre = getValue('genre');
     var saga = getValue('saga');
-    var nSaga = getValue('n_saga');
-    final formatSaga = getValue('format_saga');
-    var isbn = getValue('isbn13') ?? getValue('isbn');
+    var nSaga = getValue('n_saga') ?? getValue('n saga');
+    final sagaUniverse = getValue('saga universe');
+    final formatSaga = getValue('format saga') ?? getValue('format_saga');
+    var isbn = getValue('isbn') ?? getValue('isbn13');
     var asin = getValue('asin');
-    final pagesStr = getValue('number of pages') ?? getValue('pages');
+    final pagesStr = getValue('pages') ?? getValue('number of pages');
     final pubYearStr = getValue('original publication year');
     final language = getValue('language');
     final place = getValue('place');
-    final format = getValue('binding') ?? getValue('format');
+    // Handle both 'binding' (legacy) and 'format' (exported) column names
+    final format = getValue('format') ?? getValue('binding');
     final loaned = getValue('loaned');
+    final dateReadInitial = getValue('date read initial');
+    final dateReadFinal = getValue('date read final');
+    final readCountStr = getValue('read count');
+    final myRatingStr = getValue('my rating');
+    final myReview = getValue('my review');
+    final notes = getValue('notes');
+    final priceStr = getValue('price');
 
     // Remove trailing comma from saga if present
     if (saga != null && saga.endsWith(',')) {
@@ -247,6 +267,7 @@ class CsvImportHelper {
       author: author,
       saga: saga,
       nSaga: nSaga,
+      sagaUniverse: sagaUniverse,
       formatSagaValue: formatSaga,
       pages: pagesStr != null ? int.tryParse(pagesStr) : null,
       originalPublicationYear:
@@ -259,11 +280,13 @@ class CsvImportHelper {
       formatValue: format,
       createdAt: DateTime.now().toIso8601String(),
       genre: genre,
-      dateReadInitial: null,
-      dateReadFinal: null,
-      readCount: 0,
-      myRating: null,
-      myReview: null,
+      dateReadInitial: normalizeDateFormat(dateReadInitial),
+      dateReadFinal: normalizeDateFormat(dateReadFinal),
+      readCount: readCountStr != null ? int.tryParse(readCountStr) : 0,
+      myRating: myRatingStr != null ? double.tryParse(myRatingStr) : null,
+      myReview: myReview,
+      notes: notes,
+      price: priceStr != null ? double.tryParse(priceStr) : null,
     );
   }
 

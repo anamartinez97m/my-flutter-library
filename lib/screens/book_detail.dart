@@ -50,6 +50,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     super.initState();
     _currentBook = widget.book;
     _loadReadDates();
+    // Auto-fetch metadata if missing (cover or description)
     _fetchMetadataIfMissing();
   }
 
@@ -229,6 +230,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           isbn: _currentBook.isbn,
           title: _currentBook.name,
           author: _currentBook.author,
+          language: _currentBook.languageValue,
         );
       }
       
@@ -239,6 +241,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           isbn: _currentBook.asin, // ASIN can be used as ISBN parameter
           title: _currentBook.name,
           author: _currentBook.author,
+          language: _currentBook.languageValue,
         );
       }
       
@@ -248,6 +251,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         metadata = await metadataService.fetchMetadata(
           title: _currentBook.name,
           author: _currentBook.author,
+          language: _currentBook.languageValue,
         );
       }
 
@@ -1804,8 +1808,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                     Navigator.pop(context, updatedBook);
                   }
                   
-                  // Check if metadata needs refetching after edit
-                  await _fetchMetadataIfMissing();
+                  // Removed auto-fetch - only manual refresh button will fetch metadata
                 }
               },
             ),

@@ -20,14 +20,16 @@ class BookMetadataService {
   /// - [isbn]: Book ISBN (preferred for accurate results)
   /// - [title]: Book title (required if ISBN not available)
   /// - [author]: Book author (optional, improves search accuracy)
+  /// - [language]: Book language (optional, filters Google Books results by language)
   /// 
   /// Returns merged metadata from both sources, or null if no data found
   Future<BookMetadata?> fetchMetadata({
     String? isbn,
     String? title,
     String? author,
+    String? language,
   }) async {
-    debugPrint('[MetadataService] Starting fetch - ISBN: $isbn, Title: $title, Author: $author');
+    debugPrint('[MetadataService] Starting fetch - ISBN: $isbn, Title: $title, Author: $author, Language: $language');
 
     // Validate input
     if ((isbn == null || isbn.trim().isEmpty) && 
@@ -43,7 +45,10 @@ class BookMetadataService {
     try {
       if (isbn != null && isbn.trim().isNotEmpty) {
         // Prefer ISBN search for accuracy
-        googleMetadata = await _googleBooksService.fetchByIsbn(isbn);
+        googleMetadata = await _googleBooksService.fetchByIsbn(
+          isbn,
+          language: language,
+        );
       }
       
       // Fallback to title+author search if ISBN failed or not provided
@@ -51,6 +56,7 @@ class BookMetadataService {
         googleMetadata = await _googleBooksService.fetchByTitleAndAuthor(
           title,
           author: author,
+          language: language,
         );
       }
     } catch (e) {
@@ -192,11 +198,13 @@ class BookMetadataService {
     String? isbn,
     String? title,
     String? author,
+    String? language,
   }) async {
     final metadata = await fetchMetadata(
       isbn: isbn,
       title: title,
       author: author,
+      language: language,
     );
     
     return metadata?.bestCoverUrl;
@@ -207,11 +215,13 @@ class BookMetadataService {
     String? isbn,
     String? title,
     String? author,
+    String? language,
   }) async {
     final metadata = await fetchMetadata(
       isbn: isbn,
       title: title,
       author: author,
+      language: language,
     );
     
     return metadata?.description;

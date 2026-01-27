@@ -4,6 +4,8 @@ import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/repositories/reading_club_repository.dart';
 import 'package:myrandomlibrary/screens/book_detail.dart';
+import 'package:myrandomlibrary/services/book_metadata_service.dart';
+import 'package:myrandomlibrary/model/book.dart';
 import 'package:provider/provider.dart';
 
 class MyBooksScreen extends StatefulWidget {
@@ -17,6 +19,96 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
   bool _showCurrentlyReading = true;
   bool _isCurrentlyReadingExpanded = true;
   final GlobalKey<_ClubsCardState> _clubsCardKey = GlobalKey<_ClubsCardState>();
+  final Set<int> _fetchingMetadata = {}; // Track which books are fetching metadata
+
+  @override
+  void initState() {
+    super.initState();
+    // Auto-fetch metadata for books without covers after a short delay
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _autoFetchMissingCovers();
+    });
+  }
+
+  /// Auto-fetch covers for books without metadata (max 20 books)
+  Future<void> _autoFetchMissingCovers() async {
+    final provider = Provider.of<BookProvider?>(context, listen: false);
+    if (provider == null) return;
+
+    // Get all books from currently reading, standby, and TBR
+    final currentlyReading = provider.allBooks.where((book) {
+      final statusLower = book.statusValue?.toLowerCase();
+      return statusLower == 'started' ||
+          (statusLower == 'started' && book.dateReadFinal == null);
+    }).toList();
+
+    final standbyBooks = provider.allBooks.where((book) {
+      final statusLower = book.statusValue?.toLowerCase();
+      return statusLower == 'standby';
+    }).toList();
+
+    final db = await DatabaseHelper.instance.database;
+    final repository = BookRepository(db);
+    final tbrBooks = await repository.getTBRBooks();
+
+    // Combine all books and filter those without covers
+    final allDisplayedBooks = [...currentlyReading, ...standbyBooks, ...tbrBooks];
+    final booksWithoutCovers = allDisplayedBooks
+        .where((book) => book.coverUrl == null || book.coverUrl!.isEmpty)
+        .take(20) // Limit to 20 books
+        .toList();
+
+    if (booksWithoutCovers.isEmpty) return;
+
+    debugPrint('[MyBooks] Auto-fetching covers for ${booksWithoutCovers.length} books');
+
+    // Fetch metadata for books without covers
+    for (final book in booksWithoutCovers) {
+      if (_fetchingMetadata.contains(book.bookId)) continue;
+      _fetchingMetadata.add(book.bookId!);
+
+      _fetchMetadataForBook(book);
+    }
+  }
+
+  /// Fetch metadata for a single book
+  Future<void> _fetchMetadataForBook(Book book) async {
+    try {
+      final metadataService = BookMetadataService();
+      final metadata = await metadataService.fetchMetadata(
+        isbn: book.isbn,
+        title: book.name,
+        author: book.author,
+        language: book.languageValue,
+      );
+
+      if (metadata != null && metadata.bestCoverUrl != null) {
+        // Update database with fetched cover
+        final db = await DatabaseHelper.instance.database;
+        await db.update(
+          'book',
+          {
+            'cover_url': metadata.bestCoverUrl,
+            'description': metadata.description,
+            'metadata_source': metadata.source,
+            'metadata_fetched_at': DateTime.now().toIso8601String(),
+          },
+          where: 'book_id = ?',
+          whereArgs: [book.bookId!],
+        );
+
+        // Reload books to show new cover
+        final provider = Provider.of<BookProvider?>(context, listen: false);
+        await provider?.loadBooks();
+
+        debugPrint('[MyBooks] Fetched cover for: ${book.name}');
+      }
+    } catch (e) {
+      debugPrint('[MyBooks] Error fetching metadata for ${book.name}: $e');
+    } finally {
+      _fetchingMetadata.remove(book.bookId);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -227,19 +319,11 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                                 ),
                                 child: Row(
                                   children: [
-                                    // Book cover placeholder
+                                    // Book cover image or placeholder
                                     Container(
                                       width: 50,
                                       height: 70,
                                       decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                          colors: [
-                                            Colors.deepPurple.shade300,
-                                            Colors.deepPurple.shade600,
-                                          ],
-                                        ),
                                         borderRadius: BorderRadius.circular(4),
                                         boxShadow: [
                                           BoxShadow(
@@ -249,17 +333,66 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                                           ),
                                         ],
                                       ),
-                                      child: Center(
-                                        child: Text(
-                                          (book.name?.isNotEmpty ?? false)
-                                              ? book.name![0].toUpperCase()
-                                              : '?',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 28,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(4),
+                                        child: book.coverUrl != null && book.coverUrl!.isNotEmpty
+                                            ? Image.network(
+                                                book.coverUrl!,
+                                                width: 50,
+                                                height: 70,
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (context, error, stackTrace) {
+                                                  // Fallback to gradient placeholder on error
+                                                  return Container(
+                                                    decoration: BoxDecoration(
+                                                      gradient: LinearGradient(
+                                                        begin: Alignment.topLeft,
+                                                        end: Alignment.bottomRight,
+                                                        colors: [
+                                                          Colors.deepPurple.shade300,
+                                                          Colors.deepPurple.shade600,
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    child: Center(
+                                                      child: Text(
+                                                        (book.name?.isNotEmpty ?? false)
+                                                            ? book.name![0].toUpperCase()
+                                                            : '?',
+                                                        style: const TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 28,
+                                                          fontWeight: FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                              )
+                                            : Container(
+                                                decoration: BoxDecoration(
+                                                  gradient: LinearGradient(
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                    colors: [
+                                                      Colors.deepPurple.shade300,
+                                                      Colors.deepPurple.shade600,
+                                                    ],
+                                                  ),
+                                                ),
+                                                child: Center(
+                                                  child: Text(
+                                                    (book.name?.isNotEmpty ?? false)
+                                                        ? book.name![0].toUpperCase()
+                                                        : '?',
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 28,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
                                       ),
                                     ),
                                     const SizedBox(width: 12),
@@ -537,7 +670,7 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                       ),
                       child: Row(
                         children: [
-                          // Book cover placeholder
+                          // Book cover image or placeholder
                           InkWell(
                             onTap: () async {
                               await Navigator.push(
@@ -554,14 +687,6 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                               width: 50,
                               height: 70,
                               decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    Colors.orange.shade300,
-                                    Colors.orange.shade600,
-                                  ],
-                                ),
                                 borderRadius: BorderRadius.circular(4),
                                 boxShadow: [
                                   BoxShadow(
@@ -571,17 +696,66 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                                   ),
                                 ],
                               ),
-                              child: Center(
-                                child: Text(
-                                  (book.name?.isNotEmpty ?? false)
-                                      ? book.name![0].toUpperCase()
-                                      : '?',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: book.coverUrl != null && book.coverUrl!.isNotEmpty
+                                    ? Image.network(
+                                        book.coverUrl!,
+                                        width: 50,
+                                        height: 70,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) {
+                                          // Fallback to gradient placeholder on error
+                                          return Container(
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                                colors: [
+                                                  Colors.orange.shade300,
+                                                  Colors.orange.shade600,
+                                                ],
+                                              ),
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                (book.name?.isNotEmpty ?? false)
+                                                    ? book.name![0].toUpperCase()
+                                                    : '?',
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 28,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      )
+                                    : Container(
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                            colors: [
+                                              Colors.orange.shade300,
+                                              Colors.orange.shade600,
+                                            ],
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            (book.name?.isNotEmpty ?? false)
+                                                ? book.name![0].toUpperCase()
+                                                : '?',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 28,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                               ),
                             ),
                           ),
