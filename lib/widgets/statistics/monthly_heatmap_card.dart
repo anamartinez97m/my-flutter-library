@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
 class MonthlyHeatmapCard extends StatefulWidget {
   final Map<int, Map<int, int>> monthlyHeatmap;
 
-  const MonthlyHeatmapCard({
-    super.key,
-    required this.monthlyHeatmap,
-  });
+  const MonthlyHeatmapCard({super.key, required this.monthlyHeatmap});
 
   @override
   State<MonthlyHeatmapCard> createState() => _MonthlyHeatmapCardState();
@@ -24,7 +22,8 @@ class _MonthlyHeatmapCardState extends State<MonthlyHeatmapCard> {
   void _initializeYear() {
     // Default to most recent year or current year
     if (widget.monthlyHeatmap.isNotEmpty) {
-      final sortedYears = widget.monthlyHeatmap.keys.toList()..sort((a, b) => b.compareTo(a));
+      final sortedYears =
+          widget.monthlyHeatmap.keys.toList()..sort((a, b) => b.compareTo(a));
       _selectedYear = sortedYears.first;
     } else {
       _selectedYear = DateTime.now().year;
@@ -41,19 +40,28 @@ class _MonthlyHeatmapCardState extends State<MonthlyHeatmapCard> {
   }
 
   String _getMonthAbbr(int month) {
-    const monthAbbrs = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthAbbrs = [
+      '',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return monthAbbrs[month];
   }
 
   Color _getHeatColor(int count, int maxCount) {
     if (count == 0) return Colors.grey[200]!;
     final intensity = (count / maxCount).clamp(0.0, 1.0);
-    return Color.lerp(
-      Colors.green[100],
-      Colors.green[900],
-      intensity,
-    )!;
+    return Color.lerp(Colors.green[100], Colors.green[900], intensity)!;
   }
 
   @override
@@ -63,11 +71,12 @@ class _MonthlyHeatmapCardState extends State<MonthlyHeatmapCard> {
     }
 
     // Get available years
-    final sortedYears = widget.monthlyHeatmap.keys.toList()..sort((a, b) => b.compareTo(a));
-    
+    final sortedYears =
+        widget.monthlyHeatmap.keys.toList()..sort((a, b) => b.compareTo(a));
+
     // Get data for selected year
     final yearData = widget.monthlyHeatmap[_selectedYear] ?? {};
-    
+
     // Get max count for color scaling (for selected year only)
     int maxCount = 0;
     for (var count in yearData.values) {
@@ -78,9 +87,7 @@ class _MonthlyHeatmapCardState extends State<MonthlyHeatmapCard> {
     return Card(
       elevation: 2,
       margin: const EdgeInsets.symmetric(horizontal: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -94,7 +101,7 @@ class _MonthlyHeatmapCardState extends State<MonthlyHeatmapCard> {
                   children: [
                     Expanded(
                       child: Text(
-                        'Monthly Reading Heatmap',
+                        AppLocalizations.of(context)!.monthly_reading_heatmap,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -103,7 +110,10 @@ class _MonthlyHeatmapCardState extends State<MonthlyHeatmapCard> {
                     const SizedBox(width: 8),
                     // Year selector
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey[300]!),
                         borderRadius: BorderRadius.circular(8),
@@ -112,15 +122,16 @@ class _MonthlyHeatmapCardState extends State<MonthlyHeatmapCard> {
                         value: _selectedYear,
                         underline: const SizedBox.shrink(),
                         isDense: true,
-                        items: sortedYears.map((year) {
-                          return DropdownMenuItem<int>(
-                            value: year,
-                            child: Text(
-                              '$year',
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          );
-                        }).toList(),
+                        items:
+                            sortedYears.map((year) {
+                              return DropdownMenuItem<int>(
+                                value: year,
+                                child: Text(
+                                  '$year',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              );
+                            }).toList(),
                         onChanged: (year) {
                           if (year != null) {
                             setState(() {
@@ -136,10 +147,10 @@ class _MonthlyHeatmapCardState extends State<MonthlyHeatmapCard> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Books finished per month',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey[600],
-              ),
+              AppLocalizations.of(context)!.books_finished_per_month,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
             ),
             const SizedBox(height: 16),
             // Legend
@@ -147,18 +158,19 @@ class _MonthlyHeatmapCardState extends State<MonthlyHeatmapCard> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Less',
+                  AppLocalizations.of(context)!.less,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 const SizedBox(width: 4),
                 ...List.generate(5, (index) {
                   // Calculate intensity from 0.2 to 1.0 in 5 steps
                   final intensity = (index + 1) * 0.2;
-                  final color = Color.lerp(
-                    Colors.green[100],
-                    Colors.green[900],
-                    intensity,
-                  )!;
+                  final color =
+                      Color.lerp(
+                        Colors.green[100],
+                        Colors.green[900],
+                        intensity,
+                      )!;
                   return Container(
                     width: 16,
                     height: 16,
@@ -171,7 +183,7 @@ class _MonthlyHeatmapCardState extends State<MonthlyHeatmapCard> {
                 }),
                 const SizedBox(width: 4),
                 Text(
-                  'More',
+                  AppLocalizations.of(context)!.more,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
@@ -185,17 +197,15 @@ class _MonthlyHeatmapCardState extends State<MonthlyHeatmapCard> {
                 final month = index + 1;
                 final count = yearData[month] ?? 0;
                 return Tooltip(
-                  message: '${_getMonthAbbr(month)} $_selectedYear: $count books',
+                  message:
+                      '${_getMonthAbbr(month)} $_selectedYear: $count books',
                   child: Container(
                     width: 60,
                     height: 40,
                     decoration: BoxDecoration(
                       color: _getHeatColor(count, maxCount),
                       borderRadius: BorderRadius.circular(4),
-                      border: Border.all(
-                        color: Colors.grey[300]!,
-                        width: 1,
-                      ),
+                      border: Border.all(color: Colors.grey[300]!, width: 1),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -205,7 +215,10 @@ class _MonthlyHeatmapCardState extends State<MonthlyHeatmapCard> {
                           style: TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.bold,
-                            color: count > maxCount / 2 ? Colors.white : Colors.black87,
+                            color:
+                                count > maxCount / 2
+                                    ? Colors.white
+                                    : Colors.black87,
                           ),
                         ),
                         if (count > 0)
@@ -214,7 +227,10 @@ class _MonthlyHeatmapCardState extends State<MonthlyHeatmapCard> {
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
-                              color: count > maxCount / 2 ? Colors.white : Colors.black87,
+                              color:
+                                  count > maxCount / 2
+                                      ? Colors.white
+                                      : Colors.black87,
                             ),
                           ),
                       ],

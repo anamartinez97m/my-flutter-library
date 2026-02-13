@@ -378,7 +378,11 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error refetching metadata: $e'),
+            content: Text(
+              AppLocalizations.of(
+                context,
+              )!.error_refetching_metadata(e.toString()),
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -445,8 +449,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         await provider?.loadBooks();
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Started reading!'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.started_reading),
             backgroundColor: Colors.green,
           ),
         );
@@ -564,8 +568,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         await provider?.loadBooks();
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Marked as finished!'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.marked_as_finished),
             backgroundColor: Colors.green,
           ),
         );
@@ -628,8 +632,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         await provider?.loadBooks();
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Marked as read!'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.marked_as_read),
             backgroundColor: Colors.green,
           ),
         );
@@ -660,7 +664,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           (context) => StatefulBuilder(
             builder:
                 (context, setDialogState) => AlertDialog(
-                  title: const Text('Update Reading Progress'),
+                  title: Text(
+                    AppLocalizations.of(context)!.update_reading_progress,
+                  ),
                   content: SingleChildScrollView(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -670,14 +676,20 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                           children: [
                             Expanded(
                               child: SegmentedButton<bool>(
-                                segments: const [
+                                segments: [
                                   ButtonSegment(
                                     value: true,
-                                    label: Text('Percentage'),
+                                    label: Text(
+                                      AppLocalizations.of(context)!.percentage,
+                                    ),
                                   ),
                                   ButtonSegment(
                                     value: false,
-                                    label: Text('Pages'),
+                                    label: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.pages_label_short,
+                                    ),
                                   ),
                                 ],
                                 selected: {usePercentage},
@@ -696,7 +708,13 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                           controller: progressController,
                           decoration: InputDecoration(
                             labelText:
-                                usePercentage ? 'Progress (%)' : 'Current Page',
+                                usePercentage
+                                    ? AppLocalizations.of(
+                                      context,
+                                    )!.progress_percentage
+                                    : AppLocalizations.of(
+                                      context,
+                                    )!.current_page,
                             border: const OutlineInputBorder(),
                             hintText:
                                 usePercentage
@@ -711,7 +729,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         if (!usePercentage && _currentBook.pages != null) ...[
                           const SizedBox(height: 12),
                           Text(
-                            'Total pages: ${_currentBook.pages}',
+                            AppLocalizations.of(
+                              context,
+                            )!.total_pages(_currentBook.pages!),
                             style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(color: Colors.grey[600]),
                           ),
@@ -722,15 +742,19 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Cancel'),
+                      child: Text(AppLocalizations.of(context)!.cancel),
                     ),
                     ElevatedButton(
                       onPressed: () {
                         final value = int.tryParse(progressController.text);
                         if (value == null || value < 0) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Please enter a valid number'),
+                            SnackBar(
+                              content: Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.enter_valid_number,
+                              ),
                               backgroundColor: Colors.red,
                             ),
                           );
@@ -739,8 +763,12 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
 
                         if (usePercentage && value > 100) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Percentage cannot exceed 100'),
+                            SnackBar(
+                              content: Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.percentage_cannot_exceed_100,
+                              ),
                               backgroundColor: Colors.red,
                             ),
                           );
@@ -753,7 +781,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                'Page number cannot exceed ${_currentBook.pages}',
+                                AppLocalizations.of(
+                                  context,
+                                )!.page_cannot_exceed(_currentBook.pages!),
                               ),
                               backgroundColor: Colors.red,
                             ),
@@ -776,14 +806,14 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                           'pages': !usePercentage ? value : null,
                         });
                       },
-                      child: const Text('Save'),
+                      child: Text(AppLocalizations.of(context)!.save),
                     ),
                   ],
                 ),
           ),
     );
 
-    if (result != null) {
+    if (result != null && mounted) {
       try {
         final db = await DatabaseHelper.instance.database;
         await db.update(
@@ -813,8 +843,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           await provider?.loadBooks();
 
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Progress updated!'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.progress_updated),
               backgroundColor: Colors.green,
             ),
           );
@@ -835,11 +865,13 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Did you read today?'),
+            title: Text(AppLocalizations.of(context)!.did_you_read_today),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('Did you read this book today?'),
+                Text(
+                  AppLocalizations.of(context)!.did_you_read_this_book_today,
+                ),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -852,7 +884,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         backgroundColor: Colors.green,
                         foregroundColor: Colors.white,
                       ),
-                      child: const Text('YES'),
+                      child: Text(AppLocalizations.of(context)!.yes_label),
                     ),
                     ElevatedButton(
                       onPressed: () {
@@ -862,7 +894,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         backgroundColor: Colors.red,
                         foregroundColor: Colors.white,
                       ),
-                      child: const Text('NO'),
+                      child: Text(AppLocalizations.of(context)!.no_label),
                     ),
                   ],
                 ),
@@ -871,7 +903,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
+                child: Text(AppLocalizations.of(context)!.cancel),
               ),
             ],
           ),
@@ -893,7 +925,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                result ? 'Marked as read today!' : 'Marked as not read today.',
+                result
+                    ? AppLocalizations.of(context)!.marked_read_today
+                    : AppLocalizations.of(context)!.marked_not_read_today,
               ),
               backgroundColor: result ? Colors.green : Colors.orange,
             ),
@@ -923,7 +957,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           (context) => StatefulBuilder(
             builder:
                 (context, setDialogState) => AlertDialog(
-                  title: const Text('Edit Reading Sessions'),
+                  title: Text(
+                    AppLocalizations.of(context)!.edit_reading_sessions,
+                  ),
                   content: SizedBox(
                     width: double.maxFinite,
                     child: SingleChildScrollView(
@@ -964,7 +1000,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Session ${index + 1}',
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.session_label(index + 1),
                                       style:
                                           Theme.of(
                                             context,
@@ -973,9 +1011,12 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     const SizedBox(height: 8),
                                     TextField(
                                       controller: dateController,
-                                      decoration: const InputDecoration(
-                                        labelText: 'Date',
-                                        border: OutlineInputBorder(),
+                                      decoration: InputDecoration(
+                                        labelText:
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.date_label,
+                                        border: const OutlineInputBorder(),
                                         hintText: 'YYYY-MM-DD',
                                       ),
                                       onChanged: (value) {
@@ -991,8 +1032,11 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     const SizedBox(height: 8),
                                     TextField(
                                       controller: timeController,
-                                      decoration: const InputDecoration(
-                                        labelText: 'Time (HH:MM)',
+                                      decoration: InputDecoration(
+                                        labelText:
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.time_hhmmss,
                                         hintText: 'HH:MM',
                                       ),
                                       onChanged: (value) {
@@ -1029,12 +1073,17 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     const SizedBox(height: 8),
                                     TextField(
                                       controller: durationController,
-                                      decoration: const InputDecoration(
-                                        labelText: 'Duration',
+                                      decoration: InputDecoration(
+                                        labelText:
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.duration_label,
                                         hintText:
                                             'e.g., 1h 30m 5s or 90m or 3600',
                                         helperText:
-                                            'Enter duration as: 1h 30m 5s, 90m, or just seconds',
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.duration_hint,
                                       ),
                                       onChanged: (value) {
                                         try {
@@ -1070,11 +1119,11 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context, false),
-                      child: const Text('Cancel'),
+                      child: Text(AppLocalizations.of(context)!.cancel),
                     ),
                     ElevatedButton(
                       onPressed: () => Navigator.pop(context, true),
-                      child: const Text('Save'),
+                      child: Text(AppLocalizations.of(context)!.save),
                     ),
                   ],
                 ),
@@ -1094,8 +1143,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Sessions updated!'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.sessions_updated),
               backgroundColor: Colors.green,
             ),
           );
@@ -1124,24 +1173,24 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Add Reading Session'),
+            title: Text(AppLocalizations.of(context)!.add_reading_session),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
                   controller: dateController,
-                  decoration: const InputDecoration(
-                    labelText: 'Date',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.date_label,
+                    border: const OutlineInputBorder(),
                     hintText: 'YYYY-MM-DD',
                   ),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: timeController,
-                  decoration: const InputDecoration(
-                    labelText: 'Time (HH:MM)',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.time_hhmmss,
+                    border: const OutlineInputBorder(),
                     hintText: '14:30',
                   ),
                 ),
@@ -1150,11 +1199,11 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
+                child: Text(AppLocalizations.of(context)!.cancel),
               ),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, true),
-                child: const Text('Add'),
+                child: Text(AppLocalizations.of(context)!.add),
               ),
             ],
           ),
@@ -1190,8 +1239,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
 
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Session added!'),
+              SnackBar(
+                content: Text(AppLocalizations.of(context)!.session_added),
                 backgroundColor: Colors.green,
               ),
             );
@@ -1614,7 +1663,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Reading Time',
+                      AppLocalizations.of(context)!.reading_time,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: Colors.grey[700],
@@ -1679,7 +1728,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                   color: Theme.of(context).colorScheme.primary,
                 ),
                 const SizedBox(width: 8),
-                Text('Reading Time Details'),
+                Text(AppLocalizations.of(context)!.reading_time_details),
               ],
             ),
             content: Column(
@@ -1687,12 +1736,17 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'This book took $days ${days == 1 ? 'day' : 'days'} to read.',
+                  AppLocalizations.of(context)!.book_took_days(
+                    days,
+                    days == 1
+                        ? AppLocalizations.of(context)!.day_word
+                        : AppLocalizations.of(context)!.days_word,
+                  ),
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Calculation Method: $method',
+                  AppLocalizations.of(context)!.calculation_method(method),
                   style: Theme.of(
                     context,
                   ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
@@ -1706,28 +1760,38 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                   ),
                   if (details['days_with_time'] > 0)
                     Text(
-                      'Days with time tracking: ${details['days_with_time']}',
+                      AppLocalizations.of(
+                        context,
+                      )!.days_with_time_tracking(details['days_with_time']),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   if (details['days_with_didread_only'] > 0)
                     Text(
-                      'Days with reading flag only: ${details['days_with_didread_only']}',
+                      AppLocalizations.of(context)!.days_with_reading_flag(
+                        details['days_with_didread_only'],
+                      ),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                 ] else if (method == 'DidRead-based' &&
                     details.containsKey('days_with_didread_only')) ...[
                   Text(
-                    'Days marked as read: ${details['days_with_didread_only']}',
+                    AppLocalizations.of(
+                      context,
+                    )!.days_marked_as_read(details['days_with_didread_only']),
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ] else if (method == 'Date-based' &&
                     details.containsKey('start_date')) ...[
                   Text(
-                    'Start date: ${details['start_date']}',
+                    AppLocalizations.of(
+                      context,
+                    )!.start_date_label(details['start_date']),
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   Text(
-                    'End date: ${details['end_date']}',
+                    AppLocalizations.of(
+                      context,
+                    )!.end_date_label(details['end_date']),
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],
@@ -1735,7 +1799,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                     details.containsKey('books_calculated')) ...[
                   const SizedBox(height: 8),
                   Text(
-                    'Bundle: ${details['books_calculated']} books calculated',
+                    AppLocalizations.of(
+                      context,
+                    )!.bundle_books_calculated(details['books_calculated']),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       fontStyle: FontStyle.italic,
                     ),
@@ -1746,7 +1812,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Close'),
+                child: Text(AppLocalizations.of(context)!.close),
               ),
             ],
           ),
@@ -1767,7 +1833,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       widgets.add(
         _DetailCard(
           icon: Icons.calendar_today,
-          label: 'Original Publication Year',
+          label: AppLocalizations.of(context)!.original_publication_year_label,
           value: year.toString(),
         ),
       );
@@ -1776,7 +1842,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       widgets.add(
         _DetailCard(
           icon: Icons.event,
-          label: 'Original Publication Date',
+          label: AppLocalizations.of(context)!.original_publication_date_label,
           value:
               '${day.toString().padLeft(2, '0')}/${month.toString().padLeft(2, '0')}/$year',
         ),
@@ -1786,7 +1852,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       widgets.add(
         _DetailCard(
           icon: Icons.calendar_today,
-          label: 'Original Publication Year',
+          label: AppLocalizations.of(context)!.original_publication_year_label,
           value: pubYearOrDate.toString(),
         ),
       );
@@ -1800,14 +1866,12 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Confirm Delete'),
-            content: Text(
-              'Are you sure you want to delete "${_currentBook.name}"?',
-            ),
+            title: Text(AppLocalizations.of(context)!.confirm_delete_title),
+            content: Text(AppLocalizations.of(context)!.confirm_delete),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
+                child: Text(AppLocalizations.of(context)!.cancel),
               ),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, true),
@@ -1815,7 +1879,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('Delete'),
+                child: Text(AppLocalizations.of(context)!.delete),
               ),
             ],
           ),
@@ -1834,8 +1898,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           Navigator.pop(context); // Go back to list
 
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Book deleted successfully'),
+            SnackBar(
+              content: Text(
+                AppLocalizations.of(context)!.book_updated_successfully,
+              ),
               backgroundColor: Colors.green,
             ),
           );
@@ -1844,7 +1910,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error deleting book: $e'),
+              content: Text(
+                AppLocalizations.of(context)!.error_deleting_book(e.toString()),
+              ),
               backgroundColor: Colors.red,
             ),
           );
@@ -1865,11 +1933,11 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Book Details'),
+          title: Text(AppLocalizations.of(context)!.book_details),
           actions: [
             IconButton(
               icon: const Icon(Icons.refresh),
-              tooltip: 'Refresh metadata',
+              tooltip: AppLocalizations.of(context)!.refresh_metadata,
               onPressed: _refetchMetadata,
             ),
             IconButton(
@@ -1997,22 +2065,24 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                             error,
                                             stackTrace,
                                           ) {
-                                            return const SizedBox(
+                                            return SizedBox(
                                               height: 210,
                                               child: Center(
                                                 child: Column(
                                                   mainAxisAlignment:
                                                       MainAxisAlignment.center,
                                                   children: [
-                                                    Icon(
+                                                    const Icon(
                                                       Icons.broken_image,
                                                       size: 60,
                                                       color: Colors.white70,
                                                     ),
-                                                    SizedBox(height: 6),
+                                                    const SizedBox(height: 6),
                                                     Text(
-                                                      'Failed to load image',
-                                                      style: TextStyle(
+                                                      AppLocalizations.of(
+                                                        context,
+                                                      )!.failed_to_load_image,
+                                                      style: const TextStyle(
                                                         color: Colors.white70,
                                                         fontSize: 13,
                                                       ),
@@ -2038,9 +2108,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               if (_isFetchingMetadata) ...[
                                 const CircularProgressIndicator(),
                                 const SizedBox(height: 12),
-                                const Text(
-                                  'Fetching cover...',
-                                  style: TextStyle(
+                                Text(
+                                  AppLocalizations.of(context)!.fetching_cover,
+                                  style: const TextStyle(
                                     color: Colors.grey,
                                     fontSize: 13,
                                   ),
@@ -2052,9 +2122,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   color: Colors.grey,
                                 ),
                                 const SizedBox(height: 6),
-                                const Text(
-                                  'No cover image',
-                                  style: TextStyle(
+                                Text(
+                                  AppLocalizations.of(context)!.no_cover_image,
+                                  style: const TextStyle(
                                     color: Colors.grey,
                                     fontSize: 13,
                                   ),
@@ -2167,8 +2237,12 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   SnackBar(
                                     content: Text(
                                       updatedBook.tbr == true
-                                          ? 'Added to TBR'
-                                          : 'Removed from TBR',
+                                          ? AppLocalizations.of(
+                                            context,
+                                          )!.added_to_tbr
+                                          : AppLocalizations.of(
+                                            context,
+                                          )!.removed_from_tbr,
                                     ),
                                   ),
                                 );
@@ -2184,8 +2258,12 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                           },
                           tooltip:
                               _currentBook.tbr == true
-                                  ? 'Remove from TBR'
-                                  : 'Add to TBR',
+                                  ? AppLocalizations.of(
+                                    context,
+                                  )!.remove_from_tbr
+                                  : AppLocalizations.of(
+                                    context,
+                                  )!.add_to_tbr_short,
                         ),
                       ],
                     ),
@@ -2229,7 +2307,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                         ),
                                         const SizedBox(width: 4),
                                         Text(
-                                          'Start Reading',
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.start_reading,
                                           style: TextStyle(
                                             color:
                                                 Theme.of(
@@ -2282,7 +2362,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
-                                        'Mark as Finished',
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.mark_as_finished,
                                         style: TextStyle(
                                           color:
                                               Theme.of(
@@ -2329,7 +2411,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    'Mark as Read',
+                                    AppLocalizations.of(context)!.mark_as_read,
                                     style: TextStyle(
                                       color:
                                           Theme.of(context).colorScheme.primary,
@@ -2371,7 +2453,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  'Did you read today?',
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.did_you_read_today,
                                   style: TextStyle(
                                     color: Colors.orange,
                                     fontWeight: FontWeight.w600,
@@ -2408,7 +2492,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    'Reading Progress',
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.reading_progress,
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodyMedium
@@ -2441,7 +2527,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                'Tap to update progress',
+                                AppLocalizations.of(
+                                  context,
+                                )!.tap_to_update_progress,
                                 style: Theme.of(
                                   context,
                                 ).textTheme.bodySmall?.copyWith(
@@ -2492,7 +2580,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                'Description',
+                                AppLocalizations.of(context)!.description,
                                 style: Theme.of(
                                   context,
                                 ).textTheme.bodySmall?.copyWith(
@@ -2516,10 +2604,14 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   child: Text(
                                     _currentBook.metadataSource ==
                                             'google_books'
-                                        ? 'Google Books'
+                                        ? AppLocalizations.of(
+                                          context,
+                                        )!.google_books
                                         : _currentBook.metadataSource ==
                                             'open_library'
-                                        ? 'Open Library'
+                                        ? AppLocalizations.of(
+                                          context,
+                                        )!.open_library
                                         : 'API',
                                     style: TextStyle(
                                       fontSize: 9,
@@ -2534,22 +2626,26 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                           ),
                           children: [
                             if (_isFetchingMetadata)
-                              const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 12.0),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12.0,
+                                ),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    SizedBox(
+                                    const SizedBox(
                                       width: 16,
                                       height: 16,
                                       child: CircularProgressIndicator(
                                         strokeWidth: 2,
                                       ),
                                     ),
-                                    SizedBox(width: 12),
+                                    const SizedBox(width: 12),
                                     Text(
-                                      'Fetching description...',
-                                      style: TextStyle(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.fetching_description,
+                                      style: const TextStyle(
                                         color: Colors.grey,
                                         fontSize: 13,
                                         fontStyle: FontStyle.italic,
@@ -2567,7 +2663,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               )
                             else
                               Text(
-                                'No description available for this book.',
+                                AppLocalizations.of(
+                                  context,
+                                )!.no_description_available,
                                 style: Theme.of(
                                   context,
                                 ).textTheme.bodySmall?.copyWith(
@@ -2646,7 +2744,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     return Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: Text(
-                                        'Error loading bundle books',
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.error_loading_bundle_books,
                                         style: TextStyle(
                                           color: Colors.red[700],
                                         ),
@@ -2656,9 +2756,13 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
 
                                   if (!snapshot.hasData ||
                                       snapshot.data!.isEmpty) {
-                                    return const Padding(
+                                    return Padding(
                                       padding: EdgeInsets.all(8.0),
-                                      child: Text('No books in bundle'),
+                                      child: Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.no_books_in_bundle,
+                                      ),
                                     );
                                   }
 
@@ -2702,7 +2806,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                                   size: 28,
                                                 ),
                                                 title: Text(
-                                                  book.name ?? 'Unknown',
+                                                  book.name ??
+                                                      AppLocalizations.of(
+                                                        context,
+                                                      )!.unknown_title,
                                                   style: const TextStyle(
                                                     fontWeight: FontWeight.w500,
                                                   ),
@@ -2725,7 +2832,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                                       children: [
                                                         Text(
                                                           book.statusValue ??
-                                                              'No status',
+                                                              AppLocalizations.of(
+                                                                context,
+                                                              )!.no_status,
                                                           style: TextStyle(
                                                             fontSize: 12,
                                                             color: statusColor,
@@ -2835,7 +2944,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               },
                               child: _DetailCard(
                                 icon: Icons.repeat,
-                                label: 'Original Book',
+                                label:
+                                    AppLocalizations.of(context)!.original_book,
                                 value:
                                     '${originalBook.name}${originalBook.author != null ? " - ${originalBook.author}" : ""}',
                                 trailingIcon: Icons.open_in_new,
@@ -2868,7 +2978,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         },
                         child: _DetailCard(
                           icon: Icons.person,
-                          label: 'Author(s)',
+                          label: AppLocalizations.of(context)!.author,
                           value: _currentBook.author!,
                           trailingIcon: Icons.open_in_new,
                         ),
@@ -2898,7 +3008,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         _currentBook.genre!.isNotEmpty)
                       _DetailCard(
                         icon: Icons.category,
-                        label: 'Genre(s)',
+                        label: AppLocalizations.of(context)!.genre,
                         value: _currentBook.genre!,
                       ),
                     if (_currentBook.saga != null &&
@@ -2967,35 +3077,35 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         _currentBook.languageValue!.isNotEmpty)
                       _DetailCard(
                         icon: Icons.language,
-                        label: 'Language',
+                        label: AppLocalizations.of(context)!.language,
                         value: _currentBook.languageValue!,
                       ),
                     if (_currentBook.placeValue != null &&
                         _currentBook.placeValue!.isNotEmpty)
                       _DetailCard(
                         icon: Icons.place,
-                        label: 'Place',
+                        label: AppLocalizations.of(context)!.place,
                         value: _currentBook.placeValue!,
                       ),
                     if (_currentBook.formatValue != null &&
                         _currentBook.formatValue!.isNotEmpty)
                       _DetailCard(
                         icon: Icons.import_contacts,
-                        label: 'Format',
+                        label: AppLocalizations.of(context)!.format,
                         value: _currentBook.formatValue!,
                       ),
                     if (_currentBook.loaned != null &&
                         _currentBook.loaned!.isNotEmpty)
                       _DetailCard(
                         icon: Icons.swap_horiz,
-                        label: 'Loaned',
+                        label: AppLocalizations.of(context)!.loaned,
                         value: _currentBook.loaned!,
                       ),
                     if (_currentBook.createdAt != null &&
                         _currentBook.createdAt!.isNotEmpty)
                       _DetailCard(
                         icon: Icons.access_time,
-                        label: 'Created',
+                        label: AppLocalizations.of(context)!.created_label,
                         value: _formatDateTime(_currentBook.createdAt!),
                       ),
 
@@ -3022,7 +3132,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   ),
                                   const SizedBox(width: 16),
                                   Text(
-                                    'Bundle Reading Sessions',
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.bundle_reading_sessions,
                                     style: Theme.of(
                                       context,
                                     ).textTheme.titleSmall?.copyWith(
@@ -3050,7 +3162,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     children: [
                                       Text(
                                         _bundleBookTitles[bundleIndex] ??
-                                            'Book ${bundleIndex + 1}',
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.book_n(bundleIndex + 1),
                                         style: Theme.of(
                                           context,
                                         ).textTheme.bodyMedium?.copyWith(
@@ -3084,7 +3198,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                                       ? formatDateForDisplay(
                                                         readDate.dateStarted,
                                                       )
-                                                      : 'Not started',
+                                                      : AppLocalizations.of(
+                                                        context,
+                                                      )!.not_set,
                                                   style:
                                                       Theme.of(
                                                         context,
@@ -3098,7 +3214,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                                       ? formatDateForDisplay(
                                                         readDate.dateFinished,
                                                       )
-                                                      : 'Not finished',
+                                                      : AppLocalizations.of(
+                                                        context,
+                                                      )!.not_set,
                                                   style:
                                                       Theme.of(
                                                         context,
@@ -3141,7 +3259,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   ),
                                   const SizedBox(width: 16),
                                   Text(
-                                    'Bundle Timed Reading Sessions',
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.bundle_timed_reading_sessions,
                                     style: Theme.of(
                                       context,
                                     ).textTheme.titleSmall?.copyWith(
@@ -3170,7 +3290,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     children: [
                                       Text(
                                         _bundleBookTitles[bundleIndex] ??
-                                            'Book ${bundleIndex + 1}',
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.book_n(bundleIndex + 1),
                                         style: Theme.of(
                                           context,
                                         ).textTheme.bodyMedium?.copyWith(
@@ -3295,10 +3417,14 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   );
 
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Removed from TBR'),
+                                    SnackBar(
+                                      content: Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.removed_from_tbr,
+                                      ),
                                       backgroundColor: Colors.green,
-                                      duration: Duration(seconds: 2),
+                                      duration: const Duration(seconds: 2),
                                     ),
                                   );
                                 }
@@ -3320,7 +3446,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                             size: 24,
                           ),
                           title: Text(
-                            'To Be Read',
+                            AppLocalizations.of(context)!.tbr_label,
                             style: Theme.of(
                               context,
                             ).textTheme.titleMedium?.copyWith(
@@ -3328,7 +3454,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               color: Colors.orange.shade700,
                             ),
                           ),
-                          subtitle: const Text('This book is in your TBR list'),
+                          subtitle: Text(
+                            AppLocalizations.of(context)!.tbr_list_subtitle,
+                          ),
                         ),
                       ),
 
@@ -3346,12 +3474,18 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                             Icons.notifications_active,
                             color: Colors.blue.shade700,
                           ),
-                          title: const Text(
-                            'Release Notification',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                          title: Text(
+                            AppLocalizations.of(context)!.release_notification,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           subtitle: Text(
-                            'Scheduled for ${formatDateForDisplay(_currentBook.notificationDatetime!.split('T')[0])}',
+                            AppLocalizations.of(context)!.scheduled_for(
+                              formatDateForDisplay(
+                                _currentBook.notificationDatetime!.split(
+                                  'T',
+                                )[0],
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -3368,7 +3502,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                     if (_currentBook.myRating != null &&
                         _currentBook.myRating! > 0)
                       _RatingCard(
-                        label: 'My Rating',
+                        label: AppLocalizations.of(context)!.my_rating_label,
                         rating: _currentBook.myRating!,
                       ),
 
@@ -3394,7 +3528,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                 color: Theme.of(context).colorScheme.primary,
                               ),
                               title: Text(
-                                'Rating Breakdown',
+                                AppLocalizations.of(context)!.rating_breakdown,
                                 style: Theme.of(
                                   context,
                                 ).textTheme.titleSmall?.copyWith(
@@ -3404,8 +3538,12 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               ),
                               subtitle: Text(
                                 _currentBook.ratingOverride == true
-                                    ? 'Manual rating'
-                                    : 'Auto-calculated',
+                                    ? AppLocalizations.of(
+                                      context,
+                                    )!.manual_rating
+                                    : AppLocalizations.of(
+                                      context,
+                                    )!.auto_calculated,
                                 style: Theme.of(context).textTheme.bodySmall,
                               ),
                               children:
@@ -3438,7 +3576,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                     if (_currentBook.price != null && _currentBook.price! > 0)
                       _DetailCard(
                         icon: Icons.attach_money,
-                        label: 'Price',
+                        label: AppLocalizations.of(context)!.price_label,
                         value: '\$${_currentBook.price!.toStringAsFixed(2)}',
                       ),
 
@@ -3446,7 +3584,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         _currentBook.readCount! > 0)
                       _DetailCard(
                         icon: Icons.add_circle_outline,
-                        label: 'Times Read',
+                        label: AppLocalizations.of(context)!.times_read,
                         value: '${_currentBook.readCount}',
                       ),
 
@@ -3476,7 +3614,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   ),
                                   const SizedBox(width: 16),
                                   Text(
-                                    'Reading History (${_readDates.length})',
+                                    '${AppLocalizations.of(context)!.reading_history} (${_readDates.length})',
                                     style: Theme.of(
                                       context,
                                     ).textTheme.titleSmall?.copyWith(
@@ -3508,7 +3646,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                               ? formatDateForDisplay(
                                                 readDate.dateStarted,
                                               )
-                                              : 'Not started',
+                                              : AppLocalizations.of(
+                                                context,
+                                              )!.not_set,
                                           style:
                                               Theme.of(
                                                 context,
@@ -3522,7 +3662,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                               ? formatDateForDisplay(
                                                 readDate.dateFinished,
                                               )
-                                              : 'Not finished',
+                                              : AppLocalizations.of(
+                                                context,
+                                              )!.not_set,
                                           style:
                                               Theme.of(
                                                 context,
@@ -3563,7 +3705,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   const SizedBox(width: 16),
                                   Expanded(
                                     child: Text(
-                                      'Timed Reading Sessions (${_chronometerSessions.length})',
+                                      '${AppLocalizations.of(context)!.reading_sessions} (${_chronometerSessions.length})',
                                       style: Theme.of(
                                         context,
                                       ).textTheme.titleSmall?.copyWith(
@@ -3577,13 +3719,19 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     IconButton(
                                       onPressed: _showEditSessionsModal,
                                       icon: const Icon(Icons.edit, size: 20),
-                                      tooltip: 'Edit Sessions',
+                                      tooltip:
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.edit_reading_sessions,
                                     ),
                                   // Plus icon
                                   IconButton(
                                     onPressed: _showAddSessionModal,
                                     icon: const Icon(Icons.add, size: 20),
-                                    tooltip: 'Add Session',
+                                    tooltip:
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.add_reading_session,
                                   ),
                                 ],
                               ),
@@ -3617,7 +3765,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                 } else if (session.didRead) {
                                   // No duration but didRead - show "Read today"
                                   displayText =
-                                      '${formatDateForDisplay(session.startTime?.toIso8601String().split('T')[0] ?? 'Unknown')} - Read today ✓';
+                                      '${formatDateForDisplay(session.startTime?.toIso8601String().split('T')[0] ?? 'Unknown')} - ${AppLocalizations.of(context)!.read_today_check}';
                                 } else {
                                   // No duration and not didRead - show date only
                                   displayText = formatDateForDisplay(
@@ -3682,7 +3830,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   ),
                                   AppTheme.horizontalSpaceLarge,
                                   Text(
-                                    'My Review',
+                                    AppLocalizations.of(context)!.my_review,
                                     style: Theme.of(
                                       context,
                                     ).textTheme.titleMedium?.copyWith(
@@ -3726,7 +3874,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   ),
                                   AppTheme.horizontalSpaceLarge,
                                   Text(
-                                    'Notes',
+                                    AppLocalizations.of(context)!.notes,
                                     style: Theme.of(
                                       context,
                                     ).textTheme.titleMedium?.copyWith(
@@ -3966,7 +4114,7 @@ class _BundleDatesCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 16),
                 Text(
-                  'Bundle Reading Dates',
+                  AppLocalizations.of(context)!.bundle_reading_sessions,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: Colors.grey[600],
                     fontWeight: FontWeight.w600,
@@ -4015,7 +4163,7 @@ class _BundleDatesCard extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          'Book ${index + 1}:',
+                          '${AppLocalizations.of(context)!.book_n(index + 1)}:',
                           style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(fontWeight: FontWeight.w600),
                         ),
@@ -4053,7 +4201,7 @@ class _BundleDatesCard extends StatelessWidget {
                               children: [
                                 if (pageCount != null)
                                   Text(
-                                    'Pages: $pageCount',
+                                    '${AppLocalizations.of(context)!.pages}: $pageCount',
                                     style: Theme.of(
                                       context,
                                     ).textTheme.bodySmall?.copyWith(
@@ -4073,7 +4221,7 @@ class _BundleDatesCard extends StatelessWidget {
                                   ),
                                 if (pubYear != null)
                                   Text(
-                                    'Pub. Year: $pubYear',
+                                    '${AppLocalizations.of(context)!.publication_year}: $pubYear',
                                     style: Theme.of(
                                       context,
                                     ).textTheme.bodySmall?.copyWith(
@@ -4087,7 +4235,7 @@ class _BundleDatesCard extends StatelessWidget {
                               Padding(
                                 padding: const EdgeInsets.only(top: 2),
                                 child: Text(
-                                  'Author(s): $author',
+                                  '${AppLocalizations.of(context)!.author}: $author',
                                   style: Theme.of(
                                     context,
                                   ).textTheme.bodySmall?.copyWith(
@@ -4130,7 +4278,9 @@ class _DetailCard extends StatelessWidget {
         Clipboard.setData(ClipboardData(text: value));
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Copied: $value'),
+            content: Text(
+              AppLocalizations.of(context)!.copied_to_clipboard(value),
+            ),
             duration: const Duration(seconds: 1),
           ),
         );
@@ -4255,7 +4405,7 @@ class _TandemBooksCardState extends State<_TandemBooksCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Tandem Books',
+                        AppLocalizations.of(context)!.tandem_books,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.grey[700],
                           fontWeight: FontWeight.w500,
@@ -4263,7 +4413,7 @@ class _TandemBooksCardState extends State<_TandemBooksCard> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Read together with these books',
+                        AppLocalizations.of(context)!.read_together_with,
                         style: Theme.of(
                           context,
                         ).textTheme.titleMedium?.copyWith(
@@ -4281,7 +4431,7 @@ class _TandemBooksCardState extends State<_TandemBooksCard> {
               const Center(child: CircularProgressIndicator())
             else if (_tandemBooks.isEmpty)
               Text(
-                'No other tandem books in this saga',
+                AppLocalizations.of(context)!.no_tandem_books,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Colors.grey[600],
                   fontStyle: FontStyle.italic,
@@ -4323,7 +4473,8 @@ class _TandemBooksCardState extends State<_TandemBooksCard> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                book.name ?? 'Unknown',
+                                book.name ??
+                                    AppLocalizations.of(context)!.unknown_title,
                                 style: Theme.of(context).textTheme.bodyMedium
                                     ?.copyWith(fontWeight: FontWeight.w600),
                               ),
@@ -4402,7 +4553,9 @@ class _FinishBookDialogState extends State<_FinishBookDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Finish "${widget.bookName}"'),
+      title: Text(
+        '${AppLocalizations.of(context)!.finish_book} "${widget.bookName}"',
+      ),
       content:
           _isLoading
               ? const Center(child: CircularProgressIndicator())
@@ -4412,16 +4565,16 @@ class _FinishBookDialogState extends State<_FinishBookDialog> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Rate your reading experience:',
+                      AppLocalizations.of(context)!.rate_reading_experience,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 12),
                     if (_availableFieldNames.isEmpty)
-                      const Text(
-                        'No rating fields available. You can add them in Settings.',
-                        style: TextStyle(color: Colors.grey),
+                      Text(
+                        AppLocalizations.of(context)!.no_rating_fields,
+                        style: const TextStyle(color: Colors.grey),
                       )
                     else
                       ..._availableFieldNames.map((fieldName) {
@@ -4464,7 +4617,7 @@ class _FinishBookDialogState extends State<_FinishBookDialog> {
                     const Divider(),
                     const SizedBox(height: 8),
                     Text(
-                      'Write a review (optional):',
+                      AppLocalizations.of(context)!.write_review_optional,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -4472,9 +4625,10 @@ class _FinishBookDialogState extends State<_FinishBookDialog> {
                     const SizedBox(height: 8),
                     TextField(
                       controller: _reviewController,
-                      decoration: const InputDecoration(
-                        hintText: 'Share your thoughts...',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        hintText:
+                            AppLocalizations.of(context)!.share_your_thoughts,
+                        border: const OutlineInputBorder(),
                       ),
                       maxLines: 4,
                     ),
@@ -4484,7 +4638,7 @@ class _FinishBookDialogState extends State<_FinishBookDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(AppLocalizations.of(context)!.cancel),
         ),
         ElevatedButton(
           onPressed: () {
@@ -4499,7 +4653,7 @@ class _FinishBookDialogState extends State<_FinishBookDialog> {
               'review': _reviewController.text.trim(),
             });
           },
-          child: const Text('Finish Book'),
+          child: Text(AppLocalizations.of(context)!.finish_book),
         ),
       ],
     );

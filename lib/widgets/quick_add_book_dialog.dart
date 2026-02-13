@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 
@@ -124,9 +125,9 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
     } catch (e) {
       debugPrint('Error adding books: $e');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error adding books: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${AppLocalizations.of(context)!.error}: $e')),
+        );
       }
     }
   }
@@ -147,7 +148,7 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
               children: [
                 Expanded(
                   child: Text(
-                    'Add Books to ${widget.sagaName ?? widget.sagaUniverse}',
+                    '${AppLocalizations.of(context)!.add_books_to} ${widget.sagaName ?? widget.sagaUniverse}',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                 ),
@@ -163,7 +164,7 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
             TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                labelText: 'Search books by title',
+                labelText: AppLocalizations.of(context)!.search_books_by_title,
                 prefixIcon: const Icon(Icons.search),
                 border: const OutlineInputBorder(),
                 suffixIcon:
@@ -198,7 +199,9 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      '${_selectedBooks.length} book(s) selected',
+                      AppLocalizations.of(
+                        context,
+                      )!.books_selected(_selectedBooks.length),
                       style: TextStyle(
                         color: Colors.blue.shade700,
                         fontWeight: FontWeight.w600,
@@ -218,8 +221,10 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                       ? Center(
                         child: Text(
                           _searchController.text.isEmpty
-                              ? 'Search for books to add'
-                              : 'No books found',
+                              ? AppLocalizations.of(
+                                context,
+                              )!.search_for_books_to_add
+                              : AppLocalizations.of(context)!.no_books_found,
                           style: TextStyle(color: Colors.grey[600]),
                         ),
                       )
@@ -241,7 +246,8 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                               });
                             },
                             title: Text(
-                              book.name ?? 'Unknown',
+                              book.name ??
+                                  AppLocalizations.of(context)!.unknown,
                               style: const TextStyle(
                                 fontWeight: FontWeight.w600,
                               ),
@@ -273,13 +279,17 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
               children: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel'),
+                  child: Text(AppLocalizations.of(context)!.cancel),
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton.icon(
                   onPressed: _selectedBooks.isEmpty ? null : _addSelectedBooks,
                   icon: const Icon(Icons.add),
-                  label: Text('Add ${_selectedBooks.length} Book(s)'),
+                  label: Text(
+                    AppLocalizations.of(
+                      context,
+                    )!.add_n_books(_selectedBooks.length),
+                  ),
                 ),
               ],
             ),

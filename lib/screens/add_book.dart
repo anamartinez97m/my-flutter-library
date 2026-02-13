@@ -157,7 +157,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRatingFieldRepository(db);
       final names = await repository.getAllFieldNames();
-      
+
       setState(() {
         _ratingFieldSuggestions = names;
       });
@@ -262,7 +262,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Book Added Successfully!',
+                  AppLocalizations.of(context)!.book_added_successfully,
                   style: Theme.of(
                     context,
                   ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -270,7 +270,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'What would you like to do next?',
+                  AppLocalizations.of(context)!.what_would_you_like_next,
                   style: Theme.of(
                     context,
                   ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
@@ -290,7 +290,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   debugPrint('✅ Dropdown data reloaded successfully');
                 },
                 icon: const Icon(Icons.add),
-                label: const Text('Add Another'),
+                label: Text(AppLocalizations.of(context)!.add_another),
                 style: TextButton.styleFrom(
                   foregroundColor: Theme.of(context).colorScheme.primary,
                 ),
@@ -302,7 +302,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   Navigator.of(context).pop();
                 },
                 icon: const Icon(Icons.home),
-                label: const Text('Go to Home'),
+                label: Text(AppLocalizations.of(context)!.go_to_home),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,
                   foregroundColor: Theme.of(context).colorScheme.onPrimary,
@@ -317,59 +317,62 @@ class _AddBookScreenState extends State<AddBookScreen> {
   Future<void> _saveBook() async {
     // Check for missing mandatory fields and show helpful message
     List<String> missingFields = [];
-    
+
     if (_selectedStatusId == null) {
-      missingFields.add('Reading Status');
+      missingFields.add(AppLocalizations.of(context)!.reading_status);
     }
-    
+
     if (_selectedStatusValue == 'Repeated' && _selectedOriginalBookId == null) {
-      missingFields.add('Original Book (required for Repeated status)');
+      missingFields.add(AppLocalizations.of(context)!.original_book_required);
     }
-    
+
     // Show dialog with missing fields if any
     if (missingFields.isNotEmpty) {
       showDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          title: Row(
-            children: [
-              Icon(Icons.warning_amber_rounded, color: Colors.orange),
-              const SizedBox(width: 8),
-              const Text('Missing Required Fields'),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Please fill in the following required fields:',
-                style: TextStyle(fontWeight: FontWeight.w600),
+        builder:
+            (context) => AlertDialog(
+              title: Row(
+                children: [
+                  Icon(Icons.warning_amber_rounded, color: Colors.orange),
+                  const SizedBox(width: 8),
+                  Text(AppLocalizations.of(context)!.missing_required_fields),
+                ],
               ),
-              const SizedBox(height: 12),
-              ...missingFields.map((field) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  children: [
-                    const Icon(Icons.arrow_right, size: 20),
-                    const SizedBox(width: 4),
-                    Expanded(child: Text(field)),
-                  ],
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.please_fill_required_fields,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 12),
+                  ...missingFields.map(
+                    (field) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.arrow_right, size: 20),
+                          const SizedBox(width: 4),
+                          Expanded(child: Text(field)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(AppLocalizations.of(context)!.ok),
                 ),
-              )),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
+              ],
             ),
-          ],
-        ),
       );
       return;
     }
-    
+
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -386,17 +389,14 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 children: [
                   Icon(Icons.error_outline, color: Colors.red),
                   const SizedBox(width: 8),
-                  const Text('Missing Information'),
+                  Text(AppLocalizations.of(context)!.missing_information),
                 ],
               ),
-              content: const Text(
-                'Tandem books must have a Saga or Saga Universe.\n\n'
-                'Please fill in at least one of these fields to mark this book as Tandem.',
-              ),
+              content: Text(AppLocalizations.of(context)!.tandem_requires_saga),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('OK'),
+                  child: Text(AppLocalizations.of(context)!.ok),
                 ),
               ],
             ),
@@ -481,9 +481,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
             (_selectedLoaned ?? 'no').toLowerCase(), // Normalize to lowercase
         statusValue: statusValue,
         editorialValue:
-            _selectedEditorial.isEmpty
-                ? null
-                : _selectedEditorial.first,
+            _selectedEditorial.isEmpty ? null : _selectedEditorial.first,
         languageValue: languageValue,
         placeValue: placeValue,
         formatValue: formatValue,
@@ -515,9 +513,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
             _notificationEnabled && _notificationDateTime != null
                 ? _notificationDateTime!.toIso8601String()
                 : null,
-        releaseDate: _releaseDate != null
-                ? _releaseDate!.toIso8601String()
-                : null,
+        releaseDate:
+            _releaseDate != null ? _releaseDate!.toIso8601String() : null,
         bundleParentId: null, // This is the parent book
         notes:
             _notesController.text.trim().isEmpty
@@ -569,9 +566,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
             loaned: (_selectedLoaned ?? 'no').toLowerCase(),
             statusValue: bundleBookData.status ?? 'No',
             editorialValue:
-                _selectedEditorial.isEmpty
-                    ? null
-                    : _selectedEditorial.first,
+                _selectedEditorial.isEmpty ? null : _selectedEditorial.first,
             languageValue: languageValue,
             placeValue: placeValue,
             formatValue: formatValue,
@@ -627,11 +622,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
           debugPrint('📅 Book ID: $bookId');
           debugPrint('📅 Scheduled date: $_notificationDateTime');
           debugPrint('📅 Current time: ${DateTime.now()}');
-          
+
           final notificationService = NotificationService();
-          final permissionGranted = await notificationService.requestPermissions();
+          final permissionGranted =
+              await notificationService.requestPermissions();
           debugPrint('📅 Permission granted: $permissionGranted');
-          
+
           // Only schedule if the datetime is in the future
           if (_notificationDateTime!.isAfter(DateTime.now())) {
             await notificationService.scheduleBookReleaseNotification(
@@ -640,7 +636,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
               scheduledDate: _notificationDateTime!,
               releaseDate: _releaseDate,
             );
-            debugPrint('✅ Notification scheduled successfully for book ID: $bookId');
+            debugPrint(
+              '✅ Notification scheduled successfully for book ID: $bookId',
+            );
           } else {
             debugPrint('⚠️ Notification time is in the past, not scheduling');
           }
@@ -716,7 +714,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error adding book: $e'),
+            content: Text('${AppLocalizations.of(context)!.error}: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -740,7 +738,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
   // Rating field helper methods
   double _calculateAverageRating() {
     if (_ratingFields.isEmpty) return 0.0;
-    double sum = _ratingFields.fold(0.0, (prev, field) => prev + field.ratingValue);
+    double sum = _ratingFields.fold(
+      0.0,
+      (prev, field) => prev + field.ratingValue,
+    );
     return sum / _ratingFields.length;
   }
 
@@ -750,11 +751,13 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
   void _addRatingField() {
     setState(() {
-      _ratingFields.add(BookRatingField(
-        bookId: 0, // Will be set on save
-        fieldName: 'Plot', // Default
-        ratingValue: 0.0,
-      ));
+      _ratingFields.add(
+        BookRatingField(
+          bookId: 0, // Will be set on save
+          fieldName: 'Plot', // Default
+          ratingValue: 0.0,
+        ),
+      );
     });
   }
 
@@ -794,7 +797,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Book'),
+        title: Text(AppLocalizations.of(context)!.add_book),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_outlined),
           onPressed: () => Navigator.of(context).pop(),
@@ -810,10 +813,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
               // Status dropdown (required) - MOVED TO TOP
               DropdownButtonFormField<int>(
                 value: _selectedStatusId,
-                decoration: const InputDecoration(
-                  labelText: 'Reading Status *',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.check_circle),
+                decoration: InputDecoration(
+                  labelText:
+                      '${AppLocalizations.of(context)!.reading_status} *',
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.check_circle),
                 ),
                 items:
                     _statusList.map((status) {
@@ -843,7 +847,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 },
                 validator: (value) {
                   if (value == null) {
-                    return 'Status is required';
+                    return AppLocalizations.of(context)!.status_is_required;
                   }
                   return null;
                 },
@@ -912,16 +916,22 @@ class _AddBookScreenState extends State<AddBookScreen> {
                         return TextFormField(
                           controller: controller,
                           focusNode: focusNode,
-                          decoration: const InputDecoration(
-                            labelText: 'Original Book *',
-                            border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.book),
-                            hintText: 'Search for the original book...',
+                          decoration: InputDecoration(
+                            labelText:
+                                '${AppLocalizations.of(context)!.original_book} *',
+                            border: const OutlineInputBorder(),
+                            prefixIcon: const Icon(Icons.book),
+                            hintText:
+                                AppLocalizations.of(
+                                  context,
+                                )!.search_original_book,
                           ),
                           validator: (value) {
                             if (_selectedStatusValue == 'Repeated' &&
                                 _selectedOriginalBookId == null) {
-                              return 'Original book is required';
+                              return AppLocalizations.of(
+                                context,
+                              )!.original_book_is_required;
                             }
                             return null;
                           },
@@ -936,10 +946,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
               // Name field
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Book Name',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.book),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.book_name,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.book),
                 ),
                 textCapitalization: TextCapitalization.sentences,
               ),
@@ -949,13 +959,13 @@ class _AddBookScreenState extends State<AddBookScreen> {
               TextFormField(
                 controller: _isbnController,
                 decoration: InputDecoration(
-                  labelText: 'ISBN',
+                  labelText: AppLocalizations.of(context)!.isbn,
                   border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.numbers),
                   suffixIcon: IconButton(
                     icon: const Icon(Icons.qr_code_scanner_outlined),
                     onPressed: () => _scanISBN(),
-                    tooltip: 'Scan ISBN',
+                    tooltip: AppLocalizations.of(context)!.scan_isbn,
                   ),
                 ),
                 keyboardType: TextInputType.number,
@@ -965,21 +975,21 @@ class _AddBookScreenState extends State<AddBookScreen> {
               // ASIN field
               TextFormField(
                 controller: _asinController,
-                decoration: const InputDecoration(
-                  labelText: 'ASIN',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.qr_code),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.asin,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.qr_code),
                 ),
               ),
               const SizedBox(height: 16),
 
               // Author field
               ChipAutocompleteField(
-                labelText: 'Author(s)',
+                labelText: AppLocalizations.of(context)!.authors,
                 prefixIcon: Icons.person,
                 suggestions: _authorSuggestions,
                 initialValues: _selectedAuthors,
-                hintText: 'Type to search or add new author',
+                hintText: AppLocalizations.of(context)!.search_or_add_author,
                 onChanged: (values) {
                   setState(() {
                     _selectedAuthors = values;
@@ -995,7 +1005,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 suggestions: _editorialSuggestions,
                 initialValues: _selectedEditorial,
                 maxSelections: 1, // Only allow one editorial
-                hintText: 'Select publisher',
+                hintText: AppLocalizations.of(context)!.select_publisher,
                 onChanged: (values) {
                   setState(() {
                     _selectedEditorial = values;
@@ -1006,11 +1016,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
               // Genre field
               ChipAutocompleteField(
-                labelText: 'Genre(s)',
+                labelText: AppLocalizations.of(context)!.genres,
                 prefixIcon: Icons.category,
                 suggestions: _genreSuggestions,
                 initialValues: _selectedGenres,
-                hintText: 'Type to search or add new genre',
+                hintText: AppLocalizations.of(context)!.search_or_add_genre,
                 onChanged: (values) {
                   setState(() {
                     _selectedGenres = values;
@@ -1032,10 +1042,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
               // N Saga field
               TextFormField(
                 controller: _nSagaController,
-                decoration: const InputDecoration(
-                  labelText: 'Saga Number',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.format_list_numbered),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.saga_number,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.format_list_numbered),
                 ),
               ),
               const SizedBox(height: 16),
@@ -1066,10 +1076,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
               // Publication Year field
               TextFormField(
                 controller: _publicationYearController,
-                decoration: const InputDecoration(
-                  labelText: 'Publication Year',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.calendar_today),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.publication_year,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.calendar_today),
                 ),
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -1088,7 +1098,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Original Publication Date (for notifications)',
+                      AppLocalizations.of(context)!.original_publication_date,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
@@ -1112,15 +1122,17 @@ class _AddBookScreenState extends State<AddBookScreen> {
                         }
                       },
                       child: InputDecorator(
-                        decoration: const InputDecoration(
-                          labelText: 'Release Date',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.calendar_today),
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.release_date,
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.calendar_today),
                         ),
                         child: Text(
                           _releaseDate != null
                               ? '${_releaseDate!.day}/${_releaseDate!.month}/${_releaseDate!.year}'
-                              : 'Select release date',
+                              : AppLocalizations.of(
+                                context,
+                              )!.select_release_date,
                           style: TextStyle(
                             color: _releaseDate != null ? null : Colors.grey,
                           ),
@@ -1131,9 +1143,15 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
                     // Notification checkbox
                     CheckboxListTile(
-                      title: const Text('Enable Release Notification'),
-                      subtitle: const Text(
-                        'Get notified when this book is released',
+                      title: Text(
+                        AppLocalizations.of(
+                          context,
+                        )!.enable_release_notification,
+                      ),
+                      subtitle: Text(
+                        AppLocalizations.of(
+                          context,
+                        )!.get_notified_when_released,
                       ),
                       value: _notificationEnabled,
                       onChanged: (value) {
@@ -1198,15 +1216,20 @@ class _AddBookScreenState extends State<AddBookScreen> {
                           }
                         },
                         child: InputDecorator(
-                          decoration: const InputDecoration(
-                            labelText: 'Notification Date & Time',
-                            border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.notifications_active),
+                          decoration: InputDecoration(
+                            labelText:
+                                AppLocalizations.of(
+                                  context,
+                                )!.notification_date_time,
+                            border: const OutlineInputBorder(),
+                            prefixIcon: const Icon(Icons.notifications_active),
                           ),
                           child: Text(
                             _notificationDateTime != null
                                 ? '${_notificationDateTime!.day}/${_notificationDateTime!.month}/${_notificationDateTime!.year} at ${_notificationTime!.format(context)}'
-                                : 'Select notification date and time',
+                                : AppLocalizations.of(
+                                  context,
+                                )!.select_notification_date,
                             style: TextStyle(
                               color:
                                   _notificationDateTime != null
@@ -1247,10 +1270,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
               // Language dropdown
               DropdownButtonFormField<int>(
                 value: _selectedLanguageId,
-                decoration: const InputDecoration(
-                  labelText: 'Language',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.language),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.language,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.language),
                 ),
                 items:
                     _languageList.map((lang) {
@@ -1270,10 +1293,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
               // Place dropdown
               DropdownButtonFormField<int>(
                 value: _selectedPlaceId,
-                decoration: const InputDecoration(
-                  labelText: 'Place',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.place),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.place,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.place),
                 ),
                 items:
                     _placeList.map((place) {
@@ -1293,10 +1316,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
               // Format dropdown
               DropdownButtonFormField<int>(
                 value: _selectedFormatId,
-                decoration: const InputDecoration(
-                  labelText: 'Format',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.import_contacts),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.format,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.import_contacts),
                 ),
                 items:
                     _formatList.map((format) {
@@ -1316,10 +1339,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
               // Loaned dropdown
               DropdownButtonFormField<String>(
                 value: _selectedLoaned,
-                decoration: const InputDecoration(
-                  labelText: 'Loaned',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.swap_horiz),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.loaned,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.swap_horiz),
                 ),
                 items: [
                   DropdownMenuItem(
@@ -1367,7 +1390,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Book Lists',
+                        AppLocalizations.of(context)!.book_lists,
                         style: Theme.of(
                           context,
                         ).textTheme.titleMedium?.copyWith(
@@ -1377,9 +1400,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       ),
                       const SizedBox(height: 12),
                       CheckboxListTile(
-                        title: const Text('Add to TBR (To Be Read)'),
-                        subtitle: const Text(
-                          'Mark this book for your reading list',
+                        title: Text(AppLocalizations.of(context)!.add_to_tbr),
+                        subtitle: Text(
+                          AppLocalizations.of(context)!.mark_for_reading_list,
                         ),
                         value: _tbr,
                         onChanged: (value) async {
@@ -1403,18 +1426,25 @@ class _AddBookScreenState extends State<AddBookScreen> {
                                               color: Colors.orange,
                                             ),
                                             const SizedBox(width: 8),
-                                            const Text('TBR Limit Reached'),
+                                            Text(
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.tbr_limit_reached,
+                                            ),
                                           ],
                                         ),
                                         content: Text(
-                                          'You have reached your TBR limit of $limit books.\n\n'
-                                          'Please uncheck some books in the My Books screen to add more.',
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.tbr_limit_message(limit),
                                         ),
                                         actions: [
                                           TextButton(
                                             onPressed:
                                                 () => Navigator.pop(context),
-                                            child: const Text('OK'),
+                                            child: Text(
+                                              AppLocalizations.of(context)!.ok,
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -1430,9 +1460,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
                         secondary: const Icon(Icons.bookmark_add),
                       ),
                       CheckboxListTile(
-                        title: const Text('Mark as Tandem Book'),
-                        subtitle: const Text(
-                          'Read together with other books in this saga',
+                        title: Text(
+                          AppLocalizations.of(context)!.mark_as_tandem,
+                        ),
+                        subtitle: Text(
+                          AppLocalizations.of(context)!.tandem_description,
                         ),
                         value: _isTandem,
                         onChanged: (value) {
@@ -1452,7 +1484,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
               // New fields section
               Text(
-                'Reading Information (Optional)',
+                AppLocalizations.of(context)!.reading_information_optional,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).colorScheme.primary,
@@ -1465,10 +1497,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 elevation: 2,
                 child: ExpansionTile(
                   leading: const Icon(Icons.star_rate),
-                  title: const Text('Rating'),
-                  subtitle: Text(_ratingFields.isEmpty 
-                      ? 'No ratings yet' 
-                      : 'Average: ${_calculateDisplayRating().toStringAsFixed(1)}'),
+                  title: Text(AppLocalizations.of(context)!.rating),
+                  subtitle: Text(
+                    _ratingFields.isEmpty
+                        ? AppLocalizations.of(context)!.no_ratings_yet
+                        : '${AppLocalizations.of(context)!.average}: ${_calculateDisplayRating().toStringAsFixed(1)}',
+                  ),
                   initiallyExpanded: false,
                   children: [
                     Padding(
@@ -1480,7 +1514,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                           ..._ratingFields.asMap().entries.map((entry) {
                             final index = entry.key;
                             final field = entry.value;
-                            
+
                             return Card(
                               margin: const EdgeInsets.only(bottom: 12.0),
                               elevation: 1,
@@ -1492,19 +1526,29 @@ class _AddBookScreenState extends State<AddBookScreen> {
                                     Row(
                                       children: [
                                         Expanded(
-                                          child: DropdownButtonFormField<String>(
+                                          child: DropdownButtonFormField<
+                                            String
+                                          >(
                                             value: field.fieldName,
-                                            decoration: const InputDecoration(
-                                              labelText: 'Criterion',
-                                              border: OutlineInputBorder(),
+                                            decoration: InputDecoration(
+                                              labelText:
+                                                  AppLocalizations.of(
+                                                    context,
+                                                  )!.criterion,
+                                              border:
+                                                  const OutlineInputBorder(),
                                             ),
                                             items: () {
                                               // Combine suggestions with existing field names to avoid missing values
-                                              final allNames = <String>{
-                                                ..._ratingFieldSuggestions,
-                                                ..._ratingFields.map((f) => f.fieldName),
-                                              }.toList()..sort();
-                                              
+                                              final allNames =
+                                                  <String>{
+                                                      ..._ratingFieldSuggestions,
+                                                      ..._ratingFields.map(
+                                                        (f) => f.fieldName,
+                                                      ),
+                                                    }.toList()
+                                                    ..sort();
+
                                               return allNames.map((name) {
                                                 return DropdownMenuItem(
                                                   value: name,
@@ -1515,20 +1559,27 @@ class _AddBookScreenState extends State<AddBookScreen> {
                                             onChanged: (value) {
                                               if (value != null) {
                                                 setState(() {
-                                                  _ratingFields[index] = BookRatingField(
-                                                    ratingFieldId: field.ratingFieldId,
-                                                    bookId: field.bookId,
-                                                    fieldName: value,
-                                                    ratingValue: field.ratingValue,
-                                                  );
+                                                  _ratingFields[index] =
+                                                      BookRatingField(
+                                                        ratingFieldId:
+                                                            field.ratingFieldId,
+                                                        bookId: field.bookId,
+                                                        fieldName: value,
+                                                        ratingValue:
+                                                            field.ratingValue,
+                                                      );
                                                 });
                                               }
                                             },
                                           ),
                                         ),
                                         IconButton(
-                                          icon: const Icon(Icons.delete, color: Colors.red),
-                                          onPressed: () => _removeRatingField(index),
+                                          icon: const Icon(
+                                            Icons.delete,
+                                            color: Colors.red,
+                                          ),
+                                          onPressed:
+                                              () => _removeRatingField(index),
                                         ),
                                       ],
                                     ),
@@ -1537,15 +1588,18 @@ class _AddBookScreenState extends State<AddBookScreen> {
                                       initialRating: field.ratingValue,
                                       onRatingChanged: (rating) {
                                         setState(() {
-                                          _ratingFields[index] = BookRatingField(
-                                            ratingFieldId: field.ratingFieldId,
-                                            bookId: field.bookId,
-                                            fieldName: field.fieldName,
-                                            ratingValue: rating,
-                                          );
+                                          _ratingFields[index] =
+                                              BookRatingField(
+                                                ratingFieldId:
+                                                    field.ratingFieldId,
+                                                bookId: field.bookId,
+                                                fieldName: field.fieldName,
+                                                ratingValue: rating,
+                                              );
                                           // Update general rating if not overridden
                                           if (!_ratingOverride) {
-                                            _myRating = _calculateAverageRating();
+                                            _myRating =
+                                                _calculateAverageRating();
                                           }
                                         });
                                       },
@@ -1555,42 +1609,56 @@ class _AddBookScreenState extends State<AddBookScreen> {
                               ),
                             );
                           }).toList(),
-                          
+
                           // Add rating field button
                           TextButton.icon(
                             onPressed: _addRatingField,
                             icon: const Icon(Icons.add),
-                            label: const Text('Add Rating Criterion'),
+                            label: Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.add_rating_criterion,
+                            ),
                           ),
-                          
+
                           const Divider(),
-                          
+
                           // General Rating Display
                           Row(
                             children: [
-                              const Text(
-                                'General Rating:',
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                              Text(
+                                '${AppLocalizations.of(context)!.general_rating}:',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                               const SizedBox(width: 12),
                               if (!_ratingOverride)
                                 Text(
-                                  '${_calculateAverageRating().toStringAsFixed(1)} (auto-calculated)',
+                                  '${_calculateAverageRating().toStringAsFixed(1)} (${AppLocalizations.of(context)!.auto_calculated})',
                                   style: TextStyle(color: Colors.grey[600]),
                                 )
                               else
                                 Text(
-                                  '${_myRating.toStringAsFixed(1)} (manual)',
-                                  style: const TextStyle(color: Colors.deepPurple),
+                                  '${_myRating.toStringAsFixed(1)} (${AppLocalizations.of(context)!.manual})',
+                                  style: const TextStyle(
+                                    color: Colors.deepPurple,
+                                  ),
                                 ),
                             ],
                           ),
                           const SizedBox(height: 8),
-                          
+
                           // Override toggle
                           SwitchListTile(
-                            title: const Text('Override auto-calculation'),
-                            subtitle: const Text('Manually set the general rating'),
+                            title: Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.override_auto_calculation,
+                            ),
+                            subtitle: Text(
+                              AppLocalizations.of(context)!.manually_set_rating,
+                            ),
                             value: _ratingOverride,
                             onChanged: (value) {
                               setState(() {
@@ -1602,7 +1670,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                               });
                             },
                           ),
-                          
+
                           // Manual rating input (only shown when override is enabled)
                           if (_ratingOverride)
                             HeartRatingInput(
@@ -1626,7 +1694,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Times Read',
+                    AppLocalizations.of(context)!.times_read,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Colors.grey[700],
                       fontWeight: FontWeight.w500,
@@ -1719,11 +1787,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
               // My Review field
               TextFormField(
                 controller: _myReviewController,
-                decoration: const InputDecoration(
-                  labelText: 'My Review',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.rate_review),
-                  hintText: 'Write your thoughts about this book...',
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.my_review,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.rate_review),
+                  hintText: AppLocalizations.of(context)!.write_your_thoughts,
                 ),
                 maxLines: 5,
                 keyboardType: TextInputType.multiline,
@@ -1734,13 +1802,15 @@ class _AddBookScreenState extends State<AddBookScreen> {
               // Price field
               TextFormField(
                 controller: _priceController,
-                decoration: const InputDecoration(
-                  labelText: 'Price',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.attach_money),
-                  hintText: 'Enter book price',
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.price,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.attach_money),
+                  hintText: AppLocalizations.of(context)!.enter_book_price,
                 ),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
                 ],
@@ -1750,11 +1820,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
               // Notes field
               TextFormField(
                 controller: _notesController,
-                decoration: const InputDecoration(
-                  labelText: 'Notes',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.notes),
-                  hintText: 'Add any additional notes about this book...',
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.notes,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.notes),
+                  hintText: AppLocalizations.of(context)!.add_notes_hint,
                 ),
                 maxLines: 5,
                 keyboardType: TextInputType.multiline,
@@ -1773,9 +1843,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text(
-                  'Add Book',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                child: Text(
+                  AppLocalizations.of(context)!.add_book,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               const SizedBox(height: 40),
@@ -1802,7 +1875,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error scanning ISBN: $e'),
+            content: Text('${AppLocalizations.of(context)!.error}: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -1843,7 +1916,10 @@ class _ISBNScannerScreenState extends State<ISBNScannerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Scan ISBN'), centerTitle: true),
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.scan_isbn),
+        centerTitle: true,
+      ),
       body: Stack(
         children: [
           MobileScanner(
@@ -1876,9 +1952,9 @@ class _ISBNScannerScreenState extends State<ISBNScannerScreen> {
                   color: Colors.black.withOpacity(0.7),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Text(
-                  'Point camera at barcode',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
+                child: Text(
+                  AppLocalizations.of(context)!.point_camera_at_barcode,
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ),
             ),

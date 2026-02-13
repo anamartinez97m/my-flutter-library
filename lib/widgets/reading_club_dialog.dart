@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/reading_club.dart';
 import 'package:intl/intl.dart';
 
@@ -81,7 +82,11 @@ class _ReadingClubDialogState extends State<ReadingClubDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(_isEditing ? 'Edit Club Membership' : 'Add to Reading Club'),
+      title: Text(
+        _isEditing
+            ? AppLocalizations.of(context)!.edit_club_membership
+            : AppLocalizations.of(context)!.add_to_reading_club,
+      ),
       content: SingleChildScrollView(
         child: Form(
           key: _formKey,
@@ -97,9 +102,9 @@ class _ReadingClubDialogState extends State<ReadingClubDialog> {
                     return const Iterable<String>.empty();
                   }
                   return widget.existingClubNames.where((String option) {
-                    return option
-                        .toLowerCase()
-                        .contains(textEditingValue.text.toLowerCase());
+                    return option.toLowerCase().contains(
+                      textEditingValue.text.toLowerCase(),
+                    );
                   });
                 },
                 onSelected: (String selection) {
@@ -116,19 +121,24 @@ class _ReadingClubDialogState extends State<ReadingClubDialog> {
                       _clubNameController.text.isNotEmpty) {
                     fieldTextEditingController.text = _clubNameController.text;
                   }
-                  
+
                   return TextFormField(
                     controller: fieldTextEditingController,
                     focusNode: fieldFocusNode,
-                    decoration: const InputDecoration(
-                      labelText: 'Club Name',
-                      hintText: 'Enter or select club name',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.groups),
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.club_name,
+                      hintText:
+                          AppLocalizations.of(
+                            context,
+                          )!.enter_or_select_club_name,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.groups),
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Please enter a club name';
+                        return AppLocalizations.of(
+                          context,
+                        )!.please_enter_club_name;
                       }
                       return null;
                     },
@@ -144,22 +154,24 @@ class _ReadingClubDialogState extends State<ReadingClubDialog> {
               InkWell(
                 onTap: () => _selectDate(context),
                 child: InputDecorator(
-                  decoration: const InputDecoration(
-                    labelText: 'Target Date (Optional)',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.calendar_today),
+                  decoration: InputDecoration(
+                    labelText:
+                        AppLocalizations.of(context)!.target_date_optional,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.calendar_today),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         _selectedDate == null
-                            ? 'Select date'
+                            ? AppLocalizations.of(context)!.select_date
                             : DateFormat('yyyy-MM-dd').format(_selectedDate!),
                         style: TextStyle(
-                          color: _selectedDate == null
-                              ? Colors.grey[600]
-                              : Colors.black,
+                          color:
+                              _selectedDate == null
+                                  ? Colors.grey[600]
+                                  : Colors.black,
                         ),
                       ),
                       if (_selectedDate != null)
@@ -182,32 +194,33 @@ class _ReadingClubDialogState extends State<ReadingClubDialog> {
               // Reading Progress Field
               TextFormField(
                 controller: _progressController,
-                decoration: const InputDecoration(
-                  labelText: 'Reading Progress (%)',
+                decoration: InputDecoration(
+                  labelText:
+                      AppLocalizations.of(context)!.reading_progress_percent,
                   hintText: '0-100',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.trending_up),
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.trending_up),
                   suffixText: '%',
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Please enter progress';
+                    return AppLocalizations.of(context)!.please_enter_progress;
                   }
                   final progress = int.tryParse(value);
                   if (progress == null || progress < 0 || progress > 100) {
-                    return 'Progress must be between 0 and 100';
+                    return AppLocalizations.of(context)!.progress_must_be_0_100;
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 8),
               Text(
-                'Track your reading progress for this club',
+                AppLocalizations.of(context)!.track_reading_progress,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey[600],
-                      fontStyle: FontStyle.italic,
-                    ),
+                  color: Colors.grey[600],
+                  fontStyle: FontStyle.italic,
+                ),
               ),
             ],
           ),
@@ -216,11 +229,15 @@ class _ReadingClubDialogState extends State<ReadingClubDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(AppLocalizations.of(context)!.cancel),
         ),
         ElevatedButton(
           onPressed: _save,
-          child: Text(_isEditing ? 'Update' : 'Add'),
+          child: Text(
+            _isEditing
+                ? AppLocalizations.of(context)!.update
+                : AppLocalizations.of(context)!.add,
+          ),
         ),
       ],
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book_competition.dart';
 import 'package:myrandomlibrary/repositories/book_competition_repository.dart';
 import 'package:myrandomlibrary/screens/book_competition_screen.dart';
@@ -83,112 +84,117 @@ class _PastYearsCompetitionScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Past Years Competitions')),
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.past_years_competitions),
+      ),
       body:
           isLoading
               ? const Center(child: CircularProgressIndicator())
               : availableYears.isEmpty
-              ? const Center(
+              ? Center(
                 child: Text(
-                  'No past competitions found',
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                  AppLocalizations.of(context)!.no_past_competitions_found,
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
                 ),
               )
               : ListView.builder(
-                  padding: const EdgeInsets.only(
-                    left: 16.0,
-                    right: 16.0,
-                    top: 16.0,
-                    bottom: 56.0, // Add bottom padding instead of SizedBox
-                  ),
-                  itemCount: availableYears.length,
-                  itemBuilder: (context, index) {
-                    final year = availableYears[index];
-                    final winner = getWinnerForYear(year);
-                    
-                    return Card(
-                      elevation: 3,
-                      margin: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (context) => BookCompetitionScreen(year: year),
+                padding: const EdgeInsets.only(
+                  left: 16.0,
+                  right: 16.0,
+                  top: 16.0,
+                  bottom: 56.0, // Add bottom padding instead of SizedBox
+                ),
+                itemCount: availableYears.length,
+                itemBuilder: (context, index) {
+                  final year = availableYears[index];
+                  final winner = getWinnerForYear(year);
+
+                  return Card(
+                    elevation: 3,
+                    margin: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => BookCompetitionScreen(year: year),
+                          ),
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.calendar_today,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 32,
                             ),
-                          );
-                        },
-                        borderRadius: BorderRadius.circular(12),
-                        child: Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.calendar_today,
-                                color: Theme.of(context).colorScheme.primary,
-                                size: 32,
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.best_book_of_year(year.toString()),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  if (winner != null)
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.emoji_events,
+                                          color: Colors.amber,
+                                          size: 20,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            winner.bookName,
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.bodyMedium?.copyWith(
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  else
                                     Text(
-                                      'Best Book of $year',
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.no_winner_set,
                                       style: Theme.of(context)
                                           .textTheme
-                                          .titleLarge
-                                          ?.copyWith(fontWeight: FontWeight.bold),
+                                          .bodyMedium
+                                          ?.copyWith(color: Colors.grey),
                                     ),
-                                    const SizedBox(height: 8),
-                                    if (winner != null)
-                                      Row(
-                                        children: [
-                                          Icon(
-                                            Icons.emoji_events,
-                                            color: Colors.amber,
-                                            size: 20,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Expanded(
-                                            child: Text(
-                                              winner.bookName,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyMedium
-                                                  ?.copyWith(
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                        ],
-                                      )
-                                    else
-                                      Text(
-                                        'No winner set',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium
-                                            ?.copyWith(color: Colors.grey),
-                                      ),
-                                  ],
-                                ),
+                                ],
                               ),
-                              Icon(
-                                Icons.arrow_forward_ios,
-                                color: Theme.of(context).colorScheme.primary,
-                                size: 24,
-                              ),
-                            ],
-                          ),
+                            ),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 24,
+                            ),
+                          ],
                         ),
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
+              ),
     );
   }
 }

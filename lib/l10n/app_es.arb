@@ -92,6 +92,9 @@
   "clear": "Limpiar",
   "apply": "Aplicar",
   "delete": "Eliminar",
+  "add": "Agregar",
+  "duration_label": "Duración",
+  "enter_valid_number": "Por favor ingresa un número válido (1 o mayor)",
   
   "import_csv": "Importar desde CSV",
   "export_csv": "Exportar a CSV",
@@ -291,15 +294,12 @@
   "book_title": "Título del libro",
   "authors": "Autor(es)",
   "original_publication_year": "Año de publicación original",
-  "status": "Estado",
   "started": "Iniciado",
   "finished": "Terminado",
-  "year": "Año",
   "search_books_by_title": "Buscar libros por título",
   
   "stop_timer": "Detener temporizador",
   "do_you_want_to_stop_the_reading_timer": "¿Quieres detener el temporizador de lectura?",
-  "cancel": "Cancelar",
   "stop": "Detener",
   "timer_is_running": "El temporizador está en ejecución",
   "exit": "Salir",
@@ -315,12 +315,8 @@
   "year_only": "Solo año",
   "add_session": "Agregar sesión",
   "enter_year": "Ingresar año",
-  "ok": "OK",
   "please_enter_valid_year": "Por favor ingresa un año válido",
   
-  "save": "Guardar",
-  "add": "Agregar",
-  "delete": "Eliminar",
   "edit": "Editar",
   "close": "Cerrar",
   "proceed": "Continuar",
@@ -334,14 +330,10 @@
   "search": "Buscar",
   "filter": "Filtrar",
   "sort": "Ordenar",
-  "clear": "Limpiar",
-  "apply": "Aplicar",
   "reset": "Restablecer",
   "back": "Atrás",
   "next": "Siguiente",
   "previous": "Anterior",
-  "this_is_a_bundle": "Esto es un paquete",
-  "books_by_decade": "Libros por Década",
   "stop_timer_question": "¿Detener temporizador?",
   "confirm_restore": "Confirmar Restauración",
   "confirm_restore_message": "Esto reemplazará tu base de datos actual. ¡Asegúrate de tener una copia de seguridad!",
@@ -404,5 +396,842 @@
   "update_available_title": "Actualización Disponible",
   "update_available_message": "Una nueva versión de My Book Vault está disponible. Actualiza ahora para obtener las últimas funciones y mejoras.",
   "update_now": "Actualizar",
-  "update_later": "Más tarde"
+  "update_later": "Más tarde",
+
+  "admin_mode": "Modo Administrador",
+  "admin_mode_subtitle": "Habilitar funciones avanzadas como importación CSV de administrador",
+  "admin_csv_import": "Importación CSV Admin",
+  "admin_csv_import_subtitle": "Revisar y editar cada libro antes de importar",
+  "default_values": "Valores Predeterminados",
+  "default_values_subtitle": "Límite TBR, Orden, Filtros de Inicio, Campos de Tarjeta",
+  "import_export": "Importar/Exportar",
+  "import_export_subtitle": "CSV y Copia de Seguridad",
+  "customize_home_filters_subtitle": "Seleccionar qué filtros mostrar en la pantalla de inicio",
+  "customize_card_fields": "Personalizar Campos de Tarjeta",
+  "customize_card_fields_subtitle": "Seleccionar qué datos mostrar en las tarjetas de libros",
+  "fields_selected": "{count} campos seleccionados",
+  "@fields_selected": {
+    "placeholders": { "count": {} }
+  },
+  "default_sort_order": "Orden Predeterminado",
+  "default_sort_order_subtitle": "Establecer el orden predeterminado para tu lista de libros",
+  "sort_by": "Ordenar Por",
+  "date_added": "Fecha de Adición",
+  "ascending": "Ascendente",
+  "descending": "Descendente",
+  "export_to_csv": "Exportar a CSV",
+  "export_to_excel": "Exportar a Excel",
+  "for_reimport": "Para reimportar",
+  "excel_compatible": "Compatible con Excel",
+  "preparing_csv_export": "Preparando exportación CSV...",
+  "no_books_to_export": "No hay libros para exportar",
+  "export_canceled": "Exportación cancelada",
+  "exported_books": "Exportados {count} libros a:\n{path}",
+  "@exported_books": {
+    "placeholders": { "count": {}, "path": {} }
+  },
+  "error_exporting_csv": "Error al exportar a CSV: {error}",
+  "@error_exporting_csv": {
+    "placeholders": { "error": {} }
+  },
+  "permission_required": "Permiso Requerido",
+  "storage_permission_backup": "Se necesita permiso de almacenamiento para crear copias de seguridad. ¿Desea conceder el permiso?",
+  "storage_permission_export": "Se necesita permiso de almacenamiento para exportar archivos CSV. ¿Desea conceder el permiso?",
+  "grant_permission": "Conceder Permiso",
+  "select_folder_save_backup": "Seleccionar carpeta para guardar copia de seguridad",
+  "select_csv_file": "Seleccionar archivo CSV",
+  "select_folder_save_csv": "Seleccionar carpeta para guardar CSV",
+  "select_folder_save_excel_csv": "Seleccionar carpeta para guardar CSV de Excel",
+  "please_select_csv_file": "Por favor seleccione un archivo CSV",
+  "importing_books_from_csv": "Importando libros desde CSV...",
+  "import_completed_title": "Importación Completada",
+  "import_result_message": "Importados: {imported} libros\nActualizados: {updated} libros\nOmitidos: {skipped} filas",
+  "@import_result_message": {
+    "placeholders": { "imported": {}, "updated": {}, "skipped": {} }
+  },
+  "select_tag": "Seleccionar etiqueta",
+  "deleting_all_books": "Eliminando todos los libros...",
+  "goodreads_csv_hint": "Para CSV de Goodreads: Los libros deben tener \"owned\" o \"read-loaned\" en estanterías para ser importados",
+  "manage_rating_field_names": "Gestionar Nombres de Campos de Valoración",
+  "manage_rating_field_names_subtitle": "Añadir, editar o eliminar nombres de criterios de valoración",
+  "manage_club_names": "Gestionar Nombres de Clubes",
+  "manage_club_names_subtitle": "Renombrar o eliminar clubes de lectura",
+  "migrate_bundle_books_title": "Migrar Libros de Paquete",
+  "migrate_bundle_books_subtitle": "Convertir paquetes antiguos al nuevo sistema",
+  "available": "Disponible",
+  "migrate_reading_sessions": "Migrar Sesiones de Lectura",
+  "migrate_reading_sessions_subtitle": "Mover sesiones de lectura a libros individuales",
+  "migrate_reading_sessions_question": "¿Migrar Sesiones de Lectura?",
+  "no_sessions_to_migrate": "No hay sesiones de lectura para migrar. ¡Todas las sesiones ya están en libros individuales!",
+  "migrating_reading_sessions": "Migrando sesiones de lectura...",
+  "migration_successful": "¡Migración Exitosa!",
+  "migration_completed_with_errors": "Migración Completada con Errores",
+  "what_will_happen": "Qué sucederá:",
+  "migration_description": "• Las sesiones de lectura se copiarán a libros individuales\n• Las sesiones antiguas de paquetes se eliminarán\n• Esto corrige inconsistencias en el historial de lectura de paquetes",
+  "migration_safe_info": "ℹ️ Esto es seguro y se puede ejecutar varias veces",
+  "successful_bundles": "✅ Exitosos: {count} paquetes",
+  "@successful_bundles": {
+    "placeholders": { "count": {} }
+  },
+  "skipped_bundles": "⏭️  Omitidos: {count} paquetes",
+  "@skipped_bundles": {
+    "placeholders": { "count": {} }
+  },
+  "failed_bundles": "❌ Fallidos: {count} paquetes",
+  "@failed_bundles": {
+    "placeholders": { "count": {} }
+  },
+  "total_sessions_migrated": "📚 Total de sesiones migradas: {count}",
+  "@total_sessions_migrated": {
+    "placeholders": { "count": {} }
+  },
+  "errors_label": "Errores:",
+  "error_migrating_reading_sessions": "Error al migrar sesiones de lectura: {error}",
+  "@error_migrating_reading_sessions": {
+    "placeholders": { "error": {} }
+  },
+  "warm_earth": "Tierra Cálida",
+  "vibrant_sunset": "Atardecer Vibrante",
+  "soft_pastel": "Pastel Suave",
+  "deep_ocean": "Océano Profundo",
+  "custom": "Personalizado",
+  "mystic_purple": "Púrpura Místico",
+  "deep_sea": "Mar Profundo",
+  "warm_autumn": "Otoño Cálido",
+  "edit_custom_light_palette": "Editar Paleta Clara Personalizada",
+  "edit_custom_dark_palette": "Editar Paleta Oscura Personalizada",
+  "primary": "Primario",
+  "secondary": "Secundario",
+  "tertiary": "Terciario",
+  "pick_a_color": "Elegir un Color",
+  "pick_a_custom_color": "Elegir un Color Personalizado",
+  "hue": "Tono",
+  "application_name": "My Random Library",
+  "application_legalese": "© 2025 Ana Martínez Montañez. Todos los derechos reservados.",
+
+  "books_by_decade": "Libros por Década",
+  "decade_label": "Década: ",
+  "re_read_books": "Libros Releídos",
+  "authors_title": "Autores",
+  "saga_completion": "Completitud de Sagas",
+  "books_by_saga": "Libros por Saga",
+  "bundle_migration": "Migración de Paquetes",
+  "books_by_year": "Libros por Año",
+
+  "reading_status_required": "Estado de Lectura *",
+  "status_is_required": "El estado es obligatorio",
+  "add_rating_criterion": "Añadir Criterio de Valoración",
+  "no_books_match_filters": "Ningún libro coincide con los filtros seleccionados",
+
+  "specific_number_of_books": "Número específico de libros",
+  "unknown_show_as_question": "Desconocido (mostrar como \"?\")",
+  "for_sagas_unknown_length": "Para sagas con longitud desconocida o variable",
+  "continue_label": "Continuar",
+  "confirm_delete_value": "¿Estás seguro de que quieres eliminar \"{value}\"?",
+  "@confirm_delete_value": {
+    "placeholders": { "value": {} }
+  },
+  "this_will_fail_constraint": "Esto fallará si las restricciones de la base de datos lo impiden",
+  "field_name": "Nombre del Campo",
+
+  "add_rating_field_name": "Añadir Nombre de Campo de Valoración",
+  "edit_rating_field_name": "Editar Nombre de Campo de Valoración",
+  "delete_rating_field_name": "Eliminar Nombre de Campo de Valoración",
+  "field_name_already_exists": "El nombre de campo \"{name}\" ya existe",
+  "@field_name_already_exists": {
+    "placeholders": { "name": {} }
+  },
+  "added_value": "Añadido \"{value}\"",
+  "@added_value": {
+    "placeholders": { "value": {} }
+  },
+  "error_adding_field_name": "Error al añadir nombre de campo: {error}",
+  "@error_adding_field_name": {
+    "placeholders": { "error": {} }
+  },
+  "updated_value": "Actualizado \"{oldValue}\" a \"{newValue}\"",
+  "@updated_value": {
+    "placeholders": { "oldValue": {}, "newValue": {} }
+  },
+  "error_updating_field_name": "Error al actualizar nombre de campo: {error}",
+  "@error_updating_field_name": {
+    "placeholders": { "error": {} }
+  },
+  "confirm_delete_field": "¿Estás seguro de que quieres eliminar \"{name}\"?",
+  "@confirm_delete_field": {
+    "placeholders": { "name": {} }
+  },
+  "field_used_in_ratings": "Este campo se usa en {count} valoración(es). Se eliminarán.",
+  "@field_used_in_ratings": {
+    "placeholders": { "count": {} }
+  },
+  "deleted_value": "Eliminado \"{value}\"",
+  "@deleted_value": {
+    "placeholders": { "value": {} }
+  },
+  "error_deleting_field_name": "Error al eliminar nombre de campo: {error}",
+  "@error_deleting_field_name": {
+    "placeholders": { "error": {} }
+  },
+  "about_rating_fields": "Acerca de los Campos de Valoración",
+  "about_rating_fields_description": "Estos son los nombres de criterios disponibles al valorar libros. Puedes añadir nombres personalizados o editar los existentes. Los cambios se aplicarán a todas las valoraciones futuras.",
+  "no_rating_field_names": "Aún no hay nombres de campos de valoración",
+  "default_suggestion": "Sugerencia predeterminada",
+  "add_field_name": "Añadir Nombre de Campo",
+
+  "rename_club": "Renombrar Club",
+  "club_name": "Nombre del Club",
+  "rename": "Renombrar",
+  "delete_club": "Eliminar Club",
+  "delete_club_message": "¿Eliminar \"{clubName}\"?\n\nEsto eliminará {count} {bookWord} de este club.",
+  "@delete_club_message": {
+    "placeholders": { "clubName": {}, "count": {}, "bookWord": {} }
+  },
+  "club_already_exists": "El club \"{name}\" ya existe",
+  "@club_already_exists": {
+    "placeholders": { "name": {} }
+  },
+  "renamed_club": "Renombrado \"{oldName}\" a \"{newName}\"",
+  "@renamed_club": {
+    "placeholders": { "oldName": {}, "newName": {} }
+  },
+  "error_renaming_club": "Error al renombrar club: {error}",
+  "@error_renaming_club": {
+    "placeholders": { "error": {} }
+  },
+  "error_deleting_club": "Error al eliminar club: {error}",
+  "@error_deleting_club": {
+    "placeholders": { "error": {} }
+  },
+  "no_clubs_yet": "Aún no hay clubes",
+  "add_books_to_clubs_hint": "Añade libros a clubes desde los detalles del libro",
+  "book_word": "libro",
+  "books_word": "libros",
+
+  "target_books_required": "Libros Objetivo *",
+  "target_pages_optional": "Páginas Objetivo (opcional)",
+  "notes_optional": "Notas (opcional)",
+  "notes_hint": "Cualquier nota sobre este reto",
+  "custom_challenges": "Retos Personalizados",
+  "custom_challenges_hint": "Añadir objetivos de lectura personalizados (ej., \"Leer 5 clásicos\", \"Terminar 3 series\")",
+  "goal_name": "Nombre del objetivo",
+  "goal_name_hint": "ej., Leer 5 clásicos",
+  "target": "Objetivo",
+  "unit": "Unidad",
+  "unit_hint": "ej., libros, capítulos, páginas",
+  "enter_valid_target_books": "Por favor ingrese un número válido de libros objetivo",
+  "enter_valid_target_or_custom": "Por favor ingrese libros objetivo válidos o añada retos personalizados",
+  "challenge_created": "¡Reto creado exitosamente!",
+  "error_creating_challenge": "Error al crear reto: {error}",
+  "@error_creating_challenge": {
+    "placeholders": { "error": {} }
+  },
+  "challenge_updated": "¡Reto actualizado exitosamente!",
+  "error_updating_challenge": "Error al actualizar reto: {error}",
+  "@error_updating_challenge": {
+    "placeholders": { "error": {} }
+  },
+  "confirm_delete_challenge": "¿Estás seguro de que quieres eliminar el reto de {year}?",
+  "@confirm_delete_challenge": {
+    "placeholders": { "year": {} }
+  },
+  "challenge_deleted": "Reto eliminado",
+  "error_deleting_challenge": "Error al eliminar reto: {error}",
+  "@error_deleting_challenge": {
+    "placeholders": { "error": {} }
+  },
+  "current_progress": "Progreso Actual",
+  "update": "Actualizar",
+  "challenge_progress_updated": "¡Progreso del reto actualizado!",
+  "current_label": "Actual",
+  "books_label": "Libros:",
+  "pages_label": "Páginas:",
+  "new_challenge": "Nuevo Reto",
+
+  "bundle_reading_sessions": "Sesiones de Lectura del Paquete",
+  "book_n": "Libro {n}",
+  "@book_n": {
+    "placeholders": { "n": {} }
+  },
+  "session_n": "Sesión {n}",
+  "@session_n": {
+    "placeholders": { "n": {} }
+  },
+  "no_reading_sessions": "Sin sesiones de lectura",
+  "not_set": "No establecido",
+  "start_date": "Fecha de Inicio",
+  "end_date": "Fecha de Fin",
+
+  "started_reading": "¡Lectura iniciada!",
+  "marked_as_finished": "¡Marcado como terminado!",
+  "marked_as_read": "¡Marcado como leído!",
+  "error_refetching_metadata": "Error al obtener metadatos: {error}",
+  "@error_refetching_metadata": {
+    "placeholders": { "error": {} }
+  },
+  "reading_history": "Historial de Lectura",
+  "reading_sessions": "Sesiones de Lectura",
+  "no_reading_history": "Sin historial de lectura",
+  "no_sessions_recorded": "Sin sesiones registradas",
+  "description": "Descripción",
+  "show_more": "Mostrar más",
+  "show_less": "Mostrar menos",
+  "no_description_available": "Sin descripción disponible",
+  "books_in_bundle": "Libros en el Paquete",
+  "notes": "Notas",
+  "price_label": "Precio",
+  "original_book": "Libro Original",
+  "view_original": "Ver Original",
+  "start_reading": "Iniciar Lectura",
+  "mark_as_finished": "Marcar como Terminado",
+  "mark_as_read": "Marcar como Leído",
+  "confirm_finish_title": "Terminar Lectura",
+  "confirm_mark_read_title": "Marcar como Leído",
+  "reading_clubs": "Clubes de Lectura",
+  "add_to_club": "Añadir a Club",
+  "new_club": "Nuevo Club",
+  "enter_club_name": "Ingrese nombre del club",
+  "remove_from_club": "¿Eliminar del club?",
+  "removed_from_club": "Eliminado de {club}",
+  "@removed_from_club": {
+    "placeholders": { "club": {} }
+  },
+  "added_to_club": "Añadido a {club}",
+  "@added_to_club": {
+    "placeholders": { "club": {} }
+  },
+
+  "total_bundles": "Total de paquetes: {count}",
+  "@total_bundles": {
+    "placeholders": { "count": {} }
+  },
+  "individual_books_created": "📚 Libros individuales creados: {count}",
+  "@individual_books_created": {
+    "placeholders": { "count": {} }
+  },
+  "migration_failed": "Migración fallida: {error}",
+  "@migration_failed": {
+    "placeholders": { "error": {} }
+  },
+
+  "pages_empty": "Páginas Vacías",
+  "is_bundle": "Es Paquete",
+  "is_tandem": "Es Tándem",
+  "publication_year_empty_filter": "Año de Publicación Vacío",
+  "publication_date": "Fecha de Publicación",
+  "read_count": "Veces Leído",
+  "reading_progress": "Progreso de Lectura",
+
+  "enter_book_title": "Ingrese título del libro",
+  "enter_author_names": "Ingrese nombre(s) del autor, separar con comas",
+
+  "select_month": "Seleccionar Mes",
+  "no_books_this_month": "No hay libros leídos este mes",
+  "select_winner": "Seleccionar Ganador",
+  "confirm_selection": "Confirmar Selección",
+
+  "past_years_winners": "Ganadores de Años Anteriores",
+  "no_past_winners": "Aún no hay ganadores anteriores",
+
+  "migrate_sessions_description": "Esto migrará {sessions} sesión(es) de lectura de {bundles} paquete(s) a libros individuales.",
+  "@migrate_sessions_description": {
+    "placeholders": { "sessions": {}, "bundles": {} }
+  },
+  "migrate_bundles_description": "Esto convertirá {count} paquetes antiguos al nuevo sistema.\n\nSe crearán registros individuales para cada libro del paquete.\n\nEsto no se puede deshacer.",
+  "@migrate_bundles_description": {
+    "placeholders": { "count": {} }
+  },
+
+  "import_from_tag": "Importar desde Etiqueta",
+  "import_options": "Opciones de Importación ({format})",
+  "@import_options": {
+    "placeholders": { "format": {} }
+  },
+
+  "update_reading_progress": "Actualizar Progreso de Lectura",
+  "percentage": "Porcentaje",
+  "pages_label_short": "Páginas",
+  "progress_percentage": "Progreso (%)",
+  "current_page": "Página Actual",
+  "total_pages": "Páginas totales: {count}",
+  "@total_pages": {
+    "placeholders": { "count": {} }
+  },
+  "percentage_cannot_exceed_100": "El porcentaje no puede superar 100",
+  "page_cannot_exceed": "El número de página no puede superar {count}",
+  "@page_cannot_exceed": {
+    "placeholders": { "count": {} }
+  },
+  "progress_updated": "¡Progreso actualizado!",
+  "did_you_read_today": "¿Leíste hoy?",
+  "did_you_read_this_book_today": "¿Leíste este libro hoy?",
+  "yes_label": "SÍ",
+  "no_label": "NO",
+  "marked_read_today": "¡Marcado como leído hoy!",
+  "marked_not_read_today": "Marcado como no leído hoy.",
+  "edit_reading_sessions": "Editar Sesiones de Lectura",
+  "session_label": "Sesión {index}",
+  "@session_label": {
+    "placeholders": { "index": {} }
+  },
+  "date_label": "Fecha",
+  "time_hhmmss": "Tiempo (HH:MM)",
+  "duration_hint": "Ingresa duración como: 1h 30m 5s, 90m, o solo segundos",
+  "sessions_updated": "¡Sesiones actualizadas!",
+  "add_reading_session": "Agregar Sesión de Lectura",
+  "session_added": "¡Sesión agregada!",
+  "reading_time": "Tiempo de Lectura",
+  "reading_time_details": "Detalles del Tiempo de Lectura",
+  "book_took_days": "Este libro tomó {days} {dayWord} en leer.",
+  "@book_took_days": {
+    "placeholders": { "days": {}, "dayWord": {} }
+  },
+  "calculation_method": "Método de Cálculo: {method}",
+  "@calculation_method": {
+    "placeholders": { "method": {} }
+  },
+  "days_with_time_tracking": "Días con seguimiento de tiempo: {count}",
+  "@days_with_time_tracking": {
+    "placeholders": { "count": {} }
+  },
+  "days_with_reading_flag": "Días solo con marca de lectura: {count}",
+  "@days_with_reading_flag": {
+    "placeholders": { "count": {} }
+  },
+  "days_marked_as_read": "Días marcados como leídos: {count}",
+  "@days_marked_as_read": {
+    "placeholders": { "count": {} }
+  },
+  "start_date_label": "Fecha de inicio: {date}",
+  "@start_date_label": {
+    "placeholders": { "date": {} }
+  },
+  "end_date_label": "Fecha de fin: {date}",
+  "@end_date_label": {
+    "placeholders": { "date": {} }
+  },
+  "bundle_books_calculated": "Paquete: {count} libros calculados",
+  "@bundle_books_calculated": {
+    "placeholders": { "count": {} }
+  },
+  "confirm_delete_title": "Confirmar Eliminación",
+  "book_details": "Detalles del Libro",
+  "fetching_cover": "Obteniendo portada...",
+  "no_cover_image": "Sin imagen de portada",
+  "failed_to_load_image": "Error al cargar imagen",
+  "added_to_tbr": "Añadido a TBR",
+  "removed_from_tbr": "Eliminado de TBR",
+  "remove_from_tbr": "Quitar de TBR",
+  "add_to_tbr_short": "Añadir a TBR",
+  "tap_to_update_progress": "Toca para actualizar progreso",
+  "day_word": "día",
+  "days_word": "días",
+  "original_publication_year_label": "Año de Publicación Original",
+  "original_publication_date_label": "Fecha de Publicación Original",
+  "confirm_finish_message": "¿Marcar este libro como terminado?",
+  "confirm_mark_read_message": "¿Marcar este libro como leído?",
+  "error_deleting_book": "Error al eliminar libro: {error}",
+  "@error_deleting_book": {
+    "placeholders": { "error": {} }
+  },
+  "refresh_metadata": "Actualizar metadatos",
+  "tbr_list_subtitle": "Este libro está en tu lista TBR",
+  "open_library": "Open Library",
+  "google_books": "Google Books",
+
+  "error_loading_bundle_books": "Error al cargar libros del paquete",
+  "no_books_in_bundle": "No hay libros en el paquete",
+  "no_status": "Sin estado",
+  "created_label": "Creado",
+  "bundle_timed_reading_sessions": "Sesiones Cronometradas del Paquete",
+  "tbr_label": "Por Leer",
+  "release_notification": "Notificación de Lanzamiento",
+  "scheduled_for": "Programado para {date}",
+  "@scheduled_for": {
+    "placeholders": { "date": {} }
+  },
+  "my_rating_label": "Mi Calificación",
+  "fetching_description": "Obteniendo descripción...",
+  "total_reading_time": "Tiempo total de lectura: {hours} horas",
+  "@total_reading_time": {
+    "placeholders": { "hours": {} }
+  },
+  "finish_book": "Terminar Libro",
+  "rating_breakdown": "Desglose de Calificación",
+  "manual_rating": "Calificación manual",
+  "auto_calculated": "Auto-calculada",
+  "read_today_check": "Leído hoy ✓",
+  "copied_to_clipboard": "Copiado: {value}",
+  "@copied_to_clipboard": {
+    "placeholders": { "value": {} }
+  },
+  "tandem_books": "Libros en Tándem",
+  "read_together_with": "Leer junto con estos libros",
+  "no_tandem_books": "No hay otros libros en tándem en esta saga",
+  "rate_reading_experience": "Califica tu experiencia de lectura:",
+  "no_rating_fields": "No hay campos de calificación disponibles. Puedes añadirlos en Ajustes.",
+  "write_review_optional": "Escribe una reseña (opcional):",
+  "share_your_thoughts": "Comparte tus pensamientos...",
+
+  "saga_completion_setup": "Configuración de Saga",
+  "you_are_adding": "Estás añadiendo: \"{name}\"",
+  "@you_are_adding": {
+    "placeholders": { "name": {} }
+  },
+  "how_many_books_saga": "¿Cuántos libros debería mostrar esta saga en las estadísticas?",
+  "saga_completion_explanation": "La tarjeta de completado de saga mostrará \"X / Y\" donde Y es el número que especifiques.",
+  "number_of_books": "Número de libros",
+  "examples": "Ejemplos:",
+  "value_label": "Valor",
+  "value_added_successfully": "Valor añadido correctamente",
+  "value_updated_successfully": "Valor actualizado correctamente",
+  "value_deleted_successfully": "Valor eliminado correctamente",
+  "core_status_warning": "Estado principal: Solo cambiará la etiqueta, no el valor de la base de datos ni la lógica.",
+  "core_format_saga_warning": "Formato saga principal: Solo se puede cambiar la etiqueta, este valor no se puede eliminar.",
+  "core_status_cannot_delete": "Este es un valor de estado principal y no se puede eliminar. La lógica de la app depende de estos valores: Yes, No, Started, TBReleased, Abandoned, Repeated y Standby.",
+  "core_format_saga_cannot_delete": "Este es un valor de formato saga principal y no se puede eliminar. La lógica de la app depende de estos valores: Standalone, Bilogy, Trilogy, Tetralogy, Pentalogy, Hexalogy, 6+ y Saga.",
+  "core_value_cannot_delete": "El valor principal no se puede eliminar",
+  "select_category": "Seleccionar Categoría",
+  "value_in_use": "El valor \"{value}\" es usado por {count} libro(s).",
+  "@value_in_use": {
+    "placeholders": { "value": {}, "count": {} }
+  },
+  "what_would_you_like_to_do": "¿Qué te gustaría hacer?",
+  "replace_with_existing": "Reemplazar con valor existente",
+  "select_replacement": "Seleccionar reemplazo",
+  "new_value": "Nuevo valor",
+  "delete_may_fail": "Esto fallará si las restricciones de la base de datos lo impiden",
+  "please_select_replacement": "Por favor selecciona un valor de reemplazo",
+  "please_enter_new_value": "Por favor ingresa un nuevo valor",
+
+  "year_label": "Año",
+  "target_books": "Libros Objetivo",
+  "target_pages": "Páginas Objetivo",
+  "optional": "opcional",
+  "any_notes_about_challenge": "Cualquier nota sobre este reto",
+  "add_custom_reading_goals": "Añade metas de lectura personalizadas (ej., \"Leer 5 clásicos\", \"Terminar 3 series\")",
+  "no_challenges_yet": "Aún no hay retos",
+  "create_first_challenge": "¡Crea tu primer reto de lectura!",
+
+  "field_name_hint": "ej., Romance, Acción, Suspenso",
+  "updated_field_name": "Actualizado \"{oldName}\" a \"{newName}\"",
+  "@updated_field_name": {
+    "placeholders": { "oldName": {}, "newName": {} }
+  },
+
+  "confirm_delete_club": "¿Eliminar \"{clubName}\"?\n\nEsto eliminará {count} libro(s) de este club.",
+  "@confirm_delete_club": {
+    "placeholders": { "clubName": {}, "count": {} }
+  },
+  "book_count_label": "{count} {count, plural, =1{libro} other{libros}}",
+  "@book_count_label": {
+    "placeholders": { "count": {} }
+  },
+
+  "what_would_you_like_next": "¿Qué te gustaría hacer ahora?",
+  "reading_status": "Estado de Lectura",
+  "original_book_required": "Libro Original (requerido para estado Repetido)",
+  "missing_required_fields": "Campos Obligatorios Faltantes",
+  "please_fill_required_fields": "Por favor completa los siguientes campos obligatorios:",
+  "tandem_requires_saga": "Los libros en tándem deben tener una Saga o Universo de Saga.\n\nPor favor completa al menos uno de estos campos para marcar este libro como Tándem.",
+  "search_original_book": "Buscar el libro original...",
+  "original_book_is_required": "El libro original es obligatorio",
+  "asin": "ASIN",
+  "search_or_add_author": "Escribe para buscar o añadir autor",
+  "select_publisher": "Seleccionar editorial",
+  "genres": "Género(s)",
+  "search_or_add_genre": "Escribe para buscar o añadir género",
+  "original_publication_date": "Fecha de Publicación Original (para notificaciones)",
+  "release_date": "Fecha de Lanzamiento",
+  "select_release_date": "Seleccionar fecha de lanzamiento",
+  "get_notified_when_released": "Recibe una notificación cuando se publique este libro",
+  "notification_date_time": "Fecha y Hora de Notificación",
+  "select_notification_date": "Seleccionar fecha y hora de notificación",
+  "book_lists": "Listas de Libros",
+  "mark_for_reading_list": "Marcar este libro para tu lista de lectura",
+  "tbr_limit_message": "Has alcanzado tu límite de TBR de {limit} libros.\n\nPor favor desmarca algunos libros en la pantalla Mis Libros para añadir más.",
+  "@tbr_limit_message": {
+    "placeholders": { "limit": {} }
+  },
+  "mark_as_tandem": "Marcar como Libro Tándem",
+  "tandem_description": "Leer junto con otros libros de esta saga",
+  "reading_information_optional": "Información de Lectura (Opcional)",
+  "rating": "Valoración",
+  "no_ratings_yet": "Sin valoraciones aún",
+  "average": "Promedio",
+  "criterion": "Criterio",
+  "general_rating": "Valoración General",
+  "manual": "manual",
+  "override_auto_calculation": "Anular cálculo automático",
+  "manually_set_rating": "Establecer la valoración general manualmente",
+  "write_your_thoughts": "Escribe tus opiniones sobre este libro...",
+  "price": "Precio",
+  "enter_book_price": "Ingresa el precio del libro",
+  "add_notes_hint": "Añade cualquier nota adicional sobre este libro...",
+  "point_camera_at_barcode": "Apunta la cámara al código de barras",
+  "test_notification_sent": "¡Notificación de prueba enviada!",
+  "test_notification": "Notificación de Prueba",
+  "timed_reading_sessions": "Sesiones de Lectura Cronometradas",
+  "update_book": "Actualizar Libro",
+
+  "reading_session_saved": "Sesión de lectura guardada",
+  "stop_timer_confirm": "¿Quieres detener el temporizador de lectura?",
+  "reading_timer": "Temporizador de Lectura",
+  "timer_exit_confirm": "El temporizador sigue contando. ¿Estás seguro de que quieres salir sin detenerlo?",
+  "exit_label": "Salir",
+  "stop_and_save": "Detener y Guardar",
+  "backup_created": "Copia de seguridad creada correctamente",
+  "restore_canceled": "Restauración cancelada",
+  "restore_warning": "Esto reemplazará tu base de datos actual. ¡Asegúrate de tener una copia de seguridad!",
+  "restore_database": "Restaurar Base de Datos",
+  "restore_from_backup": "Restaurar desde una copia anterior",
+  "backup_restored_successfully": "Copia de seguridad restaurada correctamente",
+  "select": "Seleccionar",
+  "session": "Sesión",
+  "book_already_in_club": "El libro ya está en \"{clubName}\"",
+  "@book_already_in_club": {
+    "placeholders": { "clubName": {} }
+  },
+  "club_membership_updated": "Membresía del club actualizada",
+  "remove_book_from_club": "¿Eliminar este libro de \"{clubName}\"?",
+  "@remove_book_from_club": {
+    "placeholders": { "clubName": {} }
+  },
+  "remove": "Eliminar",
+  "not_in_any_clubs": "No está en ningún club aún",
+  "bundle_description": "Marca si este libro contiene varios libros en un volumen",
+  "eg_3": "ej., 3",
+  "eg_1_or_1_5": "ej., 1 o 1.5",
+  "eg_2020": "ej., 2020",
+
+  "map_status_values": "Mapear Valores de Estado",
+  "match_csv_status_values": "Asocia los valores de estado de tu CSV con los estados de la app:",
+  "leave_empty_if_not_used": "Deja vacío si no se usa en tu CSV",
+  "continue_import": "Continuar Importación",
+  "edit_club_membership": "Editar Membresía del Club",
+  "add_to_reading_club": "Añadir a Club de Lectura",
+  "enter_or_select_club_name": "Ingresa o selecciona nombre del club",
+  "please_enter_club_name": "Por favor ingresa un nombre de club",
+  "target_date_optional": "Fecha Objetivo (Opcional)",
+  "select_date": "Seleccionar fecha",
+  "reading_progress_percent": "Progreso de Lectura (%)",
+  "please_enter_progress": "Por favor ingresa el progreso",
+  "progress_must_be_0_100": "El progreso debe estar entre 0 y 100",
+  "track_reading_progress": "Registra tu progreso de lectura para este club",
+  "how_import_books": "¿Cómo te gustaría importar tus libros?",
+  "select_or_enter_tag": "Selecciona o ingresa una etiqueta:",
+  "available_tags": "Etiquetas disponibles",
+  "or_enter_custom_tag": "O ingresa una etiqueta personalizada",
+  "eg_owned_wishlist": "ej., propio, lista de deseos",
+  "please_select_or_enter_tag": "Por favor selecciona o ingresa una etiqueta",
+  "import_label": "Importar",
+  "add_books_to": "Añadir Libros a",
+  "books_selected": "{count} libro(s) seleccionado(s)",
+  "@books_selected": {
+    "placeholders": { "count": {} }
+  },
+  "search_for_books_to_add": "Buscar libros para añadir",
+  "unknown": "Desconocido",
+  "add_n_books": "Añadir {count} Libro(s)",
+  "@add_n_books": {
+    "placeholders": { "count": {} }
+  },
+
+  "book": "Libro",
+  "tbr_limit_set_to": "Límite TBR establecido en {limit} libros",
+  "@tbr_limit_set_to": {
+    "placeholders": { "limit": {} }
+  },
+  "all_label": "Todos",
+  "read_label": "Leídos",
+  "based_on_publication_year": "Basado en el año de publicación original",
+  "create_challenge": "Crear Desafío",
+  "seasonal_reading_patterns": "Patrones de Lectura Estacional",
+  "avg_books_per_season": "Promedio: {count} libros por temporada",
+  "@avg_books_per_season": {
+    "placeholders": { "count": {} }
+  },
+  "most": "Más",
+  "least": "Menos",
+  "per_year": "por año",
+  "seasonal_reading_preferences": "Preferencias de Lectura Estacional",
+  "you_read_most_in": "Lees más en",
+  "no_reading_data_available": "No hay datos de lectura disponibles",
+  "reading_goals_progress": "Progreso de Metas de Lectura",
+  "available_now": "Disponible Ahora",
+  "set_and_track_reading_goals": "Establece y sigue metas de lectura",
+  "annual_book_page_challenges": "Desafíos anuales de libros y páginas",
+  "tap_to_manage_challenges": "Toca para gestionar desafíos",
+  "reading_efficiency_score": "Puntuación de Eficiencia de Lectura",
+  "books_faster_than_average": "de libros leídos más rápido que tu ritmo promedio",
+  "what_does_this_mean": "¿Qué significa esto?",
+  "efficiency_explanation": "Esto compara la velocidad de lectura de cada libro con tu promedio general. Porcentajes más altos significan que lees consistentemente a tu ritmo típico o por encima.",
+  "based_on_n_books": "Basado en {count} libros con datos completos",
+  "@based_on_n_books": {
+    "placeholders": { "count": {} }
+  },
+  "average_rating": "Calificación Promedio",
+  "based_on_rated_books": "Basado en {count} libros calificados",
+  "@based_on_rated_books": {
+    "placeholders": { "count": {} }
+  },
+  "monthly_reading_heatmap": "Mapa de Calor de Lectura Mensual",
+  "books_finished_per_month": "Libros terminados por mes",
+  "less": "Menos",
+  "more": "Más",
+  "reading_insights": "Perspectivas de Lectura",
+  "reading_streaks": "Rachas de Lectura",
+  "days": "días",
+  "best": "Mejor",
+  "re_reads": "Relecturas",
+  "series_vs_standalone": "Series vs Independientes",
+  "series": "series",
+  "standalone": "independientes",
+  "personal_bests": "Récords Personales",
+  "most_in_month": "Más en un mes",
+  "fastest": "Más rápido",
+  "next_milestone_owned": "Próximo Hito (Libros Propios)",
+  "to_go": "restantes",
+  "next_milestone_read": "Próximo Hito (Libros Leídos)",
+  "binge_reading_series": "Lectura Maratón (Series)",
+  "binge_reading_description": "de libros terminados en 14 días del anterior",
+  "best_past_books": "Mejores Libros Pasados",
+  "reading_goals_progress_title": "Progreso de Metas de Lectura",
+  "no_challenge_set_for_year": "Sin desafío establecido para {year}",
+  "@no_challenge_set_for_year": {
+    "placeholders": { "year": {} }
+  },
+  "reading_goals": "Metas de Lectura",
+  "dnf_rate": "Tasa de Abandono",
+  "books_by_rating_distribution": "Libros por Distribución de Calificación",
+  "page_count_distribution": "Distribución por Número de Páginas",
+  "book_extremes": "Extremos de Libros",
+  "oldest": "Más Antiguo",
+  "newest": "Más Reciente",
+  "shortest": "Más Corto",
+  "longest": "Más Largo",
+  "no_books_read_in_year": "Sin libros leídos en {year}",
+  "@no_books_read_in_year": {
+    "placeholders": { "year": {} }
+  },
+  "and_n_more": "y {count} más",
+  "@and_n_more": {
+    "placeholders": { "count": {} }
+  },
+  "reading_time_of_day": "Hora de Lectura del Día",
+  "coming_soon": "Próximamente",
+  "track_when_you_read_most": "Registra cuándo lees más",
+  "morning_afternoon_night_owl": "¿Mañana, tarde o noctámbulo?",
+  "requires_chronometer": "Requiere función de cronómetro",
+  "saga_completion_rate": "Tasa de Completado de Sagas",
+  "completed": "Completadas",
+  "in_progress": "En Progreso",
+  "not_started": "Sin Empezar",
+  "my_books": "Mis Libros",
+  "no_re_read_books_yet": "Aún no hay libros releídos",
+  "read_n_times": "Leído {count} veces",
+  "@read_n_times": {
+    "placeholders": { "count": {} }
+  },
+  "decade": "Década",
+  "past_years_competitions": "Competiciones de Años Anteriores",
+  "no_past_competitions_found": "No se encontraron competiciones anteriores",
+  "no_winner_set": "Sin ganador establecido",
+  "no_books_for_author": "No se encontraron libros de este autor",
+  "added_books_to_saga": "Añadidos {count} libro(s) a {type}",
+  "@added_books_to_saga": {
+    "placeholders": { "count": {}, "type": {} }
+  },
+  "no_books_in_saga": "No se encontraron libros en esta {type}",
+  "@no_books_in_saga": {
+    "placeholders": { "type": {} }
+  },
+  "no_completed_sagas": "Aún no hay sagas completadas",
+  "no_sagas_in_progress": "No hay sagas en progreso",
+  "no_unstarted_sagas": "No hay sagas sin empezar",
+  "complete_label": "completado",
+  "year": "Año",
+  "no_books_in_year": "Sin libros leídos este año",
+  "year_winner": "Ganador del Año",
+  "final_round": "Final",
+  "please_select_book": "Por favor selecciona un libro",
+  "select_winner_title": "Seleccionar Ganador de {period}",
+  "@select_winner_title": {
+    "placeholders": { "period": {} }
+  },
+  "selected_as_winner": "¡{name} seleccionado como ganador!",
+  "@selected_as_winner": {
+    "placeholders": { "name": {} }
+  },
+  "no_monthly_winners_quarter": "Sin ganadores mensuales para este trimestre",
+  "no_quarterly_winners": "Sin ganadores trimestrales disponibles",
+  "no_semifinal_winners": "Sin ganadores de semifinal disponibles",
+  "select_yearly_winner": "Seleccionar Ganador Anual de {year}",
+  "@select_yearly_winner": {
+    "placeholders": { "year": {} }
+  },
+  "semifinal": "Semifinal",
+  "no_books_currently_reading": "No hay libros leyendo actualmente",
+  "no_books_on_standby": "No hay libros en espera",
+  "reading_label": "Leyendo",
+  "standby_label": "En espera",
+  "tbr_title": "Por Leer (TBR)",
+  "no_books_in_tbr": "No hay libros en TBR",
+  "add_books_to_clubs": "Añade libros a clubs desde los detalles del libro",
+  "clubs": "Clubs",
+  "random_book_picker": "Selector de Libro Aleatorio",
+  "random_book_description": "Aplica filtros y obtén una sugerencia aleatoria",
+  "and_all_genres": "Y: debe tener todos los géneros seleccionados",
+  "or_any_genre": "O: coincide con cualquier género seleccionado",
+  "and_not_practical": "Y: no práctico (un libro tiene un estado)",
+  "or_any_status": "O: coincide con cualquier estado seleccionado",
+  "tbr_filter_label": "TBR (Por Leer)",
+  "yes_in_tbr": "Sí - En TBR",
+  "no_not_in_tbr": "No - No en TBR",
+  "publication_year_decade": "Año de Publicación (por década)",
+  "or_select_specific_books": "O selecciona libros específicos",
+  "search_select_books_description": "Busca y selecciona libros por título para elegir aleatoriamente de tu lista personalizada",
+  "select_books": "Seleccionar Libros",
+  "type_to_search_books": "Escribe para buscar libros por título",
+  "random_from_selected": "Aleatorio de Seleccionados ({count})",
+  "@random_from_selected": {
+    "placeholders": { "count": {} }
+  },
+  "try_another": "Probar Otro",
+  "tap_to_view_details": "Toca la tarjeta para ver detalles",
+  "migration_completed_errors": "Migración Completada con Errores",
+  "about_bundle_migration": "Sobre la Migración de Bundles",
+  "current_status": "Estado Actual",
+  "old_style_bundles": "Bundles estilo antiguo",
+  "new_style_bundles": "Bundles estilo nuevo",
+  "individual_bundle_books": "Libros individuales de bundles",
+  "migrating": "Migrando...",
+  "migrate_n_bundles": "Migrar {count} Bundles",
+  "@migrate_n_bundles": {
+    "placeholders": { "count": {} }
+  },
+  "no_migration_needed": "¡Todos los bundles usan el nuevo sistema!\nNo se necesita migración.",
+  "last_migration_result": "Último Resultado de Migración",
+  "resume_import": "¿Reanudar Importación?",
+  "start_fresh": "Empezar de Nuevo",
+  "import_all": "Importar Todo",
+  "no_csv_file_selected": "Ningún archivo CSV seleccionado",
+  "clear_reviewed_books": "¿Limpiar Libros Revisados?",
+  "clear_reviewed_books_description": "Esto limpiará todos los libros revisados de todas las sesiones de importación. Usa esto si el conteo parece incorrecto.",
+  "cleared_reviewed_books": "Se limpiaron todos los libros revisados",
+  "clear_reviewed_books_cache": "Limpiar Caché de Libros Revisados",
+  "book_x_of_y": "Libro {current} de {total}",
+  "@book_x_of_y": {
+    "placeholders": { "current": {}, "total": {} }
+  },
+  "n_to_import": "{count} por importar",
+  "@n_to_import": {
+    "placeholders": { "count": {} }
+  },
+  "import_up_to_here": "Importar Hasta Aquí",
+  "ignore": "Ignorar",
+  "next_label": "Siguiente",
+  "import_this_book": "Importar este libro",
+  "storage_permission_needed": "Se necesita permiso de almacenamiento para crear copias de seguridad. ¿Deseas conceder el permiso?",
+  "import_error": "Error de Importación"
 }

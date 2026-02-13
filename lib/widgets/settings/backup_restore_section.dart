@@ -24,7 +24,8 @@ class BackupRestoreSection extends StatelessWidget {
       final db = await dbHelper.database;
       final dbPath = db.path;
 
-      final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-').split('.')[0];
+      final timestamp =
+          DateTime.now().toIso8601String().replaceAll(':', '-').split('.')[0];
       final backupFileName = 'my_library_backup_$timestamp.db';
 
       String? selectedDirectory = await FilePicker.platform.getDirectoryPath(
@@ -47,8 +48,8 @@ class BackupRestoreSection extends StatelessWidget {
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Backup created successfully'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.backup_created),
             backgroundColor: Colors.green,
           ),
         );
@@ -57,7 +58,7 @@ class BackupRestoreSection extends StatelessWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error creating backup: $e'),
+            content: Text('${AppLocalizations.of(context)!.error}: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -76,8 +77,8 @@ class BackupRestoreSection extends StatelessWidget {
       if (result == null || result.files.single.path == null) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Restore canceled'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.restore_canceled),
             ),
           );
         }
@@ -86,24 +87,25 @@ class BackupRestoreSection extends StatelessWidget {
 
       final confirmed = await showDialog<bool>(
         context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Confirm Restore'),
-          content: const Text('This will replace your current database. Make sure you have a backup!'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
+        builder:
+            (context) => AlertDialog(
+              title: Text(AppLocalizations.of(context)!.confirm_restore),
+              content: Text(AppLocalizations.of(context)!.restore_warning),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: Text(AppLocalizations.of(context)!.cancel),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: Text(AppLocalizations.of(context)!.restore),
+                ),
+              ],
             ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context, true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Restore'),
-            ),
-          ],
-        ),
       );
 
       if (confirmed != true) return;
@@ -119,8 +121,10 @@ class BackupRestoreSection extends StatelessWidget {
         await provider?.loadBooks();
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Backup restored successfully'),
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.backup_restored_successfully,
+            ),
             backgroundColor: Colors.green,
           ),
         );
@@ -129,7 +133,7 @@ class BackupRestoreSection extends StatelessWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error restoring backup: $e'),
+            content: Text('${AppLocalizations.of(context)!.error}: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -169,11 +173,13 @@ class BackupRestoreSection extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      AppLocalizations.of(context)!.save_a_copy_of_your_library_database,
+                      AppLocalizations.of(
+                        context,
+                      )!.save_a_copy_of_your_library_database,
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                     ),
                   ],
                 ),
@@ -202,7 +208,7 @@ class BackupRestoreSection extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Restore Database',
+                      AppLocalizations.of(context)!.restore_database,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
@@ -210,11 +216,11 @@ class BackupRestoreSection extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Restore from a previous backup',
+                      AppLocalizations.of(context)!.restore_from_backup,
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                     ),
                   ],
                 ),

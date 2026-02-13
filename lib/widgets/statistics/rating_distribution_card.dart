@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
 class RatingDistributionCard extends StatelessWidget {
   final Map<String, int> ratingDistribution;
@@ -16,7 +17,7 @@ class RatingDistributionCard extends StatelessWidget {
         child: Column(
           children: [
             Text(
-              'Books by Rating Distribution',
+              AppLocalizations.of(context)!.books_by_rating_distribution,
               style: Theme.of(
                 context,
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),

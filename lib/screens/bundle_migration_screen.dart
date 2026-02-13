@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/utils/bundle_migration.dart';
 
 class BundleMigrationScreen extends StatefulWidget {
@@ -37,7 +38,7 @@ class _BundleMigrationScreenState extends State<BundleMigrationScreen> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Migrate Bundle Books?'),
+            title: Text(AppLocalizations.of(context)!.migrate_bundle_books),
             content: Text(
               'This will convert ${_stats?.oldStyleBundles ?? 0} old-style bundles to the new system.\n\n'
               'Individual book records will be created for each book in the bundle.\n\n'
@@ -46,11 +47,11 @@ class _BundleMigrationScreenState extends State<BundleMigrationScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
+                child: Text(AppLocalizations.of(context)!.cancel),
               ),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, true),
-                child: const Text('Migrate'),
+                child: Text(AppLocalizations.of(context)!.migrate),
               ),
             ],
           ),
@@ -79,8 +80,8 @@ class _BundleMigrationScreenState extends State<BundleMigrationScreen> {
               (context) => AlertDialog(
                 title: Text(
                   result.hasErrors
-                      ? 'Migration Completed with Errors'
-                      : 'Migration Successful!',
+                      ? AppLocalizations.of(context)!.migration_completed_errors
+                      : AppLocalizations.of(context)!.migration_successful,
                   style: TextStyle(
                     color: result.hasErrors ? Colors.orange : Colors.green,
                   ),
@@ -115,7 +116,7 @@ class _BundleMigrationScreenState extends State<BundleMigrationScreen> {
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('Close'),
+                    child: Text(AppLocalizations.of(context)!.close),
                   ),
                 ],
               ),
@@ -138,7 +139,9 @@ class _BundleMigrationScreenState extends State<BundleMigrationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Bundle Migration')),
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.bundle_migration),
+      ),
       body:
           _isLoading
               ? const Center(child: CircularProgressIndicator())
@@ -161,9 +164,11 @@ class _BundleMigrationScreenState extends State<BundleMigrationScreen> {
                                   color: Theme.of(context).colorScheme.primary,
                                 ),
                                 const SizedBox(width: 8),
-                                const Text(
-                                  'About Bundle Migration',
-                                  style: TextStyle(
+                                Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.about_bundle_migration,
+                                  style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -194,28 +199,30 @@ class _BundleMigrationScreenState extends State<BundleMigrationScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Current Status',
-                              style: TextStyle(
+                            Text(
+                              AppLocalizations.of(context)!.current_status,
+                              style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             const SizedBox(height: 12),
                             _buildStatRow(
-                              'Old-style bundles',
+                              AppLocalizations.of(context)!.old_style_bundles,
                               _stats?.oldStyleBundles ?? 0,
                               Colors.orange,
                               Icons.folder_outlined,
                             ),
                             _buildStatRow(
-                              'New-style bundles',
+                              AppLocalizations.of(context)!.new_style_bundles,
                               _stats?.newStyleBundles ?? 0,
                               Colors.green,
                               Icons.folder_special,
                             ),
                             _buildStatRow(
-                              'Individual bundle books',
+                              AppLocalizations.of(
+                                context,
+                              )!.individual_bundle_books,
                               _stats?.individualBundleBooks ?? 0,
                               Colors.blue,
                               Icons.menu_book,
@@ -247,8 +254,12 @@ class _BundleMigrationScreenState extends State<BundleMigrationScreen> {
                                   : const Icon(Icons.sync),
                           label: Text(
                             _isMigrating
-                                ? 'Migrating...'
-                                : 'Migrate ${_stats!.oldStyleBundles} Bundle${_stats!.oldStyleBundles == 1 ? '' : 's'}',
+                                ? AppLocalizations.of(context)!.migrating
+                                : AppLocalizations.of(
+                                  context,
+                                )!.migrate_n_bundles(
+                                  _stats!.oldStyleBundles.toString(),
+                                ),
                           ),
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.all(16),
@@ -279,10 +290,14 @@ class _BundleMigrationScreenState extends State<BundleMigrationScreen> {
                                 color: Colors.green[700],
                               ),
                               const SizedBox(width: 12),
-                              const Expanded(
+                              Expanded(
                                 child: Text(
-                                  'All bundles are using the new system!\nNo migration needed.',
-                                  style: TextStyle(fontWeight: FontWeight.w500),
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.no_migration_needed,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ),
                             ],
@@ -300,9 +315,11 @@ class _BundleMigrationScreenState extends State<BundleMigrationScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Last Migration Result',
-                                style: TextStyle(
+                              Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.last_migration_result,
+                                style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),

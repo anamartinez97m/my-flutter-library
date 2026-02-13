@@ -39,7 +39,9 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('TBR limit set to $limit books'),
+          content: Text(
+            AppLocalizations.of(context)!.tbr_limit_set_to(limit.toString()),
+          ),
           duration: const Duration(seconds: 2),
           backgroundColor: Colors.green,
         ),
@@ -105,7 +107,7 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancel'),
+                    child: Text(AppLocalizations.of(context)!.cancel),
                   ),
                   ElevatedButton(
                     onPressed:
@@ -115,7 +117,7 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
                               Navigator.pop(context);
                             }
                             : null,
-                    child: const Text('Save'),
+                    child: Text(AppLocalizations.of(context)!.save),
                   ),
                 ],
               );
@@ -138,7 +140,11 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
       child: ListTile(
         leading: const Icon(Icons.bookmark_add, color: Colors.deepPurple),
         title: Text(AppLocalizations.of(context)!.tbr_limit),
-        subtitle: Text(AppLocalizations.of(context)!.max_tbr_books_subtitle(_tbrLimit.toString())),
+        subtitle: Text(
+          AppLocalizations.of(
+            context,
+          )!.max_tbr_books_subtitle(_tbrLimit.toString()),
+        ),
         trailing: IconButton(
           icon: const Icon(Icons.edit),
           onPressed: _showEditDialog,

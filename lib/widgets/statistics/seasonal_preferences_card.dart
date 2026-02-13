@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
 class SeasonalPreferencesCard extends StatelessWidget {
   final Map<String, int> seasonalReading;
 
-  const SeasonalPreferencesCard({
-    super.key,
-    required this.seasonalReading,
-  });
+  const SeasonalPreferencesCard({super.key, required this.seasonalReading});
 
   String _getPreferredSeason() {
     if (seasonalReading.isEmpty) return 'None';
-    
-    final sortedSeasons = seasonalReading.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-    
+
+    final sortedSeasons =
+        seasonalReading.entries.toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
+
     return sortedSeasons.first.key;
   }
 
@@ -50,14 +49,15 @@ class SeasonalPreferencesCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final preferredSeason = _getPreferredSeason();
-    final totalBooks = seasonalReading.values.fold(0, (sum, count) => sum + count);
+    final totalBooks = seasonalReading.values.fold(
+      0,
+      (sum, count) => sum + count,
+    );
 
     return Card(
       elevation: 2,
       margin: const EdgeInsets.symmetric(horizontal: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -72,7 +72,7 @@ class SeasonalPreferencesCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Seasonal Reading Preferences',
+                  AppLocalizations.of(context)!.seasonal_reading_preferences,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -80,7 +80,7 @@ class SeasonalPreferencesCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            
+
             if (totalBooks > 0) ...[
               // Preferred season highlight
               Container(
@@ -105,12 +105,14 @@ class SeasonalPreferencesCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'You read most in',
+                          AppLocalizations.of(context)!.you_read_most_in,
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                         Text(
                           preferredSeason,
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: _getSeasonColor(preferredSeason),
                           ),
@@ -121,12 +123,13 @@ class SeasonalPreferencesCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Season breakdown
               ...seasonalReading.entries.map((entry) {
-                final percentage = (entry.value / totalBooks * 100).toStringAsFixed(1);
+                final percentage = (entry.value / totalBooks * 100)
+                    .toStringAsFixed(1);
                 final barWidth = (entry.value / totalBooks).clamp(0.0, 1.0);
-                
+
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Column(
@@ -144,7 +147,9 @@ class SeasonalPreferencesCard extends StatelessWidget {
                               const SizedBox(width: 8),
                               Text(
                                 entry.key,
-                                style: const TextStyle(fontWeight: FontWeight.w500),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ],
                           ),
@@ -175,10 +180,10 @@ class SeasonalPreferencesCard extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
-                    'No reading data available',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey,
-                    ),
+                    AppLocalizations.of(context)!.no_reading_data_available,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
                   ),
                 ),
               ),

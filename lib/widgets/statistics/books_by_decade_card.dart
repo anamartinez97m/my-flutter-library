@@ -46,7 +46,7 @@ class BooksByDecadeCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Books by Decade',
+                        AppLocalizations.of(context)!.books_by_decade,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -64,10 +64,13 @@ class BooksByDecadeCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('All', style: Theme.of(context).textTheme.bodySmall),
+                      Text(
+                        AppLocalizations.of(context)!.all_label,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                       Switch(value: showReadBooks, onChanged: onToggleChanged),
                       Text(
-                        'Read',
+                        AppLocalizations.of(context)!.read_label,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -76,7 +79,7 @@ class BooksByDecadeCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                '(Based on original publication year)',
+                '(${AppLocalizations.of(context)!.based_on_publication_year})',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Colors.grey[600],
                   fontStyle: FontStyle.italic,

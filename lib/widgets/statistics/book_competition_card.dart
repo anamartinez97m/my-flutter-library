@@ -35,7 +35,9 @@ class BookCompetitionCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Best Book of $currentYear',
+                  AppLocalizations.of(
+                    context,
+                  )!.best_book_of_year(currentYear.toString()),
                   style: Theme.of(
                     context,
                   ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
@@ -56,7 +58,9 @@ class BookCompetitionCard extends StatelessWidget {
             else
               Center(
                 child: Text(
-                  'No books read in $currentYear',
+                  AppLocalizations.of(
+                    context,
+                  )!.no_books_read_in_year(currentYear.toString()),
                   style: Theme.of(
                     context,
                   ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
@@ -77,7 +81,7 @@ class BookCompetitionCard extends StatelessWidget {
             Icon(Icons.star, color: Colors.amber, size: 24),
             const SizedBox(width: 8),
             Text(
-              'Winner:',
+              '${AppLocalizations.of(context)!.winner}:',
               style: Theme.of(
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
@@ -118,7 +122,7 @@ class BookCompetitionCard extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Text(
-              'Nominees:',
+              '${AppLocalizations.of(context)!.nominees}:',
               style: Theme.of(
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
@@ -159,7 +163,7 @@ class BookCompetitionCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 4),
             child: Text(
-              '... and ${nominees.length - 6} more',
+              '... ${AppLocalizations.of(context)!.and_n_more((nominees.length - 6).toString())}',
               style: Theme.of(
                 context,
               ).textTheme.bodySmall?.copyWith(color: Colors.grey),

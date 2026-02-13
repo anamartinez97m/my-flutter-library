@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/year_challenge.dart';
 import 'package:myrandomlibrary/model/custom_challenge.dart';
 import 'package:myrandomlibrary/repositories/year_challenge_repository.dart';
@@ -72,16 +73,16 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
           (context) => StatefulBuilder(
             builder:
                 (context, setDialogState) => AlertDialog(
-                  title: const Text('New Year Challenge'),
+                  title: Text(AppLocalizations.of(context)!.new_year_challenge),
                   content: SingleChildScrollView(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         TextField(
                           controller: yearController,
-                          decoration: const InputDecoration(
-                            labelText: 'Year',
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.year_label,
+                            border: const OutlineInputBorder(),
                           ),
                           keyboardType: TextInputType.number,
                           inputFormatters: [
@@ -91,9 +92,10 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                         const SizedBox(height: 16),
                         TextField(
                           controller: booksController,
-                          decoration: const InputDecoration(
-                            labelText: 'Target Books *',
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            labelText:
+                                '${AppLocalizations.of(context)!.target_books} *',
+                            border: const OutlineInputBorder(),
                             hintText: 'e.g., 50',
                           ),
                           keyboardType: TextInputType.number,
@@ -104,9 +106,10 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                         const SizedBox(height: 16),
                         TextField(
                           controller: pagesController,
-                          decoration: const InputDecoration(
-                            labelText: 'Target Pages (optional)',
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            labelText:
+                                '${AppLocalizations.of(context)!.target_pages} (${AppLocalizations.of(context)!.optional})',
+                            border: const OutlineInputBorder(),
                             hintText: 'e.g., 10000',
                           ),
                           keyboardType: TextInputType.number,
@@ -117,10 +120,14 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                         const SizedBox(height: 16),
                         TextField(
                           controller: notesController,
-                          decoration: const InputDecoration(
-                            labelText: 'Notes (optional)',
-                            border: OutlineInputBorder(),
-                            hintText: 'Any notes about this challenge',
+                          decoration: InputDecoration(
+                            labelText:
+                                '${AppLocalizations.of(context)!.notes} (${AppLocalizations.of(context)!.optional})',
+                            border: const OutlineInputBorder(),
+                            hintText:
+                                AppLocalizations.of(
+                                  context,
+                                )!.any_notes_about_challenge,
                           ),
                           maxLines: 3,
                         ),
@@ -131,7 +138,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Custom Challenges',
+                              AppLocalizations.of(context)!.custom_challenges,
                               style: Theme.of(context).textTheme.titleMedium
                                   ?.copyWith(fontWeight: FontWeight.bold),
                             ),
@@ -149,9 +156,14 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                             ),
                           ],
                         ),
-                        const Text(
-                          'Add custom reading goals (e.g., "Read 5 classics", "Finish 3 series")',
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        Text(
+                          AppLocalizations.of(
+                            context,
+                          )!.add_custom_reading_goals,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
                         ),
                         if (customChallenges.isNotEmpty) ...[
                           const SizedBox(height: 16),
@@ -171,10 +183,16 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                                     // Goal name row
                                     TextField(
                                       controller: challenge['name'],
-                                      decoration: const InputDecoration(
-                                        labelText: 'Goal name',
-                                        hintText: 'e.g., Read 5 classics',
-                                        border: OutlineInputBorder(),
+                                      decoration: InputDecoration(
+                                        labelText:
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.goal_name,
+                                        hintText:
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.goal_name_hint,
+                                        border: const OutlineInputBorder(),
                                         isDense: true,
                                       ),
                                     ),
@@ -182,10 +200,13 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                                     // Target row
                                     TextField(
                                       controller: challenge['target'],
-                                      decoration: const InputDecoration(
-                                        labelText: 'Target',
+                                      decoration: InputDecoration(
+                                        labelText:
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.target,
                                         hintText: 'e.g., 5',
-                                        border: OutlineInputBorder(),
+                                        border: const OutlineInputBorder(),
                                         isDense: true,
                                       ),
                                       keyboardType: TextInputType.number,
@@ -197,11 +218,14 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                                     // Unit row
                                     TextField(
                                       controller: challenge['unit'],
-                                      decoration: const InputDecoration(
-                                        labelText: 'Unit',
+                                      decoration: InputDecoration(
+                                        labelText:
+                                            AppLocalizations.of(context)!.unit,
                                         hintText:
-                                            'e.g., books, chapters, pages',
-                                        border: OutlineInputBorder(),
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.unit_hint,
+                                        border: const OutlineInputBorder(),
                                         isDense: true,
                                       ),
                                     ),
@@ -235,7 +259,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Cancel'),
+                      child: Text(AppLocalizations.of(context)!.cancel),
                     ),
                     ElevatedButton(
                       onPressed: () {
@@ -252,9 +276,11 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                         if (!hasCustomChallenges &&
                             (targetBooks == null || targetBooks <= 0)) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
+                            SnackBar(
                               content: Text(
-                                'Please enter valid target books or add custom challenges',
+                                AppLocalizations.of(
+                                  context,
+                                )!.enter_valid_target_books,
                               ),
                               backgroundColor: Colors.red,
                             ),
@@ -298,7 +324,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
 
                         Navigator.pop(context, challenge);
                       },
-                      child: const Text('Create'),
+                      child: Text(AppLocalizations.of(context)!.create),
                     ),
                   ],
                 ),
@@ -313,8 +339,8 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
         _loadChallenges();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Challenge created successfully!'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.challenge_created),
               backgroundColor: Colors.green,
             ),
           );
@@ -323,7 +349,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error creating challenge: $e'),
+              content: Text('${AppLocalizations.of(context)!.error}: $e'),
               backgroundColor: Colors.red,
             ),
           );
@@ -345,16 +371,21 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: Text('Edit ${challenge.year} Challenge'),
+            title: Text(
+              AppLocalizations.of(
+                context,
+              )!.edit_year_challenge(challenge.year.toString()),
+            ),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
                     controller: booksController,
-                    decoration: const InputDecoration(
-                      labelText: 'Target Books *',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText:
+                          '${AppLocalizations.of(context)!.target_books} *',
+                      border: const OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -362,9 +393,10 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                   const SizedBox(height: 16),
                   TextField(
                     controller: pagesController,
-                    decoration: const InputDecoration(
-                      labelText: 'Target Pages (optional)',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText:
+                          '${AppLocalizations.of(context)!.target_pages} (${AppLocalizations.of(context)!.optional})',
+                      border: const OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -372,9 +404,10 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                   const SizedBox(height: 16),
                   TextField(
                     controller: notesController,
-                    decoration: const InputDecoration(
-                      labelText: 'Notes (optional)',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText:
+                          '${AppLocalizations.of(context)!.notes} (${AppLocalizations.of(context)!.optional})',
+                      border: const OutlineInputBorder(),
                     ),
                     maxLines: 3,
                   ),
@@ -384,7 +417,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
+                child: Text(AppLocalizations.of(context)!.cancel),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -392,8 +425,12 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
 
                   if (targetBooks == null || targetBooks <= 0) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please enter valid target books'),
+                      SnackBar(
+                        content: Text(
+                          AppLocalizations.of(
+                            context,
+                          )!.enter_valid_target_books,
+                        ),
                         backgroundColor: Colors.red,
                       ),
                     );
@@ -411,7 +448,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
 
                   Navigator.pop(context, updated);
                 },
-                child: const Text('Save'),
+                child: Text(AppLocalizations.of(context)!.save),
               ),
             ],
           ),
@@ -425,8 +462,8 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
         _loadChallenges();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Challenge updated successfully!'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.challenge_updated),
               backgroundColor: Colors.green,
             ),
           );
@@ -435,7 +472,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error updating challenge: $e'),
+              content: Text('${AppLocalizations.of(context)!.error}: $e'),
               backgroundColor: Colors.red,
             ),
           );
@@ -449,19 +486,21 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Delete Challenge'),
+            title: Text(AppLocalizations.of(context)!.delete_challenge),
             content: Text(
-              'Are you sure you want to delete the ${challenge.year} challenge?',
+              AppLocalizations.of(
+                context,
+              )!.confirm_delete_challenge(challenge.year.toString()),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
+                child: Text(AppLocalizations.of(context)!.cancel),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
                 style: TextButton.styleFrom(foregroundColor: Colors.red),
-                child: const Text('Delete'),
+                child: Text(AppLocalizations.of(context)!.delete),
               ),
             ],
           ),
@@ -475,8 +514,8 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
         _loadChallenges();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Challenge deleted'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.challenge_deleted),
               backgroundColor: Colors.orange,
             ),
           );
@@ -485,7 +524,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error deleting challenge: $e'),
+              content: Text('${AppLocalizations.of(context)!.error}: $e'),
               backgroundColor: Colors.red,
             ),
           );
@@ -507,23 +546,22 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: Text('Update: ${customChallenge.name}'),
+            title: Text(
+              '${AppLocalizations.of(context)!.update}: ${customChallenge.name}',
+            ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Target: ${customChallenge.target} ${customChallenge.unit}',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
+                  style: const TextStyle(fontSize: 14, color: Colors.grey),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: currentController,
                   decoration: InputDecoration(
-                    labelText: 'Current Progress',
+                    labelText: AppLocalizations.of(context)!.current_progress,
                     border: const OutlineInputBorder(),
                     suffixText: customChallenge.unit,
                   ),
@@ -536,14 +574,14 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
+                child: Text(AppLocalizations.of(context)!.cancel),
               ),
               ElevatedButton(
                 onPressed: () {
                   final current = int.tryParse(currentController.text) ?? 0;
                   Navigator.pop(context, current);
                 },
-                child: const Text('Update'),
+                child: Text(AppLocalizations.of(context)!.update),
               ),
             ],
           ),
@@ -552,14 +590,17 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
     if (result != null) {
       try {
         // Update the custom challenge in the list
-        final updatedCustomChallenges =
-            List<CustomChallenge>.from(challenge.customChallenges!);
-        updatedCustomChallenges[challengeIndex] =
-            customChallenge.copyWith(current: result);
+        final updatedCustomChallenges = List<CustomChallenge>.from(
+          challenge.customChallenges!,
+        );
+        updatedCustomChallenges[challengeIndex] = customChallenge.copyWith(
+          current: result,
+        );
 
         // Update the challenge with the new custom challenges list
-        final updatedChallenge =
-            challenge.copyWith(customChallenges: updatedCustomChallenges);
+        final updatedChallenge = challenge.copyWith(
+          customChallenges: updatedCustomChallenges,
+        );
 
         final db = await DatabaseHelper.instance.database;
         final repository = YearChallengeRepository(db);
@@ -568,8 +609,10 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Challenge progress updated!'),
+            SnackBar(
+              content: Text(
+                AppLocalizations.of(context)!.challenge_progress_updated,
+              ),
               backgroundColor: Colors.green,
             ),
           );
@@ -578,7 +621,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error updating challenge: $e'),
+              content: Text('${AppLocalizations.of(context)!.error}: $e'),
               backgroundColor: Colors.red,
             ),
           );
@@ -654,9 +697,9 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                             color: Theme.of(context).colorScheme.primary,
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Text(
-                            'Current',
-                            style: TextStyle(
+                          child: Text(
+                            AppLocalizations.of(context)!.current_label,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
@@ -679,9 +722,9 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Books:',
-                    style: TextStyle(fontWeight: FontWeight.w500),
+                  Text(
+                    '${AppLocalizations.of(context)!.books}:',
+                    style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                   Text(
                     '$booksRead / ${challenge.targetBooks}',
@@ -712,9 +755,9 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Pages:',
-                      style: TextStyle(fontWeight: FontWeight.w500),
+                    Text(
+                      '${AppLocalizations.of(context)!.pages_label}:',
+                      style: const TextStyle(fontWeight: FontWeight.w500),
                     ),
                     Text(
                       '$pagesRead / ${challenge.targetPages}',
@@ -745,7 +788,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                 const Divider(),
                 const SizedBox(height: 8),
                 Text(
-                  'Custom Challenges',
+                  AppLocalizations.of(context)!.custom_challenges,
                   style: Theme.of(
                     context,
                   ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
@@ -759,11 +802,12 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child: InkWell(
-                      onTap: () => _showUpdateCustomChallengeDialog(
-                        challenge,
-                        index,
-                        customChallenge,
-                      ),
+                      onTap:
+                          () => _showUpdateCustomChallengeDialog(
+                            challenge,
+                            index,
+                            customChallenge,
+                          ),
                       borderRadius: BorderRadius.circular(8),
                       child: Container(
                         decoration: BoxDecoration(
@@ -784,64 +828,66 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                          // Challenge name row
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  customChallenge.name,
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: isComplete ? Colors.green : null,
+                            // Challenge name row
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    customChallenge.name,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: isComplete ? Colors.green : null,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              if (isComplete)
-                                const Icon(
-                                  Icons.check_circle,
-                                  color: Colors.green,
-                                  size: 18,
+                                if (isComplete)
+                                  const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                    size: 18,
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            // Progress bar row
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: LinearProgressIndicator(
+                                value:
+                                    customChallenge.target > 0
+                                        ? (customChallenge.current /
+                                                customChallenge.target)
+                                            .clamp(0.0, 1.0)
+                                        : 0.0,
+                                minHeight: 8,
+                                backgroundColor: Colors.grey[200],
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  isComplete
+                                      ? Colors.green
+                                      : Theme.of(context).colorScheme.primary,
                                 ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          // Progress bar row
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(4),
-                            child: LinearProgressIndicator(
-                              value:
-                                  customChallenge.target > 0
-                                      ? (customChallenge.current /
-                                              customChallenge.target)
-                                          .clamp(0.0, 1.0)
-                                      : 0.0,
-                              minHeight: 8,
-                              backgroundColor: Colors.grey[200],
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                isComplete
-                                    ? Colors.green
-                                    : Theme.of(context).colorScheme.primary,
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 10),
-                          // Progress text row
-                          Text(
-                            '${customChallenge.current} / ${customChallenge.target} ${customChallenge.unit}',
-                            style: Theme.of(
-                              context,
-                            ).textTheme.bodySmall?.copyWith(
-                              fontWeight: FontWeight.w500,
-                              color:
-                                  isComplete ? Colors.green : Colors.grey[600],
+                            const SizedBox(height: 10),
+                            // Progress text row
+                            Text(
+                              '${customChallenge.current} / ${customChallenge.target} ${customChallenge.unit}',
+                              style: Theme.of(
+                                context,
+                              ).textTheme.bodySmall?.copyWith(
+                                fontWeight: FontWeight.w500,
+                                color:
+                                    isComplete
+                                        ? Colors.green
+                                        : Colors.grey[600],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
                     ),
                   );
                 }),
@@ -873,7 +919,9 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Year Challenges')),
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.year_challenges),
+      ),
       body:
           _isLoading
               ? const Center(child: CircularProgressIndicator())
@@ -889,14 +937,14 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'No challenges yet',
+                      AppLocalizations.of(context)!.no_challenges_yet,
                       style: Theme.of(
                         context,
                       ).textTheme.titleLarge?.copyWith(color: Colors.grey[600]),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Create your first reading challenge!',
+                      AppLocalizations.of(context)!.create_first_challenge,
                       style: Theme.of(
                         context,
                       ).textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),
@@ -916,7 +964,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _showAddChallengeDialog,
         icon: const Icon(Icons.add),
-        label: const Text('New Challenge'),
+        label: Text(AppLocalizations.of(context)!.new_challenge),
       ),
     );
   }

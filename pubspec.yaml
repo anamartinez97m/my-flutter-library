@@ -39,6 +39,7 @@ dependencies:
   wakelock_plus: ^1.2.8
   mobile_scanner: ^5.1.0
   http: ^1.2.0
+  in_app_update: ^4.2.3
 
 dev_dependencies:
   flutter_test:

@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
 class GoodreadsImportDialog extends StatefulWidget {
   final List<String> availableTags;
 
-  const GoodreadsImportDialog({
-    super.key,
-    required this.availableTags,
-  });
+  const GoodreadsImportDialog({super.key, required this.availableTags});
 
   @override
   State<GoodreadsImportDialog> createState() => _GoodreadsImportDialogState();
@@ -32,20 +30,20 @@ class _GoodreadsImportDialogState extends State<GoodreadsImportDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Import from Goodreads'),
+      title: Text(AppLocalizations.of(context)!.import_from_goodreads),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'How would you like to import your books?',
-              style: TextStyle(fontSize: 14),
+            Text(
+              AppLocalizations.of(context)!.how_import_books,
+              style: const TextStyle(fontSize: 14),
             ),
             const SizedBox(height: 16),
             // Option 1: Import all books
             RadioListTile<String>(
-              title: const Text('Import all books'),
+              title: Text(AppLocalizations.of(context)!.import_all_books),
               value: 'all',
               groupValue: _selectedOption,
               onChanged: (value) {
@@ -57,7 +55,7 @@ class _GoodreadsImportDialogState extends State<GoodreadsImportDialog> {
             const SizedBox(height: 8),
             // Option 2: Import by tag
             RadioListTile<String>(
-              title: const Text('Import books from a specific tag'),
+              title: Text(AppLocalizations.of(context)!.import_books_from_tag),
               value: 'tag',
               groupValue: _selectedOption,
               onChanged: (value) {
@@ -68,11 +66,14 @@ class _GoodreadsImportDialogState extends State<GoodreadsImportDialog> {
             ),
             if (_selectedOption == 'tag') ...[
               const SizedBox(height: 16),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
-                  'Select or enter a tag:',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                  AppLocalizations.of(context)!.select_or_enter_tag,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
               const SizedBox(height: 8),
@@ -81,25 +82,26 @@ class _GoodreadsImportDialogState extends State<GoodreadsImportDialog> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: DropdownButtonFormField<String>(
                     value: _selectedTag,
-                    decoration: const InputDecoration(
-                      labelText: 'Available tags',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.available_tags,
+                      border: const OutlineInputBorder(),
                       isDense: true,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                     ),
                     isExpanded: true,
-                    items: widget.availableTags.map((tag) {
-                      return DropdownMenuItem(
-                        value: tag,
-                        child: SizedBox(
-                          width: 200,
-                          child: Text(
-                            tag,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      );
-                    }).toList(),
+                    items:
+                        widget.availableTags.map((tag) {
+                          return DropdownMenuItem(
+                            value: tag,
+                            child: SizedBox(
+                              width: 200,
+                              child: Text(tag, overflow: TextOverflow.ellipsis),
+                            ),
+                          );
+                        }).toList(),
                     onChanged: (value) {
                       setState(() {
                         _selectedTag = value;
@@ -113,11 +115,12 @@ class _GoodreadsImportDialogState extends State<GoodreadsImportDialog> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: TextField(
                   controller: _customTagController,
-                  decoration: const InputDecoration(
-                    labelText: 'Or enter a custom tag',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText:
+                        AppLocalizations.of(context)!.or_enter_custom_tag,
+                    border: const OutlineInputBorder(),
                     isDense: true,
-                    hintText: 'e.g., owned, wishlist',
+                    hintText: AppLocalizations.of(context)!.eg_owned_wishlist,
                   ),
                   onChanged: (value) {
                     if (value.isNotEmpty) {
@@ -135,18 +138,21 @@ class _GoodreadsImportDialogState extends State<GoodreadsImportDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(AppLocalizations.of(context)!.cancel),
         ),
         ElevatedButton(
           onPressed: () {
             if (_selectedOption == 'tag') {
-              final tag = _customTagController.text.trim().isNotEmpty
-                  ? _customTagController.text.trim()
-                  : _selectedTag;
+              final tag =
+                  _customTagController.text.trim().isNotEmpty
+                      ? _customTagController.text.trim()
+                      : _selectedTag;
               if (tag == null || tag.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Please select or enter a tag'),
+                  SnackBar(
+                    content: Text(
+                      AppLocalizations.of(context)!.please_select_or_enter_tag,
+                    ),
                     backgroundColor: Colors.red,
                   ),
                 );
@@ -161,7 +167,7 @@ class _GoodreadsImportDialogState extends State<GoodreadsImportDialog> {
             backgroundColor: Colors.deepPurple,
             foregroundColor: Colors.white,
           ),
-          child: const Text('Import'),
+          child: Text(AppLocalizations.of(context)!.import_label),
         ),
       ],
     );

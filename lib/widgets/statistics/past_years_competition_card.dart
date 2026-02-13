@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book_competition.dart';
 import 'package:myrandomlibrary/screens/past_years_competition_screen.dart';
 
@@ -39,7 +40,7 @@ class PastYearsCompetitionCard extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Best Past Books',
+                      AppLocalizations.of(context)!.best_past_books,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),

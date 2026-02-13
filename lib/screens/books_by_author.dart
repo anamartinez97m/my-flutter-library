@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/screens/book_detail.dart';
@@ -15,7 +16,7 @@ class BooksByAuthorScreen extends StatelessWidget {
 
     if (provider == null || provider.isLoading) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Author')),
+        appBar: AppBar(title: Text(AppLocalizations.of(context)!.author)),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -30,7 +31,7 @@ class BooksByAuthorScreen extends StatelessWidget {
       length: authors.length,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Authors'),
+          title: Text(AppLocalizations.of(context)!.authors),
           bottom: TabBar(
             isScrollable: true,
             labelColor: Colors.white,
@@ -119,7 +120,7 @@ class BooksByAuthorScreen extends StatelessWidget {
               Icon(Icons.person_outline, size: 64, color: Colors.grey[400]),
               const SizedBox(height: 16),
               Text(
-                'No books found for this author',
+                AppLocalizations.of(context)!.no_books_for_author,
                 style: Theme.of(
                   context,
                 ).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
@@ -152,7 +153,7 @@ class BooksByAuthorScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Total Books',
+                            AppLocalizations.of(context)!.total_books,
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
@@ -181,7 +182,7 @@ class BooksByAuthorScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Average Rating',
+                              AppLocalizations.of(context)!.average_rating,
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],
@@ -231,7 +232,8 @@ class BooksByAuthorScreen extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    book.name ?? 'Untitled',
+                                    book.name ??
+                                        AppLocalizations.of(context)!.unknown,
                                     style: Theme.of(
                                       context,
                                     ).textTheme.bodyLarge?.copyWith(

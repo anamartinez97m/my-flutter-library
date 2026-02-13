@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
@@ -19,7 +20,8 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
   bool _showCurrentlyReading = true;
   bool _isCurrentlyReadingExpanded = true;
   final GlobalKey<_ClubsCardState> _clubsCardKey = GlobalKey<_ClubsCardState>();
-  final Set<int> _fetchingMetadata = {}; // Track which books are fetching metadata
+  final Set<int> _fetchingMetadata =
+      {}; // Track which books are fetching metadata
 
   @override
   void initState() {
@@ -36,31 +38,40 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
     if (provider == null) return;
 
     // Get all books from currently reading, standby, and TBR
-    final currentlyReading = provider.allBooks.where((book) {
-      final statusLower = book.statusValue?.toLowerCase();
-      return statusLower == 'started' ||
-          (statusLower == 'started' && book.dateReadFinal == null);
-    }).toList();
+    final currentlyReading =
+        provider.allBooks.where((book) {
+          final statusLower = book.statusValue?.toLowerCase();
+          return statusLower == 'started' ||
+              (statusLower == 'started' && book.dateReadFinal == null);
+        }).toList();
 
-    final standbyBooks = provider.allBooks.where((book) {
-      final statusLower = book.statusValue?.toLowerCase();
-      return statusLower == 'standby';
-    }).toList();
+    final standbyBooks =
+        provider.allBooks.where((book) {
+          final statusLower = book.statusValue?.toLowerCase();
+          return statusLower == 'standby';
+        }).toList();
 
     final db = await DatabaseHelper.instance.database;
     final repository = BookRepository(db);
     final tbrBooks = await repository.getTBRBooks();
 
     // Combine all books and filter those without covers
-    final allDisplayedBooks = [...currentlyReading, ...standbyBooks, ...tbrBooks];
-    final booksWithoutCovers = allDisplayedBooks
-        .where((book) => book.coverUrl == null || book.coverUrl!.isEmpty)
-        .take(20) // Limit to 20 books
-        .toList();
+    final allDisplayedBooks = [
+      ...currentlyReading,
+      ...standbyBooks,
+      ...tbrBooks,
+    ];
+    final booksWithoutCovers =
+        allDisplayedBooks
+            .where((book) => book.coverUrl == null || book.coverUrl!.isEmpty)
+            .take(20) // Limit to 20 books
+            .toList();
 
     if (booksWithoutCovers.isEmpty) return;
 
-    debugPrint('[MyBooks] Auto-fetching covers for ${booksWithoutCovers.length} books');
+    debugPrint(
+      '[MyBooks] Auto-fetching covers for ${booksWithoutCovers.length} books',
+    );
 
     // Fetch metadata for books without covers
     for (final book in booksWithoutCovers) {
@@ -139,8 +150,8 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
         _showCurrentlyReading ? currentlyReading : standbyBooks;
     final emptyMessage =
         _showCurrentlyReading
-            ? 'No books currently reading'
-            : 'No books on standby';
+            ? AppLocalizations.of(context)!.no_books_currently_reading
+            : AppLocalizations.of(context)!.no_books_on_standby;
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -162,9 +173,7 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                   });
                 },
                 leading: Icon(
-                  _showCurrentlyReading
-                      ? Icons.menu_book
-                      : Icons.pause_circle,
+                  _showCurrentlyReading ? Icons.menu_book : Icons.pause_circle,
                   color: Colors.deepPurple,
                 ),
                 title: Row(
@@ -197,22 +206,24 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                color: _showCurrentlyReading
-                                    ? Colors.deepPurple.withOpacity(0.1)
-                                    : Colors.transparent,
+                                color:
+                                    _showCurrentlyReading
+                                        ? Colors.deepPurple.withOpacity(0.1)
+                                        : Colors.transparent,
                                 borderRadius: const BorderRadius.only(
                                   topLeft: Radius.circular(7),
                                   bottomLeft: Radius.circular(7),
                                 ),
                               ),
                               child: Text(
-                                'Reading',
+                                AppLocalizations.of(context)!.reading_label,
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
-                                  color: _showCurrentlyReading
-                                      ? Colors.deepPurple
-                                      : Colors.grey[600],
+                                  color:
+                                      _showCurrentlyReading
+                                          ? Colors.deepPurple
+                                          : Colors.grey[600],
                                 ),
                               ),
                             ),
@@ -238,22 +249,24 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                color: !_showCurrentlyReading
-                                    ? Colors.deepPurple.withOpacity(0.1)
-                                    : Colors.transparent,
+                                color:
+                                    !_showCurrentlyReading
+                                        ? Colors.deepPurple.withOpacity(0.1)
+                                        : Colors.transparent,
                                 borderRadius: const BorderRadius.only(
                                   topRight: Radius.circular(7),
                                   bottomRight: Radius.circular(7),
                                 ),
                               ),
                               child: Text(
-                                'Standby',
+                                AppLocalizations.of(context)!.standby_label,
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
-                                  color: !_showCurrentlyReading
-                                      ? Colors.deepPurple
-                                      : Colors.grey[600],
+                                  color:
+                                      !_showCurrentlyReading
+                                          ? Colors.deepPurple
+                                          : Colors.grey[600],
                                 ),
                               ),
                             ),
@@ -300,8 +313,9 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        BookDetailScreen(book: book),
+                                    builder:
+                                        (context) =>
+                                            BookDetailScreen(book: book),
                                   ),
                                 );
                               },
@@ -327,7 +341,9 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                                         borderRadius: BorderRadius.circular(4),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withOpacity(0.2),
+                                            color: Colors.black.withOpacity(
+                                              0.2,
+                                            ),
                                             blurRadius: 4,
                                             offset: const Offset(2, 2),
                                           ),
@@ -335,64 +351,92 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                                       ),
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.circular(4),
-                                        child: book.coverUrl != null && book.coverUrl!.isNotEmpty
-                                            ? Image.network(
-                                                book.coverUrl!,
-                                                width: 50,
-                                                height: 70,
-                                                fit: BoxFit.cover,
-                                                errorBuilder: (context, error, stackTrace) {
-                                                  // Fallback to gradient placeholder on error
-                                                  return Container(
-                                                    decoration: BoxDecoration(
-                                                      gradient: LinearGradient(
-                                                        begin: Alignment.topLeft,
-                                                        end: Alignment.bottomRight,
-                                                        colors: [
-                                                          Colors.deepPurple.shade300,
-                                                          Colors.deepPurple.shade600,
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    child: Center(
-                                                      child: Text(
-                                                        (book.name?.isNotEmpty ?? false)
-                                                            ? book.name![0].toUpperCase()
-                                                            : '?',
-                                                        style: const TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize: 28,
-                                                          fontWeight: FontWeight.bold,
+                                        child:
+                                            book.coverUrl != null &&
+                                                    book.coverUrl!.isNotEmpty
+                                                ? Image.network(
+                                                  book.coverUrl!,
+                                                  width: 50,
+                                                  height: 70,
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder: (
+                                                    context,
+                                                    error,
+                                                    stackTrace,
+                                                  ) {
+                                                    // Fallback to gradient placeholder on error
+                                                    return Container(
+                                                      decoration: BoxDecoration(
+                                                        gradient: LinearGradient(
+                                                          begin:
+                                                              Alignment.topLeft,
+                                                          end:
+                                                              Alignment
+                                                                  .bottomRight,
+                                                          colors: [
+                                                            Colors
+                                                                .deepPurple
+                                                                .shade300,
+                                                            Colors
+                                                                .deepPurple
+                                                                .shade600,
+                                                          ],
                                                         ),
                                                       ),
+                                                      child: Center(
+                                                        child: Text(
+                                                          (book.name?.isNotEmpty ??
+                                                                  false)
+                                                              ? book.name![0]
+                                                                  .toUpperCase()
+                                                              : '?',
+                                                          style:
+                                                              const TextStyle(
+                                                                color:
+                                                                    Colors
+                                                                        .white,
+                                                                fontSize: 28,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                )
+                                                : Container(
+                                                  decoration: BoxDecoration(
+                                                    gradient: LinearGradient(
+                                                      begin: Alignment.topLeft,
+                                                      end:
+                                                          Alignment.bottomRight,
+                                                      colors: [
+                                                        Colors
+                                                            .deepPurple
+                                                            .shade300,
+                                                        Colors
+                                                            .deepPurple
+                                                            .shade600,
+                                                      ],
                                                     ),
-                                                  );
-                                                },
-                                              )
-                                            : Container(
-                                                decoration: BoxDecoration(
-                                                  gradient: LinearGradient(
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                    colors: [
-                                                      Colors.deepPurple.shade300,
-                                                      Colors.deepPurple.shade600,
-                                                    ],
+                                                  ),
+                                                  child: Center(
+                                                    child: Text(
+                                                      (book.name?.isNotEmpty ??
+                                                              false)
+                                                          ? book.name![0]
+                                                              .toUpperCase()
+                                                          : '?',
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 28,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
                                                   ),
                                                 ),
-                                                child: Center(
-                                                  child: Text(
-                                                    (book.name?.isNotEmpty ?? false)
-                                                        ? book.name![0].toUpperCase()
-                                                        : '?',
-                                                    style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 28,
-                                                      fontWeight: FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
                                       ),
                                     ),
                                     const SizedBox(width: 12),
@@ -402,26 +446,27 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            book.name ?? 'Unknown',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyLarge
-                                                ?.copyWith(
-                                                  fontWeight: FontWeight.bold,
-                                                ),
+                                            book.name ??
+                                                AppLocalizations.of(
+                                                  context,
+                                                )!.unknown,
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.bodyLarge?.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
                                           if (book.author != null &&
                                               book.author!.isNotEmpty) ...[
                                             const SizedBox(height: 2),
                                             Text(
                                               book.author!,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodySmall
-                                                  ?.copyWith(
-                                                    color: Colors.grey[600],
-                                                    fontSize: 12,
-                                                  ),
+                                              style: Theme.of(
+                                                context,
+                                              ).textTheme.bodySmall?.copyWith(
+                                                color: Colors.grey[600],
+                                                fontSize: 12,
+                                              ),
                                             ),
                                           ],
                                           // Progress bar (always show for reading/standby books)
@@ -432,16 +477,18 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                                             const SizedBox(height: 8),
                                             Row(
                                               mainAxisAlignment:
-                                                  MainAxisAlignment.spaceBetween,
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
                                               children: [
                                                 Expanded(
                                                   child: ClipRRect(
                                                     borderRadius:
-                                                        BorderRadius.circular(4),
-                                                    child:
-                                                        LinearProgressIndicator(
-                                                      value: (book
-                                                                  .readingProgress ??
+                                                        BorderRadius.circular(
+                                                          4,
+                                                        ),
+                                                    child: LinearProgressIndicator(
+                                                      value:
+                                                          (book.readingProgress ??
                                                               0) /
                                                           100,
                                                       minHeight: 6,
@@ -449,9 +496,8 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                                                           Colors.grey[300],
                                                       valueColor:
                                                           AlwaysStoppedAnimation<
-                                                              Color>(
-                                                        Colors.deepPurple,
-                                                      ),
+                                                            Color
+                                                          >(Colors.deepPurple),
                                                     ),
                                                   ),
                                                 ),
@@ -577,7 +623,11 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${book.name} removed from TBR'),
+            content: Text(
+              AppLocalizations.of(
+                context,
+              )!.books_removed_from_tbr(book.name ?? ''),
+            ),
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 2),
           ),
@@ -609,7 +659,7 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
           children: [
             Expanded(
               child: Text(
-                'To Be Read (TBR)',
+                AppLocalizations.of(context)!.tbr_title,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: Colors.deepPurple,
@@ -645,11 +695,9 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            'No books in TBR',
-                            style:
-                                Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.grey[600],
-                            ),
+                            AppLocalizations.of(context)!.no_books_in_tbr,
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(color: Colors.grey[600]),
                           ),
                         ],
                       ),
@@ -676,8 +724,8 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                               await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      BookDetailScreen(book: book),
+                                  builder:
+                                      (context) => BookDetailScreen(book: book),
                                 ),
                               );
                               // Reload TBR list when returning from book detail
@@ -698,64 +746,72 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                               ),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(4),
-                                child: book.coverUrl != null && book.coverUrl!.isNotEmpty
-                                    ? Image.network(
-                                        book.coverUrl!,
-                                        width: 50,
-                                        height: 70,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (context, error, stackTrace) {
-                                          // Fallback to gradient placeholder on error
-                                          return Container(
-                                            decoration: BoxDecoration(
-                                              gradient: LinearGradient(
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                                colors: [
-                                                  Colors.orange.shade300,
-                                                  Colors.orange.shade600,
-                                                ],
-                                              ),
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                (book.name?.isNotEmpty ?? false)
-                                                    ? book.name![0].toUpperCase()
-                                                    : '?',
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 28,
-                                                  fontWeight: FontWeight.bold,
+                                child:
+                                    book.coverUrl != null &&
+                                            book.coverUrl!.isNotEmpty
+                                        ? Image.network(
+                                          book.coverUrl!,
+                                          width: 50,
+                                          height: 70,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (
+                                            context,
+                                            error,
+                                            stackTrace,
+                                          ) {
+                                            // Fallback to gradient placeholder on error
+                                            return Container(
+                                              decoration: BoxDecoration(
+                                                gradient: LinearGradient(
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
+                                                  colors: [
+                                                    Colors.orange.shade300,
+                                                    Colors.orange.shade600,
+                                                  ],
                                                 ),
                                               ),
+                                              child: Center(
+                                                child: Text(
+                                                  (book.name?.isNotEmpty ??
+                                                          false)
+                                                      ? book.name![0]
+                                                          .toUpperCase()
+                                                      : '?',
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 28,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        )
+                                        : Container(
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                              colors: [
+                                                Colors.orange.shade300,
+                                                Colors.orange.shade600,
+                                              ],
                                             ),
-                                          );
-                                        },
-                                      )
-                                    : Container(
-                                        decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                            colors: [
-                                              Colors.orange.shade300,
-                                              Colors.orange.shade600,
-                                            ],
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              (book.name?.isNotEmpty ?? false)
+                                                  ? book.name![0].toUpperCase()
+                                                  : '?',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 28,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                        child: Center(
-                                          child: Text(
-                                            (book.name?.isNotEmpty ?? false)
-                                                ? book.name![0].toUpperCase()
-                                                : '?',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 28,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
                               ),
                             ),
                           ),
@@ -766,8 +822,9 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                                 await Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        BookDetailScreen(book: book),
+                                    builder:
+                                        (context) =>
+                                            BookDetailScreen(book: book),
                                   ),
                                 );
                                 // Reload TBR list when returning from book detail
@@ -778,9 +835,7 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                                 children: [
                                   Text(
                                     book.name ?? 'Unknown',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyLarge
+                                    style: Theme.of(context).textTheme.bodyLarge
                                         ?.copyWith(fontWeight: FontWeight.bold),
                                   ),
                                   if (book.author != null &&
@@ -788,13 +843,12 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                                     const SizedBox(height: 2),
                                     Text(
                                       book.author!,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(
-                                            color: Colors.grey[600],
-                                            fontSize: 12,
-                                          ),
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodySmall?.copyWith(
+                                        color: Colors.grey[600],
+                                        fontSize: 12,
+                                      ),
                                     ),
                                   ],
                                 ],
@@ -805,7 +859,8 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                             icon: const Icon(Icons.remove_circle_outline),
                             color: Colors.orange,
                             onPressed: () => _uncheckTBR(book),
-                            tooltip: 'Remove from TBR',
+                            tooltip:
+                                AppLocalizations.of(context)!.remove_from_tbr,
                           ),
                         ],
                       ),
@@ -901,7 +956,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
           children: [
             Expanded(
               child: Text(
-                'Clubs',
+                AppLocalizations.of(context)!.clubs,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: Colors.teal,
@@ -937,15 +992,16 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            'No clubs yet',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.grey[600],
-                            ),
+                            AppLocalizations.of(context)!.no_clubs_yet,
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(color: Colors.grey[600]),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Add books to clubs from book details',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            AppLocalizations.of(context)!.add_books_to_clubs,
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodySmall?.copyWith(
                               color: Colors.grey[500],
                               fontStyle: FontStyle.italic,
                             ),
@@ -958,7 +1014,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                   ..._clubsData.entries.map((entry) {
                     final clubName = entry.key;
                     final books = entry.value;
-                    
+
                     return Container(
                       margin: const EdgeInsets.only(bottom: 16),
                       decoration: BoxDecoration(
@@ -970,7 +1026,10 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                         ),
                       ),
                       child: ExpansionTile(
-                        tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        tilePadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 4,
+                        ),
                         title: Row(
                           children: [
                             Icon(Icons.group, color: Colors.teal, size: 20),
@@ -978,7 +1037,9 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                             Expanded(
                               child: Text(
                                 clubName,
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.teal[700],
                                 ),
@@ -995,81 +1056,105 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                             ),
                           ],
                         ),
-                        children: books.map((book) {
-                          final progress = book['reading_progress'] as int? ?? 0;
-                          final targetDate = book['target_date'] as String?;
-                          
-                          return Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: Colors.teal.withOpacity(0.1),
-                              ),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  book['book_name'] as String? ?? 'Unknown',
-                                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                    fontWeight: FontWeight.bold,
+                        children:
+                            books.map((book) {
+                              final progress =
+                                  book['reading_progress'] as int? ?? 0;
+                              final targetDate = book['target_date'] as String?;
+
+                              return Container(
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 4,
+                                ),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.teal.withOpacity(0.1),
                                   ),
                                 ),
-                                if (book['author'] != null && (book['author'] as String).isNotEmpty) ...[
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    book['author'] as String,
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.grey[600],
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      book['book_name'] as String? ??
+                                          AppLocalizations.of(context)!.unknown,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleSmall?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                                if (targetDate != null) ...[
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.calendar_today, size: 14, color: Colors.grey[600]),
-                                      const SizedBox(width: 4),
+                                    if (book['author'] != null &&
+                                        (book['author'] as String)
+                                            .isNotEmpty) ...[
+                                      const SizedBox(height: 4),
                                       Text(
-                                        'Target: $targetDate',
-                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                          color: Colors.grey[600],
-                                        ),
+                                        book['author'] as String,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.copyWith(color: Colors.grey[600]),
                                       ),
                                     ],
-                                  ),
-                                ],
-                                const SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(4),
-                                        child: LinearProgressIndicator(
-                                          value: progress / 100,
-                                          minHeight: 6,
-                                          backgroundColor: Colors.grey[300],
-                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.teal),
+                                    if (targetDate != null) ...[
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.calendar_today,
+                                            size: 14,
+                                            color: Colors.grey[600],
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            '${AppLocalizations.of(context)!.target}: $targetDate',
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.bodySmall?.copyWith(
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(
+                                              4,
+                                            ),
+                                            child: LinearProgressIndicator(
+                                              value: progress / 100,
+                                              minHeight: 6,
+                                              backgroundColor: Colors.grey[300],
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                    Colors.teal,
+                                                  ),
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      '$progress%',
-                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.teal,
-                                      ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          '$progress%',
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodySmall?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.teal,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
+                              );
+                            }).toList(),
                       ),
                     );
                   }),

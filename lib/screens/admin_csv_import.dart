@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/model/read_date.dart';
@@ -224,7 +225,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
             context: context,
             builder:
                 (context) => AlertDialog(
-                  title: const Text('Resume Import?'),
+                  title: Text(AppLocalizations.of(context)!.resume_import),
                   content: Text(
                     'Found a previous import session for:\n${savedPath.split('/').last}\n\nWould you like to resume from where you left off?',
                   ),
@@ -235,11 +236,11 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                         await _clearCheckpoint();
                         Navigator.pop(context, false);
                       },
-                      child: const Text('Start Fresh'),
+                      child: Text(AppLocalizations.of(context)!.start_fresh),
                     ),
                     ElevatedButton(
                       onPressed: () => Navigator.pop(context, true),
-                      child: const Text('Resume'),
+                      child: Text(AppLocalizations.of(context)!.resume),
                     ),
                   ],
                 ),
@@ -929,7 +930,9 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
           context: context,
           builder:
               (context) => AlertDialog(
-                title: const Text('Import Complete'),
+                title: Text(
+                  AppLocalizations.of(context)!.import_completed_title,
+                ),
                 content: Text(
                   'Imported: $imported\nUpdated: $updated\nSkipped: $skipped',
                 ),
@@ -942,7 +945,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                         true,
                       ); // Go back to settings with result
                     },
-                    child: const Text('OK'),
+                    child: Text(AppLocalizations.of(context)!.ok),
                   ),
                 ],
               ),
@@ -1141,15 +1144,15 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin CSV Import'),
+        title: Text(AppLocalizations.of(context)!.admin_csv_import),
         actions: [
           if (_importItems.isNotEmpty && !_isLoading)
             TextButton.icon(
               onPressed: _processImports,
               icon: const Icon(Icons.check, color: Colors.white),
-              label: const Text(
-                'Import All',
-                style: TextStyle(color: Colors.white),
+              label: Text(
+                AppLocalizations.of(context)!.import_all,
+                style: const TextStyle(color: Colors.white),
               ),
             ),
         ],
@@ -1164,12 +1167,14 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                   children: [
                     const Icon(Icons.upload_file, size: 64, color: Colors.grey),
                     const SizedBox(height: 16),
-                    const Text('No CSV file selected'),
+                    Text(AppLocalizations.of(context)!.no_csv_file_selected),
                     const SizedBox(height: 24),
                     ElevatedButton.icon(
                       onPressed: _selectAndParseCsv,
                       icon: const Icon(Icons.file_open),
-                      label: const Text('Select CSV File'),
+                      label: Text(
+                        AppLocalizations.of(context)!.select_csv_file,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     TextButton.icon(
@@ -1178,15 +1183,23 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                           context: context,
                           builder:
                               (context) => AlertDialog(
-                                title: const Text('Clear Reviewed Books?'),
-                                content: const Text(
-                                  'This will clear all tracked reviewed books from all import sessions. Use this if the count seems wrong.',
+                                title: Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.clear_reviewed_books,
+                                ),
+                                content: Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.clear_reviewed_books_description,
                                 ),
                                 actions: [
                                   TextButton(
                                     onPressed:
                                         () => Navigator.pop(context, false),
-                                    child: const Text('Cancel'),
+                                    child: Text(
+                                      AppLocalizations.of(context)!.cancel,
+                                    ),
                                   ),
                                   ElevatedButton(
                                     onPressed:
@@ -1195,7 +1208,9 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                                       backgroundColor: Colors.red,
                                       foregroundColor: Colors.white,
                                     ),
-                                    child: const Text('Clear All'),
+                                    child: Text(
+                                      AppLocalizations.of(context)!.clear_all,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -1205,9 +1220,11 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                           await _clearAllReviewedBooks();
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
+                              SnackBar(
                                 content: Text(
-                                  'Cleared all reviewed books tracking',
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.cleared_reviewed_books,
                                 ),
                                 backgroundColor: Colors.green,
                               ),
@@ -1216,7 +1233,11 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                         }
                       },
                       icon: const Icon(Icons.delete_sweep, size: 18),
-                      label: const Text('Clear Reviewed Books Cache'),
+                      label: Text(
+                        AppLocalizations.of(
+                          context,
+                        )!.clear_reviewed_books_cache,
+                      ),
                       style: TextButton.styleFrom(foregroundColor: Colors.grey),
                     ),
                   ],
@@ -1232,11 +1253,19 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Book ${_currentIndex + 1} of ${_importItems.length}',
+                          AppLocalizations.of(context)!.book_x_of_y(
+                            (_currentIndex + 1).toString(),
+                            _importItems.length.toString(),
+                          ),
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         Text(
-                          '${_importItems.where((i) => i.shouldImport).length} to import',
+                          AppLocalizations.of(context)!.n_to_import(
+                            _importItems
+                                .where((i) => i.shouldImport)
+                                .length
+                                .toString(),
+                          ),
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       ],
@@ -1284,7 +1313,11 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                                   context: context,
                                   builder:
                                       (context) => AlertDialog(
-                                        title: const Text('Import Up To Here'),
+                                        title: Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.import_up_to_here,
+                                        ),
                                         content: Text(
                                           'Import $toImportCount books from the first ${_currentIndex + 1}?\n\n(Only books marked for import will be imported)',
                                         ),
@@ -1295,7 +1328,11 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                                                   context,
                                                   false,
                                                 ),
-                                            child: const Text('Cancel'),
+                                            child: Text(
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.cancel,
+                                            ),
                                           ),
                                           ElevatedButton(
                                             onPressed:
@@ -1303,7 +1340,11 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                                                   context,
                                                   true,
                                                 ),
-                                            child: const Text('Import'),
+                                            child: Text(
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.import_label,
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -1341,7 +1382,9 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                                           _saveCheckpoint();
                                         }
                                         : null,
-                                child: const Text('Previous'),
+                                child: Text(
+                                  AppLocalizations.of(context)!.previous,
+                                ),
                               ),
                             ),
                             const SizedBox(width: 16),
@@ -1376,7 +1419,9 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: Colors.orange,
                                 ),
-                                child: const Text('Ignore'),
+                                child: Text(
+                                  AppLocalizations.of(context)!.ignore,
+                                ),
                               ),
                             ),
                             const SizedBox(width: 16),
@@ -1399,7 +1444,9 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                                           await _saveCheckpoint();
                                         }
                                         : null,
-                                child: const Text('Next'),
+                                child: Text(
+                                  AppLocalizations.of(context)!.next_label,
+                                ),
                               ),
                             ),
                           ],

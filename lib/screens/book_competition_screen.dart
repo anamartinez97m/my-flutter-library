@@ -197,13 +197,19 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Best Book of ${widget.year}'),
+        title: Text(
+          AppLocalizations.of(
+            context,
+          )!.best_book_of_year(widget.year.toString()),
+        ),
       ),
       body:
           isLoading
               ? const Center(child: CircularProgressIndicator())
               : competitionResult == null
-              ? const Center(child: Text('No competition data available'))
+              ? Center(
+                child: Text(AppLocalizations.of(context)!.no_competition_data),
+              )
               : SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -235,7 +241,7 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
                 Icon(Icons.emoji_events, color: Colors.amber, size: 32),
                 const SizedBox(width: 12),
                 Text(
-                  'Year Winner',
+                  AppLocalizations.of(context)!.year_winner,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -287,7 +293,7 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Tournament Tree',
+              AppLocalizations.of(context)!.tournament_tree,
               style: Theme.of(
                 context,
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
@@ -309,7 +315,7 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Quarterly Winners',
+          AppLocalizations.of(context)!.quarterly_winners,
           style: Theme.of(
             context,
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
@@ -416,7 +422,7 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Semifinals',
+          AppLocalizations.of(context)!.semifinals,
           style: Theme.of(
             context,
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
@@ -516,7 +522,7 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Last',
+          AppLocalizations.of(context)!.final_round,
           style: Theme.of(
             context,
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
@@ -614,7 +620,7 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Monthly Winners',
+              AppLocalizations.of(context)!.monthly_winners,
               style: Theme.of(
                 context,
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),

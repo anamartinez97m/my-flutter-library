@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:provider/provider.dart';
@@ -52,13 +53,13 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
   };
 
   bool _isCoreStatusValue(String value) {
-    return _selectedTable == 'status' && 
-           _coreStatusValues.contains(value.toLowerCase());
+    return _selectedTable == 'status' &&
+        _coreStatusValues.contains(value.toLowerCase());
   }
 
   bool _isCoreFormatSagaValue(String value) {
-    return _selectedTable == 'format_saga' && 
-           _coreFormatSagaValues.contains(value.toLowerCase());
+    return _selectedTable == 'format_saga' &&
+        _coreFormatSagaValues.contains(value.toLowerCase());
   }
 
   bool _isCoreValue(String value) {
@@ -97,147 +98,183 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
   Future<int?> _showFormatSagaHelper(String formatSagaName) async {
     final controller = TextEditingController();
     String? selectedOption = 'number'; // 'number' or 'unknown'
-    
+
     return await showDialog<int?>(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: Row(
-            children: [
-              Icon(Icons.info_outline, color: Colors.blue.shade700),
-              const SizedBox(width: 8),
-              const Expanded(child: Text('Saga Completion Setup')),
-            ],
-          ),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'You are adding: "$formatSagaName"',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.blue.shade200),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+      builder:
+          (context) => StatefulBuilder(
+            builder:
+                (context, setState) => AlertDialog(
+                  title: Row(
                     children: [
-                      Text(
-                        'How many books should this saga show in statistics?',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue.shade900,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'The saga completion card will show "X / Y" where Y is the number you specify.',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.blue.shade900,
+                      Icon(Icons.info_outline, color: Colors.blue.shade700),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          AppLocalizations.of(context)!.saga_completion_setup,
                         ),
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: 16),
-                RadioListTile<String>(
-                  title: const Text('Specific number of books'),
-                  value: 'number',
-                  groupValue: selectedOption,
-                  onChanged: (value) {
-                    setState(() {
-                      selectedOption = value;
-                    });
-                  },
-                  dense: true,
-                  contentPadding: EdgeInsets.zero,
-                ),
-                if (selectedOption == 'number')
-                  Padding(
-                    padding: const EdgeInsets.only(left: 32, right: 16, bottom: 8),
-                    child: TextField(
-                      controller: controller,
-                      decoration: const InputDecoration(
-                        labelText: 'Number of books',
-                        hintText: 'e.g., 7 for a heptalogy',
-                        border: OutlineInputBorder(),
-                        isDense: true,
-                      ),
-                      keyboardType: TextInputType.number,
-                      autofocus: true,
+                  content: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          AppLocalizations.of(
+                            context,
+                          )!.you_are_adding(formatSagaName),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade50,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.blue.shade200),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.how_many_books_saga,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue.shade900,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.saga_completion_explanation,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.blue.shade900,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        RadioListTile<String>(
+                          title: Text(
+                            AppLocalizations.of(
+                              context,
+                            )!.specific_number_of_books,
+                          ),
+                          value: 'number',
+                          groupValue: selectedOption,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedOption = value;
+                            });
+                          },
+                          dense: true,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                        if (selectedOption == 'number')
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              left: 32,
+                              right: 16,
+                              bottom: 8,
+                            ),
+                            child: TextField(
+                              controller: controller,
+                              decoration: InputDecoration(
+                                labelText:
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.number_of_books,
+                                hintText: 'e.g., 7',
+                                border: const OutlineInputBorder(),
+                                isDense: true,
+                              ),
+                              keyboardType: TextInputType.number,
+                              autofocus: true,
+                            ),
+                          ),
+                        RadioListTile<String>(
+                          title: Text(
+                            AppLocalizations.of(
+                              context,
+                            )!.unknown_show_as_question,
+                          ),
+                          subtitle: Text(
+                            AppLocalizations.of(
+                              context,
+                            )!.for_sagas_unknown_length,
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                          value: 'unknown',
+                          groupValue: selectedOption,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedOption = value;
+                            });
+                          },
+                          dense: true,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          AppLocalizations.of(context)!.examples,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        _buildFormatExample('Trilogy', '3 books'),
+                        _buildFormatExample('Heptalogy', '7 books'),
+                        _buildFormatExample('Saga', '? (unknown)'),
+                      ],
                     ),
                   ),
-                RadioListTile<String>(
-                  title: const Text('Unknown (show as "?")'),
-                  subtitle: const Text(
-                    'For sagas with unknown or variable length',
-                    style: TextStyle(fontSize: 12),
-                  ),
-                  value: 'unknown',
-                  groupValue: selectedOption,
-                  onChanged: (value) {
-                    setState(() {
-                      selectedOption = value;
-                    });
-                  },
-                  dense: true,
-                  contentPadding: EdgeInsets.zero,
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Examples:',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                ),
-                const SizedBox(height: 8),
-                _buildFormatExample('Trilogy', '3 books'),
-                _buildFormatExample('Heptalogy', '7 books'),
-                _buildFormatExample('Saga', '? (unknown)'),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, null),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (selectedOption == 'unknown') {
-                  Navigator.pop(context, -1); // -1 means unknown
-                } else {
-                  final value = int.tryParse(controller.text.trim());
-                  if (value == null || value < 1) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please enter a valid number (1 or greater)'),
-                        backgroundColor: Colors.orange,
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, null),
+                      child: Text(AppLocalizations.of(context)!.cancel),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        if (selectedOption == 'unknown') {
+                          Navigator.pop(context, -1); // -1 means unknown
+                        } else {
+                          final value = int.tryParse(controller.text.trim());
+                          if (value == null || value < 1) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.enter_valid_number,
+                                ),
+                                backgroundColor: Colors.orange,
+                              ),
+                            );
+                            return;
+                          }
+                          Navigator.pop(context, value);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.deepPurple,
+                        foregroundColor: Colors.white,
                       ),
-                    );
-                    return;
-                  }
-                  Navigator.pop(context, value);
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Continue'),
-            ),
-          ],
-        ),
-      ),
+                      child: Text(AppLocalizations.of(context)!.continue_label),
+                    ),
+                  ],
+                ),
+          ),
     );
   }
 
@@ -268,19 +305,21 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: Text('Add ${_tableLabels[_selectedTable]}'),
+            title: Text(
+              '${AppLocalizations.of(context)!.add} ${_tableLabels[_selectedTable]}',
+            ),
             content: TextField(
               controller: controller,
-              decoration: const InputDecoration(
-                labelText: 'Value',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.value_label,
+                border: const OutlineInputBorder(),
               ),
               autofocus: true,
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
+                child: Text(AppLocalizations.of(context)!.cancel),
               ),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, controller.text.trim()),
@@ -288,7 +327,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                   backgroundColor: Colors.deepPurple,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('Add'),
+                child: Text(AppLocalizations.of(context)!.add),
               ),
             ],
           ),
@@ -296,7 +335,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
 
     if (result != null && result.isNotEmpty) {
       int? expectedBooks;
-      
+
       // For format_saga, show helper modal to get expected books count
       if (_selectedTable == 'format_saga') {
         expectedBooks = await _showFormatSagaHelper(result);
@@ -312,19 +351,25 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       try {
         final db = await DatabaseHelper.instance.database;
         final repository = BookRepository(db);
-        await repository.addLookupValue(_selectedTable, result, expectedBooks: expectedBooks);
+        await repository.addLookupValue(
+          _selectedTable,
+          result,
+          expectedBooks: expectedBooks,
+        );
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Value added successfully'),
+            SnackBar(
+              content: Text(
+                AppLocalizations.of(context)!.value_added_successfully,
+              ),
               backgroundColor: Colors.green,
             ),
           );
         }
 
         _loadValues();
-        
+
         // Refresh book list in home screen
         if (mounted) {
           final provider = Provider.of<BookProvider?>(context, listen: false);
@@ -334,7 +379,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error adding value: $e'),
+              content: Text('${AppLocalizations.of(context)!.error}: $e'),
               backgroundColor: Colors.red,
             ),
           );
@@ -353,7 +398,9 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: Text('Edit ${_tableLabels[_selectedTable]}'),
+            title: Text(
+              '${AppLocalizations.of(context)!.edit} ${_tableLabels[_selectedTable]}',
+            ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -369,13 +416,20 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.warning_amber, color: Colors.orange.shade700),
+                        Icon(
+                          Icons.warning_amber,
+                          color: Colors.orange.shade700,
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             isCoreStatus
-                                ? 'Core status: Only the label will change, not the database value or logic.'
-                                : 'Core format saga: Only the label can be changed, this value cannot be deleted.',
+                                ? AppLocalizations.of(
+                                  context,
+                                )!.core_status_warning
+                                : AppLocalizations.of(
+                                  context,
+                                )!.core_format_saga_warning,
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.orange.shade900,
@@ -387,9 +441,9 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                   ),
                 TextField(
                   controller: controller,
-                  decoration: const InputDecoration(
-                    labelText: 'Value',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.value_label,
+                    border: const OutlineInputBorder(),
                   ),
                   autofocus: true,
                 ),
@@ -398,7 +452,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
+                child: Text(AppLocalizations.of(context)!.cancel),
               ),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, controller.text.trim()),
@@ -406,7 +460,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                   backgroundColor: Colors.deepPurple,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('Save'),
+                child: Text(AppLocalizations.of(context)!.save),
               ),
             ],
           ),
@@ -420,15 +474,17 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Value updated successfully'),
+            SnackBar(
+              content: Text(
+                AppLocalizations.of(context)!.value_updated_successfully,
+              ),
               backgroundColor: Colors.green,
             ),
           );
         }
 
         _loadValues();
-        
+
         // Refresh book list in home screen
         if (mounted) {
           final provider = Provider.of<BookProvider?>(context, listen: false);
@@ -438,7 +494,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error updating value: $e'),
+              content: Text('${AppLocalizations.of(context)!.error}: $e'),
               backgroundColor: Colors.red,
             ),
           );
@@ -453,24 +509,24 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       if (mounted) {
         String message;
         if (_isCoreStatusValue(value)) {
-          message = 'This is a core status value and cannot be deleted. '
-              'The app logic depends on these values: Yes, No, Started, TBReleased, Abandoned, Repeated, and Standby.';
+          message = AppLocalizations.of(context)!.core_status_cannot_delete;
         } else {
-          message = 'This is a core format saga value and cannot be deleted. '
-              'The app logic depends on these values: Standalone, Bilogy, Trilogy, Tetralogy, Pentalogy, Hexalogy, 6+, and Saga.';
+          message =
+              AppLocalizations.of(context)!.core_format_saga_cannot_delete;
         }
         showDialog(
           context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Cannot Delete'),
-            content: Text(message),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
+          builder:
+              (context) => AlertDialog(
+                title: Text(AppLocalizations.of(context)!.cannot_delete),
+                content: Text(message),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text(AppLocalizations.of(context)!.ok),
+                  ),
+                ],
               ),
-            ],
-          ),
         );
       }
       return;
@@ -479,13 +535,17 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
-      
+
       // Check if value is in use
-      final idColumn = _selectedTable == 'format_saga' ? 'format_id' : '${_selectedTable}_id';
+      final idColumn =
+          _selectedTable == 'format_saga'
+              ? 'format_id'
+              : '${_selectedTable}_id';
       // Column name in book table (format_saga uses format_saga_id in book table)
-      final bookColumnName = _selectedTable == 'format_saga' ? 'format_saga_id' : idColumn;
+      final bookColumnName =
+          _selectedTable == 'format_saga' ? 'format_saga_id' : idColumn;
       int usageCount;
-      
+
       // For author and genre, check junction tables
       if (_selectedTable == 'author') {
         final booksUsingValue = await db.rawQuery(
@@ -521,30 +581,39 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         );
         usageCount = booksUsingValue.first['count'] as int;
       }
-      
+
       if (usageCount > 0) {
         // Value is in use, show options dialog
         final action = await showDialog<String>(
           context: context,
-          builder: (context) => _DeleteOptionsDialog(
-            value: value,
-            usageCount: usageCount,
-            tableName: _selectedTable,
-            currentId: id,
-            allValues: _values,
-          ),
+          builder:
+              (context) => _DeleteOptionsDialog(
+                value: value,
+                usageCount: usageCount,
+                tableName: _selectedTable,
+                currentId: id,
+                allValues: _values,
+              ),
         );
-        
+
         if (action == null) return; // User cancelled
-        
+
         if (action == 'delete') {
           // Delete completely (will fail if FK constraint)
           if (_selectedTable == 'author') {
             // Delete from junction table first
-            await db.delete('books_by_author', where: 'author_id = ?', whereArgs: [id]);
+            await db.delete(
+              'books_by_author',
+              where: 'author_id = ?',
+              whereArgs: [id],
+            );
           } else if (_selectedTable == 'genre') {
             // Delete from junction table first
-            await db.delete('books_by_genre', where: 'genre_id = ?', whereArgs: [id]);
+            await db.delete(
+              'books_by_genre',
+              where: 'genre_id = ?',
+              whereArgs: [id],
+            );
           }
           await repository.deleteLookupValue(_selectedTable, id);
         } else if (action.startsWith('replace:')) {
@@ -562,10 +631,15 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
               'UPDATE books_by_genre SET genre_id = ? WHERE genre_id = ?',
               [newId, id],
             );
-          } else if (_selectedTable == 'saga_universe' || _selectedTable == 'saga') {
+          } else if (_selectedTable == 'saga_universe' ||
+              _selectedTable == 'saga') {
             // These are text fields, need special handling
-            final newValueResult = await repository.getLookupValues(_selectedTable);
-            final newValueMap = newValueResult.firstWhere((v) => v['${_selectedTable}_id'] == newId);
+            final newValueResult = await repository.getLookupValues(
+              _selectedTable,
+            );
+            final newValueMap = newValueResult.firstWhere(
+              (v) => v['${_selectedTable}_id'] == newId,
+            );
             final newValue = newValueMap['name'] as String;
             await db.rawUpdate(
               'UPDATE book SET $_selectedTable = ? WHERE $_selectedTable = ?',
@@ -593,7 +667,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
             );
           } else {
             int? expectedBooks;
-            
+
             // For format_saga, show helper modal to get expected books count
             if (_selectedTable == 'format_saga') {
               expectedBooks = await _showFormatSagaHelper(newValue);
@@ -605,8 +679,12 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                 expectedBooks = null;
               }
             }
-            
-            final newId = await repository.addLookupValue(_selectedTable, newValue, expectedBooks: expectedBooks);
+
+            final newId = await repository.addLookupValue(
+              _selectedTable,
+              newValue,
+              expectedBooks: expectedBooks,
+            );
             if (_selectedTable == 'author') {
               // Update junction table
               await db.rawUpdate(
@@ -633,44 +711,49 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         // Value not in use, simple confirmation
         final confirmed = await showDialog<bool>(
           context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Confirm Delete'),
-            content: Text('Are you sure you want to delete "$value"?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context, true),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
+          builder:
+              (context) => AlertDialog(
+                title: Text(AppLocalizations.of(context)!.confirm_delete_title),
+                content: Text(
+                  AppLocalizations.of(context)!.confirm_delete_value(value),
                 ),
-                child: const Text('Delete'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: Text(AppLocalizations.of(context)!.cancel),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: Text(AppLocalizations.of(context)!.delete),
+                  ),
+                ],
               ),
-            ],
-          ),
         );
-        
+
         if (confirmed == true) {
           await repository.deleteLookupValue(_selectedTable, id);
         } else {
           return;
         }
       }
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Value deleted successfully'),
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.value_deleted_successfully,
+            ),
             backgroundColor: Colors.green,
           ),
         );
       }
-      
+
       _loadValues();
-      
+
       // Refresh book list in home screen
       if (mounted) {
         final provider = Provider.of<BookProvider?>(context, listen: false);
@@ -680,7 +763,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error deleting value: $e'),
+            content: Text('${AppLocalizations.of(context)!.error}: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -692,7 +775,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manage Dropdown Values'),
+        title: Text(AppLocalizations.of(context)!.manage_dropdown_values),
         backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
       ),
@@ -702,9 +785,9 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
             padding: const EdgeInsets.all(16.0),
             child: DropdownButtonFormField<String>(
               value: _selectedTable,
-              decoration: const InputDecoration(
-                labelText: 'Select Category',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.select_category,
+                border: const OutlineInputBorder(),
               ),
               items:
                   _tableLabels.entries.map((entry) {
@@ -731,7 +814,6 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                 itemCount: _values.length,
                 itemBuilder: (context, index) {
                   final item = _values[index];
-                  // format_saga table uses 'format_id' not 'format_saga_id'
                   final idColumn =
                       _selectedTable == 'format_saga'
                           ? 'format_id'
@@ -754,26 +836,33 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                     child: ListTile(
                       title: Text(value),
                       trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.edit, color: Colors.blue),
-                                  onPressed: () => _editValue(id, value),
-                                ),
-                                IconButton(
-                                  icon: Icon(
-                                    Icons.delete,
-                                    color: _isCoreValue(value) ? Colors.grey : Colors.red,
-                                  ),
-                                  onPressed: _isCoreValue(value) 
-                                      ? null 
-                                      : () => _deleteValue(id, value),
-                                  tooltip: _isCoreValue(value)
-                                      ? 'Core value cannot be deleted'
-                                      : 'Delete',
-                                ),
-                              ],
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.blue),
+                            onPressed: () => _editValue(id, value),
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              Icons.delete,
+                              color:
+                                  _isCoreValue(value)
+                                      ? Colors.grey
+                                      : Colors.red,
                             ),
+                            onPressed:
+                                _isCoreValue(value)
+                                    ? null
+                                    : () => _deleteValue(id, value),
+                            tooltip:
+                                _isCoreValue(value)
+                                    ? AppLocalizations.of(
+                                      context,
+                                    )!.core_value_cannot_delete
+                                    : AppLocalizations.of(context)!.delete,
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },
@@ -823,39 +912,44 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final valueColumn = widget.tableName == 'status' ||
-            widget.tableName == 'format' ||
-            widget.tableName == 'format_saga'
-        ? 'value'
-        : 'name';
-    final idColumn = widget.tableName == 'format_saga'
-        ? 'format_id'
-        : '${widget.tableName}_id';
+    final valueColumn =
+        widget.tableName == 'status' ||
+                widget.tableName == 'format' ||
+                widget.tableName == 'format_saga'
+            ? 'value'
+            : 'name';
+    final idColumn =
+        widget.tableName == 'format_saga'
+            ? 'format_id'
+            : '${widget.tableName}_id';
 
     // Get other values (excluding current)
-    final otherValues = widget.allValues
-        .where((v) => v[idColumn] != widget.currentId)
-        .toList();
+    final otherValues =
+        widget.allValues.where((v) => v[idColumn] != widget.currentId).toList();
 
     return AlertDialog(
-      title: const Text('Delete Value'),
+      title: Text(AppLocalizations.of(context)!.delete_value),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'The value "${widget.value}" is used by ${widget.usageCount} book(s).',
+              AppLocalizations.of(
+                context,
+              )!.value_in_use(widget.value, widget.usageCount),
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            const Text('What would you like to do?'),
+            Text(AppLocalizations.of(context)!.what_would_you_like_to_do),
             const SizedBox(height: 12),
-            
+
             // Option 1: Replace with existing
             if (otherValues.isNotEmpty)
               RadioListTile<String>(
-                title: const Text('Replace with existing value'),
+                title: Text(
+                  AppLocalizations.of(context)!.replace_with_existing,
+                ),
                 value: 'replace',
                 groupValue: _selectedOption,
                 onChanged: (value) {
@@ -869,22 +963,23 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
                 padding: const EdgeInsets.only(left: 32, right: 16),
                 child: DropdownButtonFormField<int>(
                   value: _selectedReplacement,
-                  decoration: const InputDecoration(
-                    labelText: 'Select replacement',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.select_replacement,
+                    border: const OutlineInputBorder(),
                     isDense: true,
                   ),
                   isExpanded: true,
-                  items: otherValues.map((v) {
-                    return DropdownMenuItem<int>(
-                      value: v[idColumn] as int,
-                      child: Text(
-                        v[valueColumn] as String,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                    );
-                  }).toList(),
+                  items:
+                      otherValues.map((v) {
+                        return DropdownMenuItem<int>(
+                          value: v[idColumn] as int,
+                          child: Text(
+                            v[valueColumn] as String,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        );
+                      }).toList(),
                   onChanged: (value) {
                     setState(() {
                       _selectedReplacement = value;
@@ -893,10 +988,10 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
                 ),
               ),
             const SizedBox(height: 12),
-            
+
             // Option 2: Create new
             RadioListTile<String>(
-              title: const Text('Create new value'),
+              title: Text(AppLocalizations.of(context)!.create_new_value),
               value: 'create',
               groupValue: _selectedOption,
               onChanged: (value) {
@@ -910,22 +1005,22 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
                 padding: const EdgeInsets.only(left: 32, right: 16),
                 child: TextField(
                   controller: _newValueController,
-                  decoration: const InputDecoration(
-                    labelText: 'New value',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.new_value,
+                    border: const OutlineInputBorder(),
                     isDense: true,
                   ),
                   textCapitalization: TextCapitalization.words,
                 ),
               ),
             const SizedBox(height: 12),
-            
+
             // Option 3: Delete completely
             RadioListTile<String>(
-              title: const Text('Delete completely (may fail)'),
-              subtitle: const Text(
-                'This will fail if database constraints prevent it',
-                style: TextStyle(fontSize: 12, color: Colors.grey),
+              title: Text(AppLocalizations.of(context)!.delete_completely),
+              subtitle: Text(
+                AppLocalizations.of(context)!.delete_may_fail,
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
               ),
               value: 'delete',
               groupValue: _selectedOption,
@@ -941,15 +1036,17 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(AppLocalizations.of(context)!.cancel),
         ),
         ElevatedButton(
           onPressed: () {
             if (_selectedOption == 'replace') {
               if (_selectedReplacement == null) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Please select a replacement value'),
+                  SnackBar(
+                    content: Text(
+                      AppLocalizations.of(context)!.please_select_replacement,
+                    ),
                     backgroundColor: Colors.orange,
                   ),
                 );
@@ -960,8 +1057,10 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
               final newValue = _newValueController.text.trim();
               if (newValue.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Please enter a new value'),
+                  SnackBar(
+                    content: Text(
+                      AppLocalizations.of(context)!.please_enter_new_value,
+                    ),
                     backgroundColor: Colors.orange,
                   ),
                 );
@@ -976,7 +1075,7 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
             backgroundColor: Colors.red,
             foregroundColor: Colors.white,
           ),
-          child: const Text('Proceed'),
+          child: Text(AppLocalizations.of(context)!.proceed),
         ),
       ],
     );

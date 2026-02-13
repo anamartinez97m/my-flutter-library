@@ -170,7 +170,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRatingFieldRepository(db);
       final names = await repository.getAllFieldNames();
-      
+
       setState(() {
         _ratingFieldSuggestions = names;
       });
@@ -244,7 +244,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
       setState(() {
         _ratingFields = fields;
       });
-      debugPrint('Loaded ${fields.length} rating fields for book ${widget.book.bookId}');
+      debugPrint(
+        'Loaded ${fields.length} rating fields for book ${widget.book.bookId}',
+      );
     } catch (e) {
       debugPrint('Error loading rating fields: $e');
     }
@@ -292,7 +294,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
               .where((g) => g.isNotEmpty)
               .toList();
     }
-    if (widget.book.editorialValue != null && widget.book.editorialValue!.isNotEmpty) {
+    if (widget.book.editorialValue != null &&
+        widget.book.editorialValue!.isNotEmpty) {
       _selectedEditorial = [widget.book.editorialValue!];
     }
     _sagaController = TextEditingController(text: widget.book.saga);
@@ -356,7 +359,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
         debugPrint('Error parsing notification datetime: $e');
       }
     }
-    
+
     // Initialize release date
     if (widget.book.releaseDate != null &&
         widget.book.releaseDate!.isNotEmpty) {
@@ -600,9 +603,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
         loaned: (_selectedLoaned ?? 'no').toLowerCase(),
         statusValue: statusValue,
         editorialValue:
-            _selectedEditorial.isEmpty
-                ? null
-                : _selectedEditorial.first,
+            _selectedEditorial.isEmpty ? null : _selectedEditorial.first,
         languageValue: languageValue,
         placeValue: placeValue,
         formatValue: formatValue,
@@ -634,9 +635,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
             _notificationEnabled && _notificationDateTime != null
                 ? _notificationDateTime!.toIso8601String()
                 : null,
-        releaseDate: _releaseDate != null
-                ? _releaseDate!.toIso8601String()
-                : null,
+        releaseDate:
+            _releaseDate != null ? _releaseDate!.toIso8601String() : null,
         bundleParentId:
             widget.book.bundleParentId, // Preserve bundle relationship
         notes:
@@ -694,9 +694,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
             _notificationEnabled && _notificationDateTime != null
                 ? _notificationDateTime!.toIso8601String()
                 : null,
-        releaseDate: _releaseDate != null
-                ? _releaseDate!.toIso8601String()
-                : null,
+        releaseDate:
+            _releaseDate != null ? _releaseDate!.toIso8601String() : null,
         bundleParentId:
             updatedBook.bundleParentId, // Preserve bundle relationship
         notes: updatedBook.notes,
@@ -950,8 +949,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
       }
 
       // If format_saga changed and book belongs to a saga, update all books in that saga
-      if (updatedBook.saga != null && 
-          updatedBook.saga!.isNotEmpty && 
+      if (updatedBook.saga != null &&
+          updatedBook.saga!.isNotEmpty &&
           _selectedFormatSagaId != null &&
           widget.book.formatSagaValue != updatedBook.formatSagaValue) {
         debugPrint(
@@ -1018,7 +1017,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Error scheduling notification: $e'),
+                  content: Text('${AppLocalizations.of(context)!.error}: $e'),
                   backgroundColor: Colors.red,
                 ),
               );
@@ -1038,8 +1037,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Book updated successfully!'),
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.book_updated_successfully,
+            ),
             backgroundColor: Colors.green,
           ),
         );
@@ -1048,7 +1049,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error updating book: $e'),
+            content: Text('${AppLocalizations.of(context)!.error}: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -1059,7 +1060,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
   // Rating field helper methods
   double _calculateAverageRating() {
     if (_ratingFields.isEmpty) return 0.0;
-    double sum = _ratingFields.fold(0.0, (prev, field) => prev + field.ratingValue);
+    double sum = _ratingFields.fold(
+      0.0,
+      (prev, field) => prev + field.ratingValue,
+    );
     return sum / _ratingFields.length;
   }
 
@@ -1069,11 +1073,13 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
   void _addRatingField() {
     setState(() {
-      _ratingFields.add(BookRatingField(
-        bookId: widget.book.bookId ?? 0,
-        fieldName: 'Plot', // Default
-        ratingValue: 0.0,
-      ));
+      _ratingFields.add(
+        BookRatingField(
+          bookId: widget.book.bookId ?? 0,
+          fieldName: 'Plot', // Default
+          ratingValue: 0.0,
+        ),
+      );
     });
   }
 
@@ -1114,7 +1120,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
       canPop: true, // Allow normal back navigation to details
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Edit Book'),
+          title: Text(AppLocalizations.of(context)!.edit_book),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new_outlined),
             onPressed: () {
@@ -1134,10 +1140,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 // Status dropdown (required) - MOVED TO TOP
                 DropdownButtonFormField<int>(
                   value: _selectedStatusId,
-                  decoration: const InputDecoration(
-                    labelText: 'Reading Status *',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.check_circle),
+                  decoration: InputDecoration(
+                    labelText:
+                        '${AppLocalizations.of(context)!.reading_status} *',
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.check_circle),
                   ),
                   items:
                       _statusList.map((status) {
@@ -1167,7 +1174,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   },
                   validator: (value) {
                     if (value == null) {
-                      return 'Status is required';
+                      return AppLocalizations.of(context)!.status_is_required;
                     }
                     return null;
                   },
@@ -1237,16 +1244,22 @@ class _EditBookScreenState extends State<EditBookScreen> {
                           return TextFormField(
                             controller: controller,
                             focusNode: focusNode,
-                            decoration: const InputDecoration(
-                              labelText: 'Original Book *',
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.book),
-                              hintText: 'Search for the original book...',
+                            decoration: InputDecoration(
+                              labelText:
+                                  '${AppLocalizations.of(context)!.original_book} *',
+                              border: const OutlineInputBorder(),
+                              prefixIcon: const Icon(Icons.book),
+                              hintText:
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.search_original_book,
                             ),
                             validator: (value) {
                               if (_selectedStatusValue == 'Repeated' &&
                                   _selectedOriginalBookId == null) {
-                                return 'Original book is required';
+                                return AppLocalizations.of(
+                                  context,
+                                )!.original_book_is_required;
                               }
                               return null;
                             },
@@ -1261,10 +1274,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 // Name field
                 TextFormField(
                   controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Book Name',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.book),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.book_name,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.book),
                   ),
                   textCapitalization: TextCapitalization.sentences,
                 ),
@@ -1274,13 +1287,13 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 TextFormField(
                   controller: _isbnController,
                   decoration: InputDecoration(
-                    labelText: 'ISBN',
+                    labelText: AppLocalizations.of(context)!.isbn,
                     border: const OutlineInputBorder(),
                     prefixIcon: const Icon(Icons.numbers),
                     suffixIcon: IconButton(
                       icon: const Icon(Icons.qr_code_scanner_outlined),
                       onPressed: () => _scanISBN(),
-                      tooltip: 'Scan ISBN',
+                      tooltip: AppLocalizations.of(context)!.scan_isbn,
                     ),
                   ),
                   keyboardType: TextInputType.number,
@@ -1290,21 +1303,21 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 // ASIN field
                 TextFormField(
                   controller: _asinController,
-                  decoration: const InputDecoration(
-                    labelText: 'ASIN',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.qr_code),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.asin,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.qr_code),
                   ),
                 ),
                 const SizedBox(height: 16),
 
                 // Author field
                 ChipAutocompleteField(
-                  labelText: 'Author(s)',
+                  labelText: AppLocalizations.of(context)!.authors,
                   prefixIcon: Icons.person,
                   suggestions: _authorSuggestions,
                   initialValues: _selectedAuthors,
-                  hintText: 'Type to search or add new author',
+                  hintText: AppLocalizations.of(context)!.search_or_add_author,
                   onChanged: (values) {
                     setState(() {
                       _selectedAuthors = values;
@@ -1320,7 +1333,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   suggestions: _editorialSuggestions,
                   initialValues: _selectedEditorial,
                   maxSelections: 1, // Only allow one editorial
-                  hintText: 'Select publisher',
+                  hintText: AppLocalizations.of(context)!.select_publisher,
                   onChanged: (values) {
                     setState(() {
                       _selectedEditorial = values;
@@ -1331,11 +1344,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
                 // Genre field
                 ChipAutocompleteField(
-                  labelText: 'Genre(s)',
+                  labelText: AppLocalizations.of(context)!.genres,
                   prefixIcon: Icons.category,
                   suggestions: _genreSuggestions,
                   initialValues: _selectedGenres,
-                  hintText: 'Type to search or add new genre',
+                  hintText: AppLocalizations.of(context)!.search_or_add_genre,
                   onChanged: (values) {
                     setState(() {
                       _selectedGenres = values;
@@ -1356,8 +1369,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     try {
                       final db = await DatabaseHelper.instance.database;
                       final repository = BookRepository(db);
-                      final formatSagaId = await repository.getFormatSagaIdForSaga(selectedSaga);
-                      
+                      final formatSagaId = await repository
+                          .getFormatSagaIdForSaga(selectedSaga);
+
                       if (formatSagaId != null && mounted) {
                         setState(() {
                           _selectedFormatSagaId = formatSagaId;
@@ -1373,10 +1387,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 // N Saga field
                 TextFormField(
                   controller: _nSagaController,
-                  decoration: const InputDecoration(
-                    labelText: 'Saga Number',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.format_list_numbered),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.saga_number,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.format_list_numbered),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -1407,10 +1421,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 // Publication Year field
                 TextFormField(
                   controller: _publicationYearController,
-                  decoration: const InputDecoration(
-                    labelText: 'Publication Year',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.calendar_today),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.publication_year,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.calendar_today),
                   ),
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -1429,7 +1443,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Original Publication Date (for notifications)',
+                        AppLocalizations.of(context)!.original_publication_date,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -1453,15 +1467,18 @@ class _EditBookScreenState extends State<EditBookScreen> {
                           }
                         },
                         child: InputDecorator(
-                          decoration: const InputDecoration(
-                            labelText: 'Release Date',
-                            border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.calendar_today),
+                          decoration: InputDecoration(
+                            labelText:
+                                AppLocalizations.of(context)!.release_date,
+                            border: const OutlineInputBorder(),
+                            prefixIcon: const Icon(Icons.calendar_today),
                           ),
                           child: Text(
                             _releaseDate != null
                                 ? '${_releaseDate!.day}/${_releaseDate!.month}/${_releaseDate!.year}'
-                                : 'Select release date',
+                                : AppLocalizations.of(
+                                  context,
+                                )!.select_release_date,
                             style: TextStyle(
                               color: _releaseDate != null ? null : Colors.grey,
                             ),
@@ -1472,9 +1489,15 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
                       // Notification checkbox
                       CheckboxListTile(
-                        title: const Text('Enable Release Notification'),
-                        subtitle: const Text(
-                          'Get notified when this book is released',
+                        title: Text(
+                          AppLocalizations.of(
+                            context,
+                          )!.enable_release_notification,
+                        ),
+                        subtitle: Text(
+                          AppLocalizations.of(
+                            context,
+                          )!.get_notified_when_released,
                         ),
                         value: _notificationEnabled,
                         onChanged: (value) {
@@ -1539,15 +1562,22 @@ class _EditBookScreenState extends State<EditBookScreen> {
                             }
                           },
                           child: InputDecorator(
-                            decoration: const InputDecoration(
-                              labelText: 'Notification Date & Time',
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.notifications_active),
+                            decoration: InputDecoration(
+                              labelText:
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.notification_date_time,
+                              border: const OutlineInputBorder(),
+                              prefixIcon: const Icon(
+                                Icons.notifications_active,
+                              ),
                             ),
                             child: Text(
                               _notificationDateTime != null
                                   ? '${_notificationDateTime!.day}/${_notificationDateTime!.month}/${_notificationDateTime!.year} at ${_notificationTime!.format(context)}'
-                                  : 'Select notification date and time',
+                                  : AppLocalizations.of(
+                                    context,
+                                  )!.select_notification_date,
                               style: TextStyle(
                                 color:
                                     _notificationDateTime != null
@@ -1572,8 +1602,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
                               );
                               if (mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Test notification sent!'),
+                                  SnackBar(
+                                    content: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.test_notification_sent,
+                                    ),
                                     backgroundColor: Colors.green,
                                   ),
                                 );
@@ -1583,7 +1617,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
                               if (mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('Error: $e'),
+                                    content: Text(
+                                      '${AppLocalizations.of(context)!.error}: $e',
+                                    ),
                                     backgroundColor: Colors.red,
                                   ),
                                 );
@@ -1591,7 +1627,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
                             }
                           },
                           icon: const Icon(Icons.notification_add),
-                          label: const Text('Test Notification'),
+                          label: Text(
+                            AppLocalizations.of(context)!.test_notification,
+                          ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.orange,
                             foregroundColor: Colors.white,
@@ -1628,10 +1666,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 // Language dropdown
                 DropdownButtonFormField<int>(
                   value: _selectedLanguageId,
-                  decoration: const InputDecoration(
-                    labelText: 'Language',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.language),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.language,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.language),
                   ),
                   items:
                       _languageList.map((lang) {
@@ -1651,10 +1689,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 // Place dropdown
                 DropdownButtonFormField<int>(
                   value: _selectedPlaceId,
-                  decoration: const InputDecoration(
-                    labelText: 'Place',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.place),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.place,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.place),
                   ),
                   items:
                       _placeList.map((place) {
@@ -1674,10 +1712,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 // Format dropdown
                 DropdownButtonFormField<int>(
                   value: _selectedFormatId,
-                  decoration: const InputDecoration(
-                    labelText: 'Format',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.import_contacts),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.format,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.import_contacts),
                   ),
                   items:
                       _formatList.map((format) {
@@ -1697,10 +1735,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 // Loaned dropdown
                 DropdownButtonFormField<String>(
                   value: _selectedLoaned,
-                  decoration: const InputDecoration(
-                    labelText: 'Loaned',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.swap_horiz),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.loaned,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.swap_horiz),
                   ),
                   items: [
                     DropdownMenuItem(
@@ -1751,7 +1789,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Book Lists',
+                          AppLocalizations.of(context)!.book_lists,
                           style: Theme.of(
                             context,
                           ).textTheme.titleMedium?.copyWith(
@@ -1761,9 +1799,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
                         ),
                         const SizedBox(height: 12),
                         CheckboxListTile(
-                          title: const Text('Add to TBR (To Be Read)'),
-                          subtitle: const Text(
-                            'Mark this book for your reading list',
+                          title: Text(AppLocalizations.of(context)!.add_to_tbr),
+                          subtitle: Text(
+                            AppLocalizations.of(context)!.mark_for_reading_list,
                           ),
                           value: _tbr,
                           onChanged: (value) async {
@@ -1788,18 +1826,27 @@ class _EditBookScreenState extends State<EditBookScreen> {
                                                 color: Colors.orange,
                                               ),
                                               const SizedBox(width: 8),
-                                              const Text('TBR Limit Reached'),
+                                              Text(
+                                                AppLocalizations.of(
+                                                  context,
+                                                )!.tbr_limit_reached,
+                                              ),
                                             ],
                                           ),
                                           content: Text(
-                                            'You have reached your TBR limit of $limit books.\n\n'
-                                            'Please uncheck some books in the My Books screen to add more.',
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.tbr_limit_message(limit),
                                           ),
                                           actions: [
                                             TextButton(
                                               onPressed:
                                                   () => Navigator.pop(context),
-                                              child: const Text('OK'),
+                                              child: Text(
+                                                AppLocalizations.of(
+                                                  context,
+                                                )!.ok,
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -1817,9 +1864,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
                         if (_sagaController.text.isNotEmpty ||
                             _sagaUniverseController.text.isNotEmpty)
                           CheckboxListTile(
-                            title: const Text('Mark as Tandem Book'),
-                            subtitle: const Text(
-                              'Read together with other books in this saga',
+                            title: Text(
+                              AppLocalizations.of(context)!.mark_as_tandem,
+                            ),
+                            subtitle: Text(
+                              AppLocalizations.of(context)!.tandem_description,
                             ),
                             value: _isTandem,
                             onChanged: (value) {
@@ -1839,7 +1888,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
                 // New fields section
                 Text(
-                  'Reading Information (Optional)',
+                  AppLocalizations.of(context)!.reading_information_optional,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.primary,
@@ -1852,10 +1901,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   elevation: 2,
                   child: ExpansionTile(
                     leading: const Icon(Icons.star_rate),
-                    title: const Text('Rating'),
-                    subtitle: Text(_ratingFields.isEmpty 
-                        ? 'No ratings yet' 
-                        : 'Average: ${_calculateDisplayRating().toStringAsFixed(1)}'),
+                    title: Text(AppLocalizations.of(context)!.rating),
+                    subtitle: Text(
+                      _ratingFields.isEmpty
+                          ? AppLocalizations.of(context)!.no_ratings_yet
+                          : '${AppLocalizations.of(context)!.average}: ${_calculateDisplayRating().toStringAsFixed(1)}',
+                    ),
                     initiallyExpanded: false,
                     children: [
                       Padding(
@@ -1867,31 +1918,42 @@ class _EditBookScreenState extends State<EditBookScreen> {
                             ..._ratingFields.asMap().entries.map((entry) {
                               final index = entry.key;
                               final field = entry.value;
-                              
+
                               return Card(
                                 margin: const EdgeInsets.only(bottom: 12.0),
                                 elevation: 1,
                                 child: Padding(
                                   padding: const EdgeInsets.all(12.0),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
                                         children: [
                                           Expanded(
-                                            child: DropdownButtonFormField<String>(
+                                            child: DropdownButtonFormField<
+                                              String
+                                            >(
                                               value: field.fieldName,
-                                              decoration: const InputDecoration(
-                                                labelText: 'Criterion',
-                                                border: OutlineInputBorder(),
+                                              decoration: InputDecoration(
+                                                labelText:
+                                                    AppLocalizations.of(
+                                                      context,
+                                                    )!.criterion,
+                                                border:
+                                                    const OutlineInputBorder(),
                                               ),
                                               items: () {
                                                 // Combine suggestions with existing field names to avoid missing values
-                                                final allNames = <String>{
-                                                  ..._ratingFieldSuggestions,
-                                                  ..._ratingFields.map((f) => f.fieldName),
-                                                }.toList()..sort();
-                                                
+                                                final allNames =
+                                                    <String>{
+                                                        ..._ratingFieldSuggestions,
+                                                        ..._ratingFields.map(
+                                                          (f) => f.fieldName,
+                                                        ),
+                                                      }.toList()
+                                                      ..sort();
+
                                                 return allNames.map((name) {
                                                   return DropdownMenuItem(
                                                     value: name,
@@ -1902,20 +1964,28 @@ class _EditBookScreenState extends State<EditBookScreen> {
                                               onChanged: (value) {
                                                 if (value != null) {
                                                   setState(() {
-                                                    _ratingFields[index] = BookRatingField(
-                                                      ratingFieldId: field.ratingFieldId,
-                                                      bookId: field.bookId,
-                                                      fieldName: value,
-                                                      ratingValue: field.ratingValue,
-                                                    );
+                                                    _ratingFields[index] =
+                                                        BookRatingField(
+                                                          ratingFieldId:
+                                                              field
+                                                                  .ratingFieldId,
+                                                          bookId: field.bookId,
+                                                          fieldName: value,
+                                                          ratingValue:
+                                                              field.ratingValue,
+                                                        );
                                                   });
                                                 }
                                               },
                                             ),
                                           ),
                                           IconButton(
-                                            icon: const Icon(Icons.delete, color: Colors.red),
-                                            onPressed: () => _removeRatingField(index),
+                                            icon: const Icon(
+                                              Icons.delete,
+                                              color: Colors.red,
+                                            ),
+                                            onPressed:
+                                                () => _removeRatingField(index),
                                           ),
                                         ],
                                       ),
@@ -1924,14 +1994,17 @@ class _EditBookScreenState extends State<EditBookScreen> {
                                         initialRating: field.ratingValue,
                                         onRatingChanged: (rating) {
                                           setState(() {
-                                            _ratingFields[index] = BookRatingField(
-                                              ratingFieldId: field.ratingFieldId,
-                                              bookId: field.bookId,
-                                              fieldName: field.fieldName,
-                                              ratingValue: rating,
-                                            );
+                                            _ratingFields[index] =
+                                                BookRatingField(
+                                                  ratingFieldId:
+                                                      field.ratingFieldId,
+                                                  bookId: field.bookId,
+                                                  fieldName: field.fieldName,
+                                                  ratingValue: rating,
+                                                );
                                             if (!_ratingOverride) {
-                                              _myRating = _calculateAverageRating();
+                                              _myRating =
+                                                  _calculateAverageRating();
                                             }
                                           });
                                         },
@@ -1941,39 +2014,55 @@ class _EditBookScreenState extends State<EditBookScreen> {
                                 ),
                               );
                             }).toList(),
-                            
+
                             TextButton.icon(
                               onPressed: _addRatingField,
                               icon: const Icon(Icons.add),
-                              label: const Text('Add Rating Criterion'),
+                              label: Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.add_rating_criterion,
+                              ),
                             ),
-                            
+
                             const Divider(),
-                            
+
                             Row(
                               children: [
-                                const Text(
-                                  'General Rating:',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                Text(
+                                  '${AppLocalizations.of(context)!.general_rating}:',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                                 const SizedBox(width: 12),
                                 if (!_ratingOverride)
                                   Text(
-                                    '${_calculateAverageRating().toStringAsFixed(1)} (auto-calculated)',
+                                    '${_calculateAverageRating().toStringAsFixed(1)} (${AppLocalizations.of(context)!.auto_calculated})',
                                     style: TextStyle(color: Colors.grey[600]),
                                   )
                                 else
                                   Text(
-                                    '${_myRating.toStringAsFixed(1)} (manual)',
-                                    style: const TextStyle(color: Colors.deepPurple),
+                                    '${_myRating.toStringAsFixed(1)} (${AppLocalizations.of(context)!.manual})',
+                                    style: const TextStyle(
+                                      color: Colors.deepPurple,
+                                    ),
                                   ),
                               ],
                             ),
                             const SizedBox(height: 8),
-                            
+
                             SwitchListTile(
-                              title: const Text('Override auto-calculation'),
-                              subtitle: const Text('Manually set the general rating'),
+                              title: Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.override_auto_calculation,
+                              ),
+                              subtitle: Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.manually_set_rating,
+                              ),
                               value: _ratingOverride,
                               onChanged: (value) {
                                 setState(() {
@@ -1984,7 +2073,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                                 });
                               },
                             ),
-                            
+
                             if (_ratingOverride)
                               HeartRatingInput(
                                 initialRating: _myRating,
@@ -2007,7 +2096,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Times Read',
+                      AppLocalizations.of(context)!.times_read,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Colors.grey[700],
                         fontWeight: FontWeight.w500,
@@ -2114,7 +2203,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
                               const Icon(Icons.timer, color: Colors.deepPurple),
                               const SizedBox(width: 8),
                               Text(
-                                'Timed Reading Sessions',
+                                AppLocalizations.of(
+                                  context,
+                                )!.timed_reading_sessions,
                                 style: Theme.of(context).textTheme.titleMedium
                                     ?.copyWith(fontWeight: FontWeight.bold),
                               ),
@@ -2154,8 +2245,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
                                 ),
                                 title: Text(
                                   session.startTime?.toIso8601String().split(
-                                    'T',
-                                  )[0] ?? 'No date',
+                                        'T',
+                                      )[0] ??
+                                      'No date',
                                   style: const TextStyle(
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -2187,11 +2279,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 // My Review field
                 TextFormField(
                   controller: _myReviewController,
-                  decoration: const InputDecoration(
-                    labelText: 'My Review',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.rate_review),
-                    hintText: 'Write your thoughts about this book...',
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.my_review,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.rate_review),
+                    hintText: AppLocalizations.of(context)!.write_your_thoughts,
                   ),
                   maxLines: 5,
                   keyboardType: TextInputType.multiline,
@@ -2202,15 +2294,19 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 // Price field
                 TextFormField(
                   controller: _priceController,
-                  decoration: const InputDecoration(
-                    labelText: 'Price',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.attach_money),
-                    hintText: 'Enter book price',
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.price,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.attach_money),
+                    hintText: AppLocalizations.of(context)!.enter_book_price,
                   ),
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r'^\d+\.?\d{0,2}'),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -2218,11 +2314,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 // Notes field
                 TextFormField(
                   controller: _notesController,
-                  decoration: const InputDecoration(
-                    labelText: 'Notes',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.notes),
-                    hintText: 'Add any additional notes about this book...',
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.notes,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.notes),
+                    hintText: AppLocalizations.of(context)!.add_notes_hint,
                   ),
                   maxLines: 5,
                   keyboardType: TextInputType.multiline,
@@ -2241,9 +2337,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    'Update Book',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  child: Text(
+                    AppLocalizations.of(context)!.update_book,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 50), // Bottom margin
@@ -2271,7 +2370,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error scanning ISBN: $e'),
+            content: Text('${AppLocalizations.of(context)!.error}: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -2312,7 +2411,10 @@ class _ISBNScannerScreenState extends State<ISBNScannerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Scan ISBN'), centerTitle: true),
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.scan_isbn),
+        centerTitle: true,
+      ),
       body: Stack(
         children: [
           MobileScanner(
@@ -2345,9 +2447,9 @@ class _ISBNScannerScreenState extends State<ISBNScannerScreen> {
                   color: Colors.black.withOpacity(0.7),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Text(
-                  'Point camera at barcode',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
+                child: Text(
+                  AppLocalizations.of(context)!.point_camera_at_barcode,
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ),
             ),

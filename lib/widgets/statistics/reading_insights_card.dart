@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/screens/rereads_detail.dart';
 
 /// Comprehensive card displaying multiple reading insights
@@ -64,7 +65,7 @@ class ReadingInsightsCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Reading Insights',
+              AppLocalizations.of(context)!.reading_insights,
               style: Theme.of(
                 context,
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
@@ -76,8 +77,9 @@ class ReadingInsightsCard extends StatelessWidget {
               context,
               icon: Icons.local_fire_department,
               color: Colors.orange,
-              title: 'Reading Streaks',
-              value: 'Current: $currentStreak days | Best: $longestStreak days',
+              title: AppLocalizations.of(context)!.reading_streaks,
+              value:
+                  '${AppLocalizations.of(context)!.current_label}: $currentStreak ${AppLocalizations.of(context)!.days} | ${AppLocalizations.of(context)!.best}: $longestStreak ${AppLocalizations.of(context)!.days}',
             ),
             const Divider(height: 20),
 
@@ -86,8 +88,9 @@ class ReadingInsightsCard extends StatelessWidget {
               context,
               icon: Icons.close,
               color: Colors.red,
-              title: 'DNF Rate',
-              value: '$dnfCount books (${dnfRate.toStringAsFixed(1)}%)',
+              title: AppLocalizations.of(context)!.dnf_rate,
+              value:
+                  '$dnfCount ${AppLocalizations.of(context)!.books} (${dnfRate.toStringAsFixed(1)}%)',
             ),
             const Divider(height: 20),
 
@@ -109,11 +112,12 @@ class ReadingInsightsCard extends StatelessWidget {
                     context,
                     icon: Icons.replay,
                     color: Colors.teal,
-                    title: 'Re-reads',
-                    value: '$rereadCount books',
+                    title: AppLocalizations.of(context)!.re_reads,
+                    value:
+                        '$rereadCount ${AppLocalizations.of(context)!.books}',
                     subtitle:
                         mostRereadBook != null
-                            ? 'Most: ${mostRereadBook!['name']} (${mostRereadBook!['count']}x)'
+                            ? '${AppLocalizations.of(context)!.most}: ${mostRereadBook!['name']} (${mostRereadBook!['count']}x)'
                             : null,
                     showNavigationIcon: true,
                   ),
@@ -127,11 +131,11 @@ class ReadingInsightsCard extends StatelessWidget {
               context,
               icon: Icons.collections_bookmark,
               color: Colors.indigo,
-              title: 'Series vs Standalone',
+              title: AppLocalizations.of(context)!.series_vs_standalone,
               value:
-                  '$seriesBooks series (${seriesPercentage.toStringAsFixed(1)}%) | $standaloneBooks standalone',
+                  '$seriesBooks ${AppLocalizations.of(context)!.series} (${seriesPercentage.toStringAsFixed(1)}%) | $standaloneBooks ${AppLocalizations.of(context)!.standalone}',
               subtitle:
-                  'Read: $seriesBooksRead series + $standaloneBooksRead standalone',
+                  '${AppLocalizations.of(context)!.read_label}: $seriesBooksRead ${AppLocalizations.of(context)!.series} + $standaloneBooksRead ${AppLocalizations.of(context)!.standalone}',
             ),
             const Divider(height: 20),
 
@@ -140,12 +144,12 @@ class ReadingInsightsCard extends StatelessWidget {
               context,
               icon: Icons.emoji_events,
               color: Colors.amber,
-              title: 'Personal Bests',
+              title: AppLocalizations.of(context)!.personal_bests,
               value:
-                  'Most in month: $mostBooksInMonth${bestMonth != null ? ' ($bestMonth)' : ''}',
+                  '${AppLocalizations.of(context)!.most_in_month}: $mostBooksInMonth${bestMonth != null ? ' ($bestMonth)' : ''}',
               subtitle:
                   fastestDays != null && fastestBookName != null
-                      ? 'Fastest: $fastestDays days ($fastestBookName)'
+                      ? '${AppLocalizations.of(context)!.fastest}: $fastestDays ${AppLocalizations.of(context)!.days} ($fastestBookName)'
                       : null,
             ),
             const Divider(height: 20),
@@ -155,8 +159,9 @@ class ReadingInsightsCard extends StatelessWidget {
               context,
               icon: Icons.flag,
               color: Colors.green,
-              title: 'Next Milestone (Books Owned)',
-              value: '$nextMilestoneOwned books ($booksToMilestoneOwned to go)',
+              title: AppLocalizations.of(context)!.next_milestone_owned,
+              value:
+                  '$nextMilestoneOwned ${AppLocalizations.of(context)!.books} ($booksToMilestoneOwned ${AppLocalizations.of(context)!.to_go})',
             ),
             const Divider(height: 20),
 
@@ -165,8 +170,9 @@ class ReadingInsightsCard extends StatelessWidget {
               context,
               icon: Icons.menu_book,
               color: Colors.blue,
-              title: 'Next Milestone (Books Read)',
-              value: '$nextMilestoneRead books ($booksToMilestoneRead to go)',
+              title: AppLocalizations.of(context)!.next_milestone_read,
+              value:
+                  '$nextMilestoneRead ${AppLocalizations.of(context)!.books} ($booksToMilestoneRead ${AppLocalizations.of(context)!.to_go})',
             ),
             const Divider(height: 20),
 
@@ -175,9 +181,9 @@ class ReadingInsightsCard extends StatelessWidget {
               context,
               icon: Icons.fast_forward,
               color: Colors.purple,
-              title: 'Binge Reading (Series)',
+              title: AppLocalizations.of(context)!.binge_reading_series,
               value:
-                  '${bingePercentage.toStringAsFixed(1)}% of books finished within 14 days of previous',
+                  '${bingePercentage.toStringAsFixed(1)}% ${AppLocalizations.of(context)!.binge_reading_description}',
             ),
 
             // Mood Reading (Genre by Season)
@@ -249,7 +255,7 @@ class ReadingInsightsCard extends StatelessWidget {
             const Icon(Icons.wb_sunny, color: Colors.deepOrange, size: 24),
             const SizedBox(width: 12),
             Text(
-              'Seasonal Reading Preferences',
+              AppLocalizations.of(context)!.seasonal_reading_preferences,
               style: Theme.of(
                 context,
               ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),

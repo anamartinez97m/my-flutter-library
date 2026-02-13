@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
 /// Displays reading efficiency score
-/// 
+///
 /// **How Reading Efficiency is Calculated:**
 /// 1. Calculate your average reading velocity (pages/day) across all books
 /// 2. For each book, calculate its actual reading pace (pages/day)
 /// 3. If a book's pace >= average velocity, it's considered "efficient"
 /// 4. Efficiency % = (efficient books / total books with data) * 100
-/// 
+///
 /// Example:
 /// - Your average velocity: 50 pages/day
 /// - Book A: 300 pages in 5 days = 60 pages/day → Efficient ✓
@@ -28,18 +29,16 @@ class ReadingEfficiencyCard extends StatelessWidget {
     return Card(
       elevation: 2,
       margin: const EdgeInsets.symmetric(horizontal: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
             Text(
-              'Reading Efficiency Score',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              AppLocalizations.of(context)!.reading_efficiency_score,
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 16),
             Row(
@@ -58,10 +57,10 @@ class ReadingEfficiencyCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'of books read faster than your average pace',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey[600],
-              ),
+              AppLocalizations.of(context)!.books_faster_than_average,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
@@ -87,7 +86,7 @@ class ReadingEfficiencyCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        'What does this mean?',
+                        AppLocalizations.of(context)!.what_does_this_mean,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: Colors.blue[700],
@@ -97,8 +96,7 @@ class ReadingEfficiencyCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'This compares each book\'s reading speed to your overall average. '
-                    'Higher percentages mean you\'re consistently reading at or above your typical pace.',
+                    AppLocalizations.of(context)!.efficiency_explanation,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Colors.grey[700],
                       height: 1.4,
@@ -109,10 +107,12 @@ class ReadingEfficiencyCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Based on $totalReadingsWithData books with complete data',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey[600],
-              ),
+              AppLocalizations.of(
+                context,
+              )!.based_on_n_books(totalReadingsWithData.toString()),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
             ),
           ],
         ),

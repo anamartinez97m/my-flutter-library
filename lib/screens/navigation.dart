@@ -138,8 +138,8 @@ class _NavigationScreenState extends State<NavigationScreen> {
             ),
             NavigationDestination(
               icon: const Icon(Icons.bookmark_outline_outlined),
-              label: 'My Books',
-              tooltip: 'My Books',
+              label: AppLocalizations.of(context)!.my_books,
+              tooltip: AppLocalizations.of(context)!.my_books,
             ),
             NavigationDestination(
               icon: const Icon(Icons.shuffle_outlined),

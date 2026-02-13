@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
 /// Dialog for mapping user's CSV status values to predefined app status values
 class StatusMappingDialog extends StatefulWidget {
   final List<String> predefinedStatuses;
-  
-  const StatusMappingDialog({
-    super.key,
-    required this.predefinedStatuses,
-  });
+
+  const StatusMappingDialog({super.key, required this.predefinedStatuses});
 
   @override
   State<StatusMappingDialog> createState() => _StatusMappingDialogState();
@@ -15,7 +13,7 @@ class StatusMappingDialog extends StatefulWidget {
 
 class _StatusMappingDialogState extends State<StatusMappingDialog> {
   final Map<String, TextEditingController> _controllers = {};
-  
+
   @override
   void initState() {
     super.initState();
@@ -24,7 +22,7 @@ class _StatusMappingDialogState extends State<StatusMappingDialog> {
       _controllers[status] = TextEditingController();
     }
   }
-  
+
   @override
   void dispose() {
     for (final controller in _controllers.values) {
@@ -32,7 +30,7 @@ class _StatusMappingDialogState extends State<StatusMappingDialog> {
     }
     super.dispose();
   }
-  
+
   Map<String, String> _getMappings() {
     final mappings = <String, String>{};
     for (final entry in _controllers.entries) {
@@ -43,11 +41,14 @@ class _StatusMappingDialogState extends State<StatusMappingDialog> {
     }
     return mappings;
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Map Status Values', style: TextStyle(fontSize: 16)),
+      title: Text(
+        AppLocalizations.of(context)!.map_status_values,
+        style: const TextStyle(fontSize: 16),
+      ),
       contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
       content: SingleChildScrollView(
         child: SizedBox(
@@ -56,9 +57,9 @@ class _StatusMappingDialogState extends State<StatusMappingDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Match your CSV status values to app statuses:',
-                style: TextStyle(fontSize: 12),
+              Text(
+                AppLocalizations.of(context)!.match_csv_status_values,
+                style: const TextStyle(fontSize: 12),
               ),
               const SizedBox(height: 12),
               ...widget.predefinedStatuses.map((status) {
@@ -105,10 +106,10 @@ class _StatusMappingDialogState extends State<StatusMappingDialog> {
                   children: [
                     Icon(Icons.info_outline, color: Colors.blue[700], size: 16),
                     const SizedBox(width: 6),
-                    const Expanded(
+                    Expanded(
                       child: Text(
-                        'Leave empty if not used in your CSV',
-                        style: TextStyle(fontSize: 10),
+                        AppLocalizations.of(context)!.leave_empty_if_not_used,
+                        style: const TextStyle(fontSize: 10),
                       ),
                     ),
                   ],
@@ -121,7 +122,7 @@ class _StatusMappingDialogState extends State<StatusMappingDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context, null),
-          child: const Text('Cancel'),
+          child: Text(AppLocalizations.of(context)!.cancel),
         ),
         ElevatedButton(
           onPressed: () {
@@ -132,12 +133,12 @@ class _StatusMappingDialogState extends State<StatusMappingDialog> {
             backgroundColor: Colors.deepPurple,
             foregroundColor: Colors.white,
           ),
-          child: const Text('Continue Import'),
+          child: Text(AppLocalizations.of(context)!.continue_import),
         ),
       ],
     );
   }
-  
+
   String _getHintForStatus(String status) {
     switch (status.toLowerCase()) {
       case 'yes':

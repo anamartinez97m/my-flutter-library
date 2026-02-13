@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/repositories/book_competition_repository.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
@@ -80,9 +81,11 @@ class _SemifinalWinnerSelectionScreenState
 
   Future<void> _saveWinner() async {
     if (selectedBookId == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please select a book')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.please_select_book),
+        ),
+      );
       return;
     }
 
@@ -114,7 +117,7 @@ class _SemifinalWinnerSelectionScreenState
   }
 
   String _getSemifinalName(int roundNumber) {
-    return roundNumber == 1 ? 'Semifinal 1' : 'Semifinal 2';
+    return '${AppLocalizations.of(context)!.semifinal} ${roundNumber.toString()}';
   }
 
   @override
@@ -122,14 +125,18 @@ class _SemifinalWinnerSelectionScreenState
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Select ${_getSemifinalName(widget.roundNumber)} ${widget.year} Winner',
+          AppLocalizations.of(context)!.select_winner_title(
+            '${_getSemifinalName(widget.roundNumber)} ${widget.year}',
+          ),
         ),
       ),
       body:
           isLoading
               ? const Center(child: CircularProgressIndicator())
               : quarterlyWinnerBooks.isEmpty
-              ? const Center(child: Text('No quarterly winners available'))
+              ? Center(
+                child: Text(AppLocalizations.of(context)!.no_quarterly_winners),
+              )
               : Column(
                 children: [
                   Expanded(
@@ -150,10 +157,13 @@ class _SemifinalWinnerSelectionScreenState
                             final isSelected = selectedBookId == book.bookId;
 
                             return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4.0),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 4.0,
+                              ),
                               child: ConstrainedBox(
                                 constraints: BoxConstraints(
-                                  maxWidth: MediaQuery.of(context).size.width * 0.8,
+                                  maxWidth:
+                                      MediaQuery.of(context).size.width * 0.8,
                                 ),
                                 child: Card(
                                   elevation: isSelected ? 8 : 4,
@@ -166,12 +176,16 @@ class _SemifinalWinnerSelectionScreenState
                                   child: Container(
                                     constraints: BoxConstraints(minHeight: 100),
                                     child: ListTile(
-                                      contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 20.0,
-                                        vertical: 16.0,
-                                      ),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 20.0,
+                                            vertical: 16.0,
+                                          ),
                                       title: Text(
-                                        book.name ?? 'Unknown',
+                                        book.name ??
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.unknown,
                                         style:
                                             isSelected
                                                 ? const TextStyle(
@@ -192,14 +206,14 @@ class _SemifinalWinnerSelectionScreenState
                                                 bottom: 4.0,
                                               ),
                                               child: Text(
-                                                'Author: ${book.author}',
+                                                '${AppLocalizations.of(context)!.author}: ${book.author}',
                                                 textAlign: TextAlign.center,
                                               ),
                                             ),
                                           if (book.myRating != null &&
                                               book.myRating! > 0)
                                             Text(
-                                              'Rating: ${book.myRating}/5',
+                                              '${AppLocalizations.of(context)!.rating}: ${book.myRating}/5',
                                               textAlign: TextAlign.center,
                                             ),
                                         ],
@@ -244,9 +258,9 @@ class _SemifinalWinnerSelectionScreenState
                           foregroundColor:
                               Theme.of(context).colorScheme.onPrimary,
                         ),
-                        child: const Text(
-                          'Select',
-                          style: TextStyle(
+                        child: Text(
+                          AppLocalizations.of(context)!.select,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),

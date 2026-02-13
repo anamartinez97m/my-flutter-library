@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/repositories/book_rating_field_repository.dart';
 
 class ManageRatingFieldsScreen extends StatefulWidget {
   const ManageRatingFieldsScreen({super.key});
 
   @override
-  State<ManageRatingFieldsScreen> createState() => _ManageRatingFieldsScreenState();
+  State<ManageRatingFieldsScreen> createState() =>
+      _ManageRatingFieldsScreenState();
 }
 
 class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
@@ -34,7 +36,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRatingFieldRepository(db);
       final names = await repository.getAllFieldNames();
-      
+
       setState(() {
         _fieldNames = names;
         _isLoading = false;
@@ -50,37 +52,38 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
 
   Future<void> _addFieldName() async {
     final controller = TextEditingController();
-    
+
     final result = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Rating Field Name'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Field Name',
-            hintText: 'e.g., Romance, Action, Suspense',
-            border: OutlineInputBorder(),
+      builder:
+          (context) => AlertDialog(
+            title: Text(AppLocalizations.of(context)!.add_rating_field_name),
+            content: TextField(
+              controller: controller,
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.field_name,
+                hintText: AppLocalizations.of(context)!.field_name_hint,
+                border: const OutlineInputBorder(),
+              ),
+              textCapitalization: TextCapitalization.words,
+              autofocus: true,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(AppLocalizations.of(context)!.cancel),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  final name = controller.text.trim();
+                  if (name.isNotEmpty) {
+                    Navigator.pop(context, name);
+                  }
+                },
+                child: Text(AppLocalizations.of(context)!.add),
+              ),
+            ],
           ),
-          textCapitalization: TextCapitalization.words,
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final name = controller.text.trim();
-              if (name.isNotEmpty) {
-                Navigator.pop(context, name);
-              }
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      ),
     );
 
     if (result != null && result.isNotEmpty) {
@@ -88,7 +91,9 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Field name "$result" already exists'),
+              content: Text(
+                AppLocalizations.of(context)!.field_name_already_exists(result),
+              ),
               backgroundColor: Colors.orange,
             ),
           );
@@ -100,13 +105,13 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         final db = await DatabaseHelper.instance.database;
         final repository = BookRatingFieldRepository(db);
         await repository.addFieldName(result);
-        
+
         await _loadFieldNames();
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Added "$result"'),
+              content: Text(AppLocalizations.of(context)!.added_value(result)),
               backgroundColor: Colors.green,
             ),
           );
@@ -116,7 +121,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error adding field name: $e'),
+              content: Text('${AppLocalizations.of(context)!.error}: $e'),
               backgroundColor: Colors.red,
             ),
           );
@@ -127,36 +132,37 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
 
   Future<void> _editFieldName(String oldName) async {
     final controller = TextEditingController(text: oldName);
-    
+
     final result = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Rating Field Name'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Field Name',
-            border: OutlineInputBorder(),
+      builder:
+          (context) => AlertDialog(
+            title: Text(AppLocalizations.of(context)!.edit_rating_field_name),
+            content: TextField(
+              controller: controller,
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.field_name,
+                border: const OutlineInputBorder(),
+              ),
+              textCapitalization: TextCapitalization.words,
+              autofocus: true,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(AppLocalizations.of(context)!.cancel),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  final name = controller.text.trim();
+                  if (name.isNotEmpty) {
+                    Navigator.pop(context, name);
+                  }
+                },
+                child: Text(AppLocalizations.of(context)!.save),
+              ),
+            ],
           ),
-          textCapitalization: TextCapitalization.words,
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final name = controller.text.trim();
-              if (name.isNotEmpty) {
-                Navigator.pop(context, name);
-              }
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
     );
 
     if (result != null && result.isNotEmpty && result != oldName) {
@@ -164,7 +170,9 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Field name "$result" already exists'),
+              content: Text(
+                AppLocalizations.of(context)!.field_name_already_exists(result),
+              ),
               backgroundColor: Colors.orange,
             ),
           );
@@ -176,13 +184,17 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         final db = await DatabaseHelper.instance.database;
         final repository = BookRatingFieldRepository(db);
         await repository.updateFieldName(oldName, result);
-        
+
         await _loadFieldNames();
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Updated "$oldName" to "$result"'),
+              content: Text(
+                AppLocalizations.of(
+                  context,
+                )!.updated_field_name(oldName, result),
+              ),
               backgroundColor: Colors.green,
             ),
           );
@@ -192,7 +204,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error updating field name: $e'),
+              content: Text('${AppLocalizations.of(context)!.error}: $e'),
               backgroundColor: Colors.red,
             ),
           );
@@ -212,66 +224,69 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
 
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Rating Field Name'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Are you sure you want to delete "$name"?'),
-            if (count > 0) ...[
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.orange.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.orange),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.warning, color: Colors.orange),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'This field is used in $count rating(s). They will be deleted.',
-                        style: const TextStyle(color: Colors.orange),
-                      ),
+      builder:
+          (context) => AlertDialog(
+            title: Text(AppLocalizations.of(context)!.delete_rating_field_name),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(AppLocalizations.of(context)!.confirm_delete_value(name)),
+                if (count > 0) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.orange),
                     ),
-                  ],
+                    child: Row(
+                      children: [
+                        const Icon(Icons.warning, color: Colors.orange),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            AppLocalizations.of(
+                              context,
+                            )!.field_used_in_ratings(count),
+                            style: const TextStyle(color: Colors.orange),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text(AppLocalizations.of(context)!.cancel),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
                 ),
+                child: Text(AppLocalizations.of(context)!.delete),
               ),
             ],
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
     );
 
     if (confirmed == true) {
       try {
         final repository = BookRatingFieldRepository(db);
         await repository.deleteFieldName(name);
-        
+
         await _loadFieldNames();
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Deleted "$name"'),
+              content: Text(AppLocalizations.of(context)!.deleted_value(name)),
               backgroundColor: Colors.red,
             ),
           );
@@ -281,7 +296,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error deleting field name: $e'),
+              content: Text('${AppLocalizations.of(context)!.error}: $e'),
               backgroundColor: Colors.red,
             ),
           );
@@ -294,102 +309,131 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manage Rating Field Names'),
+        title: Text(AppLocalizations.of(context)!.manage_rating_field_names),
         centerTitle: true,
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                // Info card
-                Card(
-                  margin: const EdgeInsets.all(16),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.info_outline,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                            const SizedBox(width: 8),
-                            const Text(
-                              'About Rating Fields',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Column(
+                children: [
+                  // Info card
+                  Card(
+                    margin: const EdgeInsets.all(16),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.info_outline,
+                                color: Theme.of(context).colorScheme.primary,
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'These are the criterion names available when rating books. '
-                          'You can add custom names or edit existing ones. '
-                          'Changes will apply to all future ratings.',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                      ],
+                              const SizedBox(width: 8),
+                              Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.about_rating_fields,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            AppLocalizations.of(
+                              context,
+                            )!.about_rating_fields_description,
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
 
-                // List of field names
-                Expanded(
-                  child: _fieldNames.isEmpty
-                      ? const Center(
-                          child: Text('No rating field names yet'),
-                        )
-                      : ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          itemCount: _fieldNames.length,
-                          itemBuilder: (context, index) {
-                            final name = _fieldNames[index];
-                            final isDefault = _defaultSuggestions.contains(name);
-                            
-                            return Card(
-                              margin: const EdgeInsets.only(bottom: 8),
-                              child: ListTile(
-                                leading: Icon(
-                                  isDefault ? Icons.star : Icons.star_border,
-                                  color: isDefault
-                                      ? Colors.amber
-                                      : Theme.of(context).colorScheme.primary,
-                                ),
-                                title: Text(name),
-                                subtitle: isDefault
-                                    ? const Text('Default suggestion')
-                                    : null,
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(Icons.edit),
-                                      onPressed: () => _editFieldName(name),
-                                      tooltip: 'Edit',
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(Icons.delete),
-                                      color: Colors.red,
-                                      onPressed: () => _deleteFieldName(name),
-                                      tooltip: 'Delete',
-                                    ),
-                                  ],
-                                ),
+                  // List of field names
+                  Expanded(
+                    child:
+                        _fieldNames.isEmpty
+                            ? Center(
+                              child: Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.no_rating_field_names,
                               ),
-                            );
-                          },
-                        ),
-                ),
-              ],
-            ),
+                            )
+                            : ListView.builder(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              itemCount: _fieldNames.length,
+                              itemBuilder: (context, index) {
+                                final name = _fieldNames[index];
+                                final isDefault = _defaultSuggestions.contains(
+                                  name,
+                                );
+
+                                return Card(
+                                  margin: const EdgeInsets.only(bottom: 8),
+                                  child: ListTile(
+                                    leading: Icon(
+                                      isDefault
+                                          ? Icons.star
+                                          : Icons.star_border,
+                                      color:
+                                          isDefault
+                                              ? Colors.amber
+                                              : Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
+                                    ),
+                                    title: Text(name),
+                                    subtitle:
+                                        isDefault
+                                            ? Text(
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.default_suggestion,
+                                            )
+                                            : null,
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(Icons.edit),
+                                          onPressed: () => _editFieldName(name),
+                                          tooltip:
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.edit,
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.delete),
+                                          color: Colors.red,
+                                          onPressed:
+                                              () => _deleteFieldName(name),
+                                          tooltip:
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.delete,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                  ),
+                ],
+              ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addFieldName,
         icon: const Icon(Icons.add),
-        label: const Text('Add Field Name'),
+        label: Text(AppLocalizations.of(context)!.add_field_name),
       ),
     );
   }

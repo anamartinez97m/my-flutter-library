@@ -125,10 +125,8 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CheckboxListTile(
-          title: const Text('This is a bundle'),
-          subtitle: const Text(
-            'Check if this book contains multiple books in one volume',
-          ),
+          title: Text(AppLocalizations.of(context)!.this_is_a_bundle),
+          subtitle: Text(AppLocalizations.of(context)!.bundle_description),
           value: _isBundle,
           onChanged: (value) {
             setState(() {
@@ -142,11 +140,12 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
           const SizedBox(height: 16),
           TextFormField(
             controller: _bundleCountController,
-            decoration: const InputDecoration(
-              labelText: 'Number of Books in Bundle',
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.library_books),
-              hintText: 'e.g., 3',
+            decoration: InputDecoration(
+              labelText:
+                  AppLocalizations.of(context)!.number_of_books_in_bundle,
+              border: const OutlineInputBorder(),
+              prefixIcon: const Icon(Icons.library_books),
+              hintText: AppLocalizations.of(context)!.eg_3,
             ),
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -154,7 +153,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
           const SizedBox(height: 16),
           if (_bundleBooks.isNotEmpty) ...[
             Text(
-              'Bundle Book Details',
+              AppLocalizations.of(context)!.bundle_book_details,
               style: Theme.of(
                 context,
               ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
@@ -233,9 +232,9 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                           widget.statusOptions!.isNotEmpty)
                         DropdownButtonFormField<String>(
                           value: statusValue,
-                          decoration: const InputDecoration(
-                            labelText: 'Status',
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.status,
+                            border: const OutlineInputBorder(),
                             isDense: true,
                           ),
                           items:
@@ -258,11 +257,11 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                       TextFormField(
                         key: ValueKey('saga_$index'),
                         initialValue: bookData.sagaNumber ?? '',
-                        decoration: const InputDecoration(
-                          labelText: 'Saga Number (N_Saga)',
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.saga_number,
+                          border: const OutlineInputBorder(),
                           isDense: true,
-                          hintText: 'e.g., 1 or 1.5',
+                          hintText: AppLocalizations.of(context)!.eg_1_or_1_5,
                         ),
                         onChanged: (value) {
                           setState(() {
@@ -277,11 +276,12 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                       TextFormField(
                         key: ValueKey('title_$index'),
                         initialValue: bookData.title ?? '',
-                        decoration: const InputDecoration(
-                          labelText: 'Book Title',
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.book_title,
+                          border: const OutlineInputBorder(),
                           isDense: true,
-                          hintText: 'Enter book title',
+                          hintText:
+                              AppLocalizations.of(context)!.enter_book_title,
                         ),
                         onChanged: (value) {
                           setState(() {
@@ -297,12 +297,14 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                         TextFormField(
                           key: ValueKey('author_$index'),
                           initialValue: bookData.author ?? '',
-                          decoration: const InputDecoration(
-                            labelText: 'Author(s)',
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.authors,
+                            border: const OutlineInputBorder(),
                             isDense: true,
                             hintText:
-                                'Enter author name(s), separate with commas',
+                                AppLocalizations.of(
+                                  context,
+                                )!.enter_author_names,
                           ),
                           onChanged: (value) {
                             setState(() {
@@ -339,11 +341,14 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                           key: ValueKey('year_$index'),
                           initialValue:
                               bookData.publicationYear?.toString() ?? '',
-                          decoration: const InputDecoration(
-                            labelText: 'Original Publication Year',
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            labelText:
+                                AppLocalizations.of(
+                                  context,
+                                )!.original_publication_year,
+                            border: const OutlineInputBorder(),
                             isDense: true,
-                            hintText: 'e.g., 2020',
+                            hintText: AppLocalizations.of(context)!.eg_2020,
                           ),
                           keyboardType: TextInputType.number,
                           onChanged: (value) {

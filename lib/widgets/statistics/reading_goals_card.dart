@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/repositories/year_challenge_repository.dart';
 import 'package:myrandomlibrary/screens/year_challenges.dart';
 
@@ -121,7 +122,7 @@ class _ReadingGoalsCardState extends State<ReadingGoalsCard>
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Reading Goals Progress',
+                    AppLocalizations.of(context)!.reading_goals_progress,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w600,
                       color: Colors.grey[700],
@@ -130,7 +131,9 @@ class _ReadingGoalsCardState extends State<ReadingGoalsCard>
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'No challenge set for ${DateTime.now().year}',
+                    AppLocalizations.of(context)!.no_challenge_set_for_year(
+                      DateTime.now().year.toString(),
+                    ),
                     style: Theme.of(
                       context,
                     ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
@@ -147,7 +150,7 @@ class _ReadingGoalsCardState extends State<ReadingGoalsCard>
                       );
                     },
                     icon: const Icon(Icons.add),
-                    label: const Text('Create Challenge'),
+                    label: Text(AppLocalizations.of(context)!.create_challenge),
                   ),
                 ],
               ),
@@ -197,7 +200,7 @@ class _ReadingGoalsCardState extends State<ReadingGoalsCard>
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      '${DateTime.now().year} Reading Goals',
+                      '${DateTime.now().year} ${AppLocalizations.of(context)!.reading_goals}',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -216,9 +219,9 @@ class _ReadingGoalsCardState extends State<ReadingGoalsCard>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Books:',
-                      style: TextStyle(fontWeight: FontWeight.w500),
+                    Text(
+                      AppLocalizations.of(context)!.books_label,
+                      style: const TextStyle(fontWeight: FontWeight.w500),
                     ),
                     Text(
                       '$booksRead / $targetBooks',
@@ -251,9 +254,9 @@ class _ReadingGoalsCardState extends State<ReadingGoalsCard>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Pages:',
-                      style: TextStyle(fontWeight: FontWeight.w500),
+                    Text(
+                      AppLocalizations.of(context)!.pages_label,
+                      style: const TextStyle(fontWeight: FontWeight.w500),
                     ),
                     Text(
                       '$pagesRead / $targetPages',

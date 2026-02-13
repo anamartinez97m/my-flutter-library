@@ -60,9 +60,11 @@ class _MonthlyWinnerSelectionScreenState
 
   Future<void> _saveWinner() async {
     if (selectedBookId == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please select a book')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.please_select_book),
+        ),
+      );
       return;
     }
 
@@ -84,7 +86,13 @@ class _MonthlyWinnerSelectionScreenState
       if (mounted) {
         Navigator.of(context).pop(true); // Return true to indicate success
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${selectedBook.name} selected as winner!')),
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(
+                context,
+              )!.selected_as_winner(selectedBook.name!),
+            ),
+          ),
         );
       }
     } catch (e) {
@@ -120,14 +128,18 @@ class _MonthlyWinnerSelectionScreenState
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Select ${_getMonthName(widget.month)} ${widget.year} Winner',
+          AppLocalizations.of(context)!.select_winner_title(
+            '${_getMonthName(widget.month)} ${widget.year}',
+          ),
         ),
       ),
       body:
           isLoading
               ? const Center(child: CircularProgressIndicator())
               : books.isEmpty
-              ? const Center(child: Text('No books read this month'))
+              ? Center(
+                child: Text(AppLocalizations.of(context)!.no_books_this_month),
+              )
               : Column(
                 children: [
                   Expanded(
@@ -148,7 +160,8 @@ class _MonthlyWinnerSelectionScreenState
                                   : null,
                           child: ListTile(
                             title: Text(
-                              book.name ?? 'Unknown',
+                              book.name ??
+                                  AppLocalizations.of(context)!.unknown,
                               style:
                                   isSelected
                                       ? TextStyle(fontWeight: FontWeight.bold)
@@ -158,9 +171,13 @@ class _MonthlyWinnerSelectionScreenState
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 if (book.author != null)
-                                  Text('Author: ${book.author}'),
+                                  Text(
+                                    '${AppLocalizations.of(context)!.author}: ${book.author}',
+                                  ),
                                 if (book.myRating != null && book.myRating! > 0)
-                                  Text('Rating: ${book.myRating}/5'),
+                                  Text(
+                                    '${AppLocalizations.of(context)!.rating}: ${book.myRating}/5',
+                                  ),
                               ],
                             ),
                             trailing:
@@ -195,9 +212,9 @@ class _MonthlyWinnerSelectionScreenState
                           foregroundColor:
                               Theme.of(context).colorScheme.onPrimary,
                         ),
-                        child: const Text(
-                          'Select',
-                          style: TextStyle(
+                        child: Text(
+                          AppLocalizations.of(context)!.select,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),

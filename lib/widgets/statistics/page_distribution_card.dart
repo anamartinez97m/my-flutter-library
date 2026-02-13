@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
 class PageDistributionCard extends StatelessWidget {
   final Map<String, int> pageDistribution;
@@ -16,7 +17,7 @@ class PageDistributionCard extends StatelessWidget {
         child: Column(
           children: [
             Text(
-              'Page Count Distribution',
+              AppLocalizations.of(context)!.page_count_distribution,
               style: Theme.of(
                 context,
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
@@ -34,7 +35,7 @@ class PageDistributionCard extends StatelessWidget {
                     SizedBox(
                       width: 80,
                       child: Text(
-                        '${entry.key} pages',
+                        '${entry.key} ${AppLocalizations.of(context)!.pages}',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ),

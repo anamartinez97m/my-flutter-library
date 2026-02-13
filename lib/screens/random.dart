@@ -132,7 +132,8 @@ class _RandomScreenState extends State<RandomScreen> {
 
             // Format filter (optional) - multiple selection
             if (_filterFormat.isNotEmpty) {
-              if (book.formatValue == null || !_filterFormat.contains(book.formatValue)) {
+              if (book.formatValue == null ||
+                  !_filterFormat.contains(book.formatValue)) {
                 return false;
               }
             }
@@ -222,7 +223,9 @@ class _RandomScreenState extends State<RandomScreen> {
         _randomBook = null;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No books match the selected filters')),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.no_books_match_filters),
+        ),
       );
       return;
     }
@@ -341,7 +344,7 @@ class _RandomScreenState extends State<RandomScreen> {
           children: [
             const SizedBox(height: 16),
             Text(
-              'Random Book Picker',
+              AppLocalizations.of(context)!.random_book_picker,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: Colors.deepPurple,
@@ -350,7 +353,7 @@ class _RandomScreenState extends State<RandomScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Apply filters and get a random book suggestion',
+              AppLocalizations.of(context)!.random_book_description,
               style: Theme.of(
                 context,
               ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
@@ -382,13 +385,15 @@ class _RandomScreenState extends State<RandomScreen> {
                       onTap: () async {
                         final selected = await showDialog<List<String>>(
                           context: context,
-                          builder: (context) => _MultiSelectDialog(
-                            title: AppLocalizations.of(context)!.format,
-                            items: _formatList
-                                .map((f) => f['value'] as String)
-                                .toList(),
-                            initialSelected: _filterFormat,
-                          ),
+                          builder:
+                              (context) => _MultiSelectDialog(
+                                title: AppLocalizations.of(context)!.format,
+                                items:
+                                    _formatList
+                                        .map((f) => f['value'] as String)
+                                        .toList(),
+                                initialSelected: _filterFormat,
+                              ),
                         );
                         if (selected != null) {
                           setState(() {
@@ -456,13 +461,15 @@ class _RandomScreenState extends State<RandomScreen> {
                           onTap: () async {
                             final selected = await showDialog<List<String>>(
                               context: context,
-                              builder: (context) => _MultiSelectDialog(
-                                title: AppLocalizations.of(context)!.genre,
-                                items: _genreList
-                                    .map((g) => g['name'] as String)
-                                    .toList(),
-                                initialSelected: _filterGenre,
-                              ),
+                              builder:
+                                  (context) => _MultiSelectDialog(
+                                    title: AppLocalizations.of(context)!.genre,
+                                    items:
+                                        _genreList
+                                            .map((g) => g['name'] as String)
+                                            .toList(),
+                                    initialSelected: _filterGenre,
+                                  ),
                             );
                             if (selected != null) {
                               setState(() {
@@ -497,8 +504,12 @@ class _RandomScreenState extends State<RandomScreen> {
                                   padding: const EdgeInsets.only(left: 12),
                                   child: Text(
                                     _genreUseAndLogic
-                                        ? 'AND: must have all selected genres'
-                                        : 'OR: matches any selected genre',
+                                        ? AppLocalizations.of(
+                                          context,
+                                        )!.and_all_genres
+                                        : AppLocalizations.of(
+                                          context,
+                                        )!.or_any_genre,
                                     style: TextStyle(
                                       fontSize: 11,
                                       color: Colors.grey[600],
@@ -529,12 +540,22 @@ class _RandomScreenState extends State<RandomScreen> {
                                   ),
                                   children: const [
                                     Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 6),
-                                      child: Text('AND', style: TextStyle(fontSize: 10)),
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                      ),
+                                      child: Text(
+                                        'AND',
+                                        style: TextStyle(fontSize: 10),
+                                      ),
                                     ),
                                     Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 6),
-                                      child: Text('OR', style: TextStyle(fontSize: 10)),
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                      ),
+                                      child: Text(
+                                        'OR',
+                                        style: TextStyle(fontSize: 10),
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -586,13 +607,15 @@ class _RandomScreenState extends State<RandomScreen> {
                           onTap: () async {
                             final selected = await showDialog<List<String>>(
                               context: context,
-                              builder: (context) => _MultiSelectDialog(
-                                title: AppLocalizations.of(context)!.status,
-                                items: _statusList
-                                    .map((s) => s['value'] as String)
-                                    .toList(),
-                                initialSelected: _filterStatus,
-                              ),
+                              builder:
+                                  (context) => _MultiSelectDialog(
+                                    title: AppLocalizations.of(context)!.status,
+                                    items:
+                                        _statusList
+                                            .map((s) => s['value'] as String)
+                                            .toList(),
+                                    initialSelected: _filterStatus,
+                                  ),
                             );
                             if (selected != null) {
                               setState(() {
@@ -627,8 +650,12 @@ class _RandomScreenState extends State<RandomScreen> {
                                   padding: const EdgeInsets.only(left: 12),
                                   child: Text(
                                     _statusUseAndLogic
-                                        ? 'AND: not practical (book has one status)'
-                                        : 'OR: matches any selected status',
+                                        ? AppLocalizations.of(
+                                          context,
+                                        )!.and_not_practical
+                                        : AppLocalizations.of(
+                                          context,
+                                        )!.or_any_status,
                                     style: TextStyle(
                                       fontSize: 11,
                                       color: Colors.grey[600],
@@ -659,12 +686,22 @@ class _RandomScreenState extends State<RandomScreen> {
                                   ),
                                   children: const [
                                     Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 6),
-                                      child: Text('AND', style: TextStyle(fontSize: 10)),
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                      ),
+                                      child: Text(
+                                        'AND',
+                                        style: TextStyle(fontSize: 10),
+                                      ),
                                     ),
                                     Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 6),
-                                      child: Text('OR', style: TextStyle(fontSize: 10)),
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                      ),
+                                      child: Text(
+                                        'OR',
+                                        style: TextStyle(fontSize: 10),
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -680,23 +717,29 @@ class _RandomScreenState extends State<RandomScreen> {
                     DropdownButtonFormField<bool?>(
                       value: _filterTBR,
                       isExpanded: true,
-                      decoration: const InputDecoration(
-                        labelText: 'TBR (To Be Read)',
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(
+                      decoration: InputDecoration(
+                        labelText:
+                            AppLocalizations.of(context)!.tbr_filter_label,
+                        border: const OutlineInputBorder(),
+                        contentPadding: const EdgeInsets.symmetric(
                           horizontal: 12,
                           vertical: 8,
                         ),
                       ),
-                      items: const [
-                        DropdownMenuItem(value: null, child: Text('Any')),
+                      items: [
+                        DropdownMenuItem(
+                          value: null,
+                          child: Text(AppLocalizations.of(context)!.any),
+                        ),
                         DropdownMenuItem(
                           value: true,
-                          child: Text('Yes - In TBR'),
+                          child: Text(AppLocalizations.of(context)!.yes_in_tbr),
                         ),
                         DropdownMenuItem(
                           value: false,
-                          child: Text('No - Not in TBR'),
+                          child: Text(
+                            AppLocalizations.of(context)!.no_not_in_tbr,
+                          ),
                         ),
                       ],
                       onChanged: (value) {
@@ -783,9 +826,15 @@ class _RandomScreenState extends State<RandomScreen> {
                           vertical: 8,
                         ),
                       ),
-                      items: const [
-                        DropdownMenuItem(value: null, child: Text('Any')),
-                        DropdownMenuItem(value: '0-200', child: Text('0-200')),
+                      items: [
+                        DropdownMenuItem(
+                          value: null,
+                          child: Text(AppLocalizations.of(context)!.any),
+                        ),
+                        const DropdownMenuItem(
+                          value: '0-200',
+                          child: Text('0-200'),
+                        ),
                         DropdownMenuItem(
                           value: '200-400',
                           child: Text('200-400'),
@@ -812,16 +861,22 @@ class _RandomScreenState extends State<RandomScreen> {
                     DropdownButtonFormField<String>(
                       value: _filterYear,
                       isExpanded: true,
-                      decoration: const InputDecoration(
-                        labelText: 'Publication Year (by decade)',
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(
+                      decoration: InputDecoration(
+                        labelText:
+                            AppLocalizations.of(
+                              context,
+                            )!.publication_year_decade,
+                        border: const OutlineInputBorder(),
+                        contentPadding: const EdgeInsets.symmetric(
                           horizontal: 12,
                           vertical: 8,
                         ),
                       ),
-                      items: const [
-                        DropdownMenuItem(value: null, child: Text('Any')),
+                      items: [
+                        DropdownMenuItem(
+                          value: null,
+                          child: Text(AppLocalizations.of(context)!.any),
+                        ),
                         DropdownMenuItem(value: '1900', child: Text('1900s')),
                         DropdownMenuItem(value: '1910', child: Text('1910s')),
                         DropdownMenuItem(value: '1920', child: Text('1920s')),
@@ -882,14 +937,16 @@ class _RandomScreenState extends State<RandomScreen> {
 
                     // Custom book selection
                     Text(
-                      'Or select specific books',
+                      AppLocalizations.of(context)!.or_select_specific_books,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Search and select books by title to pick randomly from your custom list',
+                      AppLocalizations.of(
+                        context,
+                      )!.search_select_books_description,
                       style: Theme.of(
                         context,
                       ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
@@ -906,11 +963,14 @@ class _RandomScreenState extends State<RandomScreen> {
                               ..sort();
 
                         return ChipAutocompleteField(
-                          labelText: 'Select Books',
+                          labelText: AppLocalizations.of(context)!.select_books,
                           prefixIcon: Icons.library_books,
                           suggestions: bookTitles,
                           initialValues: _selectedBookTitles,
-                          hintText: 'Type to search books by title',
+                          hintText:
+                              AppLocalizations.of(
+                                context,
+                              )!.type_to_search_books,
                           onChanged: (values) {
                             setState(() {
                               _selectedBookTitles = values;
@@ -930,7 +990,11 @@ class _RandomScreenState extends State<RandomScreen> {
                             icon: const Icon(Icons.casino),
                             label: Text(
                               _useCustomList
-                                  ? 'Random from Selected (${_selectedBookTitles.length})'
+                                  ? AppLocalizations.of(
+                                    context,
+                                  )!.random_from_selected(
+                                    _selectedBookTitles.length.toString(),
+                                  )
                                   : AppLocalizations.of(
                                     context,
                                   )!.get_random_book,
@@ -990,7 +1054,8 @@ class _RandomScreenState extends State<RandomScreen> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          _randomBook!.name ?? 'Unknown',
+                          _randomBook!.name ??
+                              AppLocalizations.of(context)!.unknown,
                           style: Theme.of(
                             context,
                           ).textTheme.titleLarge?.copyWith(
@@ -1012,7 +1077,9 @@ class _RandomScreenState extends State<RandomScreen> {
                         ElevatedButton.icon(
                           onPressed: _getRandomBook,
                           icon: const Icon(Icons.refresh),
-                          label: const Text('Try Another'),
+                          label: Text(
+                            AppLocalizations.of(context)!.try_another,
+                          ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.deepPurple,
                             foregroundColor: Colors.white,
@@ -1020,7 +1087,7 @@ class _RandomScreenState extends State<RandomScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Tap card to view details',
+                          AppLocalizations.of(context)!.tap_to_view_details,
                           style: Theme.of(
                             context,
                           ).textTheme.bodySmall?.copyWith(
@@ -1102,15 +1169,15 @@ class _MultiSelectDialogState extends State<_MultiSelectDialog> {
               _selectedItems.clear();
             });
           },
-          child: const Text('Clear All'),
+          child: Text(AppLocalizations.of(context)!.clear_all),
         ),
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(AppLocalizations.of(context)!.cancel),
         ),
         ElevatedButton(
           onPressed: () => Navigator.pop(context, _selectedItems),
-          child: const Text('OK'),
+          child: Text(AppLocalizations.of(context)!.ok),
         ),
       ],
     );

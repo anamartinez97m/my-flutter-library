@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/screens/book_detail.dart';
@@ -10,7 +11,7 @@ class RereadsDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Re-read Books')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.re_read_books)),
       body: Consumer<BookProvider>(
         builder: (context, provider, child) {
           final books = provider.allBooks;
@@ -36,7 +37,7 @@ class RereadsDetailScreen extends StatelessWidget {
                   Icon(Icons.replay, size: 64, color: Colors.grey[400]),
                   const SizedBox(height: 16),
                   Text(
-                    'No re-read books yet',
+                    AppLocalizations.of(context)!.no_re_read_books_yet,
                     style: Theme.of(
                       context,
                     ).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
@@ -76,7 +77,7 @@ class RereadsDetailScreen extends StatelessWidget {
                     ),
                   ),
                   title: Text(
-                    book.name ?? 'Unknown',
+                    book.name ?? AppLocalizations.of(context)!.unknown,
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   subtitle: Column(
@@ -91,7 +92,9 @@ class RereadsDetailScreen extends StatelessWidget {
                       ],
                       const SizedBox(height: 4),
                       Text(
-                        'Read $readCount times',
+                        AppLocalizations.of(
+                          context,
+                        )!.read_n_times(readCount.toString()),
                         style: TextStyle(
                           color: Colors.teal,
                           fontWeight: FontWeight.w500,

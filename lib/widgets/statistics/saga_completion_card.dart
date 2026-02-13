@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/screens/saga_completion_detail.dart';
 
@@ -56,7 +57,7 @@ class SagaCompletionCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Saga Completion Rate',
+                    AppLocalizations.of(context)!.saga_completion_rate,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -84,7 +85,7 @@ class SagaCompletionCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'Completed',
+                        AppLocalizations.of(context)!.completed,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -101,7 +102,7 @@ class SagaCompletionCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'In Progress',
+                        AppLocalizations.of(context)!.in_progress,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -118,7 +119,7 @@ class SagaCompletionCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'Not Started',
+                        AppLocalizations.of(context)!.not_started,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],

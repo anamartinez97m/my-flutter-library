@@ -117,7 +117,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _saveEnabledCardFields() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('enabled_card_fields', _enabledCardFields.toList());
+    await prefs.setStringList(
+      'enabled_card_fields',
+      _enabledCardFields.toList(),
+    );
   }
 
   void _showFiltersDialog(BuildContext context) {
@@ -127,7 +130,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           (context) => StatefulBuilder(
             builder:
                 (context, setDialogState) => AlertDialog(
-                  title: const Text('Customize Home Filters'),
+                  title: Text(
+                    AppLocalizations.of(context)!.customize_home_filters,
+                  ),
                   content: SizedBox(
                     width: double.maxFinite,
                     child: ListView.builder(
@@ -166,7 +171,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         setDialogState(() {}); // Rebuild dialog
                         _saveEnabledFilters();
                       },
-                      child: const Text('Select All'),
+                      child: Text(AppLocalizations.of(context)!.select_all),
                     ),
                     TextButton(
                       onPressed: () {
@@ -176,11 +181,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         setDialogState(() {}); // Rebuild dialog
                         _saveEnabledFilters();
                       },
-                      child: const Text('Clear All'),
+                      child: Text(AppLocalizations.of(context)!.clear_all),
                     ),
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Close'),
+                      child: Text(AppLocalizations.of(context)!.close),
                     ),
                   ],
                 ),
@@ -195,7 +200,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           (context) => StatefulBuilder(
             builder:
                 (context, setDialogState) => AlertDialog(
-                  title: const Text('Customize Card Fields'),
+                  title: Text(
+                    AppLocalizations.of(context)!.customize_card_fields,
+                  ),
                   content: SizedBox(
                     width: double.maxFinite,
                     child: ListView.builder(
@@ -229,12 +236,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       onPressed: () {
                         setState(() {
                           _enabledCardFields =
-                              _availableCardFields.map((f) => f['key']!).toSet();
+                              _availableCardFields
+                                  .map((f) => f['key']!)
+                                  .toSet();
                         });
                         setDialogState(() {}); // Rebuild dialog
                         _saveEnabledCardFields();
                       },
-                      child: const Text('Select All'),
+                      child: Text(AppLocalizations.of(context)!.select_all),
                     ),
                     TextButton(
                       onPressed: () {
@@ -244,11 +253,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         setDialogState(() {}); // Rebuild dialog
                         _saveEnabledCardFields();
                       },
-                      child: const Text('Clear All'),
+                      child: Text(AppLocalizations.of(context)!.clear_all),
                     ),
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Close'),
+                      child: Text(AppLocalizations.of(context)!.close),
                     ),
                   ],
                 ),
@@ -356,18 +365,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
             context: context,
             builder:
                 (context) => AlertDialog(
-                  title: const Text('Permission Required'),
-                  content: const Text(
-                    'Storage permission is needed to create backups. Would you like to grant permission?',
+                  title: Text(
+                    AppLocalizations.of(context)!.permission_required,
+                  ),
+                  content: Text(
+                    AppLocalizations.of(context)!.storage_permission_needed,
                   ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context, false),
-                      child: const Text('Cancel'),
+                      child: Text(AppLocalizations.of(context)!.cancel),
                     ),
                     TextButton(
                       onPressed: () => Navigator.pop(context, true),
-                      child: const Text('Grant Permission'),
+                      child: Text(
+                        AppLocalizations.of(context)!.grant_permission,
+                      ),
                     ),
                   ],
                 ),
@@ -576,12 +589,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
         try {
           // Extract tags from bookshelves if available (for Goodreads format)
           List<String> bookTags = [];
-          if (csvFormat == CsvFormat.format2 && headerMap.containsKey('bookshelves')) {
+          if (csvFormat == CsvFormat.format2 &&
+              headerMap.containsKey('bookshelves')) {
             final bookshelvesIndex = headerMap['bookshelves'];
             if (bookshelvesIndex != null && bookshelvesIndex < row.length) {
               final bookshelves = row[bookshelvesIndex]?.toString();
               if (bookshelves != null && bookshelves.isNotEmpty) {
-                bookTags = bookshelves.split(',').map((tag) => tag.trim()).where((tag) => tag.isNotEmpty).toList();
+                bookTags =
+                    bookshelves
+                        .split(',')
+                        .map((tag) => tag.trim())
+                        .where((tag) => tag.isNotEmpty)
+                        .toList();
                 allTags.addAll(bookTags);
               }
             }
@@ -657,7 +676,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             importType = 'NEW';
           } else if (duplicateIds.length == 1) {
             importType = 'UPDATE';
-            existingBook = bookWithMappedStatus; // Simplified for settings import
+            existingBook =
+                bookWithMappedStatus; // Simplified for settings import
           } else {
             importType = 'DUPLICATE';
           }
@@ -686,10 +706,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
         importChoice = await showDialog<Map<String, dynamic>>(
           context: context,
           barrierDismissible: false,
-          builder: (context) => _ImportChoiceDialog(
-            availableTags: allTags.toList()..sort(),
-            csvFormat: csvFormat == CsvFormat.format1 ? 'Format 1' : 'Goodreads',
-          ),
+          builder:
+              (context) => _ImportChoiceDialog(
+                availableTags: allTags.toList()..sort(),
+                csvFormat:
+                    csvFormat == CsvFormat.format1 ? 'Format 1' : 'Goodreads',
+              ),
         );
       }
 
@@ -705,7 +727,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       List<_BookImportItem> selectedItems;
       if (importChoice['importFromTag'] == true) {
         final selectedTag = importChoice['selectedTag'] as String;
-        selectedItems = importItems.where((item) => item.tags.contains(selectedTag)).toList();
+        selectedItems =
+            importItems
+                .where((item) => item.tags.contains(selectedTag))
+                .toList();
         debugPrint('=== Importing from tag: $selectedTag ===');
         debugPrint('Books with tag: ${selectedItems.length}');
       } else {
@@ -729,10 +754,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               item.duplicateIds.isNotEmpty) {
             // Update all existing books with the same ISBN
             for (final duplicateId in item.duplicateIds) {
-              await repository.updateBookWithNewData(
-                duplicateId,
-                item.book,
-              );
+              await repository.updateBookWithNewData(duplicateId, item.book);
               updatedCount++;
             }
           } else {
@@ -779,7 +801,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     Icon(Icons.check_circle, color: Colors.green, size: 28),
                     const SizedBox(width: 8),
-                    const Text('Import Completed'),
+                    Text(AppLocalizations.of(context)!.import_completed_title),
                   ],
                 ),
                 content: Text(
@@ -789,7 +811,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('OK'),
+                    child: Text(AppLocalizations.of(context)!.ok),
                   ),
                 ],
               ),
@@ -822,7 +844,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           barrierDismissible: false,
           builder:
               (context) => AlertDialog(
-                title: const Text('Import Error'),
+                title: Text(AppLocalizations.of(context)!.import_error),
                 content: SingleChildScrollView(
                   child: Text(
                     e.toString(),
@@ -832,7 +854,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('OK'),
+                    child: Text(AppLocalizations.of(context)!.ok),
                   ),
                 ],
               ),
@@ -946,10 +968,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (!stats.needsMigration) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'No reading sessions to migrate. All sessions are already on individual books!',
-            ),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.no_sessions_to_migrate),
             backgroundColor: Colors.green,
           ),
         );
@@ -962,11 +982,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Row(
+            title: Row(
               children: [
-                Icon(Icons.history, color: Colors.blue),
-                SizedBox(width: 8),
-                Text('Migrate Reading Sessions?'),
+                const Icon(Icons.history, color: Colors.blue),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    AppLocalizations.of(
+                      context,
+                    )!.migrate_reading_sessions_question,
+                  ),
+                ),
               ],
             ),
             content: Column(
@@ -979,15 +1005,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   'to individual books.',
                 ),
                 const SizedBox(height: 12),
-                const Text(
-                  'What will happen:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                Text(
+                  AppLocalizations.of(context)!.what_will_happen,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                const Text(
-                  '• Reading sessions will be copied to individual books\n'
-                  '• Old bundle reading sessions will be deleted\n'
-                  '• This fixes inconsistencies in bundle reading history',
-                  style: TextStyle(fontSize: 14),
+                Text(
+                  AppLocalizations.of(context)!.migration_description,
+                  style: const TextStyle(fontSize: 14),
                 ),
                 const SizedBox(height: 12),
                 Container(
@@ -996,8 +1020,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     color: Colors.blue.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text(
-                    'ℹ️ This is safe and can be run multiple times',
+                  child: Text(
+                    AppLocalizations.of(context)!.migration_safe_info,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.blue,
@@ -1009,7 +1033,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
+                child: Text(AppLocalizations.of(context)!.cancel),
               ),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, true),
@@ -1017,7 +1041,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   backgroundColor: Colors.blue,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('Migrate'),
+                child: Text(AppLocalizations.of(context)!.migrate),
               ),
             ],
           ),
@@ -1027,7 +1051,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     // Show loading indicator
     if (context.mounted) {
-      _showLoadingDialog(context, 'Migrating reading sessions...');
+      _showLoadingDialog(
+        context,
+        AppLocalizations.of(context)!.migrating_reading_sessions,
+      );
     }
 
     try {
@@ -1046,8 +1073,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               (context) => AlertDialog(
                 title: Text(
                   result.hasErrors
-                      ? 'Migration Completed with Errors'
-                      : 'Migration Successful!',
+                      ? AppLocalizations.of(
+                        context,
+                      )!.migration_completed_with_errors
+                      : AppLocalizations.of(context)!.migration_successful,
                   style: TextStyle(
                     color: result.hasErrors ? Colors.orange : Colors.green,
                   ),
@@ -1057,17 +1086,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('✅ Successful: ${result.successfulBundles} bundles'),
-                      Text('⏭️  Skipped: ${result.skippedBundles} bundles'),
-                      Text('❌ Failed: ${result.failedBundles} bundles'),
                       Text(
-                        '📚 Total sessions migrated: ${result.totalSessionsMigrated}',
+                        AppLocalizations.of(
+                          context,
+                        )!.successful_bundles(result.successfulBundles),
+                      ),
+                      Text(
+                        AppLocalizations.of(
+                          context,
+                        )!.skipped_bundles(result.skippedBundles),
+                      ),
+                      Text(
+                        AppLocalizations.of(
+                          context,
+                        )!.failed_bundles(result.failedBundles),
+                      ),
+                      Text(
+                        AppLocalizations.of(context)!.total_sessions_migrated(
+                          result.totalSessionsMigrated,
+                        ),
                       ),
                       if (result.errors.isNotEmpty) ...[
                         const SizedBox(height: 16),
-                        const Text(
-                          'Errors:',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        Text(
+                          AppLocalizations.of(context)!.errors_label,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         ...result.errors.map(
                           (error) => Text(
@@ -1082,7 +1125,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('Close'),
+                    child: Text(AppLocalizations.of(context)!.close),
                   ),
                 ],
               ),
@@ -1100,7 +1143,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error migrating reading sessions: $e'),
+            content: Text(
+              AppLocalizations.of(
+                context,
+              )!.error_migrating_reading_sessions(e.toString()),
+            ),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 5),
           ),
@@ -1204,9 +1251,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       // Show loading indicator
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Preparing CSV export...'),
-            duration: Duration(seconds: 2),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.preparing_csv_export),
+            duration: const Duration(seconds: 2),
           ),
         );
       }
@@ -1219,8 +1266,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (allBooks.isEmpty) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('No books to export'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.no_books_to_export),
               backgroundColor: Colors.orange,
             ),
           );
@@ -1337,15 +1384,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       // Let user pick a directory
       String? selectedDirectory = await FilePicker.platform.getDirectoryPath(
-        dialogTitle: 'Select folder to save CSV',
+        dialogTitle: AppLocalizations.of(context)!.select_folder_save_csv,
       );
 
       if (selectedDirectory == null) {
         // User canceled
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Export canceled'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.export_canceled),
               backgroundColor: Colors.grey,
             ),
           );
@@ -1362,7 +1409,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Exported ${allBooks.length} books to:\n$filePath'),
+            content: Text(
+              AppLocalizations.of(
+                context,
+              )!.exported_books(allBooks.length, filePath),
+            ),
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 4),
           ),
@@ -1382,18 +1433,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
             context: context,
             builder:
                 (context) => AlertDialog(
-                  title: const Text('Permission Required'),
-                  content: const Text(
-                    'Storage permission is needed to export CSV files. Would you like to grant permission?',
+                  title: Text(
+                    AppLocalizations.of(context)!.permission_required,
+                  ),
+                  content: Text(
+                    AppLocalizations.of(context)!.storage_permission_export,
                   ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context, false),
-                      child: const Text('Cancel'),
+                      child: Text(AppLocalizations.of(context)!.cancel),
                     ),
                     TextButton(
                       onPressed: () => Navigator.pop(context, true),
-                      child: const Text('Grant Permission'),
+                      child: Text(
+                        AppLocalizations.of(context)!.grant_permission,
+                      ),
                     ),
                   ],
                 ),
@@ -1409,7 +1464,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error exporting to CSV: $e'),
+              content: Text(
+                AppLocalizations.of(context)!.error_exporting_csv(e.toString()),
+              ),
               backgroundColor: Colors.red,
               duration: const Duration(seconds: 5),
             ),
@@ -1424,9 +1481,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       // Show loading indicator
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Preparing CSV export...'),
-            duration: Duration(seconds: 2),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.preparing_csv_export),
+            duration: const Duration(seconds: 2),
           ),
         );
       }
@@ -1439,8 +1496,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (allBooks.isEmpty) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('No books to export'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.no_books_to_export),
               backgroundColor: Colors.orange,
             ),
           );
@@ -1557,15 +1614,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       // Let user pick a directory
       String? selectedDirectory = await FilePicker.platform.getDirectoryPath(
-        dialogTitle: 'Select folder to save Excel CSV',
+        dialogTitle: AppLocalizations.of(context)!.select_folder_save_excel_csv,
       );
 
       if (selectedDirectory == null) {
         // User canceled
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Export canceled'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.export_canceled),
               backgroundColor: Colors.grey,
             ),
           );
@@ -1582,7 +1639,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Exported ${allBooks.length} books to:\n$filePath'),
+            content: Text(
+              AppLocalizations.of(
+                context,
+              )!.exported_books(allBooks.length, filePath),
+            ),
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 4),
           ),
@@ -1602,18 +1663,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
             context: context,
             builder:
                 (context) => AlertDialog(
-                  title: const Text('Permission Required'),
-                  content: const Text(
-                    'Storage permission is needed to export CSV files. Would you like to grant permission?',
+                  title: Text(
+                    AppLocalizations.of(context)!.permission_required,
+                  ),
+                  content: Text(
+                    AppLocalizations.of(context)!.storage_permission_export,
                   ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context, false),
-                      child: const Text('Cancel'),
+                      child: Text(AppLocalizations.of(context)!.cancel),
                     ),
                     TextButton(
                       onPressed: () => Navigator.pop(context, true),
-                      child: const Text('Grant Permission'),
+                      child: Text(
+                        AppLocalizations.of(context)!.grant_permission,
+                      ),
                     ),
                   ],
                 ),
@@ -1629,7 +1694,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error exporting to CSV: $e'),
+              content: Text(
+                AppLocalizations.of(context)!.error_exporting_csv(e.toString()),
+              ),
               backgroundColor: Colors.red,
               duration: const Duration(seconds: 5),
             ),
@@ -1653,7 +1720,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       children: [
         _buildThemePreview(
           context,
-          'Warm Earth',
+          AppLocalizations.of(context)!.warm_earth,
           [
             const Color(0xFFa36361),
             const Color(0xFFd3a29d),
@@ -1664,7 +1731,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         _buildThemePreview(
           context,
-          'Vibrant Sunset',
+          AppLocalizations.of(context)!.vibrant_sunset,
           [
             const Color(0xFFef476f),
             const Color(0xFFf78c6b),
@@ -1677,7 +1744,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         _buildThemePreview(
           context,
-          'Soft Pastel',
+          AppLocalizations.of(context)!.soft_pastel,
           [
             const Color(0xFFc8a8e9),
             const Color(0xFFe3aadd),
@@ -1689,7 +1756,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         _buildThemePreview(
           context,
-          'Deep Ocean',
+          AppLocalizations.of(context)!.deep_ocean,
           [
             const Color(0xFF14919b),
             const Color(0xFF0ad1c8),
@@ -1700,7 +1767,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         _buildThemePreview(
           context,
-          'Custom',
+          AppLocalizations.of(context)!.custom,
           [
             themeProvider.customLightPrimary,
             themeProvider.customLightSecondary,
@@ -1730,7 +1797,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       children: [
         _buildThemePreview(
           context,
-          'Mystic Purple',
+          AppLocalizations.of(context)!.mystic_purple,
           [
             const Color(0xFF854f6c),
             const Color(0xFF522b5b),
@@ -1742,7 +1809,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         _buildThemePreview(
           context,
-          'Deep Sea',
+          AppLocalizations.of(context)!.deep_sea,
           [
             const Color(0xFF0c7075),
             const Color(0xFF0f969c),
@@ -1753,7 +1820,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         _buildThemePreview(
           context,
-          'Warm Autumn',
+          AppLocalizations.of(context)!.warm_autumn,
           [
             const Color(0xFF662549),
             const Color(0xFFae445a),
@@ -1764,7 +1831,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         _buildThemePreview(
           context,
-          'Custom',
+          AppLocalizations.of(context)!.custom,
           [
             themeProvider.customDarkPrimary,
             themeProvider.customDarkSecondary,
@@ -1786,60 +1853,63 @@ class _SettingsScreenState extends State<SettingsScreen> {
   ) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Custom Light Palette'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildColorPickerRow(
-                context,
-                'Primary',
-                themeProvider.customLightPrimary,
-                (color) async {
-                  await themeProvider.setCustomLightColors(
-                    color,
-                    themeProvider.customLightSecondary,
-                    themeProvider.customLightTertiary,
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-              _buildColorPickerRow(
-                context,
-                'Secondary',
-                themeProvider.customLightSecondary,
-                (color) async {
-                  await themeProvider.setCustomLightColors(
+      builder:
+          (context) => AlertDialog(
+            title: Text(
+              AppLocalizations.of(context)!.edit_custom_light_palette,
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildColorPickerRow(
+                    context,
+                    AppLocalizations.of(context)!.primary,
                     themeProvider.customLightPrimary,
-                    color,
-                    themeProvider.customLightTertiary,
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-              _buildColorPickerRow(
-                context,
-                'Tertiary',
-                themeProvider.customLightTertiary,
-                (color) async {
-                  await themeProvider.setCustomLightColors(
-                    themeProvider.customLightPrimary,
+                    (color) async {
+                      await themeProvider.setCustomLightColors(
+                        color,
+                        themeProvider.customLightSecondary,
+                        themeProvider.customLightTertiary,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  _buildColorPickerRow(
+                    context,
+                    AppLocalizations.of(context)!.secondary,
                     themeProvider.customLightSecondary,
-                    color,
-                  );
-                },
+                    (color) async {
+                      await themeProvider.setCustomLightColors(
+                        themeProvider.customLightPrimary,
+                        color,
+                        themeProvider.customLightTertiary,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  _buildColorPickerRow(
+                    context,
+                    AppLocalizations.of(context)!.tertiary,
+                    themeProvider.customLightTertiary,
+                    (color) async {
+                      await themeProvider.setCustomLightColors(
+                        themeProvider.customLightPrimary,
+                        themeProvider.customLightSecondary,
+                        color,
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(AppLocalizations.of(context)!.close),
               ),
             ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -1849,60 +1919,61 @@ class _SettingsScreenState extends State<SettingsScreen> {
   ) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Custom Dark Palette'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildColorPickerRow(
-                context,
-                'Primary',
-                themeProvider.customDarkPrimary,
-                (color) async {
-                  await themeProvider.setCustomDarkColors(
-                    color,
-                    themeProvider.customDarkSecondary,
-                    themeProvider.customDarkTertiary,
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-              _buildColorPickerRow(
-                context,
-                'Secondary',
-                themeProvider.customDarkSecondary,
-                (color) async {
-                  await themeProvider.setCustomDarkColors(
+      builder:
+          (context) => AlertDialog(
+            title: Text(AppLocalizations.of(context)!.edit_custom_dark_palette),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildColorPickerRow(
+                    context,
+                    AppLocalizations.of(context)!.primary,
                     themeProvider.customDarkPrimary,
-                    color,
-                    themeProvider.customDarkTertiary,
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-              _buildColorPickerRow(
-                context,
-                'Tertiary',
-                themeProvider.customDarkTertiary,
-                (color) async {
-                  await themeProvider.setCustomDarkColors(
-                    themeProvider.customDarkPrimary,
+                    (color) async {
+                      await themeProvider.setCustomDarkColors(
+                        color,
+                        themeProvider.customDarkSecondary,
+                        themeProvider.customDarkTertiary,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  _buildColorPickerRow(
+                    context,
+                    AppLocalizations.of(context)!.secondary,
                     themeProvider.customDarkSecondary,
-                    color,
-                  );
-                },
+                    (color) async {
+                      await themeProvider.setCustomDarkColors(
+                        themeProvider.customDarkPrimary,
+                        color,
+                        themeProvider.customDarkTertiary,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  _buildColorPickerRow(
+                    context,
+                    AppLocalizations.of(context)!.tertiary,
+                    themeProvider.customDarkTertiary,
+                    (color) async {
+                      await themeProvider.setCustomDarkColors(
+                        themeProvider.customDarkPrimary,
+                        themeProvider.customDarkSecondary,
+                        color,
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(AppLocalizations.of(context)!.close),
               ),
             ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -2010,9 +2081,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: CheckboxListTile(
-                title: const Text('Admin Mode'),
-                subtitle: const Text(
-                  'Enable advanced features like admin CSV import',
+                title: Text(AppLocalizations.of(context)!.admin_mode),
+                subtitle: Text(
+                  AppLocalizations.of(context)!.admin_mode_subtitle,
                 ),
                 value: _isAdmin,
                 onChanged: (value) {
@@ -2060,14 +2131,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          'Admin CSV Import',
+                          AppLocalizations.of(context)!.admin_csv_import,
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.titleLarge
                               ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Review and edit each book before importing',
+                          AppLocalizations.of(
+                            context,
+                          )!.admin_csv_import_subtitle,
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(color: Colors.grey[600]),
@@ -2095,14 +2168,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      'Default Values',
+                      AppLocalizations.of(context)!.default_values,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
                 ),
-                subtitle: const Text('TBR Limit, Sort Order, Home Filters, Card Fields'),
+                subtitle: Text(
+                  AppLocalizations.of(context)!.default_values_subtitle,
+                ),
                 initiallyExpanded: false,
                 children: [
                   Padding(
@@ -2130,29 +2205,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   Icon(
                                     Icons.filter_list,
                                     size: 36,
-                                    color: Theme.of(context).colorScheme.primary,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                   ),
                                   const SizedBox(height: 12),
                                   Text(
-                                    'Customize Home Filters',
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.customize_home_filters,
                                     textAlign: TextAlign.center,
                                     style: Theme.of(context)
                                         .textTheme
                                         .titleLarge
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                        ?.copyWith(fontWeight: FontWeight.w600),
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    'Select which filters to show in the home screen',
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.customize_home_filters_subtitle,
                                     textAlign: TextAlign.center,
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodyMedium
-                                        ?.copyWith(
-                                          color: Colors.grey[600],
-                                        ),
+                                        ?.copyWith(color: Colors.grey[600]),
                                   ),
                                 ],
                               ),
@@ -2178,55 +2254,72 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       children: [
                                         Icon(
                                           Icons.sort,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
                                         ),
                                         const SizedBox(width: 12),
                                         Text(
-                                          'Default Sort Order',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleMedium
-                                              ?.copyWith(
-                                                fontWeight: FontWeight.w600,
-                                              ),
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.default_sort_order,
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.titleMedium?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                       ],
                                     ),
                                     const SizedBox(height: 12),
                                     Text(
-                                      'Set the default order for your book list',
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.default_sort_order_subtitle,
                                       style: Theme.of(context)
                                           .textTheme
                                           .bodySmall
-                                          ?.copyWith(
-                                            color: Colors.grey[600],
-                                          ),
+                                          ?.copyWith(color: Colors.grey[600]),
                                     ),
                                     const SizedBox(height: 16),
                                     DropdownButtonFormField<String>(
                                       value: provider.currentSortBy,
-                                      decoration: const InputDecoration(
-                                        labelText: 'Sort By',
+                                      decoration: InputDecoration(
+                                        labelText:
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.sort_by,
                                         border: OutlineInputBorder(),
                                         contentPadding: EdgeInsets.symmetric(
                                           horizontal: 12,
                                           vertical: 8,
                                         ),
                                       ),
-                                      items: const [
+                                      items: [
                                         DropdownMenuItem(
                                           value: 'name',
-                                          child: Text('Title'),
+                                          child: Text(
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.search_by_title,
+                                          ),
                                         ),
                                         DropdownMenuItem(
                                           value: 'author',
-                                          child: Text('Author'),
+                                          child: Text(
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.author,
+                                          ),
                                         ),
                                         DropdownMenuItem(
                                           value: 'created_at',
-                                          child: Text('Date Added'),
+                                          child: Text(
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.date_added,
+                                          ),
                                         ),
                                       ],
                                       onChanged: (value) {
@@ -2243,29 +2336,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       children: [
                                         Expanded(
                                           child: SegmentedButton<bool>(
-                                            segments: const [
+                                            segments: [
                                               ButtonSegment(
                                                 value: true,
-                                                label: Text('Ascending'),
-                                                icon: Icon(
+                                                label: Text(
+                                                  AppLocalizations.of(
+                                                    context,
+                                                  )!.ascending,
+                                                ),
+                                                icon: const Icon(
                                                   Icons.arrow_upward,
                                                   size: 16,
                                                 ),
                                               ),
                                               ButtonSegment(
                                                 value: false,
-                                                label: Text('Descending'),
-                                                icon: Icon(
+                                                label: Text(
+                                                  AppLocalizations.of(
+                                                    context,
+                                                  )!.descending,
+                                                ),
+                                                icon: const Icon(
                                                   Icons.arrow_downward,
                                                   size: 16,
                                                 ),
                                               ),
                                             ],
                                             selected: {
-                                              provider.currentSortAscending
+                                              provider.currentSortAscending,
                                             },
-                                            onSelectionChanged:
-                                                (Set<bool> newSelection) {
+                                            onSelectionChanged: (
+                                              Set<bool> newSelection,
+                                            ) {
                                               provider.setDefaultSortOrder(
                                                 provider.currentSortBy,
                                                 newSelection.first,
@@ -2299,41 +2401,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   Icon(
                                     Icons.view_agenda,
                                     size: 36,
-                                    color: Theme.of(context).colorScheme.primary,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                   ),
                                   const SizedBox(height: 12),
                                   Text(
-                                    'Customize Card Fields',
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.customize_card_fields,
                                     textAlign: TextAlign.center,
                                     style: Theme.of(context)
                                         .textTheme
                                         .titleLarge
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                        ?.copyWith(fontWeight: FontWeight.w600),
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    'Select which data to show in book cards',
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.customize_card_fields_subtitle,
                                     textAlign: TextAlign.center,
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodyMedium
-                                        ?.copyWith(
-                                          color: Colors.grey[600],
-                                        ),
+                                        ?.copyWith(color: Colors.grey[600]),
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    '${_enabledCardFields.length} fields selected',
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.fields_selected(
+                                      _enabledCardFields.length,
+                                    ),
                                     textAlign: TextAlign.center,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
-                                        ?.copyWith(
-                                          color: Theme.of(context).colorScheme.primary,
-                                          fontWeight: FontWeight.w500,
-                                        ),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall?.copyWith(
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -2364,14 +2471,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      'Import/Export',
+                      AppLocalizations.of(context)!.import_export,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
                 ),
-                subtitle: const Text('CSV & Database Backup'),
+                subtitle: Text(
+                  AppLocalizations.of(context)!.import_export_subtitle,
+                ),
                 initiallyExpanded: false,
                 children: [
                   Padding(
@@ -2398,9 +2507,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         Icon(
                                           Icons.backup_outlined,
                                           size: 36,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
                                         ),
                                         const SizedBox(height: 12),
                                         Text(
@@ -2408,26 +2518,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                             context,
                                           )!.create_database_backup,
                                           textAlign: TextAlign.center,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleMedium
-                                              ?.copyWith(
-                                                fontWeight: FontWeight.w600,
-                                              ),
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.titleMedium?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                         const SizedBox(height: 8),
                                         Text(
                                           AppLocalizations.of(
                                             context,
-                                          )!
-                                              .save_a_copy_of_your_library_database,
+                                          )!.save_a_copy_of_your_library_database,
                                           textAlign: TextAlign.center,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.copyWith(
-                                                color: Colors.grey[600],
-                                              ),
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodySmall?.copyWith(
+                                            color: Colors.grey[600],
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -2452,9 +2559,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         Icon(
                                           Icons.cloud_download_outlined,
                                           size: 36,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
                                         ),
                                         const SizedBox(height: 12),
                                         Text(
@@ -2462,26 +2570,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                             context,
                                           )!.import_database_backup,
                                           textAlign: TextAlign.center,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleMedium
-                                              ?.copyWith(
-                                                fontWeight: FontWeight.w600,
-                                              ),
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.titleMedium?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                         const SizedBox(height: 8),
                                         Text(
                                           AppLocalizations.of(
                                             context,
-                                          )!
-                                              .restore_a_copy_of_your_library_database,
+                                          )!.restore_a_copy_of_your_library_database,
                                           textAlign: TextAlign.center,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.copyWith(
-                                                color: Colors.grey[600],
-                                              ),
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodySmall?.copyWith(
+                                            color: Colors.grey[600],
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -2509,31 +2614,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   Icon(
                                     Icons.upload_file,
                                     size: 36,
-                                    color: Theme.of(context).colorScheme.primary,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                   ),
                                   const SizedBox(height: 12),
                                   Text(
-                                    AppLocalizations.of(context)!
-                                        .import_from_csv,
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.import_from_csv,
                                     textAlign: TextAlign.center,
                                     style: Theme.of(context)
                                         .textTheme
                                         .titleLarge
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                        ?.copyWith(fontWeight: FontWeight.w600),
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    AppLocalizations.of(context)!
-                                        .import_from_csv_file,
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.import_from_csv_file,
                                     textAlign: TextAlign.center,
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodyMedium
-                                        ?.copyWith(
-                                          color: Colors.grey[600],
-                                        ),
+                                        ?.copyWith(color: Colors.grey[600]),
                                   ),
                                   const SizedBox(height: 12),
                                   Container(
@@ -2589,7 +2693,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         const SizedBox(width: 8),
                                         Expanded(
                                           child: Text(
-                                            'For Goodreads CSV: Books must have "owned" or "read-loaned" in bookshelves to be imported',
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.goodreads_csv_hint,
                                             style: Theme.of(
                                               context,
                                             ).textTheme.bodySmall?.copyWith(
@@ -2603,16 +2709,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   ),
                                   const SizedBox(height: 12),
                                   Text(
-                                    AppLocalizations.of(context)!
-                                        .import_from_csv_hint,
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.import_from_csv_hint,
                                     textAlign: TextAlign.center,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
-                                        ?.copyWith(
-                                          color: Colors.grey[500],
-                                          fontStyle: FontStyle.italic,
-                                        ),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall?.copyWith(
+                                      color: Colors.grey[500],
+                                      fontStyle: FontStyle.italic,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -2640,31 +2746,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         Icon(
                                           Icons.file_download,
                                           size: 36,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
                                         ),
                                         const SizedBox(height: 12),
                                         Text(
-                                          'Export to CSV',
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.export_to_csv,
                                           textAlign: TextAlign.center,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleMedium
-                                              ?.copyWith(
-                                                fontWeight: FontWeight.w600,
-                                              ),
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.titleMedium?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                         const SizedBox(height: 8),
                                         Text(
-                                          'For re-import',
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.for_reimport,
                                           textAlign: TextAlign.center,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.copyWith(
-                                                color: Colors.grey[600],
-                                              ),
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodySmall?.copyWith(
+                                            color: Colors.grey[600],
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -2689,31 +2798,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         Icon(
                                           Icons.table_chart,
                                           size: 36,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
                                         ),
                                         const SizedBox(height: 12),
                                         Text(
-                                          'Export to Excel',
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.export_to_excel,
                                           textAlign: TextAlign.center,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleMedium
-                                              ?.copyWith(
-                                                fontWeight: FontWeight.w600,
-                                              ),
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.titleMedium?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                         const SizedBox(height: 8),
                                         Text(
-                                          'Excel-compatible',
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.excel_compatible,
                                           textAlign: TextAlign.center,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.copyWith(
-                                                color: Colors.grey[600],
-                                              ),
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodySmall?.copyWith(
+                                            color: Colors.grey[600],
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -2760,7 +2872,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Manage Rating Field Names',
+                        AppLocalizations.of(context)!.manage_rating_field_names,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w600,
@@ -2768,7 +2880,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Add, edit, or remove rating criterion names',
+                        AppLocalizations.of(
+                          context,
+                        )!.manage_rating_field_names_subtitle,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Colors.grey[600],
@@ -2780,7 +2894,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            
+
             // Manage Club Names
             Card(
               elevation: 2,
@@ -2808,7 +2922,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Manage Club Names',
+                        AppLocalizations.of(context)!.manage_club_names,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w600,
@@ -2816,7 +2930,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Rename or delete reading clubs',
+                        AppLocalizations.of(
+                          context,
+                        )!.manage_club_names_subtitle,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Colors.grey[600],
@@ -2828,7 +2944,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            
+
             // Manage Dropdown Values
             Card(
               elevation: 2,
@@ -3096,8 +3212,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   ListTile(
                     leading: const Icon(Icons.sync_alt),
-                    title: const Text('Migrate Bundle Books'),
-                    subtitle: const Text('Convert old bundles to new system'),
+                    title: Text(
+                      AppLocalizations.of(context)!.migrate_bundle_books_title,
+                    ),
+                    subtitle: Text(
+                      AppLocalizations.of(
+                        context,
+                      )!.migrate_bundle_books_subtitle,
+                    ),
                     trailing: FutureBuilder<bool>(
                       future: BundleMigration.isMigrationNeeded(),
                       builder: (context, snapshot) {
@@ -3120,9 +3242,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               color: Colors.orange,
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: const Text(
-                              'Available',
-                              style: TextStyle(
+                            child: Text(
+                              AppLocalizations.of(context)!.available,
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -3149,9 +3271,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const Divider(height: 1),
                   ListTile(
                     leading: const Icon(Icons.history, color: Colors.blue),
-                    title: const Text('Migrate Reading Sessions'),
-                    subtitle: const Text(
-                      'Move reading sessions to individual books',
+                    title: Text(
+                      AppLocalizations.of(context)!.migrate_reading_sessions,
+                    ),
+                    subtitle: Text(
+                      AppLocalizations.of(
+                        context,
+                      )!.migrate_reading_sessions_subtitle,
                     ),
                     trailing: FutureBuilder<bool>(
                       future: ReadingSessionMigration.needsMigration(),
@@ -3175,9 +3301,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               color: Colors.blue,
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: const Text(
-                              'Available',
-                              style: TextStyle(
+                            child: Text(
+                              AppLocalizations.of(context)!.available,
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -3201,11 +3327,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             AboutListTile(
               icon: const Icon(Icons.info_outline),
-              applicationName: 'My Random Library',
+              applicationName: AppLocalizations.of(context)!.application_name,
               applicationVersion: '1.0.0',
               applicationIcon: const FlutterLogo(),
               applicationLegalese:
-                  '© 2025 Ana Martínez Montañez. Todos los derechos reservados.',
+                  AppLocalizations.of(context)!.application_legalese,
               aboutBoxChildren: [
                 const SizedBox(height: 16),
                 Text(
@@ -3296,7 +3422,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           (context) => StatefulBuilder(
             builder:
                 (context, setDialogState) => AlertDialog(
-                  title: const Text('Pick a Color'),
+                  title: Text(AppLocalizations.of(context)!.pick_a_color),
                   content: SingleChildScrollView(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -3426,9 +3552,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ),
                                 child: Icon(
                                   Icons.palette,
-                                  color: selectedColor.computeLuminance() > 0.5
-                                      ? Colors.black54
-                                      : Colors.white54,
+                                  color:
+                                      selectedColor.computeLuminance() > 0.5
+                                          ? Colors.black54
+                                          : Colors.white54,
                                   size: 32,
                                 ),
                               ),
@@ -3442,7 +3569,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Hue',
+                                AppLocalizations.of(context)!.hue,
                                 style: Theme.of(context).textTheme.bodySmall,
                               ),
                               const SizedBox(height: 8),
@@ -3489,14 +3616,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Cancel'),
+                      child: Text(AppLocalizations.of(context)!.cancel),
                     ),
                     ElevatedButton(
                       onPressed: () {
                         onColorChanged(selectedColor);
                         Navigator.pop(context);
                       },
-                      child: const Text('Apply'),
+                      child: Text(AppLocalizations.of(context)!.apply),
                     ),
                   ],
                 ),
@@ -3538,7 +3665,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           (context) => StatefulBuilder(
             builder:
                 (context, setDialogState) => AlertDialog(
-                  title: const Text('Pick a Custom Color'),
+                  title: Text(
+                    AppLocalizations.of(context)!.pick_a_custom_color,
+                  ),
                   content: SingleChildScrollView(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -3566,7 +3695,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Hue',
+                              AppLocalizations.of(context)!.hue,
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                             const SizedBox(height: 8),
@@ -3682,14 +3811,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Cancel'),
+                      child: Text(AppLocalizations.of(context)!.cancel),
                     ),
                     ElevatedButton(
                       onPressed: () {
                         onColorChanged(selectedColor);
                         Navigator.pop(context);
                       },
-                      child: const Text('Apply'),
+                      child: Text(AppLocalizations.of(context)!.apply),
                     ),
                   ],
                 ),
@@ -3742,7 +3871,7 @@ class _ImportChoiceDialogState extends State<_ImportChoiceDialog> {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Import Options (${widget.csvFormat})',
+              AppLocalizations.of(context)!.import_options(widget.csvFormat),
               style: const TextStyle(fontSize: 16),
             ),
           ),
@@ -3755,7 +3884,7 @@ class _ImportChoiceDialogState extends State<_ImportChoiceDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             RadioListTile<bool>(
-              title: const Text('Import All Books'),
+              title: Text(AppLocalizations.of(context)!.import_all_books),
               value: false,
               groupValue: _importFromTag,
               onChanged: (value) {
@@ -3767,7 +3896,7 @@ class _ImportChoiceDialogState extends State<_ImportChoiceDialog> {
             ),
             if (widget.availableTags.isNotEmpty) ...[
               RadioListTile<bool>(
-                title: const Text('Import from Tag'),
+                title: Text(AppLocalizations.of(context)!.import_from_tag),
                 value: true,
                 groupValue: _importFromTag,
                 onChanged: (value) {
@@ -3781,20 +3910,22 @@ class _ImportChoiceDialogState extends State<_ImportChoiceDialog> {
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
                   value: _selectedTag,
-                  decoration: const InputDecoration(
-                    labelText: 'Select tag',
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.select_tag,
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.tag),
                     isDense: true,
                   ),
                   isExpanded: true,
-                  items: widget.availableTags.map((tag) => DropdownMenuItem(
-                    value: tag,
-                    child: Text(
-                      tag,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  )).toList(),
+                  items:
+                      widget.availableTags
+                          .map(
+                            (tag) => DropdownMenuItem(
+                              value: tag,
+                              child: Text(tag, overflow: TextOverflow.ellipsis),
+                            ),
+                          )
+                          .toList(),
                   onChanged: (value) {
                     setState(() {
                       _selectedTag = value;
@@ -3809,20 +3940,27 @@ class _ImportChoiceDialogState extends State<_ImportChoiceDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(AppLocalizations.of(context)!.cancel),
         ),
         ElevatedButton(
-          onPressed: (_importFromTag && _selectedTag == null) ? null : () {
-            Navigator.pop(context, {
-              'importFromTag': _importFromTag,
-              'selectedTag': _selectedTag,
-            });
-          },
+          onPressed:
+              (_importFromTag && _selectedTag == null)
+                  ? null
+                  : () {
+                    Navigator.pop(context, {
+                      'importFromTag': _importFromTag,
+                      'selectedTag': _selectedTag,
+                    });
+                  },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.blue,
             foregroundColor: Colors.white,
           ),
-          child: Text(_importFromTag ? 'Import from Tag' : 'Import All Books'),
+          child: Text(
+            _importFromTag
+                ? AppLocalizations.of(context)!.import_from_tag
+                : AppLocalizations.of(context)!.import_all_books,
+          ),
         ),
       ],
     );

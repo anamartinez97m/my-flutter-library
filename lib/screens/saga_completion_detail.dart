@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 
 /// Screen showing detailed saga completion status with tabs for Completed, In Progress, and Not Started sagas
@@ -13,35 +14,33 @@ class SagaCompletionDetailScreen extends StatefulWidget {
   });
 
   @override
-  State<SagaCompletionDetailScreen> createState() => _SagaCompletionDetailScreenState();
+  State<SagaCompletionDetailScreen> createState() =>
+      _SagaCompletionDetailScreenState();
 }
 
-class _SagaCompletionDetailScreenState extends State<SagaCompletionDetailScreen> {
+class _SagaCompletionDetailScreenState
+    extends State<SagaCompletionDetailScreen> {
   int _selectedTabIndex = 0;
 
   List<MapEntry<String, Map<String, dynamic>>> get _completedSagas {
-    return widget.sagaStats.entries
-        .where((e) {
-          final total = e.value['total'] as int;
-          final read = e.value['read'] as int;
-          // For unknown totals (-1), never consider completed
-          if (total == -1) return false;
-          return read == total;
-        })
-        .toList()
+    return widget.sagaStats.entries.where((e) {
+        final total = e.value['total'] as int;
+        final read = e.value['read'] as int;
+        // For unknown totals (-1), never consider completed
+        if (total == -1) return false;
+        return read == total;
+      }).toList()
       ..sort((a, b) => a.key.compareTo(b.key));
   }
 
   List<MapEntry<String, Map<String, dynamic>>> get _inProgressSagas {
-    return widget.sagaStats.entries
-        .where((e) {
-          final total = e.value['total'] as int;
-          final read = e.value['read'] as int;
-          // For unknown totals, consider partial if any books read
-          if (total == -1) return read > 0;
-          return read > 0 && read < total;
-        })
-        .toList()
+    return widget.sagaStats.entries.where((e) {
+        final total = e.value['total'] as int;
+        final read = e.value['read'] as int;
+        // For unknown totals, consider partial if any books read
+        if (total == -1) return read > 0;
+        return read > 0 && read < total;
+      }).toList()
       ..sort((a, b) => a.key.compareTo(b.key));
   }
 
@@ -56,7 +55,7 @@ class _SagaCompletionDetailScreenState extends State<SagaCompletionDetailScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Saga Completion'),
+        title: Text(AppLocalizations.of(context)!.saga_completion),
         elevation: 0,
       ),
       body: Column(
@@ -69,7 +68,7 @@ class _SagaCompletionDetailScreenState extends State<SagaCompletionDetailScreen>
                 Expanded(
                   child: _buildTabButton(
                     index: 0,
-                    label: 'Completed',
+                    label: AppLocalizations.of(context)!.completed,
                     count: _completedSagas.length,
                     color: Colors.green,
                   ),
@@ -78,7 +77,7 @@ class _SagaCompletionDetailScreenState extends State<SagaCompletionDetailScreen>
                 Expanded(
                   child: _buildTabButton(
                     index: 1,
-                    label: 'In Progress',
+                    label: AppLocalizations.of(context)!.in_progress,
                     count: _inProgressSagas.length,
                     color: Colors.orange,
                   ),
@@ -87,7 +86,7 @@ class _SagaCompletionDetailScreenState extends State<SagaCompletionDetailScreen>
                 Expanded(
                   child: _buildTabButton(
                     index: 2,
-                    label: 'Not Started',
+                    label: AppLocalizations.of(context)!.not_started,
                     count: _notStartedSagas.length,
                     color: Colors.grey,
                   ),
@@ -97,9 +96,7 @@ class _SagaCompletionDetailScreenState extends State<SagaCompletionDetailScreen>
           ),
           const Divider(height: 1),
           // Content
-          Expanded(
-            child: _buildTabContent(),
-          ),
+          Expanded(child: _buildTabContent()),
         ],
       ),
     );
@@ -112,7 +109,7 @@ class _SagaCompletionDetailScreenState extends State<SagaCompletionDetailScreen>
     required Color color,
   }) {
     final isSelected = _selectedTabIndex == index;
-    
+
     return Material(
       color: isSelected ? color.withOpacity(0.1) : Colors.transparent,
       borderRadius: BorderRadius.circular(8),
@@ -167,17 +164,17 @@ class _SagaCompletionDetailScreenState extends State<SagaCompletionDetailScreen>
       case 0:
         sagas = _completedSagas;
         color = Colors.green;
-        emptyMessage = 'No completed sagas yet';
+        emptyMessage = AppLocalizations.of(context)!.no_completed_sagas;
         break;
       case 1:
         sagas = _inProgressSagas;
         color = Colors.orange;
-        emptyMessage = 'No sagas in progress';
+        emptyMessage = AppLocalizations.of(context)!.no_sagas_in_progress;
         break;
       case 2:
         sagas = _notStartedSagas;
         color = Colors.grey;
-        emptyMessage = 'No unstarted sagas';
+        emptyMessage = AppLocalizations.of(context)!.no_unstarted_sagas;
         break;
       default:
         sagas = [];
@@ -198,10 +195,7 @@ class _SagaCompletionDetailScreenState extends State<SagaCompletionDetailScreen>
             const SizedBox(height: 16),
             Text(
               emptyMessage,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey.shade600,
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
             ),
           ],
         ),
@@ -236,9 +230,8 @@ class _SagaCompletionDetailScreenState extends State<SagaCompletionDetailScreen>
                     Expanded(
                       child: Text(
                         sagaName,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
                     ),
                     Container(
@@ -274,13 +267,10 @@ class _SagaCompletionDetailScreenState extends State<SagaCompletionDetailScreen>
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  isUnknownTotal 
-                      ? 'Format: $formatSaga'
-                      : '${(progress * 100).toStringAsFixed(0)}% complete',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey.shade600,
-                  ),
+                  isUnknownTotal
+                      ? '${AppLocalizations.of(context)!.format}: $formatSaga'
+                      : '${(progress * 100).toStringAsFixed(0)}% ${AppLocalizations.of(context)!.complete_label}',
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                 ),
               ],
             ),

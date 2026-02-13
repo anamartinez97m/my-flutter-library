@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/model/reading_session.dart';
 import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -22,7 +23,8 @@ class ChronometerWidget extends StatefulWidget {
   State<ChronometerWidget> createState() => _ChronometerWidgetState();
 }
 
-class _ChronometerWidgetState extends State<ChronometerWidget> with WidgetsBindingObserver {
+class _ChronometerWidgetState extends State<ChronometerWidget>
+    with WidgetsBindingObserver {
   Timer? _timer;
   int _elapsedSeconds = 0;
   bool _isRunning = false;
@@ -51,7 +53,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget> with WidgetsBindi
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    
+
     switch (state) {
       case AppLifecycleState.paused:
         // App is going to background - pause the timer
@@ -66,12 +68,12 @@ class _ChronometerWidgetState extends State<ChronometerWidget> with WidgetsBindi
         if (_isRunning && _appPausedTime != null) {
           final now = DateTime.now();
           final backgroundDuration = now.difference(_appPausedTime!).inSeconds;
-          
+
           setState(() {
             _elapsedSeconds += backgroundDuration;
             _appPausedTime = null;
           });
-          
+
           // Restart the timer
           _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
             if (mounted) {
@@ -80,7 +82,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget> with WidgetsBindi
               });
             }
           });
-          
+
           // Update the session in database
           _updateSessionInBackground();
         }
@@ -95,13 +97,16 @@ class _ChronometerWidgetState extends State<ChronometerWidget> with WidgetsBindi
   Future<void> _saveSessionState() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_prefsKey, jsonEncode({
-        'bookId': widget.bookId,
-        'startTime': _sessionStartTime?.toIso8601String(),
-        'elapsedSeconds': _elapsedSeconds,
-        'isRunning': _isRunning,
-        'appPausedTime': _appPausedTime?.toIso8601String(),
-      }));
+      await prefs.setString(
+        _prefsKey,
+        jsonEncode({
+          'bookId': widget.bookId,
+          'startTime': _sessionStartTime?.toIso8601String(),
+          'elapsedSeconds': _elapsedSeconds,
+          'isRunning': _isRunning,
+          'appPausedTime': _appPausedTime?.toIso8601String(),
+        }),
+      );
     } catch (e) {
       debugPrint('Failed to save session state: $e');
     }
@@ -120,19 +125,18 @@ class _ChronometerWidgetState extends State<ChronometerWidget> with WidgetsBindi
     try {
       final prefs = await SharedPreferences.getInstance();
       final sessionData = prefs.getString(_prefsKey);
-      
+
       if (sessionData != null) {
         final data = jsonDecode(sessionData) as Map<String, dynamic>;
         final savedBookId = data['bookId'] as int?;
         final startTimeStr = data['startTime'] as String?;
         final elapsed = data['elapsedSeconds'] as int?;
         final wasRunning = data['isRunning'] as bool?;
-        
-        if (savedBookId == widget.bookId && 
-            startTimeStr != null && 
+
+        if (savedBookId == widget.bookId &&
+            startTimeStr != null &&
             elapsed != null &&
             wasRunning == true) {
-          
           setState(() {
             _sessionStartTime = DateTime.parse(startTimeStr);
             _elapsedSeconds = elapsed;
@@ -150,7 +154,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget> with WidgetsBindi
       if (_activeSession != null) {
         final db = await DatabaseHelper.instance.database;
         final repository = ReadingSessionRepository(db);
-        
+
         final updatedSession = _activeSession!.copyWith(
           durationSeconds: _elapsedSeconds,
         );
@@ -166,7 +170,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget> with WidgetsBindi
     try {
       // First try to restore from background state
       await _restoreSessionState();
-      
+
       final db = await DatabaseHelper.instance.database;
       final repository = ReadingSessionRepository(db);
       final session = await repository.getActiveSession(widget.bookId);
@@ -174,7 +178,8 @@ class _ChronometerWidgetState extends State<ChronometerWidget> with WidgetsBindi
       if (session != null && mounted) {
         setState(() {
           _activeSession = session;
-          if (_sessionStartTime == null) { // Only set if not already restored from background
+          if (_sessionStartTime == null) {
+            // Only set if not already restored from background
             _sessionStartTime = session.startTime;
             _elapsedSeconds = session.durationSeconds ?? 0;
           }
@@ -203,7 +208,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget> with WidgetsBindi
 
     // Enable wakelock to keep screen awake during reading
     WakelockPlus.enable();
-    
+
     // Save session state
     _saveSessionState();
 
@@ -234,7 +239,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget> with WidgetsBindi
       WakelockPlus.disable();
       // Clear session state
       _clearSessionState();
-      
+
       // Save the duration before resetting
       final savedDuration = _elapsedSeconds;
 
@@ -248,7 +253,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget> with WidgetsBindi
           DateTime.now(),
           _elapsedSeconds,
         );
-        
+
         // Also update the session to mark did_read = true
         final updatedSession = _activeSession!.copyWith(
           endTime: DateTime.now(),
@@ -284,7 +289,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget> with WidgetsBindi
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Reading session saved: ${_formatDuration(savedDuration)}',
+              '${AppLocalizations.of(context)!.reading_session_saved}: ${_formatDuration(savedDuration)}',
             ),
             backgroundColor: Colors.green,
           ),
@@ -295,7 +300,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget> with WidgetsBindi
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error saving session: $e'),
+            content: Text('${AppLocalizations.of(context)!.error}: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -348,23 +353,24 @@ class _ChronometerWidgetState extends State<ChronometerWidget> with WidgetsBindi
       // Show confirmation dialog if timer is running
       final shouldClose = await showDialog<bool>(
         context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Stop Timer?'),
-          content: const Text('Do you want to stop the reading timer?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
+        builder:
+            (context) => AlertDialog(
+              title: Text(AppLocalizations.of(context)!.stop_timer),
+              content: Text(AppLocalizations.of(context)!.stop_timer_confirm),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: Text(AppLocalizations.of(context)!.cancel),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  style: TextButton.styleFrom(foregroundColor: Colors.red),
+                  child: Text(AppLocalizations.of(context)!.stop),
+                ),
+              ],
             ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('Stop'),
-            ),
-          ],
-        ),
       );
-      
+
       if (shouldClose == true) {
         _timer?.cancel();
         return true;
@@ -398,133 +404,146 @@ class _ChronometerWidgetState extends State<ChronometerWidget> with WidgetsBindi
             ),
           ],
         ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Reading Timer',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () async {
-                  if (_isRunning) {
-                    // Show confirmation dialog if timer is running
-                    final shouldClose = await showDialog<bool>(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('Timer is Running'),
-                        content: const Text(
-                          'The timer is still counting. Are you sure you want to exit without stopping it?',
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, false),
-                            child: const Text('Cancel'),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, true),
-                            child: const Text('Exit'),
-                            style: TextButton.styleFrom(
-                              foregroundColor: Colors.red,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.reading_timer,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () async {
+                    if (_isRunning) {
+                      // Show confirmation dialog if timer is running
+                      final shouldClose = await showDialog<bool>(
+                        context: context,
+                        builder:
+                            (context) => AlertDialog(
+                              title: Text(
+                                AppLocalizations.of(context)!.timer_is_running,
+                              ),
+                              content: Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.timer_exit_confirm,
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed:
+                                      () => Navigator.pop(context, false),
+                                  child: Text(
+                                    AppLocalizations.of(context)!.cancel,
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  child: Text(
+                                    AppLocalizations.of(context)!.exit_label,
+                                  ),
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.red,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                    );
-                    if (shouldClose == true && mounted) {
+                      );
+                      if (shouldClose == true && mounted) {
+                        Navigator.pop(context);
+                      }
+                    } else {
                       Navigator.pop(context);
                     }
-                  } else {
-                    Navigator.pop(context);
-                  }
-                },
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // Timer display
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 32),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(16),
+                  },
+                ),
+              ],
             ),
-            child: Text(
-              _formatDuration(_elapsedSeconds),
-              style: TextStyle(
-                fontSize: 48,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primary,
-                fontFeatures: const [FontFeature.tabularFigures()],
+            const SizedBox(height: 16),
+
+            // Timer display
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 32),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Text(
+                _formatDuration(_elapsedSeconds),
+                style: TextStyle(
+                  fontSize: 48,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 24),
+            const SizedBox(height: 24),
 
-          // Control buttons
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              if (!_isRunning && _elapsedSeconds == 0)
-                ElevatedButton.icon(
-                  onPressed: _createNewSession,
-                  icon: const Icon(Icons.play_arrow),
-                  label: const Text('Start'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
+            // Control buttons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                if (!_isRunning && _elapsedSeconds == 0)
+                  ElevatedButton.icon(
+                    onPressed: _createNewSession,
+                    icon: const Icon(Icons.play_arrow),
+                    label: Text(AppLocalizations.of(context)!.start),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
                     ),
                   ),
-                ),
-              if (_isRunning)
-                ElevatedButton.icon(
-                  onPressed: _pauseTimer,
-                  icon: const Icon(Icons.pause),
-                  label: const Text('Pause'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
+                if (_isRunning)
+                  ElevatedButton.icon(
+                    onPressed: _pauseTimer,
+                    icon: const Icon(Icons.pause),
+                    label: Text(AppLocalizations.of(context)!.pause),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
                     ),
                   ),
-                ),
-              if (!_isRunning && _elapsedSeconds > 0)
-                ElevatedButton.icon(
-                  onPressed: _startTimer,
-                  icon: const Icon(Icons.play_arrow),
-                  label: const Text('Resume'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
+                if (!_isRunning && _elapsedSeconds > 0)
+                  ElevatedButton.icon(
+                    onPressed: _startTimer,
+                    icon: const Icon(Icons.play_arrow),
+                    label: Text(AppLocalizations.of(context)!.resume),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
                     ),
                   ),
-                ),
-              if (_elapsedSeconds > 0)
-                ElevatedButton.icon(
-                  onPressed: _stopAndSaveSession,
-                  icon: const Icon(Icons.stop),
-                  label: const Text('Stop & Save'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
+                if (_elapsedSeconds > 0)
+                  ElevatedButton.icon(
+                    onPressed: _stopAndSaveSession,
+                    icon: const Icon(Icons.stop),
+                    label: Text(AppLocalizations.of(context)!.stop_and_save),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
                     ),
                   ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 50),
-        ],
-      ),
+              ],
+            ),
+            const SizedBox(height: 50),
+          ],
+        ),
       ),
     );
   }

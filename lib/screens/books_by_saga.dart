@@ -63,7 +63,11 @@ class BooksBySagaScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isSagaUniverse ? 'Universe: $sagaName' : 'Saga: $sagaName'),
+        title: Text(
+          isSagaUniverse
+              ? '${AppLocalizations.of(context)!.saga_universe}: $sagaName'
+              : '${AppLocalizations.of(context)!.saga}: $sagaName',
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
@@ -83,7 +87,12 @@ class BooksBySagaScreen extends StatelessWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
-                    'Added $result book(s) to ${isSagaUniverse ? 'universe' : 'saga'}',
+                    AppLocalizations.of(context)!.added_books_to_saga(
+                      result.toString(),
+                      isSagaUniverse
+                          ? AppLocalizations.of(context)!.saga_universe
+                          : AppLocalizations.of(context)!.saga,
+                    ),
                   ),
                 ),
               );
@@ -91,7 +100,7 @@ class BooksBySagaScreen extends StatelessWidget {
           }
         },
         icon: const Icon(Icons.add),
-        label: const Text('Quick Add'),
+        label: Text(AppLocalizations.of(context)!.quick_add),
       ),
       body:
           filteredBooks.isEmpty
@@ -106,7 +115,11 @@ class BooksBySagaScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'No books found in this ${isSagaUniverse ? 'universe' : 'saga'}',
+                      AppLocalizations.of(context)!.no_books_in_saga(
+                        isSagaUniverse
+                            ? AppLocalizations.of(context)!.saga_universe
+                            : AppLocalizations.of(context)!.saga,
+                      ),
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: Colors.grey[600],
                       ),
@@ -138,7 +151,7 @@ class BooksBySagaScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  'Total Books',
+                                  AppLocalizations.of(context)!.total_books,
                                   style: Theme.of(context).textTheme.bodySmall,
                                 ),
                               ],

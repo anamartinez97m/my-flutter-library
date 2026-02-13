@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
 class BookExtremesCard extends StatelessWidget {
   final int? oldestYear;
@@ -27,19 +28,17 @@ class BookExtremesCard extends StatelessWidget {
     return Card(
       elevation: 2,
       margin: const EdgeInsets.symmetric(horizontal: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Book Extremes',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              AppLocalizations.of(context)!.book_extremes,
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 16),
             // Oldest & Newest
@@ -47,10 +46,10 @@ class BookExtremesCard extends StatelessWidget {
               context,
               icon: Icons.calendar_today,
               color: Colors.blue,
-              label1: 'Oldest',
+              label1: AppLocalizations.of(context)!.oldest,
               value1: oldestYear != null ? '$oldestYear' : 'N/A',
               book1: oldestBookName,
-              label2: 'Newest',
+              label2: AppLocalizations.of(context)!.newest,
               value2: newestYear != null ? '$newestYear' : 'N/A',
               book2: newestBookName,
             ),
@@ -60,10 +59,10 @@ class BookExtremesCard extends StatelessWidget {
               context,
               icon: Icons.menu_book,
               color: Colors.purple,
-              label1: 'Shortest',
+              label1: AppLocalizations.of(context)!.shortest,
               value1: shortestPages != null ? '$shortestPages pg' : 'N/A',
               book1: shortestBookName,
-              label2: 'Longest',
+              label2: AppLocalizations.of(context)!.longest,
               value2: longestPages != null ? '$longestPages pg' : 'N/A',
               book2: longestBookName,
             ),
@@ -101,13 +100,14 @@ class BookExtremesCard extends StatelessWidget {
                       children: [
                         Text(
                           label1,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.grey[600],
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: Colors.grey[600]),
                         ),
                         Text(
                           value1,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: color,
                           ),
@@ -129,13 +129,14 @@ class BookExtremesCard extends StatelessWidget {
                       children: [
                         Text(
                           label2,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.grey[600],
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: Colors.grey[600]),
                         ),
                         Text(
                           value2,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: color,
                           ),

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
@@ -79,7 +80,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
       }
     }
 
-    return book.name ?? 'Unknown';
+    return book.name ?? 'unknown';
   }
 
   /// Try to parse date with multiple formats
@@ -204,7 +205,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Books by Year')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.books_by_year)),
       body: FutureBuilder<List<int>>(
         future: _loadYears(),
         builder: (context, yearsSnapshot) {
@@ -237,9 +238,9 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
                     color: Theme.of(context).colorScheme.surfaceVariant,
                     child: Row(
                       children: [
-                        const Text(
-                          'Year: ',
-                          style: TextStyle(
+                        Text(
+                          '${AppLocalizations.of(context)!.year}: ',
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
@@ -254,7 +255,9 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
                                   final count = _yearBookCounts[year] ?? 0;
                                   return DropdownMenuItem<int>(
                                     value: year,
-                                    child: Text('$year ($count books)'),
+                                    child: Text(
+                                      '$year ($count ${AppLocalizations.of(context)!.books})',
+                                    ),
                                   );
                                 }).toList(),
                             onChanged: (year) {
@@ -273,8 +276,10 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
                   Expanded(
                     child:
                         booksDataForYear.isEmpty
-                            ? const Center(
-                              child: Text('No books read in this year'),
+                            ? Center(
+                              child: Text(
+                                AppLocalizations.of(context)!.no_books_in_year,
+                              ),
                             )
                             : ListView.builder(
                               itemCount: _getItemCount(booksDataForYear),
@@ -315,10 +320,10 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
       subtitleParts.add(book.author!);
     }
     if (dateStr.isNotEmpty) {
-      subtitleParts.add('Finished: $dateStr');
+      subtitleParts.add('${AppLocalizations.of(context)!.finished}: $dateStr');
     }
     if (book.pages != null && book.pages! > 0) {
-      subtitleParts.add('${book.pages} pages');
+      subtitleParts.add('${book.pages} ${AppLocalizations.of(context)!.pages}');
     }
 
     return Card(

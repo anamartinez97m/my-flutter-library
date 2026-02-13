@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
 /// Placeholder card for Reading Time of Day feature (future chronometer integration)
 class ReadingTimePlaceholderCard extends StatelessWidget {
@@ -9,9 +10,7 @@ class ReadingTimePlaceholderCard extends StatelessWidget {
     return Card(
       elevation: 2,
       margin: const EdgeInsets.symmetric(horizontal: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
@@ -35,7 +34,7 @@ class ReadingTimePlaceholderCard extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'Reading Time of Day',
+                AppLocalizations.of(context)!.reading_time_of_day,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w600,
                   color: Colors.grey[700],
@@ -44,7 +43,10 @@ class ReadingTimePlaceholderCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.amber.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(20),
@@ -56,14 +58,10 @@ class ReadingTimePlaceholderCard extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.schedule,
-                      size: 16,
-                      color: Colors.amber[800],
-                    ),
+                    Icon(Icons.schedule, size: 16, color: Colors.amber[800]),
                     const SizedBox(width: 6),
                     Text(
-                      'Coming Soon',
+                      AppLocalizations.of(context)!.coming_soon,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
@@ -75,15 +73,15 @@ class ReadingTimePlaceholderCard extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'Track when you read most',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey[600],
-                ),
+                AppLocalizations.of(context)!.track_when_you_read_most,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 4),
               Text(
-                'Morning, afternoon, or night owl?',
+                AppLocalizations.of(context)!.morning_afternoon_night_owl,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Colors.grey[500],
                   fontStyle: FontStyle.italic,
@@ -99,15 +97,11 @@ class ReadingTimePlaceholderCard extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.info_outline,
-                      size: 16,
-                      color: Colors.grey[600],
-                    ),
+                    Icon(Icons.info_outline, size: 16, color: Colors.grey[600]),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Requires chronometer feature',
+                        AppLocalizations.of(context)!.requires_chronometer,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.grey[600],
                         ),

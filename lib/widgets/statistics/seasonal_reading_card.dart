@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
 class SeasonalReadingCard extends StatelessWidget {
   final Map<String, int> seasonalReading;
@@ -106,7 +107,7 @@ class SeasonalReadingCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Seasonal Reading Patterns',
+                  AppLocalizations.of(context)!.seasonal_reading_patterns,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -131,7 +132,9 @@ class SeasonalReadingCard extends StatelessWidget {
                       const SizedBox(width: 6),
                       Flexible(
                         child: Text(
-                          'Average: $avgPerYearPerSeasonStr books per season',
+                          AppLocalizations.of(
+                            context,
+                          )!.avg_books_per_season(avgPerYearPerSeasonStr),
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 12,
@@ -168,7 +171,7 @@ class SeasonalReadingCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Most',
+                            AppLocalizations.of(context)!.most,
                             style: TextStyle(
                               fontSize: 9,
                               color: Colors.grey[600],
@@ -193,7 +196,7 @@ class SeasonalReadingCard extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            'per year',
+                            AppLocalizations.of(context)!.per_year,
                             style: TextStyle(
                               fontSize: 10,
                               color: Colors.grey[600],
@@ -220,7 +223,7 @@ class SeasonalReadingCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Least',
+                            AppLocalizations.of(context)!.least,
                             style: TextStyle(
                               fontSize: 9,
                               color: Colors.grey[600],
@@ -245,7 +248,7 @@ class SeasonalReadingCard extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            'per year',
+                            AppLocalizations.of(context)!.per_year,
                             style: TextStyle(
                               fontSize: 10,
                               color: Colors.grey[600],
