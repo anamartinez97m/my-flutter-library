@@ -800,4 +800,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String error_loading_competition(Object error) {
     return 'Error loading competition data: $error';
   }
+
+  @override
+  String get update_available_title => 'Update Available';
+
+  @override
+  String get update_available_message => 'A new version of My Book Vault is available. Update now to get the latest features and improvements.';
+
+  @override
+  String get update_now => 'Update';
+
+  @override
+  String get update_later => 'Later';
 }

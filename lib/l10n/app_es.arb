@@ -399,5 +399,10 @@
     "placeholders": {
       "error": {}
     }
-  }
+  },
+  
+  "update_available_title": "Actualización Disponible",
+  "update_available_message": "Una nueva versión de My Book Vault está disponible. Actualiza ahora para obtener las últimas funciones y mejoras.",
+  "update_now": "Actualizar",
+  "update_later": "Más tarde"
 }

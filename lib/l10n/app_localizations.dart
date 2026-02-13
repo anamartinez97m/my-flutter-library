@@ -1540,6 +1540,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error loading competition data: {error}'**
   String error_loading_competition(Object error);
+
+  /// No description provided for @update_available_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Available'**
+  String get update_available_title;
+
+  /// No description provided for @update_available_message.
+  ///
+  /// In en, this message translates to:
+  /// **'A new version of My Book Vault is available. Update now to get the latest features and improvements.'**
+  String get update_available_message;
+
+  /// No description provided for @update_now.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get update_now;
+
+  /// No description provided for @update_later.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get update_later;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

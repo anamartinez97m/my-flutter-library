@@ -5,6 +5,7 @@ import 'package:myrandomlibrary/screens/my_books.dart';
 import 'package:myrandomlibrary/screens/random.dart';
 import 'package:myrandomlibrary/screens/settings.dart';
 import 'package:myrandomlibrary/screens/statistics.dart';
+import 'package:myrandomlibrary/services/app_update_service.dart';
 
 class NavigationScreen extends StatefulWidget {
   const NavigationScreen({super.key});
@@ -20,6 +21,58 @@ class NavigationScreen extends StatefulWidget {
 class _NavigationScreenState extends State<NavigationScreen> {
   int _selectedIndex = 0;
   VoidCallback? _clearHomeSearch;
+  final AppUpdateService _appUpdateService = AppUpdateService();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkForAppUpdate();
+    });
+  }
+
+  Future<void> _checkForAppUpdate() async {
+    final updateInfo = await _appUpdateService.checkForUpdate();
+    if (updateInfo != null && mounted) {
+      _showUpdateDialog();
+    }
+  }
+
+  void _showUpdateDialog() {
+    final l10n = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (context) => AlertDialog(
+            icon: const Icon(
+              Icons.system_update_outlined,
+              size: 48,
+              color: Colors.blueAccent,
+            ),
+            title: Text(l10n.update_available_title),
+            content: Text(
+              l10n.update_available_message,
+              textAlign: TextAlign.center,
+            ),
+            actionsAlignment: MainAxisAlignment.spaceEvenly,
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(l10n.update_later),
+              ),
+              FilledButton.icon(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _appUpdateService.performImmediateUpdate();
+                },
+                icon: const Icon(Icons.download_outlined),
+                label: Text(l10n.update_now),
+              ),
+            ],
+          ),
+    );
+  }
 
   void switchToTab(int index) {
     setState(() {

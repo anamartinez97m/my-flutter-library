@@ -392,5 +392,10 @@
     "placeholders": {
       "error": {}
     }
-  }
+  },
+  
+  "update_available_title": "Update Available",
+  "update_available_message": "A new version of My Book Vault is available. Update now to get the latest features and improvements.",
+  "update_now": "Update",
+  "update_later": "Later"
 }
