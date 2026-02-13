@@ -188,17 +188,20 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   Future<void> _fetchMetadataIfMissing() async {
     // Skip if already fetching
     if (_isFetchingMetadata) return;
-    
-    final hasCover = _currentBook.coverUrl != null && _currentBook.coverUrl!.isNotEmpty;
-    final hasDescription = _currentBook.description != null && _currentBook.description!.isNotEmpty;
+
+    final hasCover =
+        _currentBook.coverUrl != null && _currentBook.coverUrl!.isNotEmpty;
+    final hasDescription =
+        _currentBook.description != null &&
+        _currentBook.description!.isNotEmpty;
     final hasMetadata = hasCover && hasDescription;
-    
+
     // Check if ISBN or ASIN has changed since last fetch
     // If metadata exists but we have a new ISBN/ASIN, refetch
     final hasIsbn = _currentBook.isbn != null && _currentBook.isbn!.isNotEmpty;
     final hasAsin = _currentBook.asin != null && _currentBook.asin!.isNotEmpty;
     final hasTitle = _currentBook.name != null && _currentBook.name!.isNotEmpty;
-    
+
     // If metadata exists and we have identifiers, assume it's current
     // (In a more sophisticated implementation, you could store the ISBN used for fetching
     // and compare it, but for now we'll refetch only if metadata is missing)
@@ -206,10 +209,12 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       debugPrint('[BookDetail] Metadata already exists, skipping fetch');
       return;
     }
-    
+
     // Need at least ISBN, ASIN, or title to fetch metadata
     if (!hasIsbn && !hasAsin && !hasTitle) {
-      debugPrint('[BookDetail] No ISBN, ASIN, or title available, cannot fetch metadata');
+      debugPrint(
+        '[BookDetail] No ISBN, ASIN, or title available, cannot fetch metadata',
+      );
       return;
     }
 
@@ -218,11 +223,13 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     });
 
     try {
-      debugPrint('[BookDetail] Fetching metadata for book: ${_currentBook.name}');
-      
+      debugPrint(
+        '[BookDetail] Fetching metadata for book: ${_currentBook.name}',
+      );
+
       final metadataService = BookMetadataService();
       BookMetadata? metadata;
-      
+
       // Try ISBN first (10 or 13)
       if (_currentBook.isbn != null && _currentBook.isbn!.isNotEmpty) {
         debugPrint('[BookDetail] Trying with ISBN: ${_currentBook.isbn}');
@@ -233,10 +240,14 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           language: _currentBook.languageValue,
         );
       }
-      
+
       // If no result, try ASIN
-      if (metadata == null && _currentBook.asin != null && _currentBook.asin!.isNotEmpty) {
-        debugPrint('[BookDetail] ISBN failed, trying with ASIN: ${_currentBook.asin}');
+      if (metadata == null &&
+          _currentBook.asin != null &&
+          _currentBook.asin!.isNotEmpty) {
+        debugPrint(
+          '[BookDetail] ISBN failed, trying with ASIN: ${_currentBook.asin}',
+        );
         metadata = await metadataService.fetchMetadata(
           isbn: _currentBook.asin, // ASIN can be used as ISBN parameter
           title: _currentBook.name,
@@ -244,9 +255,11 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           language: _currentBook.languageValue,
         );
       }
-      
+
       // If still no result, try title + author
-      if (metadata == null && _currentBook.name != null && _currentBook.name!.isNotEmpty) {
+      if (metadata == null &&
+          _currentBook.name != null &&
+          _currentBook.name!.isNotEmpty) {
         debugPrint('[BookDetail] ASIN failed, trying with title + author');
         metadata = await metadataService.fetchMetadata(
           title: _currentBook.name,
@@ -255,9 +268,28 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         );
       }
 
+      // If still no result and book has saga + nSaga, try searching by "saga nSaga"
+      if (metadata == null &&
+          _currentBook.saga != null &&
+          _currentBook.saga!.isNotEmpty &&
+          _currentBook.nSaga != null &&
+          _currentBook.nSaga!.isNotEmpty) {
+        final sagaQuery = '${_currentBook.saga} ${_currentBook.nSaga}';
+        debugPrint(
+          '[BookDetail] Title+author failed, trying with saga+nSaga: $sagaQuery',
+        );
+        metadata = await metadataService.fetchMetadata(
+          title: sagaQuery,
+          author: _currentBook.author,
+          language: _currentBook.languageValue,
+        );
+      }
+
       if (metadata != null && mounted) {
-        debugPrint('[BookDetail] Metadata fetched successfully from ${metadata.source}');
-        
+        debugPrint(
+          '[BookDetail] Metadata fetched successfully from ${metadata.source}',
+        );
+
         // Update database with fetched metadata
         final db = await DatabaseHelper.instance.database;
         await db.update(
@@ -285,7 +317,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
             _currentBook = updatedBook;
             _isFetchingMetadata = false;
           });
-          
+
           debugPrint('[BookDetail] Book updated with fetched metadata');
         }
       } else {
@@ -337,7 +369,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         setState(() {
           _currentBook = updatedBook;
         });
-        
+
         // Now fetch new metadata
         await _fetchMetadataIfMissing();
       }
@@ -433,10 +465,11 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     // Show modal to collect ratings and review
     final result = await showDialog<Map<String, dynamic>>(
       context: context,
-      builder: (context) => _FinishBookDialog(
-        bookId: _currentBook.bookId!,
-        bookName: _currentBook.name ?? '',
-      ),
+      builder:
+          (context) => _FinishBookDialog(
+            bookId: _currentBook.bookId!,
+            bookName: _currentBook.name ?? '',
+          ),
     );
 
     if (result == null) return; // User cancelled
@@ -800,47 +833,48 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   Future<void> _showDidReadModal() async {
     final result = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Did you read today?'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Did you read this book today?'),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Did you read today?'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context, true);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                  ),
-                  child: const Text('YES'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context, false);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                  ),
-                  child: const Text('NO'),
+                const Text('Did you read this book today?'),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context, true);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                      ),
+                      child: const Text('YES'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context, false);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                      ),
+                      child: const Text('NO'),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
 
     if (result != null) {
@@ -858,7 +892,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(result ? 'Marked as read today!' : 'Marked as not read today.'),
+              content: Text(
+                result ? 'Marked as read today!' : 'Marked as not read today.',
+              ),
               backgroundColor: result ? Colors.green : Colors.orange,
             ),
           );
@@ -878,137 +914,171 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     if (_chronometerSessions.isEmpty) return;
 
     // Create editable copies of sessions
-    List<ReadingSession> editableSessions = _chronometerSessions.map((session) => session).toList();
+    List<ReadingSession> editableSessions =
+        _chronometerSessions.map((session) => session).toList();
 
     final result = await showDialog<bool>(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Edit Reading Sessions'),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ...List.generate(editableSessions.length, (index) {
-                    final session = editableSessions[index];
-                    final dateController = TextEditingController(
-                      text: session.startTime != null 
-                        ? session.startTime!.toIso8601String().split('T')[0]
-                        : '',
-                    );
-                    final timeController = TextEditingController(
-                      text: session.clickedAt != null
-                        ? '${session.clickedAt!.hour.toString().padLeft(2, '0')}:${session.clickedAt!.minute.toString().padLeft(2, '0')}'
-                        : '',
-                    );
-                    final durationController = TextEditingController(
-                      text: session.durationSeconds != null && session.durationSeconds! > 0
-                        ? _formatDurationForDisplay(session.durationSeconds!)
-                        : '',
-                    );
+      builder:
+          (context) => StatefulBuilder(
+            builder:
+                (context, setDialogState) => AlertDialog(
+                  title: const Text('Edit Reading Sessions'),
+                  content: SizedBox(
+                    width: double.maxFinite,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ...List.generate(editableSessions.length, (index) {
+                            final session = editableSessions[index];
+                            final dateController = TextEditingController(
+                              text:
+                                  session.startTime != null
+                                      ? session.startTime!
+                                          .toIso8601String()
+                                          .split('T')[0]
+                                      : '',
+                            );
+                            final timeController = TextEditingController(
+                              text:
+                                  session.clickedAt != null
+                                      ? '${session.clickedAt!.hour.toString().padLeft(2, '0')}:${session.clickedAt!.minute.toString().padLeft(2, '0')}'
+                                      : '',
+                            );
+                            final durationController = TextEditingController(
+                              text:
+                                  session.durationSeconds != null &&
+                                          session.durationSeconds! > 0
+                                      ? _formatDurationForDisplay(
+                                        session.durationSeconds!,
+                                      )
+                                      : '',
+                            );
 
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Session ${index + 1}',
-                              style: Theme.of(context).textTheme.titleSmall,
-                            ),
-                            const SizedBox(height: 8),
-                            TextField(
-                              controller: dateController,
-                              decoration: const InputDecoration(
-                                labelText: 'Date',
-                                border: OutlineInputBorder(),
-                                hintText: 'YYYY-MM-DD',
+                            return Card(
+                              margin: const EdgeInsets.only(bottom: 8),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Session ${index + 1}',
+                                      style:
+                                          Theme.of(
+                                            context,
+                                          ).textTheme.titleSmall,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    TextField(
+                                      controller: dateController,
+                                      decoration: const InputDecoration(
+                                        labelText: 'Date',
+                                        border: OutlineInputBorder(),
+                                        hintText: 'YYYY-MM-DD',
+                                      ),
+                                      onChanged: (value) {
+                                        try {
+                                          final newDate = DateTime.parse(value);
+                                          editableSessions[index] = session
+                                              .copyWith(startTime: newDate);
+                                        } catch (e) {
+                                          // Invalid date format
+                                        }
+                                      },
+                                    ),
+                                    const SizedBox(height: 8),
+                                    TextField(
+                                      controller: timeController,
+                                      decoration: const InputDecoration(
+                                        labelText: 'Time (HH:MM)',
+                                        hintText: 'HH:MM',
+                                      ),
+                                      onChanged: (value) {
+                                        try {
+                                          final timeParts = value.split(':');
+                                          if (timeParts.length >= 2) {
+                                            final hour = int.parse(
+                                              timeParts[0],
+                                            );
+                                            final minute = int.parse(
+                                              timeParts[1],
+                                            );
+
+                                            final newClickedAt = DateTime(
+                                              session.clickedAt?.year ??
+                                                  DateTime.now().year,
+                                              session.clickedAt?.month ??
+                                                  DateTime.now().month,
+                                              session.clickedAt?.day ??
+                                                  DateTime.now().day,
+                                              hour,
+                                              minute,
+                                            );
+                                            editableSessions[index] = session
+                                                .copyWith(
+                                                  clickedAt: newClickedAt,
+                                                );
+                                          }
+                                        } catch (e) {
+                                          // Invalid time format
+                                        }
+                                      },
+                                    ),
+                                    const SizedBox(height: 8),
+                                    TextField(
+                                      controller: durationController,
+                                      decoration: const InputDecoration(
+                                        labelText: 'Duration',
+                                        hintText:
+                                            'e.g., 1h 30m 5s or 90m or 3600',
+                                        helperText:
+                                            'Enter duration as: 1h 30m 5s, 90m, or just seconds',
+                                      ),
+                                      onChanged: (value) {
+                                        try {
+                                          final duration =
+                                              _parseDurationToSeconds(value);
+                                          editableSessions[index] = session
+                                              .copyWith(
+                                                durationSeconds: duration,
+                                              );
+                                        } catch (e) {
+                                          // Invalid duration format, try parsing as plain seconds
+                                          try {
+                                            final duration = int.parse(value);
+                                            editableSessions[index] = session
+                                                .copyWith(
+                                                  durationSeconds: duration,
+                                                );
+                                          } catch (e2) {
+                                            // Invalid format, ignore
+                                          }
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                ),
                               ),
-                              onChanged: (value) {
-                                try {
-                                  final newDate = DateTime.parse(value);
-                                  editableSessions[index] = session.copyWith(startTime: newDate);
-                                } catch (e) {
-                                  // Invalid date format
-                                }
-                              },
-                            ),
-                            const SizedBox(height: 8),
-                            TextField(
-                              controller: timeController,
-                              decoration: const InputDecoration(
-                                labelText: 'Time (HH:MM)',
-                                hintText: 'HH:MM',
-                              ),
-                              onChanged: (value) {
-                                try {
-                                  final timeParts = value.split(':');
-                                  if (timeParts.length >= 2) {
-                                    final hour = int.parse(timeParts[0]);
-                                    final minute = int.parse(timeParts[1]);
-                                    
-                                    final newClickedAt = DateTime(
-                                      session.clickedAt?.year ?? DateTime.now().year,
-                                      session.clickedAt?.month ?? DateTime.now().month,
-                                      session.clickedAt?.day ?? DateTime.now().day,
-                                      hour,
-                                      minute,
-                                    );
-                                    editableSessions[index] = session.copyWith(clickedAt: newClickedAt);
-                                  }
-                                } catch (e) {
-                                  // Invalid time format
-                                }
-                              },
-                            ),
-                            const SizedBox(height: 8),
-                            TextField(
-                              controller: durationController,
-                              decoration: const InputDecoration(
-                                labelText: 'Duration',
-                                hintText: 'e.g., 1h 30m 5s or 90m or 3600',
-                                helperText: 'Enter duration as: 1h 30m 5s, 90m, or just seconds',
-                              ),
-                              onChanged: (value) {
-                                try {
-                                  final duration = _parseDurationToSeconds(value);
-                                  editableSessions[index] = session.copyWith(durationSeconds: duration);
-                                } catch (e) {
-                                  // Invalid duration format, try parsing as plain seconds
-                                  try {
-                                    final duration = int.parse(value);
-                                    editableSessions[index] = session.copyWith(durationSeconds: duration);
-                                  } catch (e2) {
-                                    // Invalid format, ignore
-                                  }
-                                }
-                              },
-                            ),
-                          ],
-                        ),
+                            );
+                          }),
+                        ],
                       ),
-                    );
-                  }),
-                ],
-              ),
-            ),
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Cancel'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text('Save'),
+                    ),
+                  ],
+                ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Save'),
-            ),
-          ],
-        ),
-      ),
     );
 
     if (result == true) {
@@ -1046,56 +1116,58 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       text: DateTime.now().toIso8601String().split('T')[0],
     );
     final timeController = TextEditingController(
-      text: '${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}',
+      text:
+          '${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}',
     );
 
     final result = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Reading Session'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: dateController,
-              decoration: const InputDecoration(
-                labelText: 'Date',
-                border: OutlineInputBorder(),
-                hintText: 'YYYY-MM-DD',
-              ),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Add Reading Session'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: dateController,
+                  decoration: const InputDecoration(
+                    labelText: 'Date',
+                    border: OutlineInputBorder(),
+                    hintText: 'YYYY-MM-DD',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: timeController,
+                  decoration: const InputDecoration(
+                    labelText: 'Time (HH:MM)',
+                    border: OutlineInputBorder(),
+                    hintText: '14:30',
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: timeController,
-              decoration: const InputDecoration(
-                labelText: 'Time (HH:MM)',
-                border: OutlineInputBorder(),
-                hintText: '14:30',
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
               ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Add'),
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Add'),
-          ),
-        ],
-      ),
     );
 
     if (result == true) {
       try {
         final dateStr = dateController.text;
         final timeStr = timeController.text;
-        
+
         final dateParts = dateStr.split('-');
         final timeParts = timeStr.split(':');
-        
+
         if (dateParts.length == 3 && timeParts.length == 2) {
           final dateTime = DateTime(
             int.parse(dateParts[0]),
@@ -1166,23 +1238,29 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     if (_currentBook.isBundle == true) {
       return _calculateBundleReadingTime();
     } else {
-      return _calculateSingleBookReadingTime(_currentBook, _chronometerSessions, _readDates);
+      return _calculateSingleBookReadingTime(
+        _currentBook,
+        _chronometerSessions,
+        _readDates,
+      );
     }
   }
 
   /// Calculate reading time for a single book
-  Map<String, dynamic> _calculateSingleBookReadingTime(Book book, List<ReadingSession> sessions, List<ReadDate> readDates) {
+  Map<String, dynamic> _calculateSingleBookReadingTime(
+    Book book,
+    List<ReadingSession> sessions,
+    List<ReadDate> readDates,
+  ) {
     // Only calculate for read books
-    if (book.statusValue?.toLowerCase() != 'yes' || book.readCount == null || book.readCount! <= 0) {
-      return {
-        'days': 0,
-        'method': 'Not read',
-        'hasData': false,
-      };
+    if (book.statusValue?.toLowerCase() != 'yes' ||
+        book.readCount == null ||
+        book.readCount! <= 0) {
+      return {'days': 0, 'method': 'Not read', 'hasData': false};
     }
 
     final dailyData = _mapSessionsToDailyReadings(sessions);
-    
+
     if (dailyData.hasTimeReadData) {
       // Case 1: Has timeRead data
       return {
@@ -1193,7 +1271,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           'days_with_time': dailyData.totalDaysWithTimeRead,
           'days_with_didread_only': dailyData.totalDaysWithDidReadOnly,
           'total_hours': dailyData.totalSecondsRead / 3600,
-        }
+        },
       };
     } else if (dailyData.hasDidReadData) {
       // Case 2: Only didReadToday data
@@ -1203,19 +1281,22 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         'hasData': true,
         'details': {
           'days_with_didread_only': dailyData.totalDaysWithDidReadOnly,
-        }
+        },
       };
     } else {
       // Case 3: No session data, use dates from readDates
       if (readDates.isNotEmpty) {
         // Use the most recent read date entry
         final latestReadDate = readDates.first;
-        
-        if (latestReadDate.dateStarted != null && latestReadDate.dateFinished != null) {
+
+        if (latestReadDate.dateStarted != null &&
+            latestReadDate.dateFinished != null) {
           final startDate = _parseDate(latestReadDate.dateStarted!);
           final endDate = _parseDate(latestReadDate.dateFinished!);
-          
-          if (startDate != null && endDate != null && endDate.isAfter(startDate)) {
+
+          if (startDate != null &&
+              endDate != null &&
+              endDate.isAfter(startDate)) {
             final days = endDate.difference(startDate).inDays + 1;
             return {
               'days': days,
@@ -1224,17 +1305,13 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
               'details': {
                 'start_date': latestReadDate.dateStarted,
                 'end_date': latestReadDate.dateFinished,
-              }
+              },
             };
           }
         }
       }
-      
-      return {
-        'days': 0,
-        'method': 'No data',
-        'hasData': false,
-      };
+
+      return {'days': 0, 'method': 'No data', 'hasData': false};
     }
   }
 
@@ -1248,10 +1325,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     for (var entry in _bundleChronometerSessions.entries) {
       final bookIndex = entry.key;
       final sessions = entry.value;
-      
+
       // Get the corresponding book title
       final bookTitle = _bundleBookTitles[bookIndex] ?? 'Book ${bookIndex + 1}';
-      
+
       // Create a temporary book object for calculation
       final tempBook = Book(
         bookId: -1, // Temporary ID
@@ -1299,21 +1376,26 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
 
       // Get read dates for this bundle book
       final bundleBookReadDates = _bundleReadDates[bookIndex] ?? [];
-      
-      final result = _calculateSingleBookReadingTime(tempBook, sessions, bundleBookReadDates);
-      
+
+      final result = _calculateSingleBookReadingTime(
+        tempBook,
+        sessions,
+        bundleBookReadDates,
+      );
+
       if (result['hasData'] == true) {
         totalDays += result['days'] as int;
         hasAnyData = true;
         methodsUsed.add(result['method'] as String);
-        methodCounts[result['method'] as String] = 
+        methodCounts[result['method'] as String] =
             (methodCounts[result['method'] as String] ?? 0) + 1;
       }
     }
 
     String primaryMethod = 'No data';
     if (hasAnyData && methodCounts.isNotEmpty) {
-      primaryMethod = methodCounts.entries.reduce((a, b) => a.value > b.value ? a : b).key;
+      primaryMethod =
+          methodCounts.entries.reduce((a, b) => a.value > b.value ? a : b).key;
     }
 
     return {
@@ -1324,14 +1406,14 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         'methods_used': methodsUsed,
         'method_counts': methodCounts,
         'books_calculated': _bundleChronometerSessions.length,
-      }
+      },
     };
   }
 
   /// Convert reading sessions to daily reading data
   _DailyReadingData _mapSessionsToDailyReadings(List<ReadingSession> sessions) {
     final Map<String, List<ReadingSession>> dailySessions = {};
-    
+
     for (var session in sessions) {
       if (session.startTime != null) {
         final dayKey = _getDayKey(session.startTime!);
@@ -1348,10 +1430,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     for (var entry in dailySessions.entries) {
       final daySessions = entry.value;
       final dayKey = entry.key;
-      
+
       int dayTimeSeconds = 0;
       bool hasDidRead = false;
-      
+
       for (var session in daySessions) {
         if (session.durationSeconds != null && session.durationSeconds! > 0) {
           dayTimeSeconds += session.durationSeconds!;
@@ -1360,7 +1442,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           hasDidRead = true;
         }
       }
-      
+
       // Apply counting rules
       if (dayTimeSeconds > 0) {
         totalDaysWithTimeRead++;
@@ -1378,8 +1460,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       totalSecondsRead: totalSecondsRead,
       totalReadingDays: uniqueReadingDays.length,
       hasTimeReadData: totalSecondsRead > 0,
-      hasDidReadData: totalDaysWithDidReadOnly > 0 || 
-                     (totalDaysWithTimeRead > 0 && totalDaysWithDidReadOnly >= 0),
+      hasDidReadData:
+          totalDaysWithDidReadOnly > 0 ||
+          (totalDaysWithTimeRead > 0 && totalDaysWithDidReadOnly >= 0),
     );
   }
 
@@ -1420,7 +1503,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     final hours = seconds ~/ 3600;
     final minutes = (seconds % 3600) ~/ 60;
     final secs = seconds % 60;
-    
+
     if (hours > 0) {
       return '${hours}h ${minutes}m ${secs}s';
     } else if (minutes > 0) {
@@ -1433,10 +1516,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   /// Parse duration string back to seconds
   int _parseDurationToSeconds(String durationStr) {
     if (durationStr.trim().isEmpty) return 0;
-    
+
     int totalSeconds = 0;
     final parts = durationStr.split(' ');
-    
+
     for (final part in parts) {
       if (part.endsWith('h')) {
         final hours = int.tryParse(part.substring(0, part.length - 1)) ?? 0;
@@ -1453,14 +1536,14 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         totalSeconds += seconds;
       }
     }
-    
+
     return totalSeconds;
   }
 
   /// Build reading time card showing how long it took to read the book
   Widget _buildReadingTimeCard() {
     final readingTimeData = _calculateReadingTime();
-    
+
     if (!readingTimeData['hasData']) {
       return const SizedBox.shrink();
     }
@@ -1477,7 +1560,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     if (method == 'Time-based' && details.containsKey('total_hours')) {
       final totalHours = details['total_hours'] as double;
       final hoursText = totalHours.toStringAsFixed(1);
-      
+
       if (days == 1) {
         timeText = '$days day ($hoursText hours)';
       } else {
@@ -1527,11 +1610,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
             children: [
               Row(
                 children: [
-                  Icon(
-                    timeIcon,
-                    size: 20,
-                    color: timeColor,
-                  ),
+                  Icon(timeIcon, size: 20, color: timeColor),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
@@ -1543,7 +1622,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: timeColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
@@ -1570,11 +1652,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Icon(
-                    Icons.info_outline,
-                    size: 16,
-                    color: Colors.grey[600],
-                  ),
+                  Icon(Icons.info_outline, size: 16, color: Colors.grey[600]),
                 ],
               ),
             ],
@@ -1592,78 +1670,86 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.timer_outlined, color: Theme.of(context).colorScheme.primary),
-            const SizedBox(width: 8),
-            Text('Reading Time Details'),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'This book took $days ${days == 1 ? 'day' : 'days'} to read.',
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Calculation Method: $method',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 12),
-            if (method == 'Time-based' && details.containsKey('total_hours')) ...[
-              Text(
-                'Total reading time: ${(details['total_hours'] as double).toStringAsFixed(1)} hours',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              if (details['days_with_time'] > 0)
-                Text(
-                  'Days with time tracking: ${details['days_with_time']}',
-                  style: Theme.of(context).textTheme.bodySmall,
+      builder:
+          (context) => AlertDialog(
+            title: Row(
+              children: [
+                Icon(
+                  Icons.timer_outlined,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
-              if (details['days_with_didread_only'] > 0)
+                const SizedBox(width: 8),
+                Text('Reading Time Details'),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Text(
-                  'Days with reading flag only: ${details['days_with_didread_only']}',
-                  style: Theme.of(context).textTheme.bodySmall,
+                  'This book took $days ${days == 1 ? 'day' : 'days'} to read.',
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
-            ] else if (method == 'DidRead-based' && details.containsKey('days_with_didread_only')) ...[
-              Text(
-                'Days marked as read: ${details['days_with_didread_only']}',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ] else if (method == 'Date-based' && details.containsKey('start_date')) ...[
-              Text(
-                'Start date: ${details['start_date']}',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              Text(
-                'End date: ${details['end_date']}',
-                style: Theme.of(context).textTheme.bodySmall,
+                const SizedBox(height: 16),
+                Text(
+                  'Calculation Method: $method',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 12),
+                if (method == 'Time-based' &&
+                    details.containsKey('total_hours')) ...[
+                  Text(
+                    'Total reading time: ${(details['total_hours'] as double).toStringAsFixed(1)} hours',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  if (details['days_with_time'] > 0)
+                    Text(
+                      'Days with time tracking: ${details['days_with_time']}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  if (details['days_with_didread_only'] > 0)
+                    Text(
+                      'Days with reading flag only: ${details['days_with_didread_only']}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                ] else if (method == 'DidRead-based' &&
+                    details.containsKey('days_with_didread_only')) ...[
+                  Text(
+                    'Days marked as read: ${details['days_with_didread_only']}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ] else if (method == 'Date-based' &&
+                    details.containsKey('start_date')) ...[
+                  Text(
+                    'Start date: ${details['start_date']}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  Text(
+                    'End date: ${details['end_date']}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+                if (_currentBook.isBundle == true &&
+                    details.containsKey('books_calculated')) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    'Bundle: ${details['books_calculated']} books calculated',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Close'),
               ),
             ],
-            if (_currentBook.isBundle == true && details.containsKey('books_calculated')) ...[
-              const SizedBox(height: 8),
-              Text(
-                'Bundle: ${details['books_calculated']} books calculated',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ],
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
           ),
-        ],
-      ),
     );
   }
 
@@ -1807,7 +1893,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                     // Pop with result to notify parent bundle detail screen
                     Navigator.pop(context, updatedBook);
                   }
-                  
+
                   // Removed auto-fetch - only manual refresh button will fetch metadata
                 }
               },
@@ -1825,120 +1911,158 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
               // Book cover image with glassmorphism effect
               Container(
                 height: 250,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                ),
-                child: _currentBook.coverUrl != null && _currentBook.coverUrl!.isNotEmpty
-                    ? Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          // Blurred background image
-                          Image.network(
-                            _currentBook.coverUrl!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) => Container(),
-                          ),
-                          // Blur effect
-                          BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                            child: Container(
-                              color: Colors.black.withOpacity(0.1),
+                decoration: BoxDecoration(color: Colors.grey[300]),
+                child:
+                    _currentBook.coverUrl != null &&
+                            _currentBook.coverUrl!.isNotEmpty
+                        ? Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            // Blurred background image
+                            Image.network(
+                              _currentBook.coverUrl!,
+                              fit: BoxFit.cover,
+                              errorBuilder:
+                                  (context, error, stackTrace) => Container(),
                             ),
-                          ),
-                          // Centered cover with glassmorphism
-                          Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: BackdropFilter(
-                                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.15),
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color: Colors.white.withOpacity(0.2),
-                                        width: 1.5,
-                                      ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.1),
-                                          blurRadius: 20,
-                                          spreadRadius: 5,
-                                        ),
-                                      ],
+                            // Blur effect
+                            BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                              child: Container(
+                                color: Colors.black.withOpacity(0.1),
+                              ),
+                            ),
+                            // Centered cover with glassmorphism
+                            Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: BackdropFilter(
+                                    filter: ImageFilter.blur(
+                                      sigmaX: 10,
+                                      sigmaY: 10,
                                     ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Image.network(
-                                        _currentBook.coverUrl!,
-                                        fit: BoxFit.contain,
-                                        height: 210,
-                                        loadingBuilder: (context, child, loadingProgress) {
-                                          if (loadingProgress == null) return child;
-                                          return SizedBox(
-                                            height: 210,
-                                            child: Center(
-                                              child: CircularProgressIndicator(
-                                                value: loadingProgress.expectedTotalBytes != null
-                                                    ? loadingProgress.cumulativeBytesLoaded /
-                                                        loadingProgress.expectedTotalBytes!
-                                                    : null,
-                                                color: Colors.white,
-                                              ),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.15),
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                          color: Colors.white.withOpacity(0.2),
+                                          width: 1.5,
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(
+                                              0.1,
                                             ),
-                                          );
-                                        },
-                                        errorBuilder: (context, error, stackTrace) {
-                                          return const SizedBox(
-                                            height: 210,
-                                            child: Center(
-                                              child: Column(
-                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                children: [
-                                                  Icon(Icons.broken_image, size: 60, color: Colors.white70),
-                                                  SizedBox(height: 6),
-                                                  Text(
-                                                    'Failed to load image',
-                                                    style: TextStyle(color: Colors.white70, fontSize: 13),
-                                                  ),
-                                                ],
+                                            blurRadius: 20,
+                                            spreadRadius: 5,
+                                          ),
+                                        ],
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Image.network(
+                                          _currentBook.coverUrl!,
+                                          fit: BoxFit.contain,
+                                          height: 210,
+                                          loadingBuilder: (
+                                            context,
+                                            child,
+                                            loadingProgress,
+                                          ) {
+                                            if (loadingProgress == null)
+                                              return child;
+                                            return SizedBox(
+                                              height: 210,
+                                              child: Center(
+                                                child: CircularProgressIndicator(
+                                                  value:
+                                                      loadingProgress
+                                                                  .expectedTotalBytes !=
+                                                              null
+                                                          ? loadingProgress
+                                                                  .cumulativeBytesLoaded /
+                                                              loadingProgress
+                                                                  .expectedTotalBytes!
+                                                          : null,
+                                                  color: Colors.white,
+                                                ),
                                               ),
-                                            ),
-                                          );
-                                        },
+                                            );
+                                          },
+                                          errorBuilder: (
+                                            context,
+                                            error,
+                                            stackTrace,
+                                          ) {
+                                            return const SizedBox(
+                                              height: 210,
+                                              child: Center(
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(
+                                                      Icons.broken_image,
+                                                      size: 60,
+                                                      color: Colors.white70,
+                                                    ),
+                                                    SizedBox(height: 6),
+                                                    Text(
+                                                      'Failed to load image',
+                                                      style: TextStyle(
+                                                        color: Colors.white70,
+                                                        fontSize: 13,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      )
-                    : Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            if (_isFetchingMetadata) ...[
-                              const CircularProgressIndicator(),
-                              const SizedBox(height: 12),
-                              const Text(
-                                'Fetching cover...',
-                                style: TextStyle(color: Colors.grey, fontSize: 13),
-                              ),
-                            ] else ...[
-                              const Icon(Icons.book, size: 60, color: Colors.grey),
-                              const SizedBox(height: 6),
-                              const Text(
-                                'No cover image',
-                                style: TextStyle(color: Colors.grey, fontSize: 13),
-                              ),
-                            ],
                           ],
+                        )
+                        : Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (_isFetchingMetadata) ...[
+                                const CircularProgressIndicator(),
+                                const SizedBox(height: 12),
+                                const Text(
+                                  'Fetching cover...',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ] else ...[
+                                const Icon(
+                                  Icons.book,
+                                  size: 60,
+                                  color: Colors.grey,
+                                ),
+                                const SizedBox(height: 6),
+                                const Text(
+                                  'No cover image',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
                         ),
-                      ),
               ),
               const SizedBox(height: 24), // Spacing between cover and content
               Padding(
@@ -2092,7 +2216,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   child: Container(
                                     alignment: Alignment.center,
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Icon(
                                           Icons.play_arrow,
@@ -2150,7 +2275,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                       Icon(
                                         Icons.check_circle,
                                         color:
-                                            Theme.of(context).colorScheme.primary,
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.primary,
                                         size: 20,
                                       ),
                                       const SizedBox(width: 4),
@@ -2174,57 +2301,60 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                       ),
                       AppTheme.verticalSpaceLarge,
 
-                      // Mark as Read button (full width)
-                      Container(
-                        height: 48,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: Theme.of(context).colorScheme.primary,
-                            width: 2,
+                      // Mark as Read button (full width) - hidden when already Started
+                      if (_currentBook.statusValue?.toLowerCase() !=
+                          'started') ...[
+                        Container(
+                          height: 48,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: Theme.of(context).colorScheme.primary,
+                              width: 2,
+                            ),
                           ),
-                        ),
-                        child: InkWell(
-                          onTap: _markAsRead,
-                          borderRadius: BorderRadius.circular(6),
-                          child: Container(
-                            alignment: Alignment.center,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.done_all,
-                                  color: Theme.of(context).colorScheme.primary,
-                                  size: 20,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  'Mark as Read',
-                                  style: TextStyle(
-                                    color: Theme.of(context).colorScheme.primary,
-                                    fontWeight: FontWeight.w600,
+                          child: InkWell(
+                            onTap: _markAsRead,
+                            borderRadius: BorderRadius.circular(6),
+                            child: Container(
+                              alignment: Alignment.center,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.done_all,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                    size: 20,
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Mark as Read',
+                                    style: TextStyle(
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      AppTheme.verticalSpaceLarge,
+                        AppTheme.verticalSpaceLarge,
+                      ],
                     ],
 
                     // Did you read today? button (only for Started or Standby status, not for bundles)
                     if ((_currentBook.statusValue?.toLowerCase() == 'started' ||
-                        _currentBook.statusValue?.toLowerCase() == 'standby') &&
+                            _currentBook.statusValue?.toLowerCase() ==
+                                'standby') &&
                         _currentBook.isBundle != true) ...[
                       Container(
                         height: 48,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: Colors.orange,
-                            width: 2,
-                          ),
+                          border: Border.all(color: Colors.orange, width: 2),
                         ),
                         child: InkWell(
                           onTap: _showDidReadModal,
@@ -2334,9 +2464,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         border: Border.all(color: Colors.grey[300]!),
                       ),
                       child: Theme(
-                        data: Theme.of(context).copyWith(
-                          dividerColor: Colors.transparent,
-                        ),
+                        data: Theme.of(
+                          context,
+                        ).copyWith(dividerColor: Colors.transparent),
                         child: ExpansionTile(
                           initiallyExpanded: _isDescriptionExpanded,
                           onExpansionChanged: (expanded) {
@@ -2384,11 +2514,13 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                   child: Text(
-                                    _currentBook.metadataSource == 'google_books'
+                                    _currentBook.metadataSource ==
+                                            'google_books'
                                         ? 'Google Books'
-                                        : _currentBook.metadataSource == 'open_library'
-                                            ? 'Open Library'
-                                            : 'API',
+                                        : _currentBook.metadataSource ==
+                                            'open_library'
+                                        ? 'Open Library'
+                                        : 'API',
                                     style: TextStyle(
                                       fontSize: 9,
                                       color:
@@ -2410,7 +2542,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     SizedBox(
                                       width: 16,
                                       height: 16,
-                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
                                     ),
                                     SizedBox(width: 12),
                                     Text(
@@ -2424,14 +2558,12 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   ],
                                 ),
                               )
-                            else if (_currentBook.description != null && _currentBook.description!.isNotEmpty)
+                            else if (_currentBook.description != null &&
+                                _currentBook.description!.isNotEmpty)
                               Text(
                                 _currentBook.description!,
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.bodySmall?.copyWith(
-                                  color: Colors.grey[700],
-                                ),
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(color: Colors.grey[700]),
                               )
                             else
                               Text(
@@ -2650,7 +2782,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                                         ),
                                                       );
                                                   // Reload if book was modified
-                                                  if (result != null && mounted) {
+                                                  if (result != null &&
+                                                      mounted) {
                                                     // First reload the read dates
                                                     await _loadReadDates();
                                                     // Then force bundle books to reload
@@ -2675,10 +2808,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                     ],
 
                     // Reading Time - only show for read books with data
-                    if (_currentBook.statusValue?.toLowerCase() == 'yes' && 
-                        (_chronometerSessions.isNotEmpty || 
-                         _readDates.isNotEmpty ||
-                         _bundleChronometerSessions.isNotEmpty))
+                    if (_currentBook.statusValue?.toLowerCase() == 'yes' &&
+                        (_chronometerSessions.isNotEmpty ||
+                            _readDates.isNotEmpty ||
+                            _bundleChronometerSessions.isNotEmpty))
                       _buildReadingTimeCard(),
                     // Original Book (for repeated books)
                     if (_currentBook.statusValue?.toLowerCase() == 'repeated' &&
@@ -2717,18 +2850,19 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                       InkWell(
                         onTap: () {
                           // Parse authors (comma-separated)
-                          final authors = _currentBook.author!
-                              .split(',')
-                              .map((a) => a.trim())
-                              .where((a) => a.isNotEmpty)
-                              .toList();
-                          
+                          final authors =
+                              _currentBook.author!
+                                  .split(',')
+                                  .map((a) => a.trim())
+                                  .where((a) => a.isNotEmpty)
+                                  .toList();
+
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => BooksByAuthorScreen(
-                                authors: authors,
-                              ),
+                              builder:
+                                  (context) =>
+                                      BooksByAuthorScreen(authors: authors),
                             ),
                           );
                         },
@@ -2867,255 +3001,249 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
 
                     // Bundle Reading Sessions (only show for bundles)
                     if (_bundleReadDates.isNotEmpty)
-                        Card(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          elevation: 1,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.history,
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                      size: 24,
+                      Card(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        elevation: 1,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.history,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                    size: 24,
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Text(
+                                    'Bundle Reading Sessions',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleSmall?.copyWith(
+                                      color: Colors.grey[600],
+                                      fontWeight: FontWeight.w600,
                                     ),
-                                    const SizedBox(width: 16),
-                                    Text(
-                                      'Bundle Reading Sessions',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleSmall?.copyWith(
-                                        color: Colors.grey[600],
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-                                ...List.generate(_currentBook.bundleCount ?? 0, (
-                                  bundleIndex,
-                                ) {
-                                  final readDates =
-                                      _bundleReadDates[bundleIndex] ?? [];
-                                  if (readDates.isEmpty) {
-                                    return const SizedBox.shrink();
-                                  }
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              ...List.generate(_currentBook.bundleCount ?? 0, (
+                                bundleIndex,
+                              ) {
+                                final readDates =
+                                    _bundleReadDates[bundleIndex] ?? [];
+                                if (readDates.isEmpty) {
+                                  return const SizedBox.shrink();
+                                }
 
-                                  return Padding(
-                                    padding: const EdgeInsets.only(bottom: 12),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          _bundleBookTitles[bundleIndex] ??
-                                              'Book ${bundleIndex + 1}',
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.bodyMedium?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                          ),
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 12),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        _bundleBookTitles[bundleIndex] ??
+                                            'Book ${bundleIndex + 1}',
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodyMedium?.copyWith(
+                                          fontWeight: FontWeight.w600,
                                         ),
-                                        const SizedBox(height: 8),
-                                        ...List.generate(readDates.length, (
-                                          index,
-                                        ) {
-                                          final readDate = readDates[index];
-                                          return Padding(
-                                            padding: const EdgeInsets.only(
-                                              bottom: 4,
-                                              left: 16,
-                                            ),
-                                            child: Row(
-                                              children: [
-                                                Text(
-                                                  '${index + 1}.',
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .bodySmall
-                                                      ?.copyWith(
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                      ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      ...List.generate(readDates.length, (
+                                        index,
+                                      ) {
+                                        final readDate = readDates[index];
+                                        return Padding(
+                                          padding: const EdgeInsets.only(
+                                            bottom: 4,
+                                            left: 16,
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                '${index + 1}.',
+                                                style: Theme.of(
+                                                  context,
+                                                ).textTheme.bodySmall?.copyWith(
+                                                  fontWeight: FontWeight.w600,
                                                 ),
-                                                const SizedBox(width: 8),
-                                                Expanded(
-                                                  child: Text(
-                                                    readDate.dateStarted != null
-                                                        ? formatDateForDisplay(
-                                                          readDate.dateStarted,
-                                                        )
-                                                        : 'Not started',
-                                                    style:
-                                                        Theme.of(
-                                                          context,
-                                                        ).textTheme.bodySmall,
-                                                  ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                child: Text(
+                                                  readDate.dateStarted != null
+                                                      ? formatDateForDisplay(
+                                                        readDate.dateStarted,
+                                                      )
+                                                      : 'Not started',
+                                                  style:
+                                                      Theme.of(
+                                                        context,
+                                                      ).textTheme.bodySmall,
                                                 ),
-                                                const Text(' → '),
-                                                Expanded(
-                                                  child: Text(
-                                                    readDate.dateFinished !=
-                                                            null
-                                                        ? formatDateForDisplay(
-                                                          readDate.dateFinished,
-                                                        )
-                                                        : 'Not finished',
-                                                    style:
-                                                        Theme.of(
-                                                          context,
-                                                        ).textTheme.bodySmall,
-                                                  ),
+                                              ),
+                                              const Text(' → '),
+                                              Expanded(
+                                                child: Text(
+                                                  readDate.dateFinished != null
+                                                      ? formatDateForDisplay(
+                                                        readDate.dateFinished,
+                                                      )
+                                                      : 'Not finished',
+                                                  style:
+                                                      Theme.of(
+                                                        context,
+                                                      ).textTheme.bodySmall,
                                                 ),
-                                              ],
-                                            ),
-                                          );
-                                        }),
-                                      ],
-                                    ),
-                                  );
-                                }),
-                              ],
-                            ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }),
+                                    ],
+                                  ),
+                                );
+                              }),
+                            ],
                           ),
                         ),
+                      ),
 
-                      // Bundle Chronometer Sessions
-                      if (_bundleChronometerSessions.isNotEmpty)
-                        Card(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          elevation: 1,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.timer,
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                      size: 24,
+                    // Bundle Chronometer Sessions
+                    if (_bundleChronometerSessions.isNotEmpty)
+                      Card(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        elevation: 1,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.timer,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                    size: 24,
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Text(
+                                    'Bundle Timed Reading Sessions',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleSmall?.copyWith(
+                                      color: Colors.grey[600],
+                                      fontWeight: FontWeight.w600,
                                     ),
-                                    const SizedBox(width: 16),
-                                    Text(
-                                      'Bundle Timed Reading Sessions',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleSmall?.copyWith(
-                                        color: Colors.grey[600],
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-                                ...List.generate(_currentBook.bundleCount ?? 0, (
-                                  bundleIndex,
-                                ) {
-                                  final sessions =
-                                      _bundleChronometerSessions[bundleIndex] ??
-                                      [];
-                                  if (sessions.isEmpty) {
-                                    return const SizedBox.shrink();
-                                  }
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              ...List.generate(_currentBook.bundleCount ?? 0, (
+                                bundleIndex,
+                              ) {
+                                final sessions =
+                                    _bundleChronometerSessions[bundleIndex] ??
+                                    [];
+                                if (sessions.isEmpty) {
+                                  return const SizedBox.shrink();
+                                }
 
-                                  return Padding(
-                                    padding: const EdgeInsets.only(bottom: 12),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          _bundleBookTitles[bundleIndex] ??
-                                              'Book ${bundleIndex + 1}',
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.bodyMedium?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                          ),
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 12),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        _bundleBookTitles[bundleIndex] ??
+                                            'Book ${bundleIndex + 1}',
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodyMedium?.copyWith(
+                                          fontWeight: FontWeight.w600,
                                         ),
-                                        const SizedBox(height: 8),
-                                        ...List.generate(sessions.length, (
-                                          index,
-                                        ) {
-                                          final session = sessions[index];
-                                          final duration =
-                                              session.durationSeconds ?? 0;
-                                          final hours = duration ~/ 3600;
-                                          final minutes =
-                                              (duration % 3600) ~/ 60;
-                                          final seconds = duration % 60;
-                                          String durationStr;
-                                          if (hours > 0) {
-                                            durationStr =
-                                                '${hours}h ${minutes}m ${seconds}s';
-                                          } else if (minutes > 0) {
-                                            durationStr =
-                                                '${minutes}m ${seconds}s';
-                                          } else {
-                                            durationStr = '${seconds}s';
-                                          }
+                                      ),
+                                      const SizedBox(height: 8),
+                                      ...List.generate(sessions.length, (
+                                        index,
+                                      ) {
+                                        final session = sessions[index];
+                                        final duration =
+                                            session.durationSeconds ?? 0;
+                                        final hours = duration ~/ 3600;
+                                        final minutes = (duration % 3600) ~/ 60;
+                                        final seconds = duration % 60;
+                                        String durationStr;
+                                        if (hours > 0) {
+                                          durationStr =
+                                              '${hours}h ${minutes}m ${seconds}s';
+                                        } else if (minutes > 0) {
+                                          durationStr =
+                                              '${minutes}m ${seconds}s';
+                                        } else {
+                                          durationStr = '${seconds}s';
+                                        }
 
-                                          // Format clicked_at time if available
-                                          String clickedAtStr = '';
-                                          if (session.clickedAt != null) {
-                                            final clickedTime =
-                                                session.clickedAt!;
-                                            clickedAtStr =
-                                                ' (Started: ${clickedTime.hour.toString().padLeft(2, '0')}:${clickedTime.minute.toString().padLeft(2, '0')})';
-                                          }
+                                        // Format clicked_at time if available
+                                        String clickedAtStr = '';
+                                        if (session.clickedAt != null) {
+                                          final clickedTime =
+                                              session.clickedAt!;
+                                          clickedAtStr =
+                                              ' (Started: ${clickedTime.hour.toString().padLeft(2, '0')}:${clickedTime.minute.toString().padLeft(2, '0')})';
+                                        }
 
-                                          return Padding(
-                                            padding: const EdgeInsets.only(
-                                              bottom: 4,
-                                              left: 16,
-                                            ),
-                                            child: Row(
-                                              children: [
-                                                Text(
-                                                  '${index + 1}.',
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .bodySmall
-                                                      ?.copyWith(
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                      ),
+                                        return Padding(
+                                          padding: const EdgeInsets.only(
+                                            bottom: 4,
+                                            left: 16,
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                '${index + 1}.',
+                                                style: Theme.of(
+                                                  context,
+                                                ).textTheme.bodySmall?.copyWith(
+                                                  fontWeight: FontWeight.w600,
                                                 ),
-                                                const SizedBox(width: 8),
-                                                Expanded(
-                                                  child: Text(
-                                                    '${formatDateForDisplay(session.startTime?.toIso8601String().split('T')[0] ?? 'Unknown')} - $durationStr$clickedAtStr',
-                                                    style:
-                                                        Theme.of(
-                                                          context,
-                                                        ).textTheme.bodySmall,
-                                                  ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                child: Text(
+                                                  '${formatDateForDisplay(session.startTime?.toIso8601String().split('T')[0] ?? 'Unknown')} - $durationStr$clickedAtStr',
+                                                  style:
+                                                      Theme.of(
+                                                        context,
+                                                      ).textTheme.bodySmall,
                                                 ),
-                                              ],
-                                            ),
-                                          );
-                                        }),
-                                      ],
-                                    ),
-                                  );
-                                }),
-                              ],
-                            ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }),
+                                    ],
+                                  ),
+                                );
+                              }),
+                            ],
                           ),
                         ),
+                      ),
 
                     // TBR Badge with Checkbox
                     if (_currentBook.tbr == true)
@@ -3243,7 +3371,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         label: 'My Rating',
                         rating: _currentBook.myRating!,
                       ),
-                    
+
                     // Rating Breakdown
                     if (_currentBook.myRating != null &&
                         _currentBook.myRating! > 0)
@@ -3253,7 +3381,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                           if (!snapshot.hasData || snapshot.data!.isEmpty) {
                             return const SizedBox.shrink();
                           }
-                          
+
                           return Card(
                             margin: const EdgeInsets.only(bottom: 12),
                             elevation: 1,
@@ -3267,13 +3395,12 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               ),
                               title: Text(
                                 'Rating Breakdown',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleSmall
-                                    ?.copyWith(
-                                      color: Colors.grey[600],
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.titleSmall?.copyWith(
+                                  color: Colors.grey[600],
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                               subtitle: Text(
                                 _currentBook.ratingOverride == true
@@ -3281,31 +3408,32 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     : 'Auto-calculated',
                                 style: Theme.of(context).textTheme.bodySmall,
                               ),
-                              children: snapshot.data!
-                                  .map(
-                                    (field) => ListTile(
-                                      title: Text(field.fieldName),
-                                      trailing: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: List.generate(
-                                          5,
-                                          (i) => Icon(
-                                            i < field.ratingValue.round()
-                                                ? Icons.favorite
-                                                : Icons.favorite_border,
-                                            color: Colors.red,
-                                            size: 20,
+                              children:
+                                  snapshot.data!
+                                      .map(
+                                        (field) => ListTile(
+                                          title: Text(field.fieldName),
+                                          trailing: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: List.generate(
+                                              5,
+                                              (i) => Icon(
+                                                i < field.ratingValue.round()
+                                                    ? Icons.favorite
+                                                    : Icons.favorite_border,
+                                                color: Colors.red,
+                                                size: 20,
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ),
-                                  )
-                                  .toList(),
+                                      )
+                                      .toList(),
                             ),
                           );
                         },
                       ),
-                    
+
                     // Price
                     if (_currentBook.price != null && _currentBook.price! > 0)
                       _DetailCard(
@@ -3313,7 +3441,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         label: 'Price',
                         value: '\$${_currentBook.price!.toStringAsFixed(2)}',
                       ),
-                    
+
                     if (_currentBook.readCount != null &&
                         _currentBook.readCount! > 0)
                       _DetailCard(
@@ -3465,9 +3593,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               ) {
                                 final session = _chronometerSessions[index];
                                 String displayText;
-                                
+
                                 // Check if there's duration data first
-                                if (session.durationSeconds != null && session.durationSeconds! > 0) {
+                                if (session.durationSeconds != null &&
+                                    session.durationSeconds! > 0) {
                                   // Has duration - show it (regardless of didRead flag)
                                   final duration = session.durationSeconds!;
                                   final hours = duration ~/ 3600;
@@ -3475,20 +3604,28 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   final seconds = duration % 60;
                                   String durationStr;
                                   if (hours > 0) {
-                                    durationStr = '${hours}h ${minutes}m ${seconds}s';
+                                    durationStr =
+                                        '${hours}h ${minutes}m ${seconds}s';
                                   } else if (minutes > 0) {
                                     durationStr = '${minutes}m ${seconds}s';
                                   } else {
                                     durationStr = '${seconds}s';
                                   }
-                                  
-                                  displayText = '${formatDateForDisplay(session.startTime?.toIso8601String().split('T')[0] ?? 'Unknown')} - $durationStr';
+
+                                  displayText =
+                                      '${formatDateForDisplay(session.startTime?.toIso8601String().split('T')[0] ?? 'Unknown')} - $durationStr';
                                 } else if (session.didRead) {
                                   // No duration but didRead - show "Read today"
-                                  displayText = '${formatDateForDisplay(session.startTime?.toIso8601String().split('T')[0] ?? 'Unknown')} - Read today ✓';
+                                  displayText =
+                                      '${formatDateForDisplay(session.startTime?.toIso8601String().split('T')[0] ?? 'Unknown')} - Read today ✓';
                                 } else {
                                   // No duration and not didRead - show date only
-                                  displayText = formatDateForDisplay(session.startTime?.toIso8601String().split('T')[0] ?? 'Unknown');
+                                  displayText = formatDateForDisplay(
+                                    session.startTime?.toIso8601String().split(
+                                          'T',
+                                        )[0] ??
+                                        'Unknown',
+                                  );
                                 }
 
                                 return Padding(
@@ -3507,9 +3644,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                       Expanded(
                                         child: Text(
                                           displayText,
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.bodySmall,
+                                          style:
+                                              Theme.of(
+                                                context,
+                                              ).textTheme.bodySmall,
                                         ),
                                       ),
                                     ],
@@ -3563,7 +3701,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                           ),
                         ),
                       ),
-                    
+
                     // Notes
                     if (_currentBook.notes != null &&
                         _currentBook.notes!.isNotEmpty)
@@ -3607,7 +3745,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                           ),
                         ),
                       ),
-                    
+
                     // Reading Clubs
                     BookClubsCard(
                       bookId: _currentBook.bookId!,
@@ -4221,10 +4359,7 @@ class _FinishBookDialog extends StatefulWidget {
   final int bookId;
   final String bookName;
 
-  const _FinishBookDialog({
-    required this.bookId,
-    required this.bookName,
-  });
+  const _FinishBookDialog({required this.bookId, required this.bookName});
 
   @override
   State<_FinishBookDialog> createState() => _FinishBookDialogState();
@@ -4247,7 +4382,7 @@ class _FinishBookDialogState extends State<_FinishBookDialog> {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRatingFieldRepository(db);
       final names = await repository.getAllFieldNames();
-      
+
       setState(() {
         _availableFieldNames = names;
         _isLoading = false;
@@ -4268,83 +4403,84 @@ class _FinishBookDialogState extends State<_FinishBookDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text('Finish "${widget.bookName}"'),
-      content: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Rate your reading experience:',
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 12),
-                  if (_availableFieldNames.isEmpty)
-                    const Text(
-                      'No rating fields available. You can add them in Settings.',
-                      style: TextStyle(color: Colors.grey),
-                    )
-                  else
-                    ..._availableFieldNames.map((fieldName) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              fieldName,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: List.generate(5, (index) {
-                                final starValue = (index + 1).toDouble();
-                                return IconButton(
-                                  icon: Icon(
-                                    _ratings[fieldName] != null &&
-                                            _ratings[fieldName]! >= starValue
-                                        ? Icons.star
-                                        : Icons.star_border,
-                                    color: Colors.amber,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      _ratings[fieldName] = starValue;
-                                    });
-                                  },
-                                );
-                              }),
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
-                  const SizedBox(height: 16),
-                  const Divider(),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Write a review (optional):',
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: _reviewController,
-                    decoration: const InputDecoration(
-                      hintText: 'Share your thoughts...',
-                      border: OutlineInputBorder(),
+      content:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Rate your reading experience:',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    maxLines: 4,
-                  ),
-                ],
+                    const SizedBox(height: 12),
+                    if (_availableFieldNames.isEmpty)
+                      const Text(
+                        'No rating fields available. You can add them in Settings.',
+                        style: TextStyle(color: Colors.grey),
+                      )
+                    else
+                      ..._availableFieldNames.map((fieldName) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                fieldName,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: List.generate(5, (index) {
+                                  final starValue = (index + 1).toDouble();
+                                  return IconButton(
+                                    icon: Icon(
+                                      _ratings[fieldName] != null &&
+                                              _ratings[fieldName]! >= starValue
+                                          ? Icons.star
+                                          : Icons.star_border,
+                                      color: Colors.amber,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _ratings[fieldName] = starValue;
+                                      });
+                                    },
+                                  );
+                                }),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
+                    const SizedBox(height: 16),
+                    const Divider(),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Write a review (optional):',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _reviewController,
+                      decoration: const InputDecoration(
+                        hintText: 'Share your thoughts...',
+                        border: OutlineInputBorder(),
+                      ),
+                      maxLines: 4,
+                    ),
+                  ],
+                ),
               ),
-            ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
@@ -4353,12 +4489,10 @@ class _FinishBookDialogState extends State<_FinishBookDialog> {
         ElevatedButton(
           onPressed: () {
             // Convert ratings map to list format
-            final ratingsList = _ratings.entries
-                .map((e) => {
-                      'fieldName': e.key,
-                      'ratingValue': e.value,
-                    })
-                .toList();
+            final ratingsList =
+                _ratings.entries
+                    .map((e) => {'fieldName': e.key, 'ratingValue': e.value})
+                    .toList();
 
             Navigator.pop(context, {
               'ratings': ratingsList,
@@ -4374,12 +4508,13 @@ class _FinishBookDialogState extends State<_FinishBookDialog> {
 
 /// Internal data structure representing the conceptual DailyReadings table
 class _DailyReadingData {
-  final int totalDaysWithTimeRead;      // Days where timeRead > 0
-  final int totalDaysWithDidReadOnly;   // Days where didReadToday = true but no timeRead
-  final int totalSecondsRead;           // Sum of all timeRead values (in seconds)
-  final int totalReadingDays;           // Total unique reading days
-  final bool hasTimeReadData;           // Whether any day has timeRead > 0
-  final bool hasDidReadData;            // Whether any day has didReadToday = true
+  final int totalDaysWithTimeRead; // Days where timeRead > 0
+  final int
+  totalDaysWithDidReadOnly; // Days where didReadToday = true but no timeRead
+  final int totalSecondsRead; // Sum of all timeRead values (in seconds)
+  final int totalReadingDays; // Total unique reading days
+  final bool hasTimeReadData; // Whether any day has timeRead > 0
+  final bool hasDidReadData; // Whether any day has didReadToday = true
 
   _DailyReadingData({
     required this.totalDaysWithTimeRead,

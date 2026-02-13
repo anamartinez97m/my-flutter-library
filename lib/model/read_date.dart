@@ -3,7 +3,8 @@ class ReadDate {
   final int bookId;
   final String? dateStarted;
   final String? dateFinished;
-  final int? bundleBookIndex; // null for regular books, 0-based index for bundle books
+  final int?
+  bundleBookIndex; // null for regular books, 0-based index for bundle books
   final int? readingProgress; // Progress at the time of finishing
 
   ReadDate({
@@ -27,14 +28,17 @@ class ReadDate {
   }
 
   Map<String, dynamic> toMap() {
-    return {
-      'read_date_id': readDateId,
+    final map = <String, dynamic>{
       'book_id': bookId,
       'date_started': dateStarted,
       'date_finished': dateFinished,
       'bundle_book_index': bundleBookIndex,
       'reading_progress': readingProgress,
     };
+    if (readDateId != null) {
+      map['read_date_id'] = readDateId;
+    }
+    return map;
   }
 
   @override
