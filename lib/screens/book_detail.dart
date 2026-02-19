@@ -791,19 +791,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                           return;
                         }
 
-                        // Calculate percentage if pages mode
-                        final progressValue =
-                            usePercentage
-                                ? value
-                                : (_currentBook.pages != null &&
-                                    _currentBook.pages! > 0)
-                                ? ((value / _currentBook.pages!) * 100).toInt()
-                                : 0;
-
                         Navigator.pop(context, {
-                          'progress': progressValue,
+                          'progress': value,
                           'type': usePercentage ? 'percentage' : 'pages',
-                          'pages': !usePercentage ? value : null,
                         });
                       },
                       child: Text(AppLocalizations.of(context)!.save),
@@ -2505,7 +2495,17 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                         ?.copyWith(fontWeight: FontWeight.w600),
                                   ),
                                   Text(
-                                    '${_currentBook.readingProgress ?? 0}%',
+                                    () {
+                                      final progress =
+                                          _currentBook.readingProgress ?? 0;
+                                      if (_currentBook.progressType ==
+                                              'pages' &&
+                                          _currentBook.pages != null &&
+                                          _currentBook.pages! > 0) {
+                                        return '${(progress * 100 / _currentBook.pages!).round()}%';
+                                      }
+                                      return '$progress%';
+                                    }(),
                                     style: Theme.of(
                                       context,
                                     ).textTheme.bodyMedium?.copyWith(
@@ -2520,8 +2520,17 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(4),
                                 child: LinearProgressIndicator(
-                                  value:
-                                      (_currentBook.readingProgress ?? 0) / 100,
+                                  value: () {
+                                    final progress =
+                                        _currentBook.readingProgress ?? 0;
+                                    if (_currentBook.progressType == 'pages' &&
+                                        _currentBook.pages != null &&
+                                        _currentBook.pages! > 0) {
+                                      return (progress / _currentBook.pages!)
+                                          .clamp(0.0, 1.0);
+                                    }
+                                    return (progress / 100).clamp(0.0, 1.0);
+                                  }(),
                                   minHeight: 8,
                                   backgroundColor: Colors.grey[300],
                                   valueColor: AlwaysStoppedAnimation<Color>(
