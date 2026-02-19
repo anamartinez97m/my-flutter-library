@@ -3,6 +3,9 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:myrandomlibrary/db/database_helper.dart';
+import 'package:myrandomlibrary/repositories/book_repository.dart';
+import 'package:myrandomlibrary/screens/book_detail.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -13,12 +16,16 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
   bool _initialized = false;
 
+  /// Global navigator key used to navigate from notification taps
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
+
   Future<void> initialize() async {
     if (_initialized) return;
 
     // Initialize timezone
     tz.initializeTimeZones();
-    
+
     // Set the local timezone to the device's timezone
     // This is crucial for scheduled notifications to fire at the correct time
     final String timeZoneName = DateTime.now().timeZoneName;
@@ -57,9 +64,40 @@ class NotificationService {
   }
 
   void _onNotificationTapped(NotificationResponse response) {
-    // Handle notification tap
-    // You can navigate to specific screen based on payload
     debugPrint('Notification tapped: ${response.payload}');
+    _navigateToBookFromPayload(response.payload);
+  }
+
+  Future<void> _navigateToBookFromPayload(String? payload) async {
+    if (payload == null) return;
+
+    // Extract book ID from payload (format: 'book_release_<bookId>')
+    final match = RegExp(r'book_release_(\d+)').firstMatch(payload);
+    if (match == null) return;
+
+    final bookId = int.tryParse(match.group(1)!);
+    if (bookId == null) return;
+
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final repository = BookRepository(db);
+      final book = await repository.getBookById(bookId);
+      if (book == null) {
+        debugPrint('⚠️ Book not found for notification tap: $bookId');
+        return;
+      }
+
+      final navigator = navigatorKey.currentState;
+      if (navigator != null) {
+        navigator.push(
+          MaterialPageRoute(builder: (context) => BookDetailScreen(book: book)),
+        );
+      } else {
+        debugPrint('⚠️ Navigator not available for notification tap');
+      }
+    } catch (e) {
+      debugPrint('❌ Error navigating to book from notification: $e');
+    }
   }
 
   Future<bool> requestPermissions() async {
@@ -132,7 +170,7 @@ class NotificationService {
 
     // Convert to TZDateTime with local timezone
     final tzScheduledDate = tz.TZDateTime.from(scheduledDate, tz.local);
-    
+
     // Calculate days remaining until release
     String notificationBody;
     if (releaseDate != null) {
@@ -142,7 +180,8 @@ class NotificationService {
       } else if (daysRemaining == 1) {
         notificationBody = '$bookTitle will be released tomorrow!';
       } else if (daysRemaining > 1) {
-        notificationBody = '$bookTitle will be released in $daysRemaining days!';
+        notificationBody =
+            '$bookTitle will be released in $daysRemaining days!';
       } else {
         // Release date is in the past (shouldn't happen, but handle it)
         notificationBody = '$bookTitle has been released!';
@@ -151,7 +190,7 @@ class NotificationService {
       // Fallback if no release date provided
       notificationBody = '$bookTitle is being released today!';
     }
-    
+
     // Debug logging
     debugPrint('📅 Scheduling notification for book: $bookTitle (ID: $bookId)');
     debugPrint('📅 Input DateTime: $scheduledDate');
@@ -160,7 +199,9 @@ class NotificationService {
     debugPrint('📅 Current time: ${DateTime.now()}');
     debugPrint('📅 Current TZ time: ${tz.TZDateTime.now(tz.local)}');
     debugPrint('📅 Timezone: ${tz.local.name}');
-    debugPrint('📅 Is in future: ${tzScheduledDate.isAfter(tz.TZDateTime.now(tz.local))}');
+    debugPrint(
+      '📅 Is in future: ${tzScheduledDate.isAfter(tz.TZDateTime.now(tz.local))}',
+    );
     debugPrint('📅 Notification body: $notificationBody');
 
     const androidDetails = AndroidNotificationDetails(
@@ -219,16 +260,21 @@ class NotificationService {
           '⚠️ Notification scheduled with inexact timing (permission not granted)',
         );
       }
-      
+
       // Verify the notification was scheduled
-      final pendingNotifications = await _notifications.pendingNotificationRequests();
-      final thisNotification = pendingNotifications.where((n) => n.id == bookId);
+      final pendingNotifications =
+          await _notifications.pendingNotificationRequests();
+      final thisNotification = pendingNotifications.where(
+        (n) => n.id == bookId,
+      );
       if (thisNotification.isNotEmpty) {
         debugPrint('✅ Verified: Notification is in pending list');
       } else {
         debugPrint('⚠️ Warning: Notification not found in pending list');
       }
-      debugPrint('📅 Total pending notifications: ${pendingNotifications.length}');
+      debugPrint(
+        '📅 Total pending notifications: ${pendingNotifications.length}',
+      );
     } catch (e) {
       // If exact alarms still fail, fall back to inexact timing
       debugPrint('❌ Error scheduling notification: $e');

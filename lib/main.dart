@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize notification service
   try {
     final notificationService = NotificationService();
@@ -19,7 +19,7 @@ void main() async {
   } catch (e) {
     debugPrint('Error initializing notifications: $e');
   }
-  
+
   try {
     final bookProvider = await BookProvider.create();
     runApp(
@@ -57,6 +57,7 @@ class MyApp extends StatelessWidget {
     final localeProvider = Provider.of<LocaleProvider>(context);
 
     return MaterialApp(
+      navigatorKey: NotificationService.navigatorKey,
       title: 'My Book Vault',
       localizationsDelegates: const [
         AppLocalizations.delegate,

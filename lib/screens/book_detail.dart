@@ -2361,16 +2361,20 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                         size: 20,
                                       ),
                                       const SizedBox(width: 4),
-                                      Text(
-                                        AppLocalizations.of(
-                                          context,
-                                        )!.mark_as_finished,
-                                        style: TextStyle(
-                                          color:
-                                              Theme.of(
-                                                context,
-                                              ).colorScheme.primary,
-                                          fontWeight: FontWeight.w600,
+                                      Flexible(
+                                        child: Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.mark_as_finished,
+                                          style: TextStyle(
+                                            color:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.primary,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
                                         ),
                                       ),
                                     ],

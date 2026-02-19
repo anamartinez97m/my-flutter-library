@@ -133,7 +133,8 @@ class _BookListViewState extends State<BookListView> {
                   children: [
                     Expanded(
                       child: Text(
-                        book.name ?? AppLocalizations.of(context)!.unknown_title,
+                        book.name ??
+                            AppLocalizations.of(context)!.unknown_title,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: Colors.deepPurple,
@@ -171,22 +172,30 @@ class _BookListViewState extends State<BookListView> {
                 ),
                 const SizedBox(height: 6),
               ],
-              
+
               // Author
-              if (_enabledCardFields.contains('author') && 
-                  book.author != null && book.author!.isNotEmpty) ...[
+              if (_enabledCardFields.contains('author') &&
+                  book.author != null &&
+                  book.author!.isNotEmpty) ...[
                 Text(
-                  AppLocalizations.of(context)!.author_with_colon(book.author ?? ''),
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+                  AppLocalizations.of(
+                    context,
+                  )!.author_with_colon(book.author ?? ''),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: 3),
               ],
-              
+
               // Saga
-              if (_enabledCardFields.contains('saga') && 
-                  book.saga != null && book.saga!.isNotEmpty) ...[
+              if (_enabledCardFields.contains('saga') &&
+                  book.saga != null &&
+                  book.saga!.isNotEmpty) ...[
                 Text(
-                  AppLocalizations.of(context)!.saga_with_colon(book.saga ?? '') +
+                  AppLocalizations.of(
+                        context,
+                      )!.saga_with_colon(book.saga ?? '') +
                       (book.nSaga != null && book.nSaga!.isNotEmpty
                           ? ' #${book.nSaga}'
                           : ''),
@@ -194,85 +203,106 @@ class _BookListViewState extends State<BookListView> {
                 ),
                 const SizedBox(height: 3),
               ],
-              
+
               // Format and Language (combined for efficiency)
-              if ((_enabledCardFields.contains('format') || _enabledCardFields.contains('language')) &&
+              if ((_enabledCardFields.contains('format') ||
+                      _enabledCardFields.contains('language')) &&
                   (book.formatValue != null || book.languageValue != null)) ...[
                 Text(
                   [
                     if (_enabledCardFields.contains('format'))
-                      AppLocalizations.of(context)!.format_with_colon(book.formatValue ?? 'N/A'),
+                      AppLocalizations.of(
+                        context,
+                      )!.format_with_colon(book.formatValue ?? 'N/A'),
                     if (_enabledCardFields.contains('language'))
-                      AppLocalizations.of(context)!.language_with_colon(book.languageValue ?? 'N/A'),
+                      AppLocalizations.of(
+                        context,
+                      )!.language_with_colon(book.languageValue ?? 'N/A'),
                   ].join(' • '),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 3),
               ],
-              
+
               // ISBN/ASIN
-              if (_enabledCardFields.contains('isbn') && 
+              if (_enabledCardFields.contains('isbn') &&
                   (book.isbn != null || book.asin != null)) ...[
                 Text(
                   'ISBN/ASIN: ${book.isbn ?? book.asin ?? 'N/A'}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 3),
               ],
-              
+
               // Pages
-              if (_enabledCardFields.contains('pages') && 
+              if (_enabledCardFields.contains('pages') &&
                   book.pages != null) ...[
                 Text(
                   'Pages: ${book.pages}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 3),
               ],
-              
+
               // Genre
-              if (_enabledCardFields.contains('genre') && 
-                  book.genre != null && book.genre!.isNotEmpty) ...[
+              if (_enabledCardFields.contains('genre') &&
+                  book.genre != null &&
+                  book.genre!.isNotEmpty) ...[
                 Text(
                   'Genre: ${book.genre}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 3),
               ],
-              
+
               // Editorial
-              if (_enabledCardFields.contains('editorial') && 
-                  book.editorialValue != null && book.editorialValue!.isNotEmpty) ...[
+              if (_enabledCardFields.contains('editorial') &&
+                  book.editorialValue != null &&
+                  book.editorialValue!.isNotEmpty) ...[
                 Text(
                   'Editorial: ${book.editorialValue}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 3),
               ],
-              
+
               // Publication Year
-              if (_enabledCardFields.contains('publication_year') && 
+              if (_enabledCardFields.contains('publication_year') &&
                   book.originalPublicationYear != null) ...[
                 Text(
                   'Published: ${book.originalPublicationYear}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 3),
               ],
-              
+
               // Publication Date (shows if date is filled, regardless of notification status)
-              if (_enabledCardFields.contains('publication_date') && 
-                  book.notificationDatetime != null && 
+              if (_enabledCardFields.contains('publication_date') &&
+                  book.notificationDatetime != null &&
                   book.notificationDatetime!.isNotEmpty) ...[
                 Text(
                   'Publication Date: ${book.notificationDatetime!.split('T')[0]}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 3),
               ],
-              
+
               // Rating
-              if (_enabledCardFields.contains('rating') && 
+              if (_enabledCardFields.contains('rating') &&
                   book.myRating != null) ...[
                 Row(
                   children: [
@@ -280,48 +310,66 @@ class _BookListViewState extends State<BookListView> {
                     const SizedBox(width: 4),
                     Text(
                       '${book.myRating}',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                     ),
                   ],
                 ),
                 const SizedBox(height: 3),
               ],
-              
+
               // Read Count
-              if (_enabledCardFields.contains('read_count') && 
-                  book.readCount != null && book.readCount! > 0) ...[
+              if (_enabledCardFields.contains('read_count') &&
+                  book.readCount != null &&
+                  book.readCount! > 0) ...[
                 Text(
                   'Read count: ${book.readCount}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 3),
               ],
-              
+
               // Status
-              if (_enabledCardFields.contains('status') && 
-                  book.statusValue != null && book.statusValue!.isNotEmpty) ...[
+              if (_enabledCardFields.contains('status') &&
+                  book.statusValue != null &&
+                  book.statusValue!.isNotEmpty) ...[
                 Text(
                   'Status: ${book.statusValue}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 3),
               ],
-              
+
               // Reading Progress (only for Started or Standby books)
-              if (_enabledCardFields.contains('progress') && 
-                  book.readingProgress != null && 
+              if (_enabledCardFields.contains('progress') &&
+                  book.readingProgress != null &&
                   book.readingProgress! > 0 &&
                   (book.statusValue?.toLowerCase() == 'started' ||
-                   book.statusValue?.toLowerCase() == 'standby')) ...[
+                      book.statusValue?.toLowerCase() == 'standby')) ...[
                 Row(
                   children: [
                     Icon(Icons.trending_up, size: 14, color: Colors.blue),
                     const SizedBox(width: 4),
                     Text(
-                      book.progressType == 'pages' 
-                          ? '${book.readingProgress} pages'
-                          : '${book.readingProgress}%',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                      () {
+                        if (book.progressType == 'pages' &&
+                            book.pages != null &&
+                            book.pages! > 0) {
+                          final percent =
+                              (book.readingProgress! * 100 / book.pages!)
+                                  .round();
+                          return '$percent%';
+                        }
+                        return '${book.readingProgress}%';
+                      }(),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                     ),
                   ],
                 ),
