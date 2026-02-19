@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
@@ -107,11 +108,275 @@ class _BookListViewState extends State<BookListView> {
       backgroundColor = Colors.grey.shade200;
     }
 
+    // Compute progress fraction for Started/Standby books
+    final bool hasProgress =
+        (book.statusValue?.toLowerCase() == 'started' ||
+            book.statusValue?.toLowerCase() == 'standby') &&
+        book.readingProgress != null &&
+        book.readingProgress! > 0;
+
+    double progressFraction = 0.0;
+    if (hasProgress) {
+      if (book.progressType == 'pages' &&
+          book.pages != null &&
+          book.pages! > 0) {
+        progressFraction = (book.readingProgress! / book.pages!).clamp(
+          0.0,
+          1.0,
+        );
+      } else {
+        progressFraction = (book.readingProgress! / 100.0).clamp(0.0, 1.0);
+      }
+    }
+
+    final cardFields = <Widget>[
+      // Title row with icons
+      if (_enabledCardFields.contains('title')) ...[
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                book.name ?? AppLocalizations.of(context)!.unknown_title,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.deepPurple,
+                ),
+              ),
+            ),
+            if (book.isTandem == true) ...[
+              const SizedBox(width: 6),
+              Icon(
+                Icons.swap_horizontal_circle_outlined,
+                size: 18,
+                color: Colors.deepPurple,
+              ),
+              Icon(
+                Icons.alt_route_outlined,
+                size: 18,
+                color: Colors.deepPurple,
+              ),
+            ],
+            if (book.tbr == true) ...[
+              Icon(Icons.bookmark_add, size: 18, color: Colors.deepPurple),
+            ],
+            if (book.isBundle == true) ...[
+              Icon(Icons.library_books, size: 18, color: Colors.deepPurple),
+            ],
+          ],
+        ),
+        const SizedBox(height: 6),
+      ],
+
+      // Author
+      if (_enabledCardFields.contains('author') &&
+          book.author != null &&
+          book.author!.isNotEmpty) ...[
+        Text(
+          AppLocalizations.of(context)!.author_with_colon(book.author ?? ''),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 3),
+      ],
+
+      // Saga
+      if (_enabledCardFields.contains('saga') &&
+          book.saga != null &&
+          book.saga!.isNotEmpty) ...[
+        Text(
+          AppLocalizations.of(context)!.saga_with_colon(book.saga ?? '') +
+              (book.nSaga != null && book.nSaga!.isNotEmpty
+                  ? ' #${book.nSaga}'
+                  : ''),
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        const SizedBox(height: 3),
+      ],
+
+      // Format and Language (combined for efficiency)
+      if ((_enabledCardFields.contains('format') ||
+              _enabledCardFields.contains('language')) &&
+          (book.formatValue != null || book.languageValue != null)) ...[
+        Text(
+          [
+            if (_enabledCardFields.contains('format'))
+              AppLocalizations.of(
+                context,
+              )!.format_with_colon(book.formatValue ?? 'N/A'),
+            if (_enabledCardFields.contains('language'))
+              AppLocalizations.of(
+                context,
+              )!.language_with_colon(book.languageValue ?? 'N/A'),
+          ].join(' • '),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+        ),
+        const SizedBox(height: 3),
+      ],
+
+      // ISBN/ASIN
+      if (_enabledCardFields.contains('isbn') &&
+          (book.isbn != null || book.asin != null)) ...[
+        Text(
+          'ISBN/ASIN: ${book.isbn ?? book.asin ?? 'N/A'}',
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+        ),
+        const SizedBox(height: 3),
+      ],
+
+      // Pages
+      if (_enabledCardFields.contains('pages') && book.pages != null) ...[
+        Text(
+          'Pages: ${book.pages}',
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+        ),
+        const SizedBox(height: 3),
+      ],
+
+      // Genre
+      if (_enabledCardFields.contains('genre') &&
+          book.genre != null &&
+          book.genre!.isNotEmpty) ...[
+        Text(
+          'Genre: ${book.genre}',
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+        ),
+        const SizedBox(height: 3),
+      ],
+
+      // Editorial
+      if (_enabledCardFields.contains('editorial') &&
+          book.editorialValue != null &&
+          book.editorialValue!.isNotEmpty) ...[
+        Text(
+          'Editorial: ${book.editorialValue}',
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+        ),
+        const SizedBox(height: 3),
+      ],
+
+      // Publication Year
+      if (_enabledCardFields.contains('publication_year') &&
+          book.originalPublicationYear != null) ...[
+        Text(
+          'Published: ${book.originalPublicationYear}',
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+        ),
+        const SizedBox(height: 3),
+      ],
+
+      // Publication Date (shows if date is filled, regardless of notification status)
+      if (_enabledCardFields.contains('publication_date') &&
+          book.notificationDatetime != null &&
+          book.notificationDatetime!.isNotEmpty) ...[
+        Text(
+          'Publication Date: ${book.notificationDatetime!.split('T')[0]}',
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+        ),
+        const SizedBox(height: 3),
+      ],
+
+      // Rating
+      if (_enabledCardFields.contains('rating') && book.myRating != null) ...[
+        Row(
+          children: [
+            Icon(Icons.star, size: 14, color: Colors.amber),
+            const SizedBox(width: 4),
+            Text(
+              '${book.myRating}',
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+            ),
+          ],
+        ),
+        const SizedBox(height: 3),
+      ],
+
+      // Read Count
+      if (_enabledCardFields.contains('read_count') &&
+          book.readCount != null &&
+          book.readCount! > 0) ...[
+        Text(
+          'Read count: ${book.readCount}',
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+        ),
+        const SizedBox(height: 3),
+      ],
+
+      // Status
+      if (_enabledCardFields.contains('status') &&
+          book.statusValue != null &&
+          book.statusValue!.isNotEmpty) ...[
+        Text(
+          'Status: ${book.statusValue}',
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+        ),
+        const SizedBox(height: 3),
+      ],
+
+      // Reading Progress (only for Started or Standby books)
+      if (_enabledCardFields.contains('progress') &&
+          book.readingProgress != null &&
+          book.readingProgress! > 0 &&
+          (book.statusValue?.toLowerCase() == 'started' ||
+              book.statusValue?.toLowerCase() == 'standby')) ...[
+        Row(
+          children: [
+            Icon(Icons.trending_up, size: 14, color: Colors.blue),
+            const SizedBox(width: 4),
+            Text(
+              () {
+                if (book.progressType == 'pages' &&
+                    book.pages != null &&
+                    book.pages! > 0) {
+                  final percent =
+                      (book.readingProgress! * 100 / book.pages!).round();
+                  return '$percent%';
+                }
+                return '${book.readingProgress}%';
+              }(),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+            ),
+          ],
+        ),
+      ],
+    ];
+
+    final contentWidget = Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: cardFields,
+      ),
+    );
+
     return Card(
       elevation: 1,
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       color: backgroundColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
           Navigator.push(
@@ -122,261 +387,51 @@ class _BookListViewState extends State<BookListView> {
           );
         },
         borderRadius: BorderRadius.circular(8),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              // Title row with icons
-              if (_enabledCardFields.contains('title')) ...[
-                Row(
+        child:
+            hasProgress
+                ? Stack(
                   children: [
-                    Expanded(
-                      child: Text(
-                        book.name ??
-                            AppLocalizations.of(context)!.unknown_title,
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.deepPurple,
-                        ),
+                    Positioned.fill(
+                      child: FractionallySizedBox(
+                        alignment: Alignment.centerLeft,
+                        widthFactor: progressFraction,
+                        child:
+                            book.coverUrl != null && book.coverUrl!.isNotEmpty
+                                ? Opacity(
+                                  opacity: 0.25,
+                                  child: ImageFiltered(
+                                    imageFilter: ImageFilter.blur(
+                                      sigmaX: 3,
+                                      sigmaY: 3,
+                                    ),
+                                    child: Image.network(
+                                      book.coverUrl!,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (
+                                        context,
+                                        error,
+                                        stackTrace,
+                                      ) {
+                                        return Container(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .tertiary
+                                              .withValues(alpha: 0.25),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                )
+                                : Container(
+                                  color: Theme.of(context).colorScheme.tertiary
+                                      .withValues(alpha: 0.25),
+                                ),
                       ),
                     ),
-                    if (book.isTandem == true) ...[
-                      const SizedBox(width: 6),
-                      Icon(
-                        Icons.swap_horizontal_circle_outlined,
-                        size: 18,
-                        color: Colors.deepPurple,
-                      ),
-                      Icon(
-                        Icons.alt_route_outlined,
-                        size: 18,
-                        color: Colors.deepPurple,
-                      ),
-                    ],
-                    if (book.tbr == true) ...[
-                      Icon(
-                        Icons.bookmark_add,
-                        size: 18,
-                        color: Colors.deepPurple,
-                      ),
-                    ],
-                    if (book.isBundle == true) ...[
-                      Icon(
-                        Icons.library_books,
-                        size: 18,
-                        color: Colors.deepPurple,
-                      ),
-                    ],
+                    contentWidget,
                   ],
-                ),
-                const SizedBox(height: 6),
-              ],
-
-              // Author
-              if (_enabledCardFields.contains('author') &&
-                  book.author != null &&
-                  book.author!.isNotEmpty) ...[
-                Text(
-                  AppLocalizations.of(
-                    context,
-                  )!.author_with_colon(book.author ?? ''),
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
-                ),
-                const SizedBox(height: 3),
-              ],
-
-              // Saga
-              if (_enabledCardFields.contains('saga') &&
-                  book.saga != null &&
-                  book.saga!.isNotEmpty) ...[
-                Text(
-                  AppLocalizations.of(
-                        context,
-                      )!.saga_with_colon(book.saga ?? '') +
-                      (book.nSaga != null && book.nSaga!.isNotEmpty
-                          ? ' #${book.nSaga}'
-                          : ''),
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                const SizedBox(height: 3),
-              ],
-
-              // Format and Language (combined for efficiency)
-              if ((_enabledCardFields.contains('format') ||
-                      _enabledCardFields.contains('language')) &&
-                  (book.formatValue != null || book.languageValue != null)) ...[
-                Text(
-                  [
-                    if (_enabledCardFields.contains('format'))
-                      AppLocalizations.of(
-                        context,
-                      )!.format_with_colon(book.formatValue ?? 'N/A'),
-                    if (_enabledCardFields.contains('language'))
-                      AppLocalizations.of(
-                        context,
-                      )!.language_with_colon(book.languageValue ?? 'N/A'),
-                  ].join(' • '),
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 3),
-              ],
-
-              // ISBN/ASIN
-              if (_enabledCardFields.contains('isbn') &&
-                  (book.isbn != null || book.asin != null)) ...[
-                Text(
-                  'ISBN/ASIN: ${book.isbn ?? book.asin ?? 'N/A'}',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 3),
-              ],
-
-              // Pages
-              if (_enabledCardFields.contains('pages') &&
-                  book.pages != null) ...[
-                Text(
-                  'Pages: ${book.pages}',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 3),
-              ],
-
-              // Genre
-              if (_enabledCardFields.contains('genre') &&
-                  book.genre != null &&
-                  book.genre!.isNotEmpty) ...[
-                Text(
-                  'Genre: ${book.genre}',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 3),
-              ],
-
-              // Editorial
-              if (_enabledCardFields.contains('editorial') &&
-                  book.editorialValue != null &&
-                  book.editorialValue!.isNotEmpty) ...[
-                Text(
-                  'Editorial: ${book.editorialValue}',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 3),
-              ],
-
-              // Publication Year
-              if (_enabledCardFields.contains('publication_year') &&
-                  book.originalPublicationYear != null) ...[
-                Text(
-                  'Published: ${book.originalPublicationYear}',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 3),
-              ],
-
-              // Publication Date (shows if date is filled, regardless of notification status)
-              if (_enabledCardFields.contains('publication_date') &&
-                  book.notificationDatetime != null &&
-                  book.notificationDatetime!.isNotEmpty) ...[
-                Text(
-                  'Publication Date: ${book.notificationDatetime!.split('T')[0]}',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 3),
-              ],
-
-              // Rating
-              if (_enabledCardFields.contains('rating') &&
-                  book.myRating != null) ...[
-                Row(
-                  children: [
-                    Icon(Icons.star, size: 14, color: Colors.amber),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${book.myRating}',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 3),
-              ],
-
-              // Read Count
-              if (_enabledCardFields.contains('read_count') &&
-                  book.readCount != null &&
-                  book.readCount! > 0) ...[
-                Text(
-                  'Read count: ${book.readCount}',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 3),
-              ],
-
-              // Status
-              if (_enabledCardFields.contains('status') &&
-                  book.statusValue != null &&
-                  book.statusValue!.isNotEmpty) ...[
-                Text(
-                  'Status: ${book.statusValue}',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 3),
-              ],
-
-              // Reading Progress (only for Started or Standby books)
-              if (_enabledCardFields.contains('progress') &&
-                  book.readingProgress != null &&
-                  book.readingProgress! > 0 &&
-                  (book.statusValue?.toLowerCase() == 'started' ||
-                      book.statusValue?.toLowerCase() == 'standby')) ...[
-                Row(
-                  children: [
-                    Icon(Icons.trending_up, size: 14, color: Colors.blue),
-                    const SizedBox(width: 4),
-                    Text(
-                      () {
-                        if (book.progressType == 'pages' &&
-                            book.pages != null &&
-                            book.pages! > 0) {
-                          final percent =
-                              (book.readingProgress! * 100 / book.pages!)
-                                  .round();
-                          return '$percent%';
-                        }
-                        return '${book.readingProgress}%';
-                      }(),
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-                    ),
-                  ],
-                ),
-              ],
-            ],
-          ),
-        ),
+                )
+                : contentWidget,
       ),
     );
   }
