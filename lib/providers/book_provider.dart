@@ -61,7 +61,7 @@ class BookProvider extends ChangeNotifier {
     final db = await DatabaseHelper.instance.database;
     _repo = BookRepository(db);
 
-    // Update TBReleased books to Not Read if their notification date has passed
+    // Update TBReleased books to Not Read if their release date has passed
     await _repo.updateExpiredTBReleasedBooks();
 
     _books = await _repo.getAllBooks();
@@ -85,7 +85,8 @@ class BookProvider extends ChangeNotifier {
   void _applyAllFilters() {
     if (_currentFilters.isEmpty) {
       // Filter out individual books from bundles (they should only be accessible through the bundle)
-      _filteredBooks = _books.where((book) => book.bundleParentId == null).toList();
+      _filteredBooks =
+          _books.where((book) => book.bundleParentId == null).toList();
     } else {
       _filteredBooks =
           _books.where((book) {
@@ -93,7 +94,7 @@ class BookProvider extends ChangeNotifier {
             if (book.bundleParentId != null) {
               return false;
             }
-            
+
             // Check all active filters
             for (var entry in _currentFilters.entries) {
               final filterType = entry.key;

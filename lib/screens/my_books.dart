@@ -487,10 +487,22 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                                                           4,
                                                         ),
                                                     child: LinearProgressIndicator(
-                                                      value:
-                                                          (book.readingProgress ??
-                                                              0) /
-                                                          100,
+                                                      value: () {
+                                                        final progress =
+                                                            book.readingProgress ??
+                                                            0;
+                                                        if (book.progressType ==
+                                                                'pages' &&
+                                                            book.pages !=
+                                                                null &&
+                                                            book.pages! > 0) {
+                                                          return (progress /
+                                                                  book.pages!)
+                                                              .clamp(0.0, 1.0);
+                                                        }
+                                                        return (progress / 100)
+                                                            .clamp(0.0, 1.0);
+                                                      }(),
                                                       minHeight: 6,
                                                       backgroundColor:
                                                           Colors.grey[300],
@@ -503,7 +515,18 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                                                 ),
                                                 const SizedBox(width: 8),
                                                 Text(
-                                                  '${book.readingProgress ?? 0}%',
+                                                  () {
+                                                    final progress =
+                                                        book.readingProgress ??
+                                                        0;
+                                                    if (book.progressType ==
+                                                            'pages' &&
+                                                        book.pages != null &&
+                                                        book.pages! > 0) {
+                                                      return '${(progress * 100 / book.pages!).round()}%';
+                                                    }
+                                                    return '$progress%';
+                                                  }(),
                                                   style: Theme.of(context)
                                                       .textTheme
                                                       .bodySmall

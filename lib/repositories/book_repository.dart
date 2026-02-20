@@ -443,14 +443,14 @@ class BookRepository {
       'format_saga',
       columns: ['value', 'expected_books'],
     );
-    
+
     final Map<String, int?> mapping = {};
     for (final row in result) {
       final value = row['value'] as String;
       final expectedBooks = row['expected_books'] as int?;
       mapping[value] = expectedBooks;
     }
-    
+
     return mapping;
   }
 
@@ -458,28 +458,35 @@ class BookRepository {
   /// Returns the format_saga_id from the first book with that saga name
   /// Returns null if no book found with that saga or if the book has no format saga
   Future<int?> getFormatSagaIdForSaga(String sagaName) async {
-    final result = await db.rawQuery('''
+    final result = await db.rawQuery(
+      '''
       SELECT format_saga_id 
       FROM book 
       WHERE saga = ? AND format_saga_id IS NOT NULL
       LIMIT 1
-    ''', [sagaName]);
-    
+    ''',
+      [sagaName],
+    );
+
     if (result.isEmpty) {
       return null;
     }
-    
+
     final formatSagaId = result.first['format_saga_id'];
     if (formatSagaId == null) {
       return null;
     }
-    
+
     return int.tryParse(formatSagaId.toString());
   }
 
   /// Add a new value to a lookup table
   /// For format_saga, expectedBooks can be provided to set the expected book count
-  Future<int> addLookupValue(String tableName, String value, {int? expectedBooks}) async {
+  Future<int> addLookupValue(
+    String tableName,
+    String value, {
+    int? expectedBooks,
+  }) async {
     // saga and saga_universe are text fields in book table, not lookup tables
     // Return a fake ID for compatibility
     if (tableName == 'saga' || tableName == 'saga_universe') {
@@ -494,7 +501,7 @@ class BookRepository {
             : 'name';
 
     final data = <String, dynamic>{valueColumn: value};
-    
+
     // Add expected_books for format_saga table
     if (tableName == 'format_saga' && expectedBooks != null) {
       data['expected_books'] = expectedBooks;
@@ -1387,7 +1394,7 @@ class BookRepository {
     return Book.fromMap(result.first);
   }
 
-  /// Update TBReleased books to Not Read status when their notification date has passed
+  /// Update TBReleased books to Not Read status when their release date has passed
   Future<int> updateExpiredTBReleasedBooks() async {
     try {
       final today = DateTime.now().toIso8601String().split('T')[0];
@@ -1410,15 +1417,15 @@ class BookRepository {
 
       // Update books where:
       // 1. Status is TBReleased
-      // 2. notification_datetime is set and <= today
+      // 2. release_date is set and <= today
       final result = await db.rawUpdate(
         '''
         UPDATE book
         SET status_id = ?
         WHERE status_id = ?
-          AND notification_datetime IS NOT NULL
-          AND notification_datetime != ''
-          AND notification_datetime <= ?
+          AND release_date IS NOT NULL
+          AND release_date != ''
+          AND release_date <= ?
       ''',
         [notReadStatus['status_id'], tbReleasedStatus['status_id'], today],
       );

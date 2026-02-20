@@ -171,10 +171,21 @@ class NotificationService {
     // Convert to TZDateTime with local timezone
     final tzScheduledDate = tz.TZDateTime.from(scheduledDate, tz.local);
 
-    // Calculate days remaining until release
+    // Calculate days remaining until release (compare calendar dates, not datetimes)
     String notificationBody;
     if (releaseDate != null) {
-      final daysRemaining = releaseDate.difference(scheduledDate).inDays;
+      final releaseDateOnly = DateTime(
+        releaseDate.year,
+        releaseDate.month,
+        releaseDate.day,
+      );
+      final scheduledDateOnly = DateTime(
+        scheduledDate.year,
+        scheduledDate.month,
+        scheduledDate.day,
+      );
+      final daysRemaining =
+          releaseDateOnly.difference(scheduledDateOnly).inDays;
       if (daysRemaining == 0) {
         notificationBody = '$bookTitle is being released today!';
       } else if (daysRemaining == 1) {
