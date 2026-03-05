@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
@@ -14,6 +15,8 @@ import 'package:myrandomlibrary/screens/manage_dropdowns.dart';
 import 'package:myrandomlibrary/screens/manage_rating_fields.dart';
 import 'package:myrandomlibrary/screens/manage_club_names.dart';
 import 'package:myrandomlibrary/screens/bundle_migration_screen.dart';
+import 'package:myrandomlibrary/services/google_auth_service.dart';
+import 'package:myrandomlibrary/services/cloud_backup_service.dart';
 import 'package:myrandomlibrary/utils/csv_import_helper.dart';
 import 'package:myrandomlibrary/utils/bundle_migration.dart';
 import 'package:myrandomlibrary/utils/reading_session_migration.dart';
@@ -33,6 +36,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _isAdmin = false;
   Set<String> _enabledFilters = {};
   Set<String> _enabledCardFields = {};
+
+  // Cloud Sync state
+  bool _isCloudBusy = false;
+  Map<String, dynamic>? _backupMetadata;
+  User? _currentUser;
 
   // Available filters
   static const List<Map<String, String>> _availableFilters = [
@@ -82,6 +90,256 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.initState();
     _loadEnabledFilters();
     _loadEnabledCardFields();
+    _currentUser = GoogleAuthService.instance.currentUser;
+    if (_currentUser != null) {
+      _loadBackupMetadata();
+    }
+  }
+
+  Future<void> _loadBackupMetadata() async {
+    if (_currentUser == null) return;
+    final metadata = await CloudBackupService.instance.getBackupMetadata(
+      _currentUser!.uid,
+    );
+    if (mounted) {
+      setState(() {
+        _backupMetadata = metadata;
+      });
+    }
+  }
+
+  Future<void> _signInWithGoogle() async {
+    setState(() => _isCloudBusy = true);
+    try {
+      final user = await GoogleAuthService.instance.signInWithGoogle();
+      if (mounted) {
+        setState(() {
+          _currentUser = user;
+          _isCloudBusy = false;
+        });
+        if (user != null) {
+          _loadBackupMetadata();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.sign_in_failed),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('Sign-in error: $e');
+      if (mounted) {
+        setState(() => _isCloudBusy = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.sign_in_failed),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _signOut() async {
+    await GoogleAuthService.instance.signOut();
+    if (mounted) {
+      setState(() {
+        _currentUser = null;
+        _backupMetadata = null;
+      });
+    }
+  }
+
+  Future<void> _uploadBackup() async {
+    if (_currentUser == null) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text(AppLocalizations.of(context)!.backup_to_cloud),
+            content: Text(AppLocalizations.of(context)!.upload_your_library),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text(AppLocalizations.of(context)!.cancel),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: Text(AppLocalizations.of(context)!.confirm),
+              ),
+            ],
+          ),
+    );
+
+    if (confirmed != true) return;
+
+    setState(() => _isCloudBusy = true);
+    if (context.mounted) {
+      _showLoadingDialog(
+        context,
+        AppLocalizations.of(context)!.cloud_backup_in_progress,
+      );
+    }
+
+    try {
+      final success = await CloudBackupService.instance.uploadBackup(
+        _currentUser!.uid,
+      );
+
+      if (context.mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+
+      if (mounted) {
+        setState(() => _isCloudBusy = false);
+        if (success) {
+          _loadBackupMetadata();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.cloud_backup_success),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.error),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+      if (mounted) {
+        setState(() => _isCloudBusy = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+
+  String _formatTimestamp(String? timestamp) {
+    if (timestamp == null) return '?';
+    try {
+      final dt = DateTime.parse(timestamp);
+      return '${dt.day.toString().padLeft(2, '0')}/'
+          '${dt.month.toString().padLeft(2, '0')}/'
+          '${dt.year} '
+          '${dt.hour.toString().padLeft(2, '0')}:'
+          '${dt.minute.toString().padLeft(2, '0')}';
+    } catch (_) {
+      return timestamp;
+    }
+  }
+
+  Future<void> _downloadBackup() async {
+    if (_currentUser == null) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text(AppLocalizations.of(context)!.restore_from_cloud),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.cloud_restore_warning,
+                  style: const TextStyle(color: Colors.red),
+                ),
+                if (_backupMetadata != null) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    AppLocalizations.of(
+                      context,
+                    )!.cloud_backup_books(_backupMetadata!['bookCount'] ?? '?'),
+                  ),
+                  Text(
+                    AppLocalizations.of(
+                      context,
+                    )!.last_cloud_backup(_backupMetadata!['timestamp'] ?? '?'),
+                  ),
+                ],
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text(AppLocalizations.of(context)!.cancel),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                ),
+                child: Text(AppLocalizations.of(context)!.restore),
+              ),
+            ],
+          ),
+    );
+
+    if (confirmed != true) return;
+
+    setState(() => _isCloudBusy = true);
+    if (context.mounted) {
+      _showLoadingDialog(
+        context,
+        AppLocalizations.of(context)!.cloud_restore_in_progress,
+      );
+    }
+
+    try {
+      final success = await CloudBackupService.instance.downloadBackup(
+        _currentUser!.uid,
+      );
+
+      if (context.mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+
+      if (mounted) {
+        setState(() => _isCloudBusy = false);
+        if (success) {
+          final provider = Provider.of<BookProvider?>(context, listen: false);
+          await provider?.loadBooks();
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                AppLocalizations.of(context)!.cloud_restore_success,
+              ),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.no_cloud_backup),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+      if (mounted) {
+        setState(() => _isCloudBusy = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+        );
+      }
+    }
   }
 
   Future<void> _loadEnabledFilters() async {
@@ -2466,6 +2724,327 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                           ),
                         ),
+                        const SizedBox(height: 16),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // ===== CLOUD SYNC SECTION (COLLAPSIBLE) =====
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: ExpansionTile(
+                title: Row(
+                  children: [
+                    Icon(
+                      Icons.cloud_sync,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      AppLocalizations.of(context)!.cloud_sync,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                subtitle: Text(
+                  AppLocalizations.of(context)!.cloud_sync_subtitle,
+                ),
+                initiallyExpanded: false,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Google Account Card
+                        if (_currentUser == null) ...[
+                          // Not signed in - show Sign In button
+                          Card(
+                            elevation: 1,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: InkWell(
+                              onTap: _isCloudBusy ? null : _signInWithGoogle,
+                              borderRadius: BorderRadius.circular(12),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  children: [
+                                    if (_isCloudBusy)
+                                      const CircularProgressIndicator()
+                                    else
+                                      Icon(
+                                        Icons.login,
+                                        size: 36,
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.primary,
+                                      ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.sign_in_with_google,
+                                      textAlign: TextAlign.center,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.sign_in_required,
+                                      textAlign: TextAlign.center,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(color: Colors.grey[600]),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ] else ...[
+                          // Signed in - show user info
+                          Card(
+                            elevation: 1,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Row(
+                                children: [
+                                  if (_currentUser!.photoURL != null)
+                                    CircleAvatar(
+                                      backgroundImage: NetworkImage(
+                                        _currentUser!.photoURL!,
+                                      ),
+                                      radius: 20,
+                                    )
+                                  else
+                                    const CircleAvatar(
+                                      radius: 20,
+                                      child: Icon(Icons.person),
+                                    ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          _currentUser!.displayName ??
+                                              _currentUser!.email ??
+                                              '',
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.titleSmall?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        if (_currentUser!.email != null)
+                                          Text(
+                                            _currentUser!.email!,
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.bodySmall?.copyWith(
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: _signOut,
+                                    child: Text(
+                                      AppLocalizations.of(context)!.sign_out,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+
+                          // Backup info row
+                          if (_backupMetadata != null)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 12.0),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.info_outline,
+                                    size: 16,
+                                    color: Colors.grey[600],
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.last_cloud_backup(
+                                        _formatTimestamp(
+                                          _backupMetadata!['timestamp'],
+                                        ),
+                                      ),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(color: Colors.grey[600]),
+                                    ),
+                                  ),
+                                  InkWell(
+                                    onTap: _loadBackupMetadata,
+                                    child: Icon(
+                                      Icons.refresh,
+                                      size: 18,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          else
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 12.0),
+                              child: Text(
+                                AppLocalizations.of(context)!.no_cloud_backup,
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(color: Colors.grey[600]),
+                              ),
+                            ),
+
+                          // Backup and Restore cloud buttons
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Card(
+                                  elevation: 1,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: InkWell(
+                                    onTap: _isCloudBusy ? null : _uploadBackup,
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Column(
+                                        children: [
+                                          Icon(
+                                            Icons.cloud_upload_outlined,
+                                            size: 36,
+                                            color:
+                                                _isCloudBusy
+                                                    ? Colors.grey
+                                                    : Theme.of(
+                                                      context,
+                                                    ).colorScheme.primary,
+                                          ),
+                                          const SizedBox(height: 12),
+                                          Text(
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.backup_to_cloud,
+                                            textAlign: TextAlign.center,
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.titleMedium?.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.upload_your_library,
+                                            textAlign: TextAlign.center,
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.bodySmall?.copyWith(
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Card(
+                                  elevation: 1,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: InkWell(
+                                    onTap:
+                                        _isCloudBusy ? null : _downloadBackup,
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Column(
+                                        children: [
+                                          Icon(
+                                            Icons.cloud_download_outlined,
+                                            size: 36,
+                                            color:
+                                                _isCloudBusy
+                                                    ? Colors.grey
+                                                    : Theme.of(
+                                                      context,
+                                                    ).colorScheme.primary,
+                                          ),
+                                          const SizedBox(height: 12),
+                                          Text(
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.restore_from_cloud,
+                                            textAlign: TextAlign.center,
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.titleMedium?.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.download_your_library,
+                                            textAlign: TextAlign.center,
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.bodySmall?.copyWith(
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                         const SizedBox(height: 16),
                       ],
                     ),

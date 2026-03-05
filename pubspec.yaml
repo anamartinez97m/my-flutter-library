@@ -1,6 +1,6 @@
 name: myrandomlibrary
 description: Aplicación desarrollada por Ana Martínez Montañez como proyecto personal.
-version: 1.0.0+7
+version: 1.0.0+8
 homepage: https://https://github.com/anamartinez97m/my-flutter-library
 license: "Propietario"
 # © 2025 Ana Martínez. Todos los derechos reservados.
@@ -40,6 +40,10 @@ dependencies:
   mobile_scanner: ^5.1.0
   http: ^1.2.0
   in_app_update: ^4.2.3
+  firebase_core: ^3.8.1
+  firebase_auth: ^5.4.1
+  google_sign_in: ^6.2.2
+  firebase_storage: ^12.4.1
 
 dev_dependencies:
   flutter_test:

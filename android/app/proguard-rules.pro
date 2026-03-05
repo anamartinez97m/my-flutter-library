@@ -25,6 +25,10 @@
 ## Keep custom model classes
 -keep class com.anamm.mylibrary.model.** { *; }
 
+## Firebase
+-keep class com.google.firebase.** { *; }
+-keep class com.google.android.gms.** { *; }
+
 ## General Android
 -keep public class * extends android.app.Activity
 -keep public class * extends android.app.Application

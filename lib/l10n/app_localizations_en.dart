@@ -2687,4 +2687,70 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get import_error => 'Import Error';
+
+  @override
+  String get cloud_sync => 'Cloud Sync';
+
+  @override
+  String get cloud_sync_subtitle => 'Backup and restore via Google';
+
+  @override
+  String get sign_in_with_google => 'Sign in with Google';
+
+  @override
+  String get sign_out => 'Sign Out';
+
+  @override
+  String signed_in_as(Object email) {
+    return 'Signed in as $email';
+  }
+
+  @override
+  String get backup_to_cloud => 'Backup to Cloud';
+
+  @override
+  String get restore_from_cloud => 'Restore from Cloud';
+
+  @override
+  String get upload_your_library => 'Upload your library to Google Cloud';
+
+  @override
+  String get download_your_library => 'Download your library from Google Cloud';
+
+  @override
+  String last_cloud_backup(Object date) {
+    return 'Last cloud backup: $date';
+  }
+
+  @override
+  String get no_cloud_backup => 'No cloud backup found';
+
+  @override
+  String get cloud_backup_success => 'Backup uploaded successfully';
+
+  @override
+  String get cloud_restore_success => 'Library restored from cloud';
+
+  @override
+  String get cloud_restore_warning => 'This will replace ALL your current data with the cloud backup. This cannot be undone.';
+
+  @override
+  String get cloud_backup_in_progress => 'Uploading backup...';
+
+  @override
+  String get cloud_restore_in_progress => 'Downloading backup...';
+
+  @override
+  String get sign_in_required => 'Please sign in to use cloud backup';
+
+  @override
+  String get sign_in_failed => 'Sign in failed';
+
+  @override
+  String get no_internet => 'No internet connection';
+
+  @override
+  String cloud_backup_books(Object count) {
+    return '$count books';
+  }
 }

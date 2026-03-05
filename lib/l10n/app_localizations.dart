@@ -4978,6 +4978,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Import Error'**
   String get import_error;
+
+  /// No description provided for @cloud_sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud Sync'**
+  String get cloud_sync;
+
+  /// No description provided for @cloud_sync_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup and restore via Google'**
+  String get cloud_sync_subtitle;
+
+  /// No description provided for @sign_in_with_google.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Google'**
+  String get sign_in_with_google;
+
+  /// No description provided for @sign_out.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Out'**
+  String get sign_out;
+
+  /// No description provided for @signed_in_as.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in as {email}'**
+  String signed_in_as(Object email);
+
+  /// No description provided for @backup_to_cloud.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup to Cloud'**
+  String get backup_to_cloud;
+
+  /// No description provided for @restore_from_cloud.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from Cloud'**
+  String get restore_from_cloud;
+
+  /// No description provided for @upload_your_library.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload your library to Google Cloud'**
+  String get upload_your_library;
+
+  /// No description provided for @download_your_library.
+  ///
+  /// In en, this message translates to:
+  /// **'Download your library from Google Cloud'**
+  String get download_your_library;
+
+  /// No description provided for @last_cloud_backup.
+  ///
+  /// In en, this message translates to:
+  /// **'Last cloud backup: {date}'**
+  String last_cloud_backup(Object date);
+
+  /// No description provided for @no_cloud_backup.
+  ///
+  /// In en, this message translates to:
+  /// **'No cloud backup found'**
+  String get no_cloud_backup;
+
+  /// No description provided for @cloud_backup_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup uploaded successfully'**
+  String get cloud_backup_success;
+
+  /// No description provided for @cloud_restore_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Library restored from cloud'**
+  String get cloud_restore_success;
+
+  /// No description provided for @cloud_restore_warning.
+  ///
+  /// In en, this message translates to:
+  /// **'This will replace ALL your current data with the cloud backup. This cannot be undone.'**
+  String get cloud_restore_warning;
+
+  /// No description provided for @cloud_backup_in_progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading backup...'**
+  String get cloud_backup_in_progress;
+
+  /// No description provided for @cloud_restore_in_progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading backup...'**
+  String get cloud_restore_in_progress;
+
+  /// No description provided for @sign_in_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Please sign in to use cloud backup'**
+  String get sign_in_required;
+
+  /// No description provided for @sign_in_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in failed'**
+  String get sign_in_failed;
+
+  /// No description provided for @no_internet.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection'**
+  String get no_internet;
+
+  /// No description provided for @cloud_backup_books.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} books'**
+  String cloud_backup_books(Object count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

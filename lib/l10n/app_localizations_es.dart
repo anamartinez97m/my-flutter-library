@@ -2687,4 +2687,70 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get import_error => 'Error de Importación';
+
+  @override
+  String get cloud_sync => 'Sincronización en la Nube';
+
+  @override
+  String get cloud_sync_subtitle => 'Copia de seguridad y restauración con Google';
+
+  @override
+  String get sign_in_with_google => 'Iniciar sesión con Google';
+
+  @override
+  String get sign_out => 'Cerrar Sesión';
+
+  @override
+  String signed_in_as(Object email) {
+    return 'Sesión iniciada como $email';
+  }
+
+  @override
+  String get backup_to_cloud => 'Copia de Seguridad en la Nube';
+
+  @override
+  String get restore_from_cloud => 'Restaurar desde la Nube';
+
+  @override
+  String get upload_your_library => 'Sube tu biblioteca a Google Cloud';
+
+  @override
+  String get download_your_library => 'Descarga tu biblioteca desde Google Cloud';
+
+  @override
+  String last_cloud_backup(Object date) {
+    return 'Última copia en la nube: $date';
+  }
+
+  @override
+  String get no_cloud_backup => 'No se encontró copia en la nube';
+
+  @override
+  String get cloud_backup_success => 'Copia de seguridad subida correctamente';
+
+  @override
+  String get cloud_restore_success => 'Biblioteca restaurada desde la nube';
+
+  @override
+  String get cloud_restore_warning => 'Esto reemplazará TODOS tus datos actuales con la copia de la nube. No se puede deshacer.';
+
+  @override
+  String get cloud_backup_in_progress => 'Subiendo copia de seguridad...';
+
+  @override
+  String get cloud_restore_in_progress => 'Descargando copia de seguridad...';
+
+  @override
+  String get sign_in_required => 'Inicia sesión para usar la copia en la nube';
+
+  @override
+  String get sign_in_failed => 'Error al iniciar sesión';
+
+  @override
+  String get no_internet => 'Sin conexión a internet';
+
+  @override
+  String cloud_backup_books(Object count) {
+    return '$count libros';
+  }
 }

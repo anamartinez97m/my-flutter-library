@@ -1233,5 +1233,35 @@
   "next_label": "Siguiente",
   "import_this_book": "Importar este libro",
   "storage_permission_needed": "Se necesita permiso de almacenamiento para crear copias de seguridad. ¿Deseas conceder el permiso?",
-  "import_error": "Error de Importación"
+  "import_error": "Error de Importación",
+
+  "cloud_sync": "Sincronización en la Nube",
+  "cloud_sync_subtitle": "Copia de seguridad y restauración con Google",
+  "sign_in_with_google": "Iniciar sesión con Google",
+  "sign_out": "Cerrar Sesión",
+  "signed_in_as": "Sesión iniciada como {email}",
+  "@signed_in_as": {
+    "placeholders": { "email": {} }
+  },
+  "backup_to_cloud": "Copia de Seguridad en la Nube",
+  "restore_from_cloud": "Restaurar desde la Nube",
+  "upload_your_library": "Sube tu biblioteca a Google Cloud",
+  "download_your_library": "Descarga tu biblioteca desde Google Cloud",
+  "last_cloud_backup": "Última copia en la nube: {date}",
+  "@last_cloud_backup": {
+    "placeholders": { "date": {} }
+  },
+  "no_cloud_backup": "No se encontró copia en la nube",
+  "cloud_backup_success": "Copia de seguridad subida correctamente",
+  "cloud_restore_success": "Biblioteca restaurada desde la nube",
+  "cloud_restore_warning": "Esto reemplazará TODOS tus datos actuales con la copia de la nube. No se puede deshacer.",
+  "cloud_backup_in_progress": "Subiendo copia de seguridad...",
+  "cloud_restore_in_progress": "Descargando copia de seguridad...",
+  "sign_in_required": "Inicia sesión para usar la copia en la nube",
+  "sign_in_failed": "Error al iniciar sesión",
+  "no_internet": "Sin conexión a internet",
+  "cloud_backup_books": "{count} libros",
+  "@cloud_backup_books": {
+    "placeholders": { "count": {} }
+  }
 }

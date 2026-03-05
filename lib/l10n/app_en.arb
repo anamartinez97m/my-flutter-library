@@ -1227,5 +1227,35 @@
   "next_label": "Next",
   "import_this_book": "Import this book",
   "storage_permission_needed": "Storage permission is needed to create backups. Would you like to grant permission?",
-  "import_error": "Import Error"
+  "import_error": "Import Error",
+
+  "cloud_sync": "Cloud Sync",
+  "cloud_sync_subtitle": "Backup and restore via Google",
+  "sign_in_with_google": "Sign in with Google",
+  "sign_out": "Sign Out",
+  "signed_in_as": "Signed in as {email}",
+  "@signed_in_as": {
+    "placeholders": { "email": {} }
+  },
+  "backup_to_cloud": "Backup to Cloud",
+  "restore_from_cloud": "Restore from Cloud",
+  "upload_your_library": "Upload your library to Google Cloud",
+  "download_your_library": "Download your library from Google Cloud",
+  "last_cloud_backup": "Last cloud backup: {date}",
+  "@last_cloud_backup": {
+    "placeholders": { "date": {} }
+  },
+  "no_cloud_backup": "No cloud backup found",
+  "cloud_backup_success": "Backup uploaded successfully",
+  "cloud_restore_success": "Library restored from cloud",
+  "cloud_restore_warning": "This will replace ALL your current data with the cloud backup. This cannot be undone.",
+  "cloud_backup_in_progress": "Uploading backup...",
+  "cloud_restore_in_progress": "Downloading backup...",
+  "sign_in_required": "Please sign in to use cloud backup",
+  "sign_in_failed": "Sign in failed",
+  "no_internet": "No internet connection",
+  "cloud_backup_books": "{count} books",
+  "@cloud_backup_books": {
+    "placeholders": { "count": {} }
+  }
 }
