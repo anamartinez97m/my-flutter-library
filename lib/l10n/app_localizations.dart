@@ -5098,6 +5098,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} books'**
   String cloud_backup_books(Object count);
+
+  /// No description provided for @reading_reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading Reminders'**
+  String get reading_reminders;
+
+  /// No description provided for @reading_reminders_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily notifications to track your reading'**
+  String get reading_reminders_subtitle;
+
+  /// No description provided for @enable_reading_reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Reading Reminders'**
+  String get enable_reading_reminders;
+
+  /// No description provided for @enable_reading_reminders_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Get a daily notification asking if you\'ve read today'**
+  String get enable_reading_reminders_subtitle;
+
+  /// No description provided for @reminder_time.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder Time'**
+  String get reminder_time;
+
+  /// No description provided for @reminder_time_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Time to receive the daily notification'**
+  String get reminder_time_subtitle;
+
+  /// No description provided for @reminder_books_option.
+  ///
+  /// In en, this message translates to:
+  /// **'Which Books to Remind'**
+  String get reminder_books_option;
+
+  /// No description provided for @reminder_all_started.
+  ///
+  /// In en, this message translates to:
+  /// **'All started books'**
+  String get reminder_all_started;
+
+  /// No description provided for @reminder_last_started.
+  ///
+  /// In en, this message translates to:
+  /// **'Last started book only'**
+  String get reminder_last_started;
+
+  /// No description provided for @reminder_all_started_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'One notification per book with Started status'**
+  String get reminder_all_started_subtitle;
+
+  /// No description provided for @reminder_last_started_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the most recently started book'**
+  String get reminder_last_started_subtitle;
+
+  /// No description provided for @have_you_read_today.
+  ///
+  /// In en, this message translates to:
+  /// **'Have you read today?'**
+  String get have_you_read_today;
+
+  /// No description provided for @have_you_read_today_book.
+  ///
+  /// In en, this message translates to:
+  /// **'Have you read today?: {bookTitle}'**
+  String have_you_read_today_book(Object bookTitle);
+
+  /// No description provided for @tap_to_open_book.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to open book details'**
+  String get tap_to_open_book;
+
+  /// No description provided for @reading_reminder_enabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading reminders enabled'**
+  String get reading_reminder_enabled;
+
+  /// No description provided for @reading_reminder_disabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading reminders disabled'**
+  String get reading_reminder_disabled;
+
+  /// No description provided for @no_started_books_for_reminder.
+  ///
+  /// In en, this message translates to:
+  /// **'No books with Started status to remind about'**
+  String get no_started_books_for_reminder;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -1263,5 +1263,26 @@
   "cloud_backup_books": "{count} libros",
   "@cloud_backup_books": {
     "placeholders": { "count": {} }
-  }
+  },
+
+  "reading_reminders": "Recordatorios de Lectura",
+  "reading_reminders_subtitle": "Notificaciones diarias para seguir tu lectura",
+  "enable_reading_reminders": "Activar Recordatorios de Lectura",
+  "enable_reading_reminders_subtitle": "Recibe una notificación diaria preguntando si has leído hoy",
+  "reminder_time": "Hora del Recordatorio",
+  "reminder_time_subtitle": "Hora para recibir la notificación diaria",
+  "reminder_books_option": "Qué Libros Recordar",
+  "reminder_all_started": "Todos los libros iniciados",
+  "reminder_last_started": "Solo el último libro iniciado",
+  "reminder_all_started_subtitle": "Una notificación por libro con estado Iniciado",
+  "reminder_last_started_subtitle": "Solo el libro iniciado más recientemente",
+  "have_you_read_today": "¿Has leído hoy?",
+  "have_you_read_today_book": "¿Has leído hoy?: {bookTitle}",
+  "@have_you_read_today_book": {
+    "placeholders": { "bookTitle": {} }
+  },
+  "tap_to_open_book": "Toca para ver los detalles del libro",
+  "reading_reminder_enabled": "Recordatorios de lectura activados",
+  "reading_reminder_disabled": "Recordatorios de lectura desactivados",
+  "no_started_books_for_reminder": "No hay libros con estado Iniciado para recordar"
 }

@@ -2753,4 +2753,57 @@ class AppLocalizationsEn extends AppLocalizations {
   String cloud_backup_books(Object count) {
     return '$count books';
   }
+
+  @override
+  String get reading_reminders => 'Reading Reminders';
+
+  @override
+  String get reading_reminders_subtitle => 'Daily notifications to track your reading';
+
+  @override
+  String get enable_reading_reminders => 'Enable Reading Reminders';
+
+  @override
+  String get enable_reading_reminders_subtitle => 'Get a daily notification asking if you\'ve read today';
+
+  @override
+  String get reminder_time => 'Reminder Time';
+
+  @override
+  String get reminder_time_subtitle => 'Time to receive the daily notification';
+
+  @override
+  String get reminder_books_option => 'Which Books to Remind';
+
+  @override
+  String get reminder_all_started => 'All started books';
+
+  @override
+  String get reminder_last_started => 'Last started book only';
+
+  @override
+  String get reminder_all_started_subtitle => 'One notification per book with Started status';
+
+  @override
+  String get reminder_last_started_subtitle => 'Only the most recently started book';
+
+  @override
+  String get have_you_read_today => 'Have you read today?';
+
+  @override
+  String have_you_read_today_book(Object bookTitle) {
+    return 'Have you read today?: $bookTitle';
+  }
+
+  @override
+  String get tap_to_open_book => 'Tap to open book details';
+
+  @override
+  String get reading_reminder_enabled => 'Reading reminders enabled';
+
+  @override
+  String get reading_reminder_disabled => 'Reading reminders disabled';
+
+  @override
+  String get no_started_books_for_reminder => 'No books with Started status to remind about';
 }

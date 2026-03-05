@@ -1257,5 +1257,26 @@
   "cloud_backup_books": "{count} books",
   "@cloud_backup_books": {
     "placeholders": { "count": {} }
-  }
+  },
+
+  "reading_reminders": "Reading Reminders",
+  "reading_reminders_subtitle": "Daily notifications to track your reading",
+  "enable_reading_reminders": "Enable Reading Reminders",
+  "enable_reading_reminders_subtitle": "Get a daily notification asking if you've read today",
+  "reminder_time": "Reminder Time",
+  "reminder_time_subtitle": "Time to receive the daily notification",
+  "reminder_books_option": "Which Books to Remind",
+  "reminder_all_started": "All started books",
+  "reminder_last_started": "Last started book only",
+  "reminder_all_started_subtitle": "One notification per book with Started status",
+  "reminder_last_started_subtitle": "Only the most recently started book",
+  "have_you_read_today": "Have you read today?",
+  "have_you_read_today_book": "Have you read today?: {bookTitle}",
+  "@have_you_read_today_book": {
+    "placeholders": { "bookTitle": {} }
+  },
+  "tap_to_open_book": "Tap to open book details",
+  "reading_reminder_enabled": "Reading reminders enabled",
+  "reading_reminder_disabled": "Reading reminders disabled",
+  "no_started_books_for_reminder": "No books with Started status to remind about"
 }

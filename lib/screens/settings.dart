@@ -17,6 +17,7 @@ import 'package:myrandomlibrary/screens/manage_club_names.dart';
 import 'package:myrandomlibrary/screens/bundle_migration_screen.dart';
 import 'package:myrandomlibrary/services/google_auth_service.dart';
 import 'package:myrandomlibrary/services/cloud_backup_service.dart';
+import 'package:myrandomlibrary/services/notification_service.dart';
 import 'package:myrandomlibrary/utils/csv_import_helper.dart';
 import 'package:myrandomlibrary/utils/bundle_migration.dart';
 import 'package:myrandomlibrary/utils/reading_session_migration.dart';
@@ -36,6 +37,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _isAdmin = false;
   Set<String> _enabledFilters = {};
   Set<String> _enabledCardFields = {};
+
+  // Reading Reminders state
+  bool _readingReminderEnabled = false;
+  int _readingReminderHour = 21;
+  int _readingReminderMinute = 0;
+  bool _readingReminderAllBooks = true;
 
   // Cloud Sync state
   bool _isCloudBusy = false;
@@ -90,10 +97,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.initState();
     _loadEnabledFilters();
     _loadEnabledCardFields();
+    _loadReadingReminderSettings();
     _currentUser = GoogleAuthService.instance.currentUser;
     if (_currentUser != null) {
       _loadBackupMetadata();
     }
+  }
+
+  Future<void> _loadReadingReminderSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _readingReminderEnabled =
+          prefs.getBool(NotificationService.prefReadingReminderEnabled) ??
+          false;
+      _readingReminderHour =
+          prefs.getInt(NotificationService.prefReadingReminderHour) ?? 21;
+      _readingReminderMinute =
+          prefs.getInt(NotificationService.prefReadingReminderMinute) ?? 0;
+      _readingReminderAllBooks =
+          prefs.getBool(NotificationService.prefReadingReminderAllBooks) ??
+          true;
+    });
+  }
+
+  Future<void> _saveReadingReminderSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(
+      NotificationService.prefReadingReminderEnabled,
+      _readingReminderEnabled,
+    );
+    await prefs.setInt(
+      NotificationService.prefReadingReminderHour,
+      _readingReminderHour,
+    );
+    await prefs.setInt(
+      NotificationService.prefReadingReminderMinute,
+      _readingReminderMinute,
+    );
+    await prefs.setBool(
+      NotificationService.prefReadingReminderAllBooks,
+      _readingReminderAllBooks,
+    );
+
+    // Reschedule notifications
+    final notificationService = NotificationService();
+    await notificationService.scheduleReadingReminders();
   }
 
   Future<void> _loadBackupMetadata() async {
@@ -3433,6 +3481,260 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                           ],
                         ),
+                        const SizedBox(height: 16),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // ===== READING REMINDERS SECTION (COLLAPSIBLE) =====
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: ExpansionTile(
+                title: Row(
+                  children: [
+                    Icon(
+                      Icons.notifications_active,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      AppLocalizations.of(context)!.reading_reminders,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                subtitle: Text(
+                  AppLocalizations.of(context)!.reading_reminders_subtitle,
+                ),
+                initiallyExpanded: false,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Enable/Disable toggle
+                        Card(
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: SwitchListTile(
+                            title: Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.enable_reading_reminders,
+                              style: Theme.of(context).textTheme.titleSmall
+                                  ?.copyWith(fontWeight: FontWeight.w600),
+                            ),
+                            subtitle: Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.enable_reading_reminders_subtitle,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: Colors.grey[600]),
+                            ),
+                            value: _readingReminderEnabled,
+                            onChanged: (value) {
+                              setState(() {
+                                _readingReminderEnabled = value;
+                              });
+                              _saveReadingReminderSettings();
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      value
+                                          ? AppLocalizations.of(
+                                            context,
+                                          )!.reading_reminder_enabled
+                                          : AppLocalizations.of(
+                                            context,
+                                          )!.reading_reminder_disabled,
+                                    ),
+                                    backgroundColor:
+                                        value ? Colors.green : Colors.orange,
+                                  ),
+                                );
+                              }
+                            },
+                            secondary: Icon(
+                              _readingReminderEnabled
+                                  ? Icons.notifications_active
+                                  : Icons.notifications_off,
+                              color:
+                                  _readingReminderEnabled
+                                      ? Theme.of(context).colorScheme.primary
+                                      : Colors.grey,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+
+                        // Time picker (only shown when enabled)
+                        if (_readingReminderEnabled) ...[
+                          Card(
+                            elevation: 1,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: ListTile(
+                              leading: Icon(
+                                Icons.access_time,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                              title: Text(
+                                AppLocalizations.of(context)!.reminder_time,
+                                style: Theme.of(context).textTheme.titleSmall
+                                    ?.copyWith(fontWeight: FontWeight.w600),
+                              ),
+                              subtitle: Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.reminder_time_subtitle,
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(color: Colors.grey[600]),
+                              ),
+                              trailing: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.primary.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  '${_readingReminderHour.toString().padLeft(2, '0')}:${_readingReminderMinute.toString().padLeft(2, '0')}',
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                ),
+                              ),
+                              onTap: () async {
+                                final picked = await showTimePicker(
+                                  context: context,
+                                  initialTime: TimeOfDay(
+                                    hour: _readingReminderHour,
+                                    minute: _readingReminderMinute,
+                                  ),
+                                );
+                                if (picked != null) {
+                                  setState(() {
+                                    _readingReminderHour = picked.hour;
+                                    _readingReminderMinute = picked.minute;
+                                  });
+                                  _saveReadingReminderSettings();
+                                }
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+
+                          // All books vs last started option
+                          Card(
+                            elevation: 1,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.menu_book,
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.primary,
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.reminder_books_option,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.titleSmall?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  RadioListTile<bool>(
+                                    title: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.reminder_all_started,
+                                    ),
+                                    subtitle: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.reminder_all_started_subtitle,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(color: Colors.grey[600]),
+                                    ),
+                                    value: true,
+                                    groupValue: _readingReminderAllBooks,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _readingReminderAllBooks =
+                                            value ?? true;
+                                      });
+                                      _saveReadingReminderSettings();
+                                    },
+                                  ),
+                                  RadioListTile<bool>(
+                                    title: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.reminder_last_started,
+                                    ),
+                                    subtitle: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.reminder_last_started_subtitle,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(color: Colors.grey[600]),
+                                    ),
+                                    value: false,
+                                    groupValue: _readingReminderAllBooks,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _readingReminderAllBooks =
+                                            value ?? true;
+                                      });
+                                      _saveReadingReminderSettings();
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                         const SizedBox(height: 16),
                       ],
                     ),

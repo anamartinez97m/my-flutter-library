@@ -20,6 +20,7 @@ import 'package:myrandomlibrary/widgets/book_clubs_card.dart';
 import 'package:myrandomlibrary/model/reading_session.dart';
 import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
 import 'package:myrandomlibrary/services/book_metadata_service.dart';
+import 'package:myrandomlibrary/services/notification_service.dart';
 import 'package:myrandomlibrary/model/book_metadata.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
@@ -455,6 +456,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           ),
         );
       }
+      // Reschedule reading reminders (new started book)
+      NotificationService().scheduleReadingReminders();
     } catch (e) {
       debugPrint('Error starting reading: $e');
       if (mounted) {
@@ -574,6 +577,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           ),
         );
       }
+      // Reschedule reading reminders (book no longer started)
+      NotificationService().scheduleReadingReminders();
     } catch (e) {
       debugPrint('Error finishing reading: $e');
       if (mounted) {
@@ -638,6 +643,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           ),
         );
       }
+      // Reschedule reading reminders (book no longer started)
+      NotificationService().scheduleReadingReminders();
     } catch (e) {
       debugPrint('Error marking as read: $e');
       if (mounted) {

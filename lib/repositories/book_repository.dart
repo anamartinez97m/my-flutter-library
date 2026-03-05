@@ -223,6 +223,46 @@ class BookRepository {
     return result.map((row) => Book.fromMap(row)).toList();
   }
 
+  /// Get books with Started status, ordered by most recently created first
+  Future<List<Book>> getStartedBooks() async {
+    final result = await db.rawQuery('''
+      select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
+        b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
+        p.name as placeValue, f.value as formatValue,
+        fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
+        b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
+        b.read_count,
+        (SELECT AVG(brf.rating_value) FROM book_rating_fields brf WHERE brf.book_id = b.book_id AND brf.rating_value > 0) as my_rating,
+        b.my_review,
+        b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
+        b.tbr, b.is_tandem, b.original_book_id,
+        b.notification_enabled, b.notification_datetime, b.bundle_parent_id,
+        b.reading_progress, b.progress_type,
+        b.notes, b.price, b.rating_override,
+        b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at,
+        GROUP_CONCAT(DISTINCT a.name) as author,
+        GROUP_CONCAT(DISTINCT g.name) as genre
+      from book b 
+      left join books_by_author bba on b.book_id = bba.book_id 
+      left join author a on bba.author_id = a.author_id
+      left join books_by_genre bbg on b.book_id = bbg.book_id 
+      left join genre g on bbg.genre_id = g.genre_id
+      left join status s on b.status_id = s.status_id 
+      left join editorial e on b.editorial_id = e.editorial_id
+      left join language l on b.language_id = l.language_id 
+      left join place p on b.place_id = p.place_id  
+      left join format f on b.format_id = f.format_id
+      left join format_saga fs on b.format_saga_id = fs.format_id
+      where LOWER(s.value) = 'started'
+        AND b.bundle_parent_id IS NULL
+        AND b.is_bundle != 1
+      group by b.book_id
+      order by b.created_at DESC
+    ''');
+
+    return result.map((row) => Book.fromMap(row)).toList();
+  }
+
   /// Get tandem books for a specific saga or saga_universe
   Future<List<Book>> getTandemBooks(String? saga, String? sagaUniverse) async {
     if (saga == null && sagaUniverse == null) return [];

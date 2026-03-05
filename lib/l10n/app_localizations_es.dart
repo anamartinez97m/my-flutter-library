@@ -2753,4 +2753,57 @@ class AppLocalizationsEs extends AppLocalizations {
   String cloud_backup_books(Object count) {
     return '$count libros';
   }
+
+  @override
+  String get reading_reminders => 'Recordatorios de Lectura';
+
+  @override
+  String get reading_reminders_subtitle => 'Notificaciones diarias para seguir tu lectura';
+
+  @override
+  String get enable_reading_reminders => 'Activar Recordatorios de Lectura';
+
+  @override
+  String get enable_reading_reminders_subtitle => 'Recibe una notificación diaria preguntando si has leído hoy';
+
+  @override
+  String get reminder_time => 'Hora del Recordatorio';
+
+  @override
+  String get reminder_time_subtitle => 'Hora para recibir la notificación diaria';
+
+  @override
+  String get reminder_books_option => 'Qué Libros Recordar';
+
+  @override
+  String get reminder_all_started => 'Todos los libros iniciados';
+
+  @override
+  String get reminder_last_started => 'Solo el último libro iniciado';
+
+  @override
+  String get reminder_all_started_subtitle => 'Una notificación por libro con estado Iniciado';
+
+  @override
+  String get reminder_last_started_subtitle => 'Solo el libro iniciado más recientemente';
+
+  @override
+  String get have_you_read_today => '¿Has leído hoy?';
+
+  @override
+  String have_you_read_today_book(Object bookTitle) {
+    return '¿Has leído hoy?: $bookTitle';
+  }
+
+  @override
+  String get tap_to_open_book => 'Toca para ver los detalles del libro';
+
+  @override
+  String get reading_reminder_enabled => 'Recordatorios de lectura activados';
+
+  @override
+  String get reading_reminder_disabled => 'Recordatorios de lectura desactivados';
+
+  @override
+  String get no_started_books_for_reminder => 'No hay libros con estado Iniciado para recordar';
 }

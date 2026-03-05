@@ -3,9 +3,48 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
+import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
 import 'package:myrandomlibrary/screens/book_detail.dart';
+
+/// Top-level function required for background notification action handling.
+/// Must be a top-level or static function.
+@pragma('vm:entry-point')
+void _onBackgroundNotificationAction(NotificationResponse response) {
+  debugPrint(
+    '📖 Background notification action: ${response.actionId}, payload: ${response.payload}',
+  );
+
+  if (response.payload != null &&
+      response.payload!.startsWith('reading_reminder_')) {
+    final match = RegExp(
+      r'reading_reminder_(\d+)',
+    ).firstMatch(response.payload!);
+    if (match == null) return;
+
+    final bookId = int.tryParse(match.group(1)!);
+    if (bookId == null) return;
+
+    if (response.actionId == 'yes' || response.actionId == 'no') {
+      final didRead = response.actionId == 'yes';
+      // Use async without await since this is a void callback
+      () async {
+        try {
+          final db = await DatabaseHelper.instance.database;
+          final sessionRepository = ReadingSessionRepository(db);
+          await sessionRepository.createDidReadSession(bookId, didRead);
+          debugPrint(
+            '📖 Background: marked book $bookId as ${didRead ? "read" : "not read"} today',
+          );
+        } catch (e) {
+          debugPrint('❌ Background error handling reading reminder action: $e');
+        }
+      }();
+    }
+  }
+}
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -15,6 +54,16 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin _notifications =
       FlutterLocalNotificationsPlugin();
   bool _initialized = false;
+
+  // Notification ID range for reading reminders: 100000 + bookId
+  static const int _readingReminderBaseId = 100000;
+
+  // SharedPreferences keys
+  static const String prefReadingReminderEnabled = 'reading_reminder_enabled';
+  static const String prefReadingReminderHour = 'reading_reminder_hour';
+  static const String prefReadingReminderMinute = 'reading_reminder_minute';
+  static const String prefReadingReminderAllBooks =
+      'reading_reminder_all_books';
 
   /// Global navigator key used to navigate from notification taps
   static final GlobalKey<NavigatorState> navigatorKey =
@@ -58,14 +107,55 @@ class NotificationService {
     await _notifications.initialize(
       initSettings,
       onDidReceiveNotificationResponse: _onNotificationTapped,
+      onDidReceiveBackgroundNotificationResponse:
+          _onBackgroundNotificationAction,
     );
 
     _initialized = true;
   }
 
   void _onNotificationTapped(NotificationResponse response) {
-    debugPrint('Notification tapped: ${response.payload}');
+    debugPrint(
+      'Notification tapped: ${response.payload}, actionId: ${response.actionId}',
+    );
+
+    // Handle reading reminder Yes/No actions
+    if (response.payload != null &&
+        response.payload!.startsWith('reading_reminder_')) {
+      _handleReadingReminderAction(response.payload!, response.actionId);
+      return;
+    }
+
     _navigateToBookFromPayload(response.payload);
+  }
+
+  /// Handle Yes/No actions from reading reminder notifications
+  Future<void> _handleReadingReminderAction(
+    String payload,
+    String? actionId,
+  ) async {
+    final match = RegExp(r'reading_reminder_(\d+)').firstMatch(payload);
+    if (match == null) return;
+
+    final bookId = int.tryParse(match.group(1)!);
+    if (bookId == null) return;
+
+    if (actionId == 'yes' || actionId == 'no') {
+      final didRead = actionId == 'yes';
+      try {
+        final db = await DatabaseHelper.instance.database;
+        final sessionRepository = ReadingSessionRepository(db);
+        await sessionRepository.createDidReadSession(bookId, didRead);
+        debugPrint(
+          '📖 Reading reminder: marked book $bookId as ${didRead ? "read" : "not read"} today',
+        );
+      } catch (e) {
+        debugPrint('❌ Error handling reading reminder action: $e');
+      }
+    } else {
+      // Tapped on the notification body → navigate to book detail
+      _navigateToBookFromPayload('book_release_$bookId');
+    }
   }
 
   Future<void> _navigateToBookFromPayload(String? payload) async {
@@ -316,6 +406,157 @@ class NotificationService {
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
     if (!_initialized) await initialize();
     return await _notifications.pendingNotificationRequests();
+  }
+
+  // ===== READING REMINDER METHODS =====
+
+  /// Schedule daily reading reminder notifications for started books
+  Future<void> scheduleReadingReminders() async {
+    if (!_initialized) await initialize();
+
+    final prefs = await SharedPreferences.getInstance();
+    final enabled = prefs.getBool(prefReadingReminderEnabled) ?? false;
+
+    // Cancel all existing reading reminders first
+    await cancelAllReadingReminders();
+
+    if (!enabled) {
+      debugPrint('📖 Reading reminders disabled, all canceled');
+      return;
+    }
+
+    final hour = prefs.getInt(prefReadingReminderHour) ?? 21;
+    final minute = prefs.getInt(prefReadingReminderMinute) ?? 0;
+    final allBooks = prefs.getBool(prefReadingReminderAllBooks) ?? true;
+
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final repository = BookRepository(db);
+      final startedBooks = await repository.getStartedBooks();
+
+      if (startedBooks.isEmpty) {
+        debugPrint('📖 No started books found for reading reminders');
+        return;
+      }
+
+      final booksToRemind = allBooks ? startedBooks : [startedBooks.first];
+
+      for (final book in booksToRemind) {
+        if (book.bookId == null) continue;
+        await _scheduleDailyReadingReminder(
+          bookId: book.bookId!,
+          bookTitle: book.name ?? 'Unknown',
+          hour: hour,
+          minute: minute,
+        );
+      }
+
+      debugPrint(
+        '📖 Scheduled reading reminders for ${booksToRemind.length} book(s) at $hour:${minute.toString().padLeft(2, '0')}',
+      );
+    } catch (e) {
+      debugPrint('❌ Error scheduling reading reminders: $e');
+    }
+  }
+
+  /// Schedule a single daily reading reminder for a specific book
+  Future<void> _scheduleDailyReadingReminder({
+    required int bookId,
+    required String bookTitle,
+    required int hour,
+    required int minute,
+  }) async {
+    final notificationId = _readingReminderBaseId + bookId;
+
+    // Calculate next occurrence of the specified time
+    final now = tz.TZDateTime.now(tz.local);
+    var scheduledDate = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      hour,
+      minute,
+    );
+
+    // If the time has already passed today, schedule for tomorrow
+    if (scheduledDate.isBefore(now)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    }
+
+    final androidDetails = AndroidNotificationDetails(
+      'reading_reminders',
+      'Reading Reminders',
+      channelDescription: 'Daily reminders to track your reading progress',
+      importance: Importance.high,
+      priority: Priority.high,
+      icon: '@mipmap/ic_launcher',
+      actions: <AndroidNotificationAction>[
+        const AndroidNotificationAction(
+          'yes',
+          'Yes',
+          showsUserInterface: false,
+          cancelNotification: true,
+        ),
+        const AndroidNotificationAction(
+          'no',
+          'No',
+          showsUserInterface: false,
+          cancelNotification: true,
+        ),
+      ],
+    );
+
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    final notificationDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
+
+    final hasExactAlarmPermission = await requestExactAlarmPermission();
+
+    try {
+      await _notifications.zonedSchedule(
+        notificationId,
+        'Have you read today?: $bookTitle',
+        'Tap to open book details',
+        scheduledDate,
+        notificationDetails,
+        androidScheduleMode:
+            hasExactAlarmPermission
+                ? AndroidScheduleMode.exactAllowWhileIdle
+                : AndroidScheduleMode.inexactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.time,
+        payload: 'reading_reminder_$bookId',
+      );
+      debugPrint(
+        '📖 Scheduled daily reminder for "$bookTitle" (ID: $bookId) at $hour:${minute.toString().padLeft(2, '0')}',
+      );
+    } catch (e) {
+      debugPrint('❌ Error scheduling reading reminder for book $bookId: $e');
+    }
+  }
+
+  /// Cancel all reading reminder notifications
+  Future<void> cancelAllReadingReminders() async {
+    if (!_initialized) await initialize();
+
+    final pendingNotifications =
+        await _notifications.pendingNotificationRequests();
+    for (final notification in pendingNotifications) {
+      if (notification.payload != null &&
+          notification.payload!.startsWith('reading_reminder_')) {
+        await _notifications.cancel(notification.id);
+      }
+    }
+    debugPrint('📖 Canceled all reading reminder notifications');
   }
 
   Future<void> showImmediateNotification({
