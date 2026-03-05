@@ -23,7 +23,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 36,
+      version: 37,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -110,7 +110,6 @@ class DatabaseHelper {
         date_read_initial TEXT,
         date_read_final TEXT,
         read_count INTEGER DEFAULT 0,
-        my_rating REAL,
         my_review TEXT,
         is_bundle BOOLEAN DEFAULT 0,
         bundle_count INTEGER,
@@ -267,7 +266,9 @@ class DatabaseHelper {
     ''');
 
     // Insert default status values if table is empty
-    final statusCount = await db.rawQuery('SELECT COUNT(*) as count FROM status');
+    final statusCount = await db.rawQuery(
+      'SELECT COUNT(*) as count FROM status',
+    );
     if (statusCount.first['count'] == 0) {
       await db.insert('status', {'value': 'No'});
       await db.insert('status', {'value': 'Yes'});
@@ -277,70 +278,60 @@ class DatabaseHelper {
     }
 
     // Insert default format_saga values if table is empty
-    final formatSagaCount = await db.rawQuery('SELECT COUNT(*) as count FROM format_saga');
+    final formatSagaCount = await db.rawQuery(
+      'SELECT COUNT(*) as count FROM format_saga',
+    );
     if (formatSagaCount.first['count'] == 0) {
-      await db.insert('format_saga', {'value': 'Standalone', 'expected_books': 1});
+      await db.insert('format_saga', {
+        'value': 'Standalone',
+        'expected_books': 1,
+      });
       await db.insert('format_saga', {'value': 'Bilogy', 'expected_books': 2});
       await db.insert('format_saga', {'value': 'Trilogy', 'expected_books': 3});
-      await db.insert('format_saga', {'value': 'Tetralogy', 'expected_books': 4});
-      await db.insert('format_saga', {'value': 'Pentalogy', 'expected_books': 5});
-      await db.insert('format_saga', {'value': 'Hexalogy', 'expected_books': 6});
+      await db.insert('format_saga', {
+        'value': 'Tetralogy',
+        'expected_books': 4,
+      });
+      await db.insert('format_saga', {
+        'value': 'Pentalogy',
+        'expected_books': 5,
+      });
+      await db.insert('format_saga', {
+        'value': 'Hexalogy',
+        'expected_books': 6,
+      });
       await db.insert('format_saga', {'value': 'Saga', 'expected_books': null});
     }
   }
 
-  Future<void> _onUpgrade(
-    Database db,
-    int oldVersion,
-    int newVersion,
-  ) async {
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       // Add new columns for version 2
-      await db.execute(
-        'ALTER TABLE book ADD COLUMN date_read_initial TEXT',
-      );
-      await db.execute(
-        'ALTER TABLE book ADD COLUMN date_read_final TEXT',
-      );
+      await db.execute('ALTER TABLE book ADD COLUMN date_read_initial TEXT');
+      await db.execute('ALTER TABLE book ADD COLUMN date_read_final TEXT');
       await db.execute(
         'ALTER TABLE book ADD COLUMN read_count INTEGER DEFAULT 0',
       );
-      await db.execute(
-        'ALTER TABLE book ADD COLUMN my_rating REAL',
-      );
-      await db.execute(
-        'ALTER TABLE book ADD COLUMN my_review TEXT',
-      );
+      await db.execute('ALTER TABLE book ADD COLUMN my_rating REAL');
+      await db.execute('ALTER TABLE book ADD COLUMN my_review TEXT');
     }
     if (oldVersion < 3) {
       // Add bundle columns for version 3
       await db.execute(
         'ALTER TABLE book ADD COLUMN is_bundle BOOLEAN DEFAULT 0',
       );
-      await db.execute(
-        'ALTER TABLE book ADD COLUMN bundle_count INTEGER',
-      );
-      await db.execute(
-        'ALTER TABLE book ADD COLUMN bundle_numbers TEXT',
-      );
-      await db.execute(
-        'ALTER TABLE book ADD COLUMN bundle_start_dates TEXT',
-      );
-      await db.execute(
-        'ALTER TABLE book ADD COLUMN bundle_end_dates TEXT',
-      );
+      await db.execute('ALTER TABLE book ADD COLUMN bundle_count INTEGER');
+      await db.execute('ALTER TABLE book ADD COLUMN bundle_numbers TEXT');
+      await db.execute('ALTER TABLE book ADD COLUMN bundle_start_dates TEXT');
+      await db.execute('ALTER TABLE book ADD COLUMN bundle_end_dates TEXT');
     }
     if (oldVersion < 4) {
       // Add bundle_pages column for version 4
-      await db.execute(
-        'ALTER TABLE book ADD COLUMN bundle_pages TEXT',
-      );
+      await db.execute('ALTER TABLE book ADD COLUMN bundle_pages TEXT');
     }
     if (oldVersion < 5) {
       // Add asin column for version 5
-      await db.execute(
-        'ALTER TABLE book ADD COLUMN asin VARCHAR(50)',
-      );
+      await db.execute('ALTER TABLE book ADD COLUMN asin VARCHAR(50)');
       // Add index for asin
       await db.execute(
         'CREATE INDEX IF NOT EXISTS idx_book_asin ON book (asin)',
@@ -354,9 +345,7 @@ class DatabaseHelper {
     }
     if (oldVersion < 7) {
       // Add tbr and is_tandem columns for version 7
-      await db.execute(
-        'ALTER TABLE book ADD COLUMN tbr BOOLEAN DEFAULT 0',
-      );
+      await db.execute('ALTER TABLE book ADD COLUMN tbr BOOLEAN DEFAULT 0');
       await db.execute(
         'ALTER TABLE book ADD COLUMN is_tandem BOOLEAN DEFAULT 0',
       );
@@ -369,9 +358,7 @@ class DatabaseHelper {
     }
     if (oldVersion < 9) {
       // Add bundle_titles column for version 9
-      await db.execute(
-        'ALTER TABLE book ADD COLUMN bundle_titles TEXT',
-      );
+      await db.execute('ALTER TABLE book ADD COLUMN bundle_titles TEXT');
     }
     if (oldVersion < 10) {
       // Create book_read_dates table for version 10
@@ -384,11 +371,11 @@ class DatabaseHelper {
           FOREIGN KEY (book_id) REFERENCES book (book_id) ON DELETE CASCADE
         )
       ''');
-      
+
       await db.execute('''
         CREATE INDEX IF NOT EXISTS idx_book_read_dates_book_id ON book_read_dates (book_id)
       ''');
-      
+
       // Migrate existing date_read_initial and date_read_final to new table
       final booksWithDates = await db.rawQuery('''
         SELECT book_id, date_read_initial, date_read_final
@@ -396,12 +383,12 @@ class DatabaseHelper {
         WHERE (date_read_initial IS NOT NULL AND date_read_initial != '')
            OR (date_read_final IS NOT NULL AND date_read_final != '')
       ''');
-      
+
       for (final book in booksWithDates) {
         final bookId = book['book_id'] as int;
         final dateStarted = book['date_read_initial'] as String?;
         final dateFinished = book['date_read_final'] as String?;
-        
+
         // Only insert if at least one date exists
         if ((dateStarted != null && dateStarted.isNotEmpty) ||
             (dateFinished != null && dateFinished.isNotEmpty)) {
@@ -412,7 +399,7 @@ class DatabaseHelper {
           });
         }
       }
-      
+
       // Note: We keep the old columns for now for backward compatibility
       // They can be removed in a future version after ensuring all data is migrated
     }
@@ -427,7 +414,7 @@ class DatabaseHelper {
       await db.execute(
         'ALTER TABLE book ADD COLUMN original_book_id INTEGER REFERENCES book(book_id) ON DELETE SET NULL',
       );
-      
+
       // Add "Repeated" status if it doesn't exist
       final repeatedExists = await db.rawQuery(
         "SELECT COUNT(*) as count FROM status WHERE value = 'Repeated'",
@@ -435,59 +422,66 @@ class DatabaseHelper {
       if (repeatedExists.first['count'] == 0) {
         await db.insert('status', {'value': 'Repeated'});
       }
-      
+
       // Migrate existing bundle dates to book_read_dates table
       final bundleBooks = await db.query(
         'book',
-        where: 'is_bundle = 1 AND (bundle_start_dates IS NOT NULL OR bundle_end_dates IS NOT NULL)',
+        where:
+            'is_bundle = 1 AND (bundle_start_dates IS NOT NULL OR bundle_end_dates IS NOT NULL)',
       );
-      
+
       for (var book in bundleBooks) {
         final bookId = book['book_id'] as int;
         final bundleCount = book['bundle_count'] as int?;
-        
+
         if (bundleCount != null && bundleCount > 0) {
           try {
             // Parse start and end dates
             List<String?>? startDates;
             List<String?>? endDates;
-            
+
             if (book['bundle_start_dates'] != null) {
               final startDatesJson = book['bundle_start_dates'] as String;
               final List<dynamic> parsed = jsonDecode(startDatesJson);
               startDates = parsed.map((d) => d as String?).toList();
             }
-            
+
             if (book['bundle_end_dates'] != null) {
               final endDatesJson = book['bundle_end_dates'] as String;
               final List<dynamic> parsed = jsonDecode(endDatesJson);
               endDates = parsed.map((d) => d as String?).toList();
             }
-            
+
             // Create read dates for each bundle book
             for (int i = 0; i < bundleCount; i++) {
               String? startDate;
               String? endDate;
-              
-              if (startDates != null && i < startDates.length && startDates[i] != null) {
+
+              if (startDates != null &&
+                  i < startDates.length &&
+                  startDates[i] != null) {
                 // Parse ISO date and convert to yyyy-mm-dd
                 try {
                   final dt = DateTime.parse(startDates[i]!);
-                  startDate = '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
+                  startDate =
+                      '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
                 } catch (e) {
                   startDate = null;
                 }
               }
-              
-              if (endDates != null && i < endDates.length && endDates[i] != null) {
+
+              if (endDates != null &&
+                  i < endDates.length &&
+                  endDates[i] != null) {
                 try {
                   final dt = DateTime.parse(endDates[i]!);
-                  endDate = '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
+                  endDate =
+                      '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
                 } catch (e) {
                   endDate = null;
                 }
               }
-              
+
               // Only insert if at least one date exists
               if (startDate != null || endDate != null) {
                 await db.insert('book_read_dates', {
@@ -508,61 +502,68 @@ class DatabaseHelper {
       // Re-run migration for bundle dates (in case v12 didn't run properly)
       final bundleBooks = await db.query(
         'book',
-        where: 'is_bundle = 1 AND (bundle_start_dates IS NOT NULL OR bundle_end_dates IS NOT NULL)',
+        where:
+            'is_bundle = 1 AND (bundle_start_dates IS NOT NULL OR bundle_end_dates IS NOT NULL)',
       );
-      
+
       for (var book in bundleBooks) {
         final bookId = book['book_id'] as int;
-        
+
         // Check if already migrated
         final existing = await db.query(
           'book_read_dates',
           where: 'book_id = ? AND bundle_book_index IS NOT NULL',
           whereArgs: [bookId],
         );
-        
+
         if (existing.isEmpty) {
           final bundleCount = book['bundle_count'] as int?;
-          
+
           if (bundleCount != null && bundleCount > 0) {
             try {
               List<String?>? startDates;
               List<String?>? endDates;
-              
+
               if (book['bundle_start_dates'] != null) {
                 final startDatesJson = book['bundle_start_dates'] as String;
                 final List<dynamic> parsed = jsonDecode(startDatesJson);
                 startDates = parsed.map((d) => d as String?).toList();
               }
-              
+
               if (book['bundle_end_dates'] != null) {
                 final endDatesJson = book['bundle_end_dates'] as String;
                 final List<dynamic> parsed = jsonDecode(endDatesJson);
                 endDates = parsed.map((d) => d as String?).toList();
               }
-              
+
               for (int i = 0; i < bundleCount; i++) {
                 String? startDate;
                 String? endDate;
-                
-                if (startDates != null && i < startDates.length && startDates[i] != null) {
+
+                if (startDates != null &&
+                    i < startDates.length &&
+                    startDates[i] != null) {
                   try {
                     final dt = DateTime.parse(startDates[i]!);
-                    startDate = '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
+                    startDate =
+                        '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
                   } catch (e) {
                     startDate = null;
                   }
                 }
-                
-                if (endDates != null && i < endDates.length && endDates[i] != null) {
+
+                if (endDates != null &&
+                    i < endDates.length &&
+                    endDates[i] != null) {
                   try {
                     final dt = DateTime.parse(endDates[i]!);
-                    endDate = '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
+                    endDate =
+                        '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
                   } catch (e) {
                     endDate = null;
                   }
                 }
-                
+
                 if (startDate != null || endDate != null) {
                   await db.insert('book_read_dates', {
                     'book_id': bookId,
@@ -583,44 +584,47 @@ class DatabaseHelper {
       // Migrate old date_read_initial and date_read_final to book_read_dates
       final regularBooks = await db.query(
         'book',
-        where: '(is_bundle IS NULL OR is_bundle = 0) AND (date_read_initial IS NOT NULL OR date_read_final IS NOT NULL)',
+        where:
+            '(is_bundle IS NULL OR is_bundle = 0) AND (date_read_initial IS NOT NULL OR date_read_final IS NOT NULL)',
       );
-      
+
       for (var book in regularBooks) {
         final bookId = book['book_id'] as int;
-        
+
         // Check if already migrated (no bundle_book_index means regular book)
         final existing = await db.query(
           'book_read_dates',
           where: 'book_id = ? AND bundle_book_index IS NULL',
           whereArgs: [bookId],
         );
-        
+
         if (existing.isEmpty) {
           String? startDate;
           String? endDate;
-          
+
           // Parse old date fields
           if (book['date_read_initial'] != null) {
             try {
               final dateStr = book['date_read_initial'] as String;
               final dt = DateTime.parse(dateStr);
-              startDate = '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
+              startDate =
+                  '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
             } catch (e) {
               startDate = null;
             }
           }
-          
+
           if (book['date_read_final'] != null) {
             try {
               final dateStr = book['date_read_final'] as String;
               final dt = DateTime.parse(dateStr);
-              endDate = '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
+              endDate =
+                  '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
             } catch (e) {
               endDate = null;
             }
           }
-          
+
           // Only insert if at least one date exists
           if (startDate != null || endDate != null) {
             await db.insert('book_read_dates', {
@@ -657,15 +661,15 @@ class DatabaseHelper {
           FOREIGN KEY (book_id) REFERENCES book(book_id) ON DELETE CASCADE
         )
       ''');
-      
+
       await db.execute('''
         CREATE INDEX IF NOT EXISTS idx_reading_sessions_book_id ON reading_sessions(book_id)
       ''');
-      
+
       await db.execute('''
         CREATE INDEX IF NOT EXISTS idx_reading_sessions_is_active ON reading_sessions(is_active)
       ''');
-      
+
       // Create year_challenges table for reading goals
       await db.execute('''
         CREATE TABLE IF NOT EXISTS year_challenges (
@@ -677,7 +681,7 @@ class DatabaseHelper {
           notes TEXT
         )
       ''');
-      
+
       await db.execute('''
         CREATE INDEX IF NOT EXISTS idx_year_challenges_year ON year_challenges(year)
       ''');
@@ -693,9 +697,7 @@ class DatabaseHelper {
     }
     if (oldVersion < 18) {
       // Add bundle_authors column for individual bundle book authors
-      await db.execute(
-        'ALTER TABLE book ADD COLUMN bundle_authors TEXT',
-      );
+      await db.execute('ALTER TABLE book ADD COLUMN bundle_authors TEXT');
     }
     if (oldVersion < 19) {
       // Add custom_challenges column to year_challenges table
@@ -729,18 +731,20 @@ class DatabaseHelper {
           custom_challenges TEXT
         )
       ''');
-      
+
       // Copy data from old table
       await db.execute('''
         INSERT INTO year_challenges_new 
         SELECT challenge_id, year, target_books, target_pages, created_at, notes, custom_challenges 
         FROM year_challenges
       ''');
-      
+
       // Drop old table and rename new one
       await db.execute('DROP TABLE year_challenges');
-      await db.execute('ALTER TABLE year_challenges_new RENAME TO year_challenges');
-      
+      await db.execute(
+        'ALTER TABLE year_challenges_new RENAME TO year_challenges',
+      );
+
       // Recreate index
       await db.execute('''
         CREATE INDEX IF NOT EXISTS idx_year_challenges_year ON year_challenges(year)
@@ -748,12 +752,8 @@ class DatabaseHelper {
     }
     if (oldVersion < 23) {
       // Add reading progress fields
-      await db.execute(
-        'ALTER TABLE book ADD COLUMN reading_progress INTEGER',
-      );
-      await db.execute(
-        'ALTER TABLE book ADD COLUMN progress_type TEXT',
-      );
+      await db.execute('ALTER TABLE book ADD COLUMN reading_progress INTEGER');
+      await db.execute('ALTER TABLE book ADD COLUMN progress_type TEXT');
     }
     if (oldVersion < 24) {
       // Add reading progress to read dates table
@@ -806,15 +806,15 @@ class DatabaseHelper {
           FOREIGN KEY (book_id) REFERENCES book(book_id) ON DELETE CASCADE
         )
       ''');
-      
+
       await db.execute('''
         CREATE INDEX IF NOT EXISTS idx_reading_sessions_book_id ON reading_sessions(book_id)
       ''');
-      
+
       await db.execute('''
         CREATE INDEX IF NOT EXISTS idx_reading_sessions_is_active ON reading_sessions(is_active)
       ''');
-      
+
       await db.execute('''
         CREATE TABLE IF NOT EXISTS year_challenges (
           challenge_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -826,7 +826,7 @@ class DatabaseHelper {
           custom_challenges TEXT
         )
       ''');
-      
+
       await db.execute('''
         CREATE INDEX IF NOT EXISTS idx_year_challenges_year ON year_challenges(year)
       ''');
@@ -839,7 +839,9 @@ class DatabaseHelper {
     }
     if (oldVersion < 28) {
       // Ensure default format_saga values exist
-      final formatSagaCount = await db.rawQuery('SELECT COUNT(*) as count FROM format_saga');
+      final formatSagaCount = await db.rawQuery(
+        'SELECT COUNT(*) as count FROM format_saga',
+      );
       if (formatSagaCount.first['count'] == 0) {
         await db.insert('format_saga', {'value': 'Standalone'});
         await db.insert('format_saga', {'value': 'Bilogy'});
@@ -856,7 +858,7 @@ class DatabaseHelper {
       await db.execute(
         'ALTER TABLE format_saga ADD COLUMN expected_books INTEGER',
       );
-      
+
       // Update default values with their expected book counts
       await db.rawUpdate(
         'UPDATE format_saga SET expected_books = 1 WHERE LOWER(value) = ?',
@@ -886,12 +888,8 @@ class DatabaseHelper {
     }
     if (oldVersion < 30) {
       // Add notes and price columns to book table
-      await db.execute(
-        'ALTER TABLE book ADD COLUMN notes TEXT',
-      );
-      await db.execute(
-        'ALTER TABLE book ADD COLUMN price REAL',
-      );
+      await db.execute('ALTER TABLE book ADD COLUMN notes TEXT');
+      await db.execute('ALTER TABLE book ADD COLUMN price REAL');
     }
     if (oldVersion < 31) {
       // Create book_rating_fields table for custom rating criteria
@@ -904,11 +902,11 @@ class DatabaseHelper {
           FOREIGN KEY (book_id) REFERENCES book(book_id) ON DELETE CASCADE
         )
       ''');
-      
+
       await db.execute('''
         CREATE INDEX IF NOT EXISTS idx_book_rating_fields_book_id ON book_rating_fields (book_id)
       ''');
-      
+
       // Add rating_override column to book table
       await db.execute('''
         ALTER TABLE book ADD COLUMN rating_override INTEGER DEFAULT 0
@@ -927,11 +925,11 @@ class DatabaseHelper {
           FOREIGN KEY (book_id) REFERENCES book(book_id) ON DELETE CASCADE
         )
       ''');
-      
+
       await db.execute('''
         CREATE INDEX IF NOT EXISTS idx_reading_clubs_book_id ON reading_clubs (book_id)
       ''');
-      
+
       await db.execute('''
         CREATE INDEX IF NOT EXISTS idx_reading_clubs_club_name ON reading_clubs (club_name)
       ''');
@@ -950,7 +948,7 @@ class DatabaseHelper {
           name VARCHAR(100) NOT NULL UNIQUE
         )
       ''');
-      
+
       // Populate with default suggestions
       final defaultNames = [
         'Plot',
@@ -961,17 +959,17 @@ class DatabaseHelper {
         'Dialogue',
         'Atmosphere',
       ];
-      
+
       for (final name in defaultNames) {
         await db.insert('rating_field_names', {'name': name});
       }
-      
+
       // Add any existing field names from book_rating_fields
       final existingFields = await db.rawQuery('''
         SELECT DISTINCT field_name 
         FROM book_rating_fields
       ''');
-      
+
       for (final field in existingFields) {
         final fieldName = field['field_name'] as String;
         if (!defaultNames.contains(fieldName)) {
@@ -997,30 +995,32 @@ class DatabaseHelper {
           custom_challenges TEXT
         )
       ''');
-      
+
       // Copy data from old table
       await db.execute('''
         INSERT INTO year_challenges_temp 
         SELECT challenge_id, year, target_books, target_pages, created_at, notes, custom_challenges 
         FROM year_challenges
       ''');
-      
+
       // Drop old table and rename new one
       await db.execute('DROP TABLE year_challenges');
-      await db.execute('ALTER TABLE year_challenges_temp RENAME TO year_challenges');
-      
+      await db.execute(
+        'ALTER TABLE year_challenges_temp RENAME TO year_challenges',
+      );
+
       // Recreate index
       await db.execute('''
         CREATE INDEX IF NOT EXISTS idx_year_challenges_year ON year_challenges(year)
       ''');
-      
+
       // Delete "General Rating" entries since we use my_rating field instead
       await db.delete(
         'book_rating_fields',
         where: 'field_name = ?',
         whereArgs: ['General Rating'],
       );
-      
+
       // Remove "General Rating" from rating_field_names if it exists
       await db.delete(
         'rating_field_names',
@@ -1030,17 +1030,108 @@ class DatabaseHelper {
     }
     if (oldVersion < 36) {
       // Add book metadata fields for external API integration
+      await db.execute('ALTER TABLE book ADD COLUMN cover_url TEXT');
+      await db.execute('ALTER TABLE book ADD COLUMN description TEXT');
+      await db.execute('ALTER TABLE book ADD COLUMN metadata_source TEXT');
+      await db.execute('ALTER TABLE book ADD COLUMN metadata_fetched_at TEXT');
+    }
+    if (oldVersion < 37) {
+      // Migrate my_rating values to book_rating_fields for books that have
+      // a rating but no existing rating field entries
+      await db.rawInsert('''
+        INSERT INTO book_rating_fields (book_id, field_name, rating_value)
+        SELECT b.book_id, 'General Rating', b.my_rating
+        FROM book b
+        WHERE b.my_rating IS NOT NULL AND b.my_rating > 0
+          AND NOT EXISTS (
+            SELECT 1 FROM book_rating_fields brf WHERE brf.book_id = b.book_id
+          )
+      ''');
+
+      // Drop my_rating column via table rebuild (SQLite has no DROP COLUMN before 3.35)
+      await db.execute('''
+        CREATE TABLE book_temp AS SELECT
+          book_id, status_id, name, editorial_id, saga, n_saga, saga_universe,
+          format_saga_id, isbn, asin, pages, original_publication_year, loaned,
+          language_id, place_id, format_id, created_at, date_read_initial,
+          date_read_final, read_count, my_review, is_bundle, bundle_count,
+          bundle_numbers, bundle_start_dates, bundle_end_dates, bundle_pages,
+          bundle_publication_years, bundle_titles, bundle_authors, tbr, is_tandem,
+          original_book_id, notification_enabled, notification_datetime,
+          release_date, bundle_parent_id, reading_progress, progress_type,
+          notes, price, rating_override, cover_url, description,
+          metadata_source, metadata_fetched_at
+        FROM book
+      ''');
+      await db.execute('DROP TABLE book');
+      await db.execute('''
+        CREATE TABLE book (
+          book_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          status_id VARCHAR(50) NOT NULL,
+          name VARCHAR(50) NOT NULL DEFAULT 'unknown',
+          editorial_id VARCHAR(50),
+          saga VARCHAR(50),
+          n_saga VARCHAR(50),
+          saga_universe VARCHAR(100),
+          format_saga_id VARCHAR(50),
+          isbn VARCHAR(50),
+          asin VARCHAR(50),
+          pages INTEGER,
+          original_publication_year INTEGER,
+          loaned BOOLEAN,
+          language_id VARCHAR(50),
+          place_id VARCHAR(50),
+          format_id VARCHAR(50),
+          created_at TEXT DEFAULT (datetime('now')),
+          date_read_initial TEXT,
+          date_read_final TEXT,
+          read_count INTEGER DEFAULT 0,
+          my_review TEXT,
+          is_bundle BOOLEAN DEFAULT 0,
+          bundle_count INTEGER,
+          bundle_numbers TEXT,
+          bundle_start_dates TEXT,
+          bundle_end_dates TEXT,
+          bundle_pages TEXT,
+          bundle_publication_years TEXT,
+          bundle_titles TEXT,
+          bundle_authors TEXT,
+          tbr BOOLEAN DEFAULT 0,
+          is_tandem BOOLEAN DEFAULT 0,
+          original_book_id INTEGER,
+          notification_enabled BOOLEAN DEFAULT 0,
+          notification_datetime TEXT,
+          release_date TEXT,
+          bundle_parent_id INTEGER,
+          reading_progress INTEGER,
+          progress_type TEXT,
+          notes TEXT,
+          price REAL,
+          rating_override INTEGER DEFAULT 0,
+          cover_url TEXT,
+          description TEXT,
+          metadata_source TEXT,
+          metadata_fetched_at TEXT,
+          FOREIGN KEY (status_id) REFERENCES status (status_id),
+          FOREIGN KEY (original_book_id) REFERENCES book (book_id) ON DELETE SET NULL,
+          FOREIGN KEY (bundle_parent_id) REFERENCES book (book_id) ON DELETE CASCADE,
+          FOREIGN KEY (editorial_id) REFERENCES editorial (editorial_id),
+          FOREIGN KEY (language_id) REFERENCES language (language_id),
+          FOREIGN KEY (place_id) REFERENCES place (place_id),
+          FOREIGN KEY (format_id) REFERENCES format (format_id),
+          FOREIGN KEY (format_saga_id) REFERENCES format_saga (format_id)
+        )
+      ''');
+      await db.execute('''
+        INSERT INTO book SELECT * FROM book_temp
+      ''');
+      await db.execute('DROP TABLE book_temp');
+      // Recreate indexes
       await db.execute(
-        'ALTER TABLE book ADD COLUMN cover_url TEXT',
+        'CREATE INDEX IF NOT EXISTS idx_book_isbn ON book (isbn)',
       );
       await db.execute(
-        'ALTER TABLE book ADD COLUMN description TEXT',
-      );
-      await db.execute(
-        'ALTER TABLE book ADD COLUMN metadata_source TEXT',
-      );
-      await db.execute(
-        'ALTER TABLE book ADD COLUMN metadata_fetched_at TEXT',
+        'CREATE INDEX IF NOT EXISTS idx_book_asin ON book (asin)',
       );
     }
   }

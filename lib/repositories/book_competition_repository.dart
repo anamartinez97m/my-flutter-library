@@ -16,8 +16,34 @@ class BookCompetitionRepository {
 
     final List<Map<String, dynamic>> maps = await _database.rawQuery(
       '''
-      SELECT DISTINCT b.* FROM book b
+      SELECT DISTINCT b.book_id, s.value as statusValue, b.name, e.name as editorialValue,
+        b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue,
+        p.name as placeValue, f.value as formatValue,
+        fs.value as formatSagaValue, b.loaned, b.original_publication_year,
+        b.pages, b.created_at, b.date_read_initial, b.date_read_final,
+        b.read_count,
+        (SELECT AVG(brf.rating_value) FROM book_rating_fields brf WHERE brf.book_id = b.book_id AND brf.rating_value > 0) as my_rating,
+        b.my_review,
+        b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
+        b.tbr, b.is_tandem, b.original_book_id,
+        b.notification_enabled, b.notification_datetime, b.bundle_parent_id,
+        b.reading_progress, b.progress_type,
+        b.notes, b.price, b.rating_override,
+        b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at,
+        GROUP_CONCAT(DISTINCT a.name) as author,
+        GROUP_CONCAT(DISTINCT g.name) as genre
+      FROM book b
       INNER JOIN book_read_dates brd ON b.book_id = brd.book_id
+      LEFT JOIN books_by_author bba ON b.book_id = bba.book_id
+      LEFT JOIN author a ON bba.author_id = a.author_id
+      LEFT JOIN books_by_genre bbg ON b.book_id = bbg.book_id
+      LEFT JOIN genre g ON bbg.genre_id = g.genre_id
+      LEFT JOIN status s ON b.status_id = s.status_id
+      LEFT JOIN editorial e ON b.editorial_id = e.editorial_id
+      LEFT JOIN language l ON b.language_id = l.language_id
+      LEFT JOIN place p ON b.place_id = p.place_id
+      LEFT JOIN format f ON b.format_id = f.format_id
+      LEFT JOIN format_saga fs ON b.format_saga_id = fs.format_id
       WHERE b.read_count > 0
       AND (
         -- Book finished in this month
@@ -25,7 +51,8 @@ class BookCompetitionRepository {
         -- OR book was started in this month (date_started)
         OR (brd.date_started >= ? AND brd.date_started <= ?)
       )
-      ORDER BY b.my_rating DESC, b.name ASC
+      GROUP BY b.book_id
+      ORDER BY my_rating DESC, b.name ASC
     ''',
       [startDate, endDate, startDate, endDate],
     );
@@ -117,11 +144,11 @@ class BookCompetitionRepository {
   // Save a competition result (update if exists, insert if not)
   Future<void> saveCompetitionResult(BookCompetition competition) async {
     print('Repository: Saving competition result: ${competition.toMap()}');
-    
+
     // Check if record already exists
     String whereClause = 'year = ? AND competition_type = ?';
     List<dynamic> whereArgs = [competition.year, competition.competitionType];
-    
+
     if (competition.month != null) {
       whereClause += ' AND month = ?';
       whereArgs.add(competition.month);
@@ -134,14 +161,14 @@ class BookCompetitionRepository {
       whereClause += ' AND round_number = ?';
       whereArgs.add(competition.roundNumber);
     }
-    
+
     final existing = await _database.query(
       'book_competition',
       where: whereClause,
       whereArgs: whereArgs,
       limit: 1,
     );
-    
+
     if (existing.isNotEmpty) {
       // Update existing record
       final result = await _database.update(
@@ -384,13 +411,13 @@ class BookCompetitionRepository {
   // Clean up competition data for a specific year (except monthly winners)
   Future<void> cleanupYearData(int year) async {
     print('Repository: Cleaning up competition data for year $year');
-    
+
     final result = await _database.delete(
       'book_competition',
       where: 'year = ? AND competition_type IN (?, ?, ?)',
       whereArgs: [year, 'quarterly', 'semifinal', 'final'],
     );
-    
+
     print('Repository: Deleted $result competition records for year $year');
   }
 

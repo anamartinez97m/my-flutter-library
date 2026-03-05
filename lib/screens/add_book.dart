@@ -491,7 +491,6 @@ class _AddBookScreenState extends State<AddBookScreen> {
         dateReadInitial: null,
         dateReadFinal: null,
         readCount: _readCount,
-        myRating: _myRating > 0 ? _myRating : null,
         myReview:
             _myReviewController.text.trim().isEmpty
                 ? null
@@ -579,7 +578,6 @@ class _AddBookScreenState extends State<AddBookScreen> {
             dateReadInitial: null,
             dateReadFinal: null,
             readCount: 0,
-            myRating: null,
             myReview: null,
             isBundle: false, // Individual books are not bundles
             bundleCount: null,
@@ -611,6 +609,16 @@ class _AddBookScreenState extends State<AddBookScreen> {
               dateStarted: readDate.dateStarted,
               dateFinished: readDate.dateFinished,
             ),
+          );
+        }
+
+        // If status is "Started" and no read dates were added, create one with today's date
+        if (_readDates.isEmpty &&
+            statusValue != null &&
+            statusValue.toLowerCase() == 'started') {
+          final today = DateTime.now().toIso8601String().split('T')[0];
+          await repository.addReadDate(
+            ReadDate(bookId: bookId, dateStarted: today, dateFinished: null),
           );
         }
       }

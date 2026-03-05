@@ -43,16 +43,21 @@ class Book {
   final int? originalBookId; // For repeated books, links to the original book
   final bool? notificationEnabled;
   final String? notificationDatetime;
-  final String? releaseDate; // Release date for TBReleased books (ISO 8601 format)
-  final int? bundleParentId; // For individual bundle books, links to the parent bundle book
-  final int? readingProgress; // Progress in pages or percentage (0-100 for percentage)
+  final String?
+  releaseDate; // Release date for TBReleased books (ISO 8601 format)
+  final int?
+  bundleParentId; // For individual bundle books, links to the parent bundle book
+  final int?
+  readingProgress; // Progress in pages or percentage (0-100 for percentage)
   final String? progressType; // 'pages' or 'percentage'
   final String? notes; // User notes about the book
   final double? price; // Book price
-  final bool? ratingOverride; // true if user manually overrode the auto-calculated rating
+  final bool?
+  ratingOverride; // true if user manually overrode the auto-calculated rating
   final String? coverUrl; // Book cover image URL from external APIs
   final String? description; // Book description/synopsis from external APIs
-  final String? metadataSource; // Source of metadata: 'google_books', 'open_library', 'merged'
+  final String?
+  metadataSource; // Source of metadata: 'google_books', 'open_library', 'merged'
   final String? metadataFetchedAt; // Timestamp when metadata was fetched
 
   Book({
@@ -127,7 +132,8 @@ class Book {
               : int.tryParse(
                 map['original_publication_year']?.toString() ?? '',
               ),
-      loaned: map['loaned'] != null ? map['loaned'].toString().toLowerCase() : 'no',
+      loaned:
+          map['loaned'] != null ? map['loaned'].toString().toLowerCase() : 'no',
       statusValue: map['statusValue'] as String?,
       editorialValue: map['editorialValue'] as String?,
       languageValue: map['languageValue'] as String?,
@@ -138,17 +144,20 @@ class Book {
       genre: map['genre'] as String?,
       dateReadInitial: map['date_read_initial'] as String?,
       dateReadFinal: map['date_read_final'] as String?,
-      readCount: map['read_count'] is int
-          ? map['read_count'] as int
-          : int.tryParse(map['read_count']?.toString() ?? ''),
-      myRating: map['my_rating'] is double
-          ? map['my_rating'] as double
-          : double.tryParse(map['my_rating']?.toString() ?? ''),
+      readCount:
+          map['read_count'] is int
+              ? map['read_count'] as int
+              : int.tryParse(map['read_count']?.toString() ?? ''),
+      myRating:
+          map['my_rating'] is double
+              ? map['my_rating'] as double
+              : double.tryParse(map['my_rating']?.toString() ?? ''),
       myReview: map['my_review'] as String?,
       isBundle: map['is_bundle'] == 1 || map['is_bundle'] == true,
-      bundleCount: map['bundle_count'] is int
-          ? map['bundle_count'] as int
-          : int.tryParse(map['bundle_count']?.toString() ?? ''),
+      bundleCount:
+          map['bundle_count'] is int
+              ? map['bundle_count'] as int
+              : int.tryParse(map['bundle_count']?.toString() ?? ''),
       bundleNumbers: map['bundle_numbers'] as String?,
       bundleStartDates: map['bundle_start_dates'] as String?,
       bundleEndDates: map['bundle_end_dates'] as String?,
@@ -163,14 +172,16 @@ class Book {
       notificationDatetime: map['notification_datetime'] as String?,
       releaseDate: map['release_date'] as String?,
       bundleParentId: map['bundle_parent_id'] as int?,
-      readingProgress: map['reading_progress'] is int
-          ? map['reading_progress'] as int
-          : int.tryParse(map['reading_progress']?.toString() ?? ''),
+      readingProgress:
+          map['reading_progress'] is int
+              ? map['reading_progress'] as int
+              : int.tryParse(map['reading_progress']?.toString() ?? ''),
       progressType: map['progress_type'] as String?,
       notes: map['notes'] as String?,
-      price: map['price'] is double
-          ? map['price'] as double
-          : double.tryParse(map['price']?.toString() ?? ''),
+      price:
+          map['price'] is double
+              ? map['price'] as double
+              : double.tryParse(map['price']?.toString() ?? ''),
       ratingOverride: map['rating_override'] == 1,
       coverUrl: map['cover_url'] as String?,
       description: map['description'] as String?,
@@ -203,7 +214,6 @@ class Book {
       'dateReadInitial': dateReadInitial,
       'dateReadFinal': dateReadFinal,
       'readCount': readCount,
-      'myRating': myRating,
       'myReview': myReview,
       'isBundle': isBundle,
       'bundleCount': bundleCount,

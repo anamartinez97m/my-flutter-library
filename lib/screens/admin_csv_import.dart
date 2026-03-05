@@ -469,7 +469,6 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
             dateReadInitial: book.dateReadInitial?.trim(),
             dateReadFinal: book.dateReadFinal?.trim(),
             readCount: book.readCount,
-            myRating: book.myRating,
             myReview: book.myReview?.trim(),
             isBundle: book.isBundle,
             bundleCount: book.bundleCount,
@@ -561,7 +560,6 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                     dateReadInitial: firstReadDate['date_started'] as String?,
                     dateReadFinal: firstReadDate['date_finished'] as String?,
                     readCount: existingBook.readCount,
-                    myRating: existingBook.myRating,
                     myReview: existingBook.myReview,
                     isBundle: existingBook.isBundle,
                     bundleCount: existingBook.bundleCount,
@@ -653,8 +651,6 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                         : existingBook.dateReadFinal,
                 readCount:
                     bookWithMappedStatus.readCount ?? existingBook.readCount,
-                myRating:
-                    bookWithMappedStatus.myRating ?? existingBook.myRating,
                 myReview:
                     bookWithMappedStatus.myReview?.isNotEmpty == true
                         ? bookWithMappedStatus.myReview
@@ -869,7 +865,6 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               genre: item.book.genre,
               loaned: item.book.loaned,
               createdAt: item.book.createdAt,
-              myRating: item.book.myRating,
               readCount: item.book.readCount,
               dateReadInitial: item.book.dateReadInitial,
               dateReadFinal: item.book.dateReadFinal,
@@ -1034,7 +1029,6 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               genre: item.book.genre,
               loaned: item.book.loaned,
               createdAt: item.book.createdAt,
-              myRating: item.book.myRating,
               readCount: item.book.readCount,
               dateReadInitial: item.book.dateReadInitial,
               dateReadFinal: item.book.dateReadFinal,
@@ -1632,7 +1626,6 @@ class _BookImportPreview extends StatelessWidget {
           dateReadInitial: book.dateReadInitial,
           dateReadFinal: book.dateReadFinal,
           readCount: book.readCount,
-          myRating: book.myRating,
           myReview: book.myReview,
         );
         break;
@@ -1660,7 +1653,6 @@ class _BookImportPreview extends StatelessWidget {
           dateReadInitial: book.dateReadInitial,
           dateReadFinal: book.dateReadFinal,
           readCount: book.readCount,
-          myRating: book.myRating,
           myReview: book.myReview,
         );
         break;
@@ -1688,7 +1680,6 @@ class _BookImportPreview extends StatelessWidget {
           dateReadInitial: book.dateReadInitial,
           dateReadFinal: book.dateReadFinal,
           readCount: book.readCount,
-          myRating: book.myRating,
           myReview: book.myReview,
         );
         break;
@@ -1716,7 +1707,6 @@ class _BookImportPreview extends StatelessWidget {
           dateReadInitial: book.dateReadInitial,
           dateReadFinal: book.dateReadFinal,
           readCount: book.readCount,
-          myRating: book.myRating,
           myReview: book.myReview,
         );
         break;
@@ -1744,7 +1734,6 @@ class _BookImportPreview extends StatelessWidget {
           dateReadInitial: book.dateReadInitial,
           dateReadFinal: book.dateReadFinal,
           readCount: book.readCount,
-          myRating: book.myRating,
           myReview: book.myReview,
         );
         break;
@@ -1772,7 +1761,6 @@ class _BookImportPreview extends StatelessWidget {
           dateReadInitial: book.dateReadInitial,
           dateReadFinal: book.dateReadFinal,
           readCount: book.readCount,
-          myRating: book.myRating,
           myReview: book.myReview,
         );
         break;
@@ -1800,7 +1788,6 @@ class _BookImportPreview extends StatelessWidget {
           dateReadInitial: book.dateReadInitial,
           dateReadFinal: book.dateReadFinal,
           readCount: book.readCount,
-          myRating: book.myRating,
           myReview: book.myReview,
         );
         break;
@@ -1829,7 +1816,6 @@ class _BookImportPreview extends StatelessWidget {
           dateReadInitial: book.dateReadInitial,
           dateReadFinal: book.dateReadFinal,
           readCount: book.readCount,
-          myRating: book.myRating,
           myReview: book.myReview,
         );
         break;
@@ -1857,7 +1843,6 @@ class _BookImportPreview extends StatelessWidget {
           dateReadInitial: book.dateReadInitial,
           dateReadFinal: book.dateReadFinal,
           readCount: book.readCount,
-          myRating: book.myRating,
           myReview: book.myReview,
         );
         break;
@@ -1885,7 +1870,6 @@ class _BookImportPreview extends StatelessWidget {
           dateReadInitial: book.dateReadInitial,
           dateReadFinal: book.dateReadFinal,
           readCount: book.readCount,
-          myRating: book.myRating,
           myReview: book.myReview,
         );
         break;
@@ -1913,7 +1897,6 @@ class _BookImportPreview extends StatelessWidget {
           dateReadInitial: book.dateReadInitial,
           dateReadFinal: book.dateReadFinal,
           readCount: book.readCount,
-          myRating: book.myRating,
           myReview: book.myReview,
         );
         break;
@@ -1941,7 +1924,6 @@ class _BookImportPreview extends StatelessWidget {
           dateReadInitial: book.dateReadInitial,
           dateReadFinal: book.dateReadFinal,
           readCount: book.readCount,
-          myRating: book.myRating,
           myReview: book.myReview,
         );
         break;
@@ -1969,7 +1951,6 @@ class _BookImportPreview extends StatelessWidget {
           dateReadInitial: book.dateReadInitial,
           dateReadFinal: book.dateReadFinal,
           readCount: book.readCount,
-          myRating: book.myRating,
           myReview: book.myReview,
         );
         break;
@@ -1997,7 +1978,6 @@ class _BookImportPreview extends StatelessWidget {
           dateReadInitial: book.dateReadInitial,
           dateReadFinal: book.dateReadFinal,
           readCount: book.readCount,
-          myRating: book.myRating,
           myReview: book.myReview,
         );
         break;
@@ -2025,7 +2005,6 @@ class _BookImportPreview extends StatelessWidget {
           dateReadInitial: value.isEmpty ? null : value,
           dateReadFinal: book.dateReadFinal,
           readCount: book.readCount,
-          myRating: book.myRating,
           myReview: book.myReview,
         );
         break;
@@ -2053,7 +2032,6 @@ class _BookImportPreview extends StatelessWidget {
           dateReadInitial: book.dateReadInitial,
           dateReadFinal: value.isEmpty ? null : value,
           readCount: book.readCount,
-          myRating: book.myRating,
           myReview: book.myReview,
         );
         break;
@@ -2081,7 +2059,6 @@ class _BookImportPreview extends StatelessWidget {
           dateReadInitial: book.dateReadInitial,
           dateReadFinal: book.dateReadFinal,
           readCount: value.isEmpty ? null : int.tryParse(value),
-          myRating: book.myRating,
           myReview: book.myReview,
         );
         break;
@@ -2108,7 +2085,6 @@ class _BookImportPreview extends StatelessWidget {
           dateReadInitial: book.dateReadInitial,
           dateReadFinal: book.dateReadFinal,
           readCount: book.readCount,
-          myRating: value.isEmpty ? null : double.tryParse(value),
           myReview: book.myReview,
           sagaUniverse: book.sagaUniverse,
         );
@@ -2136,7 +2112,6 @@ class _BookImportPreview extends StatelessWidget {
           dateReadInitial: book.dateReadInitial,
           dateReadFinal: book.dateReadFinal,
           readCount: book.readCount,
-          myRating: book.myRating,
           myReview: trimmedValue.isEmpty ? null : trimmedValue,
           sagaUniverse: book.sagaUniverse,
         );
@@ -2164,7 +2139,6 @@ class _BookImportPreview extends StatelessWidget {
           dateReadInitial: book.dateReadInitial,
           dateReadFinal: book.dateReadFinal,
           readCount: book.readCount,
-          myRating: book.myRating,
           myReview: book.myReview,
           sagaUniverse: trimmedValue.isEmpty ? null : trimmedValue,
         );
@@ -2192,7 +2166,6 @@ class _BookImportPreview extends StatelessWidget {
           dateReadInitial: book.dateReadInitial,
           dateReadFinal: book.dateReadFinal,
           readCount: book.readCount,
-          myRating: book.myRating,
           myReview: book.myReview,
           sagaUniverse: book.sagaUniverse,
         );
@@ -2220,7 +2193,6 @@ class _BookImportPreview extends StatelessWidget {
           dateReadInitial: book.dateReadInitial,
           dateReadFinal: book.dateReadFinal,
           readCount: book.readCount,
-          myRating: book.myRating,
           myReview: book.myReview,
           sagaUniverse: book.sagaUniverse,
         );

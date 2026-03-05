@@ -661,7 +661,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             dateReadInitial: book.dateReadInitial,
             dateReadFinal: book.dateReadFinal,
             readCount: book.readCount,
-            myRating: book.myRating,
             myReview: book.myReview,
           );
 
@@ -1322,6 +1321,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         'Notes',
         'Price',
         'Rating Override',
+        'Release Date',
+        'Cover URL',
+        'Description',
+        'Metadata Source',
+        'Metadata Fetched At',
         'Created At',
       ]);
 
@@ -1370,6 +1374,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           book.notes ?? '',
           book.price?.toString() ?? '',
           book.ratingOverride == true ? 'yes' : 'no',
+          book.releaseDate ?? '',
+          book.coverUrl ?? '',
+          book.description ?? '',
+          book.metadataSource ?? '',
+          book.metadataFetchedAt ?? '',
           book.createdAt ?? '',
         ]);
       }
@@ -1552,6 +1561,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         'Notes',
         'Price',
         'Rating Override',
+        'Release Date',
+        'Cover URL',
+        'Description',
+        'Metadata Source',
+        'Metadata Fetched At',
         'Created At',
       ]);
 
@@ -1600,6 +1614,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           book.notes ?? '',
           book.price?.toString() ?? '',
           book.ratingOverride == true ? 'yes' : 'no',
+          book.releaseDate ?? '',
+          book.coverUrl ?? '',
+          book.description ?? '',
+          book.metadataSource ?? '',
+          book.metadataFetchedAt ?? '',
           book.createdAt ?? '',
         ]);
       }

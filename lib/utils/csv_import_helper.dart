@@ -223,10 +223,34 @@ class CsvImportHelper {
     final dateReadInitial = getValue('date read initial');
     final dateReadFinal = getValue('date read final');
     final readCountStr = getValue('read count');
-    final myRatingStr = getValue('my rating');
     final myReview = getValue('my review');
+    final myRatingStr = getValue('my rating');
     final notes = getValue('notes');
     final priceStr = getValue('price');
+    final isBundleStr = getValue('is bundle');
+    final bundleCountStr = getValue('bundle count');
+    final bundleNumbers = getValue('bundle numbers');
+    final bundleStartDates = getValue('bundle start dates');
+    final bundleEndDates = getValue('bundle end dates');
+    final bundlePages = getValue('bundle pages');
+    final bundlePublicationYears = getValue('bundle publication years');
+    final bundleTitles = getValue('bundle titles');
+    final bundleAuthors = getValue('bundle authors');
+    final tbrStr = getValue('tbr');
+    final isTandemStr = getValue('is tandem');
+    final originalBookIdStr = getValue('original book id');
+    final notificationEnabledStr = getValue('notification enabled');
+    final notificationDatetime = getValue('notification datetime');
+    final bundleParentIdStr = getValue('bundle parent id');
+    final readingProgressStr = getValue('reading progress');
+    final progressType = getValue('progress type');
+    final ratingOverrideStr = getValue('rating override');
+    final releaseDate = getValue('release date');
+    final coverUrl = getValue('cover url');
+    final description = getValue('description');
+    final metadataSource = getValue('metadata source');
+    final metadataFetchedAt = getValue('metadata fetched at');
+    final createdAt = getValue('created at');
 
     // Remove trailing comma from saga if present
     if (saga != null && saga.endsWith(',')) {
@@ -278,15 +302,41 @@ class CsvImportHelper {
       languageValue: language,
       placeValue: place,
       formatValue: format,
-      createdAt: DateTime.now().toIso8601String(),
+      createdAt: createdAt ?? DateTime.now().toIso8601String(),
       genre: genre,
       dateReadInitial: normalizeDateFormat(dateReadInitial),
       dateReadFinal: normalizeDateFormat(dateReadFinal),
       readCount: readCountStr != null ? int.tryParse(readCountStr) : 0,
       myRating: myRatingStr != null ? double.tryParse(myRatingStr) : null,
       myReview: myReview,
+      isBundle: isBundleStr?.toLowerCase() == 'yes',
+      bundleCount: bundleCountStr != null ? int.tryParse(bundleCountStr) : null,
+      bundleNumbers: bundleNumbers,
+      bundleStartDates: bundleStartDates,
+      bundleEndDates: bundleEndDates,
+      bundlePages: bundlePages,
+      bundlePublicationYears: bundlePublicationYears,
+      bundleTitles: bundleTitles,
+      bundleAuthors: bundleAuthors,
+      tbr: tbrStr?.toLowerCase() == 'yes',
+      isTandem: isTandemStr?.toLowerCase() == 'yes',
+      originalBookId:
+          originalBookIdStr != null ? int.tryParse(originalBookIdStr) : null,
+      notificationEnabled: notificationEnabledStr?.toLowerCase() == 'yes',
+      notificationDatetime: notificationDatetime,
+      bundleParentId:
+          bundleParentIdStr != null ? int.tryParse(bundleParentIdStr) : null,
+      readingProgress:
+          readingProgressStr != null ? int.tryParse(readingProgressStr) : null,
+      progressType: progressType,
       notes: notes,
       price: priceStr != null ? double.tryParse(priceStr) : null,
+      ratingOverride: ratingOverrideStr?.toLowerCase() == 'yes',
+      releaseDate: releaseDate,
+      coverUrl: coverUrl,
+      description: description,
+      metadataSource: metadataSource,
+      metadataFetchedAt: metadataFetchedAt,
     );
   }
 
@@ -323,7 +373,6 @@ class CsvImportHelper {
     final dateRead = getValue('date read');
     final dateAdded = getValue('date added');
     final bookshelves = getValue('bookshelves');
-    final myRatingStr = getValue('my rating');
     final myReview = getValue('my review');
     final readCountStr = getValue('read count');
 
@@ -433,7 +482,6 @@ class CsvImportHelper {
         dateRead,
       ), // Date Read -> Date Read Finished
       readCount: readCountStr != null ? int.tryParse(readCountStr) : 0,
-      myRating: myRatingStr != null ? double.tryParse(myRatingStr) : null,
       myReview: myReview,
     );
   }

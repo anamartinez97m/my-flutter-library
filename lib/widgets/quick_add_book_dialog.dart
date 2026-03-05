@@ -101,7 +101,6 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
           dateReadInitial: book.dateReadInitial,
           dateReadFinal: book.dateReadFinal,
           readCount: book.readCount,
-          myRating: book.myRating,
           myReview: book.myReview,
           isBundle: book.isBundle,
           bundleCount: book.bundleCount,

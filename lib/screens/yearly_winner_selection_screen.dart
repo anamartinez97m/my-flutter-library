@@ -198,7 +198,7 @@ class _YearlyWinnerSelectionScreenState
                                           if (book.myRating != null &&
                                               book.myRating! > 0)
                                             Text(
-                                              '${AppLocalizations.of(context)!.rating}: ${book.myRating}/5',
+                                              '${AppLocalizations.of(context)!.rating}: ${book.myRating!.toStringAsFixed(2)}/5',
                                               textAlign: TextAlign.center,
                                             ),
                                         ],

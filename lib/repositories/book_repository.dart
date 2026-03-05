@@ -43,7 +43,9 @@ class BookRepository {
         p.name as placeValue, f.value as formatValue,
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
-        b.read_count, b.my_rating, b.my_review,
+        b.read_count,
+        (SELECT AVG(brf.rating_value) FROM book_rating_fields brf WHERE brf.book_id = b.book_id AND brf.rating_value > 0) as my_rating,
+        b.my_review,
         b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
         b.tbr, b.is_tandem, b.original_book_id,
         b.notification_enabled, b.notification_datetime, b.bundle_parent_id,
@@ -103,7 +105,9 @@ class BookRepository {
         p.name as placeValue, f.value as formatValue,
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
-        b.read_count, b.my_rating, b.my_review,
+        b.read_count,
+        (SELECT AVG(brf.rating_value) FROM book_rating_fields brf WHERE brf.book_id = b.book_id AND brf.rating_value > 0) as my_rating,
+        b.my_review,
         b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
         b.tbr, b.is_tandem, b.original_book_id,
         b.notification_enabled, b.notification_datetime, b.bundle_parent_id,
@@ -187,7 +191,9 @@ class BookRepository {
         p.name as placeValue, f.value as formatValue,
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
-        b.read_count, b.my_rating, b.my_review,
+        b.read_count,
+        (SELECT AVG(brf.rating_value) FROM book_rating_fields brf WHERE brf.book_id = b.book_id AND brf.rating_value > 0) as my_rating,
+        b.my_review,
         b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
         b.tbr, b.is_tandem, b.original_book_id,
         b.notification_enabled, b.notification_datetime, b.bundle_parent_id,
@@ -241,7 +247,9 @@ class BookRepository {
         p.name as placeValue, f.value as formatValue,
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
-        b.read_count, b.my_rating, b.my_review,
+        b.read_count,
+        (SELECT AVG(brf.rating_value) FROM book_rating_fields brf WHERE brf.book_id = b.book_id AND brf.rating_value > 0) as my_rating,
+        b.my_review,
         b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
         b.tbr, b.is_tandem, b.original_book_id,
         b.notification_enabled, b.notification_datetime, b.bundle_parent_id,
@@ -800,9 +808,6 @@ class BookRepository {
         newBook.readCount! > 0) {
       updates['read_count'] = newBook.readCount;
     }
-    if (existing['my_rating'] == null && newBook.myRating != null) {
-      updates['my_rating'] = newBook.myRating;
-    }
     if ((existing['my_review'] == null ||
             existing['my_review'].toString().isEmpty) &&
         newBook.myReview != null &&
@@ -899,7 +904,6 @@ class BookRepository {
       'date_read_initial': book.dateReadInitial,
       'date_read_final': book.dateReadFinal,
       'read_count': book.readCount ?? 0,
-      'my_rating': book.myRating,
       'my_review': book.myReview,
       'is_bundle': book.isBundle == true ? 1 : 0,
       'bundle_count': book.bundleCount,
@@ -1209,7 +1213,10 @@ class BookRepository {
         COALESCE(orig.date_read_initial, b.date_read_initial) as date_read_initial,
         COALESCE(orig.date_read_final, b.date_read_final) as date_read_final,
         COALESCE(orig.read_count, b.read_count) as read_count,
-        COALESCE(orig.my_rating, b.my_rating) as my_rating,
+        COALESCE(
+          (SELECT AVG(brf.rating_value) FROM book_rating_fields brf WHERE brf.book_id = orig.book_id AND brf.rating_value > 0),
+          (SELECT AVG(brf.rating_value) FROM book_rating_fields brf WHERE brf.book_id = b.book_id AND brf.rating_value > 0)
+        ) as my_rating,
         COALESCE(orig.my_review, b.my_review) as my_review,
         COALESCE(orig.is_bundle, b.is_bundle) as is_bundle,
         COALESCE(orig.bundle_count, b.bundle_count) as bundle_count,
@@ -1312,7 +1319,9 @@ class BookRepository {
         p.name as placeValue, f.value as formatValue,
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
-        b.read_count, b.my_rating, b.my_review,
+        b.read_count,
+        (SELECT AVG(brf.rating_value) FROM book_rating_fields brf WHERE brf.book_id = b.book_id AND brf.rating_value > 0) as my_rating,
+        b.my_review,
         b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
         b.tbr, b.is_tandem, b.original_book_id,
         b.notification_enabled, b.notification_datetime, b.bundle_parent_id,
@@ -1364,7 +1373,9 @@ class BookRepository {
         p.name as placeValue, f.value as formatValue,
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
-        b.read_count, b.my_rating, b.my_review,
+        b.read_count,
+        (SELECT AVG(brf.rating_value) FROM book_rating_fields brf WHERE brf.book_id = b.book_id AND brf.rating_value > 0) as my_rating,
+        b.my_review,
         b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
         b.tbr, b.is_tandem, b.original_book_id,
         b.notification_enabled, b.notification_datetime, b.bundle_parent_id,

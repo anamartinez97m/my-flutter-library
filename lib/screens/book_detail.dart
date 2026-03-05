@@ -500,7 +500,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       // Get current read count
       final currentReadCount = _currentBook.readCount ?? 0;
 
-      // Update status, increment read count, and save review
+      // Update status, increment read count, save review
+      final ratings = result['ratings'] as List<Map<String, dynamic>>;
       await db.update(
         'book',
         {
@@ -514,9 +515,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         whereArgs: [_currentBook.bookId!],
       );
 
-      // Save rating fields
+      // Save rating fields (rating is computed from these, not stored on book)
       final ratingFieldRepository = BookRatingFieldRepository(db);
-      final ratings = result['ratings'] as List<Map<String, dynamic>>;
       for (final rating in ratings) {
         await ratingFieldRepository.insertRatingField(
           BookRatingField(
@@ -1392,7 +1392,6 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         dateReadInitial: null,
         dateReadFinal: null,
         readCount: 1,
-        myRating: null,
         myReview: null,
         isBundle: false,
         bundleCount: null,
@@ -2184,7 +2183,6 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                 dateReadInitial: _currentBook.dateReadInitial,
                                 dateReadFinal: _currentBook.dateReadFinal,
                                 readCount: _currentBook.readCount,
-                                myRating: _currentBook.myRating,
                                 myReview: _currentBook.myReview,
                                 isBundle: _currentBook.isBundle,
                                 bundleCount: _currentBook.bundleCount,
