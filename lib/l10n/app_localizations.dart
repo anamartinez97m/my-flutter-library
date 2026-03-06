@@ -2930,7 +2930,7 @@ abstract class AppLocalizations {
   /// No description provided for @did_you_read_today.
   ///
   /// In en, this message translates to:
-  /// **'Did you read today?'**
+  /// **'I have read today'**
   String get did_you_read_today;
 
   /// No description provided for @did_you_read_this_book_today.

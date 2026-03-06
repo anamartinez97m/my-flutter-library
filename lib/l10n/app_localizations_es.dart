@@ -1577,7 +1577,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get progress_updated => '¡Progreso actualizado!';
 
   @override
-  String get did_you_read_today => '¿Leíste hoy?';
+  String get did_you_read_today => 'He leído hoy';
 
   @override
   String get did_you_read_this_book_today => '¿Leíste este libro hoy?';

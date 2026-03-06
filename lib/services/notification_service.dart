@@ -27,17 +27,17 @@ void _onBackgroundNotificationAction(NotificationResponse response) {
     final bookId = int.tryParse(match.group(1)!);
     if (bookId == null) return;
 
-    if (response.actionId == 'yes' || response.actionId == 'no') {
-      final didRead = response.actionId == 'yes';
+    if (response.actionId == 'yes') {
       // Use async without await since this is a void callback
       () async {
         try {
           final db = await DatabaseHelper.instance.database;
           final sessionRepository = ReadingSessionRepository(db);
-          await sessionRepository.createDidReadSession(bookId, didRead);
-          debugPrint(
-            '📖 Background: marked book $bookId as ${didRead ? "read" : "not read"} today',
-          );
+          await sessionRepository.createDidReadSession(bookId, true);
+          debugPrint('📖 Background: marked book $bookId as read today');
+          // Cancel the notification after updating the DB
+          final notificationId = 100000 + bookId;
+          await FlutterLocalNotificationsPlugin().cancel(notificationId);
         } catch (e) {
           debugPrint('❌ Background error handling reading reminder action: $e');
         }
@@ -140,15 +140,15 @@ class NotificationService {
     final bookId = int.tryParse(match.group(1)!);
     if (bookId == null) return;
 
-    if (actionId == 'yes' || actionId == 'no') {
-      final didRead = actionId == 'yes';
+    if (actionId == 'yes') {
       try {
         final db = await DatabaseHelper.instance.database;
         final sessionRepository = ReadingSessionRepository(db);
-        await sessionRepository.createDidReadSession(bookId, didRead);
-        debugPrint(
-          '📖 Reading reminder: marked book $bookId as ${didRead ? "read" : "not read"} today',
-        );
+        await sessionRepository.createDidReadSession(bookId, true);
+        debugPrint('📖 Reading reminder: marked book $bookId as read today');
+        // Cancel the notification after updating the DB
+        final notificationId = _readingReminderBaseId + bookId;
+        await _notifications.cancel(notificationId);
       } catch (e) {
         debugPrint('❌ Error handling reading reminder action: $e');
       }
@@ -495,12 +495,6 @@ class NotificationService {
         const AndroidNotificationAction(
           'yes',
           'Yes',
-          showsUserInterface: false,
-          cancelNotification: true,
-        ),
-        const AndroidNotificationAction(
-          'no',
-          'No',
           showsUserInterface: false,
           cancelNotification: true,
         ),

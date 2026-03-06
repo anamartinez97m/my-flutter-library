@@ -182,8 +182,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         setState(() => _isCloudBusy = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.sign_in_failed),
+            content: Text(
+              '${AppLocalizations.of(context)!.sign_in_failed}: $e',
+            ),
             backgroundColor: Colors.red,
+            duration: const Duration(seconds: 10),
           ),
         );
       }

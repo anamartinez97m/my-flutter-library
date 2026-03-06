@@ -857,86 +857,29 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     }
   }
 
-  Future<void> _showDidReadModal() async {
-    final result = await showDialog<bool>(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(AppLocalizations.of(context)!.did_you_read_today),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  AppLocalizations.of(context)!.did_you_read_this_book_today,
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context, true);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
-                      ),
-                      child: Text(AppLocalizations.of(context)!.yes_label),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context, false);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        foregroundColor: Colors.white,
-                      ),
-                      child: Text(AppLocalizations.of(context)!.no_label),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(AppLocalizations.of(context)!.cancel),
-              ),
-            ],
+  Future<void> _markAsReadToday() async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final sessionRepository = ReadingSessionRepository(db);
+
+      await sessionRepository.createDidReadSession(_currentBook.bookId!, true);
+
+      await _loadReadDates();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.marked_read_today),
+            backgroundColor: Colors.green,
           ),
-    );
-
-    if (result != null) {
-      try {
-        final db = await DatabaseHelper.instance.database;
-        final sessionRepository = ReadingSessionRepository(db);
-
-        await sessionRepository.createDidReadSession(
-          _currentBook.bookId!,
-          result,
         );
-
-        await _loadReadDates();
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                result
-                    ? AppLocalizations.of(context)!.marked_read_today
-                    : AppLocalizations.of(context)!.marked_not_read_today,
-              ),
-              backgroundColor: result ? Colors.green : Colors.orange,
-            ),
-          );
-        }
-      } catch (e) {
-        debugPrint('Error saving did read status: $e');
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-          );
-        }
+      }
+    } catch (e) {
+      debugPrint('Error saving did read status: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
       }
     }
   }
@@ -2438,7 +2381,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                           border: Border.all(color: Colors.orange, width: 2),
                         ),
                         child: InkWell(
-                          onTap: _showDidReadModal,
+                          onTap: _markAsReadToday,
                           borderRadius: BorderRadius.circular(6),
                           child: Container(
                             alignment: Alignment.center,
@@ -2446,7 +2389,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(
-                                  Icons.help_outline,
+                                  Icons.check_circle_outline,
                                   color: Colors.orange,
                                   size: 20,
                                 ),

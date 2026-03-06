@@ -15,6 +15,7 @@ class GoogleAuthService {
 
   Future<User?> signInWithGoogle() async {
     try {
+      debugPrint('Google Sign-In: Starting...');
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
       if (googleUser == null) {
@@ -22,26 +23,36 @@ class GoogleAuthService {
         return null;
       }
 
+      debugPrint('Google Sign-In: Account selected: ${googleUser.email}');
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
+
+      debugPrint(
+        'Google Sign-In: Got tokens - accessToken: ${googleAuth.accessToken != null}, idToken: ${googleAuth.idToken != null}',
+      );
 
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      final UserCredential userCredential =
-          await _auth.signInWithCredential(credential);
+      debugPrint('Google Sign-In: Signing in with Firebase credential...');
+      final UserCredential userCredential = await _auth.signInWithCredential(
+        credential,
+      );
 
       debugPrint(
-          'Google Sign-In successful: ${userCredential.user?.displayName}');
+        'Google Sign-In successful: ${userCredential.user?.displayName}',
+      );
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
-      debugPrint('FirebaseAuthException during sign-in: ${e.code} - ${e.message}');
-      return null;
+      debugPrint(
+        'FirebaseAuthException during sign-in: ${e.code} - ${e.message}',
+      );
+      rethrow;
     } catch (e) {
       debugPrint('Error during Google Sign-In: $e');
-      return null;
+      rethrow;
     }
   }
 

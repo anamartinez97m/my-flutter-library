@@ -763,7 +763,7 @@
     "placeholders": { "count": {} }
   },
   "progress_updated": "¡Progreso actualizado!",
-  "did_you_read_today": "¿Leíste hoy?",
+  "did_you_read_today": "He leído hoy",
   "did_you_read_this_book_today": "¿Leíste este libro hoy?",
   "yes_label": "SÍ",
   "no_label": "NO",

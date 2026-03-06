@@ -757,7 +757,7 @@
     "placeholders": { "count": {} }
   },
   "progress_updated": "Progress updated!",
-  "did_you_read_today": "Did you read today?",
+  "did_you_read_today": "I have read today",
   "did_you_read_this_book_today": "Did you read this book today?",
   "yes_label": "YES",
   "no_label": "NO",
