@@ -2806,4 +2806,19 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get no_started_books_for_reminder => 'No hay libros con estado Iniciado para recordar';
+
+  @override
+  String get fetch_book_info => 'Buscar información del libro';
+
+  @override
+  String get fetching_book_info => 'Buscando información del libro...';
+
+  @override
+  String get book_info_found => 'Información encontrada y campos rellenados';
+
+  @override
+  String get no_book_info_found => 'No se encontró información para este ISBN';
+
+  @override
+  String get isbn_required_for_fetch => 'Introduce un ISBN primero';
 }

@@ -18,6 +18,7 @@ import 'package:myrandomlibrary/services/notification_service.dart';
 import 'package:provider/provider.dart';
 import 'package:myrandomlibrary/widgets/heart_rating_input.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:myrandomlibrary/services/book_metadata_service.dart';
 
 class AddBookScreen extends StatefulWidget {
   const AddBookScreen({super.key});
@@ -107,6 +108,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
   List<String> _selectedEditorial = []; // Single value but displayed as chip
 
   bool _isLoading = true;
+
+  // ISBN metadata fetch
+  bool _isFetchingMetadata = false;
+  String? _fetchedDescription;
+  String? _fetchedCoverUrl;
+  String? _fetchedMetadataSource;
 
   /// Capitalize only the first letter, rest lowercase
   String _capitalizeFirstWord(String text) {
@@ -524,6 +531,13 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 ? null
                 : double.tryParse(_priceController.text.trim()),
         ratingOverride: _ratingOverride,
+        description: _fetchedDescription,
+        coverUrl: _fetchedCoverUrl,
+        metadataSource: _fetchedMetadataSource,
+        metadataFetchedAt:
+            _fetchedMetadataSource != null
+                ? DateTime.now().toIso8601String()
+                : null,
       );
 
       final bookId = await repository.addBook(book);
@@ -705,6 +719,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
           _bundleBooks = null;
           _tbr = false;
           _isTandem = false;
+          _fetchedDescription = null;
+          _fetchedCoverUrl = null;
+          _fetchedMetadataSource = null;
         });
 
         debugPrint('✅ Form cleared. Controllers reset:');
@@ -973,10 +990,30 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   labelText: AppLocalizations.of(context)!.isbn,
                   border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.numbers),
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.qr_code_scanner_outlined),
-                    onPressed: () => _scanISBN(),
-                    tooltip: AppLocalizations.of(context)!.scan_isbn,
+                  suffixIcon: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _isFetchingMetadata
+                          ? const Padding(
+                            padding: EdgeInsets.all(12.0),
+                            child: SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          )
+                          : IconButton(
+                            icon: const Icon(Icons.search),
+                            onPressed: _fetchMetadataByIsbn,
+                            tooltip:
+                                AppLocalizations.of(context)!.fetch_book_info,
+                          ),
+                      IconButton(
+                        icon: const Icon(Icons.qr_code_scanner_outlined),
+                        onPressed: () => _scanISBN(),
+                        tooltip: AppLocalizations.of(context)!.scan_isbn,
+                      ),
+                    ],
                   ),
                 ),
                 keyboardType: TextInputType.number,
@@ -1870,6 +1907,107 @@ class _AddBookScreenState extends State<AddBookScreen> {
     );
   }
 
+  Future<void> _fetchMetadataByIsbn() async {
+    final isbn = _isbnController.text.trim();
+    if (isbn.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.isbn_required_for_fetch,
+            ),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      return;
+    }
+
+    setState(() {
+      _isFetchingMetadata = true;
+    });
+
+    try {
+      final metadataService = BookMetadataService();
+      final metadata = await metadataService.fetchMetadata(isbn: isbn);
+
+      if (metadata != null && mounted) {
+        setState(() {
+          // Only fill empty fields
+          if (_nameController.text.trim().isEmpty && metadata.title != null) {
+            _nameController.text = metadata.title!;
+          }
+          if (_selectedAuthors.isEmpty &&
+              metadata.authors != null &&
+              metadata.authors!.isNotEmpty) {
+            _selectedAuthors = List<String>.from(metadata.authors!);
+          }
+          if (_selectedEditorial.isEmpty &&
+              metadata.publisher != null &&
+              metadata.publisher!.isNotEmpty) {
+            _selectedEditorial = [metadata.publisher!];
+          }
+          if (_pagesController.text.trim().isEmpty &&
+              metadata.pageCount != null) {
+            _pagesController.text = metadata.pageCount.toString();
+          }
+          if (_publicationYearController.text.trim().isEmpty &&
+              metadata.publishedYear != null) {
+            _publicationYearController.text = metadata.publishedYear.toString();
+          }
+          if (_selectedLanguageId == null && metadata.language != null) {
+            // Try to match language from API to dropdown
+            for (final lang in _languageList) {
+              final langName = (lang['name'] as String).toLowerCase();
+              final apiLang = metadata.language!.toLowerCase();
+              if (langName == apiLang ||
+                  langName.startsWith(apiLang) ||
+                  apiLang.startsWith(langName)) {
+                _selectedLanguageId = lang['language_id'] as int;
+                break;
+              }
+            }
+          }
+
+          // Store metadata fields that don't have form inputs
+          _fetchedDescription = metadata.description;
+          _fetchedCoverUrl = metadata.bestCoverUrl;
+          _fetchedMetadataSource = metadata.source;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.book_info_found),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.no_book_info_found),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error fetching metadata by ISBN: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${AppLocalizations.of(context)!.error}: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isFetchingMetadata = false;
+        });
+      }
+    }
+  }
+
   Future<void> _scanISBN() async {
     try {
       final result = await Navigator.push<String>(
@@ -1881,6 +2019,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
         setState(() {
           _isbnController.text = result;
         });
+        // Auto-fetch metadata after barcode scan
+        await _fetchMetadataByIsbn();
       }
     } catch (e) {
       if (mounted) {

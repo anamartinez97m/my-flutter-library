@@ -1284,5 +1284,11 @@
   "tap_to_open_book": "Toca para ver los detalles del libro",
   "reading_reminder_enabled": "Recordatorios de lectura activados",
   "reading_reminder_disabled": "Recordatorios de lectura desactivados",
-  "no_started_books_for_reminder": "No hay libros con estado Iniciado para recordar"
+  "no_started_books_for_reminder": "No hay libros con estado Iniciado para recordar",
+
+  "fetch_book_info": "Buscar información del libro",
+  "fetching_book_info": "Buscando información del libro...",
+  "book_info_found": "Información encontrada y campos rellenados",
+  "no_book_info_found": "No se encontró información para este ISBN",
+  "isbn_required_for_fetch": "Introduce un ISBN primero"
 }

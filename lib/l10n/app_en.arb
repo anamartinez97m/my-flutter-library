@@ -1278,5 +1278,11 @@
   "tap_to_open_book": "Tap to open book details",
   "reading_reminder_enabled": "Reading reminders enabled",
   "reading_reminder_disabled": "Reading reminders disabled",
-  "no_started_books_for_reminder": "No books with Started status to remind about"
+  "no_started_books_for_reminder": "No books with Started status to remind about",
+
+  "fetch_book_info": "Fetch book info",
+  "fetching_book_info": "Fetching book info...",
+  "book_info_found": "Book info found and fields filled",
+  "no_book_info_found": "No book info found for this ISBN",
+  "isbn_required_for_fetch": "Enter an ISBN first"
 }

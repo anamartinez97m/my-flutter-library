@@ -5200,6 +5200,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No books with Started status to remind about'**
   String get no_started_books_for_reminder;
+
+  /// No description provided for @fetch_book_info.
+  ///
+  /// In en, this message translates to:
+  /// **'Fetch book info'**
+  String get fetch_book_info;
+
+  /// No description provided for @fetching_book_info.
+  ///
+  /// In en, this message translates to:
+  /// **'Fetching book info...'**
+  String get fetching_book_info;
+
+  /// No description provided for @book_info_found.
+  ///
+  /// In en, this message translates to:
+  /// **'Book info found and fields filled'**
+  String get book_info_found;
+
+  /// No description provided for @no_book_info_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No book info found for this ISBN'**
+  String get no_book_info_found;
+
+  /// No description provided for @isbn_required_for_fetch.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an ISBN first'**
+  String get isbn_required_for_fetch;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
