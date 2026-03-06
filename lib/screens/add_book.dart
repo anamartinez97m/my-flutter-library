@@ -810,6 +810,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
           icon: const Icon(Icons.arrow_back_ios_new_outlined),
           onPressed: () => Navigator.of(context).pop(),
         ),
+        actions: [
+          IconButton(icon: const Icon(Icons.check), onPressed: _saveBook),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

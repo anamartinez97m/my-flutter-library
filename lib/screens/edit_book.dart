@@ -1137,6 +1137,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
               Navigator.pop(context);
             },
           ),
+          actions: [
+            IconButton(icon: const Icon(Icons.check), onPressed: _updateBook),
+          ],
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(20.0),
