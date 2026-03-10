@@ -3,7 +3,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 enum AppThemeMode { light, dark, system }
 
-enum LightThemeVariant { warmEarth, vibrantSunset, softPastel, deepOcean, custom }
+enum LightThemeVariant {
+  warmEarth,
+  vibrantSunset,
+  softPastel,
+  deepOcean,
+  custom,
+}
 
 enum DarkThemeVariant { mysticPurple, deepSea, warmAutumn, custom }
 
@@ -11,12 +17,12 @@ class ThemeProvider with ChangeNotifier {
   AppThemeMode _themeMode = AppThemeMode.system;
   LightThemeVariant _lightThemeVariant = LightThemeVariant.warmEarth;
   DarkThemeVariant _darkThemeVariant = DarkThemeVariant.mysticPurple;
-  
+
   // Custom colors (3 colors: primary, secondary, tertiary)
   Color _customLightPrimary = const Color(0xFFa36361);
   Color _customLightSecondary = const Color(0xFFd3a29d);
   Color _customLightTertiary = const Color(0xFFe8b298);
-  
+
   Color _customDarkPrimary = const Color(0xFF854f6c);
   Color _customDarkSecondary = const Color(0xFF522b5b);
   Color _customDarkTertiary = const Color(0xFFdfb6b2);
@@ -24,40 +30,43 @@ class ThemeProvider with ChangeNotifier {
   AppThemeMode get themeMode => _themeMode;
   LightThemeVariant get lightThemeVariant => _lightThemeVariant;
   DarkThemeVariant get darkThemeVariant => _darkThemeVariant;
-  
+
   // Getters for custom colors
   Color get customLightPrimary => _customLightPrimary;
   Color get customLightSecondary => _customLightSecondary;
   Color get customLightTertiary => _customLightTertiary;
-  
+
   Color get customDarkPrimary => _customDarkPrimary;
   Color get customDarkSecondary => _customDarkSecondary;
   Color get customDarkTertiary => _customDarkTertiary;
 
   ThemeProvider() {
-    _loadThemeMode();
+    reloadFromPreferences();
   }
 
-  Future<void> _loadThemeMode() async {
+  Future<void> reloadFromPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     final themeModeString = prefs.getString('theme_mode') ?? 'system';
     _themeMode = AppThemeMode.values.firstWhere(
       (mode) => mode.toString() == 'AppThemeMode.$themeModeString',
       orElse: () => AppThemeMode.system,
     );
-    
-    final lightVariantString = prefs.getString('light_theme_variant') ?? 'warmEarth';
+
+    final lightVariantString =
+        prefs.getString('light_theme_variant') ?? 'warmEarth';
     _lightThemeVariant = LightThemeVariant.values.firstWhere(
-      (variant) => variant.toString() == 'LightThemeVariant.$lightVariantString',
+      (variant) =>
+          variant.toString() == 'LightThemeVariant.$lightVariantString',
       orElse: () => LightThemeVariant.warmEarth,
     );
-    
-    final darkVariantString = prefs.getString('dark_theme_variant') ?? 'mysticPurple';
+
+    final darkVariantString =
+        prefs.getString('dark_theme_variant') ?? 'mysticPurple';
     _darkThemeVariant = DarkThemeVariant.values.firstWhere(
       (variant) => variant.toString() == 'DarkThemeVariant.$darkVariantString',
       orElse: () => DarkThemeVariant.mysticPurple,
     );
-    
+
     // Load custom light colors if they exist
     final customLightPrimaryInt = prefs.getInt('custom_light_primary');
     if (customLightPrimaryInt != null) {
@@ -71,7 +80,7 @@ class ThemeProvider with ChangeNotifier {
     if (customLightTertiaryInt != null) {
       _customLightTertiary = Color(customLightTertiaryInt);
     }
-    
+
     // Load custom dark colors if they exist
     final customDarkPrimaryInt = prefs.getInt('custom_dark_primary');
     if (customDarkPrimaryInt != null) {
@@ -85,7 +94,7 @@ class ThemeProvider with ChangeNotifier {
     if (customDarkTertiaryInt != null) {
       _customDarkTertiary = Color(customDarkTertiaryInt);
     }
-    
+
     notifyListeners();
   }
 
@@ -96,44 +105,58 @@ class ThemeProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('theme_mode', mode.toString().split('.').last);
   }
-  
+
   Future<void> setLightThemeVariant(LightThemeVariant variant) async {
     _lightThemeVariant = variant;
     notifyListeners();
-    
+
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('light_theme_variant', variant.toString().split('.').last);
+    await prefs.setString(
+      'light_theme_variant',
+      variant.toString().split('.').last,
+    );
   }
-  
+
   Future<void> setDarkThemeVariant(DarkThemeVariant variant) async {
     _darkThemeVariant = variant;
     notifyListeners();
-    
+
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('dark_theme_variant', variant.toString().split('.').last);
+    await prefs.setString(
+      'dark_theme_variant',
+      variant.toString().split('.').last,
+    );
   }
-  
-  Future<void> setCustomLightColors(Color primary, Color secondary, Color tertiary) async {
+
+  Future<void> setCustomLightColors(
+    Color primary,
+    Color secondary,
+    Color tertiary,
+  ) async {
     _customLightPrimary = primary;
     _customLightSecondary = secondary;
     _customLightTertiary = tertiary;
     _lightThemeVariant = LightThemeVariant.custom;
     notifyListeners();
-    
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('custom_light_primary', primary.value);
     await prefs.setInt('custom_light_secondary', secondary.value);
     await prefs.setInt('custom_light_tertiary', tertiary.value);
     await prefs.setString('light_theme_variant', 'custom');
   }
-  
-  Future<void> setCustomDarkColors(Color primary, Color secondary, Color tertiary) async {
+
+  Future<void> setCustomDarkColors(
+    Color primary,
+    Color secondary,
+    Color tertiary,
+  ) async {
     _customDarkPrimary = primary;
     _customDarkSecondary = secondary;
     _customDarkTertiary = tertiary;
     _darkThemeVariant = DarkThemeVariant.custom;
     notifyListeners();
-    
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('custom_dark_primary', primary.value);
     await prefs.setInt('custom_dark_secondary', secondary.value);
@@ -310,33 +333,23 @@ class ThemeProvider with ChangeNotifier {
           foregroundColor: colorScheme.onPrimary,
           elevation: 2,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          foregroundColor: colorScheme.primary,
-        ),
+        style: TextButton.styleFrom(foregroundColor: colorScheme.primary),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
       ),
-      iconTheme: IconThemeData(
-        color: colorScheme.primary,
-      ),
+      iconTheme: IconThemeData(color: colorScheme.primary),
       cardTheme: CardTheme(
         elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       inputDecorationTheme: InputDecorationTheme(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(color: colorScheme.primary, width: 2),
@@ -375,33 +388,23 @@ class ThemeProvider with ChangeNotifier {
           foregroundColor: colorScheme.onPrimary,
           elevation: 2,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          foregroundColor: colorScheme.primary,
-        ),
+        style: TextButton.styleFrom(foregroundColor: colorScheme.primary),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
       ),
-      iconTheme: IconThemeData(
-        color: colorScheme.primary,
-      ),
+      iconTheme: IconThemeData(color: colorScheme.primary),
       cardTheme: CardTheme(
         elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       inputDecorationTheme: InputDecorationTheme(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(color: colorScheme.primary, width: 2),

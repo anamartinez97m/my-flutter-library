@@ -632,7 +632,7 @@ abstract class AppLocalizations {
   /// No description provided for @import_from_csv_hint.
   ///
   /// In en, this message translates to:
-  /// **'Expected columns: read, title, author, publisher, genre, saga, n_saga, format_saga, isbn13, number of pages, original publication year, language, place, binding, loaned'**
+  /// **'Custom CSV columns: Title, Author, ISBN, ASIN, Saga, N_Saga, Saga Universe, Format Saga, Status, Editorial, Language, Place, Format, Genre, Pages, Original Publication Year, Loaned, Date Read Initial, Date Read Final, Read Count, My Rating, My Review, Notes, Price, Release Date, Is Bundle, Bundle Count, TBR, Is Tandem, Cover URL, Description, Created At'**
   String get import_from_csv_hint;
 
   /// No description provided for @import_from_csv_tbreleased.
@@ -1691,18 +1691,6 @@ abstract class AppLocalizations {
   /// **'Export to Excel'**
   String get export_to_excel;
 
-  /// No description provided for @for_reimport.
-  ///
-  /// In en, this message translates to:
-  /// **'For re-import'**
-  String get for_reimport;
-
-  /// No description provided for @excel_compatible.
-  ///
-  /// In en, this message translates to:
-  /// **'Excel-compatible'**
-  String get excel_compatible;
-
   /// No description provided for @preparing_csv_export.
   ///
   /// In en, this message translates to:
@@ -1820,7 +1808,7 @@ abstract class AppLocalizations {
   /// No description provided for @goodreads_csv_hint.
   ///
   /// In en, this message translates to:
-  /// **'For Goodreads CSV: Books must have \"owned\" or \"read-loaned\" in bookshelves to be imported'**
+  /// **'Goodreads CSV columns: Title, Author, ISBN13, ASIN, My Rating, Publisher, Binding, Number of Pages, Original Publication Year, Date Read, Date Added, Bookshelves, Exclusive Shelf, My Review, Read Count. Books must have \"owned\" or \"read-loaned\" in bookshelves to be imported'**
   String get goodreads_csv_hint;
 
   /// No description provided for @manage_rating_field_names.

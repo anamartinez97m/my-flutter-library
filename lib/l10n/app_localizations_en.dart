@@ -312,7 +312,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manage_dropdown_values_hint => 'Manage dropdown values for status, language, place, format, and format saga.';
 
   @override
-  String get import_from_csv_hint => 'Expected columns: read, title, author, publisher, genre, saga, n_saga, format_saga, isbn13, number of pages, original publication year, language, place, binding, loaned';
+  String get import_from_csv_hint => 'Custom CSV columns: Title, Author, ISBN, ASIN, Saga, N_Saga, Saga Universe, Format Saga, Status, Editorial, Language, Place, Format, Genre, Pages, Original Publication Year, Loaned, Date Read Initial, Date Read Final, Read Count, My Rating, My Review, Notes, Price, Release Date, Is Bundle, Bundle Count, TBR, Is Tandem, Cover URL, Description, Created At';
 
   @override
   String get import_from_csv_tbreleased => 'For unreleased books use status tb_released';
@@ -879,12 +879,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get export_to_excel => 'Export to Excel';
 
   @override
-  String get for_reimport => 'For re-import';
-
-  @override
-  String get excel_compatible => 'Excel-compatible';
-
-  @override
   String get preparing_csv_export => 'Preparing CSV export...';
 
   @override
@@ -948,7 +942,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleting_all_books => 'Deleting all books...';
 
   @override
-  String get goodreads_csv_hint => 'For Goodreads CSV: Books must have \"owned\" or \"read-loaned\" in bookshelves to be imported';
+  String get goodreads_csv_hint => 'Goodreads CSV columns: Title, Author, ISBN13, ASIN, My Rating, Publisher, Binding, Number of Pages, Original Publication Year, Date Read, Date Added, Bookshelves, Exclusive Shelf, My Review, Read Count. Books must have \"owned\" or \"read-loaned\" in bookshelves to be imported';
 
   @override
   String get manage_rating_field_names => 'Manage Rating Field Names';

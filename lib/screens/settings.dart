@@ -360,8 +360,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (mounted) {
         setState(() => _isCloudBusy = false);
         if (success) {
-          final provider = Provider.of<BookProvider?>(context, listen: false);
-          await provider?.loadBooks();
+          // Reload books
+          final bookProvider = Provider.of<BookProvider?>(
+            context,
+            listen: false,
+          );
+          await bookProvider?.loadBooks();
+
+          // Reload theme and locale from restored SharedPreferences
+          if (context.mounted) {
+            final themeProvider = Provider.of<ThemeProvider>(
+              context,
+              listen: false,
+            );
+            await themeProvider.reloadFromPreferences();
+
+            final localeProvider = Provider.of<LocaleProvider>(
+              context,
+              listen: false,
+            );
+            await localeProvider.reloadFromPreferences();
+          }
+
+          // Reload local settings state (filters, card fields, reading reminders)
+          await _loadEnabledFilters();
+          await _loadEnabledCardFields();
+          await _loadReadingReminderSettings();
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -947,7 +971,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             );
           }
 
-          // Create book with mapped status
+          // Create book with mapped status (preserve ALL parsed fields)
           final bookWithMappedStatus = Book(
             bookId: book.bookId,
             name: book.name,
@@ -956,6 +980,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             author: book.author,
             saga: book.saga,
             nSaga: book.nSaga,
+            sagaUniverse: book.sagaUniverse,
             formatSagaValue: book.formatSagaValue,
             pages: book.pages,
             originalPublicationYear: book.originalPublicationYear,
@@ -970,7 +995,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
             dateReadInitial: book.dateReadInitial,
             dateReadFinal: book.dateReadFinal,
             readCount: book.readCount,
+            myRating: book.myRating,
             myReview: book.myReview,
+            notes: book.notes,
+            price: book.price,
+            isBundle: book.isBundle,
+            bundleCount: book.bundleCount,
+            bundleNumbers: book.bundleNumbers,
+            bundleStartDates: book.bundleStartDates,
+            bundleEndDates: book.bundleEndDates,
+            bundlePages: book.bundlePages,
+            bundlePublicationYears: book.bundlePublicationYears,
+            bundleTitles: book.bundleTitles,
+            bundleAuthors: book.bundleAuthors,
+            tbr: book.tbr,
+            isTandem: book.isTandem,
+            originalBookId: book.originalBookId,
+            notificationEnabled: book.notificationEnabled,
+            notificationDatetime: book.notificationDatetime,
+            bundleParentId: book.bundleParentId,
+            readingProgress: book.readingProgress,
+            progressType: book.progressType,
+            ratingOverride: book.ratingOverride,
+            releaseDate: book.releaseDate,
+            coverUrl: book.coverUrl,
+            description: book.description,
+            metadataSource: book.metadataSource,
+            metadataFetchedAt: book.metadataFetchedAt,
           );
 
           // Check for duplicates
@@ -3289,6 +3340,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         ?.copyWith(color: Colors.grey[600]),
                                   ),
                                   const SizedBox(height: 12),
+                                  // Case 1: Custom CSV
                                   Container(
                                     padding: const EdgeInsets.all(12),
                                     decoration: BoxDecoration(
@@ -3298,31 +3350,71 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         color: Colors.blue[200]!,
                                       ),
                                     ),
-                                    child: Row(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Icon(
-                                          Icons.info_outline,
-                                          color: Colors.blue[700],
-                                          size: 20,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            AppLocalizations.of(
-                                              context,
-                                            )!.import_from_csv_tbreleased,
-                                            style: Theme.of(
-                                              context,
-                                            ).textTheme.bodySmall?.copyWith(
-                                              color: Colors.blue[900],
-                                              fontWeight: FontWeight.w500,
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.table_chart_outlined,
+                                              color: Colors.blue[700],
+                                              size: 20,
                                             ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              'Case 1: Custom CSV',
+                                              style: Theme.of(
+                                                context,
+                                              ).textTheme.bodySmall?.copyWith(
+                                                color: Colors.blue[900],
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.import_from_csv_hint,
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodySmall?.copyWith(
+                                            color: Colors.blue[800],
+                                            fontSize: 11,
                                           ),
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.info_outline,
+                                              color: Colors.blue[600],
+                                              size: 14,
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Expanded(
+                                              child: Text(
+                                                AppLocalizations.of(
+                                                  context,
+                                                )!.import_from_csv_tbreleased,
+                                                style: Theme.of(
+                                                  context,
+                                                ).textTheme.bodySmall?.copyWith(
+                                                  color: Colors.blue[700],
+                                                  fontSize: 11,
+                                                  fontStyle: FontStyle.italic,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
                                   ),
                                   const SizedBox(height: 8),
+                                  // Case 2: Goodreads CSV
                                   Container(
                                     padding: const EdgeInsets.all(12),
                                     decoration: BoxDecoration(
@@ -3332,41 +3424,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         color: Colors.green[200]!,
                                       ),
                                     ),
-                                    child: Row(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Icon(
-                                          Icons.info_outline,
-                                          color: Colors.green[700],
-                                          size: 20,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            AppLocalizations.of(
-                                              context,
-                                            )!.goodreads_csv_hint,
-                                            style: Theme.of(
-                                              context,
-                                            ).textTheme.bodySmall?.copyWith(
-                                              color: Colors.green[900],
-                                              fontWeight: FontWeight.w500,
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.menu_book_outlined,
+                                              color: Colors.green[700],
+                                              size: 20,
                                             ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              'Case 2: Goodreads CSV',
+                                              style: Theme.of(
+                                                context,
+                                              ).textTheme.bodySmall?.copyWith(
+                                                color: Colors.green[900],
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.goodreads_csv_hint,
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodySmall?.copyWith(
+                                            color: Colors.green[800],
+                                            fontSize: 11,
                                           ),
                                         ),
                                       ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Text(
-                                    AppLocalizations.of(
-                                      context,
-                                    )!.import_from_csv_hint,
-                                    textAlign: TextAlign.center,
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.bodySmall?.copyWith(
-                                      color: Colors.grey[500],
-                                      fontStyle: FontStyle.italic,
                                     ),
                                   ),
                                 ],
@@ -3413,17 +3506,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           ),
                                         ),
                                         const SizedBox(height: 8),
-                                        Text(
-                                          AppLocalizations.of(
-                                            context,
-                                          )!.for_reimport,
-                                          textAlign: TextAlign.center,
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.bodySmall?.copyWith(
-                                            color: Colors.grey[600],
-                                          ),
-                                        ),
                                       ],
                                     ),
                                   ),
@@ -3465,17 +3547,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           ),
                                         ),
                                         const SizedBox(height: 8),
-                                        Text(
-                                          AppLocalizations.of(
-                                            context,
-                                          )!.excel_compatible,
-                                          textAlign: TextAlign.center,
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.bodySmall?.copyWith(
-                                            color: Colors.grey[600],
-                                          ),
-                                        ),
                                       ],
                                     ),
                                   ),

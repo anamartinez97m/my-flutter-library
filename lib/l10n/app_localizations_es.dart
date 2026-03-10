@@ -312,7 +312,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get manage_dropdown_values_hint => 'Gestionar valores de desplegable para estado, idioma, lugar, formato y formato saga.';
 
   @override
-  String get import_from_csv_hint => 'Columnas esperadas: read, title, author, publisher, genre, saga, n_saga, format_saga, isbn13, number of pages, original publication year, language, place, binding, loaned';
+  String get import_from_csv_hint => 'Columnas CSV personalizado: Title, Author, ISBN, ASIN, Saga, N_Saga, Saga Universe, Format Saga, Status, Editorial, Language, Place, Format, Genre, Pages, Original Publication Year, Loaned, Date Read Initial, Date Read Final, Read Count, My Rating, My Review, Notes, Price, Release Date, Is Bundle, Bundle Count, TBR, Is Tandem, Cover URL, Description, Created At';
 
   @override
   String get import_from_csv_tbreleased => 'Para libros no publicados use estado TBReleased';
@@ -879,12 +879,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get export_to_excel => 'Exportar a Excel';
 
   @override
-  String get for_reimport => 'Para reimportar';
-
-  @override
-  String get excel_compatible => 'Compatible con Excel';
-
-  @override
   String get preparing_csv_export => 'Preparando exportación CSV...';
 
   @override
@@ -948,7 +942,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get deleting_all_books => 'Eliminando todos los libros...';
 
   @override
-  String get goodreads_csv_hint => 'Para CSV de Goodreads: Los libros deben tener \"owned\" o \"read-loaned\" en estanterías para ser importados';
+  String get goodreads_csv_hint => 'Columnas CSV de Goodreads: Title, Author, ISBN13, ASIN, My Rating, Publisher, Binding, Number of Pages, Original Publication Year, Date Read, Date Added, Bookshelves, Exclusive Shelf, My Review, Read Count. Los libros deben tener \"owned\" o \"read-loaned\" en estanterías para ser importados';
 
   @override
   String get manage_rating_field_names => 'Gestionar Nombres de Campos de Valoración';
