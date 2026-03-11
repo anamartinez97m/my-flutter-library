@@ -13,6 +13,10 @@ import 'package:myrandomlibrary/screens/book_detail.dart';
 /// Must be a top-level or static function.
 @pragma('vm:entry-point')
 void _onBackgroundNotificationAction(NotificationResponse response) {
+  // Ensure Flutter binding is initialized — this is required in background isolates
+  // for sqflite (getDatabasesPath) and other platform channels to work.
+  WidgetsFlutterBinding.ensureInitialized();
+
   debugPrint(
     '📖 Background notification action: ${response.actionId}, payload: ${response.payload}',
   );
@@ -28,21 +32,24 @@ void _onBackgroundNotificationAction(NotificationResponse response) {
     if (bookId == null) return;
 
     if (response.actionId == 'yes') {
-      // Use async without await since this is a void callback
-      () async {
-        try {
-          final db = await DatabaseHelper.instance.database;
-          final sessionRepository = ReadingSessionRepository(db);
-          await sessionRepository.createDidReadSession(bookId, true);
-          debugPrint('📖 Background: marked book $bookId as read today');
-          // Cancel the notification after updating the DB
-          final notificationId = 100000 + bookId;
-          await FlutterLocalNotificationsPlugin().cancel(notificationId);
-        } catch (e) {
-          debugPrint('❌ Background error handling reading reminder action: $e');
-        }
-      }();
+      _handleBackgroundYesAction(bookId);
     }
+  }
+}
+
+/// Separate async function for background "Yes" action to ensure proper execution.
+@pragma('vm:entry-point')
+Future<void> _handleBackgroundYesAction(int bookId) async {
+  try {
+    final db = await DatabaseHelper.instance.database;
+    final sessionRepository = ReadingSessionRepository(db);
+    await sessionRepository.createDidReadSession(bookId, true);
+    debugPrint('📖 Background: marked book $bookId as read today');
+    // Cancel the notification after updating the DB
+    final notificationId = 100000 + bookId;
+    await FlutterLocalNotificationsPlugin().cancel(notificationId);
+  } catch (e) {
+    debugPrint('❌ Background error handling reading reminder action: $e');
   }
 }
 
