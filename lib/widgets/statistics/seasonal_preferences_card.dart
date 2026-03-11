@@ -71,10 +71,12 @@ class SeasonalPreferencesCard extends StatelessWidget {
                   size: 24,
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  AppLocalizations.of(context)!.seasonal_reading_preferences,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+                Flexible(
+                  child: Text(
+                    AppLocalizations.of(context)!.seasonal_reading_preferences,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],

@@ -254,11 +254,13 @@ class ReadingInsightsCard extends StatelessWidget {
           children: [
             const Icon(Icons.wb_sunny, color: Colors.deepOrange, size: 24),
             const SizedBox(width: 12),
-            Text(
-              AppLocalizations.of(context)!.seasonal_reading_preferences,
-              style: Theme.of(
-                context,
-              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+            Flexible(
+              child: Text(
+                AppLocalizations.of(context)!.seasonal_reading_preferences,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         ),

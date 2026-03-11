@@ -5218,6 +5218,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter an ISBN first'**
   String get isbn_required_for_fetch;
+
+  /// No description provided for @section_reading_activity.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading Activity'**
+  String get section_reading_activity;
+
+  /// No description provided for @section_library_breakdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Library Breakdown'**
+  String get section_library_breakdown;
+
+  /// No description provided for @section_top_rankings.
+  ///
+  /// In en, this message translates to:
+  /// **'Top Rankings'**
+  String get section_top_rankings;
+
+  /// No description provided for @section_ratings_pages.
+  ///
+  /// In en, this message translates to:
+  /// **'Ratings & Pages'**
+  String get section_ratings_pages;
+
+  /// No description provided for @section_sagas_series.
+  ///
+  /// In en, this message translates to:
+  /// **'Sagas & Series'**
+  String get section_sagas_series;
+
+  /// No description provided for @section_reading_patterns.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading Patterns & Insights'**
+  String get section_reading_patterns;
+
+  /// No description provided for @section_coming_soon.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming Soon'**
+  String get section_coming_soon;
+
+  /// No description provided for @section_best_book_champions.
+  ///
+  /// In en, this message translates to:
+  /// **'Best Book Champions'**
+  String get section_best_book_champions;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

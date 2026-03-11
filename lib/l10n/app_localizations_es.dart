@@ -2815,4 +2815,28 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get isbn_required_for_fetch => 'Introduce un ISBN primero';
+
+  @override
+  String get section_reading_activity => 'Actividad de Lectura';
+
+  @override
+  String get section_library_breakdown => 'Desglose de Biblioteca';
+
+  @override
+  String get section_top_rankings => 'Rankings';
+
+  @override
+  String get section_ratings_pages => 'Valoraciones y Páginas';
+
+  @override
+  String get section_sagas_series => 'Sagas y Series';
+
+  @override
+  String get section_reading_patterns => 'Patrones e Insights de Lectura';
+
+  @override
+  String get section_coming_soon => 'Próximamente';
+
+  @override
+  String get section_best_book_champions => 'Mejores Libros del Año';
 }

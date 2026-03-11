@@ -60,12 +60,15 @@ class ReadingTimePlaceholderCard extends StatelessWidget {
                   children: [
                     Icon(Icons.schedule, size: 16, color: Colors.amber[800]),
                     const SizedBox(width: 6),
-                    Text(
-                      AppLocalizations.of(context)!.coming_soon,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.amber[800],
+                    Flexible(
+                      child: Text(
+                        AppLocalizations.of(context)!.coming_soon,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.amber[800],
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],

@@ -8,7 +8,6 @@ import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/screens/books_by_year.dart';
 import 'package:myrandomlibrary/widgets/statistics/total_books_card.dart';
-import 'package:myrandomlibrary/widgets/statistics/responsive_stat_grid.dart';
 import 'package:myrandomlibrary/widgets/statistics/latest_book_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/books_by_decade_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/rating_distribution_card.dart';
@@ -22,6 +21,7 @@ import 'package:myrandomlibrary/widgets/statistics/book_extremes_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/reading_insights_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/reading_time_placeholder_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/reading_goals_card.dart';
+import 'package:myrandomlibrary/widgets/statistics/statistics_section.dart';
 import 'package:myrandomlibrary/widgets/statistics/book_competition_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/past_years_competition_card.dart';
 import 'package:myrandomlibrary/model/book_competition.dart';
@@ -888,29 +888,29 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     // Structure: sagaStats[sagaName] = {'total': expectedTotal, 'read': booksRead, 'formatSaga': formatSagaValue}
     // For unknown totals (null in database), total is -1
     final Map<String, Map<String, dynamic>> sagaStats = {};
-    
+
     // Helper function to get expected total from formatSagaValue using database mapping
     int _getExpectedTotal(String? formatSagaValue) {
       if (formatSagaValue == null || formatSagaValue.isEmpty) return -1;
-      
+
       // Look up in database mapping (loaded in initState)
       final expectedBooks = _formatSagaMapping[formatSagaValue];
-      
+
       // null in database means unknown (show as "?")
       if (expectedBooks == null) return -1;
-      
+
       return expectedBooks;
     }
-    
+
     for (var book in books) {
       if (book.saga != null && book.saga!.isNotEmpty) {
         // Skip books with "Repeated" status to avoid double counting
         // Only count the original book (with "Read" or other statuses)
-        if (book.statusValue != null && 
+        if (book.statusValue != null &&
             book.statusValue!.toLowerCase() == 'repeated') {
           continue;
         }
-        
+
         if (!sagaStats.containsKey(book.saga!)) {
           final expectedTotal = _getExpectedTotal(book.formatSagaValue);
           sagaStats[book.saga!] = {
@@ -919,7 +919,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             'formatSaga': book.formatSagaValue ?? '',
           };
         }
-        
+
         // Count read books
         if (book.readCount != null && book.readCount! > 0) {
           sagaStats[book.saga!]!['read'] =
@@ -927,31 +927,28 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         }
       }
     }
-    
+
     // Calculate completed, partial, and unstarted sagas
-    final completedSagas = sagaStats.entries
-        .where((e) {
+    final completedSagas =
+        sagaStats.entries.where((e) {
           final total = e.value['total'] as int;
           final read = e.value['read'] as int;
           // For unknown totals (-1), never consider completed
           if (total == -1) return false;
           return read == total;
-        })
-        .length;
-    
-    final partialSagas = sagaStats.entries
-        .where((e) {
+        }).length;
+
+    final partialSagas =
+        sagaStats.entries.where((e) {
           final total = e.value['total'] as int;
           final read = e.value['read'] as int;
           // For unknown totals, consider partial if any books read
           if (total == -1) return read > 0;
           return read > 0 && read < total;
-        })
-        .length;
-    
-    final unstartedSagas = sagaStats.entries
-        .where((e) => (e.value['read'] as int) == 0)
-        .length;
+        }).length;
+
+    final unstartedSagas =
+        sagaStats.entries.where((e) => (e.value['read'] as int) == 0).length;
 
     // #20: Seasonal Reading Patterns
     // Track seasonal reading per year for correct average calculation
@@ -962,22 +959,20 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       'Summer': 0,
       'Fall': 0,
     };
-    
+
     for (var book in books) {
       if (book.dateReadFinal != null && book.dateReadFinal!.isNotEmpty) {
         final endDate = _tryParseDate(book.dateReadFinal!, bookName: book.name);
         if (endDate != null) {
           final year = endDate.year;
           final month = endDate.month;
-          
+
           // Initialize year if not exists
-          seasonalReadingPerYear.putIfAbsent(year, () => {
-            'Winter': 0,
-            'Spring': 0,
-            'Summer': 0,
-            'Fall': 0,
-          });
-          
+          seasonalReadingPerYear.putIfAbsent(
+            year,
+            () => {'Winter': 0, 'Spring': 0, 'Summer': 0, 'Fall': 0},
+          );
+
           // Determine season and increment both total and per-year counts
           String season;
           if (month >= 12 || month <= 2) {
@@ -989,9 +984,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           } else {
             season = 'Fall';
           }
-          
+
           seasonalReading[season] = (seasonalReading[season] ?? 0) + 1;
-          seasonalReadingPerYear[year]![season] = 
+          seasonalReadingPerYear[year]![season] =
               (seasonalReadingPerYear[year]![season] ?? 0) + 1;
         }
       }
@@ -1440,809 +1435,1377 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 nominees: _nominees,
               ),
             ),
-            const SizedBox(height: 16),
-            // Books Read Per Year
-            InkWell(
-              onTap: () {
-                // Navigate to the first year in the list
-                if (sortedBooksReadYears.isNotEmpty) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (context) => BooksByYearScreen(
-                            initialYear: sortedBooksReadYears.first.key,
-                          ),
-                    ),
-                  );
-                }
-              },
-              borderRadius: BorderRadius.circular(12),
-              child: Card(
-                elevation: 2,
-                margin: const EdgeInsets.symmetric(horizontal: 8),
-                shape: RoundedRectangleBorder(
+            const SizedBox(height: 8),
+
+            StatisticsSection(
+              title: AppLocalizations.of(context)!.section_reading_activity,
+              icon: Icons.auto_stories,
+              initiallyExpanded: true,
+              children: [
+                // Books Read Per Year
+                InkWell(
+                  onTap: () {
+                    // Navigate to the first year in the list
+                    if (sortedBooksReadYears.isNotEmpty) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) => BooksByYearScreen(
+                                initialYear: sortedBooksReadYears.first.key,
+                              ),
+                        ),
+                      );
+                    }
+                  },
                   borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                  child: Card(
+                    elevation: 2,
+                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
                         children: [
-                          Text(
-                            'Books Read Per Year',
-                            style: Theme.of(context).textTheme.titleLarge
-                                ?.copyWith(fontWeight: FontWeight.w600),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  'Books Read Per Year',
+                                  style: Theme.of(context).textTheme.titleLarge
+                                      ?.copyWith(fontWeight: FontWeight.w600),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Icon(
+                                Icons.chevron_right,
+                                color: Theme.of(context).colorScheme.primary,
+                                size: 28,
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 8),
-                          Icon(
-                            Icons.chevron_right,
-                            color: Theme.of(context).colorScheme.primary,
-                            size: 28,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      if (sortedBooksReadYears.isEmpty)
-                        Center(
-                          child: Text(AppLocalizations.of(context)!.no_data),
-                        )
-                      else
-                        ConstrainedBox(
-                          constraints: BoxConstraints(
-                            maxHeight: MediaQuery.of(context).size.height * 0.4,
-                          ),
-                          child: SingleChildScrollView(
-                            physics: const BouncingScrollPhysics(),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children:
-                                  sortedBooksReadYears.map((entry) {
-                                    final maxValue = sortedBooksReadYears
-                                        .map((e) => e.value)
-                                        .reduce((a, b) => a > b ? a : b);
-                                    final percentage = (entry.value / maxValue)
-                                        .clamp(0.0, 1.0);
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 4,
-                                      ),
-                                      child: InkWell(
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (context) =>
-                                                      BooksByYearScreen(
-                                                        initialYear: entry.key,
-                                                      ),
-                                            ),
-                                          );
-                                        },
-                                        borderRadius: BorderRadius.circular(4),
-                                        child: Padding(
+                          const SizedBox(height: 16),
+                          if (sortedBooksReadYears.isEmpty)
+                            Center(
+                              child: Text(
+                                AppLocalizations.of(context)!.no_data,
+                              ),
+                            )
+                          else
+                            ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxHeight:
+                                    MediaQuery.of(context).size.height * 0.4,
+                              ),
+                              child: SingleChildScrollView(
+                                physics: const BouncingScrollPhysics(),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children:
+                                      sortedBooksReadYears.map((entry) {
+                                        final maxValue = sortedBooksReadYears
+                                            .map((e) => e.value)
+                                            .reduce((a, b) => a > b ? a : b);
+                                        final percentage = (entry.value /
+                                                maxValue)
+                                            .clamp(0.0, 1.0);
+                                        return Padding(
                                           padding: const EdgeInsets.symmetric(
                                             vertical: 4,
-                                            horizontal: 4,
                                           ),
-                                          child: Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              SizedBox(
-                                                width: 60,
-                                                child: Text(
-                                                  '${entry.key}',
-                                                  style:
-                                                      Theme.of(
-                                                        context,
-                                                      ).textTheme.bodySmall,
+                                          child: InkWell(
+                                            onTap: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder:
+                                                      (context) =>
+                                                          BooksByYearScreen(
+                                                            initialYear:
+                                                                entry.key,
+                                                          ),
                                                 ),
-                                              ),
-                                              const SizedBox(width: 8),
-                                              Expanded(
-                                                child: LayoutBuilder(
-                                                  builder: (
-                                                    context,
-                                                    constraints,
-                                                  ) {
-                                                    return Stack(
-                                                      children: [
-                                                        Container(
-                                                          height: 24,
-                                                          decoration: BoxDecoration(
-                                                            color:
-                                                                Colors
-                                                                    .grey[200],
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  4,
-                                                                ),
-                                                          ),
-                                                        ),
-                                                        Container(
-                                                          width:
-                                                              constraints
-                                                                  .maxWidth *
-                                                              percentage,
-                                                          height: 24,
-                                                          decoration: BoxDecoration(
-                                                            color: Colors.blue,
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  4,
-                                                                ),
-                                                          ),
-                                                        ),
-                                                        Container(
-                                                          height: 24,
-                                                          padding:
-                                                              const EdgeInsets.symmetric(
-                                                                horizontal: 8,
-                                                              ),
-                                                          alignment:
-                                                              Alignment
-                                                                  .centerLeft,
-                                                          child: Text(
-                                                            '${entry.value}',
-                                                            style: TextStyle(
-                                                              color:
-                                                                  percentage >
-                                                                          0.15
-                                                                      ? Colors
-                                                                          .white
-                                                                      : Colors
-                                                                          .black87,
-                                                              fontSize: 11,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    );
-                                                  },
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  }).toList(),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Pages Read Per Year
-            Card(
-              elevation: 2,
-              margin: const EdgeInsets.symmetric(horizontal: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: [
-                    Text(
-                      'Pages Read Per Year',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    if (sortedPagesReadYears.isEmpty)
-                      Center(child: Text(AppLocalizations.of(context)!.no_data))
-                    else
-                      ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxHeight: MediaQuery.of(context).size.height * 0.4,
-                        ),
-                        child: SingleChildScrollView(
-                          physics: const BouncingScrollPhysics(),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children:
-                                sortedPagesReadYears.map((entry) {
-                                  final maxValue = sortedPagesReadYears
-                                      .map((e) => e.value)
-                                      .reduce((a, b) => a > b ? a : b);
-                                  final percentage = (entry.value / maxValue)
-                                      .clamp(0.0, 1.0);
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 4,
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        SizedBox(
-                                          width: 60,
-                                          child: Text(
-                                            '${entry.key}',
-                                            style:
-                                                Theme.of(
-                                                  context,
-                                                ).textTheme.bodySmall,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: LayoutBuilder(
-                                            builder: (context, constraints) {
-                                              return Stack(
+                                              );
+                                            },
+                                            borderRadius: BorderRadius.circular(
+                                              4,
+                                            ),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 4,
+                                                    horizontal: 4,
+                                                  ),
+                                              child: Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
                                                 children: [
-                                                  Container(
-                                                    height: 24,
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.grey[200],
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            4,
-                                                          ),
-                                                    ),
-                                                  ),
-                                                  Container(
-                                                    width:
-                                                        constraints.maxWidth *
-                                                        percentage,
-                                                    height: 24,
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.amber,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            4,
-                                                          ),
-                                                    ),
-                                                  ),
-                                                  Container(
-                                                    height: 24,
-                                                    padding:
-                                                        const EdgeInsets.symmetric(
-                                                          horizontal: 8,
-                                                        ),
-                                                    alignment:
-                                                        Alignment.centerLeft,
+                                                  SizedBox(
+                                                    width: 60,
                                                     child: Text(
-                                                      '${entry.value}',
-                                                      style: TextStyle(
-                                                        color:
-                                                            percentage > 0.15
-                                                                ? Colors.white
-                                                                : Colors
-                                                                    .black87,
-                                                        fontSize: 11,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
+                                                      '${entry.key}',
+                                                      style:
+                                                          Theme.of(
+                                                            context,
+                                                          ).textTheme.bodySmall,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  Expanded(
+                                                    child: LayoutBuilder(
+                                                      builder: (
+                                                        context,
+                                                        constraints,
+                                                      ) {
+                                                        return Stack(
+                                                          children: [
+                                                            Container(
+                                                              height: 24,
+                                                              decoration: BoxDecoration(
+                                                                color:
+                                                                    Colors
+                                                                        .grey[200],
+                                                                borderRadius:
+                                                                    BorderRadius.circular(
+                                                                      4,
+                                                                    ),
+                                                              ),
+                                                            ),
+                                                            Container(
+                                                              width:
+                                                                  constraints
+                                                                      .maxWidth *
+                                                                  percentage,
+                                                              height: 24,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                    color:
+                                                                        Colors
+                                                                            .blue,
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                          4,
+                                                                        ),
+                                                                  ),
+                                                            ),
+                                                            Container(
+                                                              height: 24,
+                                                              padding:
+                                                                  const EdgeInsets.symmetric(
+                                                                    horizontal:
+                                                                        8,
+                                                                  ),
+                                                              alignment:
+                                                                  Alignment
+                                                                      .centerLeft,
+                                                              child: Text(
+                                                                '${entry.value}',
+                                                                style: TextStyle(
+                                                                  color:
+                                                                      percentage >
+                                                                              0.15
+                                                                          ? Colors
+                                                                              .white
+                                                                          : Colors
+                                                                              .black87,
+                                                                  fontSize: 11,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        );
+                                                      },
                                                     ),
                                                   ),
                                                 ],
-                                              );
-                                            },
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }).toList(),
-                          ),
-                        ),
+                                        );
+                                      }).toList(),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
-                  ],
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Books by Decade
-            BooksByDecadeCard(
-              sortedBooksByDecade: sortedBooksByDecade,
-              showReadBooks: _showReadBooksDecade,
-              onToggleChanged: (value) {
-                setState(() {
-                  _showReadBooksDecade = value;
-                });
-              },
-            ),
-            const SizedBox(height: 16),
-            // Status Donut Chart
-            Card(
-              elevation: 2,
-              margin: const EdgeInsets.symmetric(horizontal: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                // Pages Read Per Year
+                Card(
+                  elevation: 2,
+                  margin: const EdgeInsets.symmetric(horizontal: 8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
                       children: [
                         Text(
-                          AppLocalizations.of(context)!.books_by_status,
+                          'Pages Read Per Year',
                           style: Theme.of(context).textTheme.titleLarge
                               ?.copyWith(fontWeight: FontWeight.w600),
                         ),
-                        Row(
-                          children: [
-                            Text(
-                              _showStatusAsPercentage ? '%' : '#',
-                              style: Theme.of(context).textTheme.bodySmall,
+                        const SizedBox(height: 16),
+                        if (sortedPagesReadYears.isEmpty)
+                          Center(
+                            child: Text(AppLocalizations.of(context)!.no_data),
+                          )
+                        else
+                          ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxHeight:
+                                  MediaQuery.of(context).size.height * 0.4,
                             ),
-                            Switch(
-                              value: _showStatusAsPercentage,
-                              onChanged: (value) {
-                                setState(() {
-                                  _showStatusAsPercentage = value;
-                                });
-                              },
+                            child: SingleChildScrollView(
+                              physics: const BouncingScrollPhysics(),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children:
+                                    sortedPagesReadYears.map((entry) {
+                                      final maxValue = sortedPagesReadYears
+                                          .map((e) => e.value)
+                                          .reduce((a, b) => a > b ? a : b);
+                                      final percentage = (entry.value /
+                                              maxValue)
+                                          .clamp(0.0, 1.0);
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 4,
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            SizedBox(
+                                              width: 60,
+                                              child: Text(
+                                                '${entry.key}',
+                                                style:
+                                                    Theme.of(
+                                                      context,
+                                                    ).textTheme.bodySmall,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: LayoutBuilder(
+                                                builder: (
+                                                  context,
+                                                  constraints,
+                                                ) {
+                                                  return Stack(
+                                                    children: [
+                                                      Container(
+                                                        height: 24,
+                                                        decoration: BoxDecoration(
+                                                          color:
+                                                              Colors.grey[200],
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                4,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                      Container(
+                                                        width:
+                                                            constraints
+                                                                .maxWidth *
+                                                            percentage,
+                                                        height: 24,
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.amber,
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                4,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                      Container(
+                                                        height: 24,
+                                                        padding:
+                                                            const EdgeInsets.symmetric(
+                                                              horizontal: 8,
+                                                            ),
+                                                        alignment:
+                                                            Alignment
+                                                                .centerLeft,
+                                                        child: Text(
+                                                          '${entry.value}',
+                                                          style: TextStyle(
+                                                            color:
+                                                                percentage >
+                                                                        0.15
+                                                                    ? Colors
+                                                                        .white
+                                                                    : Colors
+                                                                        .black87,
+                                                            fontSize: 11,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }).toList(),
+                              ),
                             ),
-                          ],
-                        ),
+                          ),
                       ],
                     ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      height: 230,
-                      child:
-                          statusCounts.isEmpty
-                              ? Center(
-                                child: Text(
-                                  AppLocalizations.of(context)!.no_data,
-                                ),
-                              )
-                              : PieChart(
-                                PieChartData(
-                                  sections:
-                                      statusCounts.entries.map((entry) {
-                                        final colors = [
-                                          Colors.deepPurple,
-                                          Colors.purple,
-                                          Colors.purpleAccent,
-                                          Colors.deepPurpleAccent,
-                                        ];
-                                        final index = statusCounts.keys
-                                            .toList()
-                                            .indexOf(entry.key);
-                                        return PieChartSectionData(
-                                          value: entry.value.toDouble(),
-                                          title: '',
-                                          radius: 50,
-                                          color: colors[index % colors.length],
-                                          badgeWidget: Container(
-                                            padding: const EdgeInsets.all(6),
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius:
-                                                  BorderRadius.circular(4),
-                                              border: Border.all(
-                                                color:
-                                                    colors[index %
-                                                        colors.length],
-                                                width: 2,
-                                              ),
-                                            ),
-                                            child: Text(
-                                              _showStatusAsPercentage
-                                                  ? '${((entry.value / totalCount) * 100).toStringAsFixed(1)}%'
-                                                  : '${entry.value}',
-                                              style: TextStyle(
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.bold,
-                                                color:
-                                                    colors[index %
-                                                        colors.length],
-                                              ),
-                                            ),
-                                          ),
-                                          badgePositionPercentageOffset: 1.4,
-                                        );
-                                      }).toList(),
-                                  sectionsSpace: 2,
-                                  centerSpaceRadius: 45,
-                                ),
-                              ),
-                    ),
-                    const SizedBox(height: 16),
-                    Wrap(
-                      spacing: 20,
-                      runSpacing: 12,
-                      alignment: WrapAlignment.center,
-                      children:
-                          statusCounts.entries.map((entry) {
-                            final colors = [
-                              Colors.deepPurple,
-                              Colors.purple,
-                              Colors.purpleAccent,
-                              Colors.deepPurpleAccent,
-                            ];
-                            final index = statusCounts.keys.toList().indexOf(
-                              entry.key,
-                            );
-                            return Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  width: 12,
-                                  height: 12,
-                                  decoration: BoxDecoration(
-                                    color: colors[index % colors.length],
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  entry.key,
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                              ],
-                            );
-                          }).toList(),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Books by Format - Current Year Card
-            if (formatCountsCurrentYear.isNotEmpty)
-              Card(
-                elevation: 2,
-                margin: const EdgeInsets.symmetric(horizontal: 8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              AppLocalizations.of(context)!.books_by_format,
-                              style: Theme.of(context).textTheme.titleLarge
-                                  ?.copyWith(fontWeight: FontWeight.w600),
-                            ),
-                          ),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                _showFormatCurrentYearToggle
-                                    ? 'Current'
-                                    : 'Total',
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                              const SizedBox(width: 12),
-                              SizedBox(
-                                width: 48,
-                                child: Switch(
-                                  value: _showFormatCurrentYearToggle,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _showFormatCurrentYearToggle = value;
-                                    });
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      SizedBox(
-                        height: 230,
-                        child: Builder(
-                          builder: (context) {
-                            final dataToShow =
-                                _showFormatCurrentYearToggle
-                                    ? formatCountsCurrentYear
-                                    : formatCounts;
-
-                            return dataToShow.isEmpty
-                                ? Center(
-                                  child: Text(
-                                    AppLocalizations.of(context)!.no_data,
-                                  ),
-                                )
-                                : PieChart(
-                                  PieChartData(
-                                    sections:
-                                        dataToShow.entries.map((entry) {
-                                          final colors = [
-                                            Colors.green,
-                                            Colors.lime,
-                                            Colors.lightGreen,
-                                            Colors.teal,
-                                          ];
-                                          final index = dataToShow.keys
-                                              .toList()
-                                              .indexOf(entry.key);
-                                          return PieChartSectionData(
-                                            value: entry.value.toDouble(),
-                                            title: '',
-                                            radius: 50,
-                                            color:
-                                                colors[index % colors.length],
-                                            badgeWidget: Container(
-                                              padding: const EdgeInsets.all(6),
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius:
-                                                    BorderRadius.circular(4),
-                                                border: Border.all(
-                                                  color:
-                                                      colors[index %
-                                                          colors.length],
-                                                  width: 2,
-                                                ),
-                                              ),
-                                              child: Text(
-                                                '${entry.value}',
-                                                style: TextStyle(
-                                                  fontSize: 11,
-                                                  fontWeight: FontWeight.bold,
-                                                  color:
-                                                      colors[index %
-                                                          colors.length],
-                                                ),
-                                              ),
-                                            ),
-                                            badgePositionPercentageOffset: 1.4,
-                                          );
-                                        }).toList(),
-                                    sectionsSpace: 2,
-                                    centerSpaceRadius: 45,
-                                  ),
-                                );
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Wrap(
-                        spacing: 20,
-                        runSpacing: 12,
-                        alignment: WrapAlignment.center,
-                        children: [
-                          ...(() {
-                            final dataToShow =
-                                _showFormatCurrentYearToggle
-                                    ? formatCountsCurrentYear
-                                    : formatCounts;
-
-                            return dataToShow.entries.map((entry) {
-                              final colors = [
-                                Colors.green,
-                                Colors.lime,
-                                Colors.lightGreen,
-                                Colors.teal,
-                              ];
-                              final index = dataToShow.keys.toList().indexOf(
-                                entry.key,
-                              );
-                              return Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    width: 12,
-                                    height: 12,
-                                    decoration: BoxDecoration(
-                                      color: colors[index % colors.length],
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    entry.key,
-                                    style:
-                                        Theme.of(context).textTheme.bodySmall,
-                                  ),
-                                ],
-                              );
-                            }).toList();
-                          }()),
-                        ],
-                      ),
-                    ],
                   ),
                 ),
-              ),
-            if (formatCountsCurrentYear.isNotEmpty) const SizedBox(height: 16),
-            // Books by Place Card
-            if (placeCounts.isNotEmpty)
-              Card(
-                elevation: 2,
-                margin: const EdgeInsets.symmetric(horizontal: 8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                MonthlyHeatmapCard(monthlyHeatmap: monthlyHeatmap),
+                ReadingGoalsCard(),
+                // Reading Velocity Card
+                if (readingVelocity > 0)
+                  Card(
+                    elevation: 2,
+                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
                         children: [
                           Text(
-                            'Books by Place',
+                            'Reading Velocity',
                             style: Theme.of(context).textTheme.titleLarge
                                 ?.copyWith(fontWeight: FontWeight.w600),
                           ),
+                          const SizedBox(height: 16),
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.baseline,
+                            textBaseline: TextBaseline.alphabetic,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  readingVelocity.toStringAsFixed(1),
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.displayLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Flexible(
+                                child: Text(
+                                  'pages/day',
+                                  style: Theme.of(context).textTheme.titleMedium
+                                      ?.copyWith(color: Colors.grey[600]),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Based on $booksUsedInAverageDays books with reading data',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: Colors.grey[600]),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                // Average Days to Finish a Book Card
+                if (averageDaysToFinish > 0)
+                  Card(
+                    elevation: 2,
+                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        children: [
+                          Text(
+                            'Average Time to Finish a Book',
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.baseline,
+                            textBaseline: TextBaseline.alphabetic,
                             children: [
                               Text(
-                                _showPlaceAsPercentage ? '%' : '#',
-                                style: Theme.of(context).textTheme.bodySmall,
+                                averageDaysToFinish.toStringAsFixed(1),
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.displayLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
                               ),
-                              Switch(
-                                value: _showPlaceAsPercentage,
-                                onChanged: (value) {
-                                  setState(() {
-                                    _showPlaceAsPercentage = value;
-                                  });
-                                },
+                              const SizedBox(width: 8),
+                              Text(
+                                'days',
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(color: Colors.grey[600]),
                               ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Based on $booksUsedInAverageDays books with reading data',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: Colors.grey[600]),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                // Average Books Per Year Card
+                if (averageBooksPerYear > 0)
+                  Card(
+                    elevation: 2,
+                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        children: [
+                          Text(
+                            'Average Books Per Year',
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.baseline,
+                            textBaseline: TextBaseline.alphabetic,
+                            children: [
+                              Text(
+                                averageBooksPerYear.toStringAsFixed(1),
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.displayLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'books/year',
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(color: Colors.grey[600]),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Based on $yearsWithBooks years of reading data',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: Colors.grey[600]),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
+
+            StatisticsSection(
+              title: AppLocalizations.of(context)!.section_library_breakdown,
+              icon: Icons.library_books,
+              children: [
+                // Status Donut Chart
+                Card(
+                  elevation: 2,
+                  margin: const EdgeInsets.symmetric(horizontal: 8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              AppLocalizations.of(context)!.books_by_status,
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(fontWeight: FontWeight.w600),
+                            ),
+                            Row(
+                              children: [
+                                Text(
+                                  _showStatusAsPercentage ? '%' : '#',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                                Switch(
+                                  value: _showStatusAsPercentage,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _showStatusAsPercentage = value;
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        SizedBox(
+                          height: 230,
+                          child:
+                              statusCounts.isEmpty
+                                  ? Center(
+                                    child: Text(
+                                      AppLocalizations.of(context)!.no_data,
+                                    ),
+                                  )
+                                  : PieChart(
+                                    PieChartData(
+                                      sections:
+                                          statusCounts.entries.map((entry) {
+                                            final colors = [
+                                              Colors.deepPurple,
+                                              Colors.purple,
+                                              Colors.purpleAccent,
+                                              Colors.deepPurpleAccent,
+                                            ];
+                                            final index = statusCounts.keys
+                                                .toList()
+                                                .indexOf(entry.key);
+                                            return PieChartSectionData(
+                                              value: entry.value.toDouble(),
+                                              title: '',
+                                              radius: 50,
+                                              color:
+                                                  colors[index % colors.length],
+                                              badgeWidget: Container(
+                                                padding: const EdgeInsets.all(
+                                                  6,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
+                                                  border: Border.all(
+                                                    color:
+                                                        colors[index %
+                                                            colors.length],
+                                                    width: 2,
+                                                  ),
+                                                ),
+                                                child: Text(
+                                                  _showStatusAsPercentage
+                                                      ? '${((entry.value / totalCount) * 100).toStringAsFixed(1)}%'
+                                                      : '${entry.value}',
+                                                  style: TextStyle(
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.bold,
+                                                    color:
+                                                        colors[index %
+                                                            colors.length],
+                                                  ),
+                                                ),
+                                              ),
+                                              badgePositionPercentageOffset:
+                                                  1.4,
+                                            );
+                                          }).toList(),
+                                      sectionsSpace: 2,
+                                      centerSpaceRadius: 45,
+                                    ),
+                                  ),
+                        ),
+                        const SizedBox(height: 16),
+                        Wrap(
+                          spacing: 20,
+                          runSpacing: 12,
+                          alignment: WrapAlignment.center,
+                          children:
+                              statusCounts.entries.map((entry) {
+                                final colors = [
+                                  Colors.deepPurple,
+                                  Colors.purple,
+                                  Colors.purpleAccent,
+                                  Colors.deepPurpleAccent,
+                                ];
+                                final index = statusCounts.keys
+                                    .toList()
+                                    .indexOf(entry.key);
+                                return Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      width: 12,
+                                      height: 12,
+                                      decoration: BoxDecoration(
+                                        color: colors[index % colors.length],
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      entry.key,
+                                      style:
+                                          Theme.of(context).textTheme.bodySmall,
+                                    ),
+                                  ],
+                                );
+                              }).toList(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // Books by Format - Current Year Card
+                if (formatCountsCurrentYear.isNotEmpty)
+                  Card(
+                    elevation: 2,
+                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  AppLocalizations.of(context)!.books_by_format,
+                                  style: Theme.of(context).textTheme.titleLarge
+                                      ?.copyWith(fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    _showFormatCurrentYearToggle
+                                        ? 'Current'
+                                        : 'Total',
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  SizedBox(
+                                    width: 48,
+                                    child: Switch(
+                                      value: _showFormatCurrentYearToggle,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _showFormatCurrentYearToggle = value;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          SizedBox(
+                            height: 230,
+                            child: Builder(
+                              builder: (context) {
+                                final dataToShow =
+                                    _showFormatCurrentYearToggle
+                                        ? formatCountsCurrentYear
+                                        : formatCounts;
+
+                                return dataToShow.isEmpty
+                                    ? Center(
+                                      child: Text(
+                                        AppLocalizations.of(context)!.no_data,
+                                      ),
+                                    )
+                                    : PieChart(
+                                      PieChartData(
+                                        sections:
+                                            dataToShow.entries.map((entry) {
+                                              final colors = [
+                                                Colors.green,
+                                                Colors.lime,
+                                                Colors.lightGreen,
+                                                Colors.teal,
+                                              ];
+                                              final index = dataToShow.keys
+                                                  .toList()
+                                                  .indexOf(entry.key);
+                                              return PieChartSectionData(
+                                                value: entry.value.toDouble(),
+                                                title: '',
+                                                radius: 50,
+                                                color:
+                                                    colors[index %
+                                                        colors.length],
+                                                badgeWidget: Container(
+                                                  padding: const EdgeInsets.all(
+                                                    6,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          4,
+                                                        ),
+                                                    border: Border.all(
+                                                      color:
+                                                          colors[index %
+                                                              colors.length],
+                                                      width: 2,
+                                                    ),
+                                                  ),
+                                                  child: Text(
+                                                    '${entry.value}',
+                                                    style: TextStyle(
+                                                      fontSize: 11,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color:
+                                                          colors[index %
+                                                              colors.length],
+                                                    ),
+                                                  ),
+                                                ),
+                                                badgePositionPercentageOffset:
+                                                    1.4,
+                                              );
+                                            }).toList(),
+                                        sectionsSpace: 2,
+                                        centerSpaceRadius: 45,
+                                      ),
+                                    );
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Wrap(
+                            spacing: 20,
+                            runSpacing: 12,
+                            alignment: WrapAlignment.center,
+                            children: [
+                              ...(() {
+                                final dataToShow =
+                                    _showFormatCurrentYearToggle
+                                        ? formatCountsCurrentYear
+                                        : formatCounts;
+
+                                return dataToShow.entries.map((entry) {
+                                  final colors = [
+                                    Colors.green,
+                                    Colors.lime,
+                                    Colors.lightGreen,
+                                    Colors.teal,
+                                  ];
+                                  final index = dataToShow.keys
+                                      .toList()
+                                      .indexOf(entry.key);
+                                  return Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Container(
+                                        width: 12,
+                                        height: 12,
+                                        decoration: BoxDecoration(
+                                          color: colors[index % colors.length],
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        entry.key,
+                                        style:
+                                            Theme.of(
+                                              context,
+                                            ).textTheme.bodySmall,
+                                      ),
+                                    ],
+                                  );
+                                }).toList();
+                              }()),
                             ],
                           ),
                         ],
                       ),
-                      const SizedBox(height: 20),
-                      SizedBox(
-                        height: 230,
-                        child:
-                            placeCounts.isEmpty
-                                ? Center(
-                                  child: Text(
-                                    AppLocalizations.of(context)!.no_data,
+                    ),
+                  ),
+                // Books by Place Card
+                if (placeCounts.isNotEmpty)
+                  Card(
+                    elevation: 2,
+                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Books by Place',
+                                style: Theme.of(context).textTheme.titleLarge
+                                    ?.copyWith(fontWeight: FontWeight.w600),
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    _showPlaceAsPercentage ? '%' : '#',
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall,
                                   ),
-                                )
-                                : PieChart(
-                                  PieChartData(
-                                    sections:
-                                        placeCounts.entries.map((entry) {
-                                          final colors = [
-                                            Colors.purple,
-                                            Colors.deepPurple,
-                                            Colors.indigo,
-                                            Colors.blue,
-                                          ];
-                                          final index = placeCounts.keys
-                                              .toList()
-                                              .indexOf(entry.key);
-                                          final percentage =
-                                              (entry.value /
-                                                  placeCounts.values.reduce(
-                                                    (a, b) => a + b,
-                                                  )) *
-                                              100;
-                                          return PieChartSectionData(
-                                            value: entry.value.toDouble(),
-                                            title: '',
-                                            radius: 50,
-                                            color:
-                                                colors[index % colors.length],
-                                            badgeWidget: Container(
-                                              padding: const EdgeInsets.all(6),
+                                  Switch(
+                                    value: _showPlaceAsPercentage,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _showPlaceAsPercentage = value;
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          SizedBox(
+                            height: 230,
+                            child:
+                                placeCounts.isEmpty
+                                    ? Center(
+                                      child: Text(
+                                        AppLocalizations.of(context)!.no_data,
+                                      ),
+                                    )
+                                    : PieChart(
+                                      PieChartData(
+                                        sections:
+                                            placeCounts.entries.map((entry) {
+                                              final colors = [
+                                                Colors.purple,
+                                                Colors.deepPurple,
+                                                Colors.indigo,
+                                                Colors.blue,
+                                              ];
+                                              final index = placeCounts.keys
+                                                  .toList()
+                                                  .indexOf(entry.key);
+                                              final percentage =
+                                                  (entry.value /
+                                                      placeCounts.values.reduce(
+                                                        (a, b) => a + b,
+                                                      )) *
+                                                  100;
+                                              return PieChartSectionData(
+                                                value: entry.value.toDouble(),
+                                                title: '',
+                                                radius: 50,
+                                                color:
+                                                    colors[index %
+                                                        colors.length],
+                                                badgeWidget: Container(
+                                                  padding: const EdgeInsets.all(
+                                                    6,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          4,
+                                                        ),
+                                                    border: Border.all(
+                                                      color:
+                                                          colors[index %
+                                                              colors.length],
+                                                      width: 2,
+                                                    ),
+                                                  ),
+                                                  child: Text(
+                                                    _showPlaceAsPercentage
+                                                        ? '${percentage.toStringAsFixed(1)}%'
+                                                        : '${entry.value}',
+                                                    style: TextStyle(
+                                                      fontSize: 11,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color:
+                                                          colors[index %
+                                                              colors.length],
+                                                    ),
+                                                  ),
+                                                ),
+                                                badgePositionPercentageOffset:
+                                                    1.4,
+                                              );
+                                            }).toList(),
+                                        sectionsSpace: 2,
+                                        centerSpaceRadius: 45,
+                                      ),
+                                    ),
+                          ),
+                          const SizedBox(height: 16),
+                          Wrap(
+                            spacing: 20,
+                            runSpacing: 12,
+                            alignment: WrapAlignment.center,
+                            children:
+                                placeCounts.entries.map((entry) {
+                                  final colors = [
+                                    Colors.purple,
+                                    Colors.deepPurple,
+                                    Colors.indigo,
+                                    Colors.blue,
+                                  ];
+                                  final index = placeCounts.keys
+                                      .toList()
+                                      .indexOf(entry.key);
+                                  return Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Container(
+                                        width: 12,
+                                        height: 12,
+                                        decoration: BoxDecoration(
+                                          color: colors[index % colors.length],
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        entry.key,
+                                        style:
+                                            Theme.of(
+                                              context,
+                                            ).textTheme.bodySmall,
+                                      ),
+                                    ],
+                                  );
+                                }).toList(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                // Books by Language - Horizontal Bar Chart
+                Card(
+                  elevation: 2,
+                  margin: const EdgeInsets.symmetric(horizontal: 8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.books_by_language,
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 16),
+                        if (languageCounts.isEmpty)
+                          Center(
+                            child: Text(AppLocalizations.of(context)!.no_data),
+                          )
+                        else
+                          ...(languageCounts.entries.toList()
+                                ..sort((a, b) => b.value.compareTo(a.value)))
+                              .map((entry) {
+                                final maxValue = languageCounts.values.reduce(
+                                  (a, b) => a > b ? a : b,
+                                );
+                                final percentage = (entry.value / maxValue);
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 4,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 80,
+                                        child: Text(
+                                          entry.key,
+                                          style:
+                                              Theme.of(
+                                                context,
+                                              ).textTheme.bodySmall,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Stack(
+                                          children: [
+                                            Container(
+                                              height: 24,
                                               decoration: BoxDecoration(
-                                                color: Colors.white,
+                                                color: Colors.grey[200],
                                                 borderRadius:
                                                     BorderRadius.circular(4),
-                                                border: Border.all(
-                                                  color:
-                                                      colors[index %
-                                                          colors.length],
-                                                  width: 2,
-                                                ),
                                               ),
-                                              child: Text(
-                                                _showPlaceAsPercentage
-                                                    ? '${percentage.toStringAsFixed(1)}%'
-                                                    : '${entry.value}',
-                                                style: TextStyle(
-                                                  fontSize: 11,
-                                                  fontWeight: FontWeight.bold,
-                                                  color:
-                                                      colors[index %
-                                                          colors.length],
+                                            ),
+                                            FractionallySizedBox(
+                                              widthFactor: percentage,
+                                              child: Container(
+                                                height: 24,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.deepPurple,
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
                                                 ),
                                               ),
                                             ),
-                                            badgePositionPercentageOffset: 1.4,
-                                          );
-                                        }).toList(),
-                                    sectionsSpace: 2,
-                                    centerSpaceRadius: 45,
+                                            Container(
+                                              height: 24,
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 8,
+                                                  ),
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                '${entry.value}',
+                                                style: TextStyle(
+                                                  color:
+                                                      percentage > 0.15
+                                                          ? Colors.white
+                                                          : Colors.black87,
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }),
+                      ],
+                    ),
+                  ),
+                ),
+                // Books by Decade
+                BooksByDecadeCard(
+                  sortedBooksByDecade: sortedBooksByDecade,
+                  showReadBooks: _showReadBooksDecade,
+                  onToggleChanged: (value) {
+                    setState(() {
+                      _showReadBooksDecade = value;
+                    });
+                  },
+                ),
+                // Books by Format and Language Card (Heatmap)
+                if (formatByLanguageCounts.isNotEmpty)
+                  Builder(
+                    builder: (context) {
+                      // Get all unique languages
+                      final Set<String> allLanguages = {};
+
+                      for (var formatEntry in formatByLanguageCounts.entries) {
+                        allLanguages.addAll(formatEntry.value.keys);
+                      }
+
+                      // Sort languages and formats
+                      final sortedLanguages = allLanguages.toList()..sort();
+                      final sortedFormats =
+                          formatByLanguageCounts.keys.toList()..sort();
+
+                      // Find max value for color intensity
+                      int maxCount = 0;
+                      for (var formatMap in formatByLanguageCounts.values) {
+                        for (var count in formatMap.values) {
+                          if (count > maxCount) maxCount = count;
+                        }
+                      }
+
+                      // Cell sizing
+                      final labelWidth = 80.0;
+                      final cellWidth = 60.0;
+                      final cellHeight = 50.0;
+
+                      return Card(
+                        elevation: 2,
+                        margin: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: [
+                              Text(
+                                'Format by Language',
+                                style: Theme.of(context).textTheme.titleLarge
+                                    ?.copyWith(fontWeight: FontWeight.w600),
+                              ),
+                              const SizedBox(height: 20),
+                              // Heatmap - use a Table inside scroll view
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    minWidth:
+                                        labelWidth +
+                                        (cellWidth * sortedLanguages.length),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      // Header row with language names
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          SizedBox(
+                                            width: labelWidth,
+                                          ), // Space for format labels
+                                          ...sortedLanguages.map(
+                                            (language) => Container(
+                                              width: cellWidth,
+                                              height: cellHeight,
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                language,
+                                                style: Theme.of(
+                                                  context,
+                                                ).textTheme.bodySmall?.copyWith(
+                                                  fontWeight: FontWeight.w700,
+                                                  color:
+                                                      Theme.of(
+                                                        context,
+                                                      ).colorScheme.primary,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      // Data rows
+                                      ...sortedFormats.map((format) {
+                                        return Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            // Format label
+                                            Container(
+                                              width: labelWidth,
+                                              height: cellHeight,
+                                              alignment: Alignment.centerRight,
+                                              padding: const EdgeInsets.only(
+                                                right: 8,
+                                              ),
+                                              child: Text(
+                                                format,
+                                                style: Theme.of(
+                                                  context,
+                                                ).textTheme.bodySmall?.copyWith(
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                                textAlign: TextAlign.right,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                            // Cells for each language
+                                            ...sortedLanguages.map((language) {
+                                              final count =
+                                                  formatByLanguageCounts[format]?[language] ??
+                                                  0;
+                                              final intensity =
+                                                  maxCount > 0
+                                                      ? count / maxCount
+                                                      : 0.0;
+
+                                              // Color gradient from light to dark blue
+                                              final baseColor =
+                                                  Theme.of(
+                                                    context,
+                                                  ).colorScheme.primary;
+                                              final cellColor =
+                                                  count == 0
+                                                      ? Colors.grey.shade200
+                                                      : Color.lerp(
+                                                        baseColor.withOpacity(
+                                                          0.2,
+                                                        ),
+                                                        baseColor,
+                                                        intensity,
+                                                      )!;
+
+                                              return Container(
+                                                width: cellWidth,
+                                                height: cellHeight,
+                                                margin: const EdgeInsets.all(2),
+                                                decoration: BoxDecoration(
+                                                  color: cellColor,
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
+                                                  border: Border.all(
+                                                    color: Colors.grey.shade300,
+                                                    width: 0.5,
+                                                  ),
+                                                ),
+                                                alignment: Alignment.center,
+                                                child: Text(
+                                                  count > 0 ? '$count' : '',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w600,
+                                                    color:
+                                                        intensity > 0.5
+                                                            ? Colors.white
+                                                            : Colors.black87,
+                                                  ),
+                                                ),
+                                              );
+                                            }),
+                                          ],
+                                        );
+                                      }),
+                                    ],
                                   ),
                                 ),
-                      ),
-                      const SizedBox(height: 16),
-                      Wrap(
-                        spacing: 20,
-                        runSpacing: 12,
-                        alignment: WrapAlignment.center,
-                        children:
-                            placeCounts.entries.map((entry) {
-                              final colors = [
-                                Colors.purple,
-                                Colors.deepPurple,
-                                Colors.indigo,
-                                Colors.blue,
-                              ];
-                              final index = placeCounts.keys.toList().indexOf(
-                                entry.key,
-                              );
-                              return Row(
-                                mainAxisSize: MainAxisSize.min,
+                              ),
+                              const SizedBox(height: 16),
+                              // Legend
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Container(
-                                    width: 12,
-                                    height: 12,
-                                    decoration: BoxDecoration(
-                                      color: colors[index % colors.length],
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 4),
                                   Text(
-                                    entry.key,
+                                    'Low',
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  ...List.generate(5, (index) {
+                                    final intensity = (index + 1) / 5;
+                                    final baseColor =
+                                        Theme.of(context).colorScheme.primary;
+                                    return Container(
+                                      width: 30,
+                                      height: 20,
+                                      margin: const EdgeInsets.symmetric(
+                                        horizontal: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Color.lerp(
+                                          baseColor.withOpacity(0.2),
+                                          baseColor,
+                                          intensity,
+                                        ),
+                                        borderRadius: BorderRadius.circular(2),
+                                      ),
+                                    );
+                                  }),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'High',
                                     style:
                                         Theme.of(context).textTheme.bodySmall,
                                   ),
                                 ],
-                              );
-                            }).toList(),
-                      ),
-                    ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                ),
-              ),
-            if (placeCounts.isNotEmpty) const SizedBox(height: 16),
-            // Books by Language - Horizontal Bar Chart
-            Card(
-              elevation: 2,
-              margin: const EdgeInsets.symmetric(horizontal: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: [
-                    Text(
-                      AppLocalizations.of(context)!.books_by_language,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    if (languageCounts.isEmpty)
-                      Center(child: Text(AppLocalizations.of(context)!.no_data))
-                    else
-                      ...(languageCounts.entries.toList()
-                            ..sort((a, b) => b.value.compareTo(a.value)))
-                          .map((entry) {
-                            final maxValue = languageCounts.values.reduce(
-                              (a, b) => a > b ? a : b,
-                            );
+              ],
+            ),
+            const SizedBox(height: 8),
+
+            StatisticsSection(
+              title: AppLocalizations.of(context)!.section_top_rankings,
+              icon: Icons.leaderboard,
+              children: [
+                // Top 5 Genres Horizontal Bar Chart
+                Card(
+                  elevation: 2,
+                  margin: const EdgeInsets.symmetric(horizontal: 8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      children: [
+                        Column(
+                          children: [
+                            Text(
+                              AppLocalizations.of(context)!.top_5_genres,
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(fontWeight: FontWeight.w600),
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'All',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                                Switch(
+                                  value: _showReadBooksGenres,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _showReadBooksGenres = value;
+                                    });
+                                  },
+                                ),
+                                Text(
+                                  'Read',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        if (top5Genres.isEmpty)
+                          Center(
+                            child: Text(AppLocalizations.of(context)!.no_data),
+                          )
+                        else
+                          ...top5Genres.map((entry) {
+                            final maxValue = top5Genres.first.value;
                             final percentage = (entry.value / maxValue);
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 4),
                               child: Row(
                                 children: [
                                   SizedBox(
-                                    width: 80,
+                                    width: 100,
                                     child: Text(
                                       entry.key,
                                       style:
@@ -2268,7 +2831,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                           child: Container(
                                             height: 24,
                                             decoration: BoxDecoration(
-                                              color: Colors.deepPurple,
+                                              color: Colors.green,
                                               borderRadius:
                                                   BorderRadius.circular(4),
                                             ),
@@ -2299,758 +2862,245 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                               ),
                             );
                           }),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Books by Format and Language Card (Heatmap)
-            if (formatByLanguageCounts.isNotEmpty)
-              Builder(
-                builder: (context) {
-                  // Get all unique languages
-                  final Set<String> allLanguages = {};
-
-                  for (var formatEntry in formatByLanguageCounts.entries) {
-                    allLanguages.addAll(formatEntry.value.keys);
-                  }
-
-                  // Sort languages and formats
-                  final sortedLanguages = allLanguages.toList()..sort();
-                  final sortedFormats =
-                      formatByLanguageCounts.keys.toList()..sort();
-
-                  // Find max value for color intensity
-                  int maxCount = 0;
-                  for (var formatMap in formatByLanguageCounts.values) {
-                    for (var count in formatMap.values) {
-                      if (count > maxCount) maxCount = count;
-                    }
-                  }
-
-                  // Calculate cell size based on available space
-                  final screenWidth = MediaQuery.of(context).size.width;
-                  final availableWidth = screenWidth - 80; // margins + padding
-                  final labelWidth = 80.0;
-                  final cellWidth =
-                      (availableWidth - labelWidth) /
-                      (sortedLanguages.length + 1);
-                  final cellHeight = 50.0;
-
-                  return Card(
-                    elevation: 2,
-                    margin: const EdgeInsets.symmetric(horizontal: 8),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      ],
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        children: [
-                          Text(
-                            'Format by Language',
-                            style: Theme.of(context).textTheme.titleLarge
-                                ?.copyWith(fontWeight: FontWeight.w600),
-                          ),
-                          const SizedBox(height: 20),
-                          // Heatmap
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Header row with language names
-                                Row(
-                                  children: [
-                                    SizedBox(
-                                      width: labelWidth,
-                                    ), // Space for format labels
-                                    ...sortedLanguages.map(
-                                      (language) => Container(
-                                        width: cellWidth,
-                                        height: cellHeight,
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          language,
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.bodySmall?.copyWith(
-                                            fontWeight: FontWeight.w700,
-                                            color:
-                                                Theme.of(
-                                                  context,
-                                                ).colorScheme.primary,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                // Data rows
-                                ...sortedFormats.map((format) {
-                                  return Row(
-                                    children: [
-                                      // Format label
-                                      Container(
-                                        width: labelWidth,
-                                        height: cellHeight,
-                                        alignment: Alignment.centerRight,
-                                        padding: const EdgeInsets.only(
-                                          right: 8,
-                                        ),
-                                        child: Text(
-                                          format,
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.bodySmall?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                          textAlign: TextAlign.right,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      // Cells for each language
-                                      ...sortedLanguages.map((language) {
-                                        final count =
-                                            formatByLanguageCounts[format]?[language] ??
-                                            0;
-                                        final intensity =
-                                            maxCount > 0
-                                                ? count / maxCount
-                                                : 0.0;
-
-                                        // Color gradient from light to dark blue
-                                        final baseColor =
-                                            Theme.of(
-                                              context,
-                                            ).colorScheme.primary;
-                                        final cellColor =
-                                            count == 0
-                                                ? Colors.grey.shade200
-                                                : Color.lerp(
-                                                  baseColor.withOpacity(0.2),
-                                                  baseColor,
-                                                  intensity,
-                                                )!;
-
-                                        return Container(
-                                          width: cellWidth,
-                                          height: cellHeight,
-                                          margin: const EdgeInsets.all(2),
-                                          decoration: BoxDecoration(
-                                            color: cellColor,
-                                            borderRadius: BorderRadius.circular(
-                                              4,
-                                            ),
-                                            border: Border.all(
-                                              color: Colors.grey.shade300,
-                                              width: 0.5,
-                                            ),
-                                          ),
-                                          alignment: Alignment.center,
-                                          child: Text(
-                                            count > 0 ? '$count' : '',
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w600,
-                                              color:
-                                                  intensity > 0.5
-                                                      ? Colors.white
-                                                      : Colors.black87,
-                                            ),
-                                          ),
-                                        );
-                                      }),
-                                    ],
-                                  );
-                                }),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          // Legend
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Low',
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                              const SizedBox(width: 8),
-                              ...List.generate(5, (index) {
-                                final intensity = (index + 1) / 5;
-                                final baseColor =
-                                    Theme.of(context).colorScheme.primary;
-                                return Container(
-                                  width: 30,
-                                  height: 20,
-                                  margin: const EdgeInsets.symmetric(
-                                    horizontal: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Color.lerp(
-                                      baseColor.withOpacity(0.2),
-                                      baseColor,
-                                      intensity,
-                                    ),
-                                    borderRadius: BorderRadius.circular(2),
-                                  ),
-                                );
-                              }),
-                              const SizedBox(width: 8),
-                              Text(
-                                'High',
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            if (formatByLanguageCounts.isNotEmpty) const SizedBox(height: 16),
-            // Reading Velocity Card
-            if (readingVelocity > 0)
-              Card(
-                elevation: 2,
-                margin: const EdgeInsets.symmetric(horizontal: 8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    children: [
-                      Text(
-                        'Reading Velocity',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.baseline,
-                        textBaseline: TextBaseline.alphabetic,
-                        children: [
-                          Flexible(
-                            child: Text(
-                              readingVelocity.toStringAsFixed(1),
-                              style: Theme.of(
-                                context,
-                              ).textTheme.displayLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Flexible(
-                            child: Text(
-                              'pages/day',
-                              style: Theme.of(context).textTheme.titleMedium
-                                  ?.copyWith(color: Colors.grey[600]),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Based on $booksUsedInAverageDays books with reading data',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
                   ),
                 ),
-              ),
-            if (readingVelocity > 0) const SizedBox(height: 16),
-            // Average Days to Finish a Book Card
-            if (averageDaysToFinish > 0)
-              Card(
-                elevation: 2,
-                margin: const EdgeInsets.symmetric(horizontal: 8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    children: [
-                      Text(
-                        'Average Time to Finish a Book',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.baseline,
-                        textBaseline: TextBaseline.alphabetic,
-                        children: [
-                          Text(
-                            averageDaysToFinish.toStringAsFixed(1),
-                            style: Theme.of(
-                              context,
-                            ).textTheme.displayLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'days',
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(color: Colors.grey[600]),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Based on $booksUsedInAverageDays books with reading data',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
+                // Top 10 Editorials Horizontal Bar Chart
+                Card(
+                  elevation: 2,
+                  margin: const EdgeInsets.symmetric(horizontal: 8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                ),
-              ),
-            if (averageDaysToFinish > 0) const SizedBox(height: 16),
-            // Average Books Per Year Card
-            if (averageBooksPerYear > 0)
-              Card(
-                elevation: 2,
-                margin: const EdgeInsets.symmetric(horizontal: 8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    children: [
-                      Text(
-                        'Average Books Per Year',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.baseline,
-                        textBaseline: TextBaseline.alphabetic,
-                        children: [
-                          Text(
-                            averageBooksPerYear.toStringAsFixed(1),
-                            style: Theme.of(
-                              context,
-                            ).textTheme.displayLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'books/year',
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(color: Colors.grey[600]),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Based on $yearsWithBooks years of reading data',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            if (averageBooksPerYear > 0) const SizedBox(height: 16),
-            // Top 5 Genres Horizontal Bar Chart
-            Card(
-              elevation: 2,
-              margin: const EdgeInsets.symmetric(horizontal: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: [
-                    Column(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
                       children: [
-                        Text(
-                          AppLocalizations.of(context)!.top_5_genres,
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
+                        Column(
                           children: [
                             Text(
-                              'All',
-                              style: Theme.of(context).textTheme.bodySmall,
+                              AppLocalizations.of(context)!.top_10_editorials,
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(fontWeight: FontWeight.w600),
                             ),
-                            Switch(
-                              value: _showReadBooksGenres,
-                              onChanged: (value) {
-                                setState(() {
-                                  _showReadBooksGenres = value;
-                                });
-                              },
-                            ),
-                            Text(
-                              'Read',
-                              style: Theme.of(context).textTheme.bodySmall,
+                            const SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'All',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                                Switch(
+                                  value: _showReadBooksEditorials,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _showReadBooksEditorials = value;
+                                    });
+                                  },
+                                ),
+                                Text(
+                                  'Read',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    if (top5Genres.isEmpty)
-                      Center(child: Text(AppLocalizations.of(context)!.no_data))
-                    else
-                      ...top5Genres.map((entry) {
-                        final maxValue = top5Genres.first.value;
-                        final percentage = (entry.value / maxValue);
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 100,
-                                child: Text(
-                                  entry.key,
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                  overflow: TextOverflow.ellipsis,
+                        const SizedBox(height: 16),
+                        ...top10Editorials.map((entry) {
+                          final maxValue = top10Editorials.first.value;
+                          final percentage = (entry.value / maxValue);
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: 100,
+                                  child: Text(
+                                    entry.key,
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Stack(
-                                  children: [
-                                    Container(
-                                      height: 24,
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[200],
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                    ),
-                                    FractionallySizedBox(
-                                      widthFactor: percentage,
-                                      child: Container(
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Stack(
+                                    children: [
+                                      Container(
                                         height: 24,
                                         decoration: BoxDecoration(
-                                          color: Colors.green,
+                                          color: Colors.grey[200],
                                           borderRadius: BorderRadius.circular(
                                             4,
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    Container(
-                                      height: 24,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                      ),
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        '${entry.value}',
-                                        style: TextStyle(
-                                          color:
-                                              percentage > 0.15
-                                                  ? Colors.white
-                                                  : Colors.black87,
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.bold,
+                                      FractionallySizedBox(
+                                        widthFactor: percentage,
+                                        child: Container(
+                                          height: 24,
+                                          decoration: BoxDecoration(
+                                            color: Colors.orange,
+                                            borderRadius: BorderRadius.circular(
+                                              4,
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                      Container(
+                                        height: 24,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                        ),
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                          '${entry.value}',
+                                          style: TextStyle(
+                                            color:
+                                                percentage > 0.15
+                                                    ? Colors.white
+                                                    : Colors.black87,
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Top 10 Editorials Horizontal Bar Chart
-            Card(
-              elevation: 2,
-              margin: const EdgeInsets.symmetric(horizontal: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: [
-                    Column(
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!.top_10_editorials,
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'All',
-                              style: Theme.of(context).textTheme.bodySmall,
+                              ],
                             ),
-                            Switch(
-                              value: _showReadBooksEditorials,
-                              onChanged: (value) {
-                                setState(() {
-                                  _showReadBooksEditorials = value;
-                                });
-                              },
-                            ),
-                            Text(
-                              'Read',
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ],
-                        ),
+                          );
+                        }),
                       ],
                     ),
-                    const SizedBox(height: 16),
-                    ...top10Editorials.map((entry) {
-                      final maxValue = top10Editorials.first.value;
-                      final percentage = (entry.value / maxValue);
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Row(
-                          children: [
-                            SizedBox(
-                              width: 100,
-                              child: Text(
-                                entry.key,
-                                style: Theme.of(context).textTheme.bodySmall,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Stack(
-                                children: [
-                                  Container(
-                                    height: 24,
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[200],
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                  ),
-                                  FractionallySizedBox(
-                                    widthFactor: percentage,
-                                    child: Container(
-                                      height: 24,
-                                      decoration: BoxDecoration(
-                                        color: Colors.orange,
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    height: 24,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                    ),
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      '${entry.value}',
-                                      style: TextStyle(
-                                        color:
-                                            percentage > 0.15
-                                                ? Colors.white
-                                                : Colors.black87,
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Top 10 Authors Horizontal Bar Chart
-            Card(
-              elevation: 2,
-              margin: const EdgeInsets.symmetric(horizontal: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: [
-                    Column(
+                // Top 10 Authors Horizontal Bar Chart
+                Card(
+                  elevation: 2,
+                  margin: const EdgeInsets.symmetric(horizontal: 8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
                       children: [
-                        Text(
-                          AppLocalizations.of(context)!.top_10_authors,
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
+                        Column(
                           children: [
                             Text(
-                              'All',
-                              style: Theme.of(context).textTheme.bodySmall,
+                              AppLocalizations.of(context)!.top_10_authors,
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(fontWeight: FontWeight.w600),
                             ),
-                            Switch(
-                              value: _showReadBooksAuthors,
-                              onChanged: (value) {
-                                setState(() {
-                                  _showReadBooksAuthors = value;
-                                });
-                              },
-                            ),
-                            Text(
-                              'Read',
-                              style: Theme.of(context).textTheme.bodySmall,
+                            const SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'All',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                                Switch(
+                                  value: _showReadBooksAuthors,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _showReadBooksAuthors = value;
+                                    });
+                                  },
+                                ),
+                                Text(
+                                  'Read',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ],
                             ),
                           ],
                         ),
+                        const SizedBox(height: 16),
+                        ...top10Authors.map((entry) {
+                          final maxValue = top10Authors.first.value;
+                          final percentage = (entry.value / maxValue);
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: 100,
+                                  child: Text(
+                                    entry.key,
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Stack(
+                                    children: [
+                                      Container(
+                                        height: 24,
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey[200],
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
+                                        ),
+                                      ),
+                                      FractionallySizedBox(
+                                        widthFactor: percentage,
+                                        child: Container(
+                                          height: 24,
+                                          decoration: BoxDecoration(
+                                            color: Colors.red,
+                                            borderRadius: BorderRadius.circular(
+                                              4,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        height: 24,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                        ),
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                          '${entry.value}',
+                                          style: TextStyle(
+                                            color:
+                                                percentage > 0.15
+                                                    ? Colors.white
+                                                    : Colors.black87,
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
                       ],
                     ),
-                    const SizedBox(height: 16),
-                    ...top10Authors.map((entry) {
-                      final maxValue = top10Authors.first.value;
-                      final percentage = (entry.value / maxValue);
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Row(
-                          children: [
-                            SizedBox(
-                              width: 100,
-                              child: Text(
-                                entry.key,
-                                style: Theme.of(context).textTheme.bodySmall,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Stack(
-                                children: [
-                                  Container(
-                                    height: 24,
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[200],
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                  ),
-                                  FractionallySizedBox(
-                                    widthFactor: percentage,
-                                    child: Container(
-                                      height: 24,
-                                      decoration: BoxDecoration(
-                                        color: Colors.red,
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    height: 24,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                    ),
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      '${entry.value}',
-                                      style: TextStyle(
-                                        color:
-                                            percentage > 0.15
-                                                ? Colors.white
-                                                : Colors.black87,
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
-            const SizedBox(height: 32),
-            // Separator for new statistics
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Divider(
-                      thickness: 2,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withOpacity(0.3),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      'ADVANCED STATISTICS',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.primary,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Divider(
-                      thickness: 2,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withOpacity(0.3),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            // Use widget components for advanced statistics with responsive layout
-            ResponsiveStatGrid(
+            const SizedBox(height: 8),
+
+            StatisticsSection(
+              title: AppLocalizations.of(context)!.section_ratings_pages,
+              icon: Icons.star_half,
               children: [
                 // Average Rating
                 if (ratedBooksCount > 0)
@@ -3058,6 +3108,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     averageRating: averageRating,
                     ratedBooksCount: ratedBooksCount,
                   ),
+                RatingDistributionCard(ratingDistribution: ratingDistribution),
+                PageDistributionCard(pageDistribution: pageDistribution),
                 // Book Extremes (Oldest/Newest, Shortest/Longest)
                 BookExtremesCard(
                   oldestYear: oldestYear,
@@ -3069,6 +3121,30 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   longestPages: longestPages,
                   longestBookName: longestBookName,
                 ),
+              ],
+            ),
+            const SizedBox(height: 8),
+
+            StatisticsSection(
+              title: AppLocalizations.of(context)!.section_sagas_series,
+              icon: Icons.collections_bookmark,
+              children: [
+                if (sagaStats.isNotEmpty)
+                  SagaCompletionCard(
+                    completedSagas: completedSagas,
+                    partialSagas: partialSagas,
+                    unstartedSagas: unstartedSagas,
+                    sagaStats: sagaStats,
+                    books: books,
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
+
+            StatisticsSection(
+              title: AppLocalizations.of(context)!.section_reading_patterns,
+              icon: Icons.insights,
+              children: [
                 // Reading Insights (comprehensive card)
                 ReadingInsightsCard(
                   currentStreak: currentStreak,
@@ -3094,35 +3170,28 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   bingePercentage: bingePercentage,
                   topGenreBySeason: topGenreBySeason,
                 ),
-                RatingDistributionCard(ratingDistribution: ratingDistribution),
-                PageDistributionCard(pageDistribution: pageDistribution),
-                if (sagaStats.isNotEmpty)
-                  SagaCompletionCard(
-                    completedSagas: completedSagas,
-                    partialSagas: partialSagas,
-                    unstartedSagas: unstartedSagas,
-                    sagaStats: sagaStats,
-                    books: books,
-                  ),
                 SeasonalReadingCard(
                   seasonalReading: seasonalReading,
                   seasonalReadingPerYear: seasonalReadingPerYear,
                   yearsCount: yearsCount,
                 ),
-                // Monthly Reading Heatmap - Full calendar view (always full width)
+                SeasonalPreferencesCard(seasonalReading: seasonalReading),
               ],
             ),
-            SeasonalPreferencesCard(seasonalReading: seasonalReading),
-            const SizedBox(height: 16),
-            MonthlyHeatmapCard(monthlyHeatmap: monthlyHeatmap),
-            const SizedBox(height: 16),
-            // Placeholder cards for future features
-            ResponsiveStatGrid(
-              children: [ReadingTimePlaceholderCard(), ReadingGoalsCard()],
+            const SizedBox(height: 8),
+
+            StatisticsSection(
+              title: AppLocalizations.of(context)!.section_best_book_champions,
+              icon: Icons.emoji_events,
+              children: [PastYearsCompetitionCard(pastWinners: _pastWinners)],
             ),
-            const SizedBox(height: 16),
-            // Past Years Competition Card
-            PastYearsCompetitionCard(pastWinners: _pastWinners),
+            const SizedBox(height: 8),
+
+            StatisticsSection(
+              title: AppLocalizations.of(context)!.section_coming_soon,
+              icon: Icons.upcoming,
+              children: [ReadingTimePlaceholderCard()],
+            ),
             const SizedBox(height: 24),
           ],
         ),

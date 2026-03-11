@@ -34,13 +34,16 @@ class BookCompetitionCard extends StatelessWidget {
                   size: 28,
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  AppLocalizations.of(
-                    context,
-                  )!.best_book_of_year(currentYear.toString()),
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+                Flexible(
+                  child: Text(
+                    AppLocalizations.of(
+                      context,
+                    )!.best_book_of_year(currentYear.toString()),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 const SizedBox(width: 8),
                 Icon(

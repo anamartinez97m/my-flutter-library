@@ -85,11 +85,15 @@ class ReadingEfficiencyCard extends StatelessWidget {
                         color: Colors.blue[700],
                       ),
                       const SizedBox(width: 6),
-                      Text(
-                        AppLocalizations.of(context)!.what_does_this_mean,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue[700],
+                      Flexible(
+                        child: Text(
+                          AppLocalizations.of(context)!.what_does_this_mean,
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodySmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue[700],
+                          ),
                         ),
                       ),
                     ],

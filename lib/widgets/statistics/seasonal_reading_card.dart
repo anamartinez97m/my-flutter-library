@@ -106,10 +106,12 @@ class SeasonalReadingCard extends StatelessWidget {
                   size: 24,
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  AppLocalizations.of(context)!.seasonal_reading_patterns,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+                Flexible(
+                  child: Text(
+                    AppLocalizations.of(context)!.seasonal_reading_patterns,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],

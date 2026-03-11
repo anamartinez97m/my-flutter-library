@@ -2815,4 +2815,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get isbn_required_for_fetch => 'Enter an ISBN first';
+
+  @override
+  String get section_reading_activity => 'Reading Activity';
+
+  @override
+  String get section_library_breakdown => 'Library Breakdown';
+
+  @override
+  String get section_top_rankings => 'Top Rankings';
+
+  @override
+  String get section_ratings_pages => 'Ratings & Pages';
+
+  @override
+  String get section_sagas_series => 'Sagas & Series';
+
+  @override
+  String get section_reading_patterns => 'Reading Patterns & Insights';
+
+  @override
+  String get section_coming_soon => 'Coming Soon';
+
+  @override
+  String get section_best_book_champions => 'Best Book Champions';
 }

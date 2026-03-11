@@ -75,12 +75,15 @@ class ReadingGoalsPlaceholderCard extends StatelessWidget {
                         color: Colors.green[800],
                       ),
                       const SizedBox(width: 6),
-                      Text(
-                        AppLocalizations.of(context)!.available_now,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green[800],
+                      Flexible(
+                        child: Text(
+                          AppLocalizations.of(context)!.available_now,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green[800],
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
@@ -121,11 +124,18 @@ class ReadingGoalsPlaceholderCard extends StatelessWidget {
                         color: Theme.of(context).colorScheme.primary,
                       ),
                       const SizedBox(width: 8),
-                      Text(
-                        AppLocalizations.of(context)!.tap_to_manage_challenges,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontWeight: FontWeight.w600,
+                      Flexible(
+                        child: Text(
+                          AppLocalizations.of(
+                            context,
+                          )!.tap_to_manage_challenges,
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],

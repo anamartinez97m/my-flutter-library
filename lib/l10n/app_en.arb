@@ -1282,5 +1282,14 @@
   "fetching_book_info": "Fetching book info...",
   "book_info_found": "Book info found and fields filled",
   "no_book_info_found": "No book info found for this ISBN",
-  "isbn_required_for_fetch": "Enter an ISBN first"
+  "isbn_required_for_fetch": "Enter an ISBN first",
+
+  "section_reading_activity": "Reading Activity",
+  "section_library_breakdown": "Library Breakdown",
+  "section_top_rankings": "Top Rankings",
+  "section_ratings_pages": "Ratings & Pages",
+  "section_sagas_series": "Sagas & Series",
+  "section_reading_patterns": "Reading Patterns & Insights",
+  "section_coming_soon": "Coming Soon",
+  "section_best_book_champions": "Best Book Champions"
 }
