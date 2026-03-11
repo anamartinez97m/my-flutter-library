@@ -2839,4 +2839,82 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get section_best_book_champions => 'Mejores Libros del Año';
+
+  @override
+  String get quick_stat_total_owned => 'Total';
+
+  @override
+  String get quick_stat_total_read => 'Leídos';
+
+  @override
+  String get quick_stat_this_year => 'Este Año';
+
+  @override
+  String get quick_stat_avg_rating => 'Media';
+
+  @override
+  String get quick_stat_streak => 'Racha';
+
+  @override
+  String get quick_stat_best_streak => 'Mejor Racha';
+
+  @override
+  String get quick_stat_velocity => 'Velocidad';
+
+  @override
+  String get quick_stat_avg_days => 'Media Días';
+
+  @override
+  String get quick_stat_books_year => 'Libros/Año';
+
+  @override
+  String get quick_stat_dnf => 'DNF';
+
+  @override
+  String get quick_stat_rereads => 'Relecturas';
+
+  @override
+  String get quick_stat_series => 'Series';
+
+  @override
+  String get quick_stat_sagas_done => 'Sagas';
+
+  @override
+  String get quick_stat_milestone_owned => 'Meta Total';
+
+  @override
+  String get quick_stat_milestone_read => 'Meta Lectura';
+
+  @override
+  String get quick_stat_choose => 'Elige una estadística';
+
+  @override
+  String get quick_stat_long_press_hint => 'Mantén pulsado para cambiar';
+
+  @override
+  String get no_data_available => 'No hay datos disponibles';
+
+  @override
+  String get books_read_per_year => 'Libros Leídos por Año';
+
+  @override
+  String get pages_read_per_year => 'Páginas Leídas por Año';
+
+  @override
+  String get reading_efficiency => 'Eficiencia de Lectura';
+
+  @override
+  String get reading_velocity => 'Velocidad de Lectura';
+
+  @override
+  String get avg_days_to_finish => 'Media de Días para Terminar';
+
+  @override
+  String get avg_books_per_year => 'Media de Libros por Año';
+
+  @override
+  String get books_by_place => 'Libros por Lugar';
+
+  @override
+  String get format_by_language => 'Formato por Idioma';
 }

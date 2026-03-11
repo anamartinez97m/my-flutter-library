@@ -452,6 +452,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
             author: book.author?.trim(),
             saga: book.saga?.trim(),
             nSaga: book.nSaga?.trim(),
+            sagaUniverse: book.sagaUniverse?.trim(),
             formatSagaValue: book.formatSagaValue?.trim(),
             pages: book.pages,
             originalPublicationYear: book.originalPublicationYear,
@@ -469,6 +470,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
             dateReadInitial: book.dateReadInitial?.trim(),
             dateReadFinal: book.dateReadFinal?.trim(),
             readCount: book.readCount,
+            myRating: book.myRating,
             myReview: book.myReview?.trim(),
             isBundle: book.isBundle,
             bundleCount: book.bundleCount,
@@ -476,6 +478,25 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
             bundleStartDates: book.bundleStartDates,
             bundleEndDates: book.bundleEndDates,
             bundlePages: book.bundlePages,
+            bundlePublicationYears: book.bundlePublicationYears,
+            bundleTitles: book.bundleTitles,
+            bundleAuthors: book.bundleAuthors,
+            tbr: book.tbr,
+            isTandem: book.isTandem,
+            originalBookId: book.originalBookId,
+            notificationEnabled: book.notificationEnabled,
+            notificationDatetime: book.notificationDatetime,
+            bundleParentId: book.bundleParentId,
+            readingProgress: book.readingProgress,
+            progressType: book.progressType,
+            notes: book.notes?.trim(),
+            price: book.price,
+            ratingOverride: book.ratingOverride,
+            releaseDate: book.releaseDate,
+            coverUrl: book.coverUrl,
+            description: book.description,
+            metadataSource: book.metadataSource,
+            metadataFetchedAt: book.metadataFetchedAt,
           );
 
           // Check for duplicates
@@ -501,6 +522,9 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                 b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
                 b.tbr, b.is_tandem, b.original_book_id,
                 b.notification_enabled, b.notification_datetime,
+                b.bundle_parent_id, b.reading_progress, b.progress_type,
+                b.notes, b.price, b.rating_override, b.release_date,
+                b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at,
                 GROUP_CONCAT(DISTINCT a.name) as author,
                 GROUP_CONCAT(DISTINCT g.name) as genre
               from book b 
@@ -560,6 +584,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                     dateReadInitial: firstReadDate['date_started'] as String?,
                     dateReadFinal: firstReadDate['date_finished'] as String?,
                     readCount: existingBook.readCount,
+                    myRating: existingBook.myRating,
                     myReview: existingBook.myReview,
                     isBundle: existingBook.isBundle,
                     bundleCount: existingBook.bundleCount,
@@ -567,6 +592,25 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                     bundleStartDates: existingBook.bundleStartDates,
                     bundleEndDates: existingBook.bundleEndDates,
                     bundlePages: existingBook.bundlePages,
+                    bundlePublicationYears: existingBook.bundlePublicationYears,
+                    bundleTitles: existingBook.bundleTitles,
+                    bundleAuthors: existingBook.bundleAuthors,
+                    tbr: existingBook.tbr,
+                    isTandem: existingBook.isTandem,
+                    originalBookId: existingBook.originalBookId,
+                    notificationEnabled: existingBook.notificationEnabled,
+                    notificationDatetime: existingBook.notificationDatetime,
+                    bundleParentId: existingBook.bundleParentId,
+                    readingProgress: existingBook.readingProgress,
+                    progressType: existingBook.progressType,
+                    notes: existingBook.notes,
+                    price: existingBook.price,
+                    ratingOverride: existingBook.ratingOverride,
+                    releaseDate: existingBook.releaseDate,
+                    coverUrl: existingBook.coverUrl,
+                    description: existingBook.description,
+                    metadataSource: existingBook.metadataSource,
+                    metadataFetchedAt: existingBook.metadataFetchedAt,
                   );
                 }
               }
@@ -651,6 +695,8 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                         : existingBook.dateReadFinal,
                 readCount:
                     bookWithMappedStatus.readCount ?? existingBook.readCount,
+                myRating:
+                    bookWithMappedStatus.myRating ?? existingBook.myRating,
                 myReview:
                     bookWithMappedStatus.myReview?.isNotEmpty == true
                         ? bookWithMappedStatus.myReview
@@ -676,6 +722,71 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                     bookWithMappedStatus.bundlePages?.isNotEmpty == true
                         ? bookWithMappedStatus.bundlePages
                         : existingBook.bundlePages,
+                bundlePublicationYears:
+                    bookWithMappedStatus.bundlePublicationYears?.isNotEmpty ==
+                            true
+                        ? bookWithMappedStatus.bundlePublicationYears
+                        : existingBook.bundlePublicationYears,
+                bundleTitles:
+                    bookWithMappedStatus.bundleTitles?.isNotEmpty == true
+                        ? bookWithMappedStatus.bundleTitles
+                        : existingBook.bundleTitles,
+                bundleAuthors:
+                    bookWithMappedStatus.bundleAuthors?.isNotEmpty == true
+                        ? bookWithMappedStatus.bundleAuthors
+                        : existingBook.bundleAuthors,
+                tbr: bookWithMappedStatus.tbr ?? existingBook.tbr,
+                isTandem:
+                    bookWithMappedStatus.isTandem ?? existingBook.isTandem,
+                originalBookId:
+                    bookWithMappedStatus.originalBookId ??
+                    existingBook.originalBookId,
+                notificationEnabled:
+                    bookWithMappedStatus.notificationEnabled ??
+                    existingBook.notificationEnabled,
+                notificationDatetime:
+                    bookWithMappedStatus.notificationDatetime?.isNotEmpty ==
+                            true
+                        ? bookWithMappedStatus.notificationDatetime
+                        : existingBook.notificationDatetime,
+                bundleParentId:
+                    bookWithMappedStatus.bundleParentId ??
+                    existingBook.bundleParentId,
+                readingProgress:
+                    bookWithMappedStatus.readingProgress ??
+                    existingBook.readingProgress,
+                progressType:
+                    bookWithMappedStatus.progressType?.isNotEmpty == true
+                        ? bookWithMappedStatus.progressType
+                        : existingBook.progressType,
+                notes:
+                    bookWithMappedStatus.notes?.isNotEmpty == true
+                        ? bookWithMappedStatus.notes
+                        : existingBook.notes,
+                price: bookWithMappedStatus.price ?? existingBook.price,
+                ratingOverride:
+                    bookWithMappedStatus.ratingOverride ??
+                    existingBook.ratingOverride,
+                releaseDate:
+                    bookWithMappedStatus.releaseDate?.isNotEmpty == true
+                        ? bookWithMappedStatus.releaseDate
+                        : existingBook.releaseDate,
+                coverUrl:
+                    bookWithMappedStatus.coverUrl?.isNotEmpty == true
+                        ? bookWithMappedStatus.coverUrl
+                        : existingBook.coverUrl,
+                description:
+                    bookWithMappedStatus.description?.isNotEmpty == true
+                        ? bookWithMappedStatus.description
+                        : existingBook.description,
+                metadataSource:
+                    bookWithMappedStatus.metadataSource?.isNotEmpty == true
+                        ? bookWithMappedStatus.metadataSource
+                        : existingBook.metadataSource,
+                metadataFetchedAt:
+                    bookWithMappedStatus.metadataFetchedAt?.isNotEmpty == true
+                        ? bookWithMappedStatus.metadataFetchedAt
+                        : existingBook.metadataFetchedAt,
               );
 
               // Check if merged book is actually different from existing
@@ -844,7 +955,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
           for (final id in item.duplicateIds) {
             // Use delete and re-add approach to properly handle relational tables
             await repository.deleteBook(id);
-            // Preserve the original book ID and fields not in CSV (tbr, notifications, etc.)
+            // All fields already merged in bookWithMappedStatus, use item.book directly
             final bookToAdd = Book(
               bookId: id,
               name: item.book.name,
@@ -854,18 +965,19 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               saga: item.book.saga,
               nSaga: item.book.nSaga,
               sagaUniverse: item.book.sagaUniverse,
+              formatSagaValue: item.book.formatSagaValue,
               pages: item.book.pages,
               originalPublicationYear: item.book.originalPublicationYear,
               statusValue: item.book.statusValue,
-              formatSagaValue: item.book.formatSagaValue,
+              editorialValue: item.book.editorialValue,
               languageValue: item.book.languageValue,
               placeValue: item.book.placeValue,
               formatValue: item.book.formatValue,
-              editorialValue: item.book.editorialValue,
               genre: item.book.genre,
               loaned: item.book.loaned,
               createdAt: item.book.createdAt,
               readCount: item.book.readCount,
+              myRating: item.book.myRating,
               dateReadInitial: item.book.dateReadInitial,
               dateReadFinal: item.book.dateReadFinal,
               myReview: item.book.myReview,
@@ -875,15 +987,25 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               bundleStartDates: item.book.bundleStartDates,
               bundleEndDates: item.book.bundleEndDates,
               bundlePages: item.book.bundlePages,
-              bundlePublicationYears: item.existingBook?.bundlePublicationYears,
-              bundleTitles: item.existingBook?.bundleTitles,
-              bundleAuthors: item.existingBook?.bundleAuthors,
-              // Preserve fields not in CSV from existing book
-              tbr: item.existingBook?.tbr,
-              isTandem: item.existingBook?.isTandem,
-              originalBookId: item.existingBook?.originalBookId,
-              notificationEnabled: item.existingBook?.notificationEnabled,
-              notificationDatetime: item.existingBook?.notificationDatetime,
+              bundlePublicationYears: item.book.bundlePublicationYears,
+              bundleTitles: item.book.bundleTitles,
+              bundleAuthors: item.book.bundleAuthors,
+              tbr: item.book.tbr,
+              isTandem: item.book.isTandem,
+              originalBookId: item.book.originalBookId,
+              notificationEnabled: item.book.notificationEnabled,
+              notificationDatetime: item.book.notificationDatetime,
+              bundleParentId: item.book.bundleParentId,
+              readingProgress: item.book.readingProgress,
+              progressType: item.book.progressType,
+              notes: item.book.notes,
+              price: item.book.price,
+              ratingOverride: item.book.ratingOverride,
+              releaseDate: item.book.releaseDate,
+              coverUrl: item.book.coverUrl,
+              description: item.book.description,
+              metadataSource: item.book.metadataSource,
+              metadataFetchedAt: item.book.metadataFetchedAt,
             );
             await repository.addBook(bookToAdd);
 
@@ -1008,7 +1130,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
           for (final id in item.duplicateIds) {
             // Use delete and re-add approach to properly handle relational tables
             await repository.deleteBook(id);
-            // Preserve the original book ID and fields not in CSV (tbr, notifications, etc.)
+            // All fields already merged in bookWithMappedStatus, use item.book directly
             final bookToAdd = Book(
               bookId: id,
               name: item.book.name,
@@ -1018,18 +1140,19 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               saga: item.book.saga,
               nSaga: item.book.nSaga,
               sagaUniverse: item.book.sagaUniverse,
+              formatSagaValue: item.book.formatSagaValue,
               pages: item.book.pages,
               originalPublicationYear: item.book.originalPublicationYear,
               statusValue: item.book.statusValue,
-              formatSagaValue: item.book.formatSagaValue,
+              editorialValue: item.book.editorialValue,
               languageValue: item.book.languageValue,
               placeValue: item.book.placeValue,
               formatValue: item.book.formatValue,
-              editorialValue: item.book.editorialValue,
               genre: item.book.genre,
               loaned: item.book.loaned,
               createdAt: item.book.createdAt,
               readCount: item.book.readCount,
+              myRating: item.book.myRating,
               dateReadInitial: item.book.dateReadInitial,
               dateReadFinal: item.book.dateReadFinal,
               myReview: item.book.myReview,
@@ -1039,15 +1162,25 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               bundleStartDates: item.book.bundleStartDates,
               bundleEndDates: item.book.bundleEndDates,
               bundlePages: item.book.bundlePages,
-              bundlePublicationYears: item.existingBook?.bundlePublicationYears,
-              bundleTitles: item.existingBook?.bundleTitles,
-              bundleAuthors: item.existingBook?.bundleAuthors,
-              // Preserve fields not in CSV from existing book
-              tbr: item.existingBook?.tbr,
-              isTandem: item.existingBook?.isTandem,
-              originalBookId: item.existingBook?.originalBookId,
-              notificationEnabled: item.existingBook?.notificationEnabled,
-              notificationDatetime: item.existingBook?.notificationDatetime,
+              bundlePublicationYears: item.book.bundlePublicationYears,
+              bundleTitles: item.book.bundleTitles,
+              bundleAuthors: item.book.bundleAuthors,
+              tbr: item.book.tbr,
+              isTandem: item.book.isTandem,
+              originalBookId: item.book.originalBookId,
+              notificationEnabled: item.book.notificationEnabled,
+              notificationDatetime: item.book.notificationDatetime,
+              bundleParentId: item.book.bundleParentId,
+              readingProgress: item.book.readingProgress,
+              progressType: item.book.progressType,
+              notes: item.book.notes,
+              price: item.book.price,
+              ratingOverride: item.book.ratingOverride,
+              releaseDate: item.book.releaseDate,
+              coverUrl: item.book.coverUrl,
+              description: item.book.description,
+              metadataSource: item.book.metadataSource,
+              metadataFetchedAt: item.book.metadataFetchedAt,
             );
             await repository.addBook(bookToAdd);
 
@@ -1477,7 +1610,15 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         book1.dateReadFinal == book2.dateReadFinal &&
         book1.readCount == book2.readCount &&
         book1.myRating == book2.myRating &&
-        book1.myReview == book2.myReview;
+        book1.myReview == book2.myReview &&
+        book1.notes == book2.notes &&
+        book1.price == book2.price &&
+        book1.ratingOverride == book2.ratingOverride &&
+        book1.releaseDate == book2.releaseDate &&
+        book1.readingProgress == book2.readingProgress &&
+        book1.progressType == book2.progressType &&
+        book1.coverUrl == book2.coverUrl &&
+        book1.description == book2.description;
   }
 }
 
@@ -1595,606 +1736,243 @@ class _BookImportPreview extends StatelessWidget {
     }
   }
 
+  Book _copyBookWith(
+    Book book, {
+    String? name,
+    String? author,
+    String? isbn,
+    String? asin,
+    String? saga,
+    String? nSaga,
+    String? sagaUniverse,
+    String? formatSagaValue,
+    int? pages,
+    int? originalPublicationYear,
+    String? loaned,
+    String? statusValue,
+    String? editorialValue,
+    String? languageValue,
+    String? placeValue,
+    String? formatValue,
+    String? genre,
+    String? dateReadInitial,
+    String? dateReadFinal,
+    int? readCount,
+    double? myRating,
+    String? myReview,
+    bool useName = false,
+    bool useAuthor = false,
+    bool useIsbn = false,
+    bool useAsin = false,
+    bool useSaga = false,
+    bool useNSaga = false,
+    bool useSagaUniverse = false,
+    bool useFormatSagaValue = false,
+    bool usePages = false,
+    bool useOriginalPublicationYear = false,
+    bool useLoaned = false,
+    bool useStatusValue = false,
+    bool useEditorialValue = false,
+    bool useLanguageValue = false,
+    bool usePlaceValue = false,
+    bool useFormatValue = false,
+    bool useGenre = false,
+    bool useDateReadInitial = false,
+    bool useDateReadFinal = false,
+    bool useReadCount = false,
+    bool useMyRating = false,
+    bool useMyReview = false,
+  }) {
+    return Book(
+      bookId: book.bookId,
+      name: useName ? name : book.name,
+      isbn: useIsbn ? isbn : book.isbn,
+      asin: useAsin ? asin : book.asin,
+      author: useAuthor ? author : book.author,
+      saga: useSaga ? saga : book.saga,
+      nSaga: useNSaga ? nSaga : book.nSaga,
+      sagaUniverse: useSagaUniverse ? sagaUniverse : book.sagaUniverse,
+      formatSagaValue:
+          useFormatSagaValue ? formatSagaValue : book.formatSagaValue,
+      pages: usePages ? pages : book.pages,
+      originalPublicationYear:
+          useOriginalPublicationYear
+              ? originalPublicationYear
+              : book.originalPublicationYear,
+      loaned: useLoaned ? loaned : book.loaned,
+      statusValue: useStatusValue ? statusValue : book.statusValue,
+      editorialValue: useEditorialValue ? editorialValue : book.editorialValue,
+      languageValue: useLanguageValue ? languageValue : book.languageValue,
+      placeValue: usePlaceValue ? placeValue : book.placeValue,
+      formatValue: useFormatValue ? formatValue : book.formatValue,
+      createdAt: book.createdAt,
+      genre: useGenre ? genre : book.genre,
+      dateReadInitial:
+          useDateReadInitial ? dateReadInitial : book.dateReadInitial,
+      dateReadFinal: useDateReadFinal ? dateReadFinal : book.dateReadFinal,
+      readCount: useReadCount ? readCount : book.readCount,
+      myRating: useMyRating ? myRating : book.myRating,
+      myReview: useMyReview ? myReview : book.myReview,
+      isBundle: book.isBundle,
+      bundleCount: book.bundleCount,
+      bundleNumbers: book.bundleNumbers,
+      bundleStartDates: book.bundleStartDates,
+      bundleEndDates: book.bundleEndDates,
+      bundlePages: book.bundlePages,
+      bundlePublicationYears: book.bundlePublicationYears,
+      bundleTitles: book.bundleTitles,
+      bundleAuthors: book.bundleAuthors,
+      tbr: book.tbr,
+      isTandem: book.isTandem,
+      originalBookId: book.originalBookId,
+      notificationEnabled: book.notificationEnabled,
+      notificationDatetime: book.notificationDatetime,
+      bundleParentId: book.bundleParentId,
+      readingProgress: book.readingProgress,
+      progressType: book.progressType,
+      notes: book.notes,
+      price: book.price,
+      ratingOverride: book.ratingOverride,
+      releaseDate: book.releaseDate,
+      coverUrl: book.coverUrl,
+      description: book.description,
+      metadataSource: book.metadataSource,
+      metadataFetchedAt: book.metadataFetchedAt,
+    );
+  }
+
   void _updateField(String fieldName, String value) {
     final book = item.book;
-    // Trim the value to prevent trailing spaces
     final trimmedValue = value.trim();
+    final nullableStr = trimmedValue.isEmpty ? null : trimmedValue;
     Book updatedBook;
 
     switch (fieldName) {
       case 'name':
-        updatedBook = Book(
-          bookId: book.bookId,
-          name: trimmedValue.isEmpty ? null : trimmedValue,
-          isbn: book.isbn,
-          asin: book.asin,
-          author: book.author,
-          saga: book.saga,
-          nSaga: book.nSaga,
-          sagaUniverse: book.sagaUniverse,
-          formatSagaValue: book.formatSagaValue,
-          pages: book.pages,
-          originalPublicationYear: book.originalPublicationYear,
-          loaned: book.loaned,
-          statusValue: book.statusValue,
-          editorialValue: book.editorialValue,
-          languageValue: book.languageValue,
-          placeValue: book.placeValue,
-          formatValue: book.formatValue,
-          createdAt: book.createdAt,
-          genre: book.genre,
-          dateReadInitial: book.dateReadInitial,
-          dateReadFinal: book.dateReadFinal,
-          readCount: book.readCount,
-          myReview: book.myReview,
-        );
+        updatedBook = _copyBookWith(book, name: nullableStr, useName: true);
         break;
       case 'author':
-        updatedBook = Book(
-          bookId: book.bookId,
-          name: book.name,
-          isbn: book.isbn,
-          asin: book.asin,
-          author: trimmedValue.isEmpty ? null : trimmedValue,
-          saga: book.saga,
-          nSaga: book.nSaga,
-          sagaUniverse: book.sagaUniverse,
-          formatSagaValue: book.formatSagaValue,
-          pages: book.pages,
-          originalPublicationYear: book.originalPublicationYear,
-          loaned: book.loaned,
-          statusValue: book.statusValue,
-          editorialValue: book.editorialValue,
-          languageValue: book.languageValue,
-          placeValue: book.placeValue,
-          formatValue: book.formatValue,
-          createdAt: book.createdAt,
-          genre: book.genre,
-          dateReadInitial: book.dateReadInitial,
-          dateReadFinal: book.dateReadFinal,
-          readCount: book.readCount,
-          myReview: book.myReview,
-        );
+        updatedBook = _copyBookWith(book, author: nullableStr, useAuthor: true);
         break;
       case 'isbn':
-        updatedBook = Book(
-          bookId: book.bookId,
-          name: book.name,
-          isbn: trimmedValue.isEmpty ? null : trimmedValue,
-          asin: book.asin,
-          author: book.author,
-          saga: book.saga,
-          nSaga: book.nSaga,
-          sagaUniverse: book.sagaUniverse,
-          formatSagaValue: book.formatSagaValue,
-          pages: book.pages,
-          originalPublicationYear: book.originalPublicationYear,
-          loaned: book.loaned,
-          statusValue: book.statusValue,
-          editorialValue: book.editorialValue,
-          languageValue: book.languageValue,
-          placeValue: book.placeValue,
-          formatValue: book.formatValue,
-          createdAt: book.createdAt,
-          genre: book.genre,
-          dateReadInitial: book.dateReadInitial,
-          dateReadFinal: book.dateReadFinal,
-          readCount: book.readCount,
-          myReview: book.myReview,
-        );
+        updatedBook = _copyBookWith(book, isbn: nullableStr, useIsbn: true);
         break;
       case 'asin':
-        updatedBook = Book(
-          bookId: book.bookId,
-          name: book.name,
-          isbn: book.isbn,
-          asin: trimmedValue.isEmpty ? null : trimmedValue,
-          author: book.author,
-          saga: book.saga,
-          nSaga: book.nSaga,
-          sagaUniverse: book.sagaUniverse,
-          formatSagaValue: book.formatSagaValue,
-          pages: book.pages,
-          originalPublicationYear: book.originalPublicationYear,
-          loaned: book.loaned,
-          statusValue: book.statusValue,
-          editorialValue: book.editorialValue,
-          languageValue: book.languageValue,
-          placeValue: book.placeValue,
-          formatValue: book.formatValue,
-          createdAt: book.createdAt,
-          genre: book.genre,
-          dateReadInitial: book.dateReadInitial,
-          dateReadFinal: book.dateReadFinal,
-          readCount: book.readCount,
-          myReview: book.myReview,
-        );
+        updatedBook = _copyBookWith(book, asin: nullableStr, useAsin: true);
         break;
       case 'saga':
-        updatedBook = Book(
-          bookId: book.bookId,
-          name: book.name,
-          isbn: book.isbn,
-          asin: book.asin,
-          author: book.author,
-          saga: trimmedValue.isEmpty ? null : trimmedValue,
-          nSaga: book.nSaga,
-          sagaUniverse: book.sagaUniverse,
-          formatSagaValue: book.formatSagaValue,
-          pages: book.pages,
-          originalPublicationYear: book.originalPublicationYear,
-          loaned: book.loaned,
-          statusValue: book.statusValue,
-          editorialValue: book.editorialValue,
-          languageValue: book.languageValue,
-          placeValue: book.placeValue,
-          formatValue: book.formatValue,
-          createdAt: book.createdAt,
-          genre: book.genre,
-          dateReadInitial: book.dateReadInitial,
-          dateReadFinal: book.dateReadFinal,
-          readCount: book.readCount,
-          myReview: book.myReview,
-        );
+        updatedBook = _copyBookWith(book, saga: nullableStr, useSaga: true);
         break;
       case 'nSaga':
-        updatedBook = Book(
-          bookId: book.bookId,
-          name: book.name,
-          isbn: book.isbn,
-          asin: book.asin,
-          author: book.author,
-          saga: book.saga,
-          nSaga: trimmedValue.isEmpty ? null : trimmedValue,
-          sagaUniverse: book.sagaUniverse,
-          formatSagaValue: book.formatSagaValue,
-          pages: book.pages,
-          originalPublicationYear: book.originalPublicationYear,
-          loaned: book.loaned,
-          statusValue: book.statusValue,
-          editorialValue: book.editorialValue,
-          languageValue: book.languageValue,
-          placeValue: book.placeValue,
-          formatValue: book.formatValue,
-          createdAt: book.createdAt,
-          genre: book.genre,
-          dateReadInitial: book.dateReadInitial,
-          dateReadFinal: book.dateReadFinal,
-          readCount: book.readCount,
-          myReview: book.myReview,
-        );
-        break;
-      case 'pages':
-        updatedBook = Book(
-          bookId: book.bookId,
-          name: book.name,
-          isbn: book.isbn,
-          asin: book.asin,
-          author: book.author,
-          saga: book.saga,
-          nSaga: book.nSaga,
-          sagaUniverse: book.sagaUniverse,
-          formatSagaValue: book.formatSagaValue,
-          pages: trimmedValue.isEmpty ? null : int.tryParse(trimmedValue),
-          originalPublicationYear: book.originalPublicationYear,
-          loaned: book.loaned,
-          statusValue: book.statusValue,
-          editorialValue: book.editorialValue,
-          languageValue: book.languageValue,
-          placeValue: book.placeValue,
-          formatValue: book.formatValue,
-          createdAt: book.createdAt,
-          genre: book.genre,
-          dateReadInitial: book.dateReadInitial,
-          dateReadFinal: book.dateReadFinal,
-          readCount: book.readCount,
-          myReview: book.myReview,
-        );
-        break;
-      case 'year':
-        updatedBook = Book(
-          bookId: book.bookId,
-          name: book.name,
-          isbn: book.isbn,
-          asin: book.asin,
-          author: book.author,
-          saga: book.saga,
-          nSaga: book.nSaga,
-          sagaUniverse: book.sagaUniverse,
-          formatSagaValue: book.formatSagaValue,
-          pages: book.pages,
-          originalPublicationYear:
-              trimmedValue.isEmpty ? null : int.tryParse(trimmedValue),
-          loaned: book.loaned,
-          statusValue: book.statusValue,
-          editorialValue: book.editorialValue,
-          languageValue: book.languageValue,
-          placeValue: book.placeValue,
-          formatValue: book.formatValue,
-          createdAt: book.createdAt,
-          genre: book.genre,
-          dateReadInitial: book.dateReadInitial,
-          dateReadFinal: book.dateReadFinal,
-          readCount: book.readCount,
-          myReview: book.myReview,
-        );
-        break;
-      case 'status':
-        updatedBook = Book(
-          bookId: book.bookId,
-          name: book.name,
-          isbn: book.isbn,
-          asin: book.asin,
-          author: book.author,
-          saga: book.saga,
-          nSaga: book.nSaga,
-          sagaUniverse: book.sagaUniverse,
-          formatSagaValue: book.formatSagaValue,
-          pages: book.pages,
-          originalPublicationYear: book.originalPublicationYear,
-          loaned: book.loaned,
-          statusValue: trimmedValue.isEmpty ? null : trimmedValue,
-          editorialValue: book.editorialValue,
-          languageValue: book.languageValue,
-          placeValue: book.placeValue,
-          formatValue: book.formatValue,
-          createdAt: book.createdAt,
-          genre: book.genre,
-          dateReadInitial: book.dateReadInitial,
-          dateReadFinal: book.dateReadFinal,
-          readCount: book.readCount,
-          myReview: book.myReview,
-        );
-        break;
-      case 'editorial':
-        updatedBook = Book(
-          bookId: book.bookId,
-          name: book.name,
-          isbn: book.isbn,
-          asin: book.asin,
-          author: book.author,
-          saga: book.saga,
-          nSaga: book.nSaga,
-          sagaUniverse: book.sagaUniverse,
-          formatSagaValue: book.formatSagaValue,
-          pages: book.pages,
-          originalPublicationYear: book.originalPublicationYear,
-          loaned: book.loaned,
-          statusValue: book.statusValue,
-          editorialValue: trimmedValue.isEmpty ? null : trimmedValue,
-          languageValue: book.languageValue,
-          placeValue: book.placeValue,
-          formatValue: book.formatValue,
-          createdAt: book.createdAt,
-          genre: book.genre,
-          dateReadInitial: book.dateReadInitial,
-          dateReadFinal: book.dateReadFinal,
-          readCount: book.readCount,
-          myReview: book.myReview,
-        );
-        break;
-      case 'language':
-        updatedBook = Book(
-          bookId: book.bookId,
-          name: book.name,
-          isbn: book.isbn,
-          asin: book.asin,
-          author: book.author,
-          saga: book.saga,
-          nSaga: book.nSaga,
-          sagaUniverse: book.sagaUniverse,
-          formatSagaValue: book.formatSagaValue,
-          pages: book.pages,
-          originalPublicationYear: book.originalPublicationYear,
-          loaned: book.loaned,
-          statusValue: book.statusValue,
-          editorialValue: book.editorialValue,
-          languageValue: trimmedValue.isEmpty ? null : trimmedValue,
-          placeValue: book.placeValue,
-          formatValue: book.formatValue,
-          createdAt: book.createdAt,
-          genre: book.genre,
-          dateReadInitial: book.dateReadInitial,
-          dateReadFinal: book.dateReadFinal,
-          readCount: book.readCount,
-          myReview: book.myReview,
-        );
-        break;
-      case 'place':
-        updatedBook = Book(
-          bookId: book.bookId,
-          name: book.name,
-          isbn: book.isbn,
-          asin: book.asin,
-          author: book.author,
-          saga: book.saga,
-          nSaga: book.nSaga,
-          sagaUniverse: book.sagaUniverse,
-          formatSagaValue: book.formatSagaValue,
-          pages: book.pages,
-          originalPublicationYear: book.originalPublicationYear,
-          loaned: book.loaned,
-          statusValue: book.statusValue,
-          editorialValue: book.editorialValue,
-          languageValue: book.languageValue,
-          placeValue: trimmedValue.isEmpty ? null : trimmedValue,
-          formatValue: book.formatValue,
-          createdAt: book.createdAt,
-          genre: book.genre,
-          dateReadInitial: book.dateReadInitial,
-          dateReadFinal: book.dateReadFinal,
-          readCount: book.readCount,
-          myReview: book.myReview,
-        );
-        break;
-      case 'format':
-        updatedBook = Book(
-          bookId: book.bookId,
-          name: book.name,
-          isbn: book.isbn,
-          asin: book.asin,
-          author: book.author,
-          saga: book.saga,
-          nSaga: book.nSaga,
-          sagaUniverse: book.sagaUniverse,
-          formatSagaValue: book.formatSagaValue,
-          pages: book.pages,
-          originalPublicationYear: book.originalPublicationYear,
-          loaned: book.loaned,
-          statusValue: book.statusValue,
-          editorialValue: book.editorialValue,
-          languageValue: book.languageValue,
-          placeValue: book.placeValue,
-          formatValue: trimmedValue.isEmpty ? null : trimmedValue,
-          createdAt: book.createdAt,
-          genre: book.genre,
-          dateReadInitial: book.dateReadInitial,
-          dateReadFinal: book.dateReadFinal,
-          readCount: book.readCount,
-          myReview: book.myReview,
-        );
-        break;
-      case 'genre':
-        updatedBook = Book(
-          bookId: book.bookId,
-          name: book.name,
-          isbn: book.isbn,
-          asin: book.asin,
-          author: book.author,
-          saga: book.saga,
-          nSaga: book.nSaga,
-          sagaUniverse: book.sagaUniverse,
-          formatSagaValue: book.formatSagaValue,
-          pages: book.pages,
-          originalPublicationYear: book.originalPublicationYear,
-          loaned: book.loaned,
-          statusValue: book.statusValue,
-          editorialValue: book.editorialValue,
-          languageValue: book.languageValue,
-          placeValue: book.placeValue,
-          formatValue: book.formatValue,
-          createdAt: book.createdAt,
-          genre: trimmedValue.isEmpty ? null : trimmedValue,
-          dateReadInitial: book.dateReadInitial,
-          dateReadFinal: book.dateReadFinal,
-          readCount: book.readCount,
-          myReview: book.myReview,
-        );
-        break;
-      case 'dateReadInitial':
-        updatedBook = Book(
-          bookId: book.bookId,
-          name: book.name,
-          isbn: book.isbn,
-          asin: book.asin,
-          author: book.author,
-          saga: book.saga,
-          nSaga: book.nSaga,
-          sagaUniverse: book.sagaUniverse,
-          formatSagaValue: book.formatSagaValue,
-          pages: book.pages,
-          originalPublicationYear: book.originalPublicationYear,
-          loaned: book.loaned,
-          statusValue: book.statusValue,
-          editorialValue: book.editorialValue,
-          languageValue: book.languageValue,
-          placeValue: book.placeValue,
-          formatValue: book.formatValue,
-          createdAt: book.createdAt,
-          genre: book.genre,
-          dateReadInitial: value.isEmpty ? null : value,
-          dateReadFinal: book.dateReadFinal,
-          readCount: book.readCount,
-          myReview: book.myReview,
-        );
-        break;
-      case 'dateReadFinal':
-        updatedBook = Book(
-          bookId: book.bookId,
-          name: book.name,
-          isbn: book.isbn,
-          asin: book.asin,
-          author: book.author,
-          saga: book.saga,
-          nSaga: book.nSaga,
-          sagaUniverse: book.sagaUniverse,
-          formatSagaValue: book.formatSagaValue,
-          pages: book.pages,
-          originalPublicationYear: book.originalPublicationYear,
-          loaned: book.loaned,
-          statusValue: book.statusValue,
-          editorialValue: book.editorialValue,
-          languageValue: book.languageValue,
-          placeValue: book.placeValue,
-          formatValue: book.formatValue,
-          createdAt: book.createdAt,
-          genre: book.genre,
-          dateReadInitial: book.dateReadInitial,
-          dateReadFinal: value.isEmpty ? null : value,
-          readCount: book.readCount,
-          myReview: book.myReview,
-        );
-        break;
-      case 'readCount':
-        updatedBook = Book(
-          bookId: book.bookId,
-          name: book.name,
-          isbn: book.isbn,
-          asin: book.asin,
-          author: book.author,
-          saga: book.saga,
-          nSaga: book.nSaga,
-          sagaUniverse: book.sagaUniverse,
-          formatSagaValue: book.formatSagaValue,
-          pages: book.pages,
-          originalPublicationYear: book.originalPublicationYear,
-          loaned: book.loaned,
-          statusValue: book.statusValue,
-          editorialValue: book.editorialValue,
-          languageValue: book.languageValue,
-          placeValue: book.placeValue,
-          formatValue: book.formatValue,
-          createdAt: book.createdAt,
-          genre: book.genre,
-          dateReadInitial: book.dateReadInitial,
-          dateReadFinal: book.dateReadFinal,
-          readCount: value.isEmpty ? null : int.tryParse(value),
-          myReview: book.myReview,
-        );
-        break;
-      case 'rating':
-        updatedBook = Book(
-          bookId: book.bookId,
-          name: book.name,
-          isbn: book.isbn,
-          asin: book.asin,
-          author: book.author,
-          saga: book.saga,
-          nSaga: book.nSaga,
-          formatSagaValue: book.formatSagaValue,
-          pages: book.pages,
-          originalPublicationYear: book.originalPublicationYear,
-          loaned: book.loaned,
-          statusValue: book.statusValue,
-          editorialValue: book.editorialValue,
-          languageValue: book.languageValue,
-          placeValue: book.placeValue,
-          formatValue: book.formatValue,
-          createdAt: book.createdAt,
-          genre: book.genre,
-          dateReadInitial: book.dateReadInitial,
-          dateReadFinal: book.dateReadFinal,
-          readCount: book.readCount,
-          myReview: book.myReview,
-          sagaUniverse: book.sagaUniverse,
-        );
-        break;
-      case 'review':
-        updatedBook = Book(
-          bookId: book.bookId,
-          name: book.name,
-          isbn: book.isbn,
-          asin: book.asin,
-          author: book.author,
-          saga: book.saga,
-          nSaga: book.nSaga,
-          formatSagaValue: book.formatSagaValue,
-          pages: book.pages,
-          originalPublicationYear: book.originalPublicationYear,
-          loaned: book.loaned,
-          statusValue: book.statusValue,
-          editorialValue: book.editorialValue,
-          languageValue: book.languageValue,
-          placeValue: book.placeValue,
-          formatValue: book.formatValue,
-          createdAt: book.createdAt,
-          genre: book.genre,
-          dateReadInitial: book.dateReadInitial,
-          dateReadFinal: book.dateReadFinal,
-          readCount: book.readCount,
-          myReview: trimmedValue.isEmpty ? null : trimmedValue,
-          sagaUniverse: book.sagaUniverse,
-        );
+        updatedBook = _copyBookWith(book, nSaga: nullableStr, useNSaga: true);
         break;
       case 'sagaUniverse':
-        updatedBook = Book(
-          bookId: book.bookId,
-          name: book.name,
-          isbn: book.isbn,
-          asin: book.asin,
-          author: book.author,
-          saga: book.saga,
-          nSaga: book.nSaga,
-          formatSagaValue: book.formatSagaValue,
-          pages: book.pages,
-          originalPublicationYear: book.originalPublicationYear,
-          loaned: book.loaned,
-          statusValue: book.statusValue,
-          editorialValue: book.editorialValue,
-          languageValue: book.languageValue,
-          placeValue: book.placeValue,
-          formatValue: book.formatValue,
-          createdAt: book.createdAt,
-          genre: book.genre,
-          dateReadInitial: book.dateReadInitial,
-          dateReadFinal: book.dateReadFinal,
-          readCount: book.readCount,
-          myReview: book.myReview,
-          sagaUniverse: trimmedValue.isEmpty ? null : trimmedValue,
+        updatedBook = _copyBookWith(
+          book,
+          sagaUniverse: nullableStr,
+          useSagaUniverse: true,
         );
         break;
       case 'formatSaga':
-        updatedBook = Book(
-          bookId: book.bookId,
-          name: book.name,
-          isbn: book.isbn,
-          asin: book.asin,
-          author: book.author,
-          saga: book.saga,
-          nSaga: book.nSaga,
-          formatSagaValue: trimmedValue.isEmpty ? null : trimmedValue,
-          pages: book.pages,
-          originalPublicationYear: book.originalPublicationYear,
-          loaned: book.loaned,
-          statusValue: book.statusValue,
-          editorialValue: book.editorialValue,
-          languageValue: book.languageValue,
-          placeValue: book.placeValue,
-          formatValue: book.formatValue,
-          createdAt: book.createdAt,
-          genre: book.genre,
-          dateReadInitial: book.dateReadInitial,
-          dateReadFinal: book.dateReadFinal,
-          readCount: book.readCount,
-          myReview: book.myReview,
-          sagaUniverse: book.sagaUniverse,
+        updatedBook = _copyBookWith(
+          book,
+          formatSagaValue: nullableStr,
+          useFormatSagaValue: true,
+        );
+        break;
+      case 'pages':
+        updatedBook = _copyBookWith(
+          book,
+          pages: trimmedValue.isEmpty ? null : int.tryParse(trimmedValue),
+          usePages: true,
+        );
+        break;
+      case 'year':
+        updatedBook = _copyBookWith(
+          book,
+          originalPublicationYear:
+              trimmedValue.isEmpty ? null : int.tryParse(trimmedValue),
+          useOriginalPublicationYear: true,
         );
         break;
       case 'loaned':
-        updatedBook = Book(
-          bookId: book.bookId,
-          name: book.name,
-          isbn: book.isbn,
-          asin: book.asin,
-          author: book.author,
-          saga: book.saga,
-          nSaga: book.nSaga,
-          formatSagaValue: book.formatSagaValue,
-          pages: book.pages,
-          originalPublicationYear: book.originalPublicationYear,
+        updatedBook = _copyBookWith(
+          book,
           loaned: trimmedValue.isEmpty ? null : trimmedValue.toLowerCase(),
-          statusValue: book.statusValue,
-          editorialValue: book.editorialValue,
-          languageValue: book.languageValue,
-          placeValue: book.placeValue,
-          formatValue: book.formatValue,
-          createdAt: book.createdAt,
-          genre: book.genre,
-          dateReadInitial: book.dateReadInitial,
-          dateReadFinal: book.dateReadFinal,
-          readCount: book.readCount,
-          myReview: book.myReview,
-          sagaUniverse: book.sagaUniverse,
+          useLoaned: true,
+        );
+        break;
+      case 'status':
+        updatedBook = _copyBookWith(
+          book,
+          statusValue: nullableStr,
+          useStatusValue: true,
+        );
+        break;
+      case 'editorial':
+        updatedBook = _copyBookWith(
+          book,
+          editorialValue: nullableStr,
+          useEditorialValue: true,
+        );
+        break;
+      case 'language':
+        updatedBook = _copyBookWith(
+          book,
+          languageValue: nullableStr,
+          useLanguageValue: true,
+        );
+        break;
+      case 'place':
+        updatedBook = _copyBookWith(
+          book,
+          placeValue: nullableStr,
+          usePlaceValue: true,
+        );
+        break;
+      case 'format':
+        updatedBook = _copyBookWith(
+          book,
+          formatValue: nullableStr,
+          useFormatValue: true,
+        );
+        break;
+      case 'genre':
+        updatedBook = _copyBookWith(book, genre: nullableStr, useGenre: true);
+        break;
+      case 'dateReadInitial':
+        updatedBook = _copyBookWith(
+          book,
+          dateReadInitial: value.isEmpty ? null : value,
+          useDateReadInitial: true,
+        );
+        break;
+      case 'dateReadFinal':
+        updatedBook = _copyBookWith(
+          book,
+          dateReadFinal: value.isEmpty ? null : value,
+          useDateReadFinal: true,
+        );
+        break;
+      case 'readCount':
+        updatedBook = _copyBookWith(
+          book,
+          readCount: value.isEmpty ? null : int.tryParse(value),
+          useReadCount: true,
+        );
+        break;
+      case 'rating':
+        updatedBook = _copyBookWith(
+          book,
+          myRating: trimmedValue.isEmpty ? null : double.tryParse(trimmedValue),
+          useMyRating: true,
+        );
+        break;
+      case 'review':
+        updatedBook = _copyBookWith(
+          book,
+          myReview: nullableStr,
+          useMyReview: true,
         );
         break;
       default:

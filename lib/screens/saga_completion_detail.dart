@@ -203,7 +203,7 @@ class _SagaCompletionDetailScreenState
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 50),
       itemCount: sagas.length,
       itemBuilder: (context, index) {
         final saga = sagas[index];

@@ -2839,4 +2839,82 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get section_best_book_champions => 'Best Book Champions';
+
+  @override
+  String get quick_stat_total_owned => 'Owned';
+
+  @override
+  String get quick_stat_total_read => 'Read';
+
+  @override
+  String get quick_stat_this_year => 'This Year';
+
+  @override
+  String get quick_stat_avg_rating => 'Avg Rating';
+
+  @override
+  String get quick_stat_streak => 'Streak';
+
+  @override
+  String get quick_stat_best_streak => 'Best Streak';
+
+  @override
+  String get quick_stat_velocity => 'Velocity';
+
+  @override
+  String get quick_stat_avg_days => 'Avg Days';
+
+  @override
+  String get quick_stat_books_year => 'Books/Year';
+
+  @override
+  String get quick_stat_dnf => 'DNF';
+
+  @override
+  String get quick_stat_rereads => 'Re-reads';
+
+  @override
+  String get quick_stat_series => 'Series';
+
+  @override
+  String get quick_stat_sagas_done => 'Sagas Done';
+
+  @override
+  String get quick_stat_milestone_owned => 'To Milestone';
+
+  @override
+  String get quick_stat_milestone_read => 'To Read Goal';
+
+  @override
+  String get quick_stat_choose => 'Choose a stat';
+
+  @override
+  String get quick_stat_long_press_hint => 'Long press to change';
+
+  @override
+  String get no_data_available => 'No data available';
+
+  @override
+  String get books_read_per_year => 'Books Read Per Year';
+
+  @override
+  String get pages_read_per_year => 'Pages Read Per Year';
+
+  @override
+  String get reading_efficiency => 'Reading Efficiency';
+
+  @override
+  String get reading_velocity => 'Reading Velocity';
+
+  @override
+  String get avg_days_to_finish => 'Avg. Days to Finish';
+
+  @override
+  String get avg_books_per_year => 'Avg. Books Per Year';
+
+  @override
+  String get books_by_place => 'Books by Place';
+
+  @override
+  String get format_by_language => 'Format by Language';
 }

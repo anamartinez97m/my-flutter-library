@@ -30,46 +30,6 @@ class SeasonalReadingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Calculate average per season correctly:
-    // 1. Sum each season across all years
-    // 2. Calculate mean for each season (total / number of years)
-    // 3. Average those 4 seasonal means together
-    double avgPerYearPerSeason = 0.0;
-    if (seasonalReadingPerYear.isNotEmpty) {
-      final numYears = seasonalReadingPerYear.length;
-
-      // Sum each season across all years
-      final Map<String, int> seasonTotals = {
-        'Winter': 0,
-        'Spring': 0,
-        'Summer': 0,
-        'Fall': 0,
-      };
-
-      for (var yearData in seasonalReadingPerYear.values) {
-        seasonTotals['Winter'] =
-            (seasonTotals['Winter'] ?? 0) + (yearData['Winter'] ?? 0);
-        seasonTotals['Spring'] =
-            (seasonTotals['Spring'] ?? 0) + (yearData['Spring'] ?? 0);
-        seasonTotals['Summer'] =
-            (seasonTotals['Summer'] ?? 0) + (yearData['Summer'] ?? 0);
-        seasonTotals['Fall'] =
-            (seasonTotals['Fall'] ?? 0) + (yearData['Fall'] ?? 0);
-      }
-
-      // Calculate mean for each season
-      final winterMean = seasonTotals['Winter']! / numYears;
-      final springMean = seasonTotals['Spring']! / numYears;
-      final summerMean = seasonTotals['Summer']! / numYears;
-      final fallMean = seasonTotals['Fall']! / numYears;
-
-      // Average the 4 seasonal means
-      avgPerYearPerSeason =
-          (winterMean + springMean + summerMean + fallMean) / 4;
-    }
-
-    final avgPerYearPerSeasonStr = avgPerYearPerSeason.toStringAsFixed(1);
-
     // Find most and least productive seasons
     final sortedSeasons =
         seasonalReading.entries.toList()
@@ -89,175 +49,190 @@ class SeasonalReadingCard extends StatelessWidget {
             ? (leastProductive.value / yearsCount).toStringAsFixed(1)
             : '0.0';
 
+    final l10n = AppLocalizations.of(context)!;
+
+    // Calculate total for percentages
+    final totalBooks = seasonalReading.values.fold<int>(0, (a, b) => a + b);
+
     return Card(
       elevation: 2,
       margin: const EdgeInsets.symmetric(horizontal: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.calendar_today,
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 24,
-                ),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    AppLocalizations.of(context)!.seasonal_reading_patterns,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
+            // Title
+            Text(
+              l10n.seasonal_reading_patterns,
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
 
-            // Average books per season display
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
+            // "You read most in SEASON" hero
+            if (mostProductive != null) ...[
+              Text(
+                l10n.you_read_most_in,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
               ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+              const SizedBox(height: 4),
+              Text(
+                '${_getSeasonEmoji(mostProductive.key)} ${mostProductive.key}',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+            const SizedBox(height: 20),
+
+            // Percentage bars for all 4 seasons
+            if (totalBooks > 0)
+              ...['Winter', 'Spring', 'Summer', 'Fall'].map((season) {
+                final count = seasonalReading[season] ?? 0;
+                final percentage = count / totalBooks;
+                final isMost =
+                    mostProductive != null && season == mostProductive.key;
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
                     children: [
-                      const Icon(Icons.trending_up, size: 18),
-                      const SizedBox(width: 6),
-                      Flexible(
+                      Text(
+                        _getSeasonEmoji(season),
+                        style: const TextStyle(fontSize: 20),
+                      ),
+                      const SizedBox(width: 8),
+                      SizedBox(
+                        width: 52,
                         child: Text(
-                          AppLocalizations.of(
-                            context,
-                          )!.avg_books_per_season(avgPerYearPerSeasonStr),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
+                          season,
+                          style: TextStyle(
                             fontSize: 12,
+                            fontWeight:
+                                isMost ? FontWeight.bold : FontWeight.normal,
                           ),
-                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            value: percentage,
+                            minHeight: 14,
+                            backgroundColor: Colors.grey.shade200,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              isMost
+                                  ? Colors.green
+                                  : Theme.of(
+                                    context,
+                                  ).colorScheme.primary.withOpacity(0.5),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      SizedBox(
+                        width: 38,
+                        child: Text(
+                          '${(percentage * 100).toStringAsFixed(0)}%',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: isMost ? Colors.green : Colors.grey[700],
+                          ),
+                          textAlign: TextAlign.right,
                         ),
                       ),
                     ],
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
+                );
+              }),
+            const SizedBox(height: 16),
+            Divider(height: 1, color: Colors.grey[300]),
+            const SizedBox(height: 16),
 
-            // Most and least productive seasons
+            // Most read average
             if (mostProductive != null &&
                 leastProductive != null &&
                 mostProductive.key != leastProductive.key) ...[
               Row(
                 children: [
                   Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade50,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.green.shade200),
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            _getSeasonEmoji(mostProductive.key),
-                            style: const TextStyle(fontSize: 20),
+                    child: Column(
+                      children: [
+                        Text(
+                          l10n.most,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey[600],
                           ),
-                          const SizedBox(height: 2),
-                          Text(
-                            AppLocalizations.of(context)!.most,
-                            style: TextStyle(
-                              fontSize: 9,
-                              color: Colors.grey[600],
-                            ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${_getSeasonEmoji(mostProductive.key)} ${mostProductive.key}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
                           ),
-                          Text(
-                            mostProductive.key,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 10,
-                            ),
-                            overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          mostAvgPerYear,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 26,
+                            color: Colors.green,
                           ),
-                          Text(
-                            mostAvgPerYear,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                              color: Colors.green,
-                            ),
+                        ),
+                        Text(
+                          l10n.per_year,
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey[600],
                           ),
-                          Text(
-                            AppLocalizations.of(context)!.per_year,
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  Container(width: 1, height: 60, color: Colors.grey[300]),
                   Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: Colors.orange.shade50,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.orange.shade200),
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            _getSeasonEmoji(leastProductive.key),
-                            style: const TextStyle(fontSize: 20),
+                    child: Column(
+                      children: [
+                        Text(
+                          l10n.least,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey[600],
                           ),
-                          const SizedBox(height: 2),
-                          Text(
-                            AppLocalizations.of(context)!.least,
-                            style: TextStyle(
-                              fontSize: 9,
-                              color: Colors.grey[600],
-                            ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${_getSeasonEmoji(leastProductive.key)} ${leastProductive.key}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
                           ),
-                          Text(
-                            leastProductive.key,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 10,
-                            ),
-                            overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          leastAvgPerYear,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 26,
+                            color: Colors.orange,
                           ),
-                          Text(
-                            leastAvgPerYear,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                              color: Colors.orange,
-                            ),
+                        ),
+                        Text(
+                          l10n.per_year,
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey[600],
                           ),
-                          Text(
-                            AppLocalizations.of(context)!.per_year,
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ],

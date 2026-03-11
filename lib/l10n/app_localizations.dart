@@ -5266,6 +5266,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Best Book Champions'**
   String get section_best_book_champions;
+
+  /// No description provided for @quick_stat_total_owned.
+  ///
+  /// In en, this message translates to:
+  /// **'Owned'**
+  String get quick_stat_total_owned;
+
+  /// No description provided for @quick_stat_total_read.
+  ///
+  /// In en, this message translates to:
+  /// **'Read'**
+  String get quick_stat_total_read;
+
+  /// No description provided for @quick_stat_this_year.
+  ///
+  /// In en, this message translates to:
+  /// **'This Year'**
+  String get quick_stat_this_year;
+
+  /// No description provided for @quick_stat_avg_rating.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg Rating'**
+  String get quick_stat_avg_rating;
+
+  /// No description provided for @quick_stat_streak.
+  ///
+  /// In en, this message translates to:
+  /// **'Streak'**
+  String get quick_stat_streak;
+
+  /// No description provided for @quick_stat_best_streak.
+  ///
+  /// In en, this message translates to:
+  /// **'Best Streak'**
+  String get quick_stat_best_streak;
+
+  /// No description provided for @quick_stat_velocity.
+  ///
+  /// In en, this message translates to:
+  /// **'Velocity'**
+  String get quick_stat_velocity;
+
+  /// No description provided for @quick_stat_avg_days.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg Days'**
+  String get quick_stat_avg_days;
+
+  /// No description provided for @quick_stat_books_year.
+  ///
+  /// In en, this message translates to:
+  /// **'Books/Year'**
+  String get quick_stat_books_year;
+
+  /// No description provided for @quick_stat_dnf.
+  ///
+  /// In en, this message translates to:
+  /// **'DNF'**
+  String get quick_stat_dnf;
+
+  /// No description provided for @quick_stat_rereads.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-reads'**
+  String get quick_stat_rereads;
+
+  /// No description provided for @quick_stat_series.
+  ///
+  /// In en, this message translates to:
+  /// **'Series'**
+  String get quick_stat_series;
+
+  /// No description provided for @quick_stat_sagas_done.
+  ///
+  /// In en, this message translates to:
+  /// **'Sagas Done'**
+  String get quick_stat_sagas_done;
+
+  /// No description provided for @quick_stat_milestone_owned.
+  ///
+  /// In en, this message translates to:
+  /// **'To Milestone'**
+  String get quick_stat_milestone_owned;
+
+  /// No description provided for @quick_stat_milestone_read.
+  ///
+  /// In en, this message translates to:
+  /// **'To Read Goal'**
+  String get quick_stat_milestone_read;
+
+  /// No description provided for @quick_stat_choose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a stat'**
+  String get quick_stat_choose;
+
+  /// No description provided for @quick_stat_long_press_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Long press to change'**
+  String get quick_stat_long_press_hint;
+
+  /// No description provided for @no_data_available.
+  ///
+  /// In en, this message translates to:
+  /// **'No data available'**
+  String get no_data_available;
+
+  /// No description provided for @books_read_per_year.
+  ///
+  /// In en, this message translates to:
+  /// **'Books Read Per Year'**
+  String get books_read_per_year;
+
+  /// No description provided for @pages_read_per_year.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages Read Per Year'**
+  String get pages_read_per_year;
+
+  /// No description provided for @reading_efficiency.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading Efficiency'**
+  String get reading_efficiency;
+
+  /// No description provided for @reading_velocity.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading Velocity'**
+  String get reading_velocity;
+
+  /// No description provided for @avg_days_to_finish.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg. Days to Finish'**
+  String get avg_days_to_finish;
+
+  /// No description provided for @avg_books_per_year.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg. Books Per Year'**
+  String get avg_books_per_year;
+
+  /// No description provided for @books_by_place.
+  ///
+  /// In en, this message translates to:
+  /// **'Books by Place'**
+  String get books_by_place;
+
+  /// No description provided for @format_by_language.
+  ///
+  /// In en, this message translates to:
+  /// **'Format by Language'**
+  String get format_by_language;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -189,19 +189,24 @@ class _MonthlyHeatmapCardState extends State<MonthlyHeatmapCard> {
               ],
             ),
             const SizedBox(height: 16),
-            // Heatmap grid for selected year
-            Wrap(
-              spacing: 4,
-              runSpacing: 4,
-              children: List.generate(12, (index) {
+            // Heatmap grid for selected year (3 columns × 4 rows)
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 4,
+                mainAxisSpacing: 4,
+                childAspectRatio: 2.2,
+              ),
+              itemCount: 12,
+              itemBuilder: (context, index) {
                 final month = index + 1;
                 final count = yearData[month] ?? 0;
                 return Tooltip(
                   message:
                       '${_getMonthAbbr(month)} $_selectedYear: $count books',
                   child: Container(
-                    width: 60,
-                    height: 40,
                     decoration: BoxDecoration(
                       color: _getHeatColor(count, maxCount),
                       borderRadius: BorderRadius.circular(4),
@@ -237,7 +242,7 @@ class _MonthlyHeatmapCardState extends State<MonthlyHeatmapCard> {
                     ),
                   ),
                 );
-              }),
+              },
             ),
           ],
         ),
