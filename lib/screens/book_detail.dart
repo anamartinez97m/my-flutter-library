@@ -1667,7 +1667,13 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                   color: Theme.of(context).colorScheme.primary,
                 ),
                 const SizedBox(width: 8),
-                Text(AppLocalizations.of(context)!.reading_time_details),
+                Expanded(
+                  child: Text(
+                    AppLocalizations.of(context)!.reading_time_details,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
+                  ),
+                ),
               ],
             ),
             content: Column(
