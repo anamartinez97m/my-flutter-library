@@ -54,21 +54,31 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
   // Reading sessions data for statistics
   Map<int, List<ReadingSession>> _bookSessions = {};
+  bool _isLoadingSessions = true;
 
   // Read dates data for statistics (from book_read_dates table)
   Map<int, List<ReadDate>> _bookReadDates = {};
+  bool _isLoadingReadDates = true;
 
   // Format saga expected books mapping
   Map<String, int?> _formatSagaMapping = {};
+
+  bool _hasTriggeredProviderLoads = false;
 
   @override
   void initState() {
     super.initState();
     _loadYearData();
     _loadCompetitionData();
-    _loadReadingSessionsData();
-    _loadReadDatesData();
     _loadFormatSagaMapping();
+  }
+
+  void _triggerProviderDependentLoads() {
+    if (!_hasTriggeredProviderLoads) {
+      _hasTriggeredProviderLoads = true;
+      _loadReadingSessionsData();
+      _loadReadDatesData();
+    }
   }
 
   Future<void> _loadYearData() async {
@@ -143,11 +153,17 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         if (mounted) {
           setState(() {
             _bookSessions = bookSessions;
+            _isLoadingSessions = false;
           });
         }
       }
     } catch (e) {
       debugPrint('Error loading reading sessions for stats: $e');
+      if (mounted) {
+        setState(() {
+          _isLoadingSessions = false;
+        });
+      }
     }
   }
 
@@ -190,11 +206,17 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         if (mounted) {
           setState(() {
             _bookReadDates = bookReadDates;
+            _isLoadingReadDates = false;
           });
         }
       }
     } catch (e) {
       debugPrint('Error loading read dates for stats: $e');
+      if (mounted) {
+        setState(() {
+          _isLoadingReadDates = false;
+        });
+      }
     }
   }
 
@@ -234,6 +256,22 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     }
 
     return competitionResult.monthlyWinners.map((m) => m.winner).toList();
+  }
+
+  StatisticsData _computeCurrentStats(List<Book> books) {
+    final calculator = StatisticsCalculator(
+      books: books,
+      bookSessions: _bookSessions,
+      bookReadDates: _bookReadDates,
+      formatSagaMapping: _formatSagaMapping,
+      booksReadPerYear: _booksReadPerYear,
+      pagesReadPerYear: _pagesReadPerYear,
+      showReadBooksDecade: _showReadBooksDecade,
+      showReadBooksGenres: _showReadBooksGenres,
+      showReadBooksEditorials: _showReadBooksEditorials,
+      showReadBooksAuthors: _showReadBooksAuthors,
+    );
+    return calculator.compute();
   }
 
   // --- Section builder methods for carousel screens ---
@@ -440,23 +478,17 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
+    // Trigger provider-dependent loads once provider is ready
+    _triggerProviderDependentLoads();
+
+    if (_isLoadingReadDates || _isLoadingSessions) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     final books = provider.allBooks;
     final latestBookName = provider.latestBookAdded;
 
-    // Use StatisticsCalculator for all computation
-    final calculator = StatisticsCalculator(
-      books: books,
-      bookSessions: _bookSessions,
-      bookReadDates: _bookReadDates,
-      formatSagaMapping: _formatSagaMapping,
-      booksReadPerYear: _booksReadPerYear,
-      pagesReadPerYear: _pagesReadPerYear,
-      showReadBooksDecade: _showReadBooksDecade,
-      showReadBooksGenres: _showReadBooksGenres,
-      showReadBooksEditorials: _showReadBooksEditorials,
-      showReadBooksAuthors: _showReadBooksAuthors,
-    );
-    final stats = calculator.compute();
+    final stats = _computeCurrentStats(books);
 
     final l10n = AppLocalizations.of(context)!;
     final currentYear = DateTime.now().year;
@@ -471,7 +503,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               context,
               l10n.section_reading_activity,
               Icons.auto_graph,
-              _buildReadingActivityCards(context, stats, books),
+              _buildReadingActivityCards(
+                context,
+                _computeCurrentStats(books),
+                books,
+              ),
             ),
       ),
       _SectionDef(
@@ -482,7 +518,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               context,
               l10n.section_library_breakdown,
               Icons.library_books,
-              _buildLibraryBreakdownCards(context, stats),
+              _buildLibraryBreakdownCards(context, _computeCurrentStats(books)),
             ),
       ),
       _SectionDef(
@@ -493,7 +529,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               context,
               l10n.section_top_rankings,
               Icons.leaderboard,
-              _buildTopRankingsCards(context, stats),
+              _buildTopRankingsCards(context, _computeCurrentStats(books)),
             ),
       ),
       _SectionDef(
@@ -504,7 +540,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               context,
               l10n.section_ratings_pages,
               Icons.star_half,
-              _buildRatingsAndPagesCards(context, stats),
+              _buildRatingsAndPagesCards(context, _computeCurrentStats(books)),
             ),
       ),
       _SectionDef(
@@ -515,7 +551,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               context,
               l10n.section_sagas_series,
               Icons.collections_bookmark,
-              _buildSagasAndSeriesCards(context, stats, books),
+              _buildSagasAndSeriesCards(
+                context,
+                _computeCurrentStats(books),
+                books,
+              ),
             ),
       ),
       _SectionDef(
@@ -526,7 +566,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               context,
               l10n.section_reading_patterns,
               Icons.insights,
-              _buildReadingPatternsCards(context, stats),
+              _buildReadingPatternsCards(context, _computeCurrentStats(books)),
             ),
       ),
       _SectionDef(
