@@ -1,21 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
+import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/screens/books_by_decade.dart';
 
-class BooksByDecadeCard extends StatelessWidget {
-  final List<MapEntry<String, int>> sortedBooksByDecade;
-  final bool showReadBooks;
-  final ValueChanged<bool> onToggleChanged;
+class BooksByDecadeCard extends StatefulWidget {
+  final List<Book> books;
 
-  const BooksByDecadeCard({
-    super.key,
-    required this.sortedBooksByDecade,
-    required this.showReadBooks,
-    required this.onToggleChanged,
-  });
+  const BooksByDecadeCard({super.key, required this.books});
+
+  @override
+  State<BooksByDecadeCard> createState() => _BooksByDecadeCardState();
+}
+
+class _BooksByDecadeCardState extends State<BooksByDecadeCard> {
+  bool _showReadBooks = false;
+
+  List<MapEntry<String, int>> _computeSortedBooksByDecade() {
+    final Map<String, int> booksByDecade = {};
+    for (var book in widget.books) {
+      final isRead = book.readCount != null && book.readCount! > 0;
+      final shouldInclude = _showReadBooks ? isRead : true;
+      if (shouldInclude && book.originalPublicationYear != null) {
+        int pubYear = book.originalPublicationYear!;
+        if (pubYear > 9999) pubYear = pubYear ~/ 10000;
+        final decade = (pubYear ~/ 10) * 10;
+        final decadeLabel = '${decade}s';
+        final multiplier =
+            (book.isBundle == true &&
+                    book.bundleCount != null &&
+                    book.bundleCount! > 0)
+                ? book.bundleCount!
+                : 1;
+        booksByDecade[decadeLabel] =
+            (booksByDecade[decadeLabel] ?? 0) + multiplier;
+      }
+    }
+    return booksByDecade.entries.toList()..sort((a, b) {
+      final aD = int.parse(a.key.replaceAll('s', ''));
+      final bD = int.parse(b.key.replaceAll('s', ''));
+      return bD.compareTo(aD);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final sortedBooksByDecade = _computeSortedBooksByDecade();
+
     return InkWell(
       onTap: () {
         if (sortedBooksByDecade.isNotEmpty) {
@@ -25,7 +55,7 @@ class BooksByDecadeCard extends StatelessWidget {
               builder:
                   (context) => BooksByDecadeScreen(
                     initialDecade: sortedBooksByDecade.first.key,
-                    showReadOnly: showReadBooks,
+                    showReadOnly: _showReadBooks,
                   ),
             ),
           );
@@ -70,7 +100,14 @@ class BooksByDecadeCard extends StatelessWidget {
                         AppLocalizations.of(context)!.all_label,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
-                      Switch(value: showReadBooks, onChanged: onToggleChanged),
+                      Switch(
+                        value: _showReadBooks,
+                        onChanged: (val) {
+                          setState(() {
+                            _showReadBooks = val;
+                          });
+                        },
+                      ),
                       Text(
                         AppLocalizations.of(context)!.read_label,
                         style: Theme.of(context).textTheme.bodySmall,
@@ -106,7 +143,7 @@ class BooksByDecadeCard extends StatelessWidget {
                             builder:
                                 (context) => BooksByDecadeScreen(
                                   initialDecade: entry.key,
-                                  showReadOnly: showReadBooks,
+                                  showReadOnly: _showReadBooks,
                                 ),
                           ),
                         );

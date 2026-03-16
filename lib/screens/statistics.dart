@@ -40,10 +40,6 @@ class StatisticsScreen extends StatefulWidget {
 }
 
 class _StatisticsScreenState extends State<StatisticsScreen> {
-  bool _showReadBooksDecade = false;
-  bool _showReadBooksGenres = false;
-  bool _showReadBooksEditorials = false;
-  bool _showReadBooksAuthors = false;
   Map<int, int>? _booksReadPerYear;
   Map<int, int>? _pagesReadPerYear;
 
@@ -266,10 +262,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       formatSagaMapping: _formatSagaMapping,
       booksReadPerYear: _booksReadPerYear,
       pagesReadPerYear: _pagesReadPerYear,
-      showReadBooksDecade: _showReadBooksDecade,
-      showReadBooksGenres: _showReadBooksGenres,
-      showReadBooksEditorials: _showReadBooksEditorials,
-      showReadBooksAuthors: _showReadBooksAuthors,
     );
     return calculator.compute();
   }
@@ -293,15 +285,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         booksUsedInAverageDays: stats.booksUsedInAverageDays,
         yearsWithBooks: stats.yearsWithBooks,
       ),
-      BooksByDecadeCard(
-        sortedBooksByDecade: stats.sortedBooksByDecade,
-        showReadBooks: _showReadBooksDecade,
-        onToggleChanged: (val) {
-          setState(() {
-            _showReadBooksDecade = val;
-          });
-        },
-      ),
+      BooksByDecadeCard(books: books),
     ];
   }
 
@@ -330,41 +314,28 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   List<Widget> _buildTopRankingsCards(
     BuildContext context,
     StatisticsData stats,
+    List<Book> books,
   ) {
     final l10n = AppLocalizations.of(context)!;
     return [
       _TopRankingCard(
         title: l10n.top_5_genres,
-        entries: stats.top5Genres,
+        books: books,
         color: Colors.green,
-        showReadBooks: _showReadBooksGenres,
-        onToggleChanged: (val) {
-          setState(() {
-            _showReadBooksGenres = val;
-          });
-        },
+        fieldExtractor: (book) => book.genre ?? '',
+        topN: 5,
       ),
       _TopRankingCard(
         title: l10n.top_10_editorials,
-        entries: stats.top10Editorials,
+        books: books,
         color: Colors.orange,
-        showReadBooks: _showReadBooksEditorials,
-        onToggleChanged: (val) {
-          setState(() {
-            _showReadBooksEditorials = val;
-          });
-        },
+        fieldExtractor: (book) => book.editorialValue ?? '',
       ),
       _TopRankingCard(
         title: l10n.top_10_authors,
-        entries: stats.top10Authors,
+        books: books,
         color: Colors.red,
-        showReadBooks: _showReadBooksAuthors,
-        onToggleChanged: (val) {
-          setState(() {
-            _showReadBooksAuthors = val;
-          });
-        },
+        fieldExtractor: (book) => book.author ?? '',
       ),
     ];
   }
@@ -529,7 +500,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               context,
               l10n.section_top_rankings,
               Icons.leaderboard,
-              _buildTopRankingsCards(context, _computeCurrentStats(books)),
+              _buildTopRankingsCards(
+                context,
+                _computeCurrentStats(books),
+                books,
+              ),
             ),
       ),
       _SectionDef(
@@ -1808,22 +1783,52 @@ class _FormatByLanguageCard extends StatelessWidget {
 }
 
 /// Top Ranking — horizontal fill-bar chart with All/Read toggle
-class _TopRankingCard extends StatelessWidget {
+class _TopRankingCard extends StatefulWidget {
   final String title;
-  final List<MapEntry<String, int>> entries;
+  final List<Book> books;
   final Color color;
-  final bool showReadBooks;
-  final ValueChanged<bool> onToggleChanged;
+  final String Function(Book) fieldExtractor;
+  final int topN;
   const _TopRankingCard({
     required this.title,
-    required this.entries,
+    required this.books,
     required this.color,
-    required this.showReadBooks,
-    required this.onToggleChanged,
+    required this.fieldExtractor,
+    this.topN = 10,
   });
 
   @override
+  State<_TopRankingCard> createState() => _TopRankingCardState();
+}
+
+class _TopRankingCardState extends State<_TopRankingCard> {
+  bool _showReadBooks = false;
+
+  List<MapEntry<String, int>> _computeEntries() {
+    final Map<String, int> counts = {};
+    for (var book in widget.books) {
+      final isRead = book.readCount != null && book.readCount! > 0;
+      if (_showReadBooks && !isRead) continue;
+      final value = widget.fieldExtractor(book);
+      if (value.isNotEmpty) {
+        final multiplier =
+            (book.isBundle == true &&
+                    book.bundleCount != null &&
+                    book.bundleCount! > 0)
+                ? book.bundleCount!
+                : 1;
+        counts[value] = (counts[value] ?? 0) + multiplier;
+      }
+    }
+    return (counts.entries.toList()..sort((a, b) => b.value.compareTo(a.value)))
+        .take(widget.topN)
+        .toList();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final entries = _computeEntries();
+
     return Card(
       elevation: 2,
       margin: const EdgeInsets.symmetric(horizontal: 8),
@@ -1835,7 +1840,7 @@ class _TopRankingCard extends StatelessWidget {
             Column(
               children: [
                 Text(
-                  title,
+                  widget.title,
                   style: Theme.of(
                     context,
                   ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
@@ -1846,7 +1851,14 @@ class _TopRankingCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text('All', style: Theme.of(context).textTheme.bodySmall),
-                    Switch(value: showReadBooks, onChanged: onToggleChanged),
+                    Switch(
+                      value: _showReadBooks,
+                      onChanged: (val) {
+                        setState(() {
+                          _showReadBooks = val;
+                        });
+                      },
+                    ),
                     Text('Read', style: Theme.of(context).textTheme.bodySmall),
                   ],
                 ),
@@ -1887,7 +1899,7 @@ class _TopRankingCard extends StatelessWidget {
                               child: Container(
                                 height: 24,
                                 decoration: BoxDecoration(
-                                  color: color,
+                                  color: widget.color,
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                               ),

@@ -14,15 +14,8 @@ class StatisticsData {
   final Map<String, int> formatCountsCurrentYear;
   final Map<String, int> placeCounts;
   final Map<String, Map<String, int>> formatByLanguageCounts;
-  final Map<String, int> genreCounts;
-  final Map<String, int> editorialCounts;
-  final Map<String, int> authorCounts;
-  final List<MapEntry<String, int>> top5Genres;
-  final List<MapEntry<String, int>> top10Editorials;
-  final List<MapEntry<String, int>> top10Authors;
   final List<MapEntry<int, int>> sortedBooksReadYears;
   final List<MapEntry<int, int>> sortedPagesReadYears;
-  final List<MapEntry<String, int>> sortedBooksByDecade;
   final Map<String, int> ratingDistribution;
   final Map<String, int> pageDistribution;
   final Map<String, Map<String, dynamic>> sagaStats;
@@ -82,15 +75,8 @@ class StatisticsData {
     required this.formatCountsCurrentYear,
     required this.placeCounts,
     required this.formatByLanguageCounts,
-    required this.genreCounts,
-    required this.editorialCounts,
-    required this.authorCounts,
-    required this.top5Genres,
-    required this.top10Editorials,
-    required this.top10Authors,
     required this.sortedBooksReadYears,
     required this.sortedPagesReadYears,
-    required this.sortedBooksByDecade,
     required this.ratingDistribution,
     required this.pageDistribution,
     required this.sagaStats,
@@ -171,10 +157,6 @@ class StatisticsCalculator {
   final Map<String, int?> formatSagaMapping;
   final Map<int, int>? booksReadPerYear;
   final Map<int, int>? pagesReadPerYear;
-  final bool showReadBooksDecade;
-  final bool showReadBooksGenres;
-  final bool showReadBooksEditorials;
-  final bool showReadBooksAuthors;
 
   StatisticsCalculator({
     required this.books,
@@ -183,10 +165,6 @@ class StatisticsCalculator {
     required this.formatSagaMapping,
     required this.booksReadPerYear,
     required this.pagesReadPerYear,
-    this.showReadBooksDecade = false,
-    this.showReadBooksGenres = false,
-    this.showReadBooksEditorials = false,
-    this.showReadBooksAuthors = false,
   });
 
   StatisticsData compute() {
@@ -199,9 +177,6 @@ class StatisticsCalculator {
     final formatCountsCurrentYear = <String, int>{};
     final placeCounts = <String, int>{};
     final formatByLanguageCounts = <String, Map<String, int>>{};
-    final genreCounts = <String, int>{};
-    final editorialCounts = <String, int>{};
-    final authorCounts = <String, int>{};
 
     for (var book in books) {
       final multiplier =
@@ -229,7 +204,6 @@ class StatisticsCalculator {
       if (place != null && place.isNotEmpty) {
         placeCounts[place] = (placeCounts[place] ?? 0) + multiplier;
       }
-      final isRead = book.readCount != null && book.readCount! > 0;
       if (book.isBundle == true) {
         // skip bundles for current year format
       } else if (book.bookId != null && format != null && format.isNotEmpty) {
@@ -253,22 +227,6 @@ class StatisticsCalculator {
               (formatCountsCurrentYear[format] ?? 0) + 1;
         }
       }
-      if (showReadBooksGenres ? isRead : true) {
-        final genre = book.genre;
-        if (genre != null && genre.isNotEmpty)
-          genreCounts[genre] = (genreCounts[genre] ?? 0) + multiplier;
-      }
-      if (showReadBooksEditorials ? isRead : true) {
-        final editorial = book.editorialValue;
-        if (editorial != null && editorial.isNotEmpty)
-          editorialCounts[editorial] =
-              (editorialCounts[editorial] ?? 0) + multiplier;
-      }
-      if (showReadBooksAuthors ? isRead : true) {
-        final author = book.author;
-        if (author != null && author.isNotEmpty)
-          authorCounts[author] = (authorCounts[author] ?? 0) + multiplier;
-      }
     }
 
     double readingVelocity = _calculateReadingVelocity();
@@ -284,22 +242,6 @@ class StatisticsCalculator {
         averageBooksPerYear = totalBooksVal / yearsWithBooks;
     }
 
-    final top5Genres =
-        (genreCounts.entries.toList()
-              ..sort((a, b) => b.value.compareTo(a.value)))
-            .take(5)
-            .toList();
-    final top10Editorials =
-        (editorialCounts.entries.toList()
-              ..sort((a, b) => b.value.compareTo(a.value)))
-            .take(10)
-            .toList();
-    final top10Authors =
-        (authorCounts.entries.toList()
-              ..sort((a, b) => b.value.compareTo(a.value)))
-            .take(10)
-            .toList();
-
     final booksReadPerYearMap = booksReadPerYear ?? {};
     final pagesReadPerYearMap = pagesReadPerYear ?? {};
     final sortedBooksReadYears =
@@ -308,14 +250,6 @@ class StatisticsCalculator {
     final sortedPagesReadYears =
         pagesReadPerYearMap.entries.toList()
           ..sort((a, b) => b.key.compareTo(a.key));
-
-    final booksByDecade = _computeBooksByDecade();
-    final sortedBooksByDecade =
-        booksByDecade.entries.toList()..sort((a, b) {
-          final aD = int.parse(a.key.replaceAll('s', ''));
-          final bD = int.parse(b.key.replaceAll('s', ''));
-          return bD.compareTo(aD);
-        });
 
     final ratingDistribution = _computeRatingDistribution();
     final pageDistribution = _computePageDistribution();
@@ -362,15 +296,8 @@ class StatisticsCalculator {
       formatCountsCurrentYear: formatCountsCurrentYear,
       placeCounts: placeCounts,
       formatByLanguageCounts: formatByLanguageCounts,
-      genreCounts: genreCounts,
-      editorialCounts: editorialCounts,
-      authorCounts: authorCounts,
-      top5Genres: top5Genres,
-      top10Editorials: top10Editorials,
-      top10Authors: top10Authors,
       sortedBooksReadYears: sortedBooksReadYears,
       sortedPagesReadYears: sortedPagesReadYears,
-      sortedBooksByDecade: sortedBooksByDecade,
       ratingDistribution: ratingDistribution,
       pageDistribution: pageDistribution,
       sagaStats: sagaResult['sagaStats'] as Map<String, Map<String, dynamic>>,
@@ -665,29 +592,6 @@ class StatisticsCalculator {
       if (readingDays > 0) count++;
     }
     return count;
-  }
-
-  Map<String, int> _computeBooksByDecade() {
-    final Map<String, int> booksByDecade = {};
-    for (var book in books) {
-      final isRead = book.readCount != null && book.readCount! > 0;
-      final shouldInclude = showReadBooksDecade ? isRead : true;
-      if (shouldInclude && book.originalPublicationYear != null) {
-        int pubYear = book.originalPublicationYear!;
-        if (pubYear > 9999) pubYear = pubYear ~/ 10000;
-        final decade = (pubYear ~/ 10) * 10;
-        final decadeLabel = '${decade}s';
-        final multiplier =
-            (book.isBundle == true &&
-                    book.bundleCount != null &&
-                    book.bundleCount! > 0)
-                ? book.bundleCount!
-                : 1;
-        booksByDecade[decadeLabel] =
-            (booksByDecade[decadeLabel] ?? 0) + multiplier;
-      }
-    }
-    return booksByDecade;
   }
 
   Map<String, int> _computeRatingDistribution() {
