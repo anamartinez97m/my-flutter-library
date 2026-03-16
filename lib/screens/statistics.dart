@@ -677,7 +677,7 @@ class _BooksReadPerYearCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final sortedYears =
         booksReadPerYear?.entries.toList()
-          ?..sort((a, b) => a.key.compareTo(b.key));
+          ?..sort((a, b) => b.key.compareTo(a.key));
     return InkWell(
       onTap: () {
         if (sortedYears != null && sortedYears.isNotEmpty) {
@@ -835,7 +835,7 @@ class _PagesReadPerYearCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final sortedYears =
         pagesReadPerYear?.entries.toList()
-          ?..sort((a, b) => a.key.compareTo(b.key));
+          ?..sort((a, b) => b.key.compareTo(a.key));
     return Card(
       elevation: 2,
       margin: const EdgeInsets.symmetric(horizontal: 8),

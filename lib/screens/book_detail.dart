@@ -46,6 +46,18 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   bool _isDescriptionExpanded = false; // Track description expansion state
   bool _isFetchingMetadata = false; // Track if metadata is being fetched
 
+  bool get _hasReadToday {
+    final now = DateTime.now();
+    final todayKey =
+        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    return _chronometerSessions.any(
+      (s) =>
+          s.didRead &&
+          s.startTime != null &&
+          _getDayKey(s.startTime!) == todayKey,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -2380,39 +2392,54 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                             _currentBook.statusValue?.toLowerCase() ==
                                 'standby') &&
                         _currentBook.isBundle != true) ...[
-                      Container(
-                        height: 48,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.orange, width: 2),
-                        ),
-                        child: InkWell(
-                          onTap: _markAsReadToday,
-                          borderRadius: BorderRadius.circular(6),
-                          child: Container(
-                            alignment: Alignment.center,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.check_circle_outline,
-                                  color: Colors.orange,
-                                  size: 20,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  AppLocalizations.of(
-                                    context,
-                                  )!.did_you_read_today,
-                                  style: TextStyle(
-                                    color: Colors.orange,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
+                      Builder(
+                        builder: (context) {
+                          final alreadyRead = _hasReadToday;
+                          final borderColor =
+                              alreadyRead ? Colors.grey : Colors.orange;
+                          final contentColor =
+                              alreadyRead ? Colors.grey : Colors.orange;
+                          return Container(
+                            height: 48,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: borderColor, width: 2),
                             ),
-                          ),
-                        ),
+                            child: InkWell(
+                              onTap: alreadyRead ? null : _markAsReadToday,
+                              borderRadius: BorderRadius.circular(6),
+                              child: Container(
+                                alignment: Alignment.center,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      alreadyRead
+                                          ? Icons.check_circle
+                                          : Icons.check_circle_outline,
+                                      color: contentColor,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      alreadyRead
+                                          ? AppLocalizations.of(
+                                            context,
+                                          )!.marked_read_today
+                                          : AppLocalizations.of(
+                                            context,
+                                          )!.did_you_read_today,
+                                      style: TextStyle(
+                                        color: contentColor,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
                       ),
                       AppTheme.verticalSpaceLarge,
                     ],

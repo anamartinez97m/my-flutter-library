@@ -60,7 +60,11 @@ class ReadingSessionRepository {
   }
 
   /// End an active session
-  Future<void> endSession(int sessionId, DateTime endTime, int durationSeconds) async {
+  Future<void> endSession(
+    int sessionId,
+    DateTime endTime,
+    int durationSeconds,
+  ) async {
     await db.update(
       'reading_sessions',
       {
@@ -95,14 +99,20 @@ class ReadingSessionRepository {
   }
 
   /// Get reading time statistics by date range
-  Future<Map<String, int>> getReadingTimeByDateRange(DateTime start, DateTime end) async {
-    final results = await db.rawQuery('''
+  Future<Map<String, int>> getReadingTimeByDateRange(
+    DateTime start,
+    DateTime end,
+  ) async {
+    final results = await db.rawQuery(
+      '''
       SELECT DATE(start_time) as date, SUM(duration_seconds) as total
       FROM reading_sessions
       WHERE start_time >= ? AND start_time <= ? AND duration_seconds IS NOT NULL
       GROUP BY DATE(start_time)
       ORDER BY date
-    ''', [start.toIso8601String(), end.toIso8601String()]);
+    ''',
+      [start.toIso8601String(), end.toIso8601String()],
+    );
 
     final Map<String, int> timeByDate = {};
     for (final row in results) {
@@ -145,7 +155,11 @@ class ReadingSessionRepository {
   }
 
   /// Create a custom reading session with specific date/time
-  Future<int> createCustomSession(int bookId, DateTime startTime, {bool didRead = true}) async {
+  Future<int> createCustomSession(
+    int bookId,
+    DateTime startTime, {
+    bool didRead = true,
+  }) async {
     final session = ReadingSession(
       bookId: bookId,
       startTime: startTime,
