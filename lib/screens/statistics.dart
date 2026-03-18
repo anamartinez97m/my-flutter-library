@@ -14,14 +14,15 @@ import 'package:myrandomlibrary/widgets/statistics/rating_distribution_card.dart
 import 'package:myrandomlibrary/widgets/statistics/page_distribution_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/saga_completion_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/seasonal_reading_card.dart';
-import 'package:myrandomlibrary/widgets/statistics/seasonal_preferences_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/monthly_heatmap_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/average_rating_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/book_extremes_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/reading_insights_card.dart';
-import 'package:myrandomlibrary/widgets/statistics/reading_time_placeholder_card.dart';
+import 'package:myrandomlibrary/widgets/statistics/reading_time_of_day_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/reading_goals_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/quick_stats_row.dart';
+import 'package:myrandomlibrary/widgets/statistics/daily_reading_heatmap_card.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:myrandomlibrary/widgets/statistics/book_competition_card.dart';
 import 'package:myrandomlibrary/model/book_competition.dart';
 import 'package:myrandomlibrary/repositories/book_competition_repository.dart';
@@ -61,12 +62,17 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
   bool _hasTriggeredProviderLoads = false;
 
+  // Price statistics toggle & currency
+  bool _showPriceStatistics = false;
+  String _currencySymbol = '€';
+
   @override
   void initState() {
     super.initState();
     _loadYearData();
     _loadCompetitionData();
     _loadFormatSagaMapping();
+    _loadPricePrefs();
   }
 
   void _triggerProviderDependentLoads() {
@@ -74,6 +80,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       _hasTriggeredProviderLoads = true;
       _loadReadingSessionsData();
       _loadReadDatesData();
+    }
+  }
+
+  Future<void> _loadPricePrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _showPriceStatistics = prefs.getBool('show_price_statistics') ?? false;
+        _currencySymbol = prefs.getString('currency_symbol') ?? '€';
+      });
     }
   }
 
@@ -277,6 +293,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       _BooksReadPerYearCard(booksReadPerYear: _booksReadPerYear),
       _PagesReadPerYearCard(pagesReadPerYear: _pagesReadPerYear),
       MonthlyHeatmapCard(monthlyHeatmap: stats.monthlyHeatmap),
+      if (stats.dailyHeatmap.isNotEmpty)
+        DailyReadingHeatmapCard(dailyHeatmap: stats.dailyHeatmap),
       ReadingGoalsCard(),
       _ReadingEfficiencyCard(
         readingVelocity: stats.readingVelocity,
@@ -407,19 +425,73 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         nextMilestoneRead: stats.nextMilestoneRead,
         booksToMilestoneRead: stats.booksToMilestoneRead,
         bingePercentage: stats.bingePercentage,
-        topGenreBySeason: stats.topGenreBySeason,
       ),
       SeasonalReadingCard(
         seasonalReading: stats.seasonalReading,
         seasonalReadingPerYear: stats.seasonalReadingPerYear,
         yearsCount: stats.yearsCount,
+        topGenreBySeason: stats.topGenreBySeason,
       ),
-      SeasonalPreferencesCard(seasonalReading: stats.seasonalReading),
+      ReadingTimeOfDayCard(readingTimeOfDay: stats.readingTimeOfDay),
     ];
   }
 
-  List<Widget> _buildComingSoonCards(BuildContext context) {
-    return [ReadingTimePlaceholderCard()];
+  List<Widget> _buildPriceStatisticsCards(
+    BuildContext context,
+    StatisticsData stats,
+  ) {
+    final priceStats = stats.priceStats;
+    if (priceStats == null) {
+      return [
+        Card(
+          elevation: 2,
+          margin: const EdgeInsets.symmetric(horizontal: 8),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(40),
+            child: Center(
+              child: Text(
+                AppLocalizations.of(context)!.no_price_data,
+                style: Theme.of(context).textTheme.bodyLarge,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        ),
+      ];
+    }
+    return [
+      _PriceByFormatCard(
+        avgPriceByFormat: priceStats.avgPriceByFormat,
+        countByFormat: priceStats.countByFormat,
+        currencySymbol: _currencySymbol,
+      ),
+      _PriceByYearCard(
+        totalSpentByYear: priceStats.totalSpentByYear,
+        avgPriceByYear: priceStats.avgPriceByYear,
+        currencySymbol: _currencySymbol,
+      ),
+      _PriceByMonthCard(
+        totalSpentByMonth: priceStats.totalSpentByMonth,
+        currencySymbol: _currencySymbol,
+      ),
+      _MostLeastExpensiveCard(
+        mostExpensiveName: priceStats.mostExpensiveName,
+        mostExpensivePrice: priceStats.mostExpensivePrice,
+        leastExpensiveName: priceStats.leastExpensiveName,
+        leastExpensivePrice: priceStats.leastExpensivePrice,
+        totalSpent: priceStats.totalSpent,
+        currencySymbol: _currencySymbol,
+      ),
+      _PriceRangeEvolutionCard(
+        avgPriceByYear: priceStats.avgPriceByYear,
+        minPriceByYear: priceStats.minPriceByYear,
+        maxPriceByYear: priceStats.maxPriceByYear,
+        currencySymbol: _currencySymbol,
+      ),
+    ];
   }
 
   void _navigateToSection(
@@ -544,17 +616,21 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               _buildReadingPatternsCards(context, _computeCurrentStats(books)),
             ),
       ),
-      _SectionDef(
-        title: l10n.section_coming_soon,
-        icon: Icons.upcoming,
-        onTap:
-            () => _navigateToSection(
-              context,
-              l10n.section_coming_soon,
-              Icons.upcoming,
-              _buildComingSoonCards(context),
-            ),
-      ),
+      if (_showPriceStatistics)
+        _SectionDef(
+          title: l10n.section_price_statistics,
+          icon: Icons.attach_money,
+          onTap:
+              () => _navigateToSection(
+                context,
+                l10n.section_price_statistics,
+                Icons.attach_money,
+                _buildPriceStatisticsCards(
+                  context,
+                  _computeCurrentStats(books),
+                ),
+              ),
+        ),
     ];
 
     return Scaffold(
@@ -1804,8 +1880,11 @@ class _TopRankingCard extends StatefulWidget {
 class _TopRankingCardState extends State<_TopRankingCard> {
   bool _showReadBooks = false;
 
-  List<MapEntry<String, int>> _computeEntries() {
+  // Returns list of {name, count, avgRating}
+  List<Map<String, dynamic>> _computeEntries() {
     final Map<String, int> counts = {};
+    final Map<String, double> ratingTotals = {};
+    final Map<String, int> ratingCounts = {};
     for (var book in widget.books) {
       final isRead = book.readCount != null && book.readCount! > 0;
       if (_showReadBooks && !isRead) continue;
@@ -1818,16 +1897,27 @@ class _TopRankingCardState extends State<_TopRankingCard> {
                 ? book.bundleCount!
                 : 1;
         counts[value] = (counts[value] ?? 0) + multiplier;
+        if (book.myRating != null && book.myRating! > 0) {
+          ratingTotals[value] = (ratingTotals[value] ?? 0) + book.myRating!;
+          ratingCounts[value] = (ratingCounts[value] ?? 0) + 1;
+        }
       }
     }
-    return (counts.entries.toList()..sort((a, b) => b.value.compareTo(a.value)))
-        .take(widget.topN)
-        .toList();
+    final sorted =
+        counts.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+    return sorted.take(widget.topN).map((entry) {
+      final avgRating =
+          ratingCounts.containsKey(entry.key)
+              ? ratingTotals[entry.key]! / ratingCounts[entry.key]!
+              : 0.0;
+      return {'name': entry.key, 'count': entry.value, 'avgRating': avgRating};
+    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     final entries = _computeEntries();
+    final maxValue = entries.isNotEmpty ? entries.first['count'] as int : 1;
 
     return Card(
       elevation: 2,
@@ -1869,18 +1959,35 @@ class _TopRankingCardState extends State<_TopRankingCard> {
               Center(child: Text(AppLocalizations.of(context)!.no_data))
             else
               ...entries.map((entry) {
-                final maxValue = entries.first.value;
-                final percentage = entry.value / maxValue;
+                final count = entry['count'] as int;
+                final name = entry['name'] as String;
+                final avgRating = entry['avgRating'] as double;
+                final percentage = count / maxValue;
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   child: Row(
                     children: [
                       SizedBox(
                         width: 100,
-                        child: Text(
-                          entry.key,
-                          style: Theme.of(context).textTheme.bodySmall,
-                          overflow: TextOverflow.ellipsis,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              name,
+                              style: Theme.of(context).textTheme.bodySmall,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            if (avgRating > 0)
+                              Text(
+                                '★ ${avgRating.toStringAsFixed(1)}',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.amber[700],
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                          ],
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -1911,7 +2018,7 @@ class _TopRankingCardState extends State<_TopRankingCard> {
                               ),
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                '${entry.value}',
+                                '$count',
                                 style: TextStyle(
                                   color:
                                       percentage > 0.15
@@ -1932,6 +2039,721 @@ class _TopRankingCardState extends State<_TopRankingCard> {
           ],
         ),
       ),
+    );
+  }
+}
+
+// === Price Statistics Cards ===
+
+/// Price by Format — horizontal bar chart showing avg price per format
+class _PriceByFormatCard extends StatelessWidget {
+  final Map<String, double> avgPriceByFormat;
+  final Map<String, int> countByFormat;
+  final String currencySymbol;
+  const _PriceByFormatCard({
+    required this.avgPriceByFormat,
+    required this.countByFormat,
+    required this.currencySymbol,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (avgPriceByFormat.isEmpty) return const SizedBox.shrink();
+    final sorted =
+        avgPriceByFormat.entries.toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
+    final maxPrice = sorted.first.value;
+
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            Text(
+              AppLocalizations.of(context)!.price_by_format,
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 16),
+            ...sorted.map((entry) {
+              final percentage = maxPrice > 0 ? entry.value / maxPrice : 0.0;
+              final count = countByFormat[entry.key] ?? 0;
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 90,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            entry.key,
+                            style: Theme.of(context).textTheme.bodySmall,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            '$count books',
+                            style: TextStyle(
+                              fontSize: 9,
+                              color: Colors.grey[500],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Stack(
+                        children: [
+                          Container(
+                            height: 24,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          FractionallySizedBox(
+                            widthFactor: percentage,
+                            child: Container(
+                              height: 24,
+                              decoration: BoxDecoration(
+                                color: Colors.teal,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            height: 24,
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              '$currencySymbol${entry.value.toStringAsFixed(2)}',
+                              style: TextStyle(
+                                color:
+                                    percentage > 0.15
+                                        ? Colors.white
+                                        : Colors.black87,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Price by Year — horizontal bar chart
+class _PriceByYearCard extends StatelessWidget {
+  final Map<int, double> totalSpentByYear;
+  final Map<int, double> avgPriceByYear;
+  final String currencySymbol;
+  const _PriceByYearCard({
+    required this.totalSpentByYear,
+    required this.avgPriceByYear,
+    required this.currencySymbol,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (totalSpentByYear.isEmpty) return const SizedBox.shrink();
+    final sortedYears = totalSpentByYear.keys.toList()..sort();
+    final maxVal = totalSpentByYear.values.reduce((a, b) => a > b ? a : b);
+
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            Text(
+              AppLocalizations.of(context)!.price_by_year,
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 16),
+            ...sortedYears.map((year) {
+              final total = totalSpentByYear[year] ?? 0;
+              final avg = avgPriceByYear[year] ?? 0;
+              final percentage = maxVal > 0 ? total / maxVal : 0.0;
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 50,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '$year',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Stack(
+                        children: [
+                          Container(
+                            height: 24,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          FractionallySizedBox(
+                            widthFactor: percentage,
+                            child: Container(
+                              height: 24,
+                              decoration: BoxDecoration(
+                                color: Colors.teal,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            height: 24,
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              '$currencySymbol${total.toStringAsFixed(0)}',
+                              style: TextStyle(
+                                color:
+                                    percentage > 0.15
+                                        ? Colors.white
+                                        : Colors.black87,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Price by Month — horizontal bar chart for a selected year
+class _PriceByMonthCard extends StatefulWidget {
+  final Map<int, Map<int, double>> totalSpentByMonth;
+  final String currencySymbol;
+  const _PriceByMonthCard({
+    required this.totalSpentByMonth,
+    required this.currencySymbol,
+  });
+
+  @override
+  State<_PriceByMonthCard> createState() => _PriceByMonthCardState();
+}
+
+class _PriceByMonthCardState extends State<_PriceByMonthCard> {
+  late int _selectedYear;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.totalSpentByMonth.isNotEmpty) {
+      final years =
+          widget.totalSpentByMonth.keys.toList()
+            ..sort((a, b) => b.compareTo(a));
+      _selectedYear = years.first;
+    } else {
+      _selectedYear = DateTime.now().year;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.totalSpentByMonth.isEmpty) return const SizedBox.shrink();
+    final sortedYears =
+        widget.totalSpentByMonth.keys.toList()..sort((a, b) => b.compareTo(a));
+    final monthData = widget.totalSpentByMonth[_selectedYear] ?? {};
+    final maxVal =
+        monthData.values.isEmpty
+            ? 1.0
+            : monthData.values.reduce((a, b) => a > b ? a : b);
+    final monthAbbrs = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    AppLocalizations.of(context)!.price_by_month,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey[300]!),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: DropdownButton<int>(
+                    value: _selectedYear,
+                    underline: const SizedBox.shrink(),
+                    isDense: true,
+                    items:
+                        sortedYears.map((year) {
+                          return DropdownMenuItem<int>(
+                            value: year,
+                            child: Text(
+                              '$year',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          );
+                        }).toList(),
+                    onChanged: (year) {
+                      if (year != null) setState(() => _selectedYear = year);
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            ...List.generate(12, (index) {
+              final month = index + 1;
+              final total = monthData[month] ?? 0.0;
+              final percentage = maxVal > 0 ? total / maxVal : 0.0;
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 3),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 36,
+                      child: Text(
+                        monthAbbrs[index],
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Stack(
+                        children: [
+                          Container(
+                            height: 20,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          if (total > 0)
+                            FractionallySizedBox(
+                              widthFactor: percentage,
+                              child: Container(
+                                height: 20,
+                                decoration: BoxDecoration(
+                                  color: Colors.teal,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                            ),
+                          Container(
+                            height: 20,
+                            padding: const EdgeInsets.symmetric(horizontal: 6),
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              total > 0
+                                  ? '${widget.currencySymbol}${total.toStringAsFixed(0)}'
+                                  : '',
+                              style: TextStyle(
+                                color:
+                                    percentage > 0.15
+                                        ? Colors.white
+                                        : Colors.black87,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Most / Least Expensive book card
+class _MostLeastExpensiveCard extends StatelessWidget {
+  final String? mostExpensiveName;
+  final double? mostExpensivePrice;
+  final String? leastExpensiveName;
+  final double? leastExpensivePrice;
+  final double totalSpent;
+  final String currencySymbol;
+  const _MostLeastExpensiveCard({
+    this.mostExpensiveName,
+    this.mostExpensivePrice,
+    this.leastExpensiveName,
+    this.leastExpensivePrice,
+    required this.totalSpent,
+    required this.currencySymbol,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            Text(
+              AppLocalizations.of(context)!.price_extremes,
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 20),
+            // Total spent
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.teal.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.account_balance_wallet,
+                    color: Colors.teal,
+                    size: 28,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.total_spent,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        Text(
+                          '$currencySymbol${totalSpent.toStringAsFixed(2)}',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.teal,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Most expensive
+            if (mostExpensiveName != null) ...[
+              ListTile(
+                leading: const Icon(Icons.arrow_upward, color: Colors.red),
+                title: Text(
+                  mostExpensiveName!,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                subtitle: Text(AppLocalizations.of(context)!.most_expensive),
+                trailing: Text(
+                  '$currencySymbol${mostExpensivePrice?.toStringAsFixed(2) ?? ''}',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.red,
+                  ),
+                ),
+              ),
+            ],
+            // Least expensive
+            if (leastExpensiveName != null) ...[
+              ListTile(
+                leading: const Icon(Icons.arrow_downward, color: Colors.green),
+                title: Text(
+                  leastExpensiveName!,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                subtitle: Text(AppLocalizations.of(context)!.least_expensive),
+                trailing: Text(
+                  '$currencySymbol${leastExpensivePrice?.toStringAsFixed(2) ?? ''}',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Price Range Evolution — line chart showing avg, min, max price over years
+class _PriceRangeEvolutionCard extends StatelessWidget {
+  final Map<int, double> avgPriceByYear;
+  final Map<int, double> minPriceByYear;
+  final Map<int, double> maxPriceByYear;
+  final String currencySymbol;
+  const _PriceRangeEvolutionCard({
+    required this.avgPriceByYear,
+    required this.minPriceByYear,
+    required this.maxPriceByYear,
+    required this.currencySymbol,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (avgPriceByYear.isEmpty) return const SizedBox.shrink();
+    final sortedYears = avgPriceByYear.keys.toList()..sort();
+
+    // Compute global max for Y axis
+    double globalMax = 0;
+    for (var year in sortedYears) {
+      final maxP = maxPriceByYear[year] ?? 0;
+      if (maxP > globalMax) globalMax = maxP;
+    }
+    globalMax = globalMax * 1.15;
+    if (globalMax == 0) globalMax = 10;
+
+    // Build spots
+    final avgSpots = <FlSpot>[];
+    final minSpots = <FlSpot>[];
+    final maxSpots = <FlSpot>[];
+    for (int i = 0; i < sortedYears.length; i++) {
+      final year = sortedYears[i];
+      avgSpots.add(FlSpot(i.toDouble(), avgPriceByYear[year] ?? 0));
+      minSpots.add(FlSpot(i.toDouble(), minPriceByYear[year] ?? 0));
+      maxSpots.add(FlSpot(i.toDouble(), maxPriceByYear[year] ?? 0));
+    }
+
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            Text(
+              AppLocalizations.of(context)!.price_range_evolution,
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            // Legend
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _legendDot(Colors.red, 'Max'),
+                const SizedBox(width: 12),
+                _legendDot(Colors.teal, 'Avg'),
+                const SizedBox(width: 12),
+                _legendDot(Colors.blue, 'Min'),
+              ],
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 200,
+              child: LineChart(
+                LineChartData(
+                  minY: 0,
+                  maxY: globalMax,
+                  titlesData: FlTitlesData(
+                    show: true,
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        interval: 1,
+                        getTitlesWidget: (value, meta) {
+                          final index = value.toInt();
+                          if (index >= 0 && index < sortedYears.length) {
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Text(
+                                '${sortedYears[index]}',
+                                style: const TextStyle(fontSize: 10),
+                              ),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
+                    ),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 40,
+                        getTitlesWidget: (value, meta) {
+                          return Text(
+                            '$currencySymbol${value.toInt()}',
+                            style: const TextStyle(fontSize: 9),
+                          );
+                        },
+                      ),
+                    ),
+                    topTitles: AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    rightTitles: AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                  ),
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: false,
+                    horizontalInterval: globalMax / 4,
+                    getDrawingHorizontalLine:
+                        (value) =>
+                            FlLine(color: Colors.grey[200]!, strokeWidth: 1),
+                  ),
+                  borderData: FlBorderData(show: false),
+                  lineTouchData: LineTouchData(
+                    touchTooltipData: LineTouchTooltipData(
+                      getTooltipItems: (touchedSpots) {
+                        return touchedSpots.map((spot) {
+                          String label;
+                          if (spot.barIndex == 0) {
+                            label = 'Max';
+                          } else if (spot.barIndex == 1) {
+                            label = 'Avg';
+                          } else {
+                            label = 'Min';
+                          }
+                          return LineTooltipItem(
+                            '$label: $currencySymbol${spot.y.toStringAsFixed(1)}',
+                            TextStyle(
+                              color: spot.bar.color ?? Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          );
+                        }).toList();
+                      },
+                    ),
+                  ),
+                  lineBarsData: [
+                    // Max line
+                    LineChartBarData(
+                      spots: maxSpots,
+                      isCurved: true,
+                      color: Colors.red.withOpacity(0.7),
+                      barWidth: 2,
+                      dotData: FlDotData(show: true),
+                      belowBarData: BarAreaData(show: false),
+                    ),
+                    // Avg line
+                    LineChartBarData(
+                      spots: avgSpots,
+                      isCurved: true,
+                      color: Colors.teal,
+                      barWidth: 3,
+                      dotData: FlDotData(show: true),
+                      belowBarData: BarAreaData(
+                        show: true,
+                        color: Colors.teal.withOpacity(0.1),
+                      ),
+                    ),
+                    // Min line
+                    LineChartBarData(
+                      spots: minSpots,
+                      isCurved: true,
+                      color: Colors.blue.withOpacity(0.7),
+                      barWidth: 2,
+                      dotData: FlDotData(show: true),
+                      belowBarData: BarAreaData(show: false),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _legendDot(Color color, String label) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 4),
+        Text(label, style: const TextStyle(fontSize: 11)),
+      ],
     );
   }
 }

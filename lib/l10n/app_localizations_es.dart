@@ -2917,4 +2917,80 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get format_by_language => 'Formato por Idioma';
+
+  @override
+  String get daily_reading_heatmap => 'Días leídos en un año';
+
+  @override
+  String days_read_summary(Object days, Object total, Object percent) {
+    return 'Leídos $days días de $total ($percent%)';
+  }
+
+  @override
+  String get quick_stat_days_read => 'Días Leídos';
+
+  @override
+  String get show_price_statistics => 'Mostrar Estadísticas de Precios';
+
+  @override
+  String get show_price_statistics_subtitle => 'Mostrar una sección de estadísticas de precios en tu panel de estadísticas';
+
+  @override
+  String get currency_setting => 'Símbolo de Moneda';
+
+  @override
+  String get currency_setting_subtitle => 'Elige qué símbolo de moneda mostrar para los precios';
+
+  @override
+  String get custom_currency_hint => 'Símbolo personalizado';
+
+  @override
+  String get no_price_data => 'Aún no hay libros con datos de precio. Añade precios a tus libros para ver estadísticas.';
+
+  @override
+  String get section_price_statistics => 'Estadísticas de Precios';
+
+  @override
+  String get price_by_format => 'Precio Medio por Formato';
+
+  @override
+  String get price_by_year => 'Gasto por Año';
+
+  @override
+  String get price_by_month => 'Gasto por Mes';
+
+  @override
+  String get price_extremes => 'Destacados de Precios';
+
+  @override
+  String get total_spent => 'Total Gastado';
+
+  @override
+  String get most_expensive => 'Más Caro';
+
+  @override
+  String get least_expensive => 'Más Barato';
+
+  @override
+  String get price_range_evolution => 'Evolución de Rangos de Precio';
+
+  @override
+  String get time_slot_morning => 'Mañana';
+
+  @override
+  String get time_slot_afternoon => 'Tarde';
+
+  @override
+  String get time_slot_night => 'Noche';
+
+  @override
+  String get time_slot_late_night => 'Madrugada';
+
+  @override
+  String get no_session_data => 'Aún no hay datos de sesiones de lectura. Usa el cronómetro para registrar tus sesiones.';
+
+  @override
+  String favorite_reading_time(Object slot) {
+    return 'Favorito: $slot';
+  }
 }

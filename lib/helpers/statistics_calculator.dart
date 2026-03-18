@@ -66,6 +66,12 @@ class StatisticsData {
   final int yearsWithBooks;
   final int totalBooksRead;
   final int booksReadThisYear;
+  final Map<int, Map<String, int>>
+  dailyHeatmap; // year -> "YYYY-MM-DD" -> count
+  final int daysReadThisYear;
+  final PriceStatsData? priceStats;
+  // Reading time of day: slot label -> {count, totalMinutes}
+  final Map<String, Map<String, dynamic>> readingTimeOfDay;
 
   const StatisticsData({
     required this.totalCount,
@@ -127,6 +133,45 @@ class StatisticsData {
     required this.yearsWithBooks,
     required this.totalBooksRead,
     required this.booksReadThisYear,
+    required this.dailyHeatmap,
+    required this.daysReadThisYear,
+    this.priceStats,
+    required this.readingTimeOfDay,
+  });
+}
+
+/// Holds computed price statistics data.
+class PriceStatsData {
+  final Map<String, double> avgPriceByFormat; // format -> avg price
+  final Map<String, int> countByFormat; // format -> count of priced books
+  final Map<int, double> totalSpentByYear; // year -> total spent
+  final Map<int, double> avgPriceByYear; // year -> avg price
+  final Map<int, Map<int, double>> totalSpentByMonth; // year -> month -> total
+  final String? mostExpensiveName;
+  final double? mostExpensivePrice;
+  final String? leastExpensiveName;
+  final double? leastExpensivePrice;
+  final double totalSpent;
+  // Price range evolution: year -> range label -> count
+  final Map<int, Map<String, int>> priceRangesByYear;
+  // Min/max price per year for line chart
+  final Map<int, double> minPriceByYear;
+  final Map<int, double> maxPriceByYear;
+
+  const PriceStatsData({
+    required this.avgPriceByFormat,
+    required this.countByFormat,
+    required this.totalSpentByYear,
+    required this.avgPriceByYear,
+    required this.totalSpentByMonth,
+    this.mostExpensiveName,
+    this.mostExpensivePrice,
+    this.leastExpensiveName,
+    this.leastExpensivePrice,
+    required this.totalSpent,
+    required this.priceRangesByYear,
+    required this.minPriceByYear,
+    required this.maxPriceByYear,
   });
 }
 
@@ -277,6 +322,9 @@ class StatisticsCalculator {
     final milestones = _computeMilestones();
     final bingeResult = _computeBingeReading();
     final moodResult = _computeMoodReading();
+    final dailyHeatmapResult = _computeDailyReadingHeatmap();
+    final priceStats = _computePriceStats();
+    final readingTimeOfDay = _computeReadingTimeOfDay();
 
     // Quick stats
     final totalBooksRead =
@@ -350,6 +398,11 @@ class StatisticsCalculator {
       yearsWithBooks: yearsWithBooks,
       totalBooksRead: totalBooksRead,
       booksReadThisYear: booksReadThisYear,
+      dailyHeatmap:
+          dailyHeatmapResult['dailyHeatmap'] as Map<int, Map<String, int>>,
+      daysReadThisYear: dailyHeatmapResult['daysReadThisYear'] as int,
+      priceStats: priceStats,
+      readingTimeOfDay: readingTimeOfDay,
     );
   }
 
@@ -1094,5 +1147,236 @@ class StatisticsCalculator {
       }
     }
     return topGenreBySeason;
+  }
+
+  Map<String, dynamic> _computeDailyReadingHeatmap() {
+    final currentYear = DateTime.now().year;
+    final Map<int, Map<String, int>> dailyHeatmap = {};
+    for (var sessionList in bookSessions.values) {
+      for (var session in sessionList) {
+        if (session.startTime != null) {
+          final year = session.startTime!.year;
+          final dayKey = _getDayKey(session.startTime!);
+          dailyHeatmap.putIfAbsent(year, () => {});
+          dailyHeatmap[year]![dayKey] = (dailyHeatmap[year]![dayKey] ?? 0) + 1;
+        }
+      }
+    }
+    // Count unique days read this year
+    final currentYearDays = dailyHeatmap[currentYear] ?? {};
+    final daysReadThisYear = currentYearDays.keys.length;
+    return {'dailyHeatmap': dailyHeatmap, 'daysReadThisYear': daysReadThisYear};
+  }
+
+  String _getPriceRange(double price) {
+    if (price < 5) return '0-5';
+    if (price < 10) return '5-10';
+    if (price < 15) return '10-15';
+    if (price < 20) return '15-20';
+    if (price < 30) return '20-30';
+    return '30+';
+  }
+
+  static const List<String> priceRangeLabels = [
+    '0-5',
+    '5-10',
+    '10-15',
+    '15-20',
+    '20-30',
+    '30+',
+  ];
+
+  PriceStatsData? _computePriceStats() {
+    final pricedBooks =
+        books.where((b) => b.price != null && b.price! > 0).toList();
+    if (pricedBooks.isEmpty) return null;
+
+    // Totals
+    double totalSpent = 0;
+    String? mostExpensiveName, leastExpensiveName;
+    double? mostExpensivePrice, leastExpensivePrice;
+
+    // By format
+    final Map<String, double> formatTotals = {};
+    final Map<String, int> formatCounts = {};
+
+    // By year (using finish date from bookReadDates)
+    final Map<int, double> yearTotals = {};
+    final Map<int, int> yearCounts = {};
+    final Map<int, double> minPriceByYear = {};
+    final Map<int, double> maxPriceByYear = {};
+
+    // By month
+    final Map<int, Map<int, double>> monthTotals = {};
+
+    // Price range evolution by year
+    final Map<int, Map<String, int>> priceRangesByYear = {};
+
+    for (var book in pricedBooks) {
+      final price = book.price!;
+      totalSpent += price;
+
+      // Most / Least expensive
+      if (mostExpensivePrice == null || price > mostExpensivePrice) {
+        mostExpensivePrice = price;
+        mostExpensiveName = book.name;
+      }
+      if (leastExpensivePrice == null || price < leastExpensivePrice) {
+        leastExpensivePrice = price;
+        leastExpensiveName = book.name;
+      }
+
+      // By format
+      final format = book.formatValue;
+      if (format != null && format.isNotEmpty) {
+        formatTotals[format] = (formatTotals[format] ?? 0) + price;
+        formatCounts[format] = (formatCounts[format] ?? 0) + 1;
+      }
+
+      // By year & month (using read dates)
+      if (book.bookId != null) {
+        final readDates = bookReadDates[book.bookId!] ?? [];
+        bool assignedToYear = false;
+        for (var readDate in readDates) {
+          if (readDate.dateFinished != null &&
+              readDate.dateFinished!.isNotEmpty) {
+            final endDate = _tryParseDate(
+              readDate.dateFinished!,
+              bookName: book.name,
+            );
+            if (endDate != null) {
+              final year = endDate.year;
+              final month = endDate.month;
+              if (!assignedToYear) {
+                yearTotals[year] = (yearTotals[year] ?? 0) + price;
+                yearCounts[year] = (yearCounts[year] ?? 0) + 1;
+                monthTotals.putIfAbsent(year, () => {});
+                monthTotals[year]![month] =
+                    (monthTotals[year]![month] ?? 0) + price;
+                // Min/max per year
+                minPriceByYear[year] =
+                    (minPriceByYear[year] == null ||
+                            price < minPriceByYear[year]!)
+                        ? price
+                        : minPriceByYear[year]!;
+                maxPriceByYear[year] =
+                    (maxPriceByYear[year] == null ||
+                            price > maxPriceByYear[year]!)
+                        ? price
+                        : maxPriceByYear[year]!;
+                // Price range evolution
+                final range = _getPriceRange(price);
+                priceRangesByYear.putIfAbsent(year, () => {});
+                priceRangesByYear[year]![range] =
+                    (priceRangesByYear[year]![range] ?? 0) + 1;
+                assignedToYear = true;
+              }
+            }
+          }
+        }
+        // If no read date, use createdAt year as fallback
+        if (!assignedToYear && book.createdAt != null) {
+          final createdDate = _tryParseDate(
+            book.createdAt!,
+            bookName: book.name,
+          );
+          if (createdDate != null) {
+            final year = createdDate.year;
+            final month = createdDate.month;
+            yearTotals[year] = (yearTotals[year] ?? 0) + price;
+            yearCounts[year] = (yearCounts[year] ?? 0) + 1;
+            monthTotals.putIfAbsent(year, () => {});
+            monthTotals[year]![month] =
+                (monthTotals[year]![month] ?? 0) + price;
+            minPriceByYear[year] =
+                (minPriceByYear[year] == null || price < minPriceByYear[year]!)
+                    ? price
+                    : minPriceByYear[year]!;
+            maxPriceByYear[year] =
+                (maxPriceByYear[year] == null || price > maxPriceByYear[year]!)
+                    ? price
+                    : maxPriceByYear[year]!;
+            final range = _getPriceRange(price);
+            priceRangesByYear.putIfAbsent(year, () => {});
+            priceRangesByYear[year]![range] =
+                (priceRangesByYear[year]![range] ?? 0) + 1;
+          }
+        }
+      }
+    }
+
+    // Compute averages
+    final Map<String, double> avgPriceByFormat = {};
+    for (var entry in formatTotals.entries) {
+      avgPriceByFormat[entry.key] = entry.value / formatCounts[entry.key]!;
+    }
+    final Map<int, double> avgPriceByYear = {};
+    for (var entry in yearTotals.entries) {
+      avgPriceByYear[entry.key] = entry.value / yearCounts[entry.key]!;
+    }
+
+    return PriceStatsData(
+      avgPriceByFormat: avgPriceByFormat,
+      countByFormat: formatCounts,
+      totalSpentByYear: yearTotals,
+      avgPriceByYear: avgPriceByYear,
+      totalSpentByMonth: monthTotals,
+      mostExpensiveName: mostExpensiveName,
+      mostExpensivePrice: mostExpensivePrice,
+      leastExpensiveName: leastExpensiveName,
+      leastExpensivePrice: leastExpensivePrice,
+      totalSpent: totalSpent,
+      priceRangesByYear: priceRangesByYear,
+      minPriceByYear: minPriceByYear,
+      maxPriceByYear: maxPriceByYear,
+    );
+  }
+
+  /// Computes reading time of day distribution from session start times.
+  /// Returns: slot label -> {count: int, totalMinutes: int}
+  /// Slots: Madrugada (0-6), Morning (6-12), Afternoon (12-18), Night (18-0)
+  Map<String, Map<String, dynamic>> _computeReadingTimeOfDay() {
+    final Map<String, int> slotCounts = {
+      'late_night': 0,
+      'morning': 0,
+      'afternoon': 0,
+      'night': 0,
+    };
+    final Map<String, int> slotMinutes = {
+      'late_night': 0,
+      'morning': 0,
+      'afternoon': 0,
+      'night': 0,
+    };
+
+    for (var sessionList in bookSessions.values) {
+      for (var session in sessionList) {
+        final time = session.clickedAt ?? session.startTime;
+        if (time == null) continue;
+        final hour = time.hour;
+        final slot = _getTimeSlot(hour);
+        slotCounts[slot] = (slotCounts[slot] ?? 0) + 1;
+        if (session.durationSeconds != null && session.durationSeconds! > 0) {
+          slotMinutes[slot] =
+              (slotMinutes[slot] ?? 0) + (session.durationSeconds! ~/ 60);
+        }
+      }
+    }
+
+    final Map<String, Map<String, dynamic>> result = {};
+    for (var slot in slotCounts.keys) {
+      result[slot] = {
+        'count': slotCounts[slot]!,
+        'totalMinutes': slotMinutes[slot]!,
+      };
+    }
+    return result;
+  }
+
+  String _getTimeSlot(int hour) {
+    if (hour >= 0 && hour < 6) return 'late_night';
+    if (hour >= 6 && hour < 12) return 'morning';
+    if (hour >= 12 && hour < 18) return 'afternoon';
+    return 'night'; // 18-0
   }
 }

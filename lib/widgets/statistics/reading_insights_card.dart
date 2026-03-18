@@ -25,7 +25,6 @@ class ReadingInsightsCard extends StatelessWidget {
   final int nextMilestoneRead;
   final int booksToMilestoneRead;
   final double bingePercentage;
-  final Map<String, String> topGenreBySeason;
 
   const ReadingInsightsCard({
     super.key,
@@ -50,7 +49,6 @@ class ReadingInsightsCard extends StatelessWidget {
     required this.nextMilestoneRead,
     required this.booksToMilestoneRead,
     required this.bingePercentage,
-    required this.topGenreBySeason,
   });
 
   @override
@@ -185,12 +183,6 @@ class ReadingInsightsCard extends StatelessWidget {
               value:
                   '${bingePercentage.toStringAsFixed(1)}% ${AppLocalizations.of(context)!.binge_reading_description}',
             ),
-
-            // Mood Reading (Genre by Season)
-            if (topGenreBySeason.isNotEmpty) ...[
-              const Divider(height: 20),
-              _buildSeasonalGenres(context),
-            ],
           ],
         ),
       ),
@@ -242,51 +234,6 @@ class ReadingInsightsCard extends StatelessWidget {
             color: Theme.of(context).colorScheme.primary,
             size: 24,
           ),
-      ],
-    );
-  }
-
-  Widget _buildSeasonalGenres(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            const Icon(Icons.wb_sunny, color: Colors.deepOrange, size: 24),
-            const SizedBox(width: 12),
-            Flexible(
-              child: Text(
-                AppLocalizations.of(context)!.seasonal_reading_preferences,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Padding(
-          padding: const EdgeInsets.only(left: 36),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children:
-                topGenreBySeason.entries.map((entry) {
-                  final seasonIcons = {
-                    'Winter': '❄️',
-                    'Spring': '🌸',
-                    'Summer': '☀️',
-                    'Fall': '🍂',
-                  };
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2),
-                    child: Text(
-                      '${seasonIcons[entry.key] ?? ''} ${entry.key}: ${entry.value}',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  );
-                }).toList(),
-          ),
-        ),
       ],
     );
   }

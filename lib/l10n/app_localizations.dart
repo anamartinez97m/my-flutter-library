@@ -5422,6 +5422,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Format by Language'**
   String get format_by_language;
+
+  /// No description provided for @daily_reading_heatmap.
+  ///
+  /// In en, this message translates to:
+  /// **'Days read in a year'**
+  String get daily_reading_heatmap;
+
+  /// No description provided for @days_read_summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Read {days} days out of {total} ({percent}%)'**
+  String days_read_summary(Object days, Object total, Object percent);
+
+  /// No description provided for @quick_stat_days_read.
+  ///
+  /// In en, this message translates to:
+  /// **'Days Read'**
+  String get quick_stat_days_read;
+
+  /// No description provided for @show_price_statistics.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Price Statistics'**
+  String get show_price_statistics;
+
+  /// No description provided for @show_price_statistics_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Display a price statistics section in your stats dashboard'**
+  String get show_price_statistics_subtitle;
+
+  /// No description provided for @currency_setting.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency Symbol'**
+  String get currency_setting;
+
+  /// No description provided for @currency_setting_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose which currency symbol to display for prices'**
+  String get currency_setting_subtitle;
+
+  /// No description provided for @custom_currency_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom symbol'**
+  String get custom_currency_hint;
+
+  /// No description provided for @no_price_data.
+  ///
+  /// In en, this message translates to:
+  /// **'No books with price data yet. Add prices to your books to see statistics.'**
+  String get no_price_data;
+
+  /// No description provided for @section_price_statistics.
+  ///
+  /// In en, this message translates to:
+  /// **'Price Statistics'**
+  String get section_price_statistics;
+
+  /// No description provided for @price_by_format.
+  ///
+  /// In en, this message translates to:
+  /// **'Average Price by Format'**
+  String get price_by_format;
+
+  /// No description provided for @price_by_year.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending by Year'**
+  String get price_by_year;
+
+  /// No description provided for @price_by_month.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending by Month'**
+  String get price_by_month;
+
+  /// No description provided for @price_extremes.
+  ///
+  /// In en, this message translates to:
+  /// **'Price Highlights'**
+  String get price_extremes;
+
+  /// No description provided for @total_spent.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Spent'**
+  String get total_spent;
+
+  /// No description provided for @most_expensive.
+  ///
+  /// In en, this message translates to:
+  /// **'Most Expensive'**
+  String get most_expensive;
+
+  /// No description provided for @least_expensive.
+  ///
+  /// In en, this message translates to:
+  /// **'Least Expensive'**
+  String get least_expensive;
+
+  /// No description provided for @price_range_evolution.
+  ///
+  /// In en, this message translates to:
+  /// **'Price Range Evolution'**
+  String get price_range_evolution;
+
+  /// No description provided for @time_slot_morning.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning'**
+  String get time_slot_morning;
+
+  /// No description provided for @time_slot_afternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Afternoon'**
+  String get time_slot_afternoon;
+
+  /// No description provided for @time_slot_night.
+  ///
+  /// In en, this message translates to:
+  /// **'Night'**
+  String get time_slot_night;
+
+  /// No description provided for @time_slot_late_night.
+  ///
+  /// In en, this message translates to:
+  /// **'Early Hours'**
+  String get time_slot_late_night;
+
+  /// No description provided for @no_session_data.
+  ///
+  /// In en, this message translates to:
+  /// **'No reading session data yet. Use the chronometer to track your reading sessions.'**
+  String get no_session_data;
+
+  /// No description provided for @favorite_reading_time.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorite: {slot}'**
+  String favorite_reading_time(Object slot);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

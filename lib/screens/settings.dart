@@ -44,6 +44,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   int _readingReminderMinute = 0;
   bool _readingReminderAllBooks = true;
 
+  // Price Statistics & Currency
+  bool _showPriceStatistics = false;
+  String _currencySymbol = '€';
+
   // Cloud Sync state
   bool _isCloudBusy = false;
   Map<String, dynamic>? _backupMetadata;
@@ -98,6 +102,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _loadEnabledFilters();
     _loadEnabledCardFields();
     _loadReadingReminderSettings();
+    _loadPriceSettings();
     _currentUser = GoogleAuthService.instance.currentUser;
     if (_currentUser != null) {
       _loadBackupMetadata();
@@ -142,6 +147,114 @@ class _SettingsScreenState extends State<SettingsScreen> {
     // Reschedule notifications
     final notificationService = NotificationService();
     await notificationService.scheduleReadingReminders();
+  }
+
+  Future<void> _loadPriceSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _showPriceStatistics = prefs.getBool('show_price_statistics') ?? false;
+      _currencySymbol = prefs.getString('currency_symbol') ?? '€';
+    });
+  }
+
+  Future<void> _savePriceSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('show_price_statistics', _showPriceStatistics);
+    await prefs.setString('currency_symbol', _currencySymbol);
+  }
+
+  void _showCurrencyPicker() {
+    final currencies = [
+      '\u20ac',
+      '\$',
+      '\u00a3',
+      '\u00a5',
+      'CHF',
+      'kr',
+      'R\$',
+      '\u20b9',
+    ];
+    final customController = TextEditingController();
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  AppLocalizations.of(context)!.currency_setting,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children:
+                    currencies.map((symbol) {
+                      final isSelected = symbol == _currencySymbol;
+                      return ChoiceChip(
+                        label: Text(
+                          symbol,
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        selected: isSelected,
+                        onSelected: (_) {
+                          setState(() {
+                            _currencySymbol = symbol;
+                          });
+                          _savePriceSettings();
+                          Navigator.pop(ctx);
+                        },
+                      );
+                    }).toList(),
+              ),
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: customController,
+                        decoration: InputDecoration(
+                          hintText:
+                              AppLocalizations.of(
+                                context,
+                              )!.custom_currency_hint,
+                          isDense: true,
+                          border: const OutlineInputBorder(),
+                        ),
+                        maxLength: 5,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () {
+                        final value = customController.text.trim();
+                        if (value.isNotEmpty) {
+                          setState(() {
+                            _currencySymbol = value;
+                          });
+                          _savePriceSettings();
+                          Navigator.pop(ctx);
+                        }
+                      },
+                      child: Text(AppLocalizations.of(context)!.save),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _loadBackupMetadata() async {
@@ -3819,6 +3932,93 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 16),
 
             // ===== OTHER SETTINGS (NO GROUPING) =====
+
+            // Price Statistics Toggle
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: SwitchListTile(
+                title: Text(
+                  AppLocalizations.of(context)!.show_price_statistics,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(
+                  AppLocalizations.of(context)!.show_price_statistics_subtitle,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                ),
+                value: _showPriceStatistics,
+                onChanged: (value) {
+                  setState(() {
+                    _showPriceStatistics = value;
+                  });
+                  _savePriceSettings();
+                },
+                secondary: Icon(
+                  Icons.attach_money,
+                  color:
+                      _showPriceStatistics
+                          ? Theme.of(context).colorScheme.primary
+                          : Colors.grey,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Currency Symbol Picker
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: ListTile(
+                leading: Icon(
+                  Icons.currency_exchange,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                title: Text(
+                  AppLocalizations.of(context)!.currency_setting,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(
+                  AppLocalizations.of(context)!.currency_setting_subtitle,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                ),
+                trailing: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    _currencySymbol,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ),
+                onTap: () {
+                  _showCurrencyPicker();
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+
             // Manage Rating Field Names
             Card(
               elevation: 2,

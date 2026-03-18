@@ -97,7 +97,9 @@ class _QuickStatsRowState extends State<QuickStatsRow> {
         icon: Icons.star,
         color: Colors.amber,
         labelBuilder: (ctx) => AppLocalizations.of(ctx)!.quick_stat_avg_rating,
-        valueBuilder: (d) => d.averageRating > 0 ? d.averageRating.toStringAsFixed(1) : '-',
+        valueBuilder:
+            (d) =>
+                d.averageRating > 0 ? d.averageRating.toStringAsFixed(1) : '-',
       ),
       QuickStatDefinition(
         key: 'current_streak',
@@ -118,21 +120,33 @@ class _QuickStatsRowState extends State<QuickStatsRow> {
         icon: Icons.speed,
         color: Colors.indigo,
         labelBuilder: (ctx) => AppLocalizations.of(ctx)!.quick_stat_velocity,
-        valueBuilder: (d) => d.readingVelocity > 0 ? '${d.readingVelocity.toStringAsFixed(1)}p/d' : '-',
+        valueBuilder:
+            (d) =>
+                d.readingVelocity > 0
+                    ? '${d.readingVelocity.toStringAsFixed(1)}p/d'
+                    : '-',
       ),
       QuickStatDefinition(
         key: 'avg_days_to_finish',
         icon: Icons.timer,
         color: Colors.purple,
         labelBuilder: (ctx) => AppLocalizations.of(ctx)!.quick_stat_avg_days,
-        valueBuilder: (d) => d.averageDaysToFinish > 0 ? '${d.averageDaysToFinish.toStringAsFixed(0)}d' : '-',
+        valueBuilder:
+            (d) =>
+                d.averageDaysToFinish > 0
+                    ? '${d.averageDaysToFinish.toStringAsFixed(0)}d'
+                    : '-',
       ),
       QuickStatDefinition(
         key: 'avg_books_per_year',
         icon: Icons.trending_up,
         color: Colors.cyan,
         labelBuilder: (ctx) => AppLocalizations.of(ctx)!.quick_stat_books_year,
-        valueBuilder: (d) => d.averageBooksPerYear > 0 ? d.averageBooksPerYear.toStringAsFixed(1) : '-',
+        valueBuilder:
+            (d) =>
+                d.averageBooksPerYear > 0
+                    ? d.averageBooksPerYear.toStringAsFixed(1)
+                    : '-',
       ),
       QuickStatDefinition(
         key: 'dnf_count',
@@ -166,15 +180,24 @@ class _QuickStatsRowState extends State<QuickStatsRow> {
         key: 'next_milestone_owned',
         icon: Icons.flag,
         color: Colors.green,
-        labelBuilder: (ctx) => AppLocalizations.of(ctx)!.quick_stat_milestone_owned,
+        labelBuilder:
+            (ctx) => AppLocalizations.of(ctx)!.quick_stat_milestone_owned,
         valueBuilder: (d) => '${d.booksToMilestoneOwned}',
       ),
       QuickStatDefinition(
         key: 'next_milestone_read',
         icon: Icons.flag_outlined,
         color: Colors.blue,
-        labelBuilder: (ctx) => AppLocalizations.of(ctx)!.quick_stat_milestone_read,
+        labelBuilder:
+            (ctx) => AppLocalizations.of(ctx)!.quick_stat_milestone_read,
         valueBuilder: (d) => '${d.booksToMilestoneRead}',
+      ),
+      QuickStatDefinition(
+        key: 'days_read_this_year',
+        icon: Icons.event_available,
+        color: Colors.green,
+        labelBuilder: (ctx) => AppLocalizations.of(ctx)!.quick_stat_days_read,
+        valueBuilder: (d) => '${d.daysReadThisYear}',
       ),
     ];
   }
@@ -202,8 +225,8 @@ class _QuickStatsRowState extends State<QuickStatsRow> {
                 child: Text(
                   AppLocalizations.of(context)!.quick_stat_choose,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               Flexible(
@@ -216,9 +239,13 @@ class _QuickStatsRowState extends State<QuickStatsRow> {
                     return ListTile(
                       leading: Icon(def.icon, color: def.color),
                       title: Text(def.labelBuilder(context)),
-                      trailing: isSelected
-                          ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
-                          : null,
+                      trailing:
+                          isSelected
+                              ? Icon(
+                                Icons.check,
+                                color: Theme.of(context).colorScheme.primary,
+                              )
+                              : null,
                       onTap: () {
                         setState(() {
                           _selectedKeys[slotIndex] = def.key;
@@ -257,7 +284,10 @@ class _QuickStatsRowState extends State<QuickStatsRow> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 4,
+                ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -266,17 +296,17 @@ class _QuickStatsRowState extends State<QuickStatsRow> {
                     Text(
                       value,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                        fontWeight: FontWeight.bold,
+                      ),
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 2),
                     Text(
                       label,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontSize: 10,
-                            color: Colors.grey[600],
-                          ),
+                        fontSize: 10,
+                        color: Colors.grey[600],
+                      ),
                       textAlign: TextAlign.center,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,

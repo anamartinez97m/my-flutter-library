@@ -24,6 +24,7 @@ import 'package:myrandomlibrary/services/notification_service.dart';
 import 'package:myrandomlibrary/model/book_metadata.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BookDetailScreen extends StatefulWidget {
   final Book book;
@@ -45,6 +46,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   int _bundleBooksKey = 0; // Key to force FutureBuilder rebuild
   bool _isDescriptionExpanded = false; // Track description expansion state
   bool _isFetchingMetadata = false; // Track if metadata is being fetched
+  String _currencySymbol = '€';
 
   bool get _hasReadToday {
     final now = DateTime.now();
@@ -62,6 +64,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   void initState() {
     super.initState();
     _currentBook = widget.book;
+    _loadCurrencySymbol();
     _loadReadDates();
     // Auto-fetch metadata if missing (cover or description)
     _fetchMetadataIfMissing();
@@ -148,6 +151,15 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     } catch (e) {
       debugPrint('Error loading rating fields: $e');
       return [];
+    }
+  }
+
+  Future<void> _loadCurrencySymbol() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _currencySymbol = prefs.getString('currency_symbol') ?? '€';
+      });
     }
   }
 
@@ -3571,7 +3583,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                       _DetailCard(
                         icon: Icons.attach_money,
                         label: AppLocalizations.of(context)!.price_label,
-                        value: '\$${_currentBook.price!.toStringAsFixed(2)}',
+                        value:
+                            '$_currencySymbol${_currentBook.price!.toStringAsFixed(2)}',
                       ),
 
                     if (_currentBook.readCount != null &&

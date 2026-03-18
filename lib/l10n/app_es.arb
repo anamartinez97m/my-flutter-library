@@ -1325,5 +1325,38 @@
   "avg_days_to_finish": "Media de Días para Terminar",
   "avg_books_per_year": "Media de Libros por Año",
   "books_by_place": "Libros por Lugar",
-  "format_by_language": "Formato por Idioma"
+  "format_by_language": "Formato por Idioma",
+
+  "daily_reading_heatmap": "Días leídos en un año",
+  "days_read_summary": "Leídos {days} días de {total} ({percent}%)",
+  "@days_read_summary": {
+    "placeholders": { "days": {}, "total": {}, "percent": {} }
+  },
+  "quick_stat_days_read": "Días Leídos",
+
+  "show_price_statistics": "Mostrar Estadísticas de Precios",
+  "show_price_statistics_subtitle": "Mostrar una sección de estadísticas de precios en tu panel de estadísticas",
+  "currency_setting": "Símbolo de Moneda",
+  "currency_setting_subtitle": "Elige qué símbolo de moneda mostrar para los precios",
+  "custom_currency_hint": "Símbolo personalizado",
+  "no_price_data": "Aún no hay libros con datos de precio. Añade precios a tus libros para ver estadísticas.",
+  "section_price_statistics": "Estadísticas de Precios",
+  "price_by_format": "Precio Medio por Formato",
+  "price_by_year": "Gasto por Año",
+  "price_by_month": "Gasto por Mes",
+  "price_extremes": "Destacados de Precios",
+  "total_spent": "Total Gastado",
+  "most_expensive": "Más Caro",
+  "least_expensive": "Más Barato",
+  "price_range_evolution": "Evolución de Rangos de Precio",
+
+  "time_slot_morning": "Mañana",
+  "time_slot_afternoon": "Tarde",
+  "time_slot_night": "Noche",
+  "time_slot_late_night": "Madrugada",
+  "no_session_data": "Aún no hay datos de sesiones de lectura. Usa el cronómetro para registrar tus sesiones.",
+  "favorite_reading_time": "Favorito: {slot}",
+  "@favorite_reading_time": {
+    "placeholders": { "slot": {} }
+  }
 }

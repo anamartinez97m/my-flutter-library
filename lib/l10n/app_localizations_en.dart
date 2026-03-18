@@ -2917,4 +2917,80 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get format_by_language => 'Format by Language';
+
+  @override
+  String get daily_reading_heatmap => 'Days read in a year';
+
+  @override
+  String days_read_summary(Object days, Object total, Object percent) {
+    return 'Read $days days out of $total ($percent%)';
+  }
+
+  @override
+  String get quick_stat_days_read => 'Days Read';
+
+  @override
+  String get show_price_statistics => 'Show Price Statistics';
+
+  @override
+  String get show_price_statistics_subtitle => 'Display a price statistics section in your stats dashboard';
+
+  @override
+  String get currency_setting => 'Currency Symbol';
+
+  @override
+  String get currency_setting_subtitle => 'Choose which currency symbol to display for prices';
+
+  @override
+  String get custom_currency_hint => 'Custom symbol';
+
+  @override
+  String get no_price_data => 'No books with price data yet. Add prices to your books to see statistics.';
+
+  @override
+  String get section_price_statistics => 'Price Statistics';
+
+  @override
+  String get price_by_format => 'Average Price by Format';
+
+  @override
+  String get price_by_year => 'Spending by Year';
+
+  @override
+  String get price_by_month => 'Spending by Month';
+
+  @override
+  String get price_extremes => 'Price Highlights';
+
+  @override
+  String get total_spent => 'Total Spent';
+
+  @override
+  String get most_expensive => 'Most Expensive';
+
+  @override
+  String get least_expensive => 'Least Expensive';
+
+  @override
+  String get price_range_evolution => 'Price Range Evolution';
+
+  @override
+  String get time_slot_morning => 'Morning';
+
+  @override
+  String get time_slot_afternoon => 'Afternoon';
+
+  @override
+  String get time_slot_night => 'Night';
+
+  @override
+  String get time_slot_late_night => 'Early Hours';
+
+  @override
+  String get no_session_data => 'No reading session data yet. Use the chronometer to track your reading sessions.';
+
+  @override
+  String favorite_reading_time(Object slot) {
+    return 'Favorite: $slot';
+  }
 }
