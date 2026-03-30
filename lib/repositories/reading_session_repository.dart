@@ -171,4 +171,31 @@ class ReadingSessionRepository {
     );
     return await db.insert('reading_sessions', session.toMap());
   }
+
+  /// Get the most recent reading activity date for a book
+  /// Returns the latest date from: start_time, end_time, or clicked_at
+  Future<DateTime?> getLastReadingActivityDate(int bookId) async {
+    final result = await db.rawQuery(
+      '''
+      SELECT MAX(latest) as last_activity FROM (
+        SELECT MAX(end_time) as latest FROM reading_sessions
+          WHERE book_id = ? AND end_time IS NOT NULL AND (duration_seconds > 0 OR did_read = 1)
+        UNION ALL
+        SELECT MAX(clicked_at) as latest FROM reading_sessions
+          WHERE book_id = ? AND clicked_at IS NOT NULL AND (duration_seconds > 0 OR did_read = 1)
+        UNION ALL
+        SELECT MAX(start_time) as latest FROM reading_sessions
+          WHERE book_id = ? AND start_time IS NOT NULL AND (duration_seconds > 0 OR did_read = 1)
+      )
+    ''',
+      [bookId, bookId, bookId],
+    );
+
+    if (result.isEmpty || result.first['last_activity'] == null) return null;
+    try {
+      return DateTime.parse(result.first['last_activity'] as String);
+    } catch (e) {
+      return null;
+    }
+  }
 }

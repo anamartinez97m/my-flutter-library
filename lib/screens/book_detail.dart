@@ -68,6 +68,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     _loadReadDates();
     // Auto-fetch metadata if missing (cover or description)
     _fetchMetadataIfMissing();
+    // Check if book has been idle for more than a week (Started status only)
+    _checkStandbySuggestion();
   }
 
   Future<List<Book>> _loadBundleBooks() async {
@@ -410,6 +412,191 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
             ),
             backgroundColor: Colors.red,
           ),
+        );
+      }
+    }
+  }
+
+  /// Check if a Started book has been idle for more than 7 days and suggest Standby
+  Future<void> _checkStandbySuggestion() async {
+    // Only for Started books (not already Standby, not bundles)
+    if (_currentBook.statusValue?.toLowerCase() != 'started') return;
+    if (_currentBook.isBundle == true) return;
+    if (_currentBook.bookId == null) return;
+
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final sessionRepository = ReadingSessionRepository(db);
+
+      final lastActivity = await sessionRepository.getLastReadingActivityDate(
+        _currentBook.bookId!,
+      );
+
+      if (lastActivity == null) {
+        // No reading sessions at all — check dateReadInitial as fallback
+        final startDate = _currentBook.dateReadInitial;
+        if (startDate == null || startDate.isEmpty) return;
+        try {
+          final parsed = DateTime.parse(startDate);
+          if (DateTime.now().difference(parsed).inDays <= 7) return;
+        } catch (e) {
+          return;
+        }
+      } else {
+        if (DateTime.now().difference(lastActivity).inDays <= 7) return;
+      }
+
+      // Book has been idle for more than 7 days — show suggestion modal
+      if (!mounted) return;
+      // Use addPostFrameCallback to avoid showing dialog during build
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _showStandbySuggestionDialog();
+      });
+    } catch (e) {
+      debugPrint('[BookDetail] Error checking standby suggestion: $e');
+    }
+  }
+
+  Future<void> _showStandbySuggestionDialog() async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            icon: Icon(
+              Icons.pause_circle_outline,
+              color: Colors.orange,
+              size: 48,
+            ),
+            title: Text(AppLocalizations.of(context)!.standby_suggestion_title),
+            content: Text(
+              AppLocalizations.of(context)!.standby_suggestion_body,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text(AppLocalizations.of(context)!.keep_reading),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                ),
+                child: Text(AppLocalizations.of(context)!.move_to_standby),
+              ),
+            ],
+          ),
+    );
+
+    if (result == true) {
+      await _moveToStandby();
+    }
+  }
+
+  Future<void> _moveToStandby() async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final repository = BookRepository(db);
+
+      // Get Standby status ID
+      final statusList = await repository.getLookupValues('status');
+      final standbyStatus = statusList.firstWhere(
+        (s) => (s['value'] as String).toLowerCase() == 'standby',
+        orElse: () => statusList.first,
+      );
+
+      await db.update(
+        'book',
+        {'status_id': standbyStatus['status_id']},
+        where: 'book_id = ?',
+        whereArgs: [_currentBook.bookId!],
+      );
+
+      // Reload book data
+      final updatedBooks = await repository.getAllBooks();
+      final updatedBook = updatedBooks.firstWhere(
+        (b) => b.bookId == _currentBook.bookId,
+        orElse: () => _currentBook,
+      );
+
+      setState(() {
+        _currentBook = updatedBook;
+      });
+
+      // Update provider
+      if (mounted) {
+        final provider = Provider.of<BookProvider?>(context, listen: false);
+        await provider?.loadBooks();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.move_to_standby),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      // Reschedule reading reminders (book no longer started)
+      NotificationService().scheduleReadingReminders();
+    } catch (e) {
+      debugPrint('[BookDetail] Error moving to standby: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+
+  Future<void> _moveBackToReading() async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final repository = BookRepository(db);
+
+      // Get Started status ID
+      final statusList = await repository.getLookupValues('status');
+      final startedStatus = statusList.firstWhere(
+        (s) => (s['value'] as String).toLowerCase() == 'started',
+        orElse: () => statusList.first,
+      );
+
+      await db.update(
+        'book',
+        {'status_id': startedStatus['status_id']},
+        where: 'book_id = ?',
+        whereArgs: [_currentBook.bookId!],
+      );
+
+      // Reload book data
+      final updatedBooks = await repository.getAllBooks();
+      final updatedBook = updatedBooks.firstWhere(
+        (b) => b.bookId == _currentBook.bookId,
+        orElse: () => _currentBook,
+      );
+
+      setState(() {
+        _currentBook = updatedBook;
+      });
+
+      // Update provider
+      if (mounted) {
+        final provider = Provider.of<BookProvider?>(context, listen: false);
+        await provider?.loadBooks();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.moved_back_to_reading),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+      // Reschedule reading reminders (book is now started again)
+      NotificationService().scheduleReadingReminders();
+    } catch (e) {
+      debugPrint('[BookDetail] Error moving back to reading: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
         );
       }
     }
@@ -2136,75 +2323,40 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                           onPressed: () async {
                             try {
                               final db = await DatabaseHelper.instance.database;
-                              final repository = BookRepository(db);
 
                               // Toggle TBR status
-                              final updatedBook = Book(
-                                bookId: _currentBook.bookId,
-                                name: _currentBook.name,
-                                isbn: _currentBook.isbn,
-                                asin: _currentBook.asin,
-                                author: _currentBook.author,
-                                saga: _currentBook.saga,
-                                nSaga: _currentBook.nSaga,
-                                sagaUniverse: _currentBook.sagaUniverse,
-                                formatSagaValue: _currentBook.formatSagaValue,
-                                pages: _currentBook.pages,
-                                originalPublicationYear:
-                                    _currentBook.originalPublicationYear,
-                                loaned: _currentBook.loaned,
-                                statusValue: _currentBook.statusValue,
-                                editorialValue: _currentBook.editorialValue,
-                                languageValue: _currentBook.languageValue,
-                                placeValue: _currentBook.placeValue,
-                                formatValue: _currentBook.formatValue,
-                                createdAt: _currentBook.createdAt,
-                                genre: _currentBook.genre,
-                                dateReadInitial: _currentBook.dateReadInitial,
-                                dateReadFinal: _currentBook.dateReadFinal,
-                                readCount: _currentBook.readCount,
-                                myReview: _currentBook.myReview,
-                                isBundle: _currentBook.isBundle,
-                                bundleCount: _currentBook.bundleCount,
-                                bundleNumbers: _currentBook.bundleNumbers,
-                                bundleStartDates: _currentBook.bundleStartDates,
-                                bundleEndDates: _currentBook.bundleEndDates,
-                                bundlePages: _currentBook.bundlePages,
-                                bundlePublicationYears:
-                                    _currentBook.bundlePublicationYears,
-                                bundleTitles: _currentBook.bundleTitles,
-                                bundleAuthors: _currentBook.bundleAuthors,
-                                tbr: !(_currentBook.tbr == true), // Toggle
-                                isTandem: _currentBook.isTandem,
-                                originalBookId: _currentBook.originalBookId,
-                                notificationEnabled:
-                                    _currentBook.notificationEnabled,
-                                notificationDatetime:
-                                    _currentBook.notificationDatetime,
+                              final newTbr = !(_currentBook.tbr == true);
+                              await db.update(
+                                'book',
+                                {'tbr': newTbr ? 1 : 0},
+                                where: 'book_id = ?',
+                                whereArgs: [_currentBook.bookId],
                               );
 
-                              await repository.deleteBook(_currentBook.bookId!);
-                              await repository.addBook(updatedBook);
-
-                              // Reload provider first
+                              // Reload provider
                               if (mounted) {
                                 final provider = Provider.of<BookProvider?>(
                                   context,
                                   listen: false,
                                 );
                                 await provider?.loadBooks();
-                              }
 
-                              // Then update local state
-                              setState(() {
-                                _currentBook = updatedBook;
-                              });
+                                // Update local state from provider
+                                final updatedBooks = provider?.allBooks ?? [];
+                                final updatedBook = updatedBooks.firstWhere(
+                                  (b) => b.bookId == _currentBook.bookId,
+                                  orElse: () => _currentBook,
+                                );
+                                setState(() {
+                                  _currentBook = updatedBook;
+                                });
+                              }
 
                               if (mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                      updatedBook.tbr == true
+                                      newTbr
                                           ? AppLocalizations.of(
                                             context,
                                           )!.added_to_tbr
@@ -2254,7 +2406,11 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                 'started')
                               Expanded(
                                 child: InkWell(
-                                  onTap: _quickStartReading,
+                                  onTap:
+                                      _currentBook.statusValue?.toLowerCase() ==
+                                              'standby'
+                                          ? _moveBackToReading
+                                          : _quickStartReading,
                                   borderRadius: const BorderRadius.only(
                                     topLeft: Radius.circular(6),
                                     bottomLeft: Radius.circular(6),
@@ -2266,7 +2422,11 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                           MainAxisAlignment.center,
                                       children: [
                                         Icon(
-                                          Icons.play_arrow,
+                                          _currentBook.statusValue
+                                                      ?.toLowerCase() ==
+                                                  'standby'
+                                              ? Icons.replay
+                                              : Icons.play_arrow,
                                           color:
                                               Theme.of(
                                                 context,
@@ -2274,16 +2434,26 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                           size: 20,
                                         ),
                                         const SizedBox(width: 4),
-                                        Text(
-                                          AppLocalizations.of(
-                                            context,
-                                          )!.start_reading,
-                                          style: TextStyle(
-                                            color:
-                                                Theme.of(
+                                        Flexible(
+                                          child: Text(
+                                            _currentBook.statusValue
+                                                        ?.toLowerCase() ==
+                                                    'standby'
+                                                ? AppLocalizations.of(
                                                   context,
-                                                ).colorScheme.primary,
-                                            fontWeight: FontWeight.w600,
+                                                )!.move_back_to_reading
+                                                : AppLocalizations.of(
+                                                  context,
+                                                )!.start_reading,
+                                            style: TextStyle(
+                                              color:
+                                                  Theme.of(
+                                                    context,
+                                                  ).colorScheme.primary,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
                                           ),
                                         ),
                                       ],
@@ -2355,9 +2525,11 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                       ),
                       AppTheme.verticalSpaceLarge,
 
-                      // Mark as Read button (full width) - hidden when already Started
+                      // Mark as Read button (full width) - hidden when Started or Standby
                       if (_currentBook.statusValue?.toLowerCase() !=
-                          'started') ...[
+                              'started' &&
+                          _currentBook.statusValue?.toLowerCase() !=
+                              'standby') ...[
                         Container(
                           height: 48,
                           decoration: BoxDecoration(

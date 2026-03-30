@@ -5566,6 +5566,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Favorite: {slot}'**
   String favorite_reading_time(Object slot);
+
+  /// No description provided for @full_catalog.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Catalog'**
+  String get full_catalog;
+
+  /// No description provided for @my_library_view.
+  ///
+  /// In en, this message translates to:
+  /// **'My Library'**
+  String get my_library_view;
+
+  /// No description provided for @fetching_author_books.
+  ///
+  /// In en, this message translates to:
+  /// **'Fetching author books...'**
+  String get fetching_author_books;
+
+  /// No description provided for @no_catalog_results.
+  ///
+  /// In en, this message translates to:
+  /// **'No books found for this author'**
+  String get no_catalog_results;
+
+  /// No description provided for @loading_more.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading more...'**
+  String get loading_more;
+
+  /// No description provided for @standby_suggestion_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to Standby?'**
+  String get standby_suggestion_title;
+
+  /// No description provided for @standby_suggestion_body.
+  ///
+  /// In en, this message translates to:
+  /// **'It\'s been more than a week since you last read this book. Would you like to move it to Standby? This won\'t affect your reading statistics.'**
+  String get standby_suggestion_body;
+
+  /// No description provided for @move_to_standby.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to Standby'**
+  String get move_to_standby;
+
+  /// No description provided for @keep_reading.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep Reading'**
+  String get keep_reading;
+
+  /// No description provided for @move_back_to_reading.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume Reading'**
+  String get move_back_to_reading;
+
+  /// No description provided for @moved_back_to_reading.
+  ///
+  /// In en, this message translates to:
+  /// **'Book moved back to Reading'**
+  String get moved_back_to_reading;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

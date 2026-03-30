@@ -1358,5 +1358,18 @@
   "favorite_reading_time": "Favorito: {slot}",
   "@favorite_reading_time": {
     "placeholders": { "slot": {} }
-  }
+  },
+
+  "full_catalog": "Catálogo Completo",
+  "my_library_view": "Mi Biblioteca",
+  "fetching_author_books": "Buscando libros del autor...",
+  "no_catalog_results": "No se encontraron libros de este autor",
+  "loading_more": "Cargando más...",
+
+  "standby_suggestion_title": "¿Mover a En espera?",
+  "standby_suggestion_body": "Ha pasado más de una semana desde la última vez que leíste este libro. ¿Te gustaría moverlo a En espera? Esto no afectará tus estadísticas de lectura.",
+  "move_to_standby": "Mover a En espera",
+  "keep_reading": "Seguir leyendo",
+  "move_back_to_reading": "Retomar Lectura",
+  "moved_back_to_reading": "Libro movido de vuelta a Leyendo"
 }

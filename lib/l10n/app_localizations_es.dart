@@ -2993,4 +2993,37 @@ class AppLocalizationsEs extends AppLocalizations {
   String favorite_reading_time(Object slot) {
     return 'Favorito: $slot';
   }
+
+  @override
+  String get full_catalog => 'Catálogo Completo';
+
+  @override
+  String get my_library_view => 'Mi Biblioteca';
+
+  @override
+  String get fetching_author_books => 'Buscando libros del autor...';
+
+  @override
+  String get no_catalog_results => 'No se encontraron libros de este autor';
+
+  @override
+  String get loading_more => 'Cargando más...';
+
+  @override
+  String get standby_suggestion_title => '¿Mover a En espera?';
+
+  @override
+  String get standby_suggestion_body => 'Ha pasado más de una semana desde la última vez que leíste este libro. ¿Te gustaría moverlo a En espera? Esto no afectará tus estadísticas de lectura.';
+
+  @override
+  String get move_to_standby => 'Mover a En espera';
+
+  @override
+  String get keep_reading => 'Seguir leyendo';
+
+  @override
+  String get move_back_to_reading => 'Retomar Lectura';
+
+  @override
+  String get moved_back_to_reading => 'Libro movido de vuelta a Leyendo';
 }

@@ -1352,5 +1352,18 @@
   "favorite_reading_time": "Favorite: {slot}",
   "@favorite_reading_time": {
     "placeholders": { "slot": {} }
-  }
+  },
+
+  "full_catalog": "Full Catalog",
+  "my_library_view": "My Library",
+  "fetching_author_books": "Fetching author books...",
+  "no_catalog_results": "No books found for this author",
+  "loading_more": "Loading more...",
+
+  "standby_suggestion_title": "Move to Standby?",
+  "standby_suggestion_body": "It's been more than a week since you last read this book. Would you like to move it to Standby? This won't affect your reading statistics.",
+  "move_to_standby": "Move to Standby",
+  "keep_reading": "Keep Reading",
+  "move_back_to_reading": "Resume Reading",
+  "moved_back_to_reading": "Book moved back to Reading"
 }
