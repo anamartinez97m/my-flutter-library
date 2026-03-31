@@ -1056,7 +1056,7 @@ class StatisticsCalculator {
             ? 500
             : totalCount < 1000
             ? 1000
-            : ((totalCount ~/ 1000) + 1) * 1000;
+            : ((totalCount ~/ 250) + 1) * 250;
     final booksToMilestoneOwned = nextMilestoneOwned - totalCount;
     final nextMilestoneRead =
         readBooks < 100
@@ -1065,7 +1065,7 @@ class StatisticsCalculator {
             ? 500
             : readBooks < 1000
             ? 1000
-            : ((readBooks ~/ 1000) + 1) * 1000;
+            : ((readBooks ~/ 250) + 1) * 250;
     final booksToMilestoneRead = nextMilestoneRead - readBooks;
     return {
       'nextMilestoneOwned': nextMilestoneOwned,
