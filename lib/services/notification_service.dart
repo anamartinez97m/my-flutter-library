@@ -3,6 +3,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
@@ -84,13 +85,16 @@ class NotificationService {
 
     // Set the local timezone to the device's timezone
     // This is crucial for scheduled notifications to fire at the correct time
-    final String timeZoneName = DateTime.now().timeZoneName;
+    // Using flutter_timezone to get proper IANA name (e.g. 'Europe/Madrid')
+    // instead of DateTime.now().timeZoneName which returns abbreviations
+    // like 'CEST'/'CET' that the timezone package doesn't recognize
     try {
+      final String timeZoneName = await FlutterTimezone.getLocalTimezone();
       tz.setLocalLocation(tz.getLocation(timeZoneName));
       debugPrint('✅ Timezone set to: $timeZoneName');
     } catch (e) {
       // Fallback to UTC if timezone name is not recognized
-      debugPrint('⚠️ Could not set timezone $timeZoneName, using UTC: $e');
+      debugPrint('⚠️ Could not set timezone, using UTC: $e');
       tz.setLocalLocation(tz.getLocation('UTC'));
     }
 
