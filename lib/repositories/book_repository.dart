@@ -223,7 +223,7 @@ class BookRepository {
     return result.map((row) => Book.fromMap(row)).toList();
   }
 
-  /// Get books with Started status, ordered by most recently created first
+  /// Get books with Started status, ordered by most recently started reading first
   Future<List<Book>> getStartedBooks() async {
     final result = await db.rawQuery('''
       select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
@@ -257,7 +257,7 @@ class BookRepository {
         AND b.bundle_parent_id IS NULL
         AND b.is_bundle != 1
       group by b.book_id
-      order by b.created_at DESC
+      order by b.date_read_initial DESC
     ''');
 
     return result.map((row) => Book.fromMap(row)).toList();
