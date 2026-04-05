@@ -44,7 +44,14 @@ class CloudBackupService {
     'reading_reminder_hour',
     'reading_reminder_minute',
     'reading_reminder_all_books',
+    // Auto daily backup
+    'auto_daily_backup_enabled',
   ];
+
+  // SharedPreferences keys for auto daily backup
+  static const String prefAutoDailyBackup = 'auto_daily_backup_enabled';
+  static const String prefLastAutoBackupTimestamp =
+      'last_auto_backup_timestamp';
 
   Future<bool> uploadBackup(String uid) async {
     try {
@@ -215,6 +222,50 @@ class CloudBackupService {
       return true;
     } catch (e) {
       debugPrint('Error deleting cloud backup: $e');
+      return false;
+    }
+  }
+
+  /// Perform an automatic daily backup if enabled and >24h since last one.
+  /// Returns true if a backup was performed, false otherwise.
+  /// This runs silently on app startup.
+  Future<bool> performAutoBackupIfNeeded(String uid) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final enabled = prefs.getBool(prefAutoDailyBackup) ?? false;
+      if (!enabled) {
+        debugPrint('Auto daily backup: disabled');
+        return false;
+      }
+
+      final lastTimestamp = prefs.getString(prefLastAutoBackupTimestamp);
+      if (lastTimestamp != null) {
+        final lastBackup = DateTime.tryParse(lastTimestamp);
+        if (lastBackup != null) {
+          final hoursSince = DateTime.now().difference(lastBackup).inHours;
+          if (hoursSince < 24) {
+            debugPrint(
+              'Auto daily backup: skipped (last backup $hoursSince hours ago)',
+            );
+            return false;
+          }
+        }
+      }
+
+      debugPrint('Auto daily backup: starting...');
+      final success = await uploadBackup(uid);
+      if (success) {
+        await prefs.setString(
+          prefLastAutoBackupTimestamp,
+          DateTime.now().toIso8601String(),
+        );
+        debugPrint('Auto daily backup: completed successfully');
+      } else {
+        debugPrint('Auto daily backup: upload failed');
+      }
+      return success;
+    } catch (e) {
+      debugPrint('Auto daily backup error: $e');
       return false;
     }
   }

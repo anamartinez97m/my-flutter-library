@@ -2835,7 +2835,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                             else if (_currentBook.description != null &&
                                 _currentBook.description!.isNotEmpty)
                               Text(
-                                _currentBook.description!,
+                                _currentBook.description!.replaceAll(
+                                  '. ',
+                                  '.\n',
+                                ),
                                 style: Theme.of(context).textTheme.bodySmall
                                     ?.copyWith(color: Colors.grey[700]),
                               )

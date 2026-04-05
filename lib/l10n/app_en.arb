@@ -1257,6 +1257,15 @@
     "placeholders": { "count": {} }
   },
 
+  "auto_daily_backup": "Auto Daily Backup",
+  "auto_daily_backup_subtitle": "Automatically back up to cloud once a day when you open the app",
+  "auto_daily_backup_enabled": "Auto daily backup enabled",
+  "auto_daily_backup_disabled": "Auto daily backup disabled",
+  "last_auto_backup": "Last auto backup: {date}",
+  "@last_auto_backup": {
+    "placeholders": { "date": {} }
+  },
+
   "reading_reminders": "Reading Reminders",
   "reading_reminders_subtitle": "Daily notifications to track your reading",
   "enable_reading_reminders": "Enable Reading Reminders",

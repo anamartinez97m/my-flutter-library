@@ -2749,6 +2749,23 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get auto_daily_backup => 'Copia de Seguridad Diaria Automática';
+
+  @override
+  String get auto_daily_backup_subtitle => 'Hacer copia de seguridad en la nube automáticamente una vez al día al abrir la app';
+
+  @override
+  String get auto_daily_backup_enabled => 'Copia de seguridad diaria activada';
+
+  @override
+  String get auto_daily_backup_disabled => 'Copia de seguridad diaria desactivada';
+
+  @override
+  String last_auto_backup(Object date) {
+    return 'Última copia automática: $date';
+  }
+
+  @override
   String get reading_reminders => 'Recordatorios de Lectura';
 
   @override

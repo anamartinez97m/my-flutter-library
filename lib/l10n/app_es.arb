@@ -1263,6 +1263,15 @@
     "placeholders": { "count": {} }
   },
 
+  "auto_daily_backup": "Copia de Seguridad Diaria Automática",
+  "auto_daily_backup_subtitle": "Hacer copia de seguridad en la nube automáticamente una vez al día al abrir la app",
+  "auto_daily_backup_enabled": "Copia de seguridad diaria activada",
+  "auto_daily_backup_disabled": "Copia de seguridad diaria desactivada",
+  "last_auto_backup": "Última copia automática: {date}",
+  "@last_auto_backup": {
+    "placeholders": { "date": {} }
+  },
+
   "reading_reminders": "Recordatorios de Lectura",
   "reading_reminders_subtitle": "Notificaciones diarias para seguir tu lectura",
   "enable_reading_reminders": "Activar Recordatorios de Lectura",

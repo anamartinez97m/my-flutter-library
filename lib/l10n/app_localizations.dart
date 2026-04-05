@@ -5087,6 +5087,36 @@ abstract class AppLocalizations {
   /// **'{count} books'**
   String cloud_backup_books(Object count);
 
+  /// No description provided for @auto_daily_backup.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto Daily Backup'**
+  String get auto_daily_backup;
+
+  /// No description provided for @auto_daily_backup_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatically back up to cloud once a day when you open the app'**
+  String get auto_daily_backup_subtitle;
+
+  /// No description provided for @auto_daily_backup_enabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto daily backup enabled'**
+  String get auto_daily_backup_enabled;
+
+  /// No description provided for @auto_daily_backup_disabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto daily backup disabled'**
+  String get auto_daily_backup_disabled;
+
+  /// No description provided for @last_auto_backup.
+  ///
+  /// In en, this message translates to:
+  /// **'Last auto backup: {date}'**
+  String last_auto_backup(Object date);
+
   /// No description provided for @reading_reminders.
   ///
   /// In en, this message translates to:

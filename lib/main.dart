@@ -8,6 +8,8 @@ import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/providers/locale_provider.dart';
 import 'package:myrandomlibrary/providers/theme_provider.dart';
 import 'package:myrandomlibrary/screens/navigation.dart';
+import 'package:myrandomlibrary/services/cloud_backup_service.dart';
+import 'package:myrandomlibrary/services/google_auth_service.dart';
 import 'package:myrandomlibrary/services/notification_service.dart';
 import 'package:provider/provider.dart';
 
@@ -34,6 +36,16 @@ void main() async {
     await notificationService.scheduleReadingReminders();
   } catch (e) {
     debugPrint('Error initializing notifications: $e');
+  }
+
+  // Auto daily cloud backup (runs silently if enabled and signed in)
+  try {
+    final user = GoogleAuthService.instance.currentUser;
+    if (user != null) {
+      CloudBackupService.instance.performAutoBackupIfNeeded(user.uid);
+    }
+  } catch (e) {
+    debugPrint('Error checking auto backup: $e');
   }
 
   try {

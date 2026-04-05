@@ -52,6 +52,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _isCloudBusy = false;
   Map<String, dynamic>? _backupMetadata;
   User? _currentUser;
+  bool _autoDailyBackupEnabled = false;
+  String? _lastAutoBackupTimestamp;
 
   // Available filters
   static const List<Map<String, String>> _availableFilters = [
@@ -107,6 +109,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (_currentUser != null) {
       _loadBackupMetadata();
     }
+    _loadAutoDailyBackupSettings();
   }
 
   Future<void> _loadReadingReminderSettings() async {
@@ -161,6 +164,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('show_price_statistics', _showPriceStatistics);
     await prefs.setString('currency_symbol', _currencySymbol);
+  }
+
+  Future<void> _loadAutoDailyBackupSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _autoDailyBackupEnabled =
+            prefs.getBool(CloudBackupService.prefAutoDailyBackup) ?? false;
+        _lastAutoBackupTimestamp = prefs.getString(
+          CloudBackupService.prefLastAutoBackupTimestamp,
+        );
+      });
+    }
+  }
+
+  Future<void> _toggleAutoDailyBackup(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(CloudBackupService.prefAutoDailyBackup, enabled);
+    if (mounted) {
+      setState(() {
+        _autoDailyBackupEnabled = enabled;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            enabled
+                ? AppLocalizations.of(context)!.auto_daily_backup_enabled
+                : AppLocalizations.of(context)!.auto_daily_backup_disabled,
+          ),
+          backgroundColor: enabled ? Colors.green : Colors.grey,
+        ),
+      );
+    }
   }
 
   void _showCurrencyPicker() {
@@ -3258,6 +3294,72 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ),
                               ),
                             ],
+                          ),
+                          // Auto Daily Backup toggle
+                          const SizedBox(height: 12),
+                          Card(
+                            elevation: 1,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              children: [
+                                SwitchListTile(
+                                  title: Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.auto_daily_backup,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleSmall
+                                        ?.copyWith(fontWeight: FontWeight.w600),
+                                  ),
+                                  subtitle: Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.auto_daily_backup_subtitle,
+                                    style: Theme.of(context).textTheme.bodySmall
+                                        ?.copyWith(color: Colors.grey[600]),
+                                  ),
+                                  value: _autoDailyBackupEnabled,
+                                  onChanged: _toggleAutoDailyBackup,
+                                ),
+                                if (_autoDailyBackupEnabled &&
+                                    _lastAutoBackupTimestamp != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: 16.0,
+                                      right: 16.0,
+                                      bottom: 12.0,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.schedule,
+                                          size: 14,
+                                          color: Colors.grey[500],
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.last_auto_backup(
+                                            _formatTimestamp(
+                                              _lastAutoBackupTimestamp,
+                                            ),
+                                          ),
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodySmall?.copyWith(
+                                            color: Colors.grey[500],
+                                            fontSize: 11,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                              ],
+                            ),
                           ),
                         ],
                         const SizedBox(height: 16),
