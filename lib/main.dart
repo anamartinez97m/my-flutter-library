@@ -8,7 +8,7 @@ import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/providers/locale_provider.dart';
 import 'package:myrandomlibrary/providers/theme_provider.dart';
 import 'package:myrandomlibrary/screens/navigation.dart';
-import 'package:myrandomlibrary/services/cloud_backup_service.dart';
+import 'package:myrandomlibrary/services/backup_service.dart';
 import 'package:myrandomlibrary/services/google_auth_service.dart';
 import 'package:myrandomlibrary/services/notification_service.dart';
 import 'package:provider/provider.dart';
@@ -38,15 +38,7 @@ void main() async {
     debugPrint('Error initializing notifications: $e');
   }
 
-  // Auto daily cloud backup (runs silently if enabled and signed in)
-  try {
-    final user = GoogleAuthService.instance.currentUser;
-    if (user != null) {
-      CloudBackupService.instance.performAutoBackupIfNeeded(user.uid);
-    }
-  } catch (e) {
-    debugPrint('Error checking auto backup: $e');
-  }
+  // Auto backup is triggered after the app is fully loaded (see _AutoBackupRunner)
 
   try {
     final bookProvider = await BookProvider.create();
@@ -157,7 +149,41 @@ class MyApp extends StatelessWidget {
               : themeProvider.themeMode == AppThemeMode.dark
               ? ThemeMode.dark
               : ThemeMode.system,
-      home: const NavigationScreen(),
+      home: const _AutoBackupRunner(),
     );
+  }
+}
+
+/// Wrapper widget that triggers auto backup in the background after the
+/// first frame, then displays the regular NavigationScreen.
+class _AutoBackupRunner extends StatefulWidget {
+  const _AutoBackupRunner();
+
+  @override
+  State<_AutoBackupRunner> createState() => _AutoBackupRunnerState();
+}
+
+class _AutoBackupRunnerState extends State<_AutoBackupRunner> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _runAutoBackup();
+    });
+  }
+
+  Future<void> _runAutoBackup() async {
+    try {
+      final user = GoogleAuthService.instance.currentUser;
+      // uid can be null — local backup will still run
+      BackupService.instance.performAutoBackupIfNeeded(user?.uid);
+    } catch (e) {
+      debugPrint('Error triggering auto backup: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const NavigationScreen();
   }
 }

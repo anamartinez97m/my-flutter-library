@@ -16,7 +16,7 @@ import 'package:myrandomlibrary/screens/manage_rating_fields.dart';
 import 'package:myrandomlibrary/screens/manage_club_names.dart';
 import 'package:myrandomlibrary/screens/bundle_migration_screen.dart';
 import 'package:myrandomlibrary/services/google_auth_service.dart';
-import 'package:myrandomlibrary/services/cloud_backup_service.dart';
+import 'package:myrandomlibrary/services/backup_service.dart';
 import 'package:myrandomlibrary/services/notification_service.dart';
 import 'package:myrandomlibrary/utils/csv_import_helper.dart';
 import 'package:myrandomlibrary/utils/bundle_migration.dart';
@@ -52,7 +52,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _isCloudBusy = false;
   Map<String, dynamic>? _backupMetadata;
   User? _currentUser;
-  bool _autoDailyBackupEnabled = false;
+  BackupFrequency _autoBackupFrequency = BackupFrequency.off;
   String? _lastAutoBackupTimestamp;
 
   // Available filters
@@ -109,7 +109,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (_currentUser != null) {
       _loadBackupMetadata();
     }
-    _loadAutoDailyBackupSettings();
+    _loadAutoBackupSettings();
   }
 
   Future<void> _loadReadingReminderSettings() async {
@@ -166,36 +166,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await prefs.setString('currency_symbol', _currencySymbol);
   }
 
-  Future<void> _loadAutoDailyBackupSettings() async {
+  Future<void> _loadAutoBackupSettings() async {
+    final freq = await BackupService.instance.getBackupFrequency();
     final prefs = await SharedPreferences.getInstance();
     if (mounted) {
       setState(() {
-        _autoDailyBackupEnabled =
-            prefs.getBool(CloudBackupService.prefAutoDailyBackup) ?? false;
+        _autoBackupFrequency = freq;
         _lastAutoBackupTimestamp = prefs.getString(
-          CloudBackupService.prefLastAutoBackupTimestamp,
+          BackupService.prefLastAutoBackupTimestamp,
         );
       });
     }
   }
 
-  Future<void> _toggleAutoDailyBackup(bool enabled) async {
+  Future<void> _setAutoBackupFrequency(BackupFrequency freq) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(CloudBackupService.prefAutoDailyBackup, enabled);
+    await prefs.setString(
+      BackupService.prefAutoBackupFrequency,
+      BackupService.instance.frequencyToString(freq),
+    );
     if (mounted) {
       setState(() {
-        _autoDailyBackupEnabled = enabled;
+        _autoBackupFrequency = freq;
       });
+      final label = _frequencyLabel(freq);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            enabled
-                ? AppLocalizations.of(context)!.auto_daily_backup_enabled
-                : AppLocalizations.of(context)!.auto_daily_backup_disabled,
+            freq == BackupFrequency.off
+                ? AppLocalizations.of(context)!.auto_backup_disabled
+                : AppLocalizations.of(context)!.auto_backup_enabled(label),
           ),
-          backgroundColor: enabled ? Colors.green : Colors.grey,
+          backgroundColor:
+              freq == BackupFrequency.off ? Colors.grey : Colors.green,
         ),
       );
+    }
+  }
+
+  String _frequencyLabel(BackupFrequency freq) {
+    switch (freq) {
+      case BackupFrequency.off:
+        return AppLocalizations.of(context)!.backup_frequency_off;
+      case BackupFrequency.daily:
+        return AppLocalizations.of(context)!.backup_frequency_daily;
+      case BackupFrequency.weekly:
+        return AppLocalizations.of(context)!.backup_frequency_weekly;
+      case BackupFrequency.monthly:
+        return AppLocalizations.of(context)!.backup_frequency_monthly;
     }
   }
 
@@ -295,7 +313,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _loadBackupMetadata() async {
     if (_currentUser == null) return;
-    final metadata = await CloudBackupService.instance.getBackupMetadata(
+    final metadata = await BackupService.instance.getBackupMetadata(
       _currentUser!.uid,
     );
     if (mounted) {
@@ -385,7 +403,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
     try {
-      final success = await CloudBackupService.instance.uploadBackup(
+      final success = await BackupService.instance.uploadBackup(
         _currentUser!.uid,
       );
 
@@ -498,7 +516,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
     try {
-      final success = await CloudBackupService.instance.downloadBackup(
+      final success = await BackupService.instance.downloadBackup(
         _currentUser!.uid,
       );
 
@@ -1448,6 +1466,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
             duration: const Duration(seconds: 3),
           ),
         );
+      }
+
+      // Force an immediate backup so the empty DB is saved intentionally
+      try {
+        final user = GoogleAuthService.instance.currentUser;
+        await BackupService.instance.performBackupNow(user?.uid);
+        debugPrint('Forced backup after Delete Everything completed');
+      } catch (backupError) {
+        debugPrint('Error forcing backup after delete: $backupError');
       }
     } catch (e) {
       // Close loading dialog
@@ -3295,44 +3322,91 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                             ],
                           ),
-                          // Auto Daily Backup toggle
+                          // Auto Backup frequency selector
                           const SizedBox(height: 12),
                           Card(
                             elevation: 1,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: Column(
-                              children: [
-                                SwitchListTile(
-                                  title: Text(
-                                    AppLocalizations.of(
-                                      context,
-                                    )!.auto_daily_backup,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    AppLocalizations.of(context)!.auto_backup,
                                     style: Theme.of(context)
                                         .textTheme
                                         .titleSmall
                                         ?.copyWith(fontWeight: FontWeight.w600),
                                   ),
-                                  subtitle: Text(
+                                  const SizedBox(height: 4),
+                                  Text(
                                     AppLocalizations.of(
                                       context,
-                                    )!.auto_daily_backup_subtitle,
+                                    )!.auto_backup_subtitle,
                                     style: Theme.of(context).textTheme.bodySmall
                                         ?.copyWith(color: Colors.grey[600]),
                                   ),
-                                  value: _autoDailyBackupEnabled,
-                                  onChanged: _toggleAutoDailyBackup,
-                                ),
-                                if (_autoDailyBackupEnabled &&
-                                    _lastAutoBackupTimestamp != null)
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      left: 16.0,
-                                      right: 16.0,
-                                      bottom: 12.0,
+                                  const SizedBox(height: 8),
+                                  RadioListTile<BackupFrequency>(
+                                    title: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.backup_frequency_off,
                                     ),
-                                    child: Row(
+                                    value: BackupFrequency.off,
+                                    groupValue: _autoBackupFrequency,
+                                    onChanged:
+                                        (v) => _setAutoBackupFrequency(v!),
+                                    dense: true,
+                                    contentPadding: EdgeInsets.zero,
+                                  ),
+                                  RadioListTile<BackupFrequency>(
+                                    title: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.backup_frequency_daily,
+                                    ),
+                                    value: BackupFrequency.daily,
+                                    groupValue: _autoBackupFrequency,
+                                    onChanged:
+                                        (v) => _setAutoBackupFrequency(v!),
+                                    dense: true,
+                                    contentPadding: EdgeInsets.zero,
+                                  ),
+                                  RadioListTile<BackupFrequency>(
+                                    title: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.backup_frequency_weekly,
+                                    ),
+                                    value: BackupFrequency.weekly,
+                                    groupValue: _autoBackupFrequency,
+                                    onChanged:
+                                        (v) => _setAutoBackupFrequency(v!),
+                                    dense: true,
+                                    contentPadding: EdgeInsets.zero,
+                                  ),
+                                  RadioListTile<BackupFrequency>(
+                                    title: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.backup_frequency_monthly,
+                                    ),
+                                    value: BackupFrequency.monthly,
+                                    groupValue: _autoBackupFrequency,
+                                    onChanged:
+                                        (v) => _setAutoBackupFrequency(v!),
+                                    dense: true,
+                                    contentPadding: EdgeInsets.zero,
+                                  ),
+                                  if (_autoBackupFrequency !=
+                                          BackupFrequency.off &&
+                                      _lastAutoBackupTimestamp != null) ...[
+                                    const SizedBox(height: 10),
+                                    Row(
                                       children: [
                                         Icon(
                                           Icons.schedule,
@@ -3357,8 +3431,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         ),
                                       ],
                                     ),
-                                  ),
-                              ],
+                                  ],
+                                ],
+                              ),
                             ),
                           ),
                         ],

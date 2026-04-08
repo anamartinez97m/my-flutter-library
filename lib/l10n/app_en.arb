@@ -1257,10 +1257,17 @@
     "placeholders": { "count": {} }
   },
 
-  "auto_daily_backup": "Auto Daily Backup",
-  "auto_daily_backup_subtitle": "Automatically back up to cloud once a day when you open the app",
-  "auto_daily_backup_enabled": "Auto daily backup enabled",
-  "auto_daily_backup_disabled": "Auto daily backup disabled",
+  "auto_backup": "Auto Backup",
+  "auto_backup_subtitle": "Automatically back up locally and to cloud when you open the app",
+  "auto_backup_enabled": "Auto backup enabled: {frequency}",
+  "@auto_backup_enabled": {
+    "placeholders": { "frequency": {} }
+  },
+  "auto_backup_disabled": "Auto backup disabled",
+  "backup_frequency_off": "Off",
+  "backup_frequency_daily": "Daily",
+  "backup_frequency_weekly": "Weekly",
+  "backup_frequency_monthly": "Monthly",
   "last_auto_backup": "Last auto backup: {date}",
   "@last_auto_backup": {
     "placeholders": { "date": {} }

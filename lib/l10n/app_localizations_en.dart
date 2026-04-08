@@ -2749,16 +2749,30 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get auto_daily_backup => 'Auto Daily Backup';
+  String get auto_backup => 'Auto Backup';
 
   @override
-  String get auto_daily_backup_subtitle => 'Automatically back up to cloud once a day when you open the app';
+  String get auto_backup_subtitle => 'Automatically back up locally and to cloud when you open the app';
 
   @override
-  String get auto_daily_backup_enabled => 'Auto daily backup enabled';
+  String auto_backup_enabled(Object frequency) {
+    return 'Auto backup enabled: $frequency';
+  }
 
   @override
-  String get auto_daily_backup_disabled => 'Auto daily backup disabled';
+  String get auto_backup_disabled => 'Auto backup disabled';
+
+  @override
+  String get backup_frequency_off => 'Off';
+
+  @override
+  String get backup_frequency_daily => 'Daily';
+
+  @override
+  String get backup_frequency_weekly => 'Weekly';
+
+  @override
+  String get backup_frequency_monthly => 'Monthly';
 
   @override
   String last_auto_backup(Object date) {

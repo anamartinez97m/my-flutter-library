@@ -1263,10 +1263,17 @@
     "placeholders": { "count": {} }
   },
 
-  "auto_daily_backup": "Copia de Seguridad Diaria Automática",
-  "auto_daily_backup_subtitle": "Hacer copia de seguridad en la nube automáticamente una vez al día al abrir la app",
-  "auto_daily_backup_enabled": "Copia de seguridad diaria activada",
-  "auto_daily_backup_disabled": "Copia de seguridad diaria desactivada",
+  "auto_backup": "Copia de Seguridad Automática",
+  "auto_backup_subtitle": "Hacer copia de seguridad local y en la nube automáticamente al abrir la app",
+  "auto_backup_enabled": "Copia automática activada: {frequency}",
+  "@auto_backup_enabled": {
+    "placeholders": { "frequency": {} }
+  },
+  "auto_backup_disabled": "Copia automática desactivada",
+  "backup_frequency_off": "Off",
+  "backup_frequency_daily": "Diario",
+  "backup_frequency_weekly": "Semanal",
+  "backup_frequency_monthly": "Mensual",
   "last_auto_backup": "Última copia automática: {date}",
   "@last_auto_backup": {
     "placeholders": { "date": {} }
