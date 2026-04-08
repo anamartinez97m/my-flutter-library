@@ -1274,10 +1274,15 @@ class StatisticsCalculator {
             }
           }
         }
-        // If no read date, use createdAt year as fallback
-        if (!assignedToYear && book.createdAt != null) {
+        // If no read date, use releaseDate (for TBR Released) or createdAt as fallback
+        if (!assignedToYear) {
+          final fallbackDateStr =
+              (book.releaseDate != null && book.releaseDate!.isNotEmpty)
+                  ? book.releaseDate!
+                  : book.createdAt;
+          if (fallbackDateStr == null) continue;
           final createdDate = _tryParseDate(
-            book.createdAt!,
+            fallbackDateStr,
             bookName: book.name,
           );
           if (createdDate != null) {

@@ -658,14 +658,15 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: InkWell(
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder:
                             (_) => BookCompetitionScreen(year: currentYear),
                       ),
                     );
+                    _loadCompetitionData();
                   },
                   child: BookCompetitionCard(
                     currentYear: currentYear,
