@@ -1387,5 +1387,14 @@
   "move_to_standby": "Mover a En espera",
   "keep_reading": "Seguir leyendo",
   "move_back_to_reading": "Retomar Lectura",
-  "moved_back_to_reading": "Libro movido de vuelta a Leyendo"
+  "moved_back_to_reading": "Libro movido de vuelta a Leyendo",
+
+  "appearance": "Apariencia",
+  "appearance_subtitle": "Tema e idioma",
+  "library_display": "Visualización de Biblioteca",
+  "library_display_subtitle": "Filtros de Inicio, Campos de Tarjeta, Orden, Límite TBR",
+  "library_customization": "Personalización de Biblioteca",
+  "library_customization_subtitle": "Campos de valoración, clubes, desplegables, precio y moneda",
+  "migrations_section": "Migraciones",
+  "migrations_section_subtitle": "Herramientas de migración de datos"
 }

@@ -5686,6 +5686,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Book moved back to Reading'**
   String get moved_back_to_reading;
+
+  /// No description provided for @appearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearance;
+
+  /// No description provided for @appearance_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme and language settings'**
+  String get appearance_subtitle;
+
+  /// No description provided for @library_display.
+  ///
+  /// In en, this message translates to:
+  /// **'Library Display'**
+  String get library_display;
+
+  /// No description provided for @library_display_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Home Filters, Card Fields, Sort Order, TBR Limit'**
+  String get library_display_subtitle;
+
+  /// No description provided for @library_customization.
+  ///
+  /// In en, this message translates to:
+  /// **'Library Customization'**
+  String get library_customization;
+
+  /// No description provided for @library_customization_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating fields, clubs, dropdowns, price & currency'**
+  String get library_customization_subtitle;
+
+  /// No description provided for @migrations_section.
+  ///
+  /// In en, this message translates to:
+  /// **'Migrations'**
+  String get migrations_section;
+
+  /// No description provided for @migrations_section_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Data migration tools'**
+  String get migrations_section_subtitle;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

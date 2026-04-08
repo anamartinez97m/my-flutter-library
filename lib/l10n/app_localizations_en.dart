@@ -3057,4 +3057,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get moved_back_to_reading => 'Book moved back to Reading';
+
+  @override
+  String get appearance => 'Appearance';
+
+  @override
+  String get appearance_subtitle => 'Theme and language settings';
+
+  @override
+  String get library_display => 'Library Display';
+
+  @override
+  String get library_display_subtitle => 'Home Filters, Card Fields, Sort Order, TBR Limit';
+
+  @override
+  String get library_customization => 'Library Customization';
+
+  @override
+  String get library_customization_subtitle => 'Rating fields, clubs, dropdowns, price & currency';
+
+  @override
+  String get migrations_section => 'Migrations';
+
+  @override
+  String get migrations_section_subtitle => 'Data migration tools';
 }

@@ -2599,15 +2599,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       size: 16,
                     ),
                   if (isSelected) const SizedBox(width: 4),
-                  Text(
-                    name,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontWeight:
-                          isSelected ? FontWeight.bold : FontWeight.normal,
-                      color:
-                          isSelected
-                              ? Theme.of(context).colorScheme.primary
-                              : Colors.black87,
+                  Flexible(
+                    child: Text(
+                      name,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontWeight:
+                            isSelected ? FontWeight.bold : FontWeight.normal,
+                        color:
+                            isSelected
+                                ? Theme.of(context).colorScheme.primary
+                                : Colors.black87,
+                      ),
                     ),
                   ),
                 ],
@@ -2629,86 +2632,257 @@ class _SettingsScreenState extends State<SettingsScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             const SizedBox(height: 16),
-            // Admin mode toggle
+
+            // ===== APPEARANCE SECTION (COLLAPSIBLE) =====
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
               ),
-              child: CheckboxListTile(
-                title: Text(AppLocalizations.of(context)!.admin_mode),
-                subtitle: Text(
-                  AppLocalizations.of(context)!.admin_mode_subtitle,
-                ),
-                value: _isAdmin,
-                onChanged: (value) {
-                  setState(() {
-                    _isAdmin = value ?? false;
-                  });
-                },
-                secondary: const Icon(Icons.admin_panel_settings),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Admin CSV Import (moved to top)
-            if (_isAdmin) ...[
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: InkWell(
-                  onTap: () async {
-                    final result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AdminCsvImportScreen(),
+              child: ExpansionTile(
+                title: Row(
+                  children: [
+                    Icon(
+                      Icons.palette,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(width: 12),
+                    Flexible(
+                      child: Text(
+                        AppLocalizations.of(context)!.appearance,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w600),
                       ),
-                    );
-                    // If books were imported, reload the provider
-                    if (result == true && mounted) {
-                      final provider = Provider.of<BookProvider?>(
-                        context,
-                        listen: false,
-                      );
-                      await provider?.loadBooks();
-                    }
-                  },
-                  borderRadius: BorderRadius.circular(12),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    ),
+                  ],
+                ),
+                subtitle: Text(
+                  AppLocalizations.of(context)!.appearance_subtitle,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
+                ),
+                initiallyExpanded: false,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Icon(
-                          Icons.admin_panel_settings,
-                          size: 36,
-                          color: Theme.of(context).colorScheme.primary,
+                        // Theme selector
+                        Card(
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Consumer<ThemeProvider>(
+                              builder: (context, themeProvider, _) {
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.palette,
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.theme_mode,
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.titleLarge?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 16),
+                                    RadioListTile<AppThemeMode>(
+                                      title: Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.theme_light,
+                                      ),
+                                      value: AppThemeMode.light,
+                                      groupValue: themeProvider.themeMode,
+                                      onChanged: (value) {
+                                        if (value != null) {
+                                          themeProvider.setThemeMode(value);
+                                        }
+                                      },
+                                    ),
+                                    RadioListTile<AppThemeMode>(
+                                      title: Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.theme_dark,
+                                      ),
+                                      value: AppThemeMode.dark,
+                                      groupValue: themeProvider.themeMode,
+                                      onChanged: (value) {
+                                        if (value != null) {
+                                          themeProvider.setThemeMode(value);
+                                        }
+                                      },
+                                    ),
+                                    RadioListTile<AppThemeMode>(
+                                      title: Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.theme_system,
+                                      ),
+                                      value: AppThemeMode.system,
+                                      groupValue: themeProvider.themeMode,
+                                      onChanged: (value) {
+                                        if (value != null) {
+                                          themeProvider.setThemeMode(value);
+                                        }
+                                      },
+                                    ),
+                                    const Divider(height: 32),
+
+                                    // Light theme variants
+                                    Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.light_theme_colors,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    _buildLightThemeGrid(
+                                      context,
+                                      themeProvider,
+                                    ),
+                                    const SizedBox(height: 24),
+
+                                    // Dark theme variants
+                                    Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.dark_theme_colors,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    _buildDarkThemeGrid(context, themeProvider),
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
                         ),
-                        const SizedBox(height: 12),
-                        Text(
-                          AppLocalizations.of(context)!.admin_csv_import,
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.w600),
+                        const SizedBox(height: 16),
+
+                        // Language selector
+                        Card(
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.language,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      AppLocalizations.of(context)!.language,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleLarge?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                Consumer<LocaleProvider>(
+                                  builder: (context, localeProvider, _) {
+                                    return DropdownButtonFormField<String>(
+                                      value: localeProvider.locale.languageCode,
+                                      decoration: const InputDecoration(
+                                        border: OutlineInputBorder(),
+                                        contentPadding: EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 12,
+                                        ),
+                                      ),
+                                      items: [
+                                        DropdownMenuItem(
+                                          value: 'en',
+                                          child: Row(
+                                            children: [
+                                              Text('🇬🇧'),
+                                              SizedBox(width: 12),
+                                              Text(
+                                                AppLocalizations.of(
+                                                  context,
+                                                )!.english,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        DropdownMenuItem(
+                                          value: 'es',
+                                          child: Row(
+                                            children: [
+                                              Text('🇪🇸'),
+                                              SizedBox(width: 12),
+                                              Text(
+                                                AppLocalizations.of(
+                                                  context,
+                                                )!.spanish,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                      onChanged: (value) {
+                                        if (value != null) {
+                                          localeProvider.setLocale(
+                                            Locale(value),
+                                          );
+                                        }
+                                      },
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          AppLocalizations.of(
-                            context,
-                          )!.admin_csv_import_subtitle,
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(color: Colors.grey[600]),
-                        ),
+                        const SizedBox(height: 16),
                       ],
                     ),
                   ),
-                ),
+                ],
               ),
-              const SizedBox(height: 16),
-            ],
+            ),
+            const SizedBox(height: 16),
 
-            // ===== DEFAULT VALUES SECTION (COLLAPSIBLE) =====
+            // ===== LIBRARY DISPLAY SECTION (COLLAPSIBLE) =====
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
@@ -2722,16 +2896,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     const SizedBox(width: 12),
-                    Text(
-                      AppLocalizations.of(context)!.default_values,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
+                    Flexible(
+                      child: Text(
+                        AppLocalizations.of(context)!.library_display,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],
                 ),
                 subtitle: Text(
-                  AppLocalizations.of(context)!.default_values_subtitle,
+                  AppLocalizations.of(context)!.library_display_subtitle,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
                 ),
                 initiallyExpanded: false,
                 children: [
@@ -2898,10 +3076,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                   AppLocalizations.of(
                                                     context,
                                                   )!.ascending,
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                  ),
                                                 ),
                                                 icon: const Icon(
                                                   Icons.arrow_upward,
-                                                  size: 16,
+                                                  size: 14,
                                                 ),
                                               ),
                                               ButtonSegment(
@@ -2910,10 +3091,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                   AppLocalizations.of(
                                                     context,
                                                   )!.descending,
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                  ),
                                                 ),
                                                 icon: const Icon(
                                                   Icons.arrow_downward,
-                                                  size: 16,
+                                                  size: 14,
                                                 ),
                                               ),
                                             ],
@@ -3025,16 +3209,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     const SizedBox(width: 12),
-                    Text(
-                      AppLocalizations.of(context)!.cloud_sync,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
+                    Flexible(
+                      child: Text(
+                        AppLocalizations.of(context)!.cloud_sync,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],
                 ),
                 subtitle: Text(
                   AppLocalizations.of(context)!.cloud_sync_subtitle,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
                 ),
                 initiallyExpanded: false,
                 children: [
@@ -3414,19 +3602,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           color: Colors.grey[500],
                                         ),
                                         const SizedBox(width: 6),
-                                        Text(
-                                          AppLocalizations.of(
-                                            context,
-                                          )!.last_auto_backup(
-                                            _formatTimestamp(
-                                              _lastAutoBackupTimestamp,
+                                        Flexible(
+                                          child: Text(
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.last_auto_backup(
+                                              _formatTimestamp(
+                                                _lastAutoBackupTimestamp,
+                                              ),
                                             ),
-                                          ),
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.bodySmall?.copyWith(
-                                            color: Colors.grey[500],
-                                            fontSize: 11,
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 2,
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.bodySmall?.copyWith(
+                                              color: Colors.grey[500],
+                                              fontSize: 11,
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -3460,16 +3652,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     const SizedBox(width: 12),
-                    Text(
-                      AppLocalizations.of(context)!.import_export,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
+                    Flexible(
+                      child: Text(
+                        AppLocalizations.of(context)!.import_export,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],
                 ),
                 subtitle: Text(
                   AppLocalizations.of(context)!.import_export_subtitle,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
                 ),
                 initiallyExpanded: false,
                 children: [
@@ -3868,16 +4064,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     const SizedBox(width: 12),
-                    Text(
-                      AppLocalizations.of(context)!.reading_reminders,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
+                    Flexible(
+                      child: Text(
+                        AppLocalizations.of(context)!.reading_reminders,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],
                 ),
                 subtitle: Text(
                   AppLocalizations.of(context)!.reading_reminders_subtitle,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
                 ),
                 initiallyExpanded: false,
                 children: [
@@ -4108,245 +4308,498 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 16),
 
-            // ===== OTHER SETTINGS (NO GROUPING) =====
-
-            // Price Statistics Toggle
+            // ===== LIBRARY CUSTOMIZATION SECTION (COLLAPSIBLE) =====
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: SwitchListTile(
-                title: Text(
-                  AppLocalizations.of(context)!.show_price_statistics,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
-                ),
-                subtitle: Text(
-                  AppLocalizations.of(context)!.show_price_statistics_subtitle,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-                ),
-                value: _showPriceStatistics,
-                onChanged: (value) {
-                  setState(() {
-                    _showPriceStatistics = value;
-                  });
-                  _savePriceSettings();
-                },
-                secondary: Icon(
-                  Icons.attach_money,
-                  color:
-                      _showPriceStatistics
-                          ? Theme.of(context).colorScheme.primary
-                          : Colors.grey,
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Currency Symbol Picker
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: ListTile(
-                leading: Icon(
-                  Icons.currency_exchange,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                title: Text(
-                  AppLocalizations.of(context)!.currency_setting,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
-                ),
-                subtitle: Text(
-                  AppLocalizations.of(context)!.currency_setting_subtitle,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-                ),
-                trailing: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    _currencySymbol,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+              child: ExpansionTile(
+                title: Row(
+                  children: [
+                    Icon(
+                      Icons.build_outlined,
                       color: Theme.of(context).colorScheme.primary,
                     ),
-                  ),
+                    const SizedBox(width: 12),
+                    Flexible(
+                      child: Text(
+                        AppLocalizations.of(context)!.library_customization,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
                 ),
-                onTap: () {
-                  _showCurrencyPicker();
-                },
+                subtitle: Text(
+                  AppLocalizations.of(context)!.library_customization_subtitle,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
+                ),
+                initiallyExpanded: false,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Manage Rating Field Names
+                        Card(
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) =>
+                                          const ManageRatingFieldsScreen(),
+                                ),
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(12),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                children: [
+                                  Icon(
+                                    Icons.star_rate,
+                                    size: 36,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.manage_rating_field_names,
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(fontWeight: FontWeight.w600),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.manage_rating_field_names_subtitle,
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(color: Colors.grey[600]),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Manage Club Names
+                        Card(
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) =>
+                                          const ManageClubNamesScreen(),
+                                ),
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(12),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                children: [
+                                  Icon(
+                                    Icons.groups,
+                                    size: 36,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.manage_club_names,
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(fontWeight: FontWeight.w600),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.manage_club_names_subtitle,
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(color: Colors.grey[600]),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Manage Dropdown Values
+                        Card(
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) =>
+                                          const ManageDropdownsScreen(),
+                                ),
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(12),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                children: [
+                                  Icon(
+                                    Icons.settings_outlined,
+                                    size: 36,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.manage_dropdown_values,
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(fontWeight: FontWeight.w600),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.manage_dropdown_values_hint,
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(color: Colors.grey[600]),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Price Statistics Toggle
+                        Card(
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: SwitchListTile(
+                            title: Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.show_price_statistics,
+                              style: Theme.of(context).textTheme.titleSmall
+                                  ?.copyWith(fontWeight: FontWeight.w600),
+                            ),
+                            subtitle: Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.show_price_statistics_subtitle,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: Colors.grey[600]),
+                            ),
+                            value: _showPriceStatistics,
+                            onChanged: (value) {
+                              setState(() {
+                                _showPriceStatistics = value;
+                              });
+                              _savePriceSettings();
+                            },
+                            secondary: Icon(
+                              Icons.attach_money,
+                              color:
+                                  _showPriceStatistics
+                                      ? Theme.of(context).colorScheme.primary
+                                      : Colors.grey,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Currency Symbol Picker
+                        Card(
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: ListTile(
+                            leading: Icon(
+                              Icons.currency_exchange,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            title: Text(
+                              AppLocalizations.of(context)!.currency_setting,
+                              style: Theme.of(context).textTheme.titleSmall
+                                  ?.copyWith(fontWeight: FontWeight.w600),
+                            ),
+                            subtitle: Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.currency_setting_subtitle,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: Colors.grey[600]),
+                            ),
+                            trailing: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.primary.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                _currencySymbol,
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                            ),
+                            onTap: () {
+                              _showCurrencyPicker();
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 16),
 
-            // Manage Rating Field Names
+            // ===== MIGRATIONS SECTION (COLLAPSIBLE) =====
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ManageRatingFieldsScreen(),
+              child: ExpansionTile(
+                title: Row(
+                  children: [
+                    Icon(
+                      Icons.sync_alt,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
-                  );
-                },
-                borderRadius: BorderRadius.circular(12),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.star_rate,
-                        size: 36,
-                        color: Theme.of(context).colorScheme.primary,
+                    const SizedBox(width: 12),
+                    Flexible(
+                      child: Text(
+                        AppLocalizations.of(context)!.migrations_section,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w600),
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        AppLocalizations.of(context)!.manage_rating_field_names,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        AppLocalizations.of(
-                          context,
-                        )!.manage_rating_field_names_subtitle,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
+                subtitle: Text(
+                  AppLocalizations.of(context)!.migrations_section_subtitle,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
+                ),
+                initiallyExpanded: false,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Card(
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            children: [
+                              ListTile(
+                                leading: const Icon(Icons.sync_alt),
+                                title: Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.migrate_bundle_books_title,
+                                ),
+                                subtitle: Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.migrate_bundle_books_subtitle,
+                                ),
+                                trailing: FutureBuilder<bool>(
+                                  future: BundleMigration.isMigrationNeeded(),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      );
+                                    }
+
+                                    if (snapshot.data == true) {
+                                      return Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.orange,
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.available,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      );
+                                    }
+
+                                    return const Icon(
+                                      Icons.check_circle,
+                                      color: Colors.green,
+                                    );
+                                  },
+                                ),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) =>
+                                              const BundleMigrationScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
+                              const Divider(height: 1),
+                              ListTile(
+                                leading: const Icon(
+                                  Icons.history,
+                                  color: Colors.blue,
+                                ),
+                                title: Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.migrate_reading_sessions,
+                                ),
+                                subtitle: Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.migrate_reading_sessions_subtitle,
+                                ),
+                                trailing: FutureBuilder<bool>(
+                                  future:
+                                      ReadingSessionMigration.needsMigration(),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      );
+                                    }
+
+                                    if (snapshot.data == true) {
+                                      return Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue,
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.available,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      );
+                                    }
+
+                                    return const Icon(
+                                      Icons.check_circle,
+                                      color: Colors.green,
+                                    );
+                                  },
+                                ),
+                                onTap: () => _migrateReadingSessions(context),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 16),
 
-            // Manage Club Names
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ManageClubNamesScreen(),
-                    ),
-                  );
-                },
-                borderRadius: BorderRadius.circular(12),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.groups,
-                        size: 36,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        AppLocalizations.of(context)!.manage_club_names,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        AppLocalizations.of(
-                          context,
-                        )!.manage_club_names_subtitle,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Manage Dropdown Values
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ManageDropdownsScreen(),
-                    ),
-                  );
-                },
-                borderRadius: BorderRadius.circular(12),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.settings_outlined,
-                        size: 36,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        AppLocalizations.of(context)!.manage_dropdown_values,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        AppLocalizations.of(
-                          context,
-                        )!.manage_dropdown_values_hint,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Delete All Data button
+            // ===== DANGER ZONE =====
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
@@ -4390,292 +4843,86 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Theme selector
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Consumer<ThemeProvider>(
-                  builder: (context, themeProvider, _) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.palette,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              AppLocalizations.of(context)!.theme_mode,
-                              style: Theme.of(context).textTheme.titleLarge
-                                  ?.copyWith(fontWeight: FontWeight.w600),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        RadioListTile<AppThemeMode>(
-                          title: Text(
-                            AppLocalizations.of(context)!.theme_light,
-                          ),
-                          value: AppThemeMode.light,
-                          groupValue: themeProvider.themeMode,
-                          onChanged: (value) {
-                            if (value != null) {
-                              themeProvider.setThemeMode(value);
-                            }
-                          },
-                        ),
-                        RadioListTile<AppThemeMode>(
-                          title: Text(AppLocalizations.of(context)!.theme_dark),
-                          value: AppThemeMode.dark,
-                          groupValue: themeProvider.themeMode,
-                          onChanged: (value) {
-                            if (value != null) {
-                              themeProvider.setThemeMode(value);
-                            }
-                          },
-                        ),
-                        RadioListTile<AppThemeMode>(
-                          title: Text(
-                            AppLocalizations.of(context)!.theme_system,
-                          ),
-                          value: AppThemeMode.system,
-                          groupValue: themeProvider.themeMode,
-                          onChanged: (value) {
-                            if (value != null) {
-                              themeProvider.setThemeMode(value);
-                            }
-                          },
-                        ),
-                        const Divider(height: 32),
-
-                        // Light theme variants
-                        Text(
-                          AppLocalizations.of(context)!.light_theme_colors,
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
-                        const SizedBox(height: 16),
-                        _buildLightThemeGrid(context, themeProvider),
-                        const SizedBox(height: 24),
-
-                        // Dark theme variants
-                        Text(
-                          AppLocalizations.of(context)!.dark_theme_colors,
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
-                        const SizedBox(height: 16),
-                        _buildDarkThemeGrid(context, themeProvider),
-                      ],
-                    );
-                  },
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Language selector
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.language,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          AppLocalizations.of(context)!.language,
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Consumer<LocaleProvider>(
-                      builder: (context, localeProvider, _) {
-                        return DropdownButtonFormField<String>(
-                          value: localeProvider.locale.languageCode,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                          ),
-                          items: [
-                            DropdownMenuItem(
-                              value: 'en',
-                              child: Row(
-                                children: [
-                                  Text('🇬🇧'),
-                                  SizedBox(width: 12),
-                                  Text(AppLocalizations.of(context)!.english),
-                                ],
-                              ),
-                            ),
-                            DropdownMenuItem(
-                              value: 'es',
-                              child: Row(
-                                children: [
-                                  Text('🇪🇸'),
-                                  SizedBox(width: 12),
-                                  Text(AppLocalizations.of(context)!.spanish),
-                                ],
-                              ),
-                            ),
-                          ],
-                          onChanged: (value) {
-                            if (value != null) {
-                              localeProvider.setLocale(Locale(value));
-                            }
-                          },
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Bundle Migration
+            // ===== ADMIN MODE (moved to bottom) =====
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Column(
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.sync_alt),
-                    title: Text(
-                      AppLocalizations.of(context)!.migrate_bundle_books_title,
-                    ),
-                    subtitle: Text(
-                      AppLocalizations.of(
-                        context,
-                      )!.migrate_bundle_books_subtitle,
-                    ),
-                    trailing: FutureBuilder<bool>(
-                      future: BundleMigration.isMigrationNeeded(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          );
-                        }
-
-                        if (snapshot.data == true) {
-                          return Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.orange,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              AppLocalizations.of(context)!.available,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          );
-                        }
-
-                        return const Icon(
-                          Icons.check_circle,
-                          color: Colors.green,
-                        );
-                      },
-                    ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const BundleMigrationScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                  const Divider(height: 1),
-                  ListTile(
-                    leading: const Icon(Icons.history, color: Colors.blue),
-                    title: Text(
-                      AppLocalizations.of(context)!.migrate_reading_sessions,
-                    ),
-                    subtitle: Text(
-                      AppLocalizations.of(
-                        context,
-                      )!.migrate_reading_sessions_subtitle,
-                    ),
-                    trailing: FutureBuilder<bool>(
-                      future: ReadingSessionMigration.needsMigration(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          );
-                        }
-
-                        if (snapshot.data == true) {
-                          return Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.blue,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              AppLocalizations.of(context)!.available,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          );
-                        }
-
-                        return const Icon(
-                          Icons.check_circle,
-                          color: Colors.green,
-                        );
-                      },
-                    ),
-                    onTap: () => _migrateReadingSessions(context),
-                  ),
-                ],
+              child: CheckboxListTile(
+                title: Text(AppLocalizations.of(context)!.admin_mode),
+                subtitle: Text(
+                  AppLocalizations.of(context)!.admin_mode_subtitle,
+                ),
+                value: _isAdmin,
+                onChanged: (value) {
+                  setState(() {
+                    _isAdmin = value ?? false;
+                  });
+                },
+                secondary: const Icon(Icons.admin_panel_settings),
               ),
             ),
             const SizedBox(height: 16),
+            // Admin CSV Import
+            if (_isAdmin) ...[
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: InkWell(
+                  onTap: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AdminCsvImportScreen(),
+                      ),
+                    );
+                    // If books were imported, reload the provider
+                    if (result == true && mounted) {
+                      final provider = Provider.of<BookProvider?>(
+                        context,
+                        listen: false,
+                      );
+                      await provider?.loadBooks();
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.admin_panel_settings,
+                          size: 36,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          AppLocalizations.of(context)!.admin_csv_import,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          AppLocalizations.of(
+                            context,
+                          )!.admin_csv_import_subtitle,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: Colors.grey[600]),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
 
+            // ===== ABOUT =====
             AboutListTile(
               icon: const Icon(Icons.info_outline),
               applicationName: AppLocalizations.of(context)!.application_name,

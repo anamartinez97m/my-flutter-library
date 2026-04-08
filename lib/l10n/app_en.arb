@@ -1381,5 +1381,14 @@
   "move_to_standby": "Move to Standby",
   "keep_reading": "Keep Reading",
   "move_back_to_reading": "Resume Reading",
-  "moved_back_to_reading": "Book moved back to Reading"
+  "moved_back_to_reading": "Book moved back to Reading",
+
+  "appearance": "Appearance",
+  "appearance_subtitle": "Theme and language settings",
+  "library_display": "Library Display",
+  "library_display_subtitle": "Home Filters, Card Fields, Sort Order, TBR Limit",
+  "library_customization": "Library Customization",
+  "library_customization_subtitle": "Rating fields, clubs, dropdowns, price & currency",
+  "migrations_section": "Migrations",
+  "migrations_section_subtitle": "Data migration tools"
 }
