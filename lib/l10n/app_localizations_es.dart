@@ -3081,4 +3081,156 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get migrations_section_subtitle => 'Herramientas de migración de datos';
+
+  @override
+  String get library_tools => 'Herramientas de Biblioteca';
+
+  @override
+  String get library_tools_subtitle => 'Edición masiva, completar campos, sugerencias inteligentes';
+
+  @override
+  String get assign_books_to_value => 'Asignar Libros a un Valor';
+
+  @override
+  String get assign_books_to_value_hint => 'Elige un valor y selecciona libros para asignarlo';
+
+  @override
+  String get fill_empty_fields => 'Completar Campos Vacíos';
+
+  @override
+  String get fill_empty_fields_hint => 'Encuentra libros con datos faltantes y completa en grupos';
+
+  @override
+  String get smart_suggestions => 'Sugerencias Inteligentes';
+
+  @override
+  String get smart_suggestions_hint => 'Detecta patrones y sugiere correcciones masivas';
+
+  @override
+  String get select_field => 'Seleccionar Campo';
+
+  @override
+  String get select_value => 'Seleccionar Valor';
+
+  @override
+  String get no_values_available => 'No hay valores disponibles';
+
+  @override
+  String get books_available => 'libros disponibles';
+
+  @override
+  String get all_books_already_have_value => '¡Todos los libros ya tienen este valor!';
+
+  @override
+  String get deselect_all => 'Deseleccionar Todo';
+
+  @override
+  String apply_to_n_books(int count) {
+    return 'Aplicar a $count libros';
+  }
+
+  @override
+  String bulk_updated_books(int count) {
+    return '$count libro(s) actualizado(s) correctamente';
+  }
+
+  @override
+  String reverse_assign_info(String value, String field) {
+    return 'Mostrando libros que no tienen \"$value\" como $field';
+  }
+
+  @override
+  String get select_field_to_fill => 'Selecciona un campo para completar';
+
+  @override
+  String get no_books_with_empty_field => '¡Todos los libros tienen este campo completo!';
+
+  @override
+  String books_without_field(int count, String field) {
+    return '$count libros sin $field';
+  }
+
+  @override
+  String group_n_of_total(int current, int total) {
+    return 'Grupo $current de $total';
+  }
+
+  @override
+  String other_books_have(String values) {
+    return 'Otros libros de este autor tienen: $values';
+  }
+
+  @override
+  String get apply_to_group => 'Aplicar al Grupo';
+
+  @override
+  String get next_group => 'Siguiente Grupo';
+
+  @override
+  String get previous_group => 'Grupo Anterior';
+
+  @override
+  String get no_groups_found => 'No se encontraron grupos';
+
+  @override
+  String get ungrouped => 'Otros Libros';
+
+  @override
+  String books_in_group(int count) {
+    return '$count libros';
+  }
+
+  @override
+  String get select_value_to_apply => 'Selecciona un valor para aplicar';
+
+  @override
+  String get wizard_complete => '¡Todos los grupos procesados!';
+
+  @override
+  String get wizard_complete_message => 'Puedes volver a revisar o cerrar esta pantalla';
+
+  @override
+  String get generating_suggestions => 'Analizando tu biblioteca...';
+
+  @override
+  String get no_suggestions => 'No se encontraron sugerencias. ¡Los datos de tu biblioteca se ven consistentes!';
+
+  @override
+  String suggestion_confidence(int percent) {
+    return '$percent% de confianza';
+  }
+
+  @override
+  String get accept => 'Aceptar';
+
+  @override
+  String get reject => 'Rechazar';
+
+  @override
+  String get review => 'Revisar';
+
+  @override
+  String get accept_all => 'Aceptar Todo';
+
+  @override
+  String n_suggestions_found(int count) {
+    return '$count sugerencias encontradas';
+  }
+
+  @override
+  String get suggestion_applied => 'Sugerencia aplicada correctamente';
+
+  @override
+  String get suggestion_rejected => 'Sugerencia descartada';
+
+  @override
+  String apply_value_to_books(String value, String field, int count) {
+    return 'Aplicar \"$value\" ($field) a $count libro(s)';
+  }
+
+  @override
+  String get affected_books => 'Libros afectados:';
+
+  @override
+  String get all_suggestions_processed => '¡Todas las sugerencias han sido procesadas!';
 }

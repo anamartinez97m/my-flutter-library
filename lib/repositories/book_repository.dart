@@ -1518,4 +1518,327 @@ class BookRepository {
       return 0;
     }
   }
+
+  // ==================== Bulk Edit Methods ====================
+
+  /// Bulk update a field for multiple books
+  /// [field] can be: genre, author, format, language, place, editorial, format_saga, saga, saga_universe
+  /// For genre/author: adds the value (does not replace existing)
+  /// For lookup fields: sets the lookup ID
+  /// For text fields: sets the text value
+  Future<int> updateBooksField(
+    List<int> bookIds,
+    String field,
+    String value,
+  ) async {
+    if (bookIds.isEmpty || value.isEmpty) return 0;
+
+    int updated = 0;
+
+    try {
+      await db.transaction((txn) async {
+        if (field == 'genre') {
+          // Many-to-many: add genre to junction table
+          final genreId = await _getOrInsertLookupIdTxn(
+            txn,
+            'genre',
+            'name',
+            value,
+          );
+          if (genreId != null) {
+            for (final bookId in bookIds) {
+              await txn.insert('books_by_genre', {
+                'genre_id': genreId,
+                'book_id': bookId,
+              }, conflictAlgorithm: ConflictAlgorithm.ignore);
+              updated++;
+            }
+          }
+        } else if (field == 'author') {
+          // Many-to-many: add author to junction table
+          final authorId = await _getOrInsertLookupIdTxn(
+            txn,
+            'author',
+            'name',
+            value,
+          );
+          if (authorId != null) {
+            for (final bookId in bookIds) {
+              await txn.insert('books_by_author', {
+                'author_id': authorId,
+                'book_id': bookId,
+              }, conflictAlgorithm: ConflictAlgorithm.ignore);
+              updated++;
+            }
+          }
+        } else if (field == 'saga' || field == 'saga_universe') {
+          // Text fields in book table
+          final placeholders = bookIds.map((_) => '?').join(',');
+          updated = await txn.rawUpdate(
+            'UPDATE book SET $field = ? WHERE book_id IN ($placeholders)',
+            [value, ...bookIds],
+          );
+        } else {
+          // Lookup ID fields: format, language, place, editorial, format_saga
+          final tableName = field;
+          final valueColumn =
+              (field == 'status' || field == 'format' || field == 'format_saga')
+                  ? 'value'
+                  : 'name';
+          final lookupId = await _getOrInsertLookupIdTxn(
+            txn,
+            tableName,
+            valueColumn,
+            value,
+          );
+
+          if (lookupId != null) {
+            final bookColumn =
+                field == 'format_saga' ? 'format_saga_id' : '${field}_id';
+            final placeholders = bookIds.map((_) => '?').join(',');
+            updated = await txn.rawUpdate(
+              'UPDATE book SET $bookColumn = ? WHERE book_id IN ($placeholders)',
+              [lookupId, ...bookIds],
+            );
+          }
+        }
+      });
+
+      debugPrint('✅ Bulk updated $field to "$value" for $updated book(s)');
+      return updated;
+    } catch (e) {
+      debugPrint('❌ Error bulk updating $field: $e');
+      return 0;
+    }
+  }
+
+  /// Transaction-safe version of _getOrInsertLookupId
+  Future<int?> _getOrInsertLookupIdTxn(
+    Transaction txn,
+    String tableName,
+    String valueColumn,
+    String value,
+  ) async {
+    if (value.isEmpty) return null;
+
+    final normalizedValue = _removeAccents(value.toLowerCase());
+
+    final result = await txn.rawQuery(
+      '''
+      SELECT * FROM $tableName 
+      WHERE LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
+        REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
+        $valueColumn,
+        'á','a'),'é','e'),'í','i'),'ó','o'),'ú','u'),'ñ','n'),'ü','u'),
+        'Á','A'),'É','E'),'Í','I'),'Ó','O'),'Ú','U'),'Ñ','N'),'Ü','U')) = ?
+      LIMIT 1
+      ''',
+      [normalizedValue],
+    );
+
+    if (result.isNotEmpty) {
+      final idColumn =
+          tableName == 'format_saga' ? 'format_id' : '${tableName}_id';
+      return result.first[idColumn] as int?;
+    }
+
+    final id = await txn.insert(tableName, {valueColumn: value});
+    return id;
+  }
+
+  /// Get all books where a specific field is empty/null
+  /// Returns full Book objects
+  Future<List<Book>> getBooksWithEmptyField(String field) async {
+    String whereCondition;
+
+    if (field == 'genre') {
+      // Books with no genres in junction table
+      return _getBooksWithoutJunctionValue('books_by_genre', 'genre_id');
+    } else if (field == 'author') {
+      // Books with no authors in junction table
+      return _getBooksWithoutJunctionValue('books_by_author', 'author_id');
+    } else if (field == 'saga' || field == 'saga_universe') {
+      whereCondition = "(b.$field IS NULL OR b.$field = '')";
+    } else if (field == 'format_saga') {
+      whereCondition = 'b.format_saga_id IS NULL';
+    } else {
+      // Lookup fields: format, language, place, editorial
+      whereCondition = 'b.${field}_id IS NULL';
+    }
+
+    final result = await db.rawQuery('''
+      SELECT b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
+        b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
+        p.name as placeValue, f.value as formatValue,
+        fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
+        b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
+        b.read_count,
+        (SELECT AVG(brf.rating_value) FROM book_rating_fields brf WHERE brf.book_id = b.book_id AND brf.rating_value > 0) as my_rating,
+        b.my_review,
+        b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
+        b.tbr, b.is_tandem, b.original_book_id,
+        b.notification_enabled, b.notification_datetime, b.release_date, b.bundle_parent_id,
+        b.reading_progress, b.progress_type,
+        b.notes, b.price, b.rating_override,
+        b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at,
+        GROUP_CONCAT(DISTINCT a.name) as author,
+        GROUP_CONCAT(DISTINCT g.name) as genre
+      FROM book b 
+      LEFT JOIN books_by_author bba ON b.book_id = bba.book_id 
+      LEFT JOIN author a ON bba.author_id = a.author_id
+      LEFT JOIN books_by_genre bbg ON b.book_id = bbg.book_id 
+      LEFT JOIN genre g ON bbg.genre_id = g.genre_id
+      LEFT JOIN status s ON b.status_id = s.status_id 
+      LEFT JOIN editorial e ON b.editorial_id = e.editorial_id
+      LEFT JOIN language l ON b.language_id = l.language_id 
+      LEFT JOIN place p ON b.place_id = p.place_id  
+      LEFT JOIN format f ON b.format_id = f.format_id
+      LEFT JOIN format_saga fs ON b.format_saga_id = fs.format_id
+      WHERE b.name <> "" AND b.bundle_parent_id IS NULL
+        AND $whereCondition
+      GROUP BY b.book_id
+      ORDER BY b.name
+    ''');
+
+    return result.map((row) => Book.fromMap(row)).toList();
+  }
+
+  /// Helper: get books that have no entry in a junction table
+  Future<List<Book>> _getBooksWithoutJunctionValue(
+    String junctionTable,
+    String junctionColumn,
+  ) async {
+    final result = await db.rawQuery('''
+      SELECT b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
+        b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
+        p.name as placeValue, f.value as formatValue,
+        fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
+        b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
+        b.read_count,
+        (SELECT AVG(brf.rating_value) FROM book_rating_fields brf WHERE brf.book_id = b.book_id AND brf.rating_value > 0) as my_rating,
+        b.my_review,
+        b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
+        b.tbr, b.is_tandem, b.original_book_id,
+        b.notification_enabled, b.notification_datetime, b.release_date, b.bundle_parent_id,
+        b.reading_progress, b.progress_type,
+        b.notes, b.price, b.rating_override,
+        b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at,
+        GROUP_CONCAT(DISTINCT a.name) as author,
+        GROUP_CONCAT(DISTINCT g.name) as genre
+      FROM book b 
+      LEFT JOIN books_by_author bba ON b.book_id = bba.book_id 
+      LEFT JOIN author a ON bba.author_id = a.author_id
+      LEFT JOIN books_by_genre bbg ON b.book_id = bbg.book_id 
+      LEFT JOIN genre g ON bbg.genre_id = g.genre_id
+      LEFT JOIN status s ON b.status_id = s.status_id 
+      LEFT JOIN editorial e ON b.editorial_id = e.editorial_id
+      LEFT JOIN language l ON b.language_id = l.language_id 
+      LEFT JOIN place p ON b.place_id = p.place_id  
+      LEFT JOIN format f ON b.format_id = f.format_id
+      LEFT JOIN format_saga fs ON b.format_saga_id = fs.format_id
+      WHERE b.name <> "" AND b.bundle_parent_id IS NULL
+        AND b.book_id NOT IN (SELECT book_id FROM $junctionTable)
+      GROUP BY b.book_id
+      ORDER BY b.name
+    ''');
+
+    return result.map((row) => Book.fromMap(row)).toList();
+  }
+
+  /// Get books that DON'T have a specific value for a field
+  /// Used by Reverse Assign to show candidate books
+  Future<List<Book>> getBooksWithoutFieldValue(
+    String field,
+    String value,
+  ) async {
+    String whereCondition;
+
+    if (field == 'genre') {
+      // Books that don't have this specific genre
+      final genreResult = await db.rawQuery(
+        "SELECT genre_id FROM genre WHERE LOWER(name) = ?",
+        [value.toLowerCase()],
+      );
+      if (genreResult.isEmpty) {
+        // Genre doesn't exist yet, return all books
+        return getAllBooks();
+      }
+      final genreId = genreResult.first['genre_id'] as int;
+      whereCondition =
+          'b.book_id NOT IN (SELECT book_id FROM books_by_genre WHERE genre_id = $genreId)';
+    } else if (field == 'author') {
+      final authorResult = await db.rawQuery(
+        "SELECT author_id FROM author WHERE LOWER(name) = ?",
+        [value.toLowerCase()],
+      );
+      if (authorResult.isEmpty) {
+        return getAllBooks();
+      }
+      final authorId = authorResult.first['author_id'] as int;
+      whereCondition =
+          'b.book_id NOT IN (SELECT book_id FROM books_by_author WHERE author_id = $authorId)';
+    } else if (field == 'saga' || field == 'saga_universe') {
+      whereCondition = "(b.$field IS NULL OR b.$field != ?)";
+    } else if (field == 'format_saga') {
+      final fsResult = await db.rawQuery(
+        "SELECT format_id FROM format_saga WHERE LOWER(value) = ?",
+        [value.toLowerCase()],
+      );
+      if (fsResult.isEmpty) return getAllBooks();
+      final fsId = fsResult.first['format_id'] as int;
+      whereCondition =
+          '(b.format_saga_id IS NULL OR b.format_saga_id != $fsId)';
+    } else {
+      // Lookup fields
+      final valueColumn =
+          (field == 'status' || field == 'format') ? 'value' : 'name';
+      final idColumn = '${field}_id';
+      final lookupResult = await db.rawQuery(
+        "SELECT $idColumn FROM $field WHERE LOWER($valueColumn) = ?",
+        [value.toLowerCase()],
+      );
+      if (lookupResult.isEmpty) return getAllBooks();
+      final lookupId = lookupResult.first[idColumn] as int;
+      whereCondition = '(b.$idColumn IS NULL OR b.$idColumn != $lookupId)';
+    }
+
+    final params =
+        (field == 'saga' || field == 'saga_universe') ? [value] : <String>[];
+
+    final result = await db.rawQuery('''
+      SELECT b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
+        b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
+        p.name as placeValue, f.value as formatValue,
+        fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
+        b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
+        b.read_count,
+        (SELECT AVG(brf.rating_value) FROM book_rating_fields brf WHERE brf.book_id = b.book_id AND brf.rating_value > 0) as my_rating,
+        b.my_review,
+        b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
+        b.tbr, b.is_tandem, b.original_book_id,
+        b.notification_enabled, b.notification_datetime, b.release_date, b.bundle_parent_id,
+        b.reading_progress, b.progress_type,
+        b.notes, b.price, b.rating_override,
+        b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at,
+        GROUP_CONCAT(DISTINCT a.name) as author,
+        GROUP_CONCAT(DISTINCT g.name) as genre
+      FROM book b 
+      LEFT JOIN books_by_author bba ON b.book_id = bba.book_id 
+      LEFT JOIN author a ON bba.author_id = a.author_id
+      LEFT JOIN books_by_genre bbg ON b.book_id = bbg.book_id 
+      LEFT JOIN genre g ON bbg.genre_id = g.genre_id
+      LEFT JOIN status s ON b.status_id = s.status_id 
+      LEFT JOIN editorial e ON b.editorial_id = e.editorial_id
+      LEFT JOIN language l ON b.language_id = l.language_id 
+      LEFT JOIN place p ON b.place_id = p.place_id  
+      LEFT JOIN format f ON b.format_id = f.format_id
+      LEFT JOIN format_saga fs ON b.format_saga_id = fs.format_id
+      WHERE b.name <> "" AND b.bundle_parent_id IS NULL
+        AND $whereCondition
+      GROUP BY b.book_id
+      ORDER BY b.name
+    ''', params);
+
+    return result.map((row) => Book.fromMap(row)).toList();
+  }
 }

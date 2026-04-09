@@ -3081,4 +3081,156 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get migrations_section_subtitle => 'Data migration tools';
+
+  @override
+  String get library_tools => 'Library Tools';
+
+  @override
+  String get library_tools_subtitle => 'Bulk edit, fill empty fields, smart suggestions';
+
+  @override
+  String get assign_books_to_value => 'Assign Books to Value';
+
+  @override
+  String get assign_books_to_value_hint => 'Pick a value, then select books to assign it to';
+
+  @override
+  String get fill_empty_fields => 'Fill Empty Fields';
+
+  @override
+  String get fill_empty_fields_hint => 'Find books with missing data and fill them in groups';
+
+  @override
+  String get smart_suggestions => 'Smart Suggestions';
+
+  @override
+  String get smart_suggestions_hint => 'Auto-detect patterns and suggest bulk fixes';
+
+  @override
+  String get select_field => 'Select Field';
+
+  @override
+  String get select_value => 'Select Value';
+
+  @override
+  String get no_values_available => 'No values available';
+
+  @override
+  String get books_available => 'books available';
+
+  @override
+  String get all_books_already_have_value => 'All books already have this value!';
+
+  @override
+  String get deselect_all => 'Deselect All';
+
+  @override
+  String apply_to_n_books(int count) {
+    return 'Apply to $count books';
+  }
+
+  @override
+  String bulk_updated_books(int count) {
+    return 'Updated $count book(s) successfully';
+  }
+
+  @override
+  String reverse_assign_info(String value, String field) {
+    return 'Showing books that don\'t have \"$value\" as $field';
+  }
+
+  @override
+  String get select_field_to_fill => 'Select a field to fill';
+
+  @override
+  String get no_books_with_empty_field => 'All books have this field filled!';
+
+  @override
+  String books_without_field(int count, String field) {
+    return '$count books without $field';
+  }
+
+  @override
+  String group_n_of_total(int current, int total) {
+    return 'Group $current of $total';
+  }
+
+  @override
+  String other_books_have(String values) {
+    return 'Other books by this author have: $values';
+  }
+
+  @override
+  String get apply_to_group => 'Apply to Group';
+
+  @override
+  String get next_group => 'Next Group';
+
+  @override
+  String get previous_group => 'Previous Group';
+
+  @override
+  String get no_groups_found => 'No groups found';
+
+  @override
+  String get ungrouped => 'Other Books';
+
+  @override
+  String books_in_group(int count) {
+    return '$count books';
+  }
+
+  @override
+  String get select_value_to_apply => 'Select a value to apply';
+
+  @override
+  String get wizard_complete => 'All groups processed!';
+
+  @override
+  String get wizard_complete_message => 'You can go back to review or close this screen';
+
+  @override
+  String get generating_suggestions => 'Analyzing your library...';
+
+  @override
+  String get no_suggestions => 'No suggestions found. Your library data looks consistent!';
+
+  @override
+  String suggestion_confidence(int percent) {
+    return '$percent% confidence';
+  }
+
+  @override
+  String get accept => 'Accept';
+
+  @override
+  String get reject => 'Reject';
+
+  @override
+  String get review => 'Review';
+
+  @override
+  String get accept_all => 'Accept All';
+
+  @override
+  String n_suggestions_found(int count) {
+    return '$count suggestions found';
+  }
+
+  @override
+  String get suggestion_applied => 'Suggestion applied successfully';
+
+  @override
+  String get suggestion_rejected => 'Suggestion dismissed';
+
+  @override
+  String apply_value_to_books(String value, String field, int count) {
+    return 'Apply \"$value\" ($field) to $count book(s)';
+  }
+
+  @override
+  String get affected_books => 'Affected books:';
+
+  @override
+  String get all_suggestions_processed => 'All suggestions have been processed!';
 }

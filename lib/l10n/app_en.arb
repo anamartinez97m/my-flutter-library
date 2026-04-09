@@ -1390,5 +1390,108 @@
   "library_customization": "Library Customization",
   "library_customization_subtitle": "Rating fields, clubs, dropdowns, price & currency",
   "migrations_section": "Migrations",
-  "migrations_section_subtitle": "Data migration tools"
+  "migrations_section_subtitle": "Data migration tools",
+
+  "library_tools": "Library Tools",
+  "library_tools_subtitle": "Bulk edit, fill empty fields, smart suggestions",
+  "assign_books_to_value": "Assign Books to Value",
+  "assign_books_to_value_hint": "Pick a value, then select books to assign it to",
+  "fill_empty_fields": "Fill Empty Fields",
+  "fill_empty_fields_hint": "Find books with missing data and fill them in groups",
+  "smart_suggestions": "Smart Suggestions",
+  "smart_suggestions_hint": "Auto-detect patterns and suggest bulk fixes",
+
+  "select_field": "Select Field",
+  "select_value": "Select Value",
+  "no_values_available": "No values available",
+  "books_available": "books available",
+  "all_books_already_have_value": "All books already have this value!",
+  "deselect_all": "Deselect All",
+  "apply_to_n_books": "Apply to {count} books",
+  "@apply_to_n_books": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "bulk_updated_books": "Updated {count} book(s) successfully",
+  "@bulk_updated_books": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "reverse_assign_info": "Showing books that don't have \"{value}\" as {field}",
+  "@reverse_assign_info": {
+    "placeholders": {
+      "value": {"type": "String"},
+      "field": {"type": "String"}
+    }
+  },
+
+  "select_field_to_fill": "Select a field to fill",
+  "no_books_with_empty_field": "All books have this field filled!",
+  "books_without_field": "{count} books without {field}",
+  "@books_without_field": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "field": {"type": "String"}
+    }
+  },
+  "group_n_of_total": "Group {current} of {total}",
+  "@group_n_of_total": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "other_books_have": "Other books by this author have: {values}",
+  "@other_books_have": {
+    "placeholders": {
+      "values": {"type": "String"}
+    }
+  },
+  "apply_to_group": "Apply to Group",
+  "next_group": "Next Group",
+  "previous_group": "Previous Group",
+  "no_groups_found": "No groups found",
+  "ungrouped": "Other Books",
+  "books_in_group": "{count} books",
+  "@books_in_group": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "select_value_to_apply": "Select a value to apply",
+  "wizard_complete": "All groups processed!",
+  "wizard_complete_message": "You can go back to review or close this screen",
+
+  "generating_suggestions": "Analyzing your library...",
+  "no_suggestions": "No suggestions found. Your library data looks consistent!",
+  "suggestion_confidence": "{percent}% confidence",
+  "@suggestion_confidence": {
+    "placeholders": {
+      "percent": {"type": "int"}
+    }
+  },
+  "accept": "Accept",
+  "reject": "Reject",
+  "review": "Review",
+  "accept_all": "Accept All",
+  "n_suggestions_found": "{count} suggestions found",
+  "@n_suggestions_found": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "suggestion_applied": "Suggestion applied successfully",
+  "suggestion_rejected": "Suggestion dismissed",
+  "apply_value_to_books": "Apply \"{value}\" ({field}) to {count} book(s)",
+  "@apply_value_to_books": {
+    "placeholders": {
+      "value": {"type": "String"},
+      "field": {"type": "String"},
+      "count": {"type": "int"}
+    }
+  },
+  "affected_books": "Affected books:",
+  "all_suggestions_processed": "All suggestions have been processed!"
 }

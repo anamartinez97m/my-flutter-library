@@ -1396,5 +1396,108 @@
   "library_customization": "Personalización de Biblioteca",
   "library_customization_subtitle": "Campos de valoración, clubes, desplegables, precio y moneda",
   "migrations_section": "Migraciones",
-  "migrations_section_subtitle": "Herramientas de migración de datos"
+  "migrations_section_subtitle": "Herramientas de migración de datos",
+
+  "library_tools": "Herramientas de Biblioteca",
+  "library_tools_subtitle": "Edición masiva, completar campos, sugerencias inteligentes",
+  "assign_books_to_value": "Asignar Libros a un Valor",
+  "assign_books_to_value_hint": "Elige un valor y selecciona libros para asignarlo",
+  "fill_empty_fields": "Completar Campos Vacíos",
+  "fill_empty_fields_hint": "Encuentra libros con datos faltantes y completa en grupos",
+  "smart_suggestions": "Sugerencias Inteligentes",
+  "smart_suggestions_hint": "Detecta patrones y sugiere correcciones masivas",
+
+  "select_field": "Seleccionar Campo",
+  "select_value": "Seleccionar Valor",
+  "no_values_available": "No hay valores disponibles",
+  "books_available": "libros disponibles",
+  "all_books_already_have_value": "¡Todos los libros ya tienen este valor!",
+  "deselect_all": "Deseleccionar Todo",
+  "apply_to_n_books": "Aplicar a {count} libros",
+  "@apply_to_n_books": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "bulk_updated_books": "{count} libro(s) actualizado(s) correctamente",
+  "@bulk_updated_books": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "reverse_assign_info": "Mostrando libros que no tienen \"{value}\" como {field}",
+  "@reverse_assign_info": {
+    "placeholders": {
+      "value": {"type": "String"},
+      "field": {"type": "String"}
+    }
+  },
+
+  "select_field_to_fill": "Selecciona un campo para completar",
+  "no_books_with_empty_field": "¡Todos los libros tienen este campo completo!",
+  "books_without_field": "{count} libros sin {field}",
+  "@books_without_field": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "field": {"type": "String"}
+    }
+  },
+  "group_n_of_total": "Grupo {current} de {total}",
+  "@group_n_of_total": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "other_books_have": "Otros libros de este autor tienen: {values}",
+  "@other_books_have": {
+    "placeholders": {
+      "values": {"type": "String"}
+    }
+  },
+  "apply_to_group": "Aplicar al Grupo",
+  "next_group": "Siguiente Grupo",
+  "previous_group": "Grupo Anterior",
+  "no_groups_found": "No se encontraron grupos",
+  "ungrouped": "Otros Libros",
+  "books_in_group": "{count} libros",
+  "@books_in_group": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "select_value_to_apply": "Selecciona un valor para aplicar",
+  "wizard_complete": "¡Todos los grupos procesados!",
+  "wizard_complete_message": "Puedes volver a revisar o cerrar esta pantalla",
+
+  "generating_suggestions": "Analizando tu biblioteca...",
+  "no_suggestions": "No se encontraron sugerencias. ¡Los datos de tu biblioteca se ven consistentes!",
+  "suggestion_confidence": "{percent}% de confianza",
+  "@suggestion_confidence": {
+    "placeholders": {
+      "percent": {"type": "int"}
+    }
+  },
+  "accept": "Aceptar",
+  "reject": "Rechazar",
+  "review": "Revisar",
+  "accept_all": "Aceptar Todo",
+  "n_suggestions_found": "{count} sugerencias encontradas",
+  "@n_suggestions_found": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "suggestion_applied": "Sugerencia aplicada correctamente",
+  "suggestion_rejected": "Sugerencia descartada",
+  "apply_value_to_books": "Aplicar \"{value}\" ({field}) a {count} libro(s)",
+  "@apply_value_to_books": {
+    "placeholders": {
+      "value": {"type": "String"},
+      "field": {"type": "String"},
+      "count": {"type": "int"}
+    }
+  },
+  "affected_books": "Libros afectados:",
+  "all_suggestions_processed": "¡Todas las sugerencias han sido procesadas!"
 }

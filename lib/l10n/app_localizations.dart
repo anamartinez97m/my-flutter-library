@@ -5734,6 +5734,270 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Data migration tools'**
   String get migrations_section_subtitle;
+
+  /// No description provided for @library_tools.
+  ///
+  /// In en, this message translates to:
+  /// **'Library Tools'**
+  String get library_tools;
+
+  /// No description provided for @library_tools_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bulk edit, fill empty fields, smart suggestions'**
+  String get library_tools_subtitle;
+
+  /// No description provided for @assign_books_to_value.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign Books to Value'**
+  String get assign_books_to_value;
+
+  /// No description provided for @assign_books_to_value_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a value, then select books to assign it to'**
+  String get assign_books_to_value_hint;
+
+  /// No description provided for @fill_empty_fields.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill Empty Fields'**
+  String get fill_empty_fields;
+
+  /// No description provided for @fill_empty_fields_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Find books with missing data and fill them in groups'**
+  String get fill_empty_fields_hint;
+
+  /// No description provided for @smart_suggestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart Suggestions'**
+  String get smart_suggestions;
+
+  /// No description provided for @smart_suggestions_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-detect patterns and suggest bulk fixes'**
+  String get smart_suggestions_hint;
+
+  /// No description provided for @select_field.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Field'**
+  String get select_field;
+
+  /// No description provided for @select_value.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Value'**
+  String get select_value;
+
+  /// No description provided for @no_values_available.
+  ///
+  /// In en, this message translates to:
+  /// **'No values available'**
+  String get no_values_available;
+
+  /// No description provided for @books_available.
+  ///
+  /// In en, this message translates to:
+  /// **'books available'**
+  String get books_available;
+
+  /// No description provided for @all_books_already_have_value.
+  ///
+  /// In en, this message translates to:
+  /// **'All books already have this value!'**
+  String get all_books_already_have_value;
+
+  /// No description provided for @deselect_all.
+  ///
+  /// In en, this message translates to:
+  /// **'Deselect All'**
+  String get deselect_all;
+
+  /// No description provided for @apply_to_n_books.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply to {count} books'**
+  String apply_to_n_books(int count);
+
+  /// No description provided for @bulk_updated_books.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated {count} book(s) successfully'**
+  String bulk_updated_books(int count);
+
+  /// No description provided for @reverse_assign_info.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing books that don\'t have \"{value}\" as {field}'**
+  String reverse_assign_info(String value, String field);
+
+  /// No description provided for @select_field_to_fill.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a field to fill'**
+  String get select_field_to_fill;
+
+  /// No description provided for @no_books_with_empty_field.
+  ///
+  /// In en, this message translates to:
+  /// **'All books have this field filled!'**
+  String get no_books_with_empty_field;
+
+  /// No description provided for @books_without_field.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} books without {field}'**
+  String books_without_field(int count, String field);
+
+  /// No description provided for @group_n_of_total.
+  ///
+  /// In en, this message translates to:
+  /// **'Group {current} of {total}'**
+  String group_n_of_total(int current, int total);
+
+  /// No description provided for @other_books_have.
+  ///
+  /// In en, this message translates to:
+  /// **'Other books by this author have: {values}'**
+  String other_books_have(String values);
+
+  /// No description provided for @apply_to_group.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply to Group'**
+  String get apply_to_group;
+
+  /// No description provided for @next_group.
+  ///
+  /// In en, this message translates to:
+  /// **'Next Group'**
+  String get next_group;
+
+  /// No description provided for @previous_group.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous Group'**
+  String get previous_group;
+
+  /// No description provided for @no_groups_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No groups found'**
+  String get no_groups_found;
+
+  /// No description provided for @ungrouped.
+  ///
+  /// In en, this message translates to:
+  /// **'Other Books'**
+  String get ungrouped;
+
+  /// No description provided for @books_in_group.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} books'**
+  String books_in_group(int count);
+
+  /// No description provided for @select_value_to_apply.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a value to apply'**
+  String get select_value_to_apply;
+
+  /// No description provided for @wizard_complete.
+  ///
+  /// In en, this message translates to:
+  /// **'All groups processed!'**
+  String get wizard_complete;
+
+  /// No description provided for @wizard_complete_message.
+  ///
+  /// In en, this message translates to:
+  /// **'You can go back to review or close this screen'**
+  String get wizard_complete_message;
+
+  /// No description provided for @generating_suggestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyzing your library...'**
+  String get generating_suggestions;
+
+  /// No description provided for @no_suggestions.
+  ///
+  /// In en, this message translates to:
+  /// **'No suggestions found. Your library data looks consistent!'**
+  String get no_suggestions;
+
+  /// No description provided for @suggestion_confidence.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% confidence'**
+  String suggestion_confidence(int percent);
+
+  /// No description provided for @accept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get accept;
+
+  /// No description provided for @reject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get reject;
+
+  /// No description provided for @review.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get review;
+
+  /// No description provided for @accept_all.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept All'**
+  String get accept_all;
+
+  /// No description provided for @n_suggestions_found.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} suggestions found'**
+  String n_suggestions_found(int count);
+
+  /// No description provided for @suggestion_applied.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggestion applied successfully'**
+  String get suggestion_applied;
+
+  /// No description provided for @suggestion_rejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggestion dismissed'**
+  String get suggestion_rejected;
+
+  /// No description provided for @apply_value_to_books.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply \"{value}\" ({field}) to {count} book(s)'**
+  String apply_value_to_books(String value, String field, int count);
+
+  /// No description provided for @affected_books.
+  ///
+  /// In en, this message translates to:
+  /// **'Affected books:'**
+  String get affected_books;
+
+  /// No description provided for @all_suggestions_processed.
+  ///
+  /// In en, this message translates to:
+  /// **'All suggestions have been processed!'**
+  String get all_suggestions_processed;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
