@@ -174,9 +174,11 @@ class _AutoBackupRunnerState extends State<_AutoBackupRunner> {
 
   Future<void> _runAutoBackup() async {
     try {
+      // Give Firebase App Check time to fully initialize its token
+      await Future.delayed(const Duration(seconds: 5));
       final user = GoogleAuthService.instance.currentUser;
       // uid can be null — local backup will still run
-      BackupService.instance.performAutoBackupIfNeeded(user?.uid);
+      await BackupService.instance.performAutoBackupIfNeeded(user?.uid);
     } catch (e) {
       debugPrint('Error triggering auto backup: $e');
     }

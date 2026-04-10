@@ -232,7 +232,8 @@ class BackupService {
 
     // Copy to temp file so we read a consistent snapshot without closing DB
     final tempDir = await getTemporaryDirectory();
-    final tempPath = '${tempDir.path}/backup_snapshot_${DateTime.now().millisecondsSinceEpoch}.db';
+    final tempPath =
+        '${tempDir.path}/backup_snapshot_${DateTime.now().millisecondsSinceEpoch}.db';
     final tempFile = await File(dbPath).copy(tempPath);
     final bytes = await tempFile.readAsBytes();
 
@@ -248,11 +249,12 @@ class BackupService {
   Future<int?> _getLastLocalBackupBookCount() async {
     try {
       final backupDir = await _getLocalAutoBackupDir();
-      final metadataFiles = backupDir
-          .listSync()
-          .whereType<File>()
-          .where((f) => f.path.endsWith('_metadata.json'))
-          .toList();
+      final metadataFiles =
+          backupDir
+              .listSync()
+              .whereType<File>()
+              .where((f) => f.path.endsWith('_metadata.json'))
+              .toList();
 
       if (metadataFiles.isEmpty) return null;
 
@@ -560,8 +562,38 @@ class BackupService {
 
       // --- Save to cloud (if signed in) ---
       if (uid != null) {
-        await _saveCloudAutoBackup(uid, ts, bytes, metadataJson, settingsJson);
-        await _rotateCloudBackups(uid);
+        try {
+          await _saveCloudAutoBackup(
+            uid,
+            ts,
+            bytes,
+            metadataJson,
+            settingsJson,
+          );
+          await _rotateCloudBackups(uid);
+          debugPrint('Cloud auto backup saved successfully');
+        } catch (cloudError) {
+          debugPrint(
+            'Cloud auto backup attempt 1 failed, retrying in 10s: $cloudError',
+          );
+          // Retry once after delay (App Check token may need more time)
+          try {
+            await Future.delayed(const Duration(seconds: 10));
+            await _saveCloudAutoBackup(
+              uid,
+              ts,
+              bytes,
+              metadataJson,
+              settingsJson,
+            );
+            await _rotateCloudBackups(uid);
+            debugPrint('Cloud auto backup saved successfully (retry)');
+          } catch (retryError) {
+            debugPrint(
+              'Cloud auto backup failed after retry (local backup still saved): $retryError',
+            );
+          }
+        }
       }
 
       debugPrint(
@@ -584,21 +616,24 @@ class BackupService {
   ) async {
     final dir = await _getLocalAutoBackupDir();
     await File('${dir.path}/backup_$ts.db').writeAsBytes(bytes, flush: true);
-    await File('${dir.path}/backup_${ts}_metadata.json')
-        .writeAsString(metadataJson, flush: true);
-    await File('${dir.path}/backup_${ts}_settings.json')
-        .writeAsString(settingsJson, flush: true);
+    await File(
+      '${dir.path}/backup_${ts}_metadata.json',
+    ).writeAsString(metadataJson, flush: true);
+    await File(
+      '${dir.path}/backup_${ts}_settings.json',
+    ).writeAsString(settingsJson, flush: true);
     debugPrint('Local auto backup saved: backup_$ts');
   }
 
   Future<void> _rotateLocalBackups() async {
     try {
       final dir = await _getLocalAutoBackupDir();
-      final dbFiles = dir
-          .listSync()
-          .whereType<File>()
-          .where((f) => f.path.endsWith('.db'))
-          .toList();
+      final dbFiles =
+          dir
+              .listSync()
+              .whereType<File>()
+              .where((f) => f.path.endsWith('.db'))
+              .toList();
 
       if (dbFiles.length <= _maxAutoBackups) return;
 
@@ -608,8 +643,7 @@ class BackupService {
       final toRemove = dbFiles.length - _maxAutoBackups;
       for (var i = 0; i < toRemove; i++) {
         final dbFile = dbFiles[i];
-        final baseName =
-            dbFile.path.replaceAll('.db', '');
+        final baseName = dbFile.path.replaceAll('.db', '');
         await dbFile.delete();
         try {
           await File('${baseName}_metadata.json').delete();
@@ -660,9 +694,8 @@ class BackupService {
       final result = await dirRef.listAll();
 
       // Find all .db files
-      final dbItems = result.items
-          .where((item) => item.name.endsWith('.db'))
-          .toList();
+      final dbItems =
+          result.items.where((item) => item.name.endsWith('.db')).toList();
 
       if (dbItems.length <= _maxAutoBackups) return;
 
