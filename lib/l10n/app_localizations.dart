@@ -5998,6 +5998,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All suggestions have been processed!'**
   String get all_suggestions_processed;
+
+  /// No description provided for @library_overview.
+  ///
+  /// In en, this message translates to:
+  /// **'Library Overview'**
+  String get library_overview;
+
+  /// No description provided for @books_by_genre.
+  ///
+  /// In en, this message translates to:
+  /// **'Genre'**
+  String get books_by_genre;
+
+  /// No description provided for @books_by_editorial.
+  ///
+  /// In en, this message translates to:
+  /// **'Editorial'**
+  String get books_by_editorial;
+
+  /// No description provided for @books_by_author.
+  ///
+  /// In en, this message translates to:
+  /// **'Author'**
+  String get books_by_author;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

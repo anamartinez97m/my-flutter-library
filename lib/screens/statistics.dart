@@ -310,8 +310,17 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   List<Widget> _buildLibraryBreakdownCards(
     BuildContext context,
     StatisticsData stats,
+    List<Book> books,
   ) {
     return [
+      _UnifiedBreakdownCard(
+        statusCounts: stats.statusCounts,
+        formatCounts: stats.formatCounts,
+        placeCounts: stats.placeCounts,
+        languageCounts: stats.languageCounts,
+        totalCount: stats.totalCount,
+        books: books,
+      ),
       _StatusDonutCard(
         statusCounts: stats.statusCounts,
         totalCount: stats.totalCount,
@@ -561,7 +570,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               context,
               l10n.section_library_breakdown,
               Icons.library_books,
-              _buildLibraryBreakdownCards(context, _computeCurrentStats(books)),
+              _buildLibraryBreakdownCards(
+                context,
+                _computeCurrentStats(books),
+                books,
+              ),
             ),
       ),
       _SectionDef(
@@ -759,6 +772,245 @@ class _SectionDef {
 }
 
 // === Extracted inline card widgets (self-contained with own toggle state) ===
+
+/// Unified Breakdown — dropdown to pick field, donut with %, legend with counts
+class _UnifiedBreakdownCard extends StatefulWidget {
+  final Map<String, int> statusCounts;
+  final Map<String, int> formatCounts;
+  final Map<String, int> placeCounts;
+  final Map<String, int> languageCounts;
+  final int totalCount;
+  final List<Book> books;
+
+  const _UnifiedBreakdownCard({
+    required this.statusCounts,
+    required this.formatCounts,
+    required this.placeCounts,
+    required this.languageCounts,
+    required this.totalCount,
+    required this.books,
+  });
+
+  @override
+  State<_UnifiedBreakdownCard> createState() => _UnifiedBreakdownCardState();
+}
+
+class _UnifiedBreakdownCardState extends State<_UnifiedBreakdownCard> {
+  String _selectedField = 'status';
+
+  static const _colorPalettes = <String, List<Color>>{
+    'status': [
+      Colors.deepPurple,
+      Colors.purple,
+      Colors.purpleAccent,
+      Colors.deepPurpleAccent,
+    ],
+    'format': [Colors.green, Colors.lime, Colors.lightGreen, Colors.teal],
+    'place': [Colors.purple, Colors.deepPurple, Colors.indigo, Colors.blue],
+    'language': [Colors.deepPurple, Colors.indigo, Colors.blue, Colors.cyan],
+    'genre': [Colors.orange, Colors.deepOrange, Colors.amber, Colors.brown],
+  };
+
+  Map<String, int> _getDataForField() {
+    switch (_selectedField) {
+      case 'status':
+        return widget.statusCounts;
+      case 'format':
+        return widget.formatCounts;
+      case 'place':
+        return widget.placeCounts;
+      case 'language':
+        return widget.languageCounts;
+      case 'genre':
+        return _computeGenreCounts();
+      default:
+        return widget.statusCounts;
+    }
+  }
+
+  Map<String, int> _computeGenreCounts() {
+    final Map<String, int> counts = {};
+    for (var book in widget.books) {
+      final raw = book.genre ?? '';
+      if (raw.isEmpty) continue;
+      final multiplier =
+          (book.isBundle == true &&
+                  book.bundleCount != null &&
+                  book.bundleCount! > 0)
+              ? book.bundleCount!
+              : 1;
+      final genres = raw
+          .split(',')
+          .map((g) => g.trim())
+          .where((g) => g.isNotEmpty);
+      for (final genre in genres) {
+        counts[genre] = (counts[genre] ?? 0) + multiplier;
+      }
+    }
+    final sorted =
+        counts.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+    return Map.fromEntries(sorted);
+  }
+
+  String _fieldLabel(String key, AppLocalizations l10n) {
+    switch (key) {
+      case 'status':
+        return l10n.books_by_status;
+      case 'format':
+        return l10n.books_by_format;
+      case 'place':
+        return l10n.books_by_place;
+      case 'language':
+        return l10n.books_by_language;
+      case 'genre':
+        return l10n.books_by_genre;
+      default:
+        return key;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final data = _getDataForField();
+    final total = data.values.fold<int>(0, (sum, v) => sum + v);
+    final colors = _colorPalettes[_selectedField] ?? _colorPalettes['status']!;
+
+    final fieldOptions = ['status', 'format', 'place', 'language', 'genre'];
+
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            Text(
+              l10n.library_overview,
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 12),
+            // Dropdown
+            DropdownButton<String>(
+              value: _selectedField,
+              isExpanded: true,
+              underline: Container(height: 1, color: Colors.grey[300]),
+              items:
+                  fieldOptions.map((key) {
+                    return DropdownMenuItem<String>(
+                      value: key,
+                      child: Text(_fieldLabel(key, l10n)),
+                    );
+                  }).toList(),
+              onChanged: (value) {
+                if (value != null) setState(() => _selectedField = value);
+              },
+            ),
+            const SizedBox(height: 20),
+            // Donut chart with percentage badges
+            SizedBox(
+              height: 230,
+              child:
+                  data.isEmpty
+                      ? Center(child: Text(l10n.no_data))
+                      : PieChart(
+                        PieChartData(
+                          sections:
+                              data.entries.map((entry) {
+                                final index = data.keys.toList().indexOf(
+                                  entry.key,
+                                );
+                                final pct =
+                                    total > 0
+                                        ? (entry.value / total) * 100
+                                        : 0.0;
+                                final showBadge = pct >= 2.5;
+                                return PieChartSectionData(
+                                  value: entry.value.toDouble(),
+                                  title: '',
+                                  radius: 50,
+                                  color: colors[index % colors.length],
+                                  badgeWidget:
+                                      showBadge
+                                          ? Container(
+                                            padding: const EdgeInsets.all(6),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                              border: Border.all(
+                                                color:
+                                                    colors[index %
+                                                        colors.length],
+                                                width: 2,
+                                              ),
+                                            ),
+                                            child: Text(
+                                              '${pct.toStringAsFixed(1)}%',
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.bold,
+                                                color:
+                                                    colors[index %
+                                                        colors.length],
+                                              ),
+                                            ),
+                                          )
+                                          : const SizedBox.shrink(),
+                                  badgePositionPercentageOffset: 1.4,
+                                );
+                              }).toList(),
+                          sectionsSpace: 2,
+                          centerSpaceRadius: 45,
+                        ),
+                      ),
+            ),
+            const SizedBox(height: 16),
+            // Vertical legend with counts
+            if (data.isNotEmpty)
+              Column(
+                children:
+                    data.entries.map((entry) {
+                      final index = data.keys.toList().indexOf(entry.key);
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                color: colors[index % colors.length],
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                entry.key,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            Text(
+                              '${entry.value}',
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 /// Books Read Per Year — horizontal fill-bar chart, tappable rows → BooksByYearScreen
 class _BooksReadPerYearCard extends StatelessWidget {

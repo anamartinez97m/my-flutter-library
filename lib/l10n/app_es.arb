@@ -1499,5 +1499,10 @@
     }
   },
   "affected_books": "Libros afectados:",
-  "all_suggestions_processed": "¡Todas las sugerencias han sido procesadas!"
+  "all_suggestions_processed": "¡Todas las sugerencias han sido procesadas!",
+
+  "library_overview": "Vista General",
+  "books_by_genre": "Género",
+  "books_by_editorial": "Editorial",
+  "books_by_author": "Autor"
 }

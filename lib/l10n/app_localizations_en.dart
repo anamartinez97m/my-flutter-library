@@ -3233,4 +3233,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get all_suggestions_processed => 'All suggestions have been processed!';
+
+  @override
+  String get library_overview => 'Library Overview';
+
+  @override
+  String get books_by_genre => 'Genre';
+
+  @override
+  String get books_by_editorial => 'Editorial';
+
+  @override
+  String get books_by_author => 'Author';
 }

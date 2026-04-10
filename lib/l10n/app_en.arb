@@ -1493,5 +1493,10 @@
     }
   },
   "affected_books": "Affected books:",
-  "all_suggestions_processed": "All suggestions have been processed!"
+  "all_suggestions_processed": "All suggestions have been processed!",
+
+  "library_overview": "Library Overview",
+  "books_by_genre": "Genre",
+  "books_by_editorial": "Editorial",
+  "books_by_author": "Author"
 }
