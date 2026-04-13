@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 
+enum _SortMode { name, ascending, descending }
+
 /// Screen showing detailed saga completion status with tabs for Completed, In Progress, and Not Started sagas
 class SagaCompletionDetailScreen extends StatefulWidget {
   final Map<String, Map<String, dynamic>> sagaStats;
@@ -21,6 +23,7 @@ class SagaCompletionDetailScreen extends StatefulWidget {
 class _SagaCompletionDetailScreenState
     extends State<SagaCompletionDetailScreen> {
   int _selectedTabIndex = 0;
+  _SortMode _sortMode = _SortMode.name;
 
   List<MapEntry<String, Map<String, dynamic>>> get _completedSagas {
     return widget.sagaStats.entries.where((e) {
@@ -30,7 +33,14 @@ class _SagaCompletionDetailScreenState
         if (total == -1) return false;
         return read == total;
       }).toList()
-      ..sort((a, b) => a.key.compareTo(b.key));
+      ..sort((a, b) {
+        if (_sortMode == _SortMode.name) return a.key.compareTo(b.key);
+        final totalA = a.value['total'] as int;
+        final totalB = b.value['total'] as int;
+        return _sortMode == _SortMode.ascending
+            ? totalA.compareTo(totalB)
+            : totalB.compareTo(totalA);
+      });
   }
 
   List<MapEntry<String, Map<String, dynamic>>> get _inProgressSagas {
@@ -41,14 +51,38 @@ class _SagaCompletionDetailScreenState
         if (total == -1) return read > 0;
         return read > 0 && read < total;
       }).toList()
-      ..sort((a, b) => a.key.compareTo(b.key));
+      ..sort((a, b) {
+        if (_sortMode == _SortMode.name) return a.key.compareTo(b.key);
+        final totalA = a.value['total'] as int;
+        final readA = a.value['read'] as int;
+        final leftA =
+            totalA == -1 ? double.infinity : (totalA - readA).toDouble();
+        final totalB = b.value['total'] as int;
+        final readB = b.value['read'] as int;
+        final leftB =
+            totalB == -1 ? double.infinity : (totalB - readB).toDouble();
+        return _sortMode == _SortMode.ascending
+            ? leftA.compareTo(leftB)
+            : leftB.compareTo(leftA);
+      });
   }
 
   List<MapEntry<String, Map<String, dynamic>>> get _notStartedSagas {
     return widget.sagaStats.entries
         .where((e) => (e.value['read'] as int) == 0)
         .toList()
-      ..sort((a, b) => a.key.compareTo(b.key));
+      ..sort((a, b) {
+        if (_sortMode == _SortMode.name) return a.key.compareTo(b.key);
+        final totalA = a.value['total'] as int;
+        final totalB = b.value['total'] as int;
+        // Push unknown totals (-1) to the end
+        if (totalA == -1 && totalB == -1) return a.key.compareTo(b.key);
+        if (totalA == -1) return 1;
+        if (totalB == -1) return -1;
+        return _sortMode == _SortMode.ascending
+            ? totalA.compareTo(totalB)
+            : totalB.compareTo(totalA);
+      });
   }
 
   @override
@@ -57,6 +91,32 @@ class _SagaCompletionDetailScreenState
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.saga_completion),
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: Icon(
+              _sortMode == _SortMode.name
+                  ? Icons.sort_by_alpha
+                  : _sortMode == _SortMode.ascending
+                  ? Icons.arrow_upward
+                  : Icons.arrow_downward,
+            ),
+            onPressed: () {
+              setState(() {
+                switch (_sortMode) {
+                  case _SortMode.name:
+                    _sortMode = _SortMode.ascending;
+                    break;
+                  case _SortMode.ascending:
+                    _sortMode = _SortMode.descending;
+                    break;
+                  case _SortMode.descending:
+                    _sortMode = _SortMode.name;
+                    break;
+                }
+              });
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
