@@ -5021,11 +5021,11 @@ abstract class AppLocalizations {
   /// **'Download your library from Google Cloud'**
   String get download_your_library;
 
-  /// No description provided for @last_cloud_backup.
+  /// No description provided for @last_backup.
   ///
   /// In en, this message translates to:
-  /// **'Last cloud backup: {date}'**
-  String last_cloud_backup(Object date);
+  /// **'Last backup: {date}'**
+  String last_backup(Object date);
 
   /// No description provided for @no_cloud_backup.
   ///
@@ -5134,12 +5134,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Monthly'**
   String get backup_frequency_monthly;
-
-  /// No description provided for @last_auto_backup.
-  ///
-  /// In en, this message translates to:
-  /// **'Last auto backup: {date}'**
-  String last_auto_backup(Object date);
 
   /// No description provided for @reading_reminders.
   ///
@@ -5272,6 +5266,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter an ISBN first'**
   String get isbn_required_for_fetch;
+
+  /// No description provided for @review_pages_warning.
+  ///
+  /// In en, this message translates to:
+  /// **'Review the number of pages, it may not be correct'**
+  String get review_pages_warning;
 
   /// No description provided for @section_reading_activity.
   ///

@@ -2712,8 +2712,8 @@ class AppLocalizationsEs extends AppLocalizations {
   String get download_your_library => 'Descarga tu biblioteca desde Google Cloud';
 
   @override
-  String last_cloud_backup(Object date) {
-    return 'Última copia en la nube: $date';
+  String last_backup(Object date) {
+    return 'Última copia: $date';
   }
 
   @override
@@ -2773,11 +2773,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get backup_frequency_monthly => 'Mensual';
-
-  @override
-  String last_auto_backup(Object date) {
-    return 'Última copia automática: $date';
-  }
 
   @override
   String get reading_reminders => 'Recordatorios de Lectura';
@@ -2846,6 +2841,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get isbn_required_for_fetch => 'Introduce un ISBN primero';
+
+  @override
+  String get review_pages_warning => 'Revisa el número de páginas, puede no ser correcto';
 
   @override
   String get section_reading_activity => 'Actividad de Lectura';

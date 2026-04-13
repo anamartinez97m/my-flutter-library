@@ -120,6 +120,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
   // ISBN metadata fetch
   bool _isFetchingMetadata = false;
+  bool _pagesFetchedFromApi = false;
   String? _fetchedDescription;
   String? _fetchedCoverUrl;
   String? _fetchedMetadataSource;
@@ -575,6 +576,27 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   as String?
               : null;
 
+      // Recalculate reading progress if pages changed and progress is page-based
+      final newPages =
+          _pagesController.text.trim().isEmpty
+              ? null
+              : int.tryParse(_pagesController.text.trim());
+      int? preservedProgress = widget.book.readingProgress;
+      String? preservedProgressType = widget.book.progressType;
+      if (preservedProgressType == 'pages' &&
+          preservedProgress != null &&
+          preservedProgress > 0 &&
+          newPages != null &&
+          newPages > 0 &&
+          widget.book.pages != null &&
+          widget.book.pages! > 0 &&
+          newPages != widget.book.pages) {
+        // Clamp page-based progress to new total
+        if (preservedProgress > newPages) {
+          preservedProgress = newPages;
+        }
+      }
+
       final updatedBook = Book(
         bookId: widget.book.bookId,
         name:
@@ -602,10 +624,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
             _sagaUniverseController.text.trim().isEmpty
                 ? null
                 : _sagaUniverseController.text.trim(),
-        pages:
-            _pagesController.text.trim().isEmpty
-                ? null
-                : int.tryParse(_pagesController.text.trim()),
+        pages: newPages,
         originalPublicationYear: _getPublicationYearOrDate(),
         loaned: (_selectedLoaned ?? 'no').toLowerCase(),
         statusValue: statusValue,
@@ -645,6 +664,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
             _releaseDate != null ? _releaseDate!.toIso8601String() : null,
         bundleParentId:
             widget.book.bundleParentId, // Preserve bundle relationship
+        readingProgress: preservedProgress,
+        progressType: preservedProgressType,
         notes:
             _notesController.text.trim().isEmpty
                 ? null
@@ -710,6 +731,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
             _releaseDate != null ? _releaseDate!.toIso8601String() : null,
         bundleParentId:
             updatedBook.bundleParentId, // Preserve bundle relationship
+        readingProgress: updatedBook.readingProgress,
+        progressType: updatedBook.progressType,
         notes: updatedBook.notes,
         price: updatedBook.price,
         ratingOverride: updatedBook.ratingOverride,
@@ -1469,6 +1492,18 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 ),
+                if (_pagesFetchedFromApi)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4, left: 12),
+                    child: Text(
+                      AppLocalizations.of(context)!.review_pages_warning,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.orange.shade700,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 16),
 
                 // Publication Year field
@@ -2450,6 +2485,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
           if (_pagesController.text.trim().isEmpty &&
               metadata.pageCount != null) {
             _pagesController.text = metadata.pageCount.toString();
+            _pagesFetchedFromApi = true;
           }
           if (_publicationYearController.text.trim().isEmpty &&
               metadata.publishedYear != null) {

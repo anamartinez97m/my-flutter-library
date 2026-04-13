@@ -111,6 +111,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
   // ISBN metadata fetch
   bool _isFetchingMetadata = false;
+  bool _pagesFetchedFromApi = false;
   String? _fetchedDescription;
   String? _fetchedCoverUrl;
   String? _fetchedMetadataSource;
@@ -722,6 +723,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
           _fetchedDescription = null;
           _fetchedCoverUrl = null;
           _fetchedMetadataSource = null;
+          _pagesFetchedFromApi = false;
         });
 
         debugPrint('✅ Form cleared. Controllers reset:');
@@ -1119,6 +1121,18 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               ),
+              if (_pagesFetchedFromApi)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4, left: 12),
+                  child: Text(
+                    AppLocalizations.of(context)!.review_pages_warning,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.orange.shade700,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
               const SizedBox(height: 16),
 
               // Publication Year field
@@ -1950,6 +1964,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
           if (_pagesController.text.trim().isEmpty &&
               metadata.pageCount != null) {
             _pagesController.text = metadata.pageCount.toString();
+            _pagesFetchedFromApi = true;
           }
           if (_publicationYearController.text.trim().isEmpty &&
               metadata.publishedYear != null) {

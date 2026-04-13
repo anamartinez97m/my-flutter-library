@@ -486,7 +486,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Text(
                     AppLocalizations.of(
                       context,
-                    )!.last_cloud_backup(_backupMetadata!['timestamp'] ?? '?'),
+                    )!.last_backup(_backupMetadata!['timestamp'] ?? '?'),
                   ),
                 ],
               ],
@@ -3365,9 +3365,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
-                                      AppLocalizations.of(
-                                        context,
-                                      )!.last_cloud_backup(
+                                      AppLocalizations.of(context)!.last_backup(
                                         _formatTimestamp(
                                           _backupMetadata!['timestamp'],
                                         ),
@@ -3609,7 +3607,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           child: Text(
                                             AppLocalizations.of(
                                               context,
-                                            )!.last_auto_backup(
+                                            )!.last_backup(
                                               _formatTimestamp(
                                                 _lastAutoBackupTimestamp,
                                               ),

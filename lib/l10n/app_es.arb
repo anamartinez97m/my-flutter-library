@@ -1245,8 +1245,8 @@
   "restore_from_cloud": "Restaurar desde la Nube",
   "upload_your_library": "Sube tu biblioteca a Google Cloud",
   "download_your_library": "Descarga tu biblioteca desde Google Cloud",
-  "last_cloud_backup": "Última copia en la nube: {date}",
-  "@last_cloud_backup": {
+  "last_backup": "Última copia: {date}",
+  "@last_backup": {
     "placeholders": { "date": {} }
   },
   "no_cloud_backup": "No se encontró copia en la nube",
@@ -1274,10 +1274,6 @@
   "backup_frequency_daily": "Diario",
   "backup_frequency_weekly": "Semanal",
   "backup_frequency_monthly": "Mensual",
-  "last_auto_backup": "Última copia automática: {date}",
-  "@last_auto_backup": {
-    "placeholders": { "date": {} }
-  },
 
   "reading_reminders": "Recordatorios de Lectura",
   "reading_reminders_subtitle": "Notificaciones diarias para seguir tu lectura",
@@ -1305,6 +1301,7 @@
   "book_info_found": "Información encontrada y campos rellenados",
   "no_book_info_found": "No se encontró información para este ISBN",
   "isbn_required_for_fetch": "Introduce un ISBN primero",
+  "review_pages_warning": "Revisa el número de páginas, puede no ser correcto",
 
   "section_reading_activity": "Actividad de Lectura",
   "section_library_breakdown": "Desglose de Biblioteca",
