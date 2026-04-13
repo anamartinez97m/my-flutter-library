@@ -321,19 +321,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         totalCount: stats.totalCount,
         books: books,
       ),
-      _StatusDonutCard(
-        statusCounts: stats.statusCounts,
-        totalCount: stats.totalCount,
-      ),
-      _FormatDonutCard(
-        formatCounts: stats.formatCounts,
-        formatCountsCurrentYear: stats.formatCountsCurrentYear,
-      ),
-      if (stats.placeCounts.isNotEmpty)
-        _PlaceDonutCard(placeCounts: stats.placeCounts),
-      _LanguageBarCard(languageCounts: stats.languageCounts),
       _FormatByLanguageCard(
         formatByLanguageCounts: stats.formatByLanguageCounts,
+      ),
+      _AvgDaysByFormatLanguageCard(
+        avgDaysByFormatLanguage: stats.avgDaysByFormatLanguage,
       ),
     ];
   }
@@ -1411,533 +1403,6 @@ class _ReadingEfficiencyCard extends StatelessWidget {
   }
 }
 
-/// Status Donut — badge-style pie chart with %/# toggle
-class _StatusDonutCard extends StatefulWidget {
-  final Map<String, int> statusCounts;
-  final int totalCount;
-  const _StatusDonutCard({
-    required this.statusCounts,
-    required this.totalCount,
-  });
-
-  @override
-  State<_StatusDonutCard> createState() => _StatusDonutCardState();
-}
-
-class _StatusDonutCardState extends State<_StatusDonutCard> {
-  bool _showAsPercentage = false;
-  static const _colors = [
-    Colors.deepPurple,
-    Colors.purple,
-    Colors.purpleAccent,
-    Colors.deepPurpleAccent,
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  l10n.books_by_status,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
-                ),
-                Row(
-                  children: [
-                    Text(
-                      _showAsPercentage ? '%' : '#',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                    Switch(
-                      value: _showAsPercentage,
-                      onChanged: (v) => setState(() => _showAsPercentage = v),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              height: 230,
-              child:
-                  widget.statusCounts.isEmpty
-                      ? Center(child: Text(l10n.no_data))
-                      : PieChart(
-                        PieChartData(
-                          sections:
-                              widget.statusCounts.entries.map((entry) {
-                                final index = widget.statusCounts.keys
-                                    .toList()
-                                    .indexOf(entry.key);
-                                return PieChartSectionData(
-                                  value: entry.value.toDouble(),
-                                  title: '',
-                                  radius: 50,
-                                  color: _colors[index % _colors.length],
-                                  badgeWidget: Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(4),
-                                      border: Border.all(
-                                        color: _colors[index % _colors.length],
-                                        width: 2,
-                                      ),
-                                    ),
-                                    child: Text(
-                                      _showAsPercentage
-                                          ? '${((entry.value / widget.totalCount) * 100).toStringAsFixed(1)}%'
-                                          : '${entry.value}',
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold,
-                                        color: _colors[index % _colors.length],
-                                      ),
-                                    ),
-                                  ),
-                                  badgePositionPercentageOffset: 1.4,
-                                );
-                              }).toList(),
-                          sectionsSpace: 2,
-                          centerSpaceRadius: 45,
-                        ),
-                      ),
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 20,
-              runSpacing: 12,
-              alignment: WrapAlignment.center,
-              children:
-                  widget.statusCounts.entries.map((entry) {
-                    final index = widget.statusCounts.keys.toList().indexOf(
-                      entry.key,
-                    );
-                    return Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 12,
-                          height: 12,
-                          decoration: BoxDecoration(
-                            color: _colors[index % _colors.length],
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          entry.key,
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
-                    );
-                  }).toList(),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Format Donut — badge-style pie chart with current year / total toggle
-class _FormatDonutCard extends StatefulWidget {
-  final Map<String, int> formatCounts;
-  final Map<String, int> formatCountsCurrentYear;
-  const _FormatDonutCard({
-    required this.formatCounts,
-    required this.formatCountsCurrentYear,
-  });
-
-  @override
-  State<_FormatDonutCard> createState() => _FormatDonutCardState();
-}
-
-class _FormatDonutCardState extends State<_FormatDonutCard> {
-  bool _showCurrentYear = true;
-  static const _colors = [
-    Colors.green,
-    Colors.lime,
-    Colors.lightGreen,
-    Colors.teal,
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final dataToShow =
-        _showCurrentYear ? widget.formatCountsCurrentYear : widget.formatCounts;
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    l10n.books_by_format,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      _showCurrentYear ? 'Current' : 'Total',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                    const SizedBox(width: 12),
-                    SizedBox(
-                      width: 48,
-                      child: Switch(
-                        value: _showCurrentYear,
-                        onChanged: (v) => setState(() => _showCurrentYear = v),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              height: 230,
-              child: Builder(
-                builder: (context) {
-                  return dataToShow.isEmpty
-                      ? Center(child: Text(l10n.no_data))
-                      : PieChart(
-                        PieChartData(
-                          sections:
-                              dataToShow.entries.map((entry) {
-                                final index = dataToShow.keys.toList().indexOf(
-                                  entry.key,
-                                );
-                                return PieChartSectionData(
-                                  value: entry.value.toDouble(),
-                                  title: '',
-                                  radius: 50,
-                                  color: _colors[index % _colors.length],
-                                  badgeWidget: Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(4),
-                                      border: Border.all(
-                                        color: _colors[index % _colors.length],
-                                        width: 2,
-                                      ),
-                                    ),
-                                    child: Text(
-                                      '${entry.value}',
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold,
-                                        color: _colors[index % _colors.length],
-                                      ),
-                                    ),
-                                  ),
-                                  badgePositionPercentageOffset: 1.4,
-                                );
-                              }).toList(),
-                          sectionsSpace: 2,
-                          centerSpaceRadius: 45,
-                        ),
-                      );
-                },
-              ),
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 20,
-              runSpacing: 12,
-              alignment: WrapAlignment.center,
-              children:
-                  dataToShow.entries.map((entry) {
-                    final index = dataToShow.keys.toList().indexOf(entry.key);
-                    return Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 12,
-                          height: 12,
-                          decoration: BoxDecoration(
-                            color: _colors[index % _colors.length],
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          entry.key,
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
-                    );
-                  }).toList(),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Place Donut — badge-style pie chart with %/# toggle
-class _PlaceDonutCard extends StatefulWidget {
-  final Map<String, int> placeCounts;
-  const _PlaceDonutCard({required this.placeCounts});
-
-  @override
-  State<_PlaceDonutCard> createState() => _PlaceDonutCardState();
-}
-
-class _PlaceDonutCardState extends State<_PlaceDonutCard> {
-  bool _showAsPercentage = false;
-  static const _colors = [
-    Colors.purple,
-    Colors.deepPurple,
-    Colors.indigo,
-    Colors.blue,
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Books by Place',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
-                ),
-                Row(
-                  children: [
-                    Text(
-                      _showAsPercentage ? '%' : '#',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                    Switch(
-                      value: _showAsPercentage,
-                      onChanged: (v) => setState(() => _showAsPercentage = v),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              height: 230,
-              child:
-                  widget.placeCounts.isEmpty
-                      ? Center(child: Text(l10n.no_data))
-                      : PieChart(
-                        PieChartData(
-                          sections:
-                              widget.placeCounts.entries.map((entry) {
-                                final index = widget.placeCounts.keys
-                                    .toList()
-                                    .indexOf(entry.key);
-                                final percentage =
-                                    (entry.value /
-                                        widget.placeCounts.values.reduce(
-                                          (a, b) => a + b,
-                                        )) *
-                                    100;
-                                return PieChartSectionData(
-                                  value: entry.value.toDouble(),
-                                  title: '',
-                                  radius: 50,
-                                  color: _colors[index % _colors.length],
-                                  badgeWidget: Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(4),
-                                      border: Border.all(
-                                        color: _colors[index % _colors.length],
-                                        width: 2,
-                                      ),
-                                    ),
-                                    child: Text(
-                                      _showAsPercentage
-                                          ? '${percentage.toStringAsFixed(1)}%'
-                                          : '${entry.value}',
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold,
-                                        color: _colors[index % _colors.length],
-                                      ),
-                                    ),
-                                  ),
-                                  badgePositionPercentageOffset: 1.4,
-                                );
-                              }).toList(),
-                          sectionsSpace: 2,
-                          centerSpaceRadius: 45,
-                        ),
-                      ),
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 20,
-              runSpacing: 12,
-              alignment: WrapAlignment.center,
-              children:
-                  widget.placeCounts.entries.map((entry) {
-                    final index = widget.placeCounts.keys.toList().indexOf(
-                      entry.key,
-                    );
-                    return Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 12,
-                          height: 12,
-                          decoration: BoxDecoration(
-                            color: _colors[index % _colors.length],
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          entry.key,
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
-                    );
-                  }).toList(),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Language — horizontal fill-bar chart
-class _LanguageBarCard extends StatelessWidget {
-  final Map<String, int> languageCounts;
-  const _LanguageBarCard({required this.languageCounts});
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final sorted =
-        languageCounts.entries.toList()
-          ..sort((a, b) => b.value.compareTo(a.value));
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            Text(
-              l10n.books_by_language,
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 16),
-            if (sorted.isEmpty)
-              Center(child: Text(l10n.no_data))
-            else
-              ...sorted.map((entry) {
-                final maxValue = sorted.first.value;
-                final percentage = entry.value / maxValue;
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 80,
-                        child: Text(
-                          entry.key,
-                          style: Theme.of(context).textTheme.bodySmall,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Stack(
-                          children: [
-                            Container(
-                              height: 24,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[200],
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                            ),
-                            FractionallySizedBox(
-                              widthFactor: percentage,
-                              child: Container(
-                                height: 24,
-                                decoration: BoxDecoration(
-                                  color: Colors.deepPurple,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              height: 24,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                              ),
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                '${entry.value}',
-                                style: TextStyle(
-                                  color:
-                                      percentage > 0.15
-                                          ? Colors.white
-                                          : Colors.black87,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 /// Format by Language — colored heatmap grid
 class _FormatByLanguageCard extends StatelessWidget {
   final Map<String, Map<String, int>> formatByLanguageCounts;
@@ -2102,6 +1567,178 @@ class _FormatByLanguageCard extends StatelessWidget {
                 }),
                 const SizedBox(width: 8),
                 Text('High', style: Theme.of(context).textTheme.bodySmall),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Avg Days to Read by Format & Language — colored heatmap grid
+class _AvgDaysByFormatLanguageCard extends StatelessWidget {
+  final Map<String, Map<String, double>> avgDaysByFormatLanguage;
+  const _AvgDaysByFormatLanguageCard({required this.avgDaysByFormatLanguage});
+
+  @override
+  Widget build(BuildContext context) {
+    if (avgDaysByFormatLanguage.isEmpty) return const SizedBox.shrink();
+
+    final l10n = AppLocalizations.of(context)!;
+    final Set<String> allLanguages = {};
+    for (var formatEntry in avgDaysByFormatLanguage.entries) {
+      allLanguages.addAll(formatEntry.value.keys);
+    }
+    final sortedLanguages = allLanguages.toList()..sort();
+    final sortedFormats = avgDaysByFormatLanguage.keys.toList()..sort();
+
+    double maxDays = 0;
+    for (var formatMap in avgDaysByFormatLanguage.values) {
+      for (var days in formatMap.values) {
+        if (days > maxDays) maxDays = days;
+      }
+    }
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final availableWidth = screenWidth - 80;
+    final labelWidth = 80.0;
+    final cellWidth =
+        (availableWidth - labelWidth) / (sortedLanguages.length + 1);
+    final cellHeight = 50.0;
+
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            Text(
+              l10n.avg_days_by_format_language,
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header row
+                  Row(
+                    children: [
+                      SizedBox(width: labelWidth),
+                      ...sortedLanguages.map(
+                        (language) => Container(
+                          width: cellWidth,
+                          height: cellHeight,
+                          alignment: Alignment.center,
+                          child: Text(
+                            language,
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: Colors.deepOrange,
+                            ),
+                            textAlign: TextAlign.center,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  // Data rows
+                  ...sortedFormats.map(
+                    (format) => Row(
+                      children: [
+                        Container(
+                          width: labelWidth,
+                          height: cellHeight,
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.only(right: 8),
+                          child: Text(
+                            format,
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                            textAlign: TextAlign.right,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        ...sortedLanguages.map((language) {
+                          final days =
+                              avgDaysByFormatLanguage[format]?[language] ?? 0.0;
+                          final intensity = maxDays > 0 ? days / maxDays : 0.0;
+                          const baseColor = Colors.deepOrange;
+                          final cellColor =
+                              days == 0.0
+                                  ? Colors.grey.shade200
+                                  : Color.lerp(
+                                    baseColor.withValues(alpha: 0.2),
+                                    baseColor,
+                                    intensity,
+                                  )!;
+                          return Container(
+                            width: cellWidth,
+                            height: cellHeight,
+                            margin: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              color: cellColor,
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: Colors.grey.shade300,
+                                width: 0.5,
+                              ),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              days > 0 ? '${days.toStringAsFixed(0)}d' : '',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color:
+                                    intensity > 0.5
+                                        ? Colors.white
+                                        : Colors.black87,
+                              ),
+                            ),
+                          );
+                        }),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Legend
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Fast', style: Theme.of(context).textTheme.bodySmall),
+                const SizedBox(width: 8),
+                ...List.generate(5, (index) {
+                  final intensity = (index + 1) / 5;
+                  return Container(
+                    width: 30,
+                    height: 20,
+                    margin: const EdgeInsets.symmetric(horizontal: 2),
+                    decoration: BoxDecoration(
+                      color: Color.lerp(
+                        Colors.deepOrange.withValues(alpha: 0.2),
+                        Colors.deepOrange,
+                        intensity,
+                      ),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  );
+                }),
+                const SizedBox(width: 8),
+                Text('Slow', style: Theme.of(context).textTheme.bodySmall),
               ],
             ),
           ],

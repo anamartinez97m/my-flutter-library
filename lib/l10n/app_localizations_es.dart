@@ -2948,6 +2948,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get format_by_language => 'Formato por Idioma';
 
   @override
+  String get avg_days_by_format_language => 'Media de Días de Lectura por Formato e Idioma';
+
+  @override
   String get daily_reading_heatmap => 'Días leídos en un año';
 
   @override

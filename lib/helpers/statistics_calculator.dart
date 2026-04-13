@@ -72,6 +72,7 @@ class StatisticsData {
   final PriceStatsData? priceStats;
   // Reading time of day: slot label -> {count, totalMinutes}
   final Map<String, Map<String, dynamic>> readingTimeOfDay;
+  final Map<String, Map<String, double>> avgDaysByFormatLanguage;
 
   const StatisticsData({
     required this.totalCount,
@@ -137,6 +138,7 @@ class StatisticsData {
     required this.daysReadThisYear,
     this.priceStats,
     required this.readingTimeOfDay,
+    required this.avgDaysByFormatLanguage,
   });
 }
 
@@ -325,6 +327,7 @@ class StatisticsCalculator {
     final dailyHeatmapResult = _computeDailyReadingHeatmap();
     final priceStats = _computePriceStats();
     final readingTimeOfDay = _computeReadingTimeOfDay();
+    final avgDaysByFormatLanguage = _computeAvgDaysByFormatLanguage();
 
     // Quick stats
     final totalBooksRead =
@@ -403,6 +406,7 @@ class StatisticsCalculator {
       daysReadThisYear: dailyHeatmapResult['daysReadThisYear'] as int,
       priceStats: priceStats,
       readingTimeOfDay: readingTimeOfDay,
+      avgDaysByFormatLanguage: avgDaysByFormatLanguage,
     );
   }
 
@@ -1383,5 +1387,74 @@ class StatisticsCalculator {
     if (hour >= 6 && hour < 12) return 'morning';
     if (hour >= 12 && hour < 18) return 'afternoon';
     return 'night'; // 18-0
+  }
+
+  /// Computes average days to finish a book grouped by format × language.
+  /// Returns: format -> language -> avg days
+  Map<String, Map<String, double>> _computeAvgDaysByFormatLanguage() {
+    // Accumulate total days and count per format×language
+    final Map<String, Map<String, List<int>>> daysList = {};
+
+    for (var book in books) {
+      if (book.readCount == null || book.readCount! <= 0) continue;
+      final format = book.formatValue;
+      final language = book.languageValue;
+      if (format == null || format.isEmpty) continue;
+      if (language == null || language.isEmpty || language == 'Unknown')
+        continue;
+
+      final sessions = bookSessions[book.bookId] ?? [];
+      final dailyData = _mapSessionsToDailyReadings(sessions);
+      int readingDays = 0;
+
+      if (dailyData.hasTimeReadData) {
+        readingDays = dailyData.totalReadingDays;
+      } else if (dailyData.hasDidReadData) {
+        readingDays = dailyData.totalReadingDays;
+      } else {
+        if (book.bookId != null) {
+          final readDates = bookReadDates[book.bookId!] ?? [];
+          if (readDates.isNotEmpty) {
+            final lastReadDate = readDates.last;
+            if (lastReadDate.dateStarted != null &&
+                lastReadDate.dateStarted!.isNotEmpty &&
+                lastReadDate.dateFinished != null &&
+                lastReadDate.dateFinished!.isNotEmpty) {
+              final startDate = _tryParseDate(
+                lastReadDate.dateStarted!,
+                bookName: book.name,
+              );
+              final endDate = _tryParseDate(
+                lastReadDate.dateFinished!,
+                bookName: book.name,
+              );
+              if (startDate != null &&
+                  endDate != null &&
+                  endDate.isAfter(startDate)) {
+                readingDays = endDate.difference(startDate).inDays + 1;
+              }
+            }
+          }
+        }
+      }
+
+      if (readingDays > 0) {
+        daysList.putIfAbsent(format, () => {});
+        daysList[format]!.putIfAbsent(language, () => []);
+        daysList[format]![language]!.add(readingDays);
+      }
+    }
+
+    // Convert to averages
+    final Map<String, Map<String, double>> result = {};
+    for (var formatEntry in daysList.entries) {
+      result[formatEntry.key] = {};
+      for (var langEntry in formatEntry.value.entries) {
+        final days = langEntry.value;
+        final avg = days.reduce((a, b) => a + b) / days.length;
+        result[formatEntry.key]![langEntry.key] = avg;
+      }
+    }
+    return result;
   }
 }

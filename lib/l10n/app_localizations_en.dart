@@ -2948,6 +2948,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get format_by_language => 'Format by Language';
 
   @override
+  String get avg_days_by_format_language => 'Avg. Days to Read by Format & Language';
+
+  @override
   String get daily_reading_heatmap => 'Days read in a year';
 
   @override

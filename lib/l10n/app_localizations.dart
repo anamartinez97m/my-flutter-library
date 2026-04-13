@@ -5477,6 +5477,12 @@ abstract class AppLocalizations {
   /// **'Format by Language'**
   String get format_by_language;
 
+  /// No description provided for @avg_days_by_format_language.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg. Days to Read by Format & Language'**
+  String get avg_days_by_format_language;
+
   /// No description provided for @daily_reading_heatmap.
   ///
   /// In en, this message translates to:

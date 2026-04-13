@@ -1333,6 +1333,7 @@
   "avg_books_per_year": "Avg. Books Per Year",
   "books_by_place": "Books by Place",
   "format_by_language": "Format by Language",
+  "avg_days_by_format_language": "Avg. Days to Read by Format & Language",
 
   "daily_reading_heatmap": "Days read in a year",
   "days_read_summary": "Read {days} days out of {total} ({percent}%)",

@@ -1339,6 +1339,7 @@
   "avg_books_per_year": "Media de Libros por Año",
   "books_by_place": "Libros por Lugar",
   "format_by_language": "Formato por Idioma",
+  "avg_days_by_format_language": "Media de Días de Lectura por Formato e Idioma",
 
   "daily_reading_heatmap": "Días leídos en un año",
   "days_read_summary": "Leídos {days} días de {total} ({percent}%)",
