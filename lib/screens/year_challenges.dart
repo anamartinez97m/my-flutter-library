@@ -661,7 +661,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                   width: 2,
                 )
                 : isFinished
-                ? BorderSide(color: Colors.green.withOpacity(0.3), width: 2)
+                ? BorderSide(color: Colors.green.withValues(alpha: 0.3), width: 2)
                 : BorderSide.none,
       ),
       child: InkWell(
@@ -813,13 +813,13 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                         decoration: BoxDecoration(
                           color:
                               isComplete
-                                  ? Colors.green.withOpacity(0.1)
+                                  ? Colors.green.withValues(alpha: 0.1)
                                   : Colors.transparent,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color:
                                 isComplete
-                                    ? Colors.green.withOpacity(0.3)
+                                    ? Colors.green.withValues(alpha: 0.3)
                                     : Colors.grey[300]!,
                             width: 1,
                           ),

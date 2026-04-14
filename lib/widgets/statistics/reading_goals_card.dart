@@ -106,8 +106,8 @@ class _ReadingGoalsCardState extends State<ReadingGoalsCard>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Colors.green.withOpacity(0.1),
-                  Colors.teal.withOpacity(0.1),
+                  Colors.green.withValues(alpha: 0.1),
+                  Colors.teal.withValues(alpha: 0.1),
                 ],
               ),
             ),
@@ -118,7 +118,7 @@ class _ReadingGoalsCardState extends State<ReadingGoalsCard>
                   Icon(
                     Icons.flag,
                     size: 48,
-                    color: Colors.green.withOpacity(0.5),
+                    color: Colors.green.withValues(alpha: 0.5),
                   ),
                   const SizedBox(height: 12),
                   Text(

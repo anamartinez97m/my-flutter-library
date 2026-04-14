@@ -356,7 +356,7 @@ class ThemeProvider with ChangeNotifier {
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        indicatorColor: colorScheme.primary.withOpacity(0.2),
+        indicatorColor: colorScheme.primary.withValues(alpha: 0.2),
         labelTextStyle: MaterialStateProperty.all(
           TextStyle(fontSize: 12, color: colorScheme.onSurface),
         ),
@@ -411,7 +411,7 @@ class ThemeProvider with ChangeNotifier {
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        indicatorColor: colorScheme.primary.withOpacity(0.2),
+        indicatorColor: colorScheme.primary.withValues(alpha: 0.2),
         labelTextStyle: MaterialStateProperty.all(
           TextStyle(fontSize: 12, color: colorScheme.onSurface),
         ),

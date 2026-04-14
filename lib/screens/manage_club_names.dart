@@ -262,7 +262,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                         vertical: 8,
                       ),
                       leading: CircleAvatar(
-                        backgroundColor: Colors.teal.withOpacity(0.1),
+                        backgroundColor: Colors.teal.withValues(alpha: 0.1),
                         child: Icon(Icons.group, color: Colors.teal),
                       ),
                       title: Text(

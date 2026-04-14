@@ -64,7 +64,7 @@ class _PastYearsCompetitionScreenState
         });
       }
     } catch (e) {
-      print('Error loading past years data: $e');
+      debugPrint('Error loading past years data: $e');
       if (mounted) {
         setState(() {
           isLoading = false;

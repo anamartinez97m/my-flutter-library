@@ -124,7 +124,7 @@ class SeasonalReadingCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: _getSeasonColor(preferredSeason).withOpacity(0.2),
+                  color: _getSeasonColor(preferredSeason).withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
                     color: _getSeasonColor(preferredSeason),

@@ -29,8 +29,8 @@ class ReadingGoalsPlaceholderCard extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Colors.green.withOpacity(0.1),
-                Colors.teal.withOpacity(0.1),
+                Colors.green.withValues(alpha: 0.1),
+                Colors.teal.withValues(alpha: 0.1),
               ],
             ),
           ),
@@ -41,7 +41,7 @@ class ReadingGoalsPlaceholderCard extends StatelessWidget {
                 Icon(
                   Icons.flag,
                   size: 48,
-                  color: Colors.green.withOpacity(0.5),
+                  color: Colors.green.withValues(alpha: 0.5),
                 ),
                 const SizedBox(height: 12),
                 Text(
@@ -59,10 +59,10 @@ class ReadingGoalsPlaceholderCard extends StatelessWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.2),
+                    color: Colors.green.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: Colors.green.withOpacity(0.5),
+                      color: Colors.green.withValues(alpha: 0.5),
                       width: 1,
                     ),
                   ),
@@ -112,7 +112,7 @@ class ReadingGoalsPlaceholderCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Theme.of(
                       context,
-                    ).colorScheme.primary.withOpacity(0.1),
+                    ).colorScheme.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(

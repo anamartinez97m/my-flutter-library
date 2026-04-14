@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/model/reading_session.dart';
 import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
@@ -30,7 +29,6 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
   bool _isRunning = false;
   ReadingSession? _activeSession;
   DateTime? _sessionStartTime;
-  DateTime? _pausedTime;
   DateTime? _appPausedTime;
   static const String _prefsKey = 'chronometer_session';
 
@@ -398,7 +396,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, -2),
             ),
@@ -470,7 +468,9 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
             Container(
               padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 32),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Text(

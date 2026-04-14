@@ -270,9 +270,9 @@ class _BookClubsCardState extends State<BookClubsCard> {
                   margin: const EdgeInsets.only(top: 12),
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.teal.withOpacity(0.05),
+                    color: Colors.teal.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.teal.withOpacity(0.2)),
+                    border: Border.all(color: Colors.teal.withValues(alpha: 0.2)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/model/book_competition.dart';
 import 'package:sqflite/sqflite.dart';
@@ -64,7 +65,7 @@ class BookCompetitionRepository {
 
   // Get competition results for a specific year
   Future<CompetitionResult?> getCompetitionResults(int year) async {
-    print('Repository: Getting competition results for year $year');
+    debugPrint('Repository: Getting competition results for year $year');
 
     // Get monthly winners
     final monthlyMaps = await _database.query(
@@ -143,7 +144,7 @@ class BookCompetitionRepository {
 
   // Save a competition result (update if exists, insert if not)
   Future<void> saveCompetitionResult(BookCompetition competition) async {
-    print('Repository: Saving competition result: ${competition.toMap()}');
+    debugPrint('Repository: Saving competition result: ${competition.toMap()}');
 
     // Check if record already exists
     String whereClause = 'year = ? AND competition_type = ?';
@@ -177,7 +178,7 @@ class BookCompetitionRepository {
         where: whereClause,
         whereArgs: whereArgs,
       );
-      print('Repository: Updated existing record: $result');
+      debugPrint('Repository: Updated existing record: $result');
     } else {
       // Insert new record
       final result = await _database.insert(
@@ -185,7 +186,7 @@ class BookCompetitionRepository {
         competition.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
-      print('Repository: Inserted new record: $result');
+      debugPrint('Repository: Inserted new record: $result');
     }
   }
 
@@ -284,7 +285,7 @@ class BookCompetitionRepository {
     int bookId,
     String bookName,
   ) async {
-    print(
+    debugPrint(
       'Repository: Saving quarterly winner - Year: $year, Quarter: $quarter, Book ID: $bookId, Book: $bookName',
     );
 
@@ -297,11 +298,13 @@ class BookCompetitionRepository {
       winnerBookId: bookId,
     );
 
-    print('Repository: Competition object created: ${competition.toMap()}');
+    debugPrint(
+      'Repository: Competition object created: ${competition.toMap()}',
+    );
 
     await saveCompetitionResult(competition);
 
-    print('Repository: Quarterly winner saved to database');
+    debugPrint('Repository: Quarterly winner saved to database');
   }
 
   // Save semifinal winner selected by user
@@ -410,7 +413,7 @@ class BookCompetitionRepository {
 
   // Clean up competition data for a specific year (except monthly winners)
   Future<void> cleanupYearData(int year) async {
-    print('Repository: Cleaning up competition data for year $year');
+    debugPrint('Repository: Cleaning up competition data for year $year');
 
     final result = await _database.delete(
       'book_competition',
@@ -418,7 +421,9 @@ class BookCompetitionRepository {
       whereArgs: [year, 'quarterly', 'semifinal', 'final'],
     );
 
-    print('Repository: Deleted $result competition records for year $year');
+    debugPrint(
+      'Repository: Deleted $result competition records for year $year',
+    );
   }
 
   // Get all years with competitions

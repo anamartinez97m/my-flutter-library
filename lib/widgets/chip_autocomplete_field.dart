@@ -185,7 +185,7 @@ class _ChipAutocompleteFieldState extends State<ChipAutocompleteField> {
                       label: Text(value, style: const TextStyle(fontSize: 12)),
                       deleteIcon: const Icon(Icons.close, size: 16),
                       onDeleted: () => _removeValue(value),
-                      backgroundColor: Colors.deepPurple.withOpacity(0.1),
+                      backgroundColor: Colors.deepPurple.withValues(alpha: 0.1),
                       labelStyle: const TextStyle(color: Colors.deepPurple),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 4,

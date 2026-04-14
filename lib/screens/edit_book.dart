@@ -660,8 +660,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
             _notificationEnabled && _notificationDateTime != null
                 ? _notificationDateTime!.toIso8601String()
                 : null,
-        releaseDate:
-            _releaseDate != null ? _releaseDate!.toIso8601String() : null,
+        releaseDate: _releaseDate?.toIso8601String(),
         bundleParentId:
             widget.book.bundleParentId, // Preserve bundle relationship
         readingProgress: preservedProgress,
@@ -727,8 +726,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
             _notificationEnabled && _notificationDateTime != null
                 ? _notificationDateTime!.toIso8601String()
                 : null,
-        releaseDate:
-            _releaseDate != null ? _releaseDate!.toIso8601String() : null,
+        releaseDate: _releaseDate?.toIso8601String(),
         bundleParentId:
             updatedBook.bundleParentId, // Preserve bundle relationship
         readingProgress: updatedBook.readingProgress,
@@ -2101,7 +2099,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                                   ),
                                 ),
                               );
-                            }).toList(),
+                            }),
 
                             TextButton.icon(
                               onPressed: _addRatingField,
@@ -2207,7 +2205,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                           style: IconButton.styleFrom(
                             backgroundColor: Theme.of(
                               context,
-                            ).colorScheme.primary.withOpacity(0.1),
+                            ).colorScheme.primary.withValues(alpha: 0.1),
                             foregroundColor:
                                 Theme.of(context).colorScheme.primary,
                             disabledBackgroundColor: Colors.grey[200],
@@ -2356,7 +2354,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                                 ),
                               ),
                             );
-                          }).toList(),
+                          }),
                         ],
                       ),
                     ),
@@ -2636,7 +2634,7 @@ class _ISBNScannerScreenState extends State<ISBNScannerScreen> {
                   vertical: 12,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.7),
+                  color: Colors.black.withValues(alpha: 0.7),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(

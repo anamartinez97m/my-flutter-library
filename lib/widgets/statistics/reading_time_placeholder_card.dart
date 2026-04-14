@@ -18,8 +18,8 @@ class ReadingTimePlaceholderCard extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Colors.blue.withOpacity(0.1),
-              Colors.purple.withOpacity(0.1),
+              Colors.blue.withValues(alpha: 0.1),
+              Colors.purple.withValues(alpha: 0.1),
             ],
           ),
         ),
@@ -30,7 +30,7 @@ class ReadingTimePlaceholderCard extends StatelessWidget {
               Icon(
                 Icons.access_time,
                 size: 48,
-                color: Colors.blue.withOpacity(0.5),
+                color: Colors.blue.withValues(alpha: 0.5),
               ),
               const SizedBox(height: 12),
               Text(
@@ -48,10 +48,10 @@ class ReadingTimePlaceholderCard extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withOpacity(0.2),
+                  color: Colors.amber.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: Colors.amber.withOpacity(0.5),
+                    color: Colors.amber.withValues(alpha: 0.5),
                     width: 1,
                   ),
                 ),

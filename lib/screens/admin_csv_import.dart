@@ -1416,7 +1416,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                       color: Colors.white,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 4,
                           offset: const Offset(0, -2),
                         ),
@@ -2158,7 +2158,7 @@ class _BookImportPreview extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: _getTypeColor().withOpacity(0.1),
+              color: _getTypeColor().withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: _getTypeColor()),
             ),

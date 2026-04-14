@@ -259,7 +259,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.1),
+                    color: Colors.green.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
@@ -520,8 +520,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
             _notificationEnabled && _notificationDateTime != null
                 ? _notificationDateTime!.toIso8601String()
                 : null,
-        releaseDate:
-            _releaseDate != null ? _releaseDate!.toIso8601String() : null,
+        releaseDate: _releaseDate?.toIso8601String(),
         bundleParentId: null, // This is the parent book
         notes:
             _notesController.text.trim().isEmpty
@@ -1670,7 +1669,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                                 ),
                               ),
                             );
-                          }).toList(),
+                          }),
 
                           // Add rating field button
                           TextButton.icon(
@@ -1779,7 +1778,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                         style: IconButton.styleFrom(
                           backgroundColor: Theme.of(
                             context,
-                          ).colorScheme.primary.withOpacity(0.1),
+                          ).colorScheme.primary.withValues(alpha: 0.1),
                           foregroundColor:
                               Theme.of(context).colorScheme.primary,
                           disabledBackgroundColor: Colors.grey[200],
@@ -2115,7 +2114,7 @@ class _ISBNScannerScreenState extends State<ISBNScannerScreen> {
                   vertical: 12,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.7),
+                  color: Colors.black.withValues(alpha: 0.7),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(

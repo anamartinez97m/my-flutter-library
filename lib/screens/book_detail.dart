@@ -1826,7 +1826,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: timeColor.withOpacity(0.1),
+                      color: timeColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -2153,7 +2153,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                             BackdropFilter(
                               filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                               child: Container(
-                                color: Colors.black.withOpacity(0.1),
+                                color: Colors.black.withValues(alpha: 0.1),
                               ),
                             ),
                             // Centered cover with glassmorphism
@@ -2169,16 +2169,20 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     ),
                                     child: Container(
                                       decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.15),
+                                        color: Colors.white.withValues(
+                                          alpha: 0.15,
+                                        ),
                                         borderRadius: BorderRadius.circular(12),
                                         border: Border.all(
-                                          color: Colors.white.withOpacity(0.2),
+                                          color: Colors.white.withValues(
+                                            alpha: 0.2,
+                                          ),
                                           width: 1.5,
                                         ),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withOpacity(
-                                              0.1,
+                                            color: Colors.black.withValues(
+                                              alpha: 0.1,
                                             ),
                                             blurRadius: 20,
                                             spreadRadius: 5,
@@ -2196,8 +2200,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                             child,
                                             loadingProgress,
                                           ) {
-                                            if (loadingProgress == null)
+                                            if (loadingProgress == null) {
                                               return child;
+                                            }
                                             return SizedBox(
                                               height: 210,
                                               child: Center(
@@ -2635,10 +2640,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.05),
+                          color: Colors.blue.withValues(alpha: 0.05),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: Colors.blue.withOpacity(0.2),
+                            color: Colors.blue.withValues(alpha: 0.2),
                           ),
                         ),
                         child: InkWell(
@@ -2774,9 +2779,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     vertical: 2,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.primary.withOpacity(0.1),
+                                    color: Theme.of(context).colorScheme.primary
+                                        .withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                   child: Text(
@@ -4638,7 +4642,7 @@ class _TandemBooksCardState extends State<_TandemBooksCard> {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: Colors.deepPurple.withOpacity(0.2),
+                        color: Colors.deepPurple.withValues(alpha: 0.2),
                         width: 1,
                       ),
                     ),

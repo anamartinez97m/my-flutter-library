@@ -50,7 +50,7 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
         });
       }
     } catch (e) {
-      print('Error loading competition data: $e');
+      debugPrint('Error loading competition data: $e');
       if (mounted) {
         setState(() {
           isLoading = false;
@@ -166,11 +166,6 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
     return _hasMonthPassed(month) && !_hasBooksInMonth(month);
   }
 
-  bool _isCurrentMonth(int month) {
-    final now = DateTime.now();
-    return month == now.month && widget.year == now.year;
-  }
-
   bool _isFutureMonth(int month) {
     final now = DateTime.now();
     final monthDate = DateTime(widget.year, month);
@@ -255,13 +250,19 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                    Theme.of(context).colorScheme.primary.withOpacity(0.05),
+                    Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.1),
+                    Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.05),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.3),
                 ),
               ),
               child: Column(
@@ -650,18 +651,18 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
                         monthlyWinner != null
                             ? Theme.of(context).colorScheme.surfaceVariant
                             : _isMonthDisabled(month)
-                            ? Colors.grey.withOpacity(0.3)
-                            : Colors.grey.withOpacity(0.1),
+                            ? Colors.grey.withValues(alpha: 0.3)
+                            : Colors.grey.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                       color:
                           monthlyWinner != null
                               ? Theme.of(
                                 context,
-                              ).colorScheme.outline.withOpacity(0.3)
+                              ).colorScheme.outline.withValues(alpha: 0.3)
                               : _isMonthDisabled(month)
-                              ? Colors.grey.withOpacity(0.4)
-                              : Colors.grey.withOpacity(0.2),
+                              ? Colors.grey.withValues(alpha: 0.4)
+                              : Colors.grey.withValues(alpha: 0.2),
                     ),
                   ),
                   child: InkWell(

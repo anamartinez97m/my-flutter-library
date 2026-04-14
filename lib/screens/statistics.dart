@@ -1508,7 +1508,7 @@ class _FormatByLanguageCard extends StatelessWidget {
                               count == 0
                                   ? Colors.grey.shade200
                                   : Color.lerp(
-                                    baseColor.withOpacity(0.2),
+                                    baseColor.withValues(alpha: 0.2),
                                     baseColor,
                                     intensity,
                                   )!;
@@ -1560,7 +1560,7 @@ class _FormatByLanguageCard extends StatelessWidget {
                     margin: const EdgeInsets.symmetric(horizontal: 2),
                     decoration: BoxDecoration(
                       color: Color.lerp(
-                        baseColor.withOpacity(0.2),
+                        baseColor.withValues(alpha: 0.2),
                         baseColor,
                         intensity,
                       ),
@@ -2091,7 +2091,6 @@ class _PriceByYearCard extends StatelessWidget {
             const SizedBox(height: 16),
             ...sortedYears.map((year) {
               final total = totalSpentByYear[year] ?? 0;
-              final avg = avgPriceByYear[year] ?? 0;
               final percentage = maxVal > 0 ? total / maxVal : 0.0;
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
@@ -2372,7 +2371,7 @@ class _MostLeastExpensiveCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.teal.withOpacity(0.1),
+                color: Colors.teal.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -2605,7 +2604,7 @@ class _PriceRangeEvolutionCard extends StatelessWidget {
                     LineChartBarData(
                       spots: maxSpots,
                       isCurved: true,
-                      color: Colors.red.withOpacity(0.7),
+                      color: Colors.red.withValues(alpha: 0.7),
                       barWidth: 2,
                       dotData: FlDotData(show: true),
                       belowBarData: BarAreaData(show: false),
@@ -2619,14 +2618,14 @@ class _PriceRangeEvolutionCard extends StatelessWidget {
                       dotData: FlDotData(show: true),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: Colors.teal.withOpacity(0.1),
+                        color: Colors.teal.withValues(alpha: 0.1),
                       ),
                     ),
                     // Min line
                     LineChartBarData(
                       spots: minSpots,
                       isCurved: true,
-                      color: Colors.blue.withOpacity(0.7),
+                      color: Colors.blue.withValues(alpha: 0.7),
                       barWidth: 2,
                       dotData: FlDotData(show: true),
                       belowBarData: BarAreaData(show: false),
@@ -2702,7 +2701,7 @@ class LineChartPainter extends CustomPainter {
 
     final circleOutlinePaint =
         Paint()
-          ..color = color.withOpacity(0.3)
+          ..color = color.withValues(alpha: 0.3)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2;
     canvas.drawCircle(Offset(width, centerY), 8, circleOutlinePaint);
@@ -2763,7 +2762,7 @@ class VerticalLineChartPainter extends CustomPainter {
 
     final circleOutlinePaint =
         Paint()
-          ..color = color.withOpacity(0.3)
+          ..color = color.withValues(alpha: 0.3)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2;
     canvas.drawCircle(Offset(centerX, height), 8, circleOutlinePaint);

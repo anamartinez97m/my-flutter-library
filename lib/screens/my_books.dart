@@ -184,7 +184,7 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: Colors.deepPurple.withOpacity(0.3),
+                          color: Colors.deepPurple.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Row(
@@ -208,7 +208,9 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                               decoration: BoxDecoration(
                                 color:
                                     _showCurrentlyReading
-                                        ? Colors.deepPurple.withOpacity(0.1)
+                                        ? Colors.deepPurple.withValues(
+                                          alpha: 0.1,
+                                        )
                                         : Colors.transparent,
                                 borderRadius: const BorderRadius.only(
                                   topLeft: Radius.circular(7),
@@ -231,7 +233,7 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                           Container(
                             width: 1,
                             height: 20,
-                            color: Colors.deepPurple.withOpacity(0.2),
+                            color: Colors.deepPurple.withValues(alpha: 0.2),
                           ),
                           InkWell(
                             onTap: () {
@@ -251,7 +253,9 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                               decoration: BoxDecoration(
                                 color:
                                     !_showCurrentlyReading
-                                        ? Colors.deepPurple.withOpacity(0.1)
+                                        ? Colors.deepPurple.withValues(
+                                          alpha: 0.1,
+                                        )
                                         : Colors.transparent,
                                 borderRadius: const BorderRadius.only(
                                   topRight: Radius.circular(7),
@@ -324,10 +328,14 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                                 margin: const EdgeInsets.only(bottom: 12),
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: Colors.deepPurple.withOpacity(0.05),
+                                  color: Colors.deepPurple.withValues(
+                                    alpha: 0.05,
+                                  ),
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
-                                    color: Colors.deepPurple.withOpacity(0.2),
+                                    color: Colors.deepPurple.withValues(
+                                      alpha: 0.2,
+                                    ),
                                     width: 1,
                                   ),
                                 ),
@@ -341,8 +349,8 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                                         borderRadius: BorderRadius.circular(4),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withOpacity(
-                                              0.2,
+                                            color: Colors.black.withValues(
+                                              alpha: 0.2,
                                             ),
                                             blurRadius: 4,
                                             offset: const Offset(2, 2),
@@ -694,7 +702,7 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
             if (_tbrBooks.isNotEmpty)
               Chip(
                 label: Text('${_tbrBooks.length}'),
-                backgroundColor: Colors.deepPurple.withOpacity(0.1),
+                backgroundColor: Colors.deepPurple.withValues(alpha: 0.1),
               ),
           ],
         ),
@@ -732,10 +740,10 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                       margin: const EdgeInsets.only(bottom: 12),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.orange.withOpacity(0.05),
+                        color: Colors.orange.withValues(alpha: 0.05),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: Colors.orange.withOpacity(0.2),
+                          color: Colors.orange.withValues(alpha: 0.2),
                           width: 1,
                         ),
                       ),
@@ -761,7 +769,7 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                                 borderRadius: BorderRadius.circular(4),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),
+                                    color: Colors.black.withValues(alpha: 0.2),
                                     blurRadius: 4,
                                     offset: const Offset(2, 2),
                                   ),
@@ -991,7 +999,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
             if (_clubsData.isNotEmpty)
               Chip(
                 label: Text('${_clubsData.length}'),
-                backgroundColor: Colors.teal.withOpacity(0.1),
+                backgroundColor: Colors.teal.withValues(alpha: 0.1),
               ),
           ],
         ),
@@ -1041,10 +1049,10 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                     return Container(
                       margin: const EdgeInsets.only(bottom: 16),
                       decoration: BoxDecoration(
-                        color: Colors.teal.withOpacity(0.05),
+                        color: Colors.teal.withValues(alpha: 0.05),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: Colors.teal.withOpacity(0.2),
+                          color: Colors.teal.withValues(alpha: 0.2),
                           width: 1,
                         ),
                       ),
@@ -1070,7 +1078,9 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                             ),
                             Chip(
                               label: Text('${books.length}'),
-                              backgroundColor: Colors.teal.withOpacity(0.2),
+                              backgroundColor: Colors.teal.withValues(
+                                alpha: 0.2,
+                              ),
                               labelStyle: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -1095,7 +1105,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
-                                    color: Colors.teal.withOpacity(0.1),
+                                    color: Colors.teal.withValues(alpha: 0.1),
                                   ),
                                 ),
                                 child: Column(
