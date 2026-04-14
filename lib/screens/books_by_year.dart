@@ -178,7 +178,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
             // Return month header
             return Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              color: Theme.of(context).colorScheme.surfaceVariant,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               child: Text(
                 _getMonthName(date.month),
                 style: Theme.of(
@@ -235,7 +235,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
                   // Year selector
                   Container(
                     padding: const EdgeInsets.all(16),
-                    color: Theme.of(context).colorScheme.surfaceVariant,
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
                     child: Row(
                       children: [
                         Text(

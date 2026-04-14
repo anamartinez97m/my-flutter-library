@@ -96,7 +96,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: _selectedIndex == 0, // Only allow pop if on home screen
-      onPopInvoked: (bool didPop) {
+      onPopInvokedWithResult: (bool didPop, dynamic result) {
         if (!didPop && _selectedIndex != 0) {
           // If not on home screen, switch to home instead of exiting
           setState(() {

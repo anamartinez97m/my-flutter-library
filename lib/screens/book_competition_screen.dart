@@ -649,7 +649,7 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
                   decoration: BoxDecoration(
                     color:
                         monthlyWinner != null
-                            ? Theme.of(context).colorScheme.surfaceVariant
+                            ? Theme.of(context).colorScheme.surfaceContainerHighest
                             : _isMonthDisabled(month)
                             ? Colors.grey.withValues(alpha: 0.3)
                             : Colors.grey.withValues(alpha: 0.1),

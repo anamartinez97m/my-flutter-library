@@ -118,7 +118,7 @@ class _BooksByDecadeScreenState extends State<BooksByDecadeScreen> {
               // Decade selector
               Container(
                 padding: const EdgeInsets.all(16),
-                color: Theme.of(context).colorScheme.surfaceVariant,
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 child: Row(
                   children: [
                     Text(

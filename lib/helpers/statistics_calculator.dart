@@ -285,8 +285,9 @@ class StatisticsCalculator {
     if (booksReadPerYear != null && booksReadPerYear!.isNotEmpty) {
       final totalBooksVal = booksReadPerYear!.values.reduce((a, b) => a + b);
       yearsWithBooks = booksReadPerYear!.length;
-      if (yearsWithBooks > 0)
+      if (yearsWithBooks > 0) {
         averageBooksPerYear = totalBooksVal / yearsWithBooks;
+      }
     }
 
     final booksReadPerYearMap = booksReadPerYear ?? {};
@@ -436,16 +437,18 @@ class StatisticsCalculator {
             }
           }
         } catch (e) {
-          if (bookName != null)
+          if (bookName != null) {
             debugPrint(
               'Error parsing date "$dateStr" for book "$bookName": $e',
             );
+          }
           return null;
         }
       }
     }
-    if (bookName != null)
+    if (bookName != null) {
       debugPrint('Could not parse date "$dateStr" for book "$bookName"');
+    }
     return null;
   }
 
@@ -491,8 +494,9 @@ class StatisticsCalculator {
       int dayTimeSeconds = 0;
       bool hasDidRead = false;
       for (var session in daySessions) {
-        if (session.durationSeconds != null && session.durationSeconds! > 0)
+        if (session.durationSeconds != null && session.durationSeconds! > 0) {
           dayTimeSeconds += session.durationSeconds!;
+        }
         if (session.didRead) hasDidRead = true;
       }
       if (dayTimeSeconds > 0) {
@@ -523,8 +527,9 @@ class StatisticsCalculator {
       if (book.readCount == null ||
           book.readCount! <= 0 ||
           book.pages == null ||
-          book.pages! <= 0)
+          book.pages! <= 0) {
         continue;
+      }
       final sessions = bookSessions[book.bookId] ?? [];
       final dailyData = _mapSessionsToDailyReadings(sessions);
       if (dailyData.hasTimeReadData) {
@@ -692,18 +697,19 @@ class StatisticsCalculator {
     };
     for (var book in books) {
       if (book.pages != null && book.pages! > 0) {
-        if (book.pages! <= 100)
+        if (book.pages! <= 100) {
           pd['0-100'] = (pd['0-100'] ?? 0) + 1;
-        else if (book.pages! <= 200)
+        } else if (book.pages! <= 200) {
           pd['101-200'] = (pd['101-200'] ?? 0) + 1;
-        else if (book.pages! <= 300)
+        } else if (book.pages! <= 300) {
           pd['201-300'] = (pd['201-300'] ?? 0) + 1;
-        else if (book.pages! <= 400)
+        } else if (book.pages! <= 400) {
           pd['301-400'] = (pd['301-400'] ?? 0) + 1;
-        else if (book.pages! <= 500)
+        } else if (book.pages! <= 500) {
           pd['401-500'] = (pd['401-500'] ?? 0) + 1;
-        else
+        } else {
           pd['500+'] = (pd['500+'] ?? 0) + 1;
+        }
       }
     }
     return pd;
@@ -721,8 +727,9 @@ class StatisticsCalculator {
     for (var book in books) {
       if (book.saga != null && book.saga!.isNotEmpty) {
         if (book.statusValue != null &&
-            book.statusValue!.toLowerCase() == 'repeated')
+            book.statusValue!.toLowerCase() == 'repeated') {
           continue;
+        }
         if (!sagaStats.containsKey(book.saga!)) {
           final expectedTotal = _getExpectedTotal(book.formatSagaValue);
           sagaStats[book.saga!] = {
@@ -943,8 +950,9 @@ class StatisticsCalculator {
     if (tempStreak > longestStreak) longestStreak = tempStreak;
     if (lastDate != null) {
       final daysSinceLastRead = todayDateOnly.difference(lastDate).inDays;
-      if (daysSinceLastRead == 0 || daysSinceLastRead == 1)
+      if (daysSinceLastRead == 0 || daysSinceLastRead == 1) {
         currentStreak = tempStreak;
+      }
     }
     return {'currentStreak': currentStreak, 'longestStreak': longestStreak};
   }
@@ -954,8 +962,9 @@ class StatisticsCalculator {
     for (var book in books) {
       if (book.statusValue != null &&
           (book.statusValue!.toLowerCase().contains('abandoned') ||
-              book.statusValue!.toLowerCase().contains('dnf')))
+              book.statusValue!.toLowerCase().contains('dnf'))) {
         dnfCount++;
+      }
     }
     final dnfRate = books.isNotEmpty ? (dnfCount / books.length) * 100 : 0.0;
     return {'dnfCount': dnfCount, 'dnfRate': dnfRate};
@@ -1400,8 +1409,9 @@ class StatisticsCalculator {
       final format = book.formatValue;
       final language = book.languageValue;
       if (format == null || format.isEmpty) continue;
-      if (language == null || language.isEmpty || language == 'Unknown')
+      if (language == null || language.isEmpty || language == 'Unknown') {
         continue;
+      }
 
       final sessions = bookSessions[book.bookId] ?? [];
       final dailyData = _mapSessionsToDailyReadings(sessions);
