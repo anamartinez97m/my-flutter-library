@@ -237,7 +237,7 @@ class GoogleBooksService {
 
     // Extract cover images (Google Books provides multiple sizes)
     // Replace http:// with https:// for security
-    String? _secureUrl(String? url) {
+    String? secureUrl(String? url) {
       if (url == null) return null;
       return url.replaceFirst('http://', 'https://');
     }
@@ -262,11 +262,11 @@ class GoogleBooksService {
       pageCount: volumeInfo['pageCount'] as int?,
       publisher: volumeInfo['publisher'] as String?,
       language: volumeInfo['language'] as String?,
-      smallThumbnailUrl: _secureUrl(imageLinks?['smallThumbnail'] as String?),
-      thumbnailUrl: _secureUrl(imageLinks?['thumbnail'] as String?),
-      coverUrl: _secureUrl(imageLinks?['small'] as String?),
-      mediumCoverUrl: _secureUrl(imageLinks?['medium'] as String?),
-      largeCoverUrl: _secureUrl(imageLinks?['large'] as String?),
+      smallThumbnailUrl: secureUrl(imageLinks?['smallThumbnail'] as String?),
+      thumbnailUrl: secureUrl(imageLinks?['thumbnail'] as String?),
+      coverUrl: secureUrl(imageLinks?['small'] as String?),
+      mediumCoverUrl: secureUrl(imageLinks?['medium'] as String?),
+      largeCoverUrl: secureUrl(imageLinks?['large'] as String?),
       source: 'google_books',
       fetchedAt: DateTime.now(),
     );

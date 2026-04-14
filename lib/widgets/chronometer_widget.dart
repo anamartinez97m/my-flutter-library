@@ -442,11 +442,11 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
                                 ),
                                 TextButton(
                                   onPressed: () => Navigator.pop(context, true),
-                                  child: Text(
-                                    AppLocalizations.of(context)!.exit_label,
-                                  ),
                                   style: TextButton.styleFrom(
                                     foregroundColor: Colors.red,
+                                  ),
+                                  child: Text(
+                                    AppLocalizations.of(context)!.exit_label,
                                   ),
                                 ),
                               ],

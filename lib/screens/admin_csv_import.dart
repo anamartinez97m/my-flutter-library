@@ -905,7 +905,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
       setState(() {
         _isLoading = false;
       });
-      throw e;
+      rethrow;
     }
   }
 
@@ -1375,7 +1375,8 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                   // Progress indicator
                   Container(
                     padding: const EdgeInsets.all(16),
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    color:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
