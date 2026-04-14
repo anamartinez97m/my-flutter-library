@@ -220,7 +220,9 @@ class _BookListViewState extends State<BookListView> {
       if (_enabledCardFields.contains('isbn') &&
           (book.isbn != null || book.asin != null)) ...[
         Text(
-          'ISBN/ASIN: ${book.isbn ?? book.asin ?? 'N/A'}',
+          AppLocalizations.of(
+            context,
+          )!.isbn_asin_label(book.isbn ?? book.asin ?? 'N/A'),
           style: Theme.of(
             context,
           ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
@@ -231,7 +233,7 @@ class _BookListViewState extends State<BookListView> {
       // Pages
       if (_enabledCardFields.contains('pages') && book.pages != null) ...[
         Text(
-          'Pages: ${book.pages}',
+          AppLocalizations.of(context)!.pages_field_label('${book.pages}'),
           style: Theme.of(
             context,
           ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
@@ -244,7 +246,7 @@ class _BookListViewState extends State<BookListView> {
           book.genre != null &&
           book.genre!.isNotEmpty) ...[
         Text(
-          'Genre: ${book.genre}',
+          AppLocalizations.of(context)!.genre_field_label(book.genre!),
           style: Theme.of(
             context,
           ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
@@ -257,7 +259,9 @@ class _BookListViewState extends State<BookListView> {
           book.editorialValue != null &&
           book.editorialValue!.isNotEmpty) ...[
         Text(
-          'Editorial: ${book.editorialValue}',
+          AppLocalizations.of(
+            context,
+          )!.editorial_field_label(book.editorialValue!),
           style: Theme.of(
             context,
           ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
@@ -269,7 +273,9 @@ class _BookListViewState extends State<BookListView> {
       if (_enabledCardFields.contains('publication_year') &&
           book.originalPublicationYear != null) ...[
         Text(
-          'Published: ${book.originalPublicationYear}',
+          AppLocalizations.of(
+            context,
+          )!.published_field_label('${book.originalPublicationYear}'),
           style: Theme.of(
             context,
           ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
@@ -282,7 +288,9 @@ class _BookListViewState extends State<BookListView> {
           book.notificationDatetime != null &&
           book.notificationDatetime!.isNotEmpty) ...[
         Text(
-          'Publication Date: ${book.notificationDatetime!.split('T')[0]}',
+          AppLocalizations.of(context)!.publication_date_field_label(
+            book.notificationDatetime!.split('T')[0],
+          ),
           style: Theme.of(
             context,
           ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
@@ -312,7 +320,9 @@ class _BookListViewState extends State<BookListView> {
           book.readCount != null &&
           book.readCount! > 0) ...[
         Text(
-          'Read count: ${book.readCount}',
+          AppLocalizations.of(
+            context,
+          )!.read_count_field_label('${book.readCount}'),
           style: Theme.of(
             context,
           ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
@@ -325,7 +335,7 @@ class _BookListViewState extends State<BookListView> {
           book.statusValue != null &&
           book.statusValue!.isNotEmpty) ...[
         Text(
-          'Status: ${book.statusValue}',
+          AppLocalizations.of(context)!.status_field_label(book.statusValue!),
           style: Theme.of(
             context,
           ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),

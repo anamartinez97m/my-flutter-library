@@ -1496,5 +1496,113 @@
   "library_overview": "Library Overview",
   "books_by_genre": "Genre",
   "books_by_editorial": "Editorial",
-  "books_by_author": "Author"
+  "books_by_author": "Author",
+
+  "filter_title": "Title",
+  "filter_isbn_asin": "ISBN/ASIN",
+  "filter_author": "Author",
+  "filter_status": "Status",
+  "filter_format": "Format",
+  "filter_genre": "Genre",
+  "filter_language": "Language",
+  "filter_place": "Place",
+  "filter_editorial": "Editorial",
+  "filter_saga": "Saga",
+  "filter_saga_universe": "Saga Universe",
+  "filter_format_saga": "Format Saga",
+  "filter_pages_empty": "Pages Empty",
+  "filter_is_bundle": "Is Bundle",
+  "filter_is_tandem": "Is Tandem",
+  "filter_saga_format_without_saga": "Saga Format Without Saga",
+  "filter_saga_format_without_nsaga": "Saga Format Without N_Saga",
+  "filter_saga_without_format_saga": "Saga Without Format Saga",
+  "filter_publication_year_empty": "Publication Year Empty",
+  "filter_rating": "Rating",
+
+  "card_field_title": "Title",
+  "card_field_author": "Author",
+  "card_field_saga": "Saga",
+  "card_field_format": "Format",
+  "card_field_language": "Language",
+  "card_field_isbn": "ISBN/ASIN",
+  "card_field_pages": "Pages",
+  "card_field_genre": "Genre",
+  "card_field_editorial": "Editorial",
+  "card_field_publication_year": "Publication Year",
+  "card_field_publication_date": "Publication Date",
+  "card_field_rating": "Rating",
+  "card_field_read_count": "Read Count",
+  "card_field_status": "Status",
+  "card_field_progress": "Reading Progress",
+
+  "dropdown_status": "Status",
+  "dropdown_format_saga": "Format Saga",
+  "dropdown_language": "Language",
+  "dropdown_place": "Place",
+  "dropdown_format": "Format",
+  "dropdown_authors": "Authors",
+  "dropdown_genres": "Genres",
+  "dropdown_editorials": "Editorials",
+  "dropdown_saga": "Saga",
+  "dropdown_saga_universe": "Saga Universe",
+
+  "isbn_asin_label": "ISBN/ASIN: {value}",
+  "@isbn_asin_label": {
+    "placeholders": { "value": {} }
+  },
+  "pages_field_label": "Pages: {value}",
+  "@pages_field_label": {
+    "placeholders": { "value": {} }
+  },
+  "genre_field_label": "Genre: {value}",
+  "@genre_field_label": {
+    "placeholders": { "value": {} }
+  },
+  "editorial_field_label": "Editorial: {value}",
+  "@editorial_field_label": {
+    "placeholders": { "value": {} }
+  },
+  "published_field_label": "Published: {value}",
+  "@published_field_label": {
+    "placeholders": { "value": {} }
+  },
+  "publication_date_field_label": "Publication Date: {value}",
+  "@publication_date_field_label": {
+    "placeholders": { "value": {} }
+  },
+  "read_count_field_label": "Read count: {value}",
+  "@read_count_field_label": {
+    "placeholders": { "value": {} }
+  },
+  "status_field_label": "Status: {value}",
+  "@status_field_label": {
+    "placeholders": { "value": {} }
+  },
+
+  "press_enter_to_add": "Press Enter to add a new entry",
+
+  "pages_per_day": "pages/day",
+  "books_per_year": "books/year",
+  "based_on_books_with_data": "Based on {count} books with reading data",
+  "@based_on_books_with_data": {
+    "placeholders": { "count": {} }
+  },
+  "avg_time_to_finish": "Average time to finish a book",
+  "based_on_years_of_data": "Based on {count} years of reading data",
+  "@based_on_years_of_data": {
+    "placeholders": { "count": {} }
+  },
+
+  "season_winter": "Winter",
+  "season_spring": "Spring",
+  "season_summer": "Summer",
+  "season_fall": "Fall",
+  "n_books_percentage": "{count} ({percentage}%)",
+  "@n_books_percentage": {
+    "placeholders": { "count": {}, "percentage": {} }
+  },
+  "n_books_label": "{count} books ({percentage}%)",
+  "@n_books_label": {
+    "placeholders": { "count": {}, "percentage": {} }
+  }
 }

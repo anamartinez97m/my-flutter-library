@@ -1502,5 +1502,113 @@
   "library_overview": "Vista General",
   "books_by_genre": "Género",
   "books_by_editorial": "Editorial",
-  "books_by_author": "Autor"
+  "books_by_author": "Autor",
+
+  "filter_title": "Título",
+  "filter_isbn_asin": "ISBN/ASIN",
+  "filter_author": "Autor",
+  "filter_status": "Estado",
+  "filter_format": "Formato",
+  "filter_genre": "Género",
+  "filter_language": "Idioma",
+  "filter_place": "Lugar",
+  "filter_editorial": "Editorial",
+  "filter_saga": "Saga",
+  "filter_saga_universe": "Universo de Saga",
+  "filter_format_saga": "Formato Saga",
+  "filter_pages_empty": "Páginas Vacías",
+  "filter_is_bundle": "Es Paquete",
+  "filter_is_tandem": "Es Tándem",
+  "filter_saga_format_without_saga": "Formato de Saga Sin Saga",
+  "filter_saga_format_without_nsaga": "Formato de Saga Sin N_Saga",
+  "filter_saga_without_format_saga": "Saga Sin Formato de Saga",
+  "filter_publication_year_empty": "Año de Publicación Vacío",
+  "filter_rating": "Valoración",
+
+  "card_field_title": "Título",
+  "card_field_author": "Autor",
+  "card_field_saga": "Saga",
+  "card_field_format": "Formato",
+  "card_field_language": "Idioma",
+  "card_field_isbn": "ISBN/ASIN",
+  "card_field_pages": "Páginas",
+  "card_field_genre": "Género",
+  "card_field_editorial": "Editorial",
+  "card_field_publication_year": "Año de Publicación",
+  "card_field_publication_date": "Fecha de Publicación",
+  "card_field_rating": "Valoración",
+  "card_field_read_count": "Veces Leído",
+  "card_field_status": "Estado",
+  "card_field_progress": "Progreso de Lectura",
+
+  "dropdown_status": "Estado",
+  "dropdown_format_saga": "Formato Saga",
+  "dropdown_language": "Idioma",
+  "dropdown_place": "Lugar",
+  "dropdown_format": "Formato",
+  "dropdown_authors": "Autores",
+  "dropdown_genres": "Géneros",
+  "dropdown_editorials": "Editoriales",
+  "dropdown_saga": "Saga",
+  "dropdown_saga_universe": "Universo de Saga",
+
+  "isbn_asin_label": "ISBN/ASIN: {value}",
+  "@isbn_asin_label": {
+    "placeholders": { "value": {} }
+  },
+  "pages_field_label": "Páginas: {value}",
+  "@pages_field_label": {
+    "placeholders": { "value": {} }
+  },
+  "genre_field_label": "Género: {value}",
+  "@genre_field_label": {
+    "placeholders": { "value": {} }
+  },
+  "editorial_field_label": "Editorial: {value}",
+  "@editorial_field_label": {
+    "placeholders": { "value": {} }
+  },
+  "published_field_label": "Publicado: {value}",
+  "@published_field_label": {
+    "placeholders": { "value": {} }
+  },
+  "publication_date_field_label": "Fecha de Publicación: {value}",
+  "@publication_date_field_label": {
+    "placeholders": { "value": {} }
+  },
+  "read_count_field_label": "Veces leído: {value}",
+  "@read_count_field_label": {
+    "placeholders": { "value": {} }
+  },
+  "status_field_label": "Estado: {value}",
+  "@status_field_label": {
+    "placeholders": { "value": {} }
+  },
+
+  "press_enter_to_add": "Pulsa Enter para añadir una nueva entrada",
+
+  "pages_per_day": "páginas/día",
+  "books_per_year": "libros/año",
+  "based_on_books_with_data": "Basado en {count} libros con datos de lectura",
+  "@based_on_books_with_data": {
+    "placeholders": { "count": {} }
+  },
+  "avg_time_to_finish": "Tiempo promedio para terminar un libro",
+  "based_on_years_of_data": "Basado en {count} años de datos de lectura",
+  "@based_on_years_of_data": {
+    "placeholders": { "count": {} }
+  },
+
+  "season_winter": "Invierno",
+  "season_spring": "Primavera",
+  "season_summer": "Verano",
+  "season_fall": "Otoño",
+  "n_books_percentage": "{count} ({percentage}%)",
+  "@n_books_percentage": {
+    "placeholders": { "count": {}, "percentage": {} }
+  },
+  "n_books_label": "{count} libros ({percentage}%)",
+  "@n_books_label": {
+    "placeholders": { "count": {}, "percentage": {} }
+  }
 }

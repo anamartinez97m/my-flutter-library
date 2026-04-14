@@ -16,6 +16,22 @@ class SeasonalPreferencesCard extends StatelessWidget {
     return sortedSeasons.first.key;
   }
 
+  String _getSeasonName(BuildContext context, String season) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (season) {
+      case 'Winter':
+        return l10n.season_winter;
+      case 'Spring':
+        return l10n.season_spring;
+      case 'Summer':
+        return l10n.season_summer;
+      case 'Fall':
+        return l10n.season_fall;
+      default:
+        return season;
+    }
+  }
+
   String _getSeasonEmoji(String season) {
     switch (season) {
       case 'Winter':
@@ -111,7 +127,7 @@ class SeasonalPreferencesCard extends StatelessWidget {
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                         Text(
-                          preferredSeason,
+                          _getSeasonName(context, preferredSeason),
                           style: Theme.of(
                             context,
                           ).textTheme.titleLarge?.copyWith(
@@ -148,7 +164,7 @@ class SeasonalPreferencesCard extends StatelessWidget {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                entry.key,
+                                _getSeasonName(context, entry.key),
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -156,7 +172,9 @@ class SeasonalPreferencesCard extends StatelessWidget {
                             ],
                           ),
                           Text(
-                            '${entry.value} books ($percentage%)',
+                            AppLocalizations.of(
+                              context,
+                            )!.n_books_label(entry.value, percentage),
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],

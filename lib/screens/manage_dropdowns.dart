@@ -17,18 +17,46 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
   List<Map<String, dynamic>> _values = [];
   bool _isLoading = false;
 
-  final Map<String, String> _tableLabels = {
-    'status': 'Status',
-    'format_saga': 'Format Saga',
-    'language': 'Language',
-    'place': 'Place',
-    'format': 'Format',
-    'author': 'Authors',
-    'genre': 'Genres',
-    'editorial': 'Editorials',
-    'saga': 'Saga',
-    'saga_universe': 'Saga Universe',
-  };
+  static const List<String> _tableKeys = [
+    'status',
+    'format_saga',
+    'language',
+    'place',
+    'format',
+    'author',
+    'genre',
+    'editorial',
+    'saga',
+    'saga_universe',
+  ];
+
+  String _getTableLabel(BuildContext context, String key) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (key) {
+      case 'status':
+        return l10n.dropdown_status;
+      case 'format_saga':
+        return l10n.dropdown_format_saga;
+      case 'language':
+        return l10n.dropdown_language;
+      case 'place':
+        return l10n.dropdown_place;
+      case 'format':
+        return l10n.dropdown_format;
+      case 'author':
+        return l10n.dropdown_authors;
+      case 'genre':
+        return l10n.dropdown_genres;
+      case 'editorial':
+        return l10n.dropdown_editorials;
+      case 'saga':
+        return l10n.dropdown_saga;
+      case 'saga_universe':
+        return l10n.dropdown_saga_universe;
+      default:
+        return key;
+    }
+  }
 
   // Core status values that cannot be deleted (case-insensitive)
   final Set<String> _coreStatusValues = {
@@ -306,7 +334,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       builder:
           (context) => AlertDialog(
             title: Text(
-              '${AppLocalizations.of(context)!.add} ${_tableLabels[_selectedTable]}',
+              '${AppLocalizations.of(context)!.add} ${_getTableLabel(context, _selectedTable)}',
             ),
             content: TextField(
               controller: controller,
@@ -399,7 +427,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       builder:
           (context) => AlertDialog(
             title: Text(
-              '${AppLocalizations.of(context)!.edit} ${_tableLabels[_selectedTable]}',
+              '${AppLocalizations.of(context)!.edit} ${_getTableLabel(context, _selectedTable)}',
             ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
@@ -790,10 +818,10 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                 border: const OutlineInputBorder(),
               ),
               items:
-                  _tableLabels.entries.map((entry) {
+                  _tableKeys.map((key) {
                     return DropdownMenuItem(
-                      value: entry.key,
-                      child: Text(entry.value),
+                      value: key,
+                      child: Text(_getTableLabel(context, key)),
                     );
                   }).toList(),
               onChanged: (value) {

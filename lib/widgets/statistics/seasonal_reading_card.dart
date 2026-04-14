@@ -15,6 +15,22 @@ class SeasonalReadingCard extends StatelessWidget {
     this.topGenreBySeason = const {},
   });
 
+  String _getSeasonName(BuildContext context, String season) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (season) {
+      case 'Winter':
+        return l10n.season_winter;
+      case 'Spring':
+        return l10n.season_spring;
+      case 'Summer':
+        return l10n.season_summer;
+      case 'Fall':
+        return l10n.season_fall;
+      default:
+        return season;
+    }
+  }
+
   String _getSeasonEmoji(String season) {
     switch (season) {
       case 'Winter':
@@ -131,7 +147,7 @@ class SeasonalReadingCard extends StatelessWidget {
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                         Text(
-                          preferredSeason,
+                          _getSeasonName(context, preferredSeason),
                           style: Theme.of(
                             context,
                           ).textTheme.titleLarge?.copyWith(
@@ -168,7 +184,7 @@ class SeasonalReadingCard extends StatelessWidget {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                entry.key,
+                                _getSeasonName(context, entry.key),
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -176,7 +192,9 @@ class SeasonalReadingCard extends StatelessWidget {
                             ],
                           ),
                           Text(
-                            '${entry.value} ($percentage%)',
+                            AppLocalizations.of(
+                              context,
+                            )!.n_books_percentage(entry.value, percentage),
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
@@ -220,7 +238,7 @@ class SeasonalReadingCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            '${_getSeasonEmoji(mostProductive.key)} ${mostProductive.key}',
+                            '${_getSeasonEmoji(mostProductive.key)} ${_getSeasonName(context, mostProductive.key)}',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
@@ -257,7 +275,7 @@ class SeasonalReadingCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            '${_getSeasonEmoji(leastProductive.key)} ${leastProductive.key}',
+                            '${_getSeasonEmoji(leastProductive.key)} ${_getSeasonName(context, leastProductive.key)}',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
@@ -318,7 +336,7 @@ class SeasonalReadingCard extends StatelessWidget {
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 2),
                             child: Text(
-                              '${_getSeasonEmoji(entry.key)} ${entry.key}: ${entry.value}',
+                              '${_getSeasonEmoji(entry.key)} ${_getSeasonName(context, entry.key)}: ${entry.value}',
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           );

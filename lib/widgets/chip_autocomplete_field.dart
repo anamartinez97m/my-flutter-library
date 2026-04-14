@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
 class ChipAutocompleteField extends StatefulWidget {
   final String labelText;
@@ -35,7 +36,7 @@ class _ChipAutocompleteFieldState extends State<ChipAutocompleteField> {
     super.initState();
     _selectedValues = List.from(widget.initialValues);
   }
-  
+
   @override
   void didUpdateWidget(ChipAutocompleteField oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -59,7 +60,8 @@ class _ChipAutocompleteFieldState extends State<ChipAutocompleteField> {
     if (trimmedValue.isNotEmpty && !_selectedValues.contains(trimmedValue)) {
       setState(() {
         // If maxSelections is set and we're at the limit, replace the first value
-        if (widget.maxSelections != null && _selectedValues.length >= widget.maxSelections!) {
+        if (widget.maxSelections != null &&
+            _selectedValues.length >= widget.maxSelections!) {
           _selectedValues.clear(); // For single selection, clear all
         }
         _selectedValues.add(trimmedValue);
@@ -89,9 +91,9 @@ class _ChipAutocompleteFieldState extends State<ChipAutocompleteField> {
               return const Iterable<String>.empty();
             }
             return widget.suggestions.where((String option) {
-              return option
-                  .toLowerCase()
-                  .contains(textEditingValue.text.toLowerCase()) &&
+              return option.toLowerCase().contains(
+                    textEditingValue.text.toLowerCase(),
+                  ) &&
                   !_selectedValues.contains(option);
             });
           },
@@ -108,10 +110,10 @@ class _ChipAutocompleteFieldState extends State<ChipAutocompleteField> {
           ) {
             // Store reference to field controller
             _fieldController = fieldTextEditingController;
-            
+
             _textController.text = fieldTextEditingController.text;
             _textController.selection = fieldTextEditingController.selection;
-            
+
             fieldTextEditingController.addListener(() {
               _textController.text = fieldTextEditingController.text;
               _textController.selection = fieldTextEditingController.selection;
@@ -124,7 +126,8 @@ class _ChipAutocompleteFieldState extends State<ChipAutocompleteField> {
                 labelText: widget.labelText,
                 hintText: widget.hintText,
                 border: const OutlineInputBorder(),
-                prefixIcon: widget.prefixIcon != null ? Icon(widget.prefixIcon) : null,
+                prefixIcon:
+                    widget.prefixIcon != null ? Icon(widget.prefixIcon) : null,
               ),
               textCapitalization: TextCapitalization.words,
               onFieldSubmitted: (value) {
@@ -143,7 +146,10 @@ class _ChipAutocompleteFieldState extends State<ChipAutocompleteField> {
               child: Material(
                 elevation: 4.0,
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxHeight: 200, maxWidth: 300),
+                  constraints: const BoxConstraints(
+                    maxHeight: 200,
+                    maxWidth: 300,
+                  ),
                   child: ListView.builder(
                     padding: EdgeInsets.zero,
                     shrinkWrap: true,
@@ -173,21 +179,22 @@ class _ChipAutocompleteFieldState extends State<ChipAutocompleteField> {
             child: Wrap(
               spacing: 6,
               runSpacing: 6,
-              children: _selectedValues.map((value) {
-                return Chip(
-                  label: Text(
-                    value,
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                  deleteIcon: const Icon(Icons.close, size: 16),
-                  onDeleted: () => _removeValue(value),
-                  backgroundColor: Colors.deepPurple.withOpacity(0.1),
-                  labelStyle: const TextStyle(color: Colors.deepPurple),
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  visualDensity: VisualDensity.compact,
-                );
-              }).toList(),
+              children:
+                  _selectedValues.map((value) {
+                    return Chip(
+                      label: Text(value, style: const TextStyle(fontSize: 12)),
+                      deleteIcon: const Icon(Icons.close, size: 16),
+                      onDeleted: () => _removeValue(value),
+                      backgroundColor: Colors.deepPurple.withOpacity(0.1),
+                      labelStyle: const TextStyle(color: Colors.deepPurple),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 0,
+                      ),
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      visualDensity: VisualDensity.compact,
+                    );
+                  }).toList(),
             ),
           ),
         ],
@@ -195,7 +202,7 @@ class _ChipAutocompleteFieldState extends State<ChipAutocompleteField> {
         Padding(
           padding: const EdgeInsets.only(left: 12.0),
           child: Text(
-            'Press Enter to add a new entry',
+            AppLocalizations.of(context)!.press_enter_to_add,
             style: TextStyle(
               fontSize: 11,
               color: Colors.grey[600],

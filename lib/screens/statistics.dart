@@ -1039,7 +1039,7 @@ class _BooksReadPerYearCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Books Read Per Year',
+                    AppLocalizations.of(context)!.books_read_per_year,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -1181,7 +1181,7 @@ class _PagesReadPerYearCard extends StatelessWidget {
         child: Column(
           children: [
             Text(
-              'Pages Read Per Year',
+              AppLocalizations.of(context)!.pages_read_per_year,
               style: Theme.of(
                 context,
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
@@ -1300,7 +1300,7 @@ class _ReadingEfficiencyCard extends StatelessWidget {
         child: Column(
           children: [
             Text(
-              'Reading Efficiency',
+              AppLocalizations.of(context)!.reading_efficiency,
               style: Theme.of(
                 context,
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
@@ -1312,9 +1312,10 @@ class _ReadingEfficiencyCard extends StatelessWidget {
                 context,
                 icon: Icons.speed,
                 value: readingVelocity.toStringAsFixed(1),
-                unit: 'pages/day',
-                subtitle:
-                    'Based on $booksUsedInAverageDays books with reading data',
+                unit: AppLocalizations.of(context)!.pages_per_day,
+                subtitle: AppLocalizations.of(
+                  context,
+                )!.based_on_books_with_data(booksUsedInAverageDays),
                 color: Theme.of(context).colorScheme.primary,
               ),
               const SizedBox(height: 24),
@@ -1327,8 +1328,8 @@ class _ReadingEfficiencyCard extends StatelessWidget {
                 context,
                 icon: Icons.timer,
                 value: averageDaysToFinish.toStringAsFixed(1),
-                unit: 'days',
-                subtitle: 'Average time to finish a book',
+                unit: AppLocalizations.of(context)!.days,
+                subtitle: AppLocalizations.of(context)!.avg_time_to_finish,
                 color: Theme.of(context).colorScheme.primary,
               ),
               const SizedBox(height: 24),
@@ -1341,8 +1342,10 @@ class _ReadingEfficiencyCard extends StatelessWidget {
                 context,
                 icon: Icons.trending_up,
                 value: averageBooksPerYear.toStringAsFixed(1),
-                unit: 'books/year',
-                subtitle: 'Based on $yearsWithBooks years of reading data',
+                unit: AppLocalizations.of(context)!.books_per_year,
+                subtitle: AppLocalizations.of(
+                  context,
+                )!.based_on_years_of_data(yearsWithBooks),
                 color: Theme.of(context).colorScheme.primary,
               ),
           ],
@@ -1442,7 +1445,7 @@ class _FormatByLanguageCard extends StatelessWidget {
         child: Column(
           children: [
             Text(
-              'Format by Language',
+              AppLocalizations.of(context)!.format_by_language,
               style: Theme.of(
                 context,
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
@@ -1830,7 +1833,10 @@ class _TopRankingCardState extends State<_TopRankingCard> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('All', style: Theme.of(context).textTheme.bodySmall),
+                    Text(
+                      AppLocalizations.of(context)!.all_label,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                     Switch(
                       value: _showReadBooks,
                       onChanged: (val) {
@@ -1839,7 +1845,10 @@ class _TopRankingCardState extends State<_TopRankingCard> {
                         });
                       },
                     ),
-                    Text('Read', style: Theme.of(context).textTheme.bodySmall),
+                    Text(
+                      AppLocalizations.of(context)!.read_label,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                   ],
                 ),
               ],

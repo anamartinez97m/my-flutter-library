@@ -3246,4 +3246,223 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get books_by_author => 'Author';
+
+  @override
+  String get filter_title => 'Title';
+
+  @override
+  String get filter_isbn_asin => 'ISBN/ASIN';
+
+  @override
+  String get filter_author => 'Author';
+
+  @override
+  String get filter_status => 'Status';
+
+  @override
+  String get filter_format => 'Format';
+
+  @override
+  String get filter_genre => 'Genre';
+
+  @override
+  String get filter_language => 'Language';
+
+  @override
+  String get filter_place => 'Place';
+
+  @override
+  String get filter_editorial => 'Editorial';
+
+  @override
+  String get filter_saga => 'Saga';
+
+  @override
+  String get filter_saga_universe => 'Saga Universe';
+
+  @override
+  String get filter_format_saga => 'Format Saga';
+
+  @override
+  String get filter_pages_empty => 'Pages Empty';
+
+  @override
+  String get filter_is_bundle => 'Is Bundle';
+
+  @override
+  String get filter_is_tandem => 'Is Tandem';
+
+  @override
+  String get filter_saga_format_without_saga => 'Saga Format Without Saga';
+
+  @override
+  String get filter_saga_format_without_nsaga => 'Saga Format Without N_Saga';
+
+  @override
+  String get filter_saga_without_format_saga => 'Saga Without Format Saga';
+
+  @override
+  String get filter_publication_year_empty => 'Publication Year Empty';
+
+  @override
+  String get filter_rating => 'Rating';
+
+  @override
+  String get card_field_title => 'Title';
+
+  @override
+  String get card_field_author => 'Author';
+
+  @override
+  String get card_field_saga => 'Saga';
+
+  @override
+  String get card_field_format => 'Format';
+
+  @override
+  String get card_field_language => 'Language';
+
+  @override
+  String get card_field_isbn => 'ISBN/ASIN';
+
+  @override
+  String get card_field_pages => 'Pages';
+
+  @override
+  String get card_field_genre => 'Genre';
+
+  @override
+  String get card_field_editorial => 'Editorial';
+
+  @override
+  String get card_field_publication_year => 'Publication Year';
+
+  @override
+  String get card_field_publication_date => 'Publication Date';
+
+  @override
+  String get card_field_rating => 'Rating';
+
+  @override
+  String get card_field_read_count => 'Read Count';
+
+  @override
+  String get card_field_status => 'Status';
+
+  @override
+  String get card_field_progress => 'Reading Progress';
+
+  @override
+  String get dropdown_status => 'Status';
+
+  @override
+  String get dropdown_format_saga => 'Format Saga';
+
+  @override
+  String get dropdown_language => 'Language';
+
+  @override
+  String get dropdown_place => 'Place';
+
+  @override
+  String get dropdown_format => 'Format';
+
+  @override
+  String get dropdown_authors => 'Authors';
+
+  @override
+  String get dropdown_genres => 'Genres';
+
+  @override
+  String get dropdown_editorials => 'Editorials';
+
+  @override
+  String get dropdown_saga => 'Saga';
+
+  @override
+  String get dropdown_saga_universe => 'Saga Universe';
+
+  @override
+  String isbn_asin_label(Object value) {
+    return 'ISBN/ASIN: $value';
+  }
+
+  @override
+  String pages_field_label(Object value) {
+    return 'Pages: $value';
+  }
+
+  @override
+  String genre_field_label(Object value) {
+    return 'Genre: $value';
+  }
+
+  @override
+  String editorial_field_label(Object value) {
+    return 'Editorial: $value';
+  }
+
+  @override
+  String published_field_label(Object value) {
+    return 'Published: $value';
+  }
+
+  @override
+  String publication_date_field_label(Object value) {
+    return 'Publication Date: $value';
+  }
+
+  @override
+  String read_count_field_label(Object value) {
+    return 'Read count: $value';
+  }
+
+  @override
+  String status_field_label(Object value) {
+    return 'Status: $value';
+  }
+
+  @override
+  String get press_enter_to_add => 'Press Enter to add a new entry';
+
+  @override
+  String get pages_per_day => 'pages/day';
+
+  @override
+  String get books_per_year => 'books/year';
+
+  @override
+  String based_on_books_with_data(Object count) {
+    return 'Based on $count books with reading data';
+  }
+
+  @override
+  String get avg_time_to_finish => 'Average time to finish a book';
+
+  @override
+  String based_on_years_of_data(Object count) {
+    return 'Based on $count years of reading data';
+  }
+
+  @override
+  String get season_winter => 'Winter';
+
+  @override
+  String get season_spring => 'Spring';
+
+  @override
+  String get season_summer => 'Summer';
+
+  @override
+  String get season_fall => 'Fall';
+
+  @override
+  String n_books_percentage(Object count, Object percentage) {
+    return '$count ($percentage%)';
+  }
+
+  @override
+  String n_books_label(Object count, Object percentage) {
+    return '$count books ($percentage%)';
+  }
 }

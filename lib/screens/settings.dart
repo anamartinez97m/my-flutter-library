@@ -58,48 +58,134 @@ class _SettingsScreenState extends State<SettingsScreen> {
   BackupFrequency _autoBackupFrequency = BackupFrequency.off;
   String? _lastAutoBackupTimestamp;
 
-  // Available filters
-  static const List<Map<String, String>> _availableFilters = [
-    {'key': 'title', 'label': 'Title'},
-    {'key': 'isbn', 'label': 'ISBN/ASIN'},
-    {'key': 'author', 'label': 'Author'},
-    {'key': 'status', 'label': 'Status'},
-    {'key': 'format', 'label': 'Format'},
-    {'key': 'genre', 'label': 'Genre'},
-    {'key': 'language', 'label': 'Language'},
-    {'key': 'place', 'label': 'Place'},
-    {'key': 'editorial', 'label': 'Editorial'},
-    {'key': 'saga', 'label': 'Saga'},
-    {'key': 'saga_universe', 'label': 'Saga Universe'},
-    {'key': 'format_saga', 'label': 'Format Saga'},
-    {'key': 'pages_empty', 'label': 'Pages Empty'},
-    {'key': 'is_bundle', 'label': 'Is Bundle'},
-    {'key': 'is_tandem', 'label': 'Is Tandem'},
-    {'key': 'saga_format_without_saga', 'label': 'Saga Format Without Saga'},
-    {'key': 'saga_format_without_nsaga', 'label': 'Saga Format Without N_Saga'},
-    {'key': 'saga_without_format_saga', 'label': 'Saga Without Format Saga'},
-    {'key': 'publication_year_empty', 'label': 'Publication Year Empty'},
-    {'key': 'rating', 'label': 'Rating'},
+  // Available filter keys
+  static const List<String> _availableFilterKeys = [
+    'title',
+    'isbn',
+    'author',
+    'status',
+    'format',
+    'genre',
+    'language',
+    'place',
+    'editorial',
+    'saga',
+    'saga_universe',
+    'format_saga',
+    'pages_empty',
+    'is_bundle',
+    'is_tandem',
+    'saga_format_without_saga',
+    'saga_format_without_nsaga',
+    'saga_without_format_saga',
+    'publication_year_empty',
+    'rating',
   ];
 
-  // Available card fields for customization
-  static const List<Map<String, String>> _availableCardFields = [
-    {'key': 'title', 'label': 'Title'},
-    {'key': 'author', 'label': 'Author'},
-    {'key': 'saga', 'label': 'Saga'},
-    {'key': 'format', 'label': 'Format'},
-    {'key': 'language', 'label': 'Language'},
-    {'key': 'isbn', 'label': 'ISBN/ASIN'},
-    {'key': 'pages', 'label': 'Pages'},
-    {'key': 'genre', 'label': 'Genre'},
-    {'key': 'editorial', 'label': 'Editorial'},
-    {'key': 'publication_year', 'label': 'Publication Year'},
-    {'key': 'publication_date', 'label': 'Publication Date'},
-    {'key': 'rating', 'label': 'Rating'},
-    {'key': 'read_count', 'label': 'Read Count'},
-    {'key': 'status', 'label': 'Status'},
-    {'key': 'progress', 'label': 'Reading Progress'},
+  String _getFilterLabel(BuildContext context, String key) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (key) {
+      case 'title':
+        return l10n.filter_title;
+      case 'isbn':
+        return l10n.filter_isbn_asin;
+      case 'author':
+        return l10n.filter_author;
+      case 'status':
+        return l10n.filter_status;
+      case 'format':
+        return l10n.filter_format;
+      case 'genre':
+        return l10n.filter_genre;
+      case 'language':
+        return l10n.filter_language;
+      case 'place':
+        return l10n.filter_place;
+      case 'editorial':
+        return l10n.filter_editorial;
+      case 'saga':
+        return l10n.filter_saga;
+      case 'saga_universe':
+        return l10n.filter_saga_universe;
+      case 'format_saga':
+        return l10n.filter_format_saga;
+      case 'pages_empty':
+        return l10n.filter_pages_empty;
+      case 'is_bundle':
+        return l10n.filter_is_bundle;
+      case 'is_tandem':
+        return l10n.filter_is_tandem;
+      case 'saga_format_without_saga':
+        return l10n.filter_saga_format_without_saga;
+      case 'saga_format_without_nsaga':
+        return l10n.filter_saga_format_without_nsaga;
+      case 'saga_without_format_saga':
+        return l10n.filter_saga_without_format_saga;
+      case 'publication_year_empty':
+        return l10n.filter_publication_year_empty;
+      case 'rating':
+        return l10n.filter_rating;
+      default:
+        return key;
+    }
+  }
+
+  // Available card field keys
+  static const List<String> _availableCardFieldKeys = [
+    'title',
+    'author',
+    'saga',
+    'format',
+    'language',
+    'isbn',
+    'pages',
+    'genre',
+    'editorial',
+    'publication_year',
+    'publication_date',
+    'rating',
+    'read_count',
+    'status',
+    'progress',
   ];
+
+  String _getCardFieldLabel(BuildContext context, String key) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (key) {
+      case 'title':
+        return l10n.card_field_title;
+      case 'author':
+        return l10n.card_field_author;
+      case 'saga':
+        return l10n.card_field_saga;
+      case 'format':
+        return l10n.card_field_format;
+      case 'language':
+        return l10n.card_field_language;
+      case 'isbn':
+        return l10n.card_field_isbn;
+      case 'pages':
+        return l10n.card_field_pages;
+      case 'genre':
+        return l10n.card_field_genre;
+      case 'editorial':
+        return l10n.card_field_editorial;
+      case 'publication_year':
+        return l10n.card_field_publication_year;
+      case 'publication_date':
+        return l10n.card_field_publication_date;
+      case 'rating':
+        return l10n.card_field_rating;
+      case 'read_count':
+        return l10n.card_field_read_count;
+      case 'status':
+        return l10n.card_field_status;
+      case 'progress':
+        return l10n.card_field_progress;
+      default:
+        return key;
+    }
+  }
 
   @override
   void initState() {
@@ -595,7 +681,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _enabledFilters = savedFilters.toSet();
       } else {
         // Default: enable all filters
-        _enabledFilters = _availableFilters.map((f) => f['key']!).toSet();
+        _enabledFilters = _availableFilterKeys.toSet();
       }
     });
   }
@@ -640,11 +726,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     width: double.maxFinite,
                     child: ListView.builder(
                       shrinkWrap: true,
-                      itemCount: _availableFilters.length,
+                      itemCount: _availableFilterKeys.length,
                       itemBuilder: (context, index) {
-                        final filter = _availableFilters[index];
-                        final key = filter['key']!;
-                        final label = filter['label']!;
+                        final key = _availableFilterKeys[index];
+                        final label = _getFilterLabel(context, key);
 
                         return CheckboxListTile(
                           title: Text(label),
@@ -668,8 +753,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     TextButton(
                       onPressed: () {
                         setState(() {
-                          _enabledFilters =
-                              _availableFilters.map((f) => f['key']!).toSet();
+                          _enabledFilters = _availableFilterKeys.toSet();
                         });
                         setDialogState(() {}); // Rebuild dialog
                         _saveEnabledFilters();
@@ -710,11 +794,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     width: double.maxFinite,
                     child: ListView.builder(
                       shrinkWrap: true,
-                      itemCount: _availableCardFields.length,
+                      itemCount: _availableCardFieldKeys.length,
                       itemBuilder: (context, index) {
-                        final field = _availableCardFields[index];
-                        final key = field['key']!;
-                        final label = field['label']!;
+                        final key = _availableCardFieldKeys[index];
+                        final label = _getCardFieldLabel(context, key);
 
                         return CheckboxListTile(
                           title: Text(label),
@@ -738,10 +821,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     TextButton(
                       onPressed: () {
                         setState(() {
-                          _enabledCardFields =
-                              _availableCardFields
-                                  .map((f) => f['key']!)
-                                  .toSet();
+                          _enabledCardFields = _availableCardFieldKeys.toSet();
                         });
                         setDialogState(() {}); // Rebuild dialog
                         _saveEnabledCardFields();

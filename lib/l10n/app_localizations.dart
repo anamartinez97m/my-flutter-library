@@ -6028,6 +6028,396 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Author'**
   String get books_by_author;
+
+  /// No description provided for @filter_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get filter_title;
+
+  /// No description provided for @filter_isbn_asin.
+  ///
+  /// In en, this message translates to:
+  /// **'ISBN/ASIN'**
+  String get filter_isbn_asin;
+
+  /// No description provided for @filter_author.
+  ///
+  /// In en, this message translates to:
+  /// **'Author'**
+  String get filter_author;
+
+  /// No description provided for @filter_status.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get filter_status;
+
+  /// No description provided for @filter_format.
+  ///
+  /// In en, this message translates to:
+  /// **'Format'**
+  String get filter_format;
+
+  /// No description provided for @filter_genre.
+  ///
+  /// In en, this message translates to:
+  /// **'Genre'**
+  String get filter_genre;
+
+  /// No description provided for @filter_language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get filter_language;
+
+  /// No description provided for @filter_place.
+  ///
+  /// In en, this message translates to:
+  /// **'Place'**
+  String get filter_place;
+
+  /// No description provided for @filter_editorial.
+  ///
+  /// In en, this message translates to:
+  /// **'Editorial'**
+  String get filter_editorial;
+
+  /// No description provided for @filter_saga.
+  ///
+  /// In en, this message translates to:
+  /// **'Saga'**
+  String get filter_saga;
+
+  /// No description provided for @filter_saga_universe.
+  ///
+  /// In en, this message translates to:
+  /// **'Saga Universe'**
+  String get filter_saga_universe;
+
+  /// No description provided for @filter_format_saga.
+  ///
+  /// In en, this message translates to:
+  /// **'Format Saga'**
+  String get filter_format_saga;
+
+  /// No description provided for @filter_pages_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages Empty'**
+  String get filter_pages_empty;
+
+  /// No description provided for @filter_is_bundle.
+  ///
+  /// In en, this message translates to:
+  /// **'Is Bundle'**
+  String get filter_is_bundle;
+
+  /// No description provided for @filter_is_tandem.
+  ///
+  /// In en, this message translates to:
+  /// **'Is Tandem'**
+  String get filter_is_tandem;
+
+  /// No description provided for @filter_saga_format_without_saga.
+  ///
+  /// In en, this message translates to:
+  /// **'Saga Format Without Saga'**
+  String get filter_saga_format_without_saga;
+
+  /// No description provided for @filter_saga_format_without_nsaga.
+  ///
+  /// In en, this message translates to:
+  /// **'Saga Format Without N_Saga'**
+  String get filter_saga_format_without_nsaga;
+
+  /// No description provided for @filter_saga_without_format_saga.
+  ///
+  /// In en, this message translates to:
+  /// **'Saga Without Format Saga'**
+  String get filter_saga_without_format_saga;
+
+  /// No description provided for @filter_publication_year_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Publication Year Empty'**
+  String get filter_publication_year_empty;
+
+  /// No description provided for @filter_rating.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating'**
+  String get filter_rating;
+
+  /// No description provided for @card_field_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get card_field_title;
+
+  /// No description provided for @card_field_author.
+  ///
+  /// In en, this message translates to:
+  /// **'Author'**
+  String get card_field_author;
+
+  /// No description provided for @card_field_saga.
+  ///
+  /// In en, this message translates to:
+  /// **'Saga'**
+  String get card_field_saga;
+
+  /// No description provided for @card_field_format.
+  ///
+  /// In en, this message translates to:
+  /// **'Format'**
+  String get card_field_format;
+
+  /// No description provided for @card_field_language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get card_field_language;
+
+  /// No description provided for @card_field_isbn.
+  ///
+  /// In en, this message translates to:
+  /// **'ISBN/ASIN'**
+  String get card_field_isbn;
+
+  /// No description provided for @card_field_pages.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get card_field_pages;
+
+  /// No description provided for @card_field_genre.
+  ///
+  /// In en, this message translates to:
+  /// **'Genre'**
+  String get card_field_genre;
+
+  /// No description provided for @card_field_editorial.
+  ///
+  /// In en, this message translates to:
+  /// **'Editorial'**
+  String get card_field_editorial;
+
+  /// No description provided for @card_field_publication_year.
+  ///
+  /// In en, this message translates to:
+  /// **'Publication Year'**
+  String get card_field_publication_year;
+
+  /// No description provided for @card_field_publication_date.
+  ///
+  /// In en, this message translates to:
+  /// **'Publication Date'**
+  String get card_field_publication_date;
+
+  /// No description provided for @card_field_rating.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating'**
+  String get card_field_rating;
+
+  /// No description provided for @card_field_read_count.
+  ///
+  /// In en, this message translates to:
+  /// **'Read Count'**
+  String get card_field_read_count;
+
+  /// No description provided for @card_field_status.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get card_field_status;
+
+  /// No description provided for @card_field_progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading Progress'**
+  String get card_field_progress;
+
+  /// No description provided for @dropdown_status.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get dropdown_status;
+
+  /// No description provided for @dropdown_format_saga.
+  ///
+  /// In en, this message translates to:
+  /// **'Format Saga'**
+  String get dropdown_format_saga;
+
+  /// No description provided for @dropdown_language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get dropdown_language;
+
+  /// No description provided for @dropdown_place.
+  ///
+  /// In en, this message translates to:
+  /// **'Place'**
+  String get dropdown_place;
+
+  /// No description provided for @dropdown_format.
+  ///
+  /// In en, this message translates to:
+  /// **'Format'**
+  String get dropdown_format;
+
+  /// No description provided for @dropdown_authors.
+  ///
+  /// In en, this message translates to:
+  /// **'Authors'**
+  String get dropdown_authors;
+
+  /// No description provided for @dropdown_genres.
+  ///
+  /// In en, this message translates to:
+  /// **'Genres'**
+  String get dropdown_genres;
+
+  /// No description provided for @dropdown_editorials.
+  ///
+  /// In en, this message translates to:
+  /// **'Editorials'**
+  String get dropdown_editorials;
+
+  /// No description provided for @dropdown_saga.
+  ///
+  /// In en, this message translates to:
+  /// **'Saga'**
+  String get dropdown_saga;
+
+  /// No description provided for @dropdown_saga_universe.
+  ///
+  /// In en, this message translates to:
+  /// **'Saga Universe'**
+  String get dropdown_saga_universe;
+
+  /// No description provided for @isbn_asin_label.
+  ///
+  /// In en, this message translates to:
+  /// **'ISBN/ASIN: {value}'**
+  String isbn_asin_label(Object value);
+
+  /// No description provided for @pages_field_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages: {value}'**
+  String pages_field_label(Object value);
+
+  /// No description provided for @genre_field_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Genre: {value}'**
+  String genre_field_label(Object value);
+
+  /// No description provided for @editorial_field_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Editorial: {value}'**
+  String editorial_field_label(Object value);
+
+  /// No description provided for @published_field_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Published: {value}'**
+  String published_field_label(Object value);
+
+  /// No description provided for @publication_date_field_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Publication Date: {value}'**
+  String publication_date_field_label(Object value);
+
+  /// No description provided for @read_count_field_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Read count: {value}'**
+  String read_count_field_label(Object value);
+
+  /// No description provided for @status_field_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Status: {value}'**
+  String status_field_label(Object value);
+
+  /// No description provided for @press_enter_to_add.
+  ///
+  /// In en, this message translates to:
+  /// **'Press Enter to add a new entry'**
+  String get press_enter_to_add;
+
+  /// No description provided for @pages_per_day.
+  ///
+  /// In en, this message translates to:
+  /// **'pages/day'**
+  String get pages_per_day;
+
+  /// No description provided for @books_per_year.
+  ///
+  /// In en, this message translates to:
+  /// **'books/year'**
+  String get books_per_year;
+
+  /// No description provided for @based_on_books_with_data.
+  ///
+  /// In en, this message translates to:
+  /// **'Based on {count} books with reading data'**
+  String based_on_books_with_data(Object count);
+
+  /// No description provided for @avg_time_to_finish.
+  ///
+  /// In en, this message translates to:
+  /// **'Average time to finish a book'**
+  String get avg_time_to_finish;
+
+  /// No description provided for @based_on_years_of_data.
+  ///
+  /// In en, this message translates to:
+  /// **'Based on {count} years of reading data'**
+  String based_on_years_of_data(Object count);
+
+  /// No description provided for @season_winter.
+  ///
+  /// In en, this message translates to:
+  /// **'Winter'**
+  String get season_winter;
+
+  /// No description provided for @season_spring.
+  ///
+  /// In en, this message translates to:
+  /// **'Spring'**
+  String get season_spring;
+
+  /// No description provided for @season_summer.
+  ///
+  /// In en, this message translates to:
+  /// **'Summer'**
+  String get season_summer;
+
+  /// No description provided for @season_fall.
+  ///
+  /// In en, this message translates to:
+  /// **'Fall'**
+  String get season_fall;
+
+  /// No description provided for @n_books_percentage.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} ({percentage}%)'**
+  String n_books_percentage(Object count, Object percentage);
+
+  /// No description provided for @n_books_label.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} books ({percentage}%)'**
+  String n_books_label(Object count, Object percentage);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
