@@ -132,7 +132,6 @@ class _ChipAutocompleteFieldState extends State<ChipAutocompleteField> {
               textCapitalization: TextCapitalization.words,
               onFieldSubmitted: (value) {
                 _addValue(value);
-                onFieldSubmitted();
               },
             );
           },
