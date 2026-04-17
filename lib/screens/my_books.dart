@@ -84,6 +84,7 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
 
   /// Fetch metadata for a single book
   Future<void> _fetchMetadataForBook(Book book) async {
+    final provider = Provider.of<BookProvider?>(context, listen: false);
     try {
       final metadataService = BookMetadataService();
       final metadata = await metadataService.fetchMetadata(
@@ -109,7 +110,7 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
         );
 
         // Reload books to show new cover
-        final provider = Provider.of<BookProvider?>(context, listen: false);
+        if (!context.mounted) return;
         await provider?.loadBooks();
 
         debugPrint('[MyBooks] Fetched cover for: ${book.name}');

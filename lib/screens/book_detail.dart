@@ -23,7 +23,6 @@ import 'package:myrandomlibrary/services/book_metadata_service.dart';
 import 'package:myrandomlibrary/services/notification_service.dart';
 import 'package:myrandomlibrary/model/book_metadata.dart';
 import 'package:provider/provider.dart';
-import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BookDetailScreen extends StatefulWidget {
@@ -42,7 +41,6 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   List<ReadingSession> _chronometerSessions = [];
   Map<int, List<ReadingSession>> _bundleChronometerSessions = {};
   final Map<int, String> _bundleBookTitles = {}; // Map of index -> book title
-  bool _loadingReadDates = true;
   int _bundleBooksKey = 0; // Key to force FutureBuilder rebuild
   bool _isDescriptionExpanded = false; // Track description expansion state
   bool _isFetchingMetadata = false; // Track if metadata is being fetched
@@ -181,7 +179,6 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         setState(() {
           _bundleReadDates = individualReadDates;
           _bundleChronometerSessions = individualSessions;
-          _loadingReadDates = false;
         });
       } else {
         // Check if this is an individual book that's part of a bundle
@@ -200,14 +197,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         setState(() {
           _readDates = readDates;
           _chronometerSessions = sessions;
-          _loadingReadDates = false;
         });
       }
     } catch (e) {
       debugPrint('Error loading read dates: $e');
-      setState(() {
-        _loadingReadDates = false;
-      });
     }
   }
 
@@ -495,6 +488,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   }
 
   Future<void> _moveToStandby() async {
+    final provider = Provider.of<BookProvider?>(context, listen: false);
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
@@ -524,31 +520,32 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         _currentBook = updatedBook;
       });
 
-      // Update provider
-      if (mounted) {
-        final provider = Provider.of<BookProvider?>(context, listen: false);
-        await provider?.loadBooks();
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.move_to_standby),
-            backgroundColor: Colors.orange,
-          ),
-        );
-      }
       // Reschedule reading reminders (book no longer started)
       NotificationService().scheduleReadingReminders();
+
+      // Update provider
+      if (!context.mounted) return;
+      await provider?.loadBooks();
+
+      if (!context.mounted) return;
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(l10n.move_to_standby),
+          backgroundColor: Colors.orange,
+        ),
+      );
     } catch (e) {
       debugPrint('[BookDetail] Error moving to standby: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-        );
-      }
+      messenger.showSnackBar(
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+      );
     }
   }
 
   Future<void> _moveBackToReading() async {
+    final provider = Provider.of<BookProvider?>(context, listen: false);
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
@@ -578,27 +575,25 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         _currentBook = updatedBook;
       });
 
-      // Update provider
-      if (mounted) {
-        final provider = Provider.of<BookProvider?>(context, listen: false);
-        await provider?.loadBooks();
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.moved_back_to_reading),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
       // Reschedule reading reminders (book is now started again)
       NotificationService().scheduleReadingReminders();
+
+      // Update provider
+      if (!context.mounted) return;
+      await provider?.loadBooks();
+
+      if (!context.mounted) return;
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(l10n.moved_back_to_reading),
+          backgroundColor: Colors.green,
+        ),
+      );
     } catch (e) {
       debugPrint('[BookDetail] Error moving back to reading: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-        );
-      }
+      messenger.showSnackBar(
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+      );
     }
   }
 
@@ -615,6 +610,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   }
 
   Future<void> _quickStartReading() async {
+    final provider = Provider.of<BookProvider?>(context, listen: false);
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
@@ -655,31 +653,32 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       });
       await _loadReadDates();
 
-      // Update provider
-      if (mounted) {
-        final provider = Provider.of<BookProvider?>(context, listen: false);
-        await provider?.loadBooks();
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.started_reading),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
       // Reschedule reading reminders (new started book)
       NotificationService().scheduleReadingReminders();
+
+      // Update provider
+      if (!context.mounted) return;
+      await provider?.loadBooks();
+
+      if (!context.mounted) return;
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(l10n.started_reading),
+          backgroundColor: Colors.green,
+        ),
+      );
     } catch (e) {
       debugPrint('Error starting reading: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-        );
-      }
+      messenger.showSnackBar(
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+      );
     }
   }
 
   Future<void> _quickFinishReading() async {
+    final provider = Provider.of<BookProvider?>(context, listen: false);
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
     // Show modal to collect ratings and review
     final result = await showDialog<Map<String, dynamic>>(
       context: context,
@@ -776,31 +775,32 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       });
       await _loadReadDates();
 
-      // Update provider
-      if (mounted) {
-        final provider = Provider.of<BookProvider?>(context, listen: false);
-        await provider?.loadBooks();
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.marked_as_finished),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
       // Reschedule reading reminders (book no longer started)
       NotificationService().scheduleReadingReminders();
+
+      // Update provider
+      if (!context.mounted) return;
+      await provider?.loadBooks();
+
+      if (!context.mounted) return;
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(l10n.marked_as_finished),
+          backgroundColor: Colors.green,
+        ),
+      );
     } catch (e) {
       debugPrint('Error finishing reading: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-        );
-      }
+      messenger.showSnackBar(
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+      );
     }
   }
 
   Future<void> _markAsRead() async {
+    final provider = Provider.of<BookProvider?>(context, listen: false);
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
@@ -842,31 +842,32 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       });
       await _loadReadDates();
 
-      // Update provider
-      if (mounted) {
-        final provider = Provider.of<BookProvider?>(context, listen: false);
-        await provider?.loadBooks();
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.marked_as_read),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
       // Reschedule reading reminders (book no longer started)
       NotificationService().scheduleReadingReminders();
+
+      // Update provider
+      if (!context.mounted) return;
+      await provider?.loadBooks();
+
+      if (!context.mounted) return;
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(l10n.marked_as_read),
+          backgroundColor: Colors.green,
+        ),
+      );
     } catch (e) {
       debugPrint('Error marking as read: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-        );
-      }
+      messenger.showSnackBar(
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+      );
     }
   }
 
   Future<void> _showProgressModal() async {
+    final provider = Provider.of<BookProvider?>(context, listen: false);
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final isPercentage = _currentBook.progressType == 'percentage';
     final currentProgress = _currentBook.readingProgress ?? 0;
 
@@ -1021,7 +1022,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           ),
     );
 
-    if (result != null && mounted) {
+    if (result != null) {
       try {
         final db = await DatabaseHelper.instance.database;
         await db.update(
@@ -1046,24 +1047,21 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         });
 
         // Update provider
-        if (mounted) {
-          final provider = Provider.of<BookProvider?>(context, listen: false);
-          await provider?.loadBooks();
+        if (!context.mounted) return;
+        await provider?.loadBooks();
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(AppLocalizations.of(context)!.progress_updated),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
+        if (!context.mounted) return;
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(l10n.progress_updated),
+            backgroundColor: Colors.green,
+          ),
+        );
       } catch (e) {
         debugPrint('Error updating progress: $e');
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-          );
-        }
+        messenger.showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
       }
     }
   }
@@ -2051,6 +2049,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           final provider = Provider.of<BookProvider?>(context, listen: false);
           await provider?.loadBooks();
 
+          if (!context.mounted) return;
           Navigator.pop(context); // Go back to list
 
           ScaffoldMessenger.of(context).showSnackBar(
@@ -2105,13 +2104,14 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                     builder: (context) => EditBookScreen(book: _currentBook),
                   ),
                 );
-                if (updatedBook != null && mounted) {
+                if (updatedBook != null && context.mounted) {
                   setState(() {
                     _currentBook = updatedBook;
                   });
                   // Reload read dates after edit
                   await _loadReadDates();
 
+                  if (!context.mounted) return;
                   // If this is an individual book in a bundle, notify parent to refresh
                   if (_currentBook.bundleParentId != null) {
                     // Pop with result to notify parent bundle detail screen
@@ -2339,42 +2339,40 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               );
 
                               // Reload provider
-                              if (mounted) {
-                                final provider = Provider.of<BookProvider?>(
-                                  context,
-                                  listen: false,
-                                );
-                                await provider?.loadBooks();
+                              if (!context.mounted) return;
+                              final provider = Provider.of<BookProvider?>(
+                                context,
+                                listen: false,
+                              );
+                              await provider?.loadBooks();
 
-                                // Update local state from provider
-                                final updatedBooks = provider?.allBooks ?? [];
-                                final updatedBook = updatedBooks.firstWhere(
-                                  (b) => b.bookId == _currentBook.bookId,
-                                  orElse: () => _currentBook,
-                                );
-                                setState(() {
-                                  _currentBook = updatedBook;
-                                });
-                              }
+                              if (!context.mounted) return;
+                              // Update local state from provider
+                              final updatedBooks = provider?.allBooks ?? [];
+                              final updatedBook = updatedBooks.firstWhere(
+                                (b) => b.bookId == _currentBook.bookId,
+                                orElse: () => _currentBook,
+                              );
+                              setState(() {
+                                _currentBook = updatedBook;
+                              });
 
-                              if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      newTbr
-                                          ? AppLocalizations.of(
-                                            context,
-                                          )!.added_to_tbr
-                                          : AppLocalizations.of(
-                                            context,
-                                          )!.removed_from_tbr,
-                                    ),
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    newTbr
+                                        ? AppLocalizations.of(
+                                          context,
+                                        )!.added_to_tbr
+                                        : AppLocalizations.of(
+                                          context,
+                                        )!.removed_from_tbr,
                                   ),
-                                );
-                              }
+                                ),
+                              );
                             } catch (e) {
                               debugPrint('Error toggling TBR: $e');
-                              if (mounted) {
+                              if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(content: Text('Error: $e')),
                                 );
@@ -3576,7 +3574,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   whereArgs: [_currentBook.bookId],
                                 );
 
-                                if (mounted) {
+                                if (context.mounted) {
                                   // Reload provider and navigate back
                                   final provider = Provider.of<BookProvider?>(
                                     context,
@@ -3584,6 +3582,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   );
                                   await provider?.loadBooks();
 
+                                  if (!context.mounted) return;
                                   // Refresh the screen by popping and pushing again
                                   final updatedBooks = provider?.allBooks ?? [];
                                   final updatedBook = updatedBooks.firstWhere(
@@ -3614,7 +3613,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   );
                                 }
                               } catch (e) {
-                                if (mounted) {
+                                if (context.mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text('Error: $e'),
@@ -4188,260 +4187,6 @@ class _HalfClipper extends CustomClipper<Rect> {
 
   @override
   bool shouldReclip(CustomClipper<Rect> oldClipper) => false;
-}
-
-class _BundleDatesCard extends StatelessWidget {
-  final String? startDates;
-  final String? endDates;
-  final String? bundlePages;
-  final String? bundlePublicationYears;
-  final String? bundleTitles;
-  final String? bundleAuthors;
-
-  const _BundleDatesCard({
-    this.startDates,
-    this.endDates,
-    this.bundlePages,
-    this.bundlePublicationYears,
-    this.bundleTitles,
-    this.bundleAuthors,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    List<DateTime?>? starts;
-    List<DateTime?>? ends;
-    List<int?>? pages;
-    List<int?>? pubYears;
-    List<String?>? titles;
-    List<String?>? authors;
-
-    try {
-      if (startDates != null) {
-        final List<dynamic> dates = jsonDecode(startDates!);
-        starts =
-            dates.map((d) => d != null ? DateTime.parse(d) : null).toList();
-      }
-    } catch (e) {
-      starts = null;
-    }
-
-    try {
-      if (endDates != null) {
-        final List<dynamic> dates = jsonDecode(endDates!);
-        ends = dates.map((d) => d != null ? DateTime.parse(d) : null).toList();
-      }
-    } catch (e) {
-      ends = null;
-    }
-
-    try {
-      if (bundlePages != null) {
-        final List<dynamic> pagesData = jsonDecode(bundlePages!);
-        pages = pagesData.map((p) => p as int?).toList();
-      }
-    } catch (e) {
-      pages = null;
-    }
-
-    try {
-      if (bundlePublicationYears != null) {
-        final List<dynamic> yearsData = jsonDecode(bundlePublicationYears!);
-        pubYears = yearsData.map((y) => y as int?).toList();
-      }
-    } catch (e) {
-      pubYears = null;
-    }
-
-    try {
-      if (bundleTitles != null) {
-        final List<dynamic> titlesData = jsonDecode(bundleTitles!);
-        titles = titlesData.map((t) => t as String?).toList();
-      }
-    } catch (e) {
-      titles = null;
-    }
-
-    try {
-      if (bundleAuthors != null) {
-        final List<dynamic> authorsData = jsonDecode(bundleAuthors!);
-        authors = authorsData.map((a) => a as String?).toList();
-      }
-    } catch (e) {
-      authors = null;
-    }
-
-    final maxLength = [
-      starts?.length ?? 0,
-      ends?.length ?? 0,
-      pages?.length ?? 0,
-      pubYears?.length ?? 0,
-      titles?.length ?? 0,
-      authors?.length ?? 0,
-    ].reduce((a, b) => a > b ? a : b);
-
-    if (maxLength == 0) return const SizedBox.shrink();
-
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 1,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.calendar_month,
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 24,
-                ),
-                const SizedBox(width: 16),
-                Text(
-                  AppLocalizations.of(context)!.bundle_reading_sessions,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            ...List.generate(maxLength, (index) {
-              final start =
-                  starts != null && index < starts.length
-                      ? starts[index]
-                      : null;
-              final end =
-                  ends != null && index < ends.length ? ends[index] : null;
-              final pageCount =
-                  pages != null && index < pages.length ? pages[index] : null;
-              final pubYear =
-                  pubYears != null && index < pubYears.length
-                      ? pubYears[index]
-                      : null;
-              final title =
-                  titles != null && index < titles.length
-                      ? titles[index]
-                      : null;
-              final author =
-                  authors != null && index < authors.length
-                      ? authors[index]
-                      : null;
-
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Title if available
-                    if (title != null && title.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        child: Text(
-                          title,
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    Row(
-                      children: [
-                        Text(
-                          '${AppLocalizations.of(context)!.book_n(index + 1)}:',
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            start != null
-                                ? formatDateForDisplay(
-                                  '${start.year}-${start.month.toString().padLeft(2, '0')}-${start.day.toString().padLeft(2, '0')}',
-                                )
-                                : '-',
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ),
-                        const Text(' → '),
-                        Expanded(
-                          child: Text(
-                            end != null
-                                ? formatDateForDisplay(
-                                  '${end.year}-${end.month.toString().padLeft(2, '0')}-${end.day.toString().padLeft(2, '0')}',
-                                )
-                                : '-',
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (pageCount != null || pubYear != null || author != null)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 16, top: 4),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                if (pageCount != null)
-                                  Text(
-                                    '${AppLocalizations.of(context)!.pages}: $pageCount',
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.bodySmall?.copyWith(
-                                      color: Colors.grey[600],
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                if (pageCount != null && pubYear != null)
-                                  Text(
-                                    ' • ',
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.bodySmall?.copyWith(
-                                      color: Colors.grey[600],
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                if (pubYear != null)
-                                  Text(
-                                    '${AppLocalizations.of(context)!.publication_year}: $pubYear',
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.bodySmall?.copyWith(
-                                      color: Colors.grey[600],
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                            if (author != null && author.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 2),
-                                child: Text(
-                                  '${AppLocalizations.of(context)!.author}: $author',
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.bodySmall?.copyWith(
-                                    color: Colors.grey[600],
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                  ],
-                ),
-              );
-            }),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 class _DetailCard extends StatelessWidget {

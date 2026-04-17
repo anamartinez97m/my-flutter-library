@@ -452,7 +452,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
                               ],
                             ),
                       );
-                      if (shouldClose == true && mounted) {
+                      if (shouldClose == true && context.mounted) {
                         Navigator.pop(context);
                       }
                     } else {

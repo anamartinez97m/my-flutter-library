@@ -244,7 +244,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
     return result;
   }
 
-  void _showSuccessDialog(BuildContext context) {
+  void _showSuccessDialog() {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -412,6 +412,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
       return;
     }
 
+    final provider = Provider.of<BookProvider?>(context, listen: false);
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
@@ -670,81 +673,79 @@ class _AddBookScreenState extends State<AddBookScreen> {
       }
 
       // Reload books in provider
-      if (mounted) {
-        final provider = Provider.of<BookProvider?>(context, listen: false);
-        await provider?.loadBooks();
+      if (!context.mounted) return;
+      await provider?.loadBooks();
 
-        debugPrint('📖 Book saved successfully with ID: $bookId');
-        debugPrint('🧹 Clearing form and resetting state...');
+      if (!context.mounted) return;
+      debugPrint('📖 Book saved successfully with ID: $bookId');
+      debugPrint('🧹 Clearing form and resetting state...');
 
-        // Clear form first
-        _formKey.currentState!.reset();
-        _nameController.clear();
-        _isbnController.clear();
-        _asinController.clear();
-        _authorController.clear();
-        _sagaController.clear();
-        _nSagaController.clear();
-        _sagaUniverseController.clear();
-        _pagesController.clear();
-        _publicationYearController.clear();
-        _releaseDate = null;
-        _notificationEnabled = false;
-        _notificationDateTime = null;
-        _notificationTime = null;
-        _selectedEditorial = [];
-        _genreController.clear();
-        _myReviewController.clear();
-        _notesController.clear();
-        _priceController.clear();
+      // Clear form first
+      _formKey.currentState!.reset();
+      _nameController.clear();
+      _isbnController.clear();
+      _asinController.clear();
+      _authorController.clear();
+      _sagaController.clear();
+      _nSagaController.clear();
+      _sagaUniverseController.clear();
+      _pagesController.clear();
+      _publicationYearController.clear();
+      _releaseDate = null;
+      _notificationEnabled = false;
+      _notificationDateTime = null;
+      _notificationTime = null;
+      _selectedEditorial = [];
+      _genreController.clear();
+      _myReviewController.clear();
+      _notesController.clear();
+      _priceController.clear();
 
-        setState(() {
-          _myRating = 0.0;
-          _readCount = 0;
-          _readDates = [];
-          _ratingFields = [];
-          _ratingOverride = false;
-          _selectedAuthors = [];
-          _selectedGenres = [];
-          _selectedStatusId = null;
-          _selectedStatusValue = null;
-          _selectedOriginalBookId = null;
-          _selectedFormatSagaId = null;
-          _selectedLanguageId = null;
-          _selectedPlaceId = null;
-          _selectedFormatId = null;
-          _selectedLoaned = null;
-          _isBundle = false;
-          _bundleCount = null;
-          _bundleBooks = null;
-          _tbr = false;
-          _isTandem = false;
-          _fetchedDescription = null;
-          _fetchedCoverUrl = null;
-          _fetchedMetadataSource = null;
-          _pagesFetchedFromApi = false;
-        });
+      setState(() {
+        _myRating = 0.0;
+        _readCount = 0;
+        _readDates = [];
+        _ratingFields = [];
+        _ratingOverride = false;
+        _selectedAuthors = [];
+        _selectedGenres = [];
+        _selectedStatusId = null;
+        _selectedStatusValue = null;
+        _selectedOriginalBookId = null;
+        _selectedFormatSagaId = null;
+        _selectedLanguageId = null;
+        _selectedPlaceId = null;
+        _selectedFormatId = null;
+        _selectedLoaned = null;
+        _isBundle = false;
+        _bundleCount = null;
+        _bundleBooks = null;
+        _tbr = false;
+        _isTandem = false;
+        _fetchedDescription = null;
+        _fetchedCoverUrl = null;
+        _fetchedMetadataSource = null;
+        _pagesFetchedFromApi = false;
+      });
 
-        debugPrint('✅ Form cleared. Controllers reset:');
-        debugPrint('   - Name: "${_nameController.text}"');
-        debugPrint('   - Author: "${_authorController.text}"');
-        debugPrint('   - Saga: "${_sagaController.text}"');
-        debugPrint('   - Selected Authors: $_selectedAuthors');
-        debugPrint('   - Selected Genres: $_selectedGenres');
-        debugPrint('   - Selected Status: $_selectedStatusId');
+      debugPrint('✅ Form cleared. Controllers reset:');
+      debugPrint('   - Name: "${_nameController.text}"');
+      debugPrint('   - Author: "${_authorController.text}"');
+      debugPrint('   - Saga: "${_sagaController.text}"');
+      debugPrint('   - Selected Authors: $_selectedAuthors');
+      debugPrint('   - Selected Genres: $_selectedGenres');
+      debugPrint('   - Selected Status: $_selectedStatusId');
 
-        // Show success dialog
-        _showSuccessDialog(context);
-      }
+      // Show success dialog
+      if (!context.mounted) return;
+      _showSuccessDialog();
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${AppLocalizations.of(context)!.error}: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('${l10n.error}: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -1256,6 +1257,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                             lastDate: DateTime(2100),
                           );
                           if (pickedDate != null) {
+                            if (!context.mounted) return;
                             final pickedTime = await showTimePicker(
                               context: context,
                               initialTime:
@@ -1475,7 +1477,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                             final limit = await getTBRLimit();
 
                             if (currentCount >= limit) {
-                              if (mounted) {
+                              if (context.mounted) {
                                 showDialog(
                                   context: context,
                                   builder:

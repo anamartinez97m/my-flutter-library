@@ -258,39 +258,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _loadAutoBackupSettings() async {
     final freq = await BackupService.instance.getBackupFrequency();
     final prefs = await SharedPreferences.getInstance();
-    if (mounted) {
-      setState(() {
-        _autoBackupFrequency = freq;
-        _lastAutoBackupTimestamp = prefs.getString(
-          BackupService.prefLastAutoBackupTimestamp,
-        );
-      });
-    }
+    if (!mounted) return;
+    setState(() {
+      _autoBackupFrequency = freq;
+      _lastAutoBackupTimestamp = prefs.getString(
+        BackupService.prefLastAutoBackupTimestamp,
+      );
+    });
   }
 
   Future<void> _setAutoBackupFrequency(BackupFrequency freq) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
       BackupService.prefAutoBackupFrequency,
       BackupService.instance.frequencyToString(freq),
     );
-    if (mounted) {
-      setState(() {
-        _autoBackupFrequency = freq;
-      });
-      final label = _frequencyLabel(freq);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            freq == BackupFrequency.off
-                ? AppLocalizations.of(context)!.auto_backup_disabled
-                : AppLocalizations.of(context)!.auto_backup_enabled(label),
-          ),
-          backgroundColor:
-              freq == BackupFrequency.off ? Colors.grey : Colors.green,
+    if (!context.mounted) return;
+    setState(() {
+      _autoBackupFrequency = freq;
+    });
+    final label = _frequencyLabel(freq);
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          freq == BackupFrequency.off
+              ? l10n.auto_backup_disabled
+              : l10n.auto_backup_enabled(label),
         ),
-      );
-    }
+        backgroundColor:
+            freq == BackupFrequency.off ? Colors.grey : Colors.green,
+      ),
+    );
   }
 
   String _frequencyLabel(BackupFrequency freq) {
@@ -405,62 +405,61 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final metadata = await BackupService.instance.getBackupMetadata(
       _currentUser!.uid,
     );
-    if (mounted) {
-      setState(() {
-        _backupMetadata = metadata;
-      });
-    }
+    if (!mounted) return;
+    setState(() {
+      _backupMetadata = metadata;
+    });
   }
 
   Future<void> _signInWithGoogle() async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _isCloudBusy = true);
     try {
       final user = await GoogleAuthService.instance.signInWithGoogle();
-      if (mounted) {
-        setState(() {
-          _currentUser = user;
-          _isCloudBusy = false;
-        });
-        if (user != null) {
-          _loadBackupMetadata();
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(AppLocalizations.of(context)!.sign_in_failed),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      debugPrint('Sign-in error: $e');
-      if (mounted) {
-        setState(() => _isCloudBusy = false);
-        ScaffoldMessenger.of(context).showSnackBar(
+      if (!context.mounted) return;
+      setState(() {
+        _currentUser = user;
+        _isCloudBusy = false;
+      });
+      if (user != null) {
+        _loadBackupMetadata();
+      } else {
+        messenger.showSnackBar(
           SnackBar(
-            content: Text(
-              '${AppLocalizations.of(context)!.sign_in_failed}: $e',
-            ),
+            content: Text(l10n.sign_in_failed),
             backgroundColor: Colors.red,
-            duration: const Duration(seconds: 10),
           ),
         );
       }
+    } catch (e) {
+      debugPrint('Sign-in error: $e');
+      if (!context.mounted) return;
+      setState(() => _isCloudBusy = false);
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('${l10n.sign_in_failed}: $e'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 10),
+        ),
+      );
     }
   }
 
   Future<void> _signOut() async {
     await GoogleAuthService.instance.signOut();
-    if (mounted) {
-      setState(() {
-        _currentUser = null;
-        _backupMetadata = null;
-      });
-    }
+    if (!mounted) return;
+    setState(() {
+      _currentUser = null;
+      _backupMetadata = null;
+    });
   }
 
   Future<void> _uploadBackup() async {
     if (_currentUser == null) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final navigator = Navigator.of(context, rootNavigator: true);
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -482,53 +481,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
 
     if (confirmed != true) return;
+    if (!context.mounted) return;
 
+    _showLoadingDialog(l10n.cloud_backup_in_progress);
     setState(() => _isCloudBusy = true);
-    if (context.mounted) {
-      _showLoadingDialog(
-        context,
-        AppLocalizations.of(context)!.cloud_backup_in_progress,
-      );
-    }
 
     try {
       final success = await BackupService.instance.uploadBackup(
         _currentUser!.uid,
       );
 
-      if (context.mounted) {
-        Navigator.of(context, rootNavigator: true).pop();
-      }
-
-      if (mounted) {
-        setState(() => _isCloudBusy = false);
-        if (success) {
-          _loadBackupMetadata();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(AppLocalizations.of(context)!.cloud_backup_success),
-              backgroundColor: Colors.green,
-            ),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(AppLocalizations.of(context)!.error),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (context.mounted) {
-        Navigator.of(context, rootNavigator: true).pop();
-      }
-      if (mounted) {
-        setState(() => _isCloudBusy = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+      if (!context.mounted) return;
+      navigator.pop();
+      if (success) {
+        _loadBackupMetadata();
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(l10n.cloud_backup_success),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.error), backgroundColor: Colors.red),
         );
       }
+      setState(() => _isCloudBusy = false);
+    } catch (e) {
+      if (!context.mounted) return;
+      navigator.pop();
+      messenger.showSnackBar(
+        SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+      );
+      setState(() => _isCloudBusy = false);
     }
   }
 
@@ -548,6 +533,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _downloadBackup() async {
     if (_currentUser == null) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final navigator = Navigator.of(context, rootNavigator: true);
+    final bookProvider = Provider.of<BookProvider?>(context, listen: false);
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final localeProvider = Provider.of<LocaleProvider>(context, listen: false);
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -595,81 +586,57 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
 
     if (confirmed != true) return;
+    if (!context.mounted) return;
 
+    _showLoadingDialog(l10n.cloud_restore_in_progress);
     setState(() => _isCloudBusy = true);
-    if (context.mounted) {
-      _showLoadingDialog(
-        context,
-        AppLocalizations.of(context)!.cloud_restore_in_progress,
-      );
-    }
 
     try {
       final success = await BackupService.instance.downloadBackup(
         _currentUser!.uid,
       );
 
-      if (context.mounted) {
-        Navigator.of(context, rootNavigator: true).pop();
-      }
+      if (!context.mounted) return;
+      navigator.pop();
+      if (success) {
+        // Reload books
+        await bookProvider?.loadBooks();
 
-      if (mounted) {
-        setState(() => _isCloudBusy = false);
-        if (success) {
-          // Reload books
-          final bookProvider = Provider.of<BookProvider?>(
-            context,
-            listen: false,
-          );
-          await bookProvider?.loadBooks();
+        // Reload theme and locale from restored SharedPreferences
+        if (!context.mounted) return;
+        await themeProvider.reloadFromPreferences();
 
-          // Reload theme and locale from restored SharedPreferences
-          if (context.mounted) {
-            final themeProvider = Provider.of<ThemeProvider>(
-              context,
-              listen: false,
-            );
-            await themeProvider.reloadFromPreferences();
+        if (!context.mounted) return;
+        await localeProvider.reloadFromPreferences();
 
-            final localeProvider = Provider.of<LocaleProvider>(
-              context,
-              listen: false,
-            );
-            await localeProvider.reloadFromPreferences();
-          }
+        // Reload local settings state (filters, card fields, reading reminders)
+        await _loadEnabledFilters();
+        await _loadEnabledCardFields();
+        await _loadReadingReminderSettings();
 
-          // Reload local settings state (filters, card fields, reading reminders)
-          await _loadEnabledFilters();
-          await _loadEnabledCardFields();
-          await _loadReadingReminderSettings();
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                AppLocalizations.of(context)!.cloud_restore_success,
-              ),
-              backgroundColor: Colors.green,
-            ),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(AppLocalizations.of(context)!.no_cloud_backup),
-              backgroundColor: Colors.orange,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (context.mounted) {
-        Navigator.of(context, rootNavigator: true).pop();
-      }
-      if (mounted) {
-        setState(() => _isCloudBusy = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+        if (!context.mounted) return;
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(l10n.cloud_restore_success),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(l10n.no_cloud_backup),
+            backgroundColor: Colors.orange,
+          ),
         );
       }
+      setState(() => _isCloudBusy = false);
+    } catch (e) {
+      if (!context.mounted) return;
+      navigator.pop();
+      messenger.showSnackBar(
+        SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+      );
+      setState(() => _isCloudBusy = false);
     }
   }
 
@@ -848,7 +815,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showLoadingDialog(BuildContext context, String message) {
+  void _showLoadingDialog(String message) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -971,6 +938,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           if (shouldRetry == true) {
             // Retry the backup operation
+            if (!context.mounted) return;
             await _createBackup(context);
           }
         }
@@ -1101,6 +1069,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               statusList.map((s) => s['value'] as String).toList();
 
           // Show mapping dialog
+          if (!context.mounted) return;
           statusMappings = await showDialog<Map<String, String>>(
             context: context,
             barrierDismissible: false,
@@ -1118,7 +1087,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       // Show loading indicator
       if (context.mounted) {
-        _showLoadingDialog(context, 'Importing books from CSV...');
+        _showLoadingDialog('Importing books from CSV...');
       }
 
       // Get database and repository (ensure it's open)
@@ -1401,6 +1370,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         await provider?.loadBooks();
 
         // Show results in modal dialog
+        if (!context.mounted) return;
         await showDialog(
           context: context,
           barrierDismissible: false,
@@ -1500,7 +1470,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     // Show loading indicator
     if (context.mounted) {
-      _showLoadingDialog(context, 'Deleting all books...');
+      _showLoadingDialog('Deleting all books...');
     }
 
     try {
@@ -1540,6 +1510,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         final provider = Provider.of<BookProvider?>(context, listen: false);
         await provider?.loadBooks();
 
+        if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -1596,6 +1567,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
     // Show confirmation dialog
+    if (!context.mounted) return;
     final confirmed = await showDialog<bool>(
       context: context,
       builder:
@@ -1670,7 +1642,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     // Show loading indicator
     if (context.mounted) {
       _showLoadingDialog(
-        context,
         AppLocalizations.of(context)!.migrating_reading_sessions,
       );
     }
@@ -1789,6 +1760,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       final backupPath = result.files.single.path!;
 
       // Show confirmation dialog
+      if (!context.mounted) return;
       final confirmed = await showDialog<bool>(
         context: context,
         builder:
@@ -1834,6 +1806,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         final provider = Provider.of<BookProvider?>(context, listen: false);
         await provider?.loadBooks();
 
+        if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -1845,22 +1818,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
         );
       }
     } catch (e) {
+      if (!context.mounted) return;
       debugPrint(
         AppLocalizations.of(context)!.import_backup_error(e.toString()),
       );
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(
-                context,
-              )!.error_importing_backup(e.toString()),
-            ),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 5),
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.error_importing_backup(e.toString()),
           ),
-        );
-      }
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 5),
+        ),
+      );
     }
   }
 
@@ -2011,6 +1981,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       final fileName = 'my_library_export_$timestamp.csv';
 
       // Let user pick a directory
+      if (!context.mounted) return;
       String? selectedDirectory = await FilePicker.platform.getDirectoryPath(
         dialogTitle: AppLocalizations.of(context)!.select_folder_save_csv,
       );
@@ -2084,6 +2055,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           if (shouldRetry == true) {
             // Retry the export operation
+            if (!context.mounted) return;
             await _exportToCsv(context);
           }
         }
@@ -2251,6 +2223,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       final fileName = 'my_library_export_excel_$timestamp.csv';
 
       // Let user pick a directory
+      if (!context.mounted) return;
       String? selectedDirectory = await FilePicker.platform.getDirectoryPath(
         dialogTitle: AppLocalizations.of(context)!.select_folder_save_excel_csv,
       );
@@ -2324,6 +2297,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           if (shouldRetry == true) {
             // Retry the export operation
+            if (!context.mounted) return;
             await _exportToExcel(context);
           }
         }
@@ -5174,7 +5148,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     );
                     // If books were imported, reload the provider
-                    if (result == true && mounted) {
+                    if (result == true && context.mounted) {
                       final provider = Provider.of<BookProvider?>(
                         context,
                         listen: false,
@@ -5266,7 +5240,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   child: Center(
                     child: Text(
-                      '#${color.value.toRadixString(16).toUpperCase().padLeft(8, '0')}',
+                      '#${color.toARGB32().toRadixString(16).toUpperCase().padLeft(8, '0')}',
                       style: TextStyle(
                         color:
                             color.computeLuminance() > 0.5
@@ -5333,7 +5307,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           child: Center(
                             child: Text(
-                              '#${selectedColor.value.toRadixString(16).toUpperCase().padLeft(8, '0')}',
+                              '#${selectedColor.toARGB32().toRadixString(16).toUpperCase().padLeft(8, '0')}',
                               style: TextStyle(
                                 color:
                                     selectedColor.computeLuminance() > 0.5
@@ -5528,7 +5502,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     Color selectedColor,
     Function(Color) onTap,
   ) {
-    final isSelected = color.value == selectedColor.value;
+    final isSelected = color.toARGB32() == selectedColor.toARGB32();
     return GestureDetector(
       onTap: () => onTap(color),
       onLongPress: () => _showHexInputDialog(color, onTap),
@@ -5578,7 +5552,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          '#${selectedColor.value.toRadixString(16).toUpperCase().padLeft(8, '0')}',
+                          '#${selectedColor.toARGB32().toRadixString(16).toUpperCase().padLeft(8, '0')}',
                           style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(fontWeight: FontWeight.bold),
                         ),

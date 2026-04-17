@@ -91,6 +91,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
   Future<void> _loadEmptyBooks() async {
     if (_selectedField == null) return;
 
+    final ungroupedLabel = AppLocalizations.of(context)!.ungrouped;
     setState(() => _isLoading = true);
 
     try {
@@ -109,7 +110,8 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
       // Group books by author (primary grouping)
       final Map<String, List<Book>> authorGroups = {};
       for (final book in books) {
-        final authors = book.author?.split(',').map((a) => a.trim()).toList() ?? [];
+        final authors =
+            book.author?.split(',').map((a) => a.trim()).toList() ?? [];
         if (authors.isEmpty || authors.first.isEmpty) {
           authorGroups.putIfAbsent('', () => []).add(book);
         } else {
@@ -119,11 +121,10 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
       }
 
       // Build groups with suggestions
+      if (!context.mounted) return;
       final groups = <_BookGroup>[];
       for (final entry in authorGroups.entries) {
-        final groupName = entry.key.isEmpty
-            ? AppLocalizations.of(context)!.ungrouped
-            : entry.key;
+        final groupName = entry.key.isEmpty ? ungroupedLabel : entry.key;
 
         // Find suggestions from peer books (same author, different books that HAVE the field)
         final suggestions = <String>{};
@@ -135,7 +136,10 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                 // For genre, may have comma-separated values
                 if (_selectedField == 'genre') {
                   suggestions.addAll(
-                    peerValue.split(',').map((g) => g.trim()).where((g) => g.isNotEmpty),
+                    peerValue
+                        .split(',')
+                        .map((g) => g.trim())
+                        .where((g) => g.isNotEmpty),
                   );
                 } else {
                   suggestions.add(peerValue);
@@ -145,11 +149,13 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
           }
         }
 
-        groups.add(_BookGroup(
-          name: groupName,
-          books: entry.value,
-          suggestions: suggestions.toList(),
-        ));
+        groups.add(
+          _BookGroup(
+            name: groupName,
+            books: entry.value,
+            suggestions: suggestions.toList(),
+          ),
+        );
       }
 
       // Sort: groups with suggestions first, then by size (desc)
@@ -219,6 +225,9 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
       return;
     }
 
+    final provider = Provider.of<BookProvider?>(context, listen: false);
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _isApplying = true);
 
     try {
@@ -230,53 +239,47 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
         _groupSelectedValue!,
       );
 
-      if (mounted) {
-        final provider = Provider.of<BookProvider?>(context, listen: false);
-        await provider?.loadBooks();
+      await provider?.loadBooks();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.bulk_updated_books(count),
-            ),
-            backgroundColor: Colors.green,
-          ),
-        );
+      if (!context.mounted) return;
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(l10n.bulk_updated_books(count)),
+          backgroundColor: Colors.green,
+        ),
+      );
 
-        // Remove applied books from current group
-        final appliedIds = Set<int>.from(_groupSelectedBookIds);
-        _groups[_currentGroupIndex].books.removeWhere(
-          (b) => appliedIds.contains(b.bookId),
-        );
+      // Remove applied books from current group
+      final appliedIds = Set<int>.from(_groupSelectedBookIds);
+      _groups[_currentGroupIndex].books.removeWhere(
+        (b) => appliedIds.contains(b.bookId),
+      );
 
-        // If group is now empty, remove it and move to next
-        if (_groups[_currentGroupIndex].books.isEmpty) {
-          _groups.removeAt(_currentGroupIndex);
-          if (_currentGroupIndex >= _groups.length && _groups.isNotEmpty) {
-            _currentGroupIndex = _groups.length - 1;
-          }
+      // If group is now empty, remove it and move to next
+      if (_groups[_currentGroupIndex].books.isEmpty) {
+        _groups.removeAt(_currentGroupIndex);
+        if (_currentGroupIndex >= _groups.length && _groups.isNotEmpty) {
+          _currentGroupIndex = _groups.length - 1;
         }
+      }
 
-        // Reset selection for new group
-        if (_groups.isNotEmpty && _currentGroupIndex < _groups.length) {
-          _preselectGroup(_currentGroupIndex);
-        } else {
-          _groupSelectedBookIds.clear();
-          _groupSelectedValue = null;
-        }
+      // Reset selection for new group
+      if (_groups.isNotEmpty && _currentGroupIndex < _groups.length) {
+        _preselectGroup(_currentGroupIndex);
+      } else {
+        _groupSelectedBookIds.clear();
+        _groupSelectedValue = null;
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${AppLocalizations.of(context)!.error}: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isApplying = false);
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('${l10n.error}: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
+
+    if (mounted) setState(() => _isApplying = false);
   }
 
   @override
@@ -337,13 +340,17 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.check_circle_outline, size: 64, color: Colors.green[300]),
+            Icon(
+              Icons.check_circle_outline,
+              size: 64,
+              color: Colors.green[300],
+            ),
             const SizedBox(height: 16),
             Text(
               l10n.no_books_with_empty_field,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
             ),
             const SizedBox(height: 24),
             TextButton.icon(
@@ -408,25 +415,27 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
               ),
               // Nav buttons
               IconButton(
-                onPressed: _currentGroupIndex > 0
-                    ? () {
-                        setState(() {
-                          _currentGroupIndex--;
-                          _preselectGroup(_currentGroupIndex);
-                        });
-                      }
-                    : null,
+                onPressed:
+                    _currentGroupIndex > 0
+                        ? () {
+                          setState(() {
+                            _currentGroupIndex--;
+                            _preselectGroup(_currentGroupIndex);
+                          });
+                        }
+                        : null,
                 icon: const Icon(Icons.chevron_left),
               ),
               IconButton(
-                onPressed: _currentGroupIndex < _groups.length - 1
-                    ? () {
-                        setState(() {
-                          _currentGroupIndex++;
-                          _preselectGroup(_currentGroupIndex);
-                        });
-                      }
-                    : null,
+                onPressed:
+                    _currentGroupIndex < _groups.length - 1
+                        ? () {
+                          setState(() {
+                            _currentGroupIndex++;
+                            _preselectGroup(_currentGroupIndex);
+                          });
+                        }
+                        : null,
                 icon: const Icon(Icons.chevron_right),
               ),
             ],
@@ -435,9 +444,8 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
 
         // Progress bar
         LinearProgressIndicator(
-          value: _groups.isEmpty
-              ? 0
-              : (_currentGroupIndex + 1) / _groups.length,
+          value:
+              _groups.isEmpty ? 0 : (_currentGroupIndex + 1) / _groups.length,
           backgroundColor: Colors.grey[200],
           valueColor: const AlwaysStoppedAnimation<Color>(Colors.deepPurple),
         ),
@@ -498,8 +506,11 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.lightbulb_outline,
-                                color: Colors.amber.shade700, size: 18),
+                            Icon(
+                              Icons.lightbulb_outline,
+                              color: Colors.amber.shade700,
+                              size: 18,
+                            ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
@@ -518,21 +529,24 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                         Wrap(
                           spacing: 8,
                           runSpacing: 4,
-                          children: group.suggestions.map((s) {
-                            final isSelected = _groupSelectedValue == s;
-                            return ActionChip(
-                              label: Text(s),
-                              backgroundColor: isSelected
-                                  ? Colors.deepPurple.shade100
-                                  : null,
-                              side: isSelected
-                                  ? BorderSide(color: Colors.deepPurple)
-                                  : null,
-                              onPressed: () {
-                                setState(() => _groupSelectedValue = s);
-                              },
-                            );
-                          }).toList(),
+                          children:
+                              group.suggestions.map((s) {
+                                final isSelected = _groupSelectedValue == s;
+                                return ActionChip(
+                                  label: Text(s),
+                                  backgroundColor:
+                                      isSelected
+                                          ? Colors.deepPurple.shade100
+                                          : null,
+                                  side:
+                                      isSelected
+                                          ? BorderSide(color: Colors.deepPurple)
+                                          : null,
+                                  onPressed: () {
+                                    setState(() => _groupSelectedValue = s);
+                                  },
+                                );
+                              }).toList(),
                         ),
                       ],
                     ),
@@ -547,10 +561,11 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                     border: const OutlineInputBorder(),
                     prefixIcon: const Icon(Icons.label),
                   ),
-                  items: _fieldValues.map((item) {
-                    final name = _getValueName(item);
-                    return DropdownMenuItem(value: name, child: Text(name));
-                  }).toList(),
+                  items:
+                      _fieldValues.map((item) {
+                        final name = _getValueName(item);
+                        return DropdownMenuItem(value: name, child: Text(name));
+                      }).toList(),
                   onChanged: (value) {
                     setState(() => _groupSelectedValue = value);
                   },
@@ -559,7 +574,9 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
 
                 // Book list with checkboxes
                 ...group.books.map((book) {
-                  final isSelected = _groupSelectedBookIds.contains(book.bookId);
+                  final isSelected = _groupSelectedBookIds.contains(
+                    book.bookId,
+                  );
                   return CheckboxListTile(
                     value: isSelected,
                     onChanged: (selected) {
@@ -575,15 +592,16 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                       book.name ?? '',
                       style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
-                    subtitle: book.author != null
-                        ? Text(
-                            book.author!,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                            ),
-                          )
-                        : null,
+                    subtitle:
+                        book.author != null
+                            ? Text(
+                              book.author!,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                              ),
+                            )
+                            : null,
                     dense: true,
                     activeColor: Colors.deepPurple,
                   );
@@ -600,19 +618,18 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                                 !_isApplying)
                             ? _applyToGroup
                             : null,
-                    icon: _isApplying
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Icon(Icons.check),
-                    label: Text(
-                      l10n.apply_to_group,
-                    ),
+                    icon:
+                        _isApplying
+                            ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                            : const Icon(Icons.check),
+                    label: Text(l10n.apply_to_group),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                       foregroundColor: Colors.white,

@@ -142,10 +142,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   Future<void> _loadReadingSessionsData() async {
+    final provider = Provider.of<BookProvider?>(context, listen: false);
     try {
       final db = await DatabaseHelper.instance.database;
       final sessionRepository = ReadingSessionRepository(db);
-      final provider = Provider.of<BookProvider?>(context, listen: false);
 
       if (provider != null && !provider.isLoading) {
         final books = provider.allBooks;
@@ -195,10 +195,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   Future<void> _loadReadDatesData() async {
+    final provider = Provider.of<BookProvider?>(context, listen: false);
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
-      final provider = Provider.of<BookProvider?>(context, listen: false);
 
       if (provider != null && !provider.isLoading) {
         final books = provider.allBooks;

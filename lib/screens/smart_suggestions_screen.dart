@@ -87,6 +87,9 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
 
   Future<void> _applySuggestion(int index) async {
     final suggestion = _suggestions[index];
+    final provider = Provider.of<BookProvider?>(context, listen: false);
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     try {
       final db = await DatabaseHelper.instance.database;
@@ -97,30 +100,25 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
         suggestion.value,
       );
 
-      if (mounted) {
-        final provider = Provider.of<BookProvider?>(context, listen: false);
-        await provider?.loadBooks();
+      await provider?.loadBooks();
 
-        setState(() {
-          suggestion.isApplied = true;
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.suggestion_applied),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
+      if (!context.mounted) return;
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(l10n.suggestion_applied),
+          backgroundColor: Colors.green,
+        ),
+      );
+      setState(() {
+        suggestion.isApplied = true;
+      });
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${AppLocalizations.of(context)!.error}: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('${l10n.error}: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 

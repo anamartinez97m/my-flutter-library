@@ -328,6 +328,9 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
 
   Future<void> _addValue() async {
     final controller = TextEditingController();
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final provider = Provider.of<BookProvider?>(context, listen: false);
 
     final result = await showDialog<String>(
       context: context,
@@ -385,33 +388,26 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
           expectedBooks: expectedBooks,
         );
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                AppLocalizations.of(context)!.value_added_successfully,
-              ),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
+        if (!context.mounted) return;
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(l10n.value_added_successfully),
+            backgroundColor: Colors.green,
+          ),
+        );
 
         _loadValues();
 
         // Refresh book list in home screen
-        if (mounted) {
-          final provider = Provider.of<BookProvider?>(context, listen: false);
-          await provider?.loadBooks();
-        }
+        if (!context.mounted) return;
+        await provider?.loadBooks();
       } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('${AppLocalizations.of(context)!.error}: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text('${l10n.error}: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }
@@ -421,6 +417,9 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     final isCoreStatus = _isCoreStatusValue(currentValue);
     final isCoreFormatSaga = _isCoreFormatSagaValue(currentValue);
     final isCoreValue = isCoreStatus || isCoreFormatSaga;
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final provider = Provider.of<BookProvider?>(context, listen: false);
 
     final result = await showDialog<String>(
       context: context,
@@ -500,63 +499,57 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         final repository = BookRepository(db);
         await repository.updateLookupValue(_selectedTable, id, result);
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                AppLocalizations.of(context)!.value_updated_successfully,
-              ),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
+        if (!context.mounted) return;
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(l10n.value_updated_successfully),
+            backgroundColor: Colors.green,
+          ),
+        );
 
         _loadValues();
 
         // Refresh book list in home screen
-        if (mounted) {
-          final provider = Provider.of<BookProvider?>(context, listen: false);
-          await provider?.loadBooks();
-        }
+        if (!context.mounted) return;
+        await provider?.loadBooks();
       } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('${AppLocalizations.of(context)!.error}: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text('${l10n.error}: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }
 
   Future<void> _deleteValue(int id, String value) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final provider = Provider.of<BookProvider?>(context, listen: false);
+
     // Prevent deletion of core values
     if (_isCoreValue(value)) {
-      if (mounted) {
-        String message;
-        if (_isCoreStatusValue(value)) {
-          message = AppLocalizations.of(context)!.core_status_cannot_delete;
-        } else {
-          message =
-              AppLocalizations.of(context)!.core_format_saga_cannot_delete;
-        }
-        showDialog(
-          context: context,
-          builder:
-              (context) => AlertDialog(
-                title: Text(AppLocalizations.of(context)!.cannot_delete),
-                content: Text(message),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text(AppLocalizations.of(context)!.ok),
-                  ),
-                ],
-              ),
-        );
+      String message;
+      if (_isCoreStatusValue(value)) {
+        message = l10n.core_status_cannot_delete;
+      } else {
+        message = l10n.core_format_saga_cannot_delete;
       }
+      showDialog(
+        context: context,
+        builder:
+            (context) => AlertDialog(
+              title: Text(l10n.cannot_delete),
+              content: Text(message),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(l10n.ok),
+                ),
+              ],
+            ),
+      );
       return;
     }
 
@@ -610,9 +603,12 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         usageCount = booksUsingValue.first['count'] as int;
       }
 
+      if (!context.mounted) return;
+
       if (usageCount > 0) {
         // Value is in use, show options dialog
         final action = await showDialog<String>(
+          // ignore: use_build_context_synchronously
           context: context,
           builder:
               (context) => _DeleteOptionsDialog(
@@ -738,6 +734,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       } else {
         // Value not in use, simple confirmation
         final confirmed = await showDialog<bool>(
+          // ignore: use_build_context_synchronously
           context: context,
           builder:
               (context) => AlertDialog(
@@ -769,33 +766,26 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         }
       }
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.value_deleted_successfully,
-            ),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
+      if (!context.mounted) return;
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(l10n.value_deleted_successfully),
+          backgroundColor: Colors.green,
+        ),
+      );
 
       _loadValues();
 
       // Refresh book list in home screen
-      if (mounted) {
-        final provider = Provider.of<BookProvider?>(context, listen: false);
-        await provider?.loadBooks();
-      }
+      if (!context.mounted) return;
+      await provider?.loadBooks();
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${AppLocalizations.of(context)!.error}: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('${l10n.error}: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 

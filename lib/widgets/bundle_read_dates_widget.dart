@@ -109,6 +109,7 @@ class _BundleReadDatesWidgetState extends State<BundleReadDatesWidget> {
     );
 
     if (choice == 'date') {
+      if (!context.mounted) return null;
       final date = await showDatePicker(
         context: context,
         initialDate:
@@ -122,6 +123,7 @@ class _BundleReadDatesWidgetState extends State<BundleReadDatesWidget> {
         return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
       }
     } else if (choice == 'year') {
+      if (!context.mounted) return null;
       final year = await showDialog<String>(
         context: context,
         builder:

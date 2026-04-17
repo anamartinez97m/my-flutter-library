@@ -534,6 +534,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
+    final provider = Provider.of<BookProvider?>(context, listen: false);
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final navigator = Navigator.of(context);
 
     try {
       final db = await DatabaseHelper.instance.database;
@@ -1009,8 +1013,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
           updatedBook.saga!,
           _selectedFormatSagaId!,
         );
-        if (mounted && updatedCount > 1) {
-          ScaffoldMessenger.of(context).showSnackBar(
+        if (updatedCount > 1) {
+          messenger.showSnackBar(
             SnackBar(
               content: Text(
                 'Updated format saga for $updatedCount books in "${updatedBook.saga}"',
@@ -1022,87 +1026,78 @@ class _EditBookScreenState extends State<EditBookScreen> {
       }
 
       // Reload books in provider
-      if (mounted) {
-        final provider = Provider.of<BookProvider?>(context, listen: false);
-        await provider?.loadBooks();
+      if (!context.mounted) return;
+      await provider?.loadBooks();
 
-        // Return the updated book to the detail screen
-        Navigator.pop(context, bookToUpdate);
+      if (!context.mounted) return;
+      // Return the updated book to the detail screen
+      navigator.pop(bookToUpdate);
 
-        // Schedule notification if enabled
-        if (_notificationEnabled && _notificationDateTime != null) {
-          try {
-            debugPrint(
-              '🔔 Scheduling notification for book: ${_nameController.text.trim()}',
-            );
-            debugPrint('🔔 Scheduled date: $_notificationDateTime');
-            final notificationService = NotificationService();
-            final permissionGranted =
-                await notificationService.requestPermissions();
-            debugPrint('🔔 Permission granted: $permissionGranted');
+      // Schedule notification if enabled
+      if (_notificationEnabled && _notificationDateTime != null) {
+        try {
+          debugPrint(
+            '🔔 Scheduling notification for book: ${_nameController.text.trim()}',
+          );
+          debugPrint('🔔 Scheduled date: $_notificationDateTime');
+          final notificationService = NotificationService();
+          final permissionGranted =
+              await notificationService.requestPermissions();
+          debugPrint('🔔 Permission granted: $permissionGranted');
 
-            await notificationService.scheduleBookReleaseNotification(
-              bookId: widget.book.bookId!,
-              bookTitle: _nameController.text.trim(),
-              scheduledDate: _notificationDateTime!,
-              releaseDate: _releaseDate,
-            );
-            debugPrint('🔔 Notification scheduled successfully');
+          await notificationService.scheduleBookReleaseNotification(
+            bookId: widget.book.bookId!,
+            bookTitle: _nameController.text.trim(),
+            scheduledDate: _notificationDateTime!,
+            releaseDate: _releaseDate,
+          );
+          debugPrint('🔔 Notification scheduled successfully');
 
-            // Show confirmation to user
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    'Notification scheduled for ${_notificationDateTime!.toString().split('.')[0]}',
-                  ),
-                  backgroundColor: Colors.green,
-                ),
-              );
-            }
-          } catch (e, stackTrace) {
-            debugPrint('❌ Error scheduling notification: $e');
-            debugPrint('Stack trace: $stackTrace');
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('${AppLocalizations.of(context)!.error}: $e'),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            }
-          }
-        } else {
-          // Cancel notification if disabled
-          try {
-            final notificationService = NotificationService();
-            await notificationService.cancelNotification(widget.book.bookId!);
-            debugPrint(
-              '🔔 Notification cancelled for book ${widget.book.bookId}',
-            );
-          } catch (e) {
-            debugPrint('Error canceling notification: $e');
-          }
-        }
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.book_updated_successfully,
+          messenger.showSnackBar(
+            SnackBar(
+              content: Text(
+                'Notification scheduled for ${_notificationDateTime!.toString().split('.')[0]}',
+              ),
+              backgroundColor: Colors.green,
             ),
-            backgroundColor: Colors.green,
-          ),
-        );
+          );
+        } catch (e, stackTrace) {
+          debugPrint('❌ Error scheduling notification: $e');
+          debugPrint('Stack trace: $stackTrace');
+          messenger.showSnackBar(
+            SnackBar(
+              content: Text('${l10n.error}: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } else {
+        // Cancel notification if disabled
+        try {
+          final notificationService = NotificationService();
+          await notificationService.cancelNotification(widget.book.bookId!);
+          debugPrint(
+            '🔔 Notification cancelled for book ${widget.book.bookId}',
+          );
+        } catch (e) {
+          debugPrint('Error canceling notification: $e');
+        }
       }
+
+      if (!context.mounted) return;
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(l10n.book_updated_successfully),
+          backgroundColor: Colors.green,
+        ),
+      );
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${AppLocalizations.of(context)!.error}: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('${l10n.error}: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -1627,6 +1622,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                               lastDate: DateTime(2100),
                             );
                             if (pickedDate != null) {
+                              if (!context.mounted) return;
                               final pickedTime = await showTimePicker(
                                 context: context,
                                 initialTime:
@@ -1686,7 +1682,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                                 body:
                                     'If you see this, notifications are working!',
                               );
-                              if (mounted) {
+                              if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
@@ -1700,7 +1696,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                               }
                             } catch (e) {
                               debugPrint('❌ Test notification error: $e');
-                              if (mounted) {
+                              if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
@@ -1900,7 +1896,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                               final limit = await getTBRLimit();
 
                               if (currentCount >= limit) {
-                                if (mounted) {
+                                if (context.mounted) {
                                   showDialog(
                                     context: context,
                                     builder:

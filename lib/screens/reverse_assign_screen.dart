@@ -152,6 +152,9 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
       return;
     }
 
+    final provider = Provider.of<BookProvider?>(context, listen: false);
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _isApplying = true);
 
     try {
@@ -163,34 +166,28 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
         _selectedValue!,
       );
 
-      if (mounted) {
-        final provider = Provider.of<BookProvider?>(context, listen: false);
-        await provider?.loadBooks();
+      await provider?.loadBooks();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.bulk_updated_books(count),
-            ),
-            backgroundColor: Colors.green,
-          ),
-        );
+      if (!context.mounted) return;
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(l10n.bulk_updated_books(count)),
+          backgroundColor: Colors.green,
+        ),
+      );
 
-        // Reload candidate books to reflect changes
-        await _loadCandidateBooks();
-      }
+      // Reload candidate books to reflect changes
+      await _loadCandidateBooks();
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${AppLocalizations.of(context)!.error}: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isApplying = false);
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('${l10n.error}: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
+
+    if (mounted) setState(() => _isApplying = false);
   }
 
   List<Book> get _filteredBooks {
@@ -229,8 +226,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
               children: [
                 if (_currentStep < 2)
                   ElevatedButton(
-                    onPressed:
-                        _canContinue() ? details.onStepContinue : null,
+                    onPressed: _canContinue() ? details.onStepContinue : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.deepPurple,
                       foregroundColor: Colors.white,
@@ -254,9 +250,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                               ),
                             )
                             : const Icon(Icons.check),
-                    label: Text(
-                      l10n.apply_to_n_books(_selectedBookIds.length),
-                    ),
+                    label: Text(l10n.apply_to_n_books(_selectedBookIds.length)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                       foregroundColor: Colors.white,
@@ -281,18 +275,15 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                     ? Text(_getFieldLabel(_selectedField!))
                     : null,
             isActive: _currentStep >= 0,
-            state:
-                _currentStep > 0 ? StepState.complete : StepState.indexed,
+            state: _currentStep > 0 ? StepState.complete : StepState.indexed,
             content: _buildFieldSelector(),
           ),
           // Step 2: Pick value
           Step(
             title: Text(l10n.select_value),
-            subtitle:
-                _selectedValue != null ? Text(_selectedValue!) : null,
+            subtitle: _selectedValue != null ? Text(_selectedValue!) : null,
             isActive: _currentStep >= 1,
-            state:
-                _currentStep > 1 ? StepState.complete : StepState.indexed,
+            state: _currentStep > 1 ? StepState.complete : StepState.indexed,
             content: _buildValueSelector(),
           ),
           // Step 3: Select books
@@ -300,9 +291,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
             title: Text(l10n.select_books),
             subtitle:
                 _selectedBookIds.isNotEmpty
-                    ? Text(
-                      l10n.books_selected(_selectedBookIds.length),
-                    )
+                    ? Text(l10n.books_selected(_selectedBookIds.length))
                     : null,
             isActive: _currentStep >= 2,
             state: StepState.indexed,
@@ -361,10 +350,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
 
             return Card(
               elevation: isSelected ? 3 : 1,
-              color:
-                  isSelected
-                      ? Colors.deepPurple.shade50
-                      : null,
+              color: isSelected ? Colors.deepPurple.shade50 : null,
               child: ListTile(
                 leading: Icon(
                   _getFieldIcon(key),
@@ -432,23 +418,18 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
 
           return Card(
             elevation: isSelected ? 3 : 1,
-            color:
-                isSelected ? Colors.deepPurple.shade50 : null,
+            color: isSelected ? Colors.deepPurple.shade50 : null,
             child: ListTile(
               title: Text(
                 valueName,
                 style: TextStyle(
-                  fontWeight:
-                      isSelected ? FontWeight.bold : FontWeight.normal,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                   color: isSelected ? Colors.deepPurple : null,
                 ),
               ),
               trailing:
                   isSelected
-                      ? const Icon(
-                        Icons.check_circle,
-                        color: Colors.deepPurple,
-                      )
+                      ? const Icon(Icons.check_circle, color: Colors.deepPurple)
                       : null,
               onTap: () {
                 setState(() {
@@ -497,10 +478,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                     _selectedValue ?? '',
                     _getFieldLabel(_selectedField ?? ''),
                   ),
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.blue.shade900,
-                  ),
+                  style: TextStyle(fontSize: 13, color: Colors.blue.shade900),
                 ),
               ),
             ],
@@ -596,9 +574,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                     itemCount: books.length,
                     itemBuilder: (context, index) {
                       final book = books[index];
-                      final isSelected = _selectedBookIds.contains(
-                        book.bookId,
-                      );
+                      final isSelected = _selectedBookIds.contains(book.bookId);
                       final currentValue = _getCurrentFieldValue(book);
 
                       return CheckboxListTile(

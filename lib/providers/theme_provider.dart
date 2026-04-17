@@ -140,9 +140,9 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('custom_light_primary', primary.value);
-    await prefs.setInt('custom_light_secondary', secondary.value);
-    await prefs.setInt('custom_light_tertiary', tertiary.value);
+    await prefs.setInt('custom_light_primary', primary.toARGB32());
+    await prefs.setInt('custom_light_secondary', secondary.toARGB32());
+    await prefs.setInt('custom_light_tertiary', tertiary.toARGB32());
     await prefs.setString('light_theme_variant', 'custom');
   }
 
@@ -158,9 +158,9 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('custom_dark_primary', primary.value);
-    await prefs.setInt('custom_dark_secondary', secondary.value);
-    await prefs.setInt('custom_dark_tertiary', tertiary.value);
+    await prefs.setInt('custom_dark_primary', primary.toARGB32());
+    await prefs.setInt('custom_dark_secondary', secondary.toARGB32());
+    await prefs.setInt('custom_dark_tertiary', tertiary.toARGB32());
     await prefs.setString('dark_theme_variant', 'custom');
   }
 
@@ -172,13 +172,11 @@ class ThemeProvider with ChangeNotifier {
           secondary: const Color(0xFFd3a29d),
           tertiary: const Color(0xFFe8b298),
           surface: const Color(0xFFffffff),
-          background: const Color(0xFFfafafa),
           error: const Color(0xFFba1a1a),
           onPrimary: Colors.white,
           onSecondary: Colors.white,
           onTertiary: Colors.white,
           onSurface: Colors.black87,
-          onBackground: Colors.black87,
           onError: Colors.white,
         );
       case LightThemeVariant.vibrantSunset:
@@ -187,13 +185,11 @@ class ThemeProvider with ChangeNotifier {
           secondary: const Color(0xFFf78c6b),
           tertiary: const Color(0xFFffd166),
           surface: const Color(0xFFffffff),
-          background: const Color(0xFFfafafa),
           error: const Color(0xFFba1a1a),
           onPrimary: Colors.white,
           onSecondary: Colors.white,
           onTertiary: Colors.black87,
           onSurface: Colors.black87,
-          onBackground: Colors.black87,
           onError: Colors.white,
         );
       case LightThemeVariant.softPastel:
@@ -202,13 +198,11 @@ class ThemeProvider with ChangeNotifier {
           secondary: const Color(0xFFe3aadd),
           tertiary: const Color(0xFFf5bcba),
           surface: const Color(0xFFffffff),
-          background: const Color(0xFFf4e7fb),
           error: const Color(0xFFba1a1a),
           onPrimary: Colors.white,
           onSecondary: Colors.white,
           onTertiary: Colors.white,
           onSurface: Colors.black87,
-          onBackground: Colors.black87,
           onError: Colors.white,
         );
       case LightThemeVariant.deepOcean:
@@ -217,13 +211,11 @@ class ThemeProvider with ChangeNotifier {
           secondary: const Color(0xFF0ad1c8),
           tertiary: const Color(0xFF45dfb1),
           surface: const Color(0xFFffffff),
-          background: const Color(0xFFfafafa),
           error: const Color(0xFFba1a1a),
           onPrimary: Colors.white,
           onSecondary: Colors.white,
           onTertiary: Colors.white,
           onSurface: Colors.black87,
-          onBackground: Colors.black87,
           onError: Colors.white,
         );
       case LightThemeVariant.custom:
@@ -232,13 +224,11 @@ class ThemeProvider with ChangeNotifier {
           secondary: _customLightSecondary,
           tertiary: _customLightTertiary,
           surface: const Color(0xFFffffff),
-          background: const Color(0xFFfafafa),
           error: const Color(0xFFba1a1a),
           onPrimary: Colors.white,
           onSecondary: Colors.white,
           onTertiary: Colors.white,
           onSurface: Colors.black87,
-          onBackground: Colors.black87,
           onError: Colors.white,
         );
     }
@@ -252,13 +242,11 @@ class ThemeProvider with ChangeNotifier {
           secondary: const Color(0xFF522b5b),
           tertiary: const Color(0xFFdfb6b2),
           surface: const Color(0xFF1a1a1a),
-          background: const Color(0xFF121212),
           error: const Color(0xFFcf6679),
           onPrimary: Colors.white,
           onSecondary: Colors.white,
           onTertiary: Colors.black87,
           onSurface: Colors.white,
-          onBackground: Colors.white,
           onError: Colors.black,
         );
       case DarkThemeVariant.deepSea:
@@ -267,13 +255,11 @@ class ThemeProvider with ChangeNotifier {
           secondary: const Color(0xFF0f969c),
           tertiary: const Color(0xFF6da5c0),
           surface: const Color(0xFF1a1a1a),
-          background: const Color(0xFF05161a),
           error: const Color(0xFFcf6679),
           onPrimary: Colors.white,
           onSecondary: Colors.white,
           onTertiary: Colors.white,
           onSurface: Colors.white,
-          onBackground: Colors.white,
           onError: Colors.black,
         );
       case DarkThemeVariant.warmAutumn:
@@ -282,13 +268,11 @@ class ThemeProvider with ChangeNotifier {
           secondary: const Color(0xFFae445a),
           tertiary: const Color(0xFFf39f5a),
           surface: const Color(0xFF1a1a1a),
-          background: const Color(0xFF1d1a39),
           error: const Color(0xFFcf6679),
           onPrimary: Colors.white,
           onSecondary: Colors.white,
           onTertiary: Colors.white,
           onSurface: Colors.white,
-          onBackground: Colors.white,
           onError: Colors.black,
         );
       case DarkThemeVariant.custom:
@@ -297,13 +281,11 @@ class ThemeProvider with ChangeNotifier {
           secondary: _customDarkSecondary,
           tertiary: _customDarkTertiary,
           surface: const Color(0xFF1a1a1a),
-          background: const Color(0xFF121212),
           error: const Color(0xFFcf6679),
           onPrimary: Colors.white,
           onSecondary: Colors.white,
           onTertiary: Colors.white,
           onSurface: Colors.white,
-          onBackground: Colors.white,
           onError: Colors.black,
         );
     }
@@ -357,7 +339,7 @@ class ThemeProvider with ChangeNotifier {
       ),
       navigationBarTheme: NavigationBarThemeData(
         indicatorColor: colorScheme.primary.withValues(alpha: 0.2),
-        labelTextStyle: MaterialStateProperty.all(
+        labelTextStyle: WidgetStateProperty.all(
           TextStyle(fontSize: 12, color: colorScheme.onSurface),
         ),
       ),
@@ -412,7 +394,7 @@ class ThemeProvider with ChangeNotifier {
       ),
       navigationBarTheme: NavigationBarThemeData(
         indicatorColor: colorScheme.primary.withValues(alpha: 0.2),
-        labelTextStyle: MaterialStateProperty.all(
+        labelTextStyle: WidgetStateProperty.all(
           TextStyle(fontSize: 12, color: colorScheme.onSurface),
         ),
       ),

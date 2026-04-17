@@ -234,6 +234,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                       onPressed: () async {
                         // Clear checkpoint (reviewed books will be cleared after file is loaded)
                         await _clearCheckpoint();
+                        if (!context.mounted) return;
                         Navigator.pop(context, false);
                       },
                       child: Text(AppLocalizations.of(context)!.start_fresh),
@@ -910,6 +911,8 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
   }
 
   Future<void> _processImports() async {
+    final provider = Provider.of<BookProvider?>(context, listen: false);
+    final messenger = ScaffoldMessenger.of(context);
     setState(() {
       _isLoading = true;
     });
@@ -1030,58 +1033,56 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
       }
 
       // Reload books
-      if (mounted) {
-        final provider = Provider.of<BookProvider?>(context, listen: false);
-        await provider?.loadBooks();
+      if (!context.mounted) return;
+      await provider?.loadBooks();
 
-        setState(() {
-          _isLoading = false;
-        });
-
-        // Clear checkpoint and reviewed books after successful import
-        await _clearCheckpoint();
-        await _clearReviewedBooks();
-
-        // Show results
-        await showDialog(
-          context: context,
-          builder:
-              (context) => AlertDialog(
-                title: Text(
-                  AppLocalizations.of(context)!.import_completed_title,
-                ),
-                content: Text(
-                  'Imported: $imported\nUpdated: $updated\nSkipped: $skipped',
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context); // Close dialog
-                      Navigator.pop(
-                        context,
-                        true,
-                      ); // Go back to settings with result
-                    },
-                    child: Text(AppLocalizations.of(context)!.ok),
-                  ),
-                ],
-              ),
-        );
-      }
-    } catch (e) {
       setState(() {
         _isLoading = false;
       });
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-        );
-      }
+      // Clear checkpoint and reviewed books after successful import
+      await _clearCheckpoint();
+      await _clearReviewedBooks();
+
+      // Show results
+      if (!context.mounted) return;
+      await showDialog(
+        // ignore: use_build_context_synchronously
+        context: context,
+        builder:
+            (context) => AlertDialog(
+              title: Text(AppLocalizations.of(context)!.import_completed_title),
+              content: Text(
+                'Imported: $imported\nUpdated: $updated\nSkipped: $skipped',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Close dialog
+                    Navigator.pop(
+                      context,
+                      true,
+                    ); // Go back to settings with result
+                  },
+                  child: Text(AppLocalizations.of(context)!.ok),
+                ),
+              ],
+            ),
+      );
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      messenger.showSnackBar(
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+      );
     }
   }
 
   Future<void> _processPartialImport(int upToIndex) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final provider = Provider.of<BookProvider?>(context, listen: false);
+    final navigator = Navigator.of(context);
     setState(() {
       _isLoading = true;
     });
@@ -1212,58 +1213,52 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
       });
 
       // Reload books
-      if (mounted) {
-        final provider = Provider.of<BookProvider?>(context, listen: false);
-        await provider?.loadBooks();
+      if (!context.mounted) return;
+      await provider?.loadBooks();
 
-        // If all items imported, go back to settings
-        if (_importItems.isEmpty) {
-          // Clear checkpoint and reviewed books after successful partial import
-          await _clearCheckpoint();
-          await _clearReviewedBooks();
+      // If all items imported, go back to settings
+      if (_importItems.isEmpty) {
+        // Clear checkpoint and reviewed books after successful partial import
+        await _clearCheckpoint();
+        await _clearReviewedBooks();
 
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Import complete: $imported imported, $updated updated, $skipped skipped.',
-                ),
-                backgroundColor: Colors.green,
-                duration: const Duration(seconds: 2),
-              ),
-            );
-            // Wait a bit for snackbar to show, then go back
-            await Future.delayed(const Duration(milliseconds: 500));
-            if (mounted) {
-              Navigator.pop(context, true); // Go back to settings with result
-            }
-          }
-        } else {
-          // Save checkpoint for remaining items
-          await _saveCheckpoint();
-
-          // Show results with remaining count
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Partial import complete: $imported imported, $updated updated, $skipped skipped. ${_importItems.length} books remaining.',
-              ),
-              backgroundColor: Colors.green,
-              duration: const Duration(seconds: 4),
+        if (!context.mounted) return;
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(
+              'Import complete: $imported imported, $updated updated, $skipped skipped.',
             ),
-          );
-        }
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+        // Wait a bit for snackbar to show, then go back
+        await Future.delayed(const Duration(milliseconds: 500));
+        if (!context.mounted) return;
+        navigator.pop(true); // Go back to settings with result
+      } else {
+        // Save checkpoint for remaining items
+        await _saveCheckpoint();
+
+        // Show results with remaining count
+        if (!context.mounted) return;
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(
+              'Partial import complete: $imported imported, $updated updated, $skipped skipped. ${_importItems.length} books remaining.',
+            ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 4),
+          ),
+        );
       }
     } catch (e) {
       setState(() {
         _isLoading = false;
       });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-        );
-      }
+      messenger.showSnackBar(
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+      );
     }
   }
 
@@ -1345,7 +1340,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
 
                         if (confirmed == true) {
                           await _clearAllReviewedBooks();
-                          if (mounted) {
+                          if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
@@ -1707,7 +1702,7 @@ class _BookImportPreview extends StatelessWidget {
       case 'formatSaga':
         return book.formatSagaValue != null && book.formatSagaValue!.isNotEmpty;
       case 'loaned':
-        return book.loaned != null && book.loaned!.isNotEmpty;
+        return book.loaned != null;
       case 'pages':
         return book.pages != null;
       case 'year':
@@ -2096,9 +2091,7 @@ class _BookImportPreview extends StatelessWidget {
             newBook.formatSagaValue != null &&
             newBook.formatSagaValue!.isNotEmpty;
       case 'loaned':
-        return newBook.loaned != existingBook.loaned &&
-            newBook.loaned != null &&
-            newBook.loaned!.isNotEmpty;
+        return newBook.loaned != existingBook.loaned && newBook.loaned != null;
       case 'pages':
         return newBook.pages != existingBook.pages && newBook.pages != null;
       case 'year':
@@ -2310,7 +2303,7 @@ class _BookImportPreview extends StatelessWidget {
           ),
           _EditableDetailRow(
             label: 'Loaned',
-            value: item.book.loaned == true ? 'Yes' : 'No',
+            value: item.book.loaned?.toLowerCase() == 'yes' ? 'Yes' : 'No',
             isHighlighted: _isFieldNew(item, 'loaned'),
             onChanged: (value) => _updateField('loaned', value),
             oldValue: _getOldValue('loaned'),

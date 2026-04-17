@@ -12,10 +12,6 @@ class NavigationScreen extends StatefulWidget {
 
   @override
   State<NavigationScreen> createState() => _NavigationScreenState();
-
-  static _NavigationScreenState? of(BuildContext context) {
-    return context.findAncestorStateOfType<_NavigationScreenState>();
-  }
 }
 
 class _NavigationScreenState extends State<NavigationScreen> {

@@ -52,6 +52,8 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
 
   Future<void> _addFieldName() async {
     final controller = TextEditingController();
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final result = await showDialog<String>(
       context: context,
@@ -88,16 +90,12 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
 
     if (result != null && result.isNotEmpty) {
       if (_fieldNames.contains(result)) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                AppLocalizations.of(context)!.field_name_already_exists(result),
-              ),
-              backgroundColor: Colors.orange,
-            ),
-          );
-        }
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(l10n.field_name_already_exists(result)),
+            backgroundColor: Colors.orange,
+          ),
+        );
         return;
       }
 
@@ -108,30 +106,29 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
 
         await _loadFieldNames();
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(AppLocalizations.of(context)!.added_value(result)),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
+        if (!context.mounted) return;
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(l10n.added_value(result)),
+            backgroundColor: Colors.green,
+          ),
+        );
       } catch (e) {
         debugPrint('Error adding field name: $e');
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('${AppLocalizations.of(context)!.error}: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text('${l10n.error}: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }
 
   Future<void> _editFieldName(String oldName) async {
     final controller = TextEditingController(text: oldName);
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final result = await showDialog<String>(
       context: context,
@@ -167,16 +164,12 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
 
     if (result != null && result.isNotEmpty && result != oldName) {
       if (_fieldNames.contains(result)) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                AppLocalizations.of(context)!.field_name_already_exists(result),
-              ),
-              backgroundColor: Colors.orange,
-            ),
-          );
-        }
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(l10n.field_name_already_exists(result)),
+            backgroundColor: Colors.orange,
+          ),
+        );
         return;
       }
 
@@ -187,33 +180,29 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
 
         await _loadFieldNames();
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                AppLocalizations.of(
-                  context,
-                )!.updated_field_name(oldName, result),
-              ),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
+        if (!context.mounted) return;
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(l10n.updated_field_name(oldName, result)),
+            backgroundColor: Colors.green,
+          ),
+        );
       } catch (e) {
         debugPrint('Error updating field name: $e');
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('${AppLocalizations.of(context)!.error}: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text('${l10n.error}: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }
 
   Future<void> _deleteFieldName(String name) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
+
     // Check if this field name is used in any books
     final db = await DatabaseHelper.instance.database;
     final result = await db.rawQuery(
@@ -222,7 +211,9 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
     );
     final count = result.first['count'] as int;
 
+    if (!context.mounted) return;
     final confirmed = await showDialog<bool>(
+      // ignore: use_build_context_synchronously
       context: context,
       builder:
           (context) => AlertDialog(
@@ -283,24 +274,21 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
 
         await _loadFieldNames();
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(AppLocalizations.of(context)!.deleted_value(name)),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
+        if (!context.mounted) return;
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(l10n.deleted_value(name)),
+            backgroundColor: Colors.red,
+          ),
+        );
       } catch (e) {
         debugPrint('Error deleting field name: $e');
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('${AppLocalizations.of(context)!.error}: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text('${l10n.error}: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }

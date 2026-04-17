@@ -85,6 +85,7 @@ class BackupRestoreSection extends StatelessWidget {
         return;
       }
 
+      if (!context.mounted) return;
       final confirmed = await showDialog<bool>(
         context: context,
         builder:
@@ -109,6 +110,7 @@ class BackupRestoreSection extends StatelessWidget {
       );
 
       if (confirmed != true) return;
+      if (!context.mounted) return;
 
       final dbHelper = DatabaseHelper.instance;
       final db = await dbHelper.database;
@@ -120,6 +122,7 @@ class BackupRestoreSection extends StatelessWidget {
         final provider = Provider.of<BookProvider?>(context, listen: false);
         await provider?.loadBooks();
 
+        if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
