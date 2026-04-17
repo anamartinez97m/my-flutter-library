@@ -619,7 +619,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
         saga:
             _sagaController.text.trim().isEmpty
                 ? null
-                : _capitalizeFirstWord(_sagaController.text.trim()),
+                : _sagaController.text.trim(),
         nSaga:
             _nSagaController.text.trim().isEmpty
                 ? null

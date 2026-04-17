@@ -474,7 +474,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         saga:
             _sagaController.text.trim().isEmpty
                 ? null
-                : _capitalizeFirstWord(_sagaController.text.trim()),
+                : _sagaController.text.trim(),
         nSaga:
             _nSagaController.text.trim().isEmpty
                 ? null
