@@ -194,6 +194,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _loadEnabledCardFields();
     _loadReadingReminderSettings();
     _loadPriceSettings();
+    _loadAdminMode();
     _currentUser = GoogleAuthService.instance.currentUser;
     if (_currentUser != null) {
       _loadBackupMetadata();
@@ -638,6 +639,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
       );
       setState(() => _isCloudBusy = false);
     }
+  }
+
+  Future<void> _loadAdminMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isAdmin = prefs.getBool('is_admin') ?? false;
+    });
   }
 
   Future<void> _loadEnabledFilters() async {
@@ -5123,10 +5131,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   AppLocalizations.of(context)!.admin_mode_subtitle,
                 ),
                 value: _isAdmin,
-                onChanged: (value) {
+                onChanged: (value) async {
+                  final newValue = value ?? false;
                   setState(() {
-                    _isAdmin = value ?? false;
+                    _isAdmin = newValue;
                   });
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setBool('is_admin', newValue);
                 },
                 secondary: const Icon(Icons.admin_panel_settings),
               ),

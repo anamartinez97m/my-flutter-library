@@ -56,6 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _selectedRating;
 
   Set<String> _enabledFilters = {};
+  bool _isAdmin = false;
 
   void clearSearch() {
     if (_searchController.text.isNotEmpty) {
@@ -116,7 +117,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadEnabledFilters() async {
     final prefs = await SharedPreferences.getInstance();
     final savedFilters = prefs.getStringList('enabled_filters');
+    final isAdmin = prefs.getBool('is_admin') ?? false;
     setState(() {
+      _isAdmin = isAdmin;
       if (savedFilters != null) {
         _enabledFilters = savedFilters.toSet();
       } else {
@@ -196,9 +199,9 @@ class _HomeScreenState extends State<HomeScreen> {
       isScrollControlled: true,
       builder:
           (context) => DraggableScrollableSheet(
-            initialChildSize: 0.9,
-            minChildSize: 0.5,
-            maxChildSize: 0.95,
+            initialChildSize: 0.6,
+            minChildSize: 0.4,
+            maxChildSize: 0.75,
             expand: false,
             builder:
                 (context, scrollController) => StatefulBuilder(
@@ -274,6 +277,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               DropdownButtonFormField<String>(
                                 value: _selectedTitle,
                                 isExpanded: true,
+                                menuMaxHeight: 300,
                                 decoration: InputDecoration(
                                   labelText:
                                       AppLocalizations.of(context)!.book_name,
@@ -315,6 +319,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               DropdownButtonFormField<String>(
                                 value: _selectedIsbnAsin,
                                 isExpanded: true,
+                                menuMaxHeight: 300,
                                 decoration: InputDecoration(
                                   labelText:
                                       AppLocalizations.of(context)!.isbn_asin,
@@ -356,6 +361,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               DropdownButtonFormField<String>(
                                 value: _selectedAuthor,
                                 isExpanded: true,
+                                menuMaxHeight: 300,
                                 decoration: InputDecoration(
                                   labelText:
                                       AppLocalizations.of(context)!.author,
@@ -397,6 +403,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               DropdownButtonFormField<String>(
                                 value: _selectedStatus,
                                 isExpanded: true,
+                                menuMaxHeight: 300,
                                 decoration: InputDecoration(
                                   labelText:
                                       AppLocalizations.of(context)!.status,
@@ -438,6 +445,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               DropdownButtonFormField<String>(
                                 value: _selectedFormat,
                                 isExpanded: true,
+                                menuMaxHeight: 300,
                                 decoration: InputDecoration(
                                   labelText:
                                       AppLocalizations.of(context)!.format,
@@ -485,6 +493,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               DropdownButtonFormField<String>(
                                 value: _selectedGenre,
                                 isExpanded: true,
+                                menuMaxHeight: 300,
                                 decoration: InputDecoration(
                                   labelText:
                                       AppLocalizations.of(context)!.genre,
@@ -532,6 +541,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               DropdownButtonFormField<String>(
                                 value: _selectedLanguage,
                                 isExpanded: true,
+                                menuMaxHeight: 300,
                                 decoration: InputDecoration(
                                   labelText:
                                       AppLocalizations.of(context)!.language,
@@ -579,6 +589,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               DropdownButtonFormField<String>(
                                 value: _selectedPlace,
                                 isExpanded: true,
+                                menuMaxHeight: 300,
                                 decoration: InputDecoration(
                                   labelText:
                                       AppLocalizations.of(context)!.place,
@@ -626,6 +637,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               DropdownButtonFormField<String>(
                                 value: _selectedEditorial,
                                 isExpanded: true,
+                                menuMaxHeight: 300,
                                 decoration: InputDecoration(
                                   labelText:
                                       AppLocalizations.of(context)!.editorial,
@@ -673,6 +685,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               DropdownButtonFormField<String>(
                                 value: _selectedSaga,
                                 isExpanded: true,
+                                menuMaxHeight: 300,
                                 decoration: InputDecoration(
                                   labelText: AppLocalizations.of(context)!.saga,
                                   border: OutlineInputBorder(),
@@ -719,6 +732,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               DropdownButtonFormField<String>(
                                 value: _selectedSagaUniverse,
                                 isExpanded: true,
+                                menuMaxHeight: 300,
                                 decoration: InputDecoration(
                                   labelText:
                                       AppLocalizations.of(
@@ -771,6 +785,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               DropdownButtonFormField<String>(
                                 value: _selectedFormatSaga,
                                 isExpanded: true,
+                                menuMaxHeight: 300,
                                 decoration: InputDecoration(
                                   labelText:
                                       AppLocalizations.of(context)!.format_saga,
@@ -814,10 +829,12 @@ class _HomeScreenState extends State<HomeScreen> {
                               const SizedBox(height: 8),
                             ],
                             // Pages Empty filter
-                            if (_isFilterEnabled('pages_empty')) ...[
+                            if (_isAdmin &&
+                                _isFilterEnabled('pages_empty')) ...[
                               DropdownButtonFormField<String>(
                                 value: _selectedPagesEmpty,
                                 isExpanded: true,
+                                menuMaxHeight: 300,
                                 decoration: InputDecoration(
                                   labelText:
                                       AppLocalizations.of(context)!.pages,
@@ -859,6 +876,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               DropdownButtonFormField<String>(
                                 value: _selectedIsBundle,
                                 isExpanded: true,
+                                menuMaxHeight: 300,
                                 decoration: InputDecoration(
                                   labelText:
                                       AppLocalizations.of(context)!.bundle,
@@ -906,6 +924,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               DropdownButtonFormField<String>(
                                 value: _selectedIsTandem,
                                 isExpanded: true,
+                                menuMaxHeight: 300,
                                 decoration: InputDecoration(
                                   labelText:
                                       AppLocalizations.of(context)!.tandem,
@@ -949,10 +968,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               const SizedBox(height: 8),
                             ],
                             // Saga Format Without Saga filter
-                            if (_isFilterEnabled('saga_format_without_saga')) ...[
+                            if (_isAdmin &&
+                                _isFilterEnabled(
+                                  'saga_format_without_saga',
+                                )) ...[
                               DropdownButtonFormField<String>(
                                 value: _selectedSagaFormatWithoutSaga,
                                 isExpanded: true,
+                                menuMaxHeight: 300,
                                 decoration: InputDecoration(
                                   labelText:
                                       AppLocalizations.of(
@@ -1004,10 +1027,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               const SizedBox(height: 8),
                             ],
                             // Saga Format Without N_Saga filter
-                            if (_isFilterEnabled('saga_format_without_nsaga')) ...[
+                            if (_isAdmin &&
+                                _isFilterEnabled(
+                                  'saga_format_without_nsaga',
+                                )) ...[
                               DropdownButtonFormField<String>(
                                 value: _selectedSagaFormatWithoutNSaga,
                                 isExpanded: true,
+                                menuMaxHeight: 300,
                                 decoration: InputDecoration(
                                   labelText:
                                       AppLocalizations.of(
@@ -1059,10 +1086,12 @@ class _HomeScreenState extends State<HomeScreen> {
                               const SizedBox(height: 8),
                             ],
                             // Publication Year Empty filter
-                            if (_isFilterEnabled('publication_year_empty')) ...[
+                            if (_isAdmin &&
+                                _isFilterEnabled('publication_year_empty')) ...[
                               DropdownButtonFormField<String>(
                                 value: _selectedPublicationYearEmpty,
                                 isExpanded: true,
+                                menuMaxHeight: 300,
                                 decoration: InputDecoration(
                                   labelText:
                                       AppLocalizations.of(
@@ -1091,8 +1120,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ],
                                 onChanged: (value) {
                                   setState(
-                                    () =>
-                                        _selectedPublicationYearEmpty = value,
+                                    () => _selectedPublicationYearEmpty = value,
                                   );
                                   if (value != null) {
                                     provider.filterBooks(
@@ -1112,9 +1140,12 @@ class _HomeScreenState extends State<HomeScreen> {
                               DropdownButtonFormField<String>(
                                 value: _selectedRating,
                                 isExpanded: true,
+                                menuMaxHeight: 300,
                                 decoration: InputDecoration(
                                   labelText:
-                                      AppLocalizations.of(context)!.rating_filter,
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.rating_filter,
                                   border: OutlineInputBorder(),
                                   contentPadding: EdgeInsets.symmetric(
                                     horizontal: 12,
@@ -1163,10 +1194,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               const SizedBox(height: 8),
                             ],
                             // Saga Without Format Saga filter
-                            if (_isFilterEnabled('saga_without_format_saga')) ...[
+                            if (_isAdmin &&
+                                _isFilterEnabled(
+                                  'saga_without_format_saga',
+                                )) ...[
                               DropdownButtonFormField<String>(
                                 value: _selectedSagaWithoutFormatSaga,
                                 isExpanded: true,
+                                menuMaxHeight: 300,
                                 decoration: InputDecoration(
                                   labelText:
                                       AppLocalizations.of(
