@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
+import 'package:myrandomlibrary/screens/books_by_saga.dart';
 
 enum _SortMode { name, ascending, descending }
 
@@ -274,65 +275,85 @@ class _SagaCompletionDetailScreenState
         final isUnknownTotal = total == -1;
         final progress = (total > 0 && !isUnknownTotal) ? read / total : 0.0;
 
+        final sagaUniverse = widget.books
+            .where((b) => b.saga == sagaName)
+            .map((b) => b.sagaUniverse)
+            .firstWhere((u) => u != null && u.isNotEmpty, orElse: () => null);
+
         return Card(
           elevation: 1,
           margin: const EdgeInsets.only(bottom: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        sagaName,
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.bold),
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (_) => BooksBySagaScreen(
+                        sagaName: sagaName,
+                        sagaUniverse: sagaUniverse,
                       ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: color.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: color),
-                      ),
-                      child: Text(
-                        isUnknownTotal ? '$read / ?' : '$read / $total',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: color,
-                          fontSize: 12,
+                ),
+              );
+            },
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          sagaName,
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    minHeight: 8,
-                    backgroundColor: Colors.grey.shade200,
-                    valueColor: AlwaysStoppedAnimation<Color>(color),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: color.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: color),
+                        ),
+                        child: Text(
+                          isUnknownTotal ? '$read / ?' : '$read / $total',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: color,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  isUnknownTotal
-                      ? '${AppLocalizations.of(context)!.format}: $formatSaga'
-                      : '${(progress * 100).toStringAsFixed(0)}% ${AppLocalizations.of(context)!.complete_label}',
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                ),
-              ],
+                  const SizedBox(height: 12),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: LinearProgressIndicator(
+                      value: progress,
+                      minHeight: 8,
+                      backgroundColor: Colors.grey.shade200,
+                      valueColor: AlwaysStoppedAnimation<Color>(color),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    isUnknownTotal
+                        ? '${AppLocalizations.of(context)!.format}: $formatSaga'
+                        : '${(progress * 100).toStringAsFixed(0)}% ${AppLocalizations.of(context)!.complete_label}',
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  ),
+                ],
+              ),
             ),
           ),
         );
