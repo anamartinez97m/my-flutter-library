@@ -3284,7 +3284,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filter_format_saga => 'Format Saga';
 
   @override
-  String get filter_pages_empty => 'Pages Empty';
+  String get filter_pages_empty => 'Pages';
 
   @override
   String get filter_is_bundle => 'Is Bundle';
@@ -3306,6 +3306,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filter_rating => 'Rating';
+
+  @override
+  String get filter_price => 'Price';
+
+  @override
+  String get pages_range_under_100 => '< 100 pages';
+
+  @override
+  String get pages_range_100_300 => '100–300 pages';
+
+  @override
+  String get pages_range_300_500 => '300–500 pages';
+
+  @override
+  String get pages_range_500_700 => '500–700 pages';
+
+  @override
+  String get pages_range_700_plus => '700+ pages';
+
+  @override
+  String get price_no_price => 'No price';
+
+  @override
+  String get price_free => 'Free (0)';
+
+  @override
+  String get price_range_under_5 => '< 5';
+
+  @override
+  String get price_range_5_15 => '5–15';
+
+  @override
+  String get price_range_15_30 => '15–30';
+
+  @override
+  String get price_range_30_plus => '30+';
 
   @override
   String get card_field_title => 'Title';

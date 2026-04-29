@@ -3757,7 +3757,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                       ),
 
                     // Price
-                    if (_currentBook.price != null && _currentBook.price! > 0)
+                    if (_currentBook.price != null && _currentBook.price! >= 0)
                       _DetailCard(
                         icon: Icons.attach_money,
                         label: AppLocalizations.of(context)!.price_label,

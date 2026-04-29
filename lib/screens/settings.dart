@@ -80,6 +80,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     'saga_without_format_saga',
     'publication_year_empty',
     'rating',
+    'price',
   ];
 
   String _getFilterLabel(BuildContext context, String key) {
@@ -125,6 +126,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return l10n.filter_publication_year_empty;
       case 'rating':
         return l10n.filter_rating;
+      case 'price':
+        return l10n.filter_price;
       default:
         return key;
     }

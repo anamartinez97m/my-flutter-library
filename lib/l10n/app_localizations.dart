@@ -6104,7 +6104,7 @@ abstract class AppLocalizations {
   /// No description provided for @filter_pages_empty.
   ///
   /// In en, this message translates to:
-  /// **'Pages Empty'**
+  /// **'Pages'**
   String get filter_pages_empty;
 
   /// No description provided for @filter_is_bundle.
@@ -6148,6 +6148,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Rating'**
   String get filter_rating;
+
+  /// No description provided for @filter_price.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get filter_price;
+
+  /// No description provided for @pages_range_under_100.
+  ///
+  /// In en, this message translates to:
+  /// **'< 100 pages'**
+  String get pages_range_under_100;
+
+  /// No description provided for @pages_range_100_300.
+  ///
+  /// In en, this message translates to:
+  /// **'100–300 pages'**
+  String get pages_range_100_300;
+
+  /// No description provided for @pages_range_300_500.
+  ///
+  /// In en, this message translates to:
+  /// **'300–500 pages'**
+  String get pages_range_300_500;
+
+  /// No description provided for @pages_range_500_700.
+  ///
+  /// In en, this message translates to:
+  /// **'500–700 pages'**
+  String get pages_range_500_700;
+
+  /// No description provided for @pages_range_700_plus.
+  ///
+  /// In en, this message translates to:
+  /// **'700+ pages'**
+  String get pages_range_700_plus;
+
+  /// No description provided for @price_no_price.
+  ///
+  /// In en, this message translates to:
+  /// **'No price'**
+  String get price_no_price;
+
+  /// No description provided for @price_free.
+  ///
+  /// In en, this message translates to:
+  /// **'Free (0)'**
+  String get price_free;
+
+  /// No description provided for @price_range_under_5.
+  ///
+  /// In en, this message translates to:
+  /// **'< 5'**
+  String get price_range_under_5;
+
+  /// No description provided for @price_range_5_15.
+  ///
+  /// In en, this message translates to:
+  /// **'5–15'**
+  String get price_range_5_15;
+
+  /// No description provided for @price_range_15_30.
+  ///
+  /// In en, this message translates to:
+  /// **'15–30'**
+  String get price_range_15_30;
+
+  /// No description provided for @price_range_30_plus.
+  ///
+  /// In en, this message translates to:
+  /// **'30+'**
+  String get price_range_30_plus;
 
   /// No description provided for @card_field_title.
   ///

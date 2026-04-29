@@ -169,6 +169,9 @@ class BookProvider extends ChangeNotifier {
                   case 'pages_empty':
                     if (book.pages != null && book.pages! > 0) return false;
                     break;
+                  case 'price':
+                    if (book.price != null) return false;
+                    break;
                   case 'publication_year_empty':
                     if (book.originalPublicationYear != null &&
                         book.originalPublicationYear! > 0) {
@@ -267,6 +270,39 @@ class BookProvider extends ChangeNotifier {
                     }
                     if (filterValue == 'false' && (hasSaga && !hasFormatSaga)) {
                       return false;
+                    }
+                    break;
+                  case 'pages_empty':
+                    // Range filter: books with no pages are excluded from all ranges
+                    final pages = book.pages ?? 0;
+                    if (pages <= 0) return false;
+                    if (filterValue == '<100' && pages >= 100) return false;
+                    if (filterValue == '100-300' &&
+                        (pages < 100 || pages > 300))
+                      return false;
+                    if (filterValue == '300-500' &&
+                        (pages < 300 || pages > 500))
+                      return false;
+                    if (filterValue == '500-700' &&
+                        (pages < 500 || pages > 700))
+                      return false;
+                    if (filterValue == '700+' && pages <= 700) return false;
+                    break;
+                  case 'price':
+                    final price = book.price;
+                    if (filterValue == 'free') {
+                      if (price == null || price != 0.0) return false;
+                    } else if (filterValue == '<5') {
+                      if (price == null || price <= 0 || price >= 5)
+                        return false;
+                    } else if (filterValue == '5-15') {
+                      if (price == null || price < 5 || price > 15)
+                        return false;
+                    } else if (filterValue == '15-30') {
+                      if (price == null || price < 15 || price > 30)
+                        return false;
+                    } else if (filterValue == '30+') {
+                      if (price == null || price < 30) return false;
                     }
                     break;
                   case 'rating':

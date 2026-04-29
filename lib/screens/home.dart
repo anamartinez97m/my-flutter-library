@@ -54,6 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _selectedSagaWithoutFormatSaga;
   String? _selectedPublicationYearEmpty;
   String? _selectedRating;
+  String? _selectedPrice;
 
   Set<String> _enabledFilters = {};
   bool _isAdmin = false;
@@ -105,6 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _selectedPublicationYearEmpty =
               provider.currentFilters['publication_year_empty'];
           _selectedRating = provider.currentFilters['rating'];
+          _selectedPrice = provider.currentFilters['price'];
 
           // Restore sort state from provider
           _sortBy = provider.currentSortBy;
@@ -858,6 +860,46 @@ class _HomeScreenState extends State<HomeScreen> {
                                       AppLocalizations.of(context)!.empty,
                                     ),
                                   ),
+                                  DropdownMenuItem<String>(
+                                    value: '<100',
+                                    child: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.pages_range_under_100,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: '100-300',
+                                    child: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.pages_range_100_300,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: '300-500',
+                                    child: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.pages_range_300_500,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: '500-700',
+                                    child: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.pages_range_500_700,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: '700+',
+                                    child: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.pages_range_700_plus,
+                                    ),
+                                  ),
                                 ],
                                 onChanged: (value) {
                                   setState(() => _selectedPagesEmpty = value);
@@ -1252,6 +1294,90 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               const SizedBox(height: 8),
                             ],
+                            // Price filter
+                            if (_isFilterEnabled('price')) ...[
+                              DropdownButtonFormField<String>(
+                                value: _selectedPrice,
+                                isExpanded: true,
+                                menuMaxHeight: 300,
+                                decoration: InputDecoration(
+                                  labelText:
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.filter_price,
+                                  border: OutlineInputBorder(),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  isDense: true,
+                                ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: null,
+                                    child: Text(
+                                      AppLocalizations.of(context)!.any,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: '__EMPTY__',
+                                    child: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.price_no_price,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: 'free',
+                                    child: Text(
+                                      AppLocalizations.of(context)!.price_free,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: '<5',
+                                    child: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.price_range_under_5,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: '5-15',
+                                    child: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.price_range_5_15,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: '15-30',
+                                    child: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.price_range_15_30,
+                                    ),
+                                  ),
+                                  DropdownMenuItem<String>(
+                                    value: '30+',
+                                    child: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.price_range_30_plus,
+                                    ),
+                                  ),
+                                ],
+                                onChanged: (value) {
+                                  setState(() => _selectedPrice = value);
+                                  if (value != null) {
+                                    provider.filterBooks('price', value);
+                                  } else {
+                                    provider.filterBooks('all', null);
+                                  }
+                                  setModalState(() {});
+                                },
+                              ),
+                              const SizedBox(height: 8),
+                            ],
                             Row(
                               children: [
                                 Expanded(
@@ -1278,6 +1404,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         _selectedSagaWithoutFormatSaga = null;
                                         _selectedPublicationYearEmpty = null;
                                         _selectedRating = null;
+                                        _selectedPrice = null;
                                       });
                                       provider.clearAllFilters();
                                       setModalState(() {});
