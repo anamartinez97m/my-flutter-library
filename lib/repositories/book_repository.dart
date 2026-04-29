@@ -51,7 +51,7 @@ class BookRepository {
         b.notification_enabled, b.notification_datetime, b.release_date, b.bundle_parent_id,
         b.reading_progress, b.progress_type,
         b.notes, b.price, b.rating_override,
-        b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at,
+        b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -113,7 +113,7 @@ class BookRepository {
         b.notification_enabled, b.notification_datetime, b.release_date, b.bundle_parent_id,
         b.reading_progress, b.progress_type,
         b.notes, b.price, b.rating_override,
-        b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at,
+        b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -199,7 +199,7 @@ class BookRepository {
         b.notification_enabled, b.notification_datetime, b.release_date, b.bundle_parent_id,
         b.reading_progress, b.progress_type,
         b.notes, b.price, b.rating_override,
-        b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at,
+        b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -238,7 +238,7 @@ class BookRepository {
         b.notification_enabled, b.notification_datetime, b.bundle_parent_id,
         b.reading_progress, b.progress_type,
         b.notes, b.price, b.rating_override,
-        b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at,
+        b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -294,7 +294,7 @@ class BookRepository {
         b.notification_enabled, b.notification_datetime, b.bundle_parent_id,
         b.reading_progress, b.progress_type,
         b.notes, b.price, b.rating_override,
-        b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at,
+        b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -964,6 +964,7 @@ class BookRepository {
       'notes': book.notes,
       'price': book.price,
       'rating_override': book.ratingOverride == true ? 1 : 0,
+      'acquired_date': book.acquiredDate,
     };
 
     // If book has an ID, preserve it (for updates)
@@ -1366,7 +1367,7 @@ class BookRepository {
         b.notification_enabled, b.notification_datetime, b.bundle_parent_id,
         b.reading_progress, b.progress_type,
         b.notes, b.price, b.rating_override,
-        b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at,
+        b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -1420,7 +1421,7 @@ class BookRepository {
         b.notification_enabled, b.notification_datetime, b.release_date, b.bundle_parent_id,
         b.reading_progress, b.progress_type,
         b.notes, b.price, b.rating_override,
-        b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at,
+        b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -1679,7 +1680,7 @@ class BookRepository {
         b.notification_enabled, b.notification_datetime, b.release_date, b.bundle_parent_id,
         b.reading_progress, b.progress_type,
         b.notes, b.price, b.rating_override,
-        b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at,
+        b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       FROM book b 
@@ -1721,7 +1722,7 @@ class BookRepository {
         b.notification_enabled, b.notification_datetime, b.release_date, b.bundle_parent_id,
         b.reading_progress, b.progress_type,
         b.notes, b.price, b.rating_override,
-        b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at,
+        b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       FROM book b 
@@ -1818,7 +1819,7 @@ class BookRepository {
         b.notification_enabled, b.notification_datetime, b.release_date, b.bundle_parent_id,
         b.reading_progress, b.progress_type,
         b.notes, b.price, b.rating_override,
-        b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at,
+        b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       FROM book b 

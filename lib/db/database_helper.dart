@@ -23,7 +23,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 38,
+      version: 39,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -136,6 +136,7 @@ class DatabaseHelper {
         description TEXT,
         metadata_source TEXT,
         metadata_fetched_at TEXT,
+        acquired_date TEXT,
         FOREIGN KEY (status_id) REFERENCES status (status_id),
         FOREIGN KEY (original_book_id) REFERENCES book (book_id) ON DELETE SET NULL,
         FOREIGN KEY (bundle_parent_id) REFERENCES book (book_id) ON DELETE CASCADE,
@@ -1171,6 +1172,10 @@ class DatabaseHelper {
       await db.execute(
         'CREATE INDEX IF NOT EXISTS idx_book_asin ON book (asin)',
       );
+    }
+    if (oldVersion < 39) {
+      // Add acquired_date column to book table
+      await db.execute('ALTER TABLE book ADD COLUMN acquired_date TEXT');
     }
     if (oldVersion < 38) {
       // Safety migration: ensure reading_progress exists in book_read_dates

@@ -1927,6 +1927,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         'Metadata Source',
         'Metadata Fetched At',
         'Created At',
+        'Acquired Date',
       ]);
 
       // Add book data with ALL fields
@@ -1980,6 +1981,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           book.metadataSource ?? '',
           book.metadataFetchedAt ?? '',
           book.createdAt ?? '',
+          book.acquiredDate ?? '',
         ]);
       }
 
@@ -2169,6 +2171,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         'Metadata Source',
         'Metadata Fetched At',
         'Created At',
+        'Acquired Date',
       ]);
 
       // Add book data with ALL fields
@@ -2222,6 +2225,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           book.metadataSource ?? '',
           book.metadataFetchedAt ?? '',
           book.createdAt ?? '',
+          book.acquiredDate ?? '',
         ]);
       }
 

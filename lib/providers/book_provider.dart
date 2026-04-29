@@ -278,14 +278,17 @@ class BookProvider extends ChangeNotifier {
                     if (pages <= 0) return false;
                     if (filterValue == '<100' && pages >= 100) return false;
                     if (filterValue == '100-300' &&
-                        (pages < 100 || pages > 300))
+                        (pages < 100 || pages > 300)) {
                       return false;
+                    }
                     if (filterValue == '300-500' &&
-                        (pages < 300 || pages > 500))
+                        (pages < 300 || pages > 500)) {
                       return false;
+                    }
                     if (filterValue == '500-700' &&
-                        (pages < 500 || pages > 700))
+                        (pages < 500 || pages > 700)) {
                       return false;
+                    }
                     if (filterValue == '700+' && pages <= 700) return false;
                     break;
                   case 'price':
@@ -293,16 +296,21 @@ class BookProvider extends ChangeNotifier {
                     if (filterValue == 'free') {
                       if (price == null || price != 0.0) return false;
                     } else if (filterValue == '<5') {
-                      if (price == null || price <= 0 || price >= 5)
+                      if (price == null || price <= 0 || price >= 5) {
                         return false;
+                      }
                     } else if (filterValue == '5-15') {
-                      if (price == null || price < 5 || price > 15)
+                      if (price == null || price < 5 || price > 15) {
                         return false;
+                      }
                     } else if (filterValue == '15-30') {
-                      if (price == null || price < 15 || price > 30)
+                      if (price == null || price < 15 || price > 30) {
                         return false;
+                      }
                     } else if (filterValue == '30+') {
-                      if (price == null || price < 30) return false;
+                      if (price == null || price < 30) {
+                        return false;
+                      }
                     }
                     break;
                   case 'rating':
@@ -313,7 +321,9 @@ class BookProvider extends ChangeNotifier {
                     if (parts.length == 2) {
                       final min = double.tryParse(parts[0]) ?? 0.0;
                       final max = double.tryParse(parts[1]) ?? 5.0;
-                      if (rating < min || rating > max) return false;
+                      if (rating < min || rating > max) {
+                        return false;
+                      }
                     }
                     break;
                 }

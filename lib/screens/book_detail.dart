@@ -3765,6 +3765,22 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                             '$_currencySymbol${_currentBook.price!.toStringAsFixed(2)}',
                       ),
 
+                    // Acquired Date
+                    if (_currentBook.acquiredDate != null &&
+                        _currentBook.acquiredDate!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.calendar_today,
+                        label: AppLocalizations.of(context)!.acquired_date,
+                        value: () {
+                          final a = _currentBook.acquiredDate!;
+                          final parts = a.split('-');
+                          if (parts.length == 3) {
+                            return '${parts[2]}/${parts[1]}/${parts[0]}';
+                          }
+                          return a;
+                        }(),
+                      ),
+
                     if (_currentBook.readCount != null &&
                         _currentBook.readCount! > 0)
                       _DetailCard(

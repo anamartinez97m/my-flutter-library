@@ -312,7 +312,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get manage_dropdown_values_hint => 'Gestionar valores de desplegable para estado, idioma, lugar, formato y formato saga.';
 
   @override
-  String get import_from_csv_hint => 'Columnas CSV personalizado: Title, Author, ISBN, ASIN, Saga, N_Saga, Saga Universe, Format Saga, Status, Editorial, Language, Place, Format, Genre, Pages, Original Publication Year, Loaned, Date Read Initial, Date Read Final, Read Count, My Rating, My Review, Notes, Price, Release Date, Is Bundle, Bundle Count, TBR, Is Tandem, Cover URL, Description, Created At';
+  String get import_from_csv_hint => 'Columnas CSV personalizado: Title, Author, ISBN, ASIN, Saga, N_Saga, Saga Universe, Format Saga, Status, Editorial, Language, Place, Format, Genre, Pages, Original Publication Year, Loaned, Date Read Initial, Date Read Final, Read Count, My Rating, My Review, Notes, Price, Release Date, Is Bundle, Bundle Count, TBR, Is Tandem, Cover URL, Description, Created At, Acquired Date';
 
   @override
   String get import_from_csv_tbreleased => 'Para libros no publicados use estado TBReleased';
@@ -1416,6 +1416,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get price_label => 'Precio';
 
   @override
+  String get acquired_date => 'Fecha de Adquisición';
+
+  @override
+  String get select_acquired_date => 'Seleccionar fecha de adquisición';
+
+  @override
   String get original_book => 'Libro Original';
 
   @override
@@ -2036,6 +2042,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get enter_book_price => 'Ingresa el precio del libro';
+
+  @override
+  String get acquired_date_hint => 'Año o fecha completa de adquisición';
 
   @override
   String get add_notes_hint => 'Añade cualquier nota adicional sobre este libro...';

@@ -1287,20 +1287,27 @@ class StatisticsCalculator {
             }
           }
         }
-        // If no read date, use releaseDate (for TBR Released) or createdAt as fallback
+        // If no read date, use acquiredDate as fallback, then createdAt
         if (!assignedToYear) {
-          final fallbackDateStr =
-              (book.releaseDate != null && book.releaseDate!.isNotEmpty)
-                  ? book.releaseDate!
+          final acquiredStr =
+              (book.acquiredDate != null && book.acquiredDate!.isNotEmpty)
+                  ? book.acquiredDate!
                   : book.createdAt;
-          if (fallbackDateStr == null) continue;
-          final createdDate = _tryParseDate(
-            fallbackDateStr,
-            bookName: book.name,
-          );
-          if (createdDate != null) {
-            final year = createdDate.year;
-            final month = createdDate.month;
+          if (acquiredStr == null || acquiredStr.isEmpty) continue;
+          // Handle year-only (e.g. "2024") or full date (e.g. "2024-03-15")
+          int? year;
+          int month = 1;
+          if (acquiredStr.length == 4) {
+            year = int.tryParse(acquiredStr);
+          } else {
+            final parsed = _tryParseDate(acquiredStr, bookName: book.name);
+            if (parsed != null) {
+              year = parsed.year;
+              month = parsed.month;
+            }
+          }
+          if (year == null) continue;
+          {
             yearTotals[year] = (yearTotals[year] ?? 0) + price;
             yearCounts[year] = (yearCounts[year] ?? 0) + 1;
             monthTotals.putIfAbsent(year, () => {});

@@ -251,6 +251,7 @@ class CsvImportHelper {
     final metadataSource = getValue('metadata source');
     final metadataFetchedAt = getValue('metadata fetched at');
     final createdAt = getValue('created at');
+    final acquiredDate = getValue('acquired date');
 
     // Remove trailing comma from saga if present
     if (saga != null && saga.endsWith(',')) {
@@ -337,6 +338,7 @@ class CsvImportHelper {
       description: description,
       metadataSource: metadataSource,
       metadataFetchedAt: metadataFetchedAt,
+      acquiredDate: acquiredDate,
     );
   }
 

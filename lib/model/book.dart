@@ -59,6 +59,8 @@ class Book {
   final String?
   metadataSource; // Source of metadata: 'google_books', 'open_library', 'merged'
   final String? metadataFetchedAt; // Timestamp when metadata was fetched
+  final String?
+  acquiredDate; // Date acquired: 'YYYY' for year-only or 'YYYY-MM-DD' for full date
 
   Book({
     required this.bookId,
@@ -110,6 +112,7 @@ class Book {
     this.description,
     this.metadataSource,
     this.metadataFetchedAt,
+    this.acquiredDate,
   });
 
   factory Book.fromMap(Map<String, dynamic> map) {
@@ -187,6 +190,7 @@ class Book {
       description: map['description'] as String?,
       metadataSource: map['metadata_source'] as String?,
       metadataFetchedAt: map['metadata_fetched_at'] as String?,
+      acquiredDate: map['acquired_date'] as String?,
     );
   }
 
@@ -240,6 +244,7 @@ class Book {
       'description': description,
       'metadataSource': metadataSource,
       'metadataFetchedAt': metadataFetchedAt,
+      'acquiredDate': acquiredDate,
     };
   }
 

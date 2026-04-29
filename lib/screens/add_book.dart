@@ -45,6 +45,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
   final _myReviewController = TextEditingController();
   final _notesController = TextEditingController();
   final _priceController = TextEditingController();
+  final _acquiredYearController = TextEditingController();
+  DateTime? _acquiredDateFull;
+  bool _acquiredDateIsFullDate = false;
   double _myRating = 0.0;
   int _readCount = 0;
 
@@ -541,6 +544,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
             _fetchedMetadataSource != null
                 ? DateTime.now().toIso8601String()
                 : null,
+        acquiredDate: _getAcquiredDate(),
       );
 
       final bookId = await repository.addBook(book);
@@ -700,8 +704,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
       _myReviewController.clear();
       _notesController.clear();
       _priceController.clear();
+      _acquiredYearController.clear();
 
       setState(() {
+        _acquiredDateFull = null;
+        _acquiredDateIsFullDate = false;
         _myRating = 0.0;
         _readCount = 0;
         _readDates = [];
@@ -813,7 +820,20 @@ class _AddBookScreenState extends State<AddBookScreen> {
     _myReviewController.dispose();
     _notesController.dispose();
     _priceController.dispose();
+    _acquiredYearController.dispose();
     super.dispose();
+  }
+
+  String? _getAcquiredDate() {
+    if (_acquiredDateIsFullDate && _acquiredDateFull != null) {
+      final y = _acquiredDateFull!.year.toString().padLeft(4, '0');
+      final m = _acquiredDateFull!.month.toString().padLeft(2, '0');
+      final d = _acquiredDateFull!.day.toString().padLeft(2, '0');
+      return '$y-$m-$d';
+    } else if (_acquiredYearController.text.trim().isNotEmpty) {
+      return _acquiredYearController.text.trim();
+    }
+    return null;
   }
 
   @override
@@ -1876,6 +1896,94 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 ),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Acquired Date field
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          AppLocalizations.of(context)!.acquired_date,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            _acquiredDateIsFullDate = !_acquiredDateIsFullDate;
+                            _acquiredDateFull = null;
+                          });
+                        },
+                        child: Text(
+                          _acquiredDateIsFullDate
+                              ? AppLocalizations.of(context)!.year_only
+                              : AppLocalizations.of(context)!.full_date,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (!_acquiredDateIsFullDate)
+                    TextFormField(
+                      controller: _acquiredYearController,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.acquired_date,
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.calendar_today),
+                        hintText:
+                            AppLocalizations.of(context)!.acquired_date_hint,
+                      ),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(4),
+                      ],
+                    )
+                  else
+                    InkWell(
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: _acquiredDateFull ?? DateTime.now(),
+                          firstDate: DateTime(1900),
+                          lastDate: DateTime.now(),
+                        );
+                        if (picked != null) {
+                          setState(() {
+                            _acquiredDateFull = picked;
+                            _acquiredYearController.text =
+                                picked.year.toString();
+                          });
+                        }
+                      },
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          labelText:
+                              AppLocalizations.of(context)!.acquired_date,
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.calendar_today),
+                        ),
+                        child: Text(
+                          _acquiredDateFull != null
+                              ? '${_acquiredDateFull!.day.toString().padLeft(2, '0')}/${_acquiredDateFull!.month.toString().padLeft(2, '0')}/${_acquiredDateFull!.year}'
+                              : AppLocalizations.of(
+                                context,
+                              )!.select_acquired_date,
+                          style: TextStyle(
+                            color:
+                                _acquiredDateFull != null ? null : Colors.grey,
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               ),
               const SizedBox(height: 16),

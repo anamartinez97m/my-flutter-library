@@ -632,7 +632,7 @@ abstract class AppLocalizations {
   /// No description provided for @import_from_csv_hint.
   ///
   /// In en, this message translates to:
-  /// **'Custom CSV columns: Title, Author, ISBN, ASIN, Saga, N_Saga, Saga Universe, Format Saga, Status, Editorial, Language, Place, Format, Genre, Pages, Original Publication Year, Loaned, Date Read Initial, Date Read Final, Read Count, My Rating, My Review, Notes, Price, Release Date, Is Bundle, Bundle Count, TBR, Is Tandem, Cover URL, Description, Created At'**
+  /// **'Custom CSV columns: Title, Author, ISBN, ASIN, Saga, N_Saga, Saga Universe, Format Saga, Status, Editorial, Language, Place, Format, Genre, Pages, Original Publication Year, Loaned, Date Read Initial, Date Read Final, Read Count, My Rating, My Review, Notes, Price, Release Date, Is Bundle, Bundle Count, TBR, Is Tandem, Cover URL, Description, Created At, Acquired Date'**
   String get import_from_csv_hint;
 
   /// No description provided for @import_from_csv_tbreleased.
@@ -2645,6 +2645,18 @@ abstract class AppLocalizations {
   /// **'Price'**
   String get price_label;
 
+  /// No description provided for @acquired_date.
+  ///
+  /// In en, this message translates to:
+  /// **'Acquired Date'**
+  String get acquired_date;
+
+  /// No description provided for @select_acquired_date.
+  ///
+  /// In en, this message translates to:
+  /// **'Select acquisition date'**
+  String get select_acquired_date;
+
   /// No description provided for @original_book.
   ///
   /// In en, this message translates to:
@@ -3760,6 +3772,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter book price'**
   String get enter_book_price;
+
+  /// No description provided for @acquired_date_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Year or full date acquired'**
+  String get acquired_date_hint;
 
   /// No description provided for @add_notes_hint.
   ///
