@@ -3073,12 +3073,12 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                                                   ),
                                                         ),
                                                       );
-                                                  // Reload if book was modified
-                                                  if (result != null &&
-                                                      mounted) {
-                                                    // First reload the read dates
-                                                    await _loadReadDates();
-                                                    // Then force bundle books to reload
+                                                  // Always reload bundle books when returning from individual book detail
+                                                  // (status may have changed via Start Reading, edit, etc.)
+                                                  if (mounted) {
+                                                    if (result != null) {
+                                                      await _loadReadDates();
+                                                    }
                                                     if (mounted) {
                                                       setState(() {
                                                         _bundleBooksKey++;

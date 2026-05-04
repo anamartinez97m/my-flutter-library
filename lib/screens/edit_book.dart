@@ -818,6 +818,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 dateReadInitial: existingBook.dateReadInitial,
                 dateReadFinal: existingBook.dateReadFinal,
                 readCount: existingBook.readCount,
+                myRating: existingBook.myRating,
                 myReview: existingBook.myReview,
                 isBundle: false,
                 bundleCount: null,
@@ -835,6 +836,17 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 notificationDatetime: existingBook.notificationDatetime,
                 bundleParentId:
                     widget.book.bookId, // Preserve bundle relationship
+                readingProgress: existingBook.readingProgress,
+                progressType: existingBook.progressType,
+                notes: existingBook.notes,
+                price: existingBook.price,
+                ratingOverride: existingBook.ratingOverride,
+                acquiredDate: existingBook.acquiredDate,
+                coverUrl: existingBook.coverUrl,
+                description: existingBook.description,
+                metadataSource: existingBook.metadataSource,
+                metadataFetchedAt: existingBook.metadataFetchedAt,
+                releaseDate: existingBook.releaseDate,
               );
 
               await repository.addBook(updatedIndividualBook);
@@ -950,14 +962,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
           'EditBook: Saving ${_readDates.length} read dates for book ${widget.book.bookId} (${widget.book.name}), isBundle=$_isBundle',
         );
 
-        // Check if any read date has a finished date
-        bool hasFinishedDate = false;
+        // Save all read dates
         for (final readDate in _readDates) {
-          if (readDate.dateFinished != null &&
-              readDate.dateFinished!.isNotEmpty) {
-            hasFinishedDate = true;
-          }
-
           await repository.addReadDate(
             ReadDate(
               bookId: widget.book.bookId!,
@@ -982,8 +988,24 @@ class _EditBookScreenState extends State<EditBookScreen> {
           );
         }
 
-        // If any read date has a finished date, update book status to "Yes" and use user's read count
-        if (hasFinishedDate) {
+        // Only auto-set status to "Yes" if the MOST RECENT read date has a finished date.
+        // This avoids overriding an explicit "Started" choice when old finished read dates exist
+        // (e.g., user is re-reading a book they previously finished).
+        // _readDates is ordered by date_started DESC so index 0 is the most recent entry.
+        final mostRecentDate = _readDates.isNotEmpty ? _readDates.first : null;
+        final hasFinishedDate =
+            mostRecentDate != null &&
+            mostRecentDate.dateFinished != null &&
+            mostRecentDate.dateFinished!.isNotEmpty;
+
+        // Additionally, never override an explicitly active status the user chose
+        final userChoseActiveStatus =
+            statusValue != null &&
+            (statusValue.toLowerCase() == 'started' ||
+                statusValue.toLowerCase() == 'standby' ||
+                statusValue.toLowerCase() == 'no');
+
+        if (hasFinishedDate && !userChoseActiveStatus) {
           final statusList = await repository.getLookupValues('status');
           final readStatus = statusList.firstWhere(
             (s) => (s['value'] as String).toLowerCase() == 'yes',
@@ -1047,8 +1069,25 @@ class _EditBookScreenState extends State<EditBookScreen> {
       await provider?.loadBooks();
 
       if (!context.mounted) return;
+      // Reload the book from DB to ensure we return the actual persisted state
+      // (post-save DB operations like read_count update may differ from in-memory bookToUpdate)
+      Book bookToReturn = bookToUpdate;
+      if (widget.book.bookId != null) {
+        try {
+          final freshBooks = await repository.getAllBooks();
+          final freshBook = freshBooks.firstWhere(
+            (b) => b.bookId == widget.book.bookId,
+            orElse: () => bookToUpdate,
+          );
+          bookToReturn = freshBook;
+        } catch (_) {
+          bookToReturn = bookToUpdate;
+        }
+      }
+
+      if (!context.mounted) return;
       // Return the updated book to the detail screen
-      navigator.pop(bookToUpdate);
+      navigator.pop(bookToReturn);
 
       // Schedule notification if enabled
       if (_notificationEnabled && _notificationDateTime != null) {
