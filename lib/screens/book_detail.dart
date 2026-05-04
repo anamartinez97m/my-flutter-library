@@ -425,18 +425,51 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         _currentBook.bookId!,
       );
 
-      if (lastActivity == null) {
-        // No reading sessions at all — check dateReadInitial as fallback
-        final startDate = _currentBook.dateReadInitial;
-        if (startDate == null || startDate.isEmpty) return;
-        try {
-          final parsed = DateTime.parse(startDate);
-          if (DateTime.now().difference(parsed).inDays <= 7) return;
-        } catch (e) {
-          return;
-        }
-      } else {
+      if (lastActivity != null) {
         if (DateTime.now().difference(lastActivity).inDays <= 7) return;
+      } else {
+        // No reading sessions — try to determine start date from various sources
+        DateTime? referenceDate;
+
+        // 1. Check book_read_dates for an open (unfinished) read entry
+        final openReadDates = await db.query(
+          'book_read_dates',
+          where: 'book_id = ? AND date_finished IS NULL',
+          whereArgs: [_currentBook.bookId!],
+          orderBy: 'date_started DESC',
+          limit: 1,
+        );
+        if (openReadDates.isNotEmpty) {
+          final dateStr = openReadDates.first['date_started'] as String?;
+          if (dateStr != null && dateStr.isNotEmpty) {
+            try {
+              referenceDate = DateTime.parse(dateStr);
+            } catch (_) {}
+          }
+        }
+
+        // 2. Fall back to dateReadInitial (legacy field)
+        if (referenceDate == null) {
+          final startDate = _currentBook.dateReadInitial;
+          if (startDate != null && startDate.isNotEmpty) {
+            try {
+              referenceDate = DateTime.parse(startDate);
+            } catch (_) {}
+          }
+        }
+
+        // 3. Fall back to createdAt (when the book was added to the library)
+        if (referenceDate == null) {
+          final createdAt = _currentBook.createdAt;
+          if (createdAt != null && createdAt.isNotEmpty) {
+            try {
+              referenceDate = DateTime.parse(createdAt);
+            } catch (_) {}
+          }
+        }
+
+        if (referenceDate == null) return;
+        if (DateTime.now().difference(referenceDate).inDays <= 7) return;
       }
 
       // Book has been idle for more than 7 days — show suggestion modal
