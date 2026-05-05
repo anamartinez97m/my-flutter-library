@@ -1619,5 +1619,13 @@
   "n_books_label": "{count} books ({percentage}%)",
   "@n_books_label": {
     "placeholders": { "count": {}, "percentage": {} }
-  }
+  },
+
+  "status_label_yes": "Read",
+  "status_label_no": "Not Read",
+  "status_label_started": "Started",
+  "status_label_tbreleased": "TBReleased",
+  "status_label_repeated": "Repeated",
+  "status_label_abandoned": "Abandoned / DNF",
+  "status_label_standby": "Standby"
 }

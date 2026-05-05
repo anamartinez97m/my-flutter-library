@@ -874,8 +874,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       return DropdownMenuItem<int>(
                         value: status['status_id'] as int,
                         child: Text(
-                          StatusHelper.getDisplayLabel(
+                          StatusHelper.getLocalizedLabel(
                             status['value'] as String,
+                            AppLocalizations.of(context)!,
                           ),
                         ),
                       );

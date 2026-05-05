@@ -3510,4 +3510,25 @@ class AppLocalizationsEs extends AppLocalizations {
   String n_books_label(Object count, Object percentage) {
     return '$count libros ($percentage%)';
   }
+
+  @override
+  String get status_label_yes => 'Leído';
+
+  @override
+  String get status_label_no => 'No Leído';
+
+  @override
+  String get status_label_started => 'Iniciado';
+
+  @override
+  String get status_label_tbreleased => 'Por Publicarse';
+
+  @override
+  String get status_label_repeated => 'Repetido';
+
+  @override
+  String get status_label_abandoned => 'Abandonado / DNF';
+
+  @override
+  String get status_label_standby => 'En Espera';
 }

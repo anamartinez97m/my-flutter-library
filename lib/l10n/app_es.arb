@@ -1625,5 +1625,13 @@
   "n_books_label": "{count} libros ({percentage}%)",
   "@n_books_label": {
     "placeholders": { "count": {}, "percentage": {} }
-  }
+  },
+
+  "status_label_yes": "Leído",
+  "status_label_no": "No Leído",
+  "status_label_started": "Iniciado",
+  "status_label_tbreleased": "Por Publicarse",
+  "status_label_repeated": "Repetido",
+  "status_label_abandoned": "Abandonado / DNF",
+  "status_label_standby": "En Espera"
 }

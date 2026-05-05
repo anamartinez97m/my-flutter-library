@@ -1450,18 +1450,18 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   }
 
   /// Convert database status values to user-friendly display values
-  String _getStatusDisplayValue(String dbValue) {
+  String _getStatusDisplayValue(String dbValue, AppLocalizations l10n) {
     final lowerValue = dbValue.toLowerCase();
 
     // Check if status should be "Started" based on read dates
     if (lowerValue == 'no' &&
         _currentBook.dateReadInitial != null &&
         _currentBook.dateReadFinal == null) {
-      return 'Started';
+      return l10n.status_label_started;
     }
 
-    // Use StatusHelper for consistent labeling
-    return StatusHelper.getDisplayLabel(dbValue);
+    // Use StatusHelper for consistent localized labeling
+    return StatusHelper.getLocalizedLabel(dbValue, l10n);
   }
 
   /// Calculate reading time for the book using three-case algorithm
@@ -2904,6 +2904,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         label: AppLocalizations.of(context)!.status,
                         value: _getStatusDisplayValue(
                           _currentBook.statusValue!,
+                          AppLocalizations.of(context)!,
                         ),
                       ),
 

@@ -6508,6 +6508,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} books ({percentage}%)'**
   String n_books_label(Object count, Object percentage);
+
+  /// No description provided for @status_label_yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Read'**
+  String get status_label_yes;
+
+  /// No description provided for @status_label_no.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Read'**
+  String get status_label_no;
+
+  /// No description provided for @status_label_started.
+  ///
+  /// In en, this message translates to:
+  /// **'Started'**
+  String get status_label_started;
+
+  /// No description provided for @status_label_tbreleased.
+  ///
+  /// In en, this message translates to:
+  /// **'TBReleased'**
+  String get status_label_tbreleased;
+
+  /// No description provided for @status_label_repeated.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeated'**
+  String get status_label_repeated;
+
+  /// No description provided for @status_label_abandoned.
+  ///
+  /// In en, this message translates to:
+  /// **'Abandoned / DNF'**
+  String get status_label_abandoned;
+
+  /// No description provided for @status_label_standby.
+  ///
+  /// In en, this message translates to:
+  /// **'Standby'**
+  String get status_label_standby;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

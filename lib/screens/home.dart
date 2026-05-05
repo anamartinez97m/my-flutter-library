@@ -4,6 +4,7 @@ import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/screens/add_book.dart';
+import 'package:myrandomlibrary/utils/status_helper.dart';
 import 'package:myrandomlibrary/widgets/booklist.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -426,7 +427,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ..._statusList.map((item) {
                                     return DropdownMenuItem<String>(
                                       value: item['value'] as String,
-                                      child: Text(item['value'] as String),
+                                      child: Text(
+                                        StatusHelper.getLocalizedLabel(
+                                          item['value'] as String,
+                                          AppLocalizations.of(context)!,
+                                        ),
+                                      ),
                                     );
                                   }),
                                 ],

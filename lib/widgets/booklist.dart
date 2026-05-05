@@ -4,6 +4,7 @@ import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/screens/book_detail.dart';
+import 'package:myrandomlibrary/utils/status_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BookListView extends StatefulWidget {
@@ -335,7 +336,12 @@ class _BookListViewState extends State<BookListView> {
           book.statusValue != null &&
           book.statusValue!.isNotEmpty) ...[
         Text(
-          AppLocalizations.of(context)!.status_field_label(book.statusValue!),
+          AppLocalizations.of(context)!.status_field_label(
+            StatusHelper.getLocalizedLabel(
+              book.statusValue!,
+              AppLocalizations.of(context)!,
+            ),
+          ),
           style: Theme.of(
             context,
           ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),

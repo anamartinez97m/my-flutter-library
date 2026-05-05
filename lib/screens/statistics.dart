@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
@@ -2179,13 +2180,19 @@ class _PriceByMonthCardState extends State<_PriceByMonthCard> {
   @override
   void initState() {
     super.initState();
+    final currentYear = DateTime.now().year;
     if (widget.totalSpentByMonth.isNotEmpty) {
-      final years =
-          widget.totalSpentByMonth.keys.toList()
-            ..sort((a, b) => b.compareTo(a));
-      _selectedYear = years.first;
+      if (widget.totalSpentByMonth.containsKey(currentYear)) {
+        _selectedYear = currentYear;
+      } else {
+        final years =
+            widget.totalSpentByMonth.keys.toList()
+              ..sort((a, b) => b.compareTo(a));
+        final pastYears = years.where((y) => y <= currentYear).toList();
+        _selectedYear = pastYears.isNotEmpty ? pastYears.first : years.first;
+      }
     } else {
-      _selectedYear = DateTime.now().year;
+      _selectedYear = currentYear;
     }
   }
 
@@ -2334,7 +2341,7 @@ class _PriceByMonthCardState extends State<_PriceByMonthCard> {
 }
 
 /// Most / Least Expensive book card
-class _MostLeastExpensiveCard extends StatelessWidget {
+class _MostLeastExpensiveCard extends StatefulWidget {
   final String? mostExpensiveName;
   final double? mostExpensivePrice;
   final String? leastExpensiveName;
@@ -2349,6 +2356,14 @@ class _MostLeastExpensiveCard extends StatelessWidget {
     required this.totalSpent,
     required this.currencySymbol,
   });
+
+  @override
+  State<_MostLeastExpensiveCard> createState() =>
+      _MostLeastExpensiveCardState();
+}
+
+class _MostLeastExpensiveCardState extends State<_MostLeastExpensiveCard> {
+  bool _totalVisible = false;
 
   @override
   Widget build(BuildContext context) {
@@ -2390,28 +2405,52 @@ class _MostLeastExpensiveCard extends StatelessWidget {
                           AppLocalizations.of(context)!.total_spent,
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
-                        Text(
-                          '$currencySymbol${totalSpent.toStringAsFixed(2)}',
-                          style: Theme.of(
-                            context,
-                          ).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.teal,
+                        ClipRect(
+                          child: Stack(
+                            children: [
+                              Text(
+                                '${widget.currencySymbol}${widget.totalSpent.toStringAsFixed(2)}',
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.teal,
+                                ),
+                              ),
+                              if (!_totalVisible)
+                                Positioned.fill(
+                                  child: BackdropFilter(
+                                    filter: ImageFilter.blur(
+                                      sigmaX: 6,
+                                      sigmaY: 6,
+                                    ),
+                                    child: Container(color: Colors.transparent),
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
                       ],
                     ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      _totalVisible ? Icons.visibility_off : Icons.visibility,
+                      color: Colors.teal,
+                    ),
+                    onPressed:
+                        () => setState(() => _totalVisible = !_totalVisible),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 16),
             // Most expensive
-            if (mostExpensiveName != null) ...[
+            if (widget.mostExpensiveName != null) ...[
               ListTile(
                 leading: const Icon(Icons.arrow_upward, color: Colors.red),
                 title: Text(
-                  mostExpensiveName!,
+                  widget.mostExpensiveName!,
                   style: Theme.of(
                     context,
                   ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
@@ -2419,7 +2458,7 @@ class _MostLeastExpensiveCard extends StatelessWidget {
                 ),
                 subtitle: Text(AppLocalizations.of(context)!.most_expensive),
                 trailing: Text(
-                  '$currencySymbol${mostExpensivePrice?.toStringAsFixed(2) ?? ''}',
+                  '${widget.currencySymbol}${widget.mostExpensivePrice?.toStringAsFixed(2) ?? ''}',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Colors.red,
@@ -2428,11 +2467,11 @@ class _MostLeastExpensiveCard extends StatelessWidget {
               ),
             ],
             // Least expensive
-            if (leastExpensiveName != null) ...[
+            if (widget.leastExpensiveName != null) ...[
               ListTile(
                 leading: const Icon(Icons.arrow_downward, color: Colors.green),
                 title: Text(
-                  leastExpensiveName!,
+                  widget.leastExpensiveName!,
                   style: Theme.of(
                     context,
                   ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
@@ -2440,7 +2479,7 @@ class _MostLeastExpensiveCard extends StatelessWidget {
                 ),
                 subtitle: Text(AppLocalizations.of(context)!.least_expensive),
                 trailing: Text(
-                  '$currencySymbol${leastExpensivePrice?.toStringAsFixed(2) ?? ''}',
+                  '${widget.currencySymbol}${widget.leastExpensivePrice?.toStringAsFixed(2) ?? ''}',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Colors.green,
