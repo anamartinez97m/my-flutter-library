@@ -1287,12 +1287,19 @@ class StatisticsCalculator {
             }
           }
         }
-        // If no read date, use acquiredDate as fallback, then createdAt
+        // If no read date, use releaseDate for TBReleased books, otherwise acquiredDate then createdAt
         if (!assignedToYear) {
-          final acquiredStr =
-              (book.acquiredDate != null && book.acquiredDate!.isNotEmpty)
-                  ? book.acquiredDate!
-                  : book.createdAt;
+          final String? acquiredStr;
+          if (book.statusValue?.toLowerCase() == 'tbreleased' &&
+              book.releaseDate != null &&
+              book.releaseDate!.isNotEmpty) {
+            acquiredStr = book.releaseDate;
+          } else {
+            acquiredStr =
+                (book.acquiredDate != null && book.acquiredDate!.isNotEmpty)
+                    ? book.acquiredDate!
+                    : book.createdAt;
+          }
           if (acquiredStr == null || acquiredStr.isEmpty) continue;
           // Handle year-only (e.g. "2024") or full date (e.g. "2024-03-15")
           int? year;

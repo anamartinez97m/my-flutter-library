@@ -958,12 +958,17 @@ class BookRepository {
       'original_book_id': book.originalBookId,
       'notification_enabled': book.notificationEnabled == true ? 1 : 0,
       'notification_datetime': book.notificationDatetime,
+      'release_date': book.releaseDate,
       'bundle_parent_id': book.bundleParentId,
       'reading_progress': book.readingProgress,
       'progress_type': book.progressType,
       'notes': book.notes,
       'price': book.price,
       'rating_override': book.ratingOverride == true ? 1 : 0,
+      'cover_url': book.coverUrl,
+      'description': book.description,
+      'metadata_source': book.metadataSource,
+      'metadata_fetched_at': book.metadataFetchedAt,
       'acquired_date': book.acquiredDate,
     };
 
@@ -1469,10 +1474,12 @@ class BookRepository {
       // Update books where:
       // 1. Status is TBReleased
       // 2. release_date is set and <= today
+      // Also set acquired_date = release_date (the release day is the acquisition day)
       final result = await db.rawUpdate(
         '''
         UPDATE book
-        SET status_id = ?
+        SET status_id = ?,
+            acquired_date = release_date
         WHERE status_id = ?
           AND release_date IS NOT NULL
           AND release_date != ''
