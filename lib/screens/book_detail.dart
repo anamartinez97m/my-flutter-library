@@ -46,6 +46,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   bool _isDescriptionExpanded = false; // Track description expansion state
   bool _isFetchingMetadata = false; // Track if metadata is being fetched
   String _currencySymbol = '€';
+  bool _isAdmin = false;
 
   bool get _hasReadToday {
     final now = DateTime.now();
@@ -160,6 +161,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     if (mounted) {
       setState(() {
         _currencySymbol = prefs.getString('currency_symbol') ?? '€';
+        _isAdmin = prefs.getBool('is_admin') ?? false;
       });
     }
   }
@@ -2803,7 +2805,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              if (_currentBook.metadataSource != null) ...[
+                              if (_isAdmin &&
+                                  _currentBook.metadataSource != null) ...[
                                 const SizedBox(width: 4),
                                 Container(
                                   padding: const EdgeInsets.symmetric(
