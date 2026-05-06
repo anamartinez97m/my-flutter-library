@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/screens/books_by_saga.dart';
+import 'package:myrandomlibrary/utils/format_saga_helper.dart';
 
 enum _SortMode { name, ascending, descending }
 
@@ -348,7 +349,7 @@ class _SagaCompletionDetailScreenState
                   const SizedBox(height: 8),
                   Text(
                     isUnknownTotal
-                        ? '${AppLocalizations.of(context)!.format}: $formatSaga'
+                        ? '${AppLocalizations.of(context)!.format}: ${FormatSagaHelper.getLocalizedLabel(formatSaga, AppLocalizations.of(context)!)}'
                         : '${(progress * 100).toStringAsFixed(0)}% ${AppLocalizations.of(context)!.complete_label}',
                     style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                   ),

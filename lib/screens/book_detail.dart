@@ -13,6 +13,7 @@ import 'package:myrandomlibrary/repositories/book_rating_field_repository.dart';
 import 'package:myrandomlibrary/screens/books_by_author.dart';
 import 'package:myrandomlibrary/screens/books_by_saga.dart';
 import 'package:myrandomlibrary/screens/edit_book.dart';
+import 'package:myrandomlibrary/utils/format_saga_helper.dart';
 import 'package:myrandomlibrary/utils/status_helper.dart';
 import 'package:myrandomlibrary/utils/date_formatter.dart';
 import 'package:myrandomlibrary/widgets/chronometer_widget.dart';
@@ -3297,7 +3298,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                       _DetailCard(
                         icon: Icons.format_shapes,
                         label: AppLocalizations.of(context)!.format_saga,
-                        value: _currentBook.formatSagaValue!,
+                        value: FormatSagaHelper.getLocalizedLabel(
+                          _currentBook.formatSagaValue!,
+                          AppLocalizations.of(context)!,
+                        ),
                       ),
                     if (_currentBook.languageValue != null &&
                         _currentBook.languageValue!.isNotEmpty)
