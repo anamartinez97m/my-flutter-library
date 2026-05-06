@@ -2932,7 +2932,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   ),
                                   const SizedBox(width: 16),
                                   Text(
-                                    'Books in Bundle',
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.books_in_bundle,
                                     style: Theme.of(
                                       context,
                                     ).textTheme.titleSmall?.copyWith(
@@ -3048,8 +3050,15 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                                     Row(
                                                       children: [
                                                         Text(
-                                                          book.statusValue ??
-                                                              AppLocalizations.of(
+                                                          book.statusValue !=
+                                                                  null
+                                                              ? StatusHelper.getLocalizedLabel(
+                                                                book.statusValue!,
+                                                                AppLocalizations.of(
+                                                                  context,
+                                                                )!,
+                                                              )
+                                                              : AppLocalizations.of(
                                                                 context,
                                                               )!.no_status,
                                                           style: TextStyle(
@@ -3062,7 +3071,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                                         if (book.pages !=
                                                             null) ...[
                                                           Text(
-                                                            ' • ${book.pages} pages',
+                                                            ' • ${AppLocalizations.of(context)!.pages_count(book.pages!)}',
                                                             style: TextStyle(
                                                               fontSize: 12,
                                                               color:
@@ -3310,6 +3319,29 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         icon: Icons.import_contacts,
                         label: AppLocalizations.of(context)!.format,
                         value: _currentBook.formatValue!,
+                      ),
+                    // Price
+                    if (_currentBook.price != null && _currentBook.price! >= 0)
+                      _DetailCard(
+                        icon: Icons.attach_money,
+                        label: AppLocalizations.of(context)!.price_label,
+                        value:
+                            '$_currencySymbol${_currentBook.price!.toStringAsFixed(2)}',
+                      ),
+                    // Acquired Date
+                    if (_currentBook.acquiredDate != null &&
+                        _currentBook.acquiredDate!.isNotEmpty)
+                      _DetailCard(
+                        icon: Icons.calendar_today,
+                        label: AppLocalizations.of(context)!.acquired_date,
+                        value: () {
+                          final a = _currentBook.acquiredDate!;
+                          final parts = a.split('-');
+                          if (parts.length == 3) {
+                            return '${parts[2]}/${parts[1]}/${parts[0]}';
+                          }
+                          return a;
+                        }(),
                       ),
                     if (_currentBook.loaned != null &&
                         _currentBook.loaned!.isNotEmpty)
@@ -3788,31 +3820,6 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                             ),
                           );
                         },
-                      ),
-
-                    // Price
-                    if (_currentBook.price != null && _currentBook.price! >= 0)
-                      _DetailCard(
-                        icon: Icons.attach_money,
-                        label: AppLocalizations.of(context)!.price_label,
-                        value:
-                            '$_currencySymbol${_currentBook.price!.toStringAsFixed(2)}',
-                      ),
-
-                    // Acquired Date
-                    if (_currentBook.acquiredDate != null &&
-                        _currentBook.acquiredDate!.isNotEmpty)
-                      _DetailCard(
-                        icon: Icons.calendar_today,
-                        label: AppLocalizations.of(context)!.acquired_date,
-                        value: () {
-                          final a = _currentBook.acquiredDate!;
-                          final parts = a.split('-');
-                          if (parts.length == 3) {
-                            return '${parts[2]}/${parts[1]}/${parts[0]}';
-                          }
-                          return a;
-                        }(),
                       ),
 
                     if (_currentBook.readCount != null &&

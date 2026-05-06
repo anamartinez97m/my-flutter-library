@@ -8,6 +8,7 @@ import 'package:myrandomlibrary/model/book_rating_field.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/repositories/book_rating_field_repository.dart';
+import 'package:myrandomlibrary/utils/format_saga_helper.dart';
 import 'package:myrandomlibrary/utils/status_helper.dart';
 import 'package:myrandomlibrary/widgets/autocomplete_text_field.dart';
 import 'package:myrandomlibrary/widgets/chip_autocomplete_field.dart';
@@ -46,8 +47,6 @@ class _AddBookScreenState extends State<AddBookScreen> {
   final _notesController = TextEditingController();
   final _priceController = TextEditingController();
   final _acquiredYearController = TextEditingController();
-  DateTime? _acquiredDateFull;
-  bool _acquiredDateIsFullDate = false;
   double _myRating = 0.0;
   int _readCount = 0;
 
@@ -707,8 +706,6 @@ class _AddBookScreenState extends State<AddBookScreen> {
       _acquiredYearController.clear();
 
       setState(() {
-        _acquiredDateFull = null;
-        _acquiredDateIsFullDate = false;
         _myRating = 0.0;
         _readCount = 0;
         _readDates = [];
@@ -825,15 +822,110 @@ class _AddBookScreenState extends State<AddBookScreen> {
   }
 
   String? _getAcquiredDate() {
-    if (_acquiredDateIsFullDate && _acquiredDateFull != null) {
-      final y = _acquiredDateFull!.year.toString().padLeft(4, '0');
-      final m = _acquiredDateFull!.month.toString().padLeft(2, '0');
-      final d = _acquiredDateFull!.day.toString().padLeft(2, '0');
-      return '$y-$m-$d';
-    } else if (_acquiredYearController.text.trim().isNotEmpty) {
-      return _acquiredYearController.text.trim();
+    final text = _acquiredYearController.text.trim();
+    return text.isEmpty ? null : text;
+  }
+
+  Future<void> _showAcquiredDatePicker() async {
+    final choice = await showDialog<String>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text(AppLocalizations.of(context)!.select_acquired_date),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.calendar_today),
+                  title: Text(AppLocalizations.of(context)!.full_date),
+                  onTap: () => Navigator.pop(context, 'date'),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.calendar_view_month),
+                  title: Text(AppLocalizations.of(context)!.year_only),
+                  onTap: () => Navigator.pop(context, 'year'),
+                ),
+              ],
+            ),
+          ),
+    );
+
+    if (choice == 'date') {
+      if (!mounted) return;
+      final currentValue = _acquiredYearController.text.trim();
+      final date = await showDatePicker(
+        context: context,
+        initialDate:
+            currentValue.isNotEmpty
+                ? DateTime.tryParse(currentValue) ?? DateTime.now()
+                : DateTime.now(),
+        firstDate: DateTime(1900),
+        lastDate: DateTime.now(),
+      );
+      if (date != null) {
+        setState(() {
+          _acquiredYearController.text =
+              '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+        });
+      }
+    } else if (choice == 'year') {
+      if (!mounted) return;
+      final currentValue = _acquiredYearController.text.trim();
+      final yearController = TextEditingController(
+        text:
+            currentValue.length >= 4
+                ? currentValue.substring(0, 4)
+                : DateTime.now().year.toString(),
+      );
+      final year = await showDialog<String>(
+        context: context,
+        builder:
+            (context) => AlertDialog(
+              title: Text(AppLocalizations.of(context)!.enter_year),
+              content: TextField(
+                controller: yearController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Year',
+                  hintText: 'e.g., 2024',
+                ),
+                autofocus: true,
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(AppLocalizations.of(context)!.cancel),
+                ),
+                TextButton(
+                  onPressed: () {
+                    final yearValue = int.tryParse(yearController.text);
+                    if (yearValue != null &&
+                        yearValue >= 1900 &&
+                        yearValue <= DateTime.now().year) {
+                      Navigator.pop(context, yearController.text);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            AppLocalizations.of(
+                              context,
+                            )!.please_enter_valid_year,
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  child: Text(AppLocalizations.of(context)!.ok),
+                ),
+              ],
+            ),
+      );
+      if (year != null) {
+        setState(() {
+          _acquiredYearController.text = year;
+        });
+      }
     }
-    return null;
   }
 
   @override
@@ -1340,7 +1432,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     _formatSagaList.map((format) {
                       return DropdownMenuItem<int>(
                         value: format['format_id'] as int,
-                        child: Text(format['value'] as String),
+                        child: Text(
+                          FormatSagaHelper.getLocalizedLabel(
+                            format['value'] as String,
+                            AppLocalizations.of(context)!,
+                          ),
+                        ),
                       );
                     }).toList(),
                 onChanged: (value) {
@@ -1417,6 +1514,48 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     _selectedFormatId = value;
                   });
                 },
+              ),
+              const SizedBox(height: 16),
+
+              // Price field
+              TextFormField(
+                controller: _priceController,
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.price,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.attach_money),
+                  hintText: AppLocalizations.of(context)!.enter_book_price,
+                ),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Acquired Date field
+              InkWell(
+                onTap: _showAcquiredDatePicker,
+                child: InputDecorator(
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.acquired_date,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.calendar_today),
+                  ),
+                  child: Text(
+                    _acquiredYearController.text.isNotEmpty
+                        ? _acquiredYearController.text
+                        : AppLocalizations.of(context)!.select_acquired_date,
+                    style: TextStyle(
+                      color:
+                          _acquiredYearController.text.isNotEmpty
+                              ? null
+                              : Colors.grey,
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(height: 16),
 
@@ -1880,112 +2019,6 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 maxLines: 5,
                 keyboardType: TextInputType.multiline,
                 textCapitalization: TextCapitalization.sentences,
-              ),
-              const SizedBox(height: 16),
-
-              // Price field
-              TextFormField(
-                controller: _priceController,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.price,
-                  border: const OutlineInputBorder(),
-                  prefixIcon: const Icon(Icons.attach_money),
-                  hintText: AppLocalizations.of(context)!.enter_book_price,
-                ),
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              // Acquired Date field
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          AppLocalizations.of(context)!.acquired_date,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          setState(() {
-                            _acquiredDateIsFullDate = !_acquiredDateIsFullDate;
-                            _acquiredDateFull = null;
-                          });
-                        },
-                        child: Text(
-                          _acquiredDateIsFullDate
-                              ? AppLocalizations.of(context)!.year_only
-                              : AppLocalizations.of(context)!.full_date,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (!_acquiredDateIsFullDate)
-                    TextFormField(
-                      controller: _acquiredYearController,
-                      decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)!.acquired_date,
-                        border: const OutlineInputBorder(),
-                        prefixIcon: const Icon(Icons.calendar_today),
-                        hintText:
-                            AppLocalizations.of(context)!.acquired_date_hint,
-                      ),
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(4),
-                      ],
-                    )
-                  else
-                    InkWell(
-                      onTap: () async {
-                        final picked = await showDatePicker(
-                          context: context,
-                          initialDate: _acquiredDateFull ?? DateTime.now(),
-                          firstDate: DateTime(1900),
-                          lastDate: DateTime.now(),
-                        );
-                        if (picked != null) {
-                          setState(() {
-                            _acquiredDateFull = picked;
-                            _acquiredYearController.text =
-                                picked.year.toString();
-                          });
-                        }
-                      },
-                      child: InputDecorator(
-                        decoration: InputDecoration(
-                          labelText:
-                              AppLocalizations.of(context)!.acquired_date,
-                          border: const OutlineInputBorder(),
-                          prefixIcon: const Icon(Icons.calendar_today),
-                        ),
-                        child: Text(
-                          _acquiredDateFull != null
-                              ? '${_acquiredDateFull!.day.toString().padLeft(2, '0')}/${_acquiredDateFull!.month.toString().padLeft(2, '0')}/${_acquiredDateFull!.year}'
-                              : AppLocalizations.of(
-                                context,
-                              )!.select_acquired_date,
-                          style: TextStyle(
-                            color:
-                                _acquiredDateFull != null ? null : Colors.grey,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
               ),
               const SizedBox(height: 16),
 

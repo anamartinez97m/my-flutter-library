@@ -3791,18 +3791,6 @@ abstract class AppLocalizations {
   /// **'Point camera at barcode'**
   String get point_camera_at_barcode;
 
-  /// No description provided for @test_notification_sent.
-  ///
-  /// In en, this message translates to:
-  /// **'Test notification sent!'**
-  String get test_notification_sent;
-
-  /// No description provided for @test_notification.
-  ///
-  /// In en, this message translates to:
-  /// **'Test Notification'**
-  String get test_notification;
-
   /// No description provided for @timed_reading_sessions.
   ///
   /// In en, this message translates to:
@@ -6550,6 +6538,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Standby'**
   String get status_label_standby;
+
+  /// No description provided for @format_saga_label_standalone.
+  ///
+  /// In en, this message translates to:
+  /// **'Standalone'**
+  String get format_saga_label_standalone;
+
+  /// No description provided for @format_saga_label_bilogy.
+  ///
+  /// In en, this message translates to:
+  /// **'Bilogy'**
+  String get format_saga_label_bilogy;
+
+  /// No description provided for @format_saga_label_trilogy.
+  ///
+  /// In en, this message translates to:
+  /// **'Trilogy'**
+  String get format_saga_label_trilogy;
+
+  /// No description provided for @format_saga_label_tetralogy.
+  ///
+  /// In en, this message translates to:
+  /// **'Tetralogy'**
+  String get format_saga_label_tetralogy;
+
+  /// No description provided for @format_saga_label_pentalogy.
+  ///
+  /// In en, this message translates to:
+  /// **'Pentalogy'**
+  String get format_saga_label_pentalogy;
+
+  /// No description provided for @format_saga_label_hexalogy.
+  ///
+  /// In en, this message translates to:
+  /// **'Hexalogy'**
+  String get format_saga_label_hexalogy;
+
+  /// No description provided for @format_saga_label_saga.
+  ///
+  /// In en, this message translates to:
+  /// **'Saga'**
+  String get format_saga_label_saga;
+
+  /// No description provided for @pages_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} pages'**
+  String pages_count(Object count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

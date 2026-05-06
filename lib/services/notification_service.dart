@@ -63,6 +63,9 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
   bool _initialized = false;
 
+  /// Payload stored when navigation is attempted before navigator is ready (cold start)
+  String? _pendingNavigationPayload;
+
   // Notification ID range for reading reminders: 100000 + bookId
   static const int _readingReminderBaseId = 100000;
 
@@ -122,7 +125,44 @@ class NotificationService {
           _onBackgroundNotificationAction,
     );
 
+    // Capture payload if app was launched (cold-started) by tapping a notification
+    try {
+      final launchDetails =
+          await _notifications.getNotificationAppLaunchDetails();
+      if (launchDetails?.didNotificationLaunchApp == true) {
+        final payload = launchDetails!.notificationResponse?.payload;
+        if (payload != null) {
+          _pendingNavigationPayload = payload;
+          debugPrint(
+            '📖 App launched from notification, pending payload: $payload',
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('⚠️ Could not get notification launch details: $e');
+    }
+
     _initialized = true;
+  }
+
+  /// Call this once the navigator is mounted (e.g. in addPostFrameCallback)
+  /// to handle navigation from cold-start notification taps.
+  Future<void> processPendingNavigation() async {
+    if (_pendingNavigationPayload == null) return;
+    final payload = _pendingNavigationPayload!;
+    _pendingNavigationPayload = null;
+
+    if (payload.startsWith('reading_reminder_')) {
+      final match = RegExp(r'reading_reminder_(\d+)').firstMatch(payload);
+      if (match != null) {
+        final bookId = int.tryParse(match.group(1)!);
+        if (bookId != null) {
+          await _navigateToBookFromPayload('book_release_$bookId');
+        }
+      }
+    } else {
+      await _navigateToBookFromPayload(payload);
+    }
   }
 
   void _onNotificationTapped(NotificationResponse response) {
@@ -194,7 +234,11 @@ class NotificationService {
           MaterialPageRoute(builder: (context) => BookDetailScreen(book: book)),
         );
       } else {
-        debugPrint('⚠️ Navigator not available for notification tap');
+        // Navigator not ready yet — store for processPendingNavigation()
+        debugPrint(
+          '⚠️ Navigator not available, storing payload for later: $payload',
+        );
+        _pendingNavigationPayload = payload;
       }
     } catch (e) {
       debugPrint('❌ Error navigating to book from notification: $e');

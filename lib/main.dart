@@ -169,6 +169,7 @@ class _AutoBackupRunnerState extends State<_AutoBackupRunner> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _runAutoBackup();
+      NotificationService().processPendingNavigation();
     });
   }
 

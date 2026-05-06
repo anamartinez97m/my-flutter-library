@@ -2053,12 +2053,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get point_camera_at_barcode => 'Apunta la cámara al código de barras';
 
   @override
-  String get test_notification_sent => '¡Notificación de prueba enviada!';
-
-  @override
-  String get test_notification => 'Notificación de Prueba';
-
-  @override
   String get timed_reading_sessions => 'Sesiones de Lectura Cronometradas';
 
   @override
@@ -3531,4 +3525,30 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get status_label_standby => 'En Espera';
+
+  @override
+  String get format_saga_label_standalone => 'Independiente';
+
+  @override
+  String get format_saga_label_bilogy => 'Bilogía';
+
+  @override
+  String get format_saga_label_trilogy => 'Trilogía';
+
+  @override
+  String get format_saga_label_tetralogy => 'Tetralogía';
+
+  @override
+  String get format_saga_label_pentalogy => 'Pentalogía';
+
+  @override
+  String get format_saga_label_hexalogy => 'Hexalogía';
+
+  @override
+  String get format_saga_label_saga => 'Saga';
+
+  @override
+  String pages_count(Object count) {
+    return '$count páginas';
+  }
 }

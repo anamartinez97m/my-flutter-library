@@ -964,8 +964,6 @@
   "acquired_date_hint": "Year or full date acquired",
   "add_notes_hint": "Add any additional notes about this book...",
   "point_camera_at_barcode": "Point camera at barcode",
-  "test_notification_sent": "Test notification sent!",
-  "test_notification": "Test Notification",
   "timed_reading_sessions": "Timed Reading Sessions",
   "update_book": "Update Book",
 
@@ -1627,5 +1625,18 @@
   "status_label_tbreleased": "TBReleased",
   "status_label_repeated": "Repeated",
   "status_label_abandoned": "Abandoned / DNF",
-  "status_label_standby": "Standby"
+  "status_label_standby": "Standby",
+
+  "format_saga_label_standalone": "Standalone",
+  "format_saga_label_bilogy": "Bilogy",
+  "format_saga_label_trilogy": "Trilogy",
+  "format_saga_label_tetralogy": "Tetralogy",
+  "format_saga_label_pentalogy": "Pentalogy",
+  "format_saga_label_hexalogy": "Hexalogy",
+  "format_saga_label_saga": "Saga",
+
+  "pages_count": "{count} pages",
+  "@pages_count": {
+    "placeholders": { "count": {} }
+  }
 }
