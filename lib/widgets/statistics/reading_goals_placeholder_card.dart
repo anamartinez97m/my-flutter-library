@@ -29,8 +29,8 @@ class ReadingGoalsPlaceholderCard extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Colors.green.withValues(alpha: 0.1),
-                Colors.teal.withValues(alpha: 0.1),
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.1),
               ],
             ),
           ),
@@ -41,14 +41,16 @@ class ReadingGoalsPlaceholderCard extends StatelessWidget {
                 Icon(
                   Icons.flag,
                   size: 48,
-                  color: Colors.green.withValues(alpha: 0.5),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.5),
                 ),
                 const SizedBox(height: 12),
                 Text(
                   AppLocalizations.of(context)!.reading_goals_progress,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: Colors.grey[700],
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -59,10 +61,14 @@ class ReadingGoalsPlaceholderCard extends StatelessWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.green.withValues(alpha: 0.2),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primaryContainer.withValues(alpha: 0.4),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: Colors.green.withValues(alpha: 0.5),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.5),
                       width: 1,
                     ),
                   ),
@@ -72,7 +78,7 @@ class ReadingGoalsPlaceholderCard extends StatelessWidget {
                       Icon(
                         Icons.check_circle,
                         size: 16,
-                        color: Colors.green[800],
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                       const SizedBox(width: 6),
                       Flexible(
@@ -81,7 +87,7 @@ class ReadingGoalsPlaceholderCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            color: Colors.green[800],
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -92,16 +98,16 @@ class ReadingGoalsPlaceholderCard extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text(
                   AppLocalizations.of(context)!.set_and_track_reading_goals,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 4),
                 Text(
                   AppLocalizations.of(context)!.annual_book_page_challenges,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[500],
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontStyle: FontStyle.italic,
                   ),
                   textAlign: TextAlign.center,

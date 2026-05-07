@@ -41,10 +41,10 @@ class _NavigationScreenState extends State<NavigationScreen> {
       barrierDismissible: false,
       builder:
           (context) => AlertDialog(
-            icon: const Icon(
+            icon: Icon(
               Icons.system_update_outlined,
               size: 48,
-              color: Colors.blueAccent,
+              color: Theme.of(context).colorScheme.primary,
             ),
             title: Text(l10n.update_available_title),
             content: Text(

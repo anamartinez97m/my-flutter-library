@@ -274,7 +274,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text('${l10n.error}: $e'),
-          backgroundColor: Colors.red,
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
     }
@@ -287,11 +287,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.fill_empty_fields),
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
-      ),
+      appBar: AppBar(title: Text(l10n.fill_empty_fields)),
       body: _selectedField == null ? _buildFieldPicker() : _buildWizard(),
     );
   }
@@ -313,7 +309,10 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
             final key = field['key']!;
             return Card(
               child: ListTile(
-                leading: Icon(_getFieldIcon(key), color: Colors.deepPurple),
+                leading: Icon(
+                  _getFieldIcon(key),
+                  color: Theme.of(context).colorScheme.primary,
+                ),
                 title: Text(_getFieldLabel(key)),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
@@ -343,14 +342,16 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
             Icon(
               Icons.check_circle_outline,
               size: 64,
-              color: Colors.green[300],
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.6),
             ),
             const SizedBox(height: 16),
             Text(
               l10n.no_books_with_empty_field,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: 24),
             TextButton.icon(
@@ -376,7 +377,9 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
         // Progress header
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          color: Colors.deepPurple.shade50,
+          color: Theme.of(
+            context,
+          ).colorScheme.primaryContainer.withValues(alpha: 0.3),
           child: Row(
             children: [
               IconButton(
@@ -408,7 +411,10 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                         totalEmpty,
                         _getFieldLabel(_selectedField!),
                       ),
-                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ),
@@ -446,8 +452,11 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
         LinearProgressIndicator(
           value:
               _groups.isEmpty ? 0 : (_currentGroupIndex + 1) / _groups.length,
-          backgroundColor: Colors.grey[200],
-          valueColor: const AlwaysStoppedAnimation<Color>(Colors.deepPurple),
+          backgroundColor:
+              Theme.of(context).colorScheme.surfaceContainerHighest,
+          valueColor: AlwaysStoppedAnimation<Color>(
+            Theme.of(context).colorScheme.primary,
+          ),
         ),
 
         Expanded(
@@ -458,12 +467,17 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
               children: [
                 // Group header
                 Card(
-                  color: Colors.deepPurple.shade50,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primaryContainer.withValues(alpha: 0.3),
                   child: Padding(
                     padding: const EdgeInsets.all(12),
                     child: Row(
                       children: [
-                        Icon(Icons.person, color: Colors.deepPurple),
+                        Icon(
+                          Icons.person,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Column(
@@ -480,7 +494,9 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                                 l10n.books_in_group(group.books.length),
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Colors.grey[600],
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.primary.withValues(alpha: 0.6),
                                 ),
                               ),
                             ],
@@ -497,9 +513,15 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.amber.shade50,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.tertiaryContainer.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.amber.shade300),
+                      border: Border.all(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.tertiary.withValues(alpha: 0.4),
+                      ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -508,7 +530,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                           children: [
                             Icon(
                               Icons.lightbulb_outline,
-                              color: Colors.amber.shade700,
+                              color: Theme.of(context).colorScheme.tertiary,
                               size: 18,
                             ),
                             const SizedBox(width: 8),
@@ -519,7 +541,8 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                                 ),
                                 style: TextStyle(
                                   fontSize: 13,
-                                  color: Colors.amber.shade900,
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface,
                                 ),
                               ),
                             ),
@@ -536,11 +559,18 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                                   label: Text(s),
                                   backgroundColor:
                                       isSelected
-                                          ? Colors.deepPurple.shade100
+                                          ? Theme.of(
+                                            context,
+                                          ).colorScheme.primaryContainer
                                           : null,
                                   side:
                                       isSelected
-                                          ? BorderSide(color: Colors.deepPurple)
+                                          ? BorderSide(
+                                            color:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.primary,
+                                          )
                                           : null,
                                   onPressed: () {
                                     setState(() => _groupSelectedValue = s);
@@ -598,12 +628,15 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                               book.author!,
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.grey[600],
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                               ),
                             )
                             : null,
                     dense: true,
-                    activeColor: Colors.deepPurple,
+                    activeColor: Theme.of(context).colorScheme.primary,
                   );
                 }),
                 const SizedBox(height: 16),
@@ -620,19 +653,19 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                             : null,
                     icon:
                         _isApplying
-                            ? const SizedBox(
+                            ? SizedBox(
                               width: 16,
                               height: 16,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: Colors.white,
+                                color: Theme.of(context).colorScheme.onPrimary,
                               ),
                             )
                             : const Icon(Icons.check),
                     label: Text(l10n.apply_to_group),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                   ),

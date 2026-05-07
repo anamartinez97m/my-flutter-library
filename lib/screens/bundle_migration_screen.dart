@@ -83,7 +83,10 @@ class _BundleMigrationScreenState extends State<BundleMigrationScreen> {
                       ? AppLocalizations.of(context)!.migration_completed_errors
                       : AppLocalizations.of(context)!.migration_successful,
                   style: TextStyle(
-                    color: result.hasErrors ? Colors.orange : Colors.green,
+                    color:
+                        result.hasErrors
+                            ? Theme.of(context).colorScheme.secondary
+                            : Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 content: SingleChildScrollView(
@@ -129,7 +132,7 @@ class _BundleMigrationScreenState extends State<BundleMigrationScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Migration failed: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -210,13 +213,13 @@ class _BundleMigrationScreenState extends State<BundleMigrationScreen> {
                             _buildStatRow(
                               AppLocalizations.of(context)!.old_style_bundles,
                               _stats?.oldStyleBundles ?? 0,
-                              Colors.orange,
+                              Theme.of(context).colorScheme.secondary,
                               Icons.folder_outlined,
                             ),
                             _buildStatRow(
                               AppLocalizations.of(context)!.new_style_bundles,
                               _stats?.newStyleBundles ?? 0,
-                              Colors.green,
+                              Theme.of(context).colorScheme.primary,
                               Icons.folder_special,
                             ),
                             _buildStatRow(
@@ -224,7 +227,7 @@ class _BundleMigrationScreenState extends State<BundleMigrationScreen> {
                                 context,
                               )!.individual_bundle_books,
                               _stats?.individualBundleBooks ?? 0,
-                              Colors.blue,
+                              Theme.of(context).colorScheme.tertiary,
                               Icons.menu_book,
                             ),
                           ],
@@ -241,13 +244,13 @@ class _BundleMigrationScreenState extends State<BundleMigrationScreen> {
                           onPressed: _isMigrating ? null : _runMigration,
                           icon:
                               _isMigrating
-                                  ? const SizedBox(
+                                  ? SizedBox(
                                     width: 20,
                                     height: 20,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
                                       valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.white,
+                                        Theme.of(context).colorScheme.onPrimary,
                                       ),
                                     ),
                                   )
@@ -265,29 +268,32 @@ class _BundleMigrationScreenState extends State<BundleMigrationScreen> {
                             padding: const EdgeInsets.all(16),
                             backgroundColor:
                                 Theme.of(context).colorScheme.primary,
-                            foregroundColor: Colors.white,
+                            foregroundColor:
+                                Theme.of(context).colorScheme.onPrimary,
                           ),
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Text(
+                      Text(
                         '⚠️ This operation cannot be undone',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.orange,
+                          color: Theme.of(context).colorScheme.secondary,
                           fontStyle: FontStyle.italic,
                         ),
                       ),
                     ] else ...[
                       Card(
-                        color: Colors.green[50],
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer.withValues(alpha: 0.3),
                         child: Padding(
                           padding: const EdgeInsets.all(16),
                           child: Row(
                             children: [
                               Icon(
                                 Icons.check_circle,
-                                color: Colors.green[700],
+                                color: Theme.of(context).colorScheme.primary,
                               ),
                               const SizedBox(width: 12),
                               Expanded(

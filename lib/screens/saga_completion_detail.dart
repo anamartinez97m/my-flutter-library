@@ -132,7 +132,7 @@ class _SagaCompletionDetailScreenState
                     index: 0,
                     label: AppLocalizations.of(context)!.completed,
                     count: _completedSagas.length,
-                    color: Colors.green,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -141,7 +141,7 @@ class _SagaCompletionDetailScreenState
                     index: 1,
                     label: AppLocalizations.of(context)!.in_progress,
                     count: _inProgressSagas.length,
-                    color: Colors.orange,
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -150,7 +150,7 @@ class _SagaCompletionDetailScreenState
                     index: 2,
                     label: AppLocalizations.of(context)!.not_started,
                     count: _notStartedSagas.length,
-                    color: Colors.grey,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -186,7 +186,10 @@ class _SagaCompletionDetailScreenState
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
             border: Border.all(
-              color: isSelected ? color : Colors.grey.shade300,
+              color:
+                  isSelected
+                      ? color
+                      : Theme.of(context).colorScheme.outlineVariant,
               width: isSelected ? 2 : 1,
             ),
             borderRadius: BorderRadius.circular(8),
@@ -198,7 +201,10 @@ class _SagaCompletionDetailScreenState
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: isSelected ? color : Colors.grey.shade600,
+                  color:
+                      isSelected
+                          ? color
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
               const SizedBox(height: 4),
@@ -206,7 +212,10 @@ class _SagaCompletionDetailScreenState
                 label,
                 style: TextStyle(
                   fontSize: 12,
-                  color: isSelected ? color : Colors.grey.shade600,
+                  color:
+                      isSelected
+                          ? color
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -225,22 +234,22 @@ class _SagaCompletionDetailScreenState
     switch (_selectedTabIndex) {
       case 0:
         sagas = _completedSagas;
-        color = Colors.green;
+        color = Theme.of(context).colorScheme.primary;
         emptyMessage = AppLocalizations.of(context)!.no_completed_sagas;
         break;
       case 1:
         sagas = _inProgressSagas;
-        color = Colors.orange;
+        color = Theme.of(context).colorScheme.secondary;
         emptyMessage = AppLocalizations.of(context)!.no_sagas_in_progress;
         break;
       case 2:
         sagas = _notStartedSagas;
-        color = Colors.grey;
+        color = Theme.of(context).colorScheme.onSurfaceVariant;
         emptyMessage = AppLocalizations.of(context)!.no_unstarted_sagas;
         break;
       default:
         sagas = [];
-        color = Colors.grey;
+        color = Theme.of(context).colorScheme.onSurfaceVariant;
         emptyMessage = '';
     }
 
@@ -252,12 +261,15 @@ class _SagaCompletionDetailScreenState
             Icon(
               Icons.collections_bookmark_outlined,
               size: 64,
-              color: Colors.grey.shade300,
+              color: Theme.of(context).colorScheme.outlineVariant,
             ),
             const SizedBox(height: 16),
             Text(
               emptyMessage,
-              style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),
@@ -342,7 +354,8 @@ class _SagaCompletionDetailScreenState
                     child: LinearProgressIndicator(
                       value: progress,
                       minHeight: 8,
-                      backgroundColor: Colors.grey.shade200,
+                      backgroundColor:
+                          Theme.of(context).colorScheme.surfaceContainerHighest,
                       valueColor: AlwaysStoppedAnimation<Color>(color),
                     ),
                   ),
@@ -351,7 +364,10 @@ class _SagaCompletionDetailScreenState
                     isUnknownTotal
                         ? '${AppLocalizations.of(context)!.format}: ${FormatSagaHelper.getLocalizedLabel(formatSaga, AppLocalizations.of(context)!)}'
                         : '${(progress * 100).toStringAsFixed(0)}% ${AppLocalizations.of(context)!.complete_label}',
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),

@@ -32,7 +32,7 @@ class _HeartRatingInputState extends State<HeartRatingInput> {
         Text(
           AppLocalizations.of(context)!.my_rating,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Colors.grey[700],
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -66,7 +66,7 @@ class _HeartRatingInputState extends State<HeartRatingInput> {
               _currentRating.toStringAsFixed(1),
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: Colors.red,
+                color: Theme.of(context).colorScheme.error,
               ),
             ),
           ],
@@ -75,7 +75,7 @@ class _HeartRatingInputState extends State<HeartRatingInput> {
         Text(
           AppLocalizations.of(context)!.tap_hearts_to_rate,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Colors.grey[600],
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             fontStyle: FontStyle.italic,
           ),
         ),
@@ -91,19 +91,35 @@ class _HeartRatingInputState extends State<HeartRatingInput> {
         _currentRating < heartValue;
 
     if (isFilled) {
-      return const Icon(Icons.favorite, color: Colors.red, size: 36);
+      return Icon(
+        Icons.favorite,
+        color: Theme.of(context).colorScheme.error,
+        size: 36,
+      );
     } else if (isHalf) {
       return Stack(
         children: [
-          Icon(Icons.favorite_border, color: Colors.grey[400], size: 36),
+          Icon(
+            Icons.favorite_border,
+            color: Theme.of(context).colorScheme.outlineVariant,
+            size: 36,
+          ),
           ClipRect(
             clipper: HalfClipper(),
-            child: const Icon(Icons.favorite, color: Colors.red, size: 36),
+            child: Icon(
+              Icons.favorite,
+              color: Theme.of(context).colorScheme.error,
+              size: 36,
+            ),
           ),
         ],
       );
     } else {
-      return Icon(Icons.favorite_border, color: Colors.grey[400], size: 36);
+      return Icon(
+        Icons.favorite_border,
+        color: Theme.of(context).colorScheme.outlineVariant,
+        size: 36,
+      );
     }
   }
 }

@@ -106,7 +106,9 @@ class _DailyReadingHeatmapCardState extends State<DailyReadingHeatmapCard> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey[300]!),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                    ),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: DropdownButton<int>(
@@ -142,9 +144,9 @@ class _DailyReadingHeatmapCardState extends State<DailyReadingHeatmapCard> {
                 totalDaysInYear.toString(),
                 percentage,
               ),
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: 12),
             // Grid: 12 month columns x 31 day rows
@@ -214,7 +216,11 @@ class _DailyReadingHeatmapCardState extends State<DailyReadingHeatmapCard> {
                               margin: const EdgeInsets.all(gap / 2),
                               decoration: BoxDecoration(
                                 color:
-                                    didRead ? Colors.green : Colors.grey[200],
+                                    didRead
+                                        ? Theme.of(context).colorScheme.primary
+                                        : Theme.of(
+                                          context,
+                                        ).colorScheme.surfaceContainerHighest,
                                 borderRadius: BorderRadius.circular(2),
                               ),
                             );

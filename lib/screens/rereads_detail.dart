@@ -33,13 +33,17 @@ class RereadsDetailScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.replay, size: 64, color: Colors.grey[400]),
+                  Icon(
+                    Icons.replay,
+                    size: 64,
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                  ),
                   const SizedBox(height: 16),
                   Text(
                     AppLocalizations.of(context)!.no_re_read_books_yet,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),
@@ -66,11 +70,11 @@ class RereadsDetailScreen extends StatelessWidget {
                     vertical: 8,
                   ),
                   leading: CircleAvatar(
-                    backgroundColor: Colors.teal,
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
                     child: Text(
                       '${readCount}x',
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSecondary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -86,7 +90,10 @@ class RereadsDetailScreen extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           book.author!,
-                          style: TextStyle(color: Colors.grey[600]),
+                          style: TextStyle(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                         ),
                       ],
                       const SizedBox(height: 4),
@@ -95,7 +102,7 @@ class RereadsDetailScreen extends StatelessWidget {
                           context,
                         )!.read_n_times(readCount.toString()),
                         style: TextStyle(
-                          color: Colors.teal,
+                          color: Theme.of(context).colorScheme.secondary,
                           fontWeight: FontWeight.w500,
                           fontSize: 12,
                         ),

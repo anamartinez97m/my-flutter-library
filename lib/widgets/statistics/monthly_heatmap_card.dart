@@ -58,10 +58,10 @@ class _MonthlyHeatmapCardState extends State<MonthlyHeatmapCard> {
     return monthAbbrs[month];
   }
 
-  Color _getHeatColor(int count, int maxCount) {
-    if (count == 0) return Colors.grey[200]!;
+  Color _getHeatColor(int count, int maxCount, ColorScheme cs) {
+    if (count == 0) return cs.surfaceContainerHighest;
     final intensity = (count / maxCount).clamp(0.0, 1.0);
-    return Color.lerp(Colors.green[100], Colors.green[900], intensity)!;
+    return Color.lerp(cs.primaryContainer, cs.primary, intensity)!;
   }
 
   @override
@@ -115,7 +115,9 @@ class _MonthlyHeatmapCardState extends State<MonthlyHeatmapCard> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey[300]!),
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.outlineVariant,
+                        ),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: DropdownButton<int>(
@@ -148,9 +150,9 @@ class _MonthlyHeatmapCardState extends State<MonthlyHeatmapCard> {
             const SizedBox(height: 8),
             Text(
               AppLocalizations.of(context)!.books_finished_per_month,
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: 16),
             // Legend
@@ -167,8 +169,8 @@ class _MonthlyHeatmapCardState extends State<MonthlyHeatmapCard> {
                   final intensity = (index + 1) * 0.2;
                   final color =
                       Color.lerp(
-                        Colors.green[100],
-                        Colors.green[900],
+                        Theme.of(context).colorScheme.primaryContainer,
+                        Theme.of(context).colorScheme.primary,
                         intensity,
                       )!;
                   return Container(
@@ -208,9 +210,16 @@ class _MonthlyHeatmapCardState extends State<MonthlyHeatmapCard> {
                       '${_getMonthAbbr(month)} $_selectedYear: $count books',
                   child: Container(
                     decoration: BoxDecoration(
-                      color: _getHeatColor(count, maxCount),
+                      color: _getHeatColor(
+                        count,
+                        maxCount,
+                        Theme.of(context).colorScheme,
+                      ),
                       borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: Colors.grey[300]!, width: 1),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.outlineVariant,
+                        width: 1,
+                      ),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -220,10 +229,7 @@ class _MonthlyHeatmapCardState extends State<MonthlyHeatmapCard> {
                           style: TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.bold,
-                            color:
-                                count > maxCount / 2
-                                    ? Colors.white
-                                    : Colors.black87,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         if (count > 0)
@@ -234,8 +240,8 @@ class _MonthlyHeatmapCardState extends State<MonthlyHeatmapCard> {
                               fontWeight: FontWeight.bold,
                               color:
                                   count > maxCount / 2
-                                      ? Colors.white
-                                      : Colors.black87,
+                                      ? Theme.of(context).colorScheme.onPrimary
+                                      : Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                       ],

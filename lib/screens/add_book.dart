@@ -261,12 +261,14 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.green.withValues(alpha: 0.1),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primaryContainer.withValues(alpha: 0.3),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.check_circle,
-                    color: Colors.green,
+                    color: Theme.of(context).colorScheme.primary,
                     size: 64,
                   ),
                 ),
@@ -281,9 +283,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 const SizedBox(height: 12),
                 Text(
                   AppLocalizations.of(context)!.what_would_you_like_next,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -344,7 +346,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
             (context) => AlertDialog(
               title: Row(
                 children: [
-                  Icon(Icons.warning_amber_rounded, color: Colors.orange),
+                  Icon(
+                    Icons.warning_amber_rounded,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
                   const SizedBox(width: 8),
                   Text(AppLocalizations.of(context)!.missing_required_fields),
                 ],
@@ -397,7 +402,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
             (context) => AlertDialog(
               title: Row(
                 children: [
-                  Icon(Icons.error_outline, color: Colors.red),
+                  Icon(
+                    Icons.error_outline,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
                   const SizedBox(width: 8),
                   Text(AppLocalizations.of(context)!.missing_information),
                 ],
@@ -1241,7 +1249,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     AppLocalizations.of(context)!.review_pages_warning,
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.orange.shade700,
+                      color: Theme.of(context).colorScheme.secondary,
                       fontStyle: FontStyle.italic,
                     ),
                   ),
@@ -1309,7 +1317,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
                                 context,
                               )!.select_release_date,
                           style: TextStyle(
-                            color: _releaseDate != null ? null : Colors.grey,
+                            color:
+                                _releaseDate != null
+                                    ? null
+                                    : Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ),
@@ -1646,7 +1659,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
                                           children: [
                                             Icon(
                                               Icons.warning_amber,
-                                              color: Colors.orange,
+                                              color:
+                                                  Theme.of(
+                                                    context,
+                                                  ).colorScheme.secondary,
                                             ),
                                             const SizedBox(width: 8),
                                             Text(
@@ -2258,12 +2274,17 @@ class _ISBNScannerScreenState extends State<ISBNScannerScreen> {
                   vertical: 12,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.7),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.shadow.withValues(alpha: 0.7),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   AppLocalizations.of(context)!.point_camera_at_barcode,
-                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onInverseSurface,
+                    fontSize: 16,
+                  ),
                 ),
               ),
             ),

@@ -103,10 +103,10 @@ class _BookListViewState extends State<BookListView> {
     // Determine background color
     Color? backgroundColor;
     if (isRead) {
-      backgroundColor = Colors.grey.shade200;
+      backgroundColor = Theme.of(context).colorScheme.surfaceContainerHighest;
     } else if (originalIsRead) {
       // Repeated book whose original is read - use a distinct color
-      backgroundColor = Colors.grey.shade200;
+      backgroundColor = Theme.of(context).colorScheme.surfaceContainerHighest;
     }
 
     // Compute progress fraction for Started/Standby books
@@ -140,7 +140,7 @@ class _BookListViewState extends State<BookListView> {
                 book.name ?? AppLocalizations.of(context)!.unknown_title,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Colors.deepPurple,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
             ),
@@ -149,19 +149,27 @@ class _BookListViewState extends State<BookListView> {
               Icon(
                 Icons.swap_horizontal_circle_outlined,
                 size: 18,
-                color: Colors.deepPurple,
+                color: Theme.of(context).colorScheme.primary,
               ),
               Icon(
                 Icons.alt_route_outlined,
                 size: 18,
-                color: Colors.deepPurple,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ],
             if (book.tbr == true) ...[
-              Icon(Icons.bookmark_add, size: 18, color: Colors.deepPurple),
+              Icon(
+                Icons.bookmark_add,
+                size: 18,
+                color: Theme.of(context).colorScheme.primary,
+              ),
             ],
             if (book.isBundle == true) ...[
-              Icon(Icons.library_books, size: 18, color: Colors.deepPurple),
+              Icon(
+                Icons.library_books,
+                size: 18,
+                color: Theme.of(context).colorScheme.primary,
+              ),
             ],
           ],
         ),
@@ -210,9 +218,9 @@ class _BookListViewState extends State<BookListView> {
                 context,
               )!.language_with_colon(book.languageValue ?? 'N/A'),
           ].join(' • '),
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         const SizedBox(height: 3),
       ],
@@ -224,9 +232,9 @@ class _BookListViewState extends State<BookListView> {
           AppLocalizations.of(
             context,
           )!.isbn_asin_label(book.isbn ?? book.asin ?? 'N/A'),
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         const SizedBox(height: 3),
       ],
@@ -235,9 +243,9 @@ class _BookListViewState extends State<BookListView> {
       if (_enabledCardFields.contains('pages') && book.pages != null) ...[
         Text(
           AppLocalizations.of(context)!.pages_field_label('${book.pages}'),
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         const SizedBox(height: 3),
       ],
@@ -248,9 +256,9 @@ class _BookListViewState extends State<BookListView> {
           book.genre!.isNotEmpty) ...[
         Text(
           AppLocalizations.of(context)!.genre_field_label(book.genre!),
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         const SizedBox(height: 3),
       ],
@@ -263,9 +271,9 @@ class _BookListViewState extends State<BookListView> {
           AppLocalizations.of(
             context,
           )!.editorial_field_label(book.editorialValue!),
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         const SizedBox(height: 3),
       ],
@@ -277,9 +285,9 @@ class _BookListViewState extends State<BookListView> {
           AppLocalizations.of(
             context,
           )!.published_field_label('${book.originalPublicationYear}'),
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         const SizedBox(height: 3),
       ],
@@ -292,9 +300,9 @@ class _BookListViewState extends State<BookListView> {
           AppLocalizations.of(context)!.publication_date_field_label(
             book.notificationDatetime!.split('T')[0],
           ),
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         const SizedBox(height: 3),
       ],
@@ -303,13 +311,17 @@ class _BookListViewState extends State<BookListView> {
       if (_enabledCardFields.contains('rating') && book.myRating != null) ...[
         Row(
           children: [
-            Icon(Icons.star, size: 14, color: Colors.amber),
+            Icon(
+              Icons.star,
+              size: 14,
+              color: Theme.of(context).colorScheme.tertiary,
+            ),
             const SizedBox(width: 4),
             Text(
               '${book.myRating}',
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),
@@ -324,9 +336,9 @@ class _BookListViewState extends State<BookListView> {
           AppLocalizations.of(
             context,
           )!.read_count_field_label('${book.readCount}'),
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         const SizedBox(height: 3),
       ],
@@ -342,9 +354,9 @@ class _BookListViewState extends State<BookListView> {
               AppLocalizations.of(context)!,
             ),
           ),
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         const SizedBox(height: 3),
       ],
@@ -357,7 +369,11 @@ class _BookListViewState extends State<BookListView> {
               book.statusValue?.toLowerCase() == 'standby')) ...[
         Row(
           children: [
-            Icon(Icons.trending_up, size: 14, color: Colors.blue),
+            Icon(
+              Icons.trending_up,
+              size: 14,
+              color: Theme.of(context).colorScheme.primary,
+            ),
             const SizedBox(width: 4),
             Text(
               () {
@@ -370,9 +386,9 @@ class _BookListViewState extends State<BookListView> {
                 }
                 return '${book.readingProgress}%';
               }(),
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),

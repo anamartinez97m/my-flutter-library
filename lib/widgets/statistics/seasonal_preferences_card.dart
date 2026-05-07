@@ -47,18 +47,18 @@ class SeasonalPreferencesCard extends StatelessWidget {
     }
   }
 
-  Color _getSeasonColor(String season) {
+  Color _getSeasonColor(String season, ColorScheme cs) {
     switch (season) {
       case 'Winter':
-        return Colors.blue.shade300;
+        return cs.tertiary;
       case 'Spring':
-        return Colors.green.shade300;
+        return cs.primary;
       case 'Summer':
-        return Colors.orange.shade300;
+        return cs.secondary;
       case 'Fall':
-        return Colors.brown.shade300;
+        return cs.tertiary.withValues(alpha: 0.8);
       default:
-        return Colors.grey.shade300;
+        return cs.onSurfaceVariant;
     }
   }
 
@@ -106,10 +106,14 @@ class SeasonalPreferencesCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: _getSeasonColor(
                     preferredSeason,
+                    Theme.of(context).colorScheme,
                   ).withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: _getSeasonColor(preferredSeason),
+                    color: _getSeasonColor(
+                      preferredSeason,
+                      Theme.of(context).colorScheme,
+                    ),
                     width: 2,
                   ),
                 ),
@@ -134,7 +138,10 @@ class SeasonalPreferencesCard extends StatelessWidget {
                             context,
                           ).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: _getSeasonColor(preferredSeason),
+                            color: _getSeasonColor(
+                              preferredSeason,
+                              Theme.of(context).colorScheme,
+                            ),
                           ),
                         ),
                       ],
@@ -186,9 +193,15 @@ class SeasonalPreferencesCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(4),
                         child: LinearProgressIndicator(
                           value: barWidth,
-                          backgroundColor: Colors.grey.shade200,
+                          backgroundColor:
+                              Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerHighest,
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            _getSeasonColor(entry.key),
+                            _getSeasonColor(
+                              entry.key,
+                              Theme.of(context).colorScheme,
+                            ),
                           ),
                           minHeight: 8,
                         ),
@@ -203,9 +216,9 @@ class SeasonalPreferencesCard extends StatelessWidget {
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
                     AppLocalizations.of(context)!.no_reading_data_available,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
               ),

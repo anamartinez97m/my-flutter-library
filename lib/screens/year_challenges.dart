@@ -160,9 +160,10 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                           AppLocalizations.of(
                             context,
                           )!.add_custom_reading_goals,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: Colors.grey,
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
                         if (customChallenges.isNotEmpty) ...[
@@ -174,7 +175,12 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                               padding: const EdgeInsets.only(bottom: 16),
                               child: Container(
                                 decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey[300]!),
+                                  border: Border.all(
+                                    color:
+                                        Theme.of(
+                                          context,
+                                        ).colorScheme.outlineVariant,
+                                  ),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 padding: const EdgeInsets.all(12),
@@ -282,7 +288,8 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                                   context,
                                 )!.enter_valid_target_books,
                               ),
-                              backgroundColor: Colors.red,
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.error,
                             ),
                           );
                           return;
@@ -341,7 +348,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(AppLocalizations.of(context)!.challenge_created),
-              backgroundColor: Colors.green,
+              backgroundColor: Theme.of(context).colorScheme.primary,
             ),
           );
         }
@@ -350,7 +357,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('${AppLocalizations.of(context)!.error}: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -431,7 +438,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                             context,
                           )!.enter_valid_target_books,
                         ),
-                        backgroundColor: Colors.red,
+                        backgroundColor: Theme.of(context).colorScheme.error,
                       ),
                     );
                     return;
@@ -464,7 +471,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(AppLocalizations.of(context)!.challenge_updated),
-              backgroundColor: Colors.green,
+              backgroundColor: Theme.of(context).colorScheme.primary,
             ),
           );
         }
@@ -473,7 +480,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('${AppLocalizations.of(context)!.error}: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -499,7 +506,9 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
-                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.error,
+                ),
                 child: Text(AppLocalizations.of(context)!.delete),
               ),
             ],
@@ -516,7 +525,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(AppLocalizations.of(context)!.challenge_deleted),
-              backgroundColor: Colors.orange,
+              backgroundColor: Theme.of(context).colorScheme.primary,
             ),
           );
         }
@@ -525,7 +534,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('${AppLocalizations.of(context)!.error}: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -555,7 +564,10 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
               children: [
                 Text(
                   'Target: ${customChallenge.target} ${customChallenge.unit}',
-                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 TextField(
@@ -613,7 +625,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
               content: Text(
                 AppLocalizations.of(context)!.challenge_progress_updated,
               ),
-              backgroundColor: Colors.green,
+              backgroundColor: Theme.of(context).colorScheme.primary,
             ),
           );
         }
@@ -622,7 +634,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('${AppLocalizations.of(context)!.error}: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -650,7 +662,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       color:
           isFinished || (isPastYear && !isFinished)
-              ? Colors.grey.shade200
+              ? Theme.of(context).colorScheme.surfaceContainerHighest
               : null,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -661,7 +673,12 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                   width: 2,
                 )
                 : isFinished
-                ? BorderSide(color: Colors.green.withValues(alpha: 0.3), width: 2)
+                ? BorderSide(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.3),
+                  width: 2,
+                )
                 : BorderSide.none,
       ),
       child: InkWell(
@@ -699,8 +716,8 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                           ),
                           child: Text(
                             AppLocalizations.of(context)!.current_label,
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onPrimary,
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                             ),
@@ -712,7 +729,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                   IconButton(
                     icon: const Icon(Icons.delete_outline),
                     onPressed: () => _deleteChallenge(challenge),
-                    color: Colors.red,
+                    color: Theme.of(context).colorScheme.error,
                   ),
                 ],
               ),
@@ -730,7 +747,10 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                     '$booksRead / ${challenge.targetBooks}',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: booksComplete ? Colors.green : null,
+                      color:
+                          booksComplete
+                              ? Theme.of(context).colorScheme.primary
+                              : null,
                     ),
                   ),
                 ],
@@ -741,11 +761,10 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                 child: LinearProgressIndicator(
                   value: booksProgress.clamp(0.0, 1.0),
                   minHeight: 12,
-                  backgroundColor: Colors.grey[200],
+                  backgroundColor:
+                      Theme.of(context).colorScheme.surfaceContainerHighest,
                   valueColor: AlwaysStoppedAnimation<Color>(
-                    booksComplete
-                        ? Colors.green
-                        : Theme.of(context).colorScheme.primary,
+                    Theme.of(context).colorScheme.primary,
                   ),
                 ),
               ),
@@ -763,7 +782,10 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                       '$pagesRead / ${challenge.targetPages}',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: pagesComplete ? Colors.green : null,
+                        color:
+                            pagesComplete
+                                ? Theme.of(context).colorScheme.primary
+                                : null,
                       ),
                     ),
                   ],
@@ -774,9 +796,12 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                   child: LinearProgressIndicator(
                     value: pagesProgress.clamp(0.0, 1.0),
                     minHeight: 12,
-                    backgroundColor: Colors.grey[200],
+                    backgroundColor:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      pagesComplete ? Colors.green : Colors.orange,
+                      pagesComplete
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.secondary,
                     ),
                   ),
                 ),
@@ -813,14 +838,21 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                         decoration: BoxDecoration(
                           color:
                               isComplete
-                                  ? Colors.green.withValues(alpha: 0.1)
+                                  ? Theme.of(context)
+                                      .colorScheme
+                                      .primaryContainer
+                                      .withValues(alpha: 0.3)
                                   : Colors.transparent,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color:
                                 isComplete
-                                    ? Colors.green.withValues(alpha: 0.3)
-                                    : Colors.grey[300]!,
+                                    ? Theme.of(
+                                      context,
+                                    ).colorScheme.primary.withValues(alpha: 0.3)
+                                    : Theme.of(
+                                      context,
+                                    ).colorScheme.outlineVariant,
                             width: 1,
                           ),
                         ),
@@ -839,14 +871,20 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                                       context,
                                     ).textTheme.bodyMedium?.copyWith(
                                       fontWeight: FontWeight.w600,
-                                      color: isComplete ? Colors.green : null,
+                                      color:
+                                          isComplete
+                                              ? Theme.of(
+                                                context,
+                                              ).colorScheme.primary
+                                              : null,
                                     ),
                                   ),
                                 ),
                                 if (isComplete)
-                                  const Icon(
+                                  Icon(
                                     Icons.check_circle,
-                                    color: Colors.green,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                     size: 18,
                                   ),
                               ],
@@ -863,11 +901,12 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                                             .clamp(0.0, 1.0)
                                         : 0.0,
                                 minHeight: 8,
-                                backgroundColor: Colors.grey[200],
+                                backgroundColor:
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.surfaceContainerHighest,
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                  isComplete
-                                      ? Colors.green
-                                      : Theme.of(context).colorScheme.primary,
+                                  Theme.of(context).colorScheme.primary,
                                 ),
                               ),
                             ),
@@ -881,8 +920,10 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                                 fontWeight: FontWeight.w500,
                                 color:
                                     isComplete
-                                        ? Colors.green
-                                        : Colors.grey[600],
+                                        ? Theme.of(context).colorScheme.primary
+                                        : Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ],
@@ -898,7 +939,8 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.grey[100],
+                    color:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -933,21 +975,21 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                     Icon(
                       Icons.flag_outlined,
                       size: 64,
-                      color: Colors.grey[400],
+                      color: Theme.of(context).colorScheme.outlineVariant,
                     ),
                     const SizedBox(height: 16),
                     Text(
                       AppLocalizations.of(context)!.no_challenges_yet,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.titleLarge?.copyWith(color: Colors.grey[600]),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       AppLocalizations.of(context)!.create_first_challenge,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ),

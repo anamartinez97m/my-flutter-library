@@ -235,7 +235,8 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
                   // Year selector
                   Container(
                     padding: const EdgeInsets.all(16),
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    color:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
                     child: Row(
                       children: [
                         Text(
@@ -340,7 +341,11 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
                 ? Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.favorite, color: Colors.red, size: 16),
+                    Icon(
+                      Icons.favorite,
+                      color: Theme.of(context).colorScheme.error,
+                      size: 16,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       book.myRating!.toStringAsFixed(1),

@@ -85,7 +85,7 @@ class SagaCompletionCard extends StatelessWidget {
                   title: l10n.completed,
                   count: completedSagas,
                   total: total,
-                  color: Colors.green,
+                  color: Theme.of(context).colorScheme.primary,
                   icon: Icons.check_circle,
                 ),
                 const Spacer(),
@@ -95,7 +95,7 @@ class SagaCompletionCard extends StatelessWidget {
                   title: l10n.in_progress,
                   count: partialSagas,
                   total: total,
-                  color: Colors.orange,
+                  color: Theme.of(context).colorScheme.secondary,
                   icon: Icons.auto_stories,
                 ),
                 const Spacer(),
@@ -105,7 +105,7 @@ class SagaCompletionCard extends StatelessWidget {
                   title: l10n.not_started,
                   count: unstartedSagas,
                   total: total,
-                  color: Colors.grey,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   icon: Icons.menu_book,
                 ),
                 const Spacer(),
@@ -134,7 +134,7 @@ class SagaCompletionCard extends StatelessWidget {
         Text(
           title,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: Colors.grey[600],
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -148,9 +148,9 @@ class SagaCompletionCard extends StatelessWidget {
         ),
         Text(
           '$percentage%',
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: Colors.grey[500]),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
       ],
     );

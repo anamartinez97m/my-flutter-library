@@ -94,7 +94,10 @@ class _PastYearsCompetitionScreenState
               ? Center(
                 child: Text(
                   AppLocalizations.of(context)!.no_past_competitions_found,
-                  style: const TextStyle(fontSize: 16, color: Colors.grey),
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
               )
               : ListView.builder(
@@ -152,7 +155,10 @@ class _PastYearsCompetitionScreenState
                                       children: [
                                         Icon(
                                           Icons.emoji_events,
-                                          color: Colors.amber,
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.tertiary,
                                           size: 20,
                                         ),
                                         const SizedBox(width: 8),
@@ -175,10 +181,14 @@ class _PastYearsCompetitionScreenState
                                       AppLocalizations.of(
                                         context,
                                       )!.no_winner_set,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                          ?.copyWith(color: Colors.grey),
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodyMedium?.copyWith(
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                      ),
                                     ),
                                 ],
                               ),

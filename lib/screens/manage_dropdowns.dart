@@ -135,7 +135,10 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                 (context, setState) => AlertDialog(
                   title: Row(
                     children: [
-                      Icon(Icons.info_outline, color: Colors.blue.shade700),
+                      Icon(
+                        Icons.info_outline,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -162,9 +165,16 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Colors.blue.shade50,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primaryContainer
+                                .withValues(alpha: 0.3),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.blue.shade200),
+                            border: Border.all(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.primary.withValues(alpha: 0.3),
+                            ),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -175,7 +185,8 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                                 )!.how_many_books_saga,
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.blue.shade900,
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface,
                                 ),
                               ),
                               const SizedBox(height: 8),
@@ -185,7 +196,8 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                                 )!.saga_completion_explanation,
                                 style: TextStyle(
                                   fontSize: 13,
-                                  color: Colors.blue.shade900,
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface,
                                 ),
                               ),
                             ],
@@ -286,7 +298,8 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                                     context,
                                   )!.enter_valid_number,
                                 ),
-                                backgroundColor: Colors.orange,
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.secondary,
                               ),
                             );
                             return;
@@ -295,8 +308,9 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.deepPurple,
-                        foregroundColor: Colors.white,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onPrimary,
                       ),
                       child: Text(AppLocalizations.of(context)!.continue_label),
                     ),
@@ -311,7 +325,11 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       padding: const EdgeInsets.only(left: 16, bottom: 4),
       child: Row(
         children: [
-          Icon(Icons.circle, size: 6, color: Colors.grey.shade600),
+          Icon(
+            Icons.circle,
+            size: 6,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
           const SizedBox(width: 8),
           Text(
             '$format: ',
@@ -319,7 +337,10 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
           ),
           Text(
             total,
-            style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              fontSize: 12,
+            ),
           ),
         ],
       ),
@@ -355,8 +376,8 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, controller.text.trim()),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
-                  foregroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
                 ),
                 child: Text(AppLocalizations.of(context)!.add),
               ),
@@ -392,7 +413,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.value_added_successfully),
-            backgroundColor: Colors.green,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
 
@@ -405,7 +426,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text('${l10n.error}: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -437,15 +458,21 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                     padding: const EdgeInsets.all(12),
                     margin: const EdgeInsets.only(bottom: 16),
                     decoration: BoxDecoration(
-                      color: Colors.orange.shade50,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.secondaryContainer.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.orange.shade200),
+                      border: Border.all(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.secondary.withValues(alpha: 0.5),
+                      ),
                     ),
                     child: Row(
                       children: [
                         Icon(
                           Icons.warning_amber,
-                          color: Colors.orange.shade700,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                         const SizedBox(width: 8),
                         Expanded(
@@ -459,7 +486,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                                 )!.core_format_saga_warning,
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.orange.shade900,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                         ),
@@ -484,8 +511,8 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, controller.text.trim()),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
-                  foregroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
                 ),
                 child: Text(AppLocalizations.of(context)!.save),
               ),
@@ -503,7 +530,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.value_updated_successfully),
-            backgroundColor: Colors.green,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
 
@@ -516,7 +543,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text('${l10n.error}: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -750,8 +777,8 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                   ElevatedButton(
                     onPressed: () => Navigator.pop(context, true),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
+                      backgroundColor: Theme.of(context).colorScheme.error,
+                      foregroundColor: Theme.of(context).colorScheme.onError,
                     ),
                     child: Text(AppLocalizations.of(context)!.delete),
                   ),
@@ -770,7 +797,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.value_deleted_successfully),
-          backgroundColor: Colors.green,
+          backgroundColor: Theme.of(context).colorScheme.primary,
         ),
       );
 
@@ -783,7 +810,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text('${l10n.error}: $e'),
-          backgroundColor: Colors.red,
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
     }
@@ -794,8 +821,8 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.manage_dropdown_values),
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
       ),
       body: Column(
         children: [
@@ -857,7 +884,10 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.blue),
+                            icon: Icon(
+                              Icons.edit,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
                             onPressed: () => _editValue(id, value),
                           ),
                           IconButton(
@@ -865,8 +895,10 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                               Icons.delete,
                               color:
                                   _isCoreValue(value)
-                                      ? Colors.grey
-                                      : Colors.red,
+                                      ? Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant
+                                      : Theme.of(context).colorScheme.error,
                             ),
                             onPressed:
                                 _isCoreValue(value)
@@ -890,8 +922,8 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addValue,
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
         child: const Icon(Icons.add),
       ),
     );
@@ -1038,7 +1070,10 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
               title: Text(AppLocalizations.of(context)!.delete_completely),
               subtitle: Text(
                 AppLocalizations.of(context)!.delete_may_fail,
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
               value: 'delete',
               groupValue: _selectedOption,
@@ -1079,7 +1114,7 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
                     content: Text(
                       AppLocalizations.of(context)!.please_enter_new_value,
                     ),
-                    backgroundColor: Colors.orange,
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
                   ),
                 );
                 return;
@@ -1090,8 +1125,8 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
             }
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red,
-            foregroundColor: Colors.white,
+            backgroundColor: Theme.of(context).colorScheme.error,
+            foregroundColor: Theme.of(context).colorScheme.onError,
           ),
           child: Text(AppLocalizations.of(context)!.proceed),
         ),

@@ -111,7 +111,7 @@ class BooksBySagaScreen extends StatelessWidget {
                     Icon(
                       Icons.collections_bookmark_outlined,
                       size: 64,
-                      color: Colors.grey[400],
+                      color: Theme.of(context).colorScheme.outlineVariant,
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -121,7 +121,7 @@ class BooksBySagaScreen extends StatelessWidget {
                             : AppLocalizations.of(context)!.saga,
                       ),
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.grey[600],
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -145,7 +145,8 @@ class BooksBySagaScreen extends StatelessWidget {
                                   style: Theme.of(
                                     context,
                                   ).textTheme.headlineMedium?.copyWith(
-                                    color: Colors.deepPurple,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -161,7 +162,8 @@ class BooksBySagaScreen extends StatelessWidget {
                                 children: [
                                   Icon(
                                     Icons.public,
-                                    color: Colors.deepPurple,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                     size: 32,
                                   ),
                                   const SizedBox(height: 4),

@@ -172,13 +172,13 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
               Color statusColor;
               if (statusValue == 'Yes') {
                 statusIcon = Icons.check_circle;
-                statusColor = Colors.green;
+                statusColor = Theme.of(context).colorScheme.primary;
               } else if (statusValue == 'Started') {
                 statusIcon = Icons.play_circle;
-                statusColor = Colors.orange;
+                statusColor = Theme.of(context).colorScheme.secondary;
               } else {
                 statusIcon = Icons.circle_outlined;
-                statusColor = Colors.grey;
+                statusColor = Theme.of(context).colorScheme.onSurfaceVariant;
               }
 
               return Card(
@@ -209,7 +209,9 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                                     fontSize: 16,
                                     color:
                                         statusValue == 'Yes'
-                                            ? Colors.green.shade700
+                                            ? Theme.of(
+                                              context,
+                                            ).colorScheme.primary
                                             : null,
                                   ),
                                 ),

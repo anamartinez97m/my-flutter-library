@@ -204,7 +204,11 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
       children: [
         CheckboxListTile(
           title: Text(AppLocalizations.of(context)!.this_is_a_bundle),
-          subtitle: Text(AppLocalizations.of(context)!.check_if_this_book_contains_multiple_books),
+          subtitle: Text(
+            AppLocalizations.of(
+              context,
+            )!.check_if_this_book_contains_multiple_books,
+          ),
           value: _isBundle,
           onChanged: (value) {
             setState(() {
@@ -221,7 +225,8 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             decoration: InputDecoration(
-              labelText: AppLocalizations.of(context)!.number_of_books_in_bundle,
+              labelText:
+                  AppLocalizations.of(context)!.number_of_books_in_bundle,
               border: const OutlineInputBorder(),
               isDense: true,
               hintText: 'e.g., 3',
@@ -273,7 +278,12 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
                         children: [
                           Icon(
                             isRead ? Icons.check_circle : Icons.circle_outlined,
-                            color: isRead ? Colors.green : Colors.grey,
+                            color:
+                                isRead
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                             size: 28,
                           ),
                           const SizedBox(width: 12),
@@ -287,14 +297,25 @@ class _BundleInputWidgetState extends State<BundleInputWidget> {
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
                                     color:
-                                        isRead ? Colors.green.shade700 : null,
+                                        isRead
+                                            ? Theme.of(
+                                              context,
+                                            ).colorScheme.primary
+                                            : null,
                                   ),
                                 ),
                                 Text(
                                   isRead ? 'Read' : 'Not read',
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: isRead ? Colors.green : Colors.grey,
+                                    color:
+                                        isRead
+                                            ? Theme.of(
+                                              context,
+                                            ).colorScheme.primary
+                                            : Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
                                   ),
                                 ),
                               ],

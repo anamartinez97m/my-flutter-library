@@ -184,8 +184,12 @@ class _ChipAutocompleteFieldState extends State<ChipAutocompleteField> {
                       label: Text(value, style: const TextStyle(fontSize: 12)),
                       deleteIcon: const Icon(Icons.close, size: 16),
                       onDeleted: () => _removeValue(value),
-                      backgroundColor: Colors.deepPurple.withValues(alpha: 0.1),
-                      labelStyle: const TextStyle(color: Colors.deepPurple),
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.primaryContainer.withValues(alpha: 0.4),
+                      labelStyle: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 4,
                         vertical: 0,
@@ -204,7 +208,7 @@ class _ChipAutocompleteFieldState extends State<ChipAutocompleteField> {
             AppLocalizations.of(context)!.press_enter_to_add,
             style: TextStyle(
               fontSize: 11,
-              color: Colors.grey[600],
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontStyle: FontStyle.italic,
             ),
           ),

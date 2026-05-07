@@ -106,7 +106,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.suggestion_applied),
-          backgroundColor: Colors.green,
+          backgroundColor: Theme.of(context).colorScheme.primary,
         ),
       );
       setState(() {
@@ -116,7 +116,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text('${l10n.error}: $e'),
-          backgroundColor: Colors.red,
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
     }
@@ -130,7 +130,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(AppLocalizations.of(context)!.suggestion_rejected),
-        backgroundColor: Colors.orange,
+        backgroundColor: Theme.of(context).colorScheme.secondary,
       ),
     );
   }
@@ -158,17 +158,12 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.smart_suggestions),
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
         actions: [
           if (pendingCount > 1)
             TextButton.icon(
               onPressed: _acceptAll,
-              icon: const Icon(Icons.done_all, color: Colors.white),
-              label: Text(
-                l10n.accept_all,
-                style: const TextStyle(color: Colors.white),
-              ),
+              icon: const Icon(Icons.done_all),
+              label: Text(l10n.accept_all),
             ),
         ],
       ),
@@ -182,7 +177,9 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                     const SizedBox(height: 16),
                     Text(
                       l10n.generating_suggestions,
-                      style: TextStyle(color: Colors.grey[600]),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ),
@@ -195,15 +192,20 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                     Icon(
                       Icons.check_circle_outline,
                       size: 64,
-                      color: Colors.green[300],
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.7),
                     ),
                     const SizedBox(height: 16),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 32),
                       child: Text(
                         l10n.no_suggestions,
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(color: Colors.grey[600]),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.titleMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -225,10 +227,15 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
         // Header
         Container(
           padding: const EdgeInsets.all(16),
-          color: Colors.deepPurple.shade50,
+          color: Theme.of(
+            context,
+          ).colorScheme.primaryContainer.withValues(alpha: 0.3),
           child: Row(
             children: [
-              Icon(Icons.auto_fix_high, color: Colors.deepPurple),
+              Icon(
+                Icons.auto_fix_high,
+                color: Theme.of(context).colorScheme.primary,
+              ),
               const SizedBox(width: 8),
               Text(
                 l10n.n_suggestions_found(_suggestions.length),
@@ -244,7 +251,9 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                     l10n.all_suggestions_processed,
                     style: const TextStyle(fontSize: 11),
                   ),
-                  backgroundColor: Colors.green.shade100,
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.primaryContainer.withValues(alpha: 0.5),
                 ),
             ],
           ),
@@ -276,11 +285,15 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
 
     Color cardColor;
     if (suggestion.isApplied) {
-      cardColor = Colors.green.shade50;
+      cardColor = Theme.of(
+        context,
+      ).colorScheme.primaryContainer.withValues(alpha: 0.2);
     } else if (suggestion.isRejected) {
-      cardColor = Colors.grey.shade100;
+      cardColor = Theme.of(
+        context,
+      ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5);
     } else {
-      cardColor = Colors.white;
+      cardColor = Theme.of(context).colorScheme.surface;
     }
 
     return Card(
@@ -295,17 +308,17 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
             leading: CircleAvatar(
               backgroundColor:
                   suggestion.isApplied
-                      ? Colors.green
+                      ? Theme.of(context).colorScheme.primary
                       : suggestion.isRejected
-                      ? Colors.grey
-                      : Colors.deepPurple,
+                      ? Theme.of(context).colorScheme.onSurfaceVariant
+                      : Theme.of(context).colorScheme.primary,
               child: Icon(
                 suggestion.isApplied
                     ? Icons.check
                     : suggestion.isRejected
                     ? Icons.close
                     : _getFieldIcon(suggestion.field),
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onPrimary,
                 size: 20,
               ),
             ),
@@ -367,7 +380,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
               suggestion.description,
               style: TextStyle(
                 fontSize: 12,
-                color: Colors.grey[600],
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontStyle: FontStyle.italic,
               ),
             ),
@@ -393,7 +406,11 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                       padding: const EdgeInsets.only(left: 8, bottom: 2),
                       child: Row(
                         children: [
-                          Icon(Icons.book, size: 14, color: Colors.grey[400]),
+                          Icon(
+                            Icons.book,
+                            size: 14,
+                            color: Theme.of(context).colorScheme.outlineVariant,
+                          ),
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
@@ -418,7 +435,9 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                 children: [
                   TextButton(
                     onPressed: () => _rejectSuggestion(index),
-                    style: TextButton.styleFrom(foregroundColor: Colors.red),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Theme.of(context).colorScheme.error,
+                    ),
                     child: Text(l10n.reject),
                   ),
                   const SizedBox(width: 8),
@@ -427,8 +446,8 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                     icon: const Icon(Icons.check, size: 16),
                     label: Text(l10n.accept),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     ),
                   ),
                 ],
@@ -440,13 +459,17 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
               child: Row(
                 children: [
-                  Icon(Icons.check_circle, color: Colors.green, size: 16),
+                  Icon(
+                    Icons.check_circle,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 16,
+                  ),
                   const SizedBox(width: 4),
                   Text(
                     l10n.suggestion_applied,
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.green[700],
+                      color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -459,9 +482,10 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
   }
 
   Color _confidenceColor(int confidence) {
-    if (confidence >= 90) return Colors.green.shade700;
-    if (confidence >= 80) return Colors.lightGreen.shade700;
-    if (confidence >= 70) return Colors.orange.shade700;
-    return Colors.red.shade700;
+    final cs = Theme.of(context).colorScheme;
+    if (confidence >= 90) return cs.primary;
+    if (confidence >= 80) return cs.primary.withValues(alpha: 0.8);
+    if (confidence >= 70) return cs.secondary;
+    return cs.error;
   }
 }

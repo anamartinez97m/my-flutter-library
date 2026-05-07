@@ -103,7 +103,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                 content: Text(
                   AppLocalizations.of(context)!.club_already_exists(newName),
                 ),
-                backgroundColor: Colors.orange,
+                backgroundColor: Theme.of(context).colorScheme.secondary,
               ),
             );
           }
@@ -126,7 +126,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
               content: Text(
                 AppLocalizations.of(context)!.renamed_club(oldName, newName),
               ),
-              backgroundColor: Colors.green,
+              backgroundColor: Theme.of(context).colorScheme.primary,
             ),
           );
         }
@@ -135,7 +135,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('${AppLocalizations.of(context)!.error}: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -161,7 +161,9 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.error,
+                ),
                 child: Text(AppLocalizations.of(context)!.delete),
               ),
             ],
@@ -187,7 +189,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
               content: Text(
                 AppLocalizations.of(context)!.deleted_value(clubName),
               ),
-              backgroundColor: Colors.green,
+              backgroundColor: Theme.of(context).colorScheme.primary,
             ),
           );
         }
@@ -196,7 +198,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('${AppLocalizations.of(context)!.error}: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -221,20 +223,20 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                     Icon(
                       Icons.groups_outlined,
                       size: 64,
-                      color: Colors.grey[400],
+                      color: Theme.of(context).colorScheme.outlineVariant,
                     ),
                     const SizedBox(height: 16),
                     Text(
                       AppLocalizations.of(context)!.no_clubs_yet,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.titleLarge?.copyWith(color: Colors.grey[600]),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       AppLocalizations.of(context)!.add_books_to_clubs_hint,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey[500],
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontStyle: FontStyle.italic,
                       ),
                     ),
@@ -262,8 +264,13 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                         vertical: 8,
                       ),
                       leading: CircleAvatar(
-                        backgroundColor: Colors.teal.withValues(alpha: 0.1),
-                        child: Icon(Icons.group, color: Colors.teal),
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.secondaryContainer.withValues(alpha: 0.3),
+                        child: Icon(
+                          Icons.group,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
                       ),
                       title: Text(
                         clubName,
@@ -277,7 +284,12 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                             AppLocalizations.of(
                               context,
                             )!.book_count_label(bookCount),
-                            style: TextStyle(color: Colors.grey[600]),
+                            style: TextStyle(
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                            ),
                           ),
                           if (avgProgress != null) ...[
                             const SizedBox(height: 8),
@@ -289,11 +301,13 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                                     child: LinearProgressIndicator(
                                       value: avgProgress / 100,
                                       minHeight: 6,
-                                      backgroundColor: Colors.grey[300],
-                                      valueColor:
-                                          const AlwaysStoppedAnimation<Color>(
-                                            Colors.teal,
-                                          ),
+                                      backgroundColor:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.surfaceContainerHighest,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Theme.of(context).colorScheme.secondary,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -303,7 +317,8 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.teal,
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
                                   ),
                                 ),
                               ],
@@ -316,13 +331,13 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                         children: [
                           IconButton(
                             icon: const Icon(Icons.edit),
-                            color: Colors.teal,
+                            color: Theme.of(context).colorScheme.secondary,
                             onPressed: () => _showRenameDialog(clubName),
                             tooltip: AppLocalizations.of(context)!.rename,
                           ),
                           IconButton(
                             icon: const Icon(Icons.delete),
-                            color: Colors.red,
+                            color: Theme.of(context).colorScheme.error,
                             onPressed: () => _deleteClub(clubName, bookCount),
                             tooltip: AppLocalizations.of(context)!.delete,
                           ),

@@ -8,14 +8,14 @@ import 'package:myrandomlibrary/l10n/app_localizations.dart';
 class QuickStatDefinition {
   final String key;
   final IconData icon;
-  final Color color;
+  final Color Function(ColorScheme) colorOf;
   final String Function(BuildContext) labelBuilder;
   final String Function(StatisticsData) valueBuilder;
 
   const QuickStatDefinition({
     required this.key,
     required this.icon,
-    required this.color,
+    required this.colorOf,
     required this.labelBuilder,
     required this.valueBuilder,
   });
@@ -74,28 +74,28 @@ class _QuickStatsRowState extends State<QuickStatsRow> {
       QuickStatDefinition(
         key: 'total_books_owned',
         icon: Icons.library_books,
-        color: Colors.blue,
+        colorOf: (cs) => cs.primary,
         labelBuilder: (ctx) => AppLocalizations.of(ctx)!.quick_stat_total_owned,
         valueBuilder: (d) => '${d.totalCount}',
       ),
       QuickStatDefinition(
         key: 'total_books_read',
         icon: Icons.menu_book,
-        color: Colors.green,
+        colorOf: (cs) => cs.primary,
         labelBuilder: (ctx) => AppLocalizations.of(ctx)!.quick_stat_total_read,
         valueBuilder: (d) => '${d.totalBooksRead}',
       ),
       QuickStatDefinition(
         key: 'books_read_this_year',
         icon: Icons.calendar_today,
-        color: Colors.teal,
+        colorOf: (cs) => cs.tertiary,
         labelBuilder: (ctx) => AppLocalizations.of(ctx)!.quick_stat_this_year,
         valueBuilder: (d) => '${d.booksReadThisYear}',
       ),
       QuickStatDefinition(
         key: 'average_rating',
         icon: Icons.star,
-        color: Colors.amber,
+        colorOf: (cs) => cs.tertiary,
         labelBuilder: (ctx) => AppLocalizations.of(ctx)!.quick_stat_avg_rating,
         valueBuilder:
             (d) =>
@@ -104,21 +104,21 @@ class _QuickStatsRowState extends State<QuickStatsRow> {
       QuickStatDefinition(
         key: 'current_streak',
         icon: Icons.local_fire_department,
-        color: Colors.orange,
+        colorOf: (cs) => cs.secondary,
         labelBuilder: (ctx) => AppLocalizations.of(ctx)!.quick_stat_streak,
         valueBuilder: (d) => '${d.currentStreak}d',
       ),
       QuickStatDefinition(
         key: 'longest_streak',
         icon: Icons.whatshot,
-        color: Colors.deepOrange,
+        colorOf: (cs) => cs.secondary,
         labelBuilder: (ctx) => AppLocalizations.of(ctx)!.quick_stat_best_streak,
         valueBuilder: (d) => '${d.longestStreak}d',
       ),
       QuickStatDefinition(
         key: 'reading_velocity',
         icon: Icons.speed,
-        color: Colors.indigo,
+        colorOf: (cs) => cs.primary,
         labelBuilder: (ctx) => AppLocalizations.of(ctx)!.quick_stat_velocity,
         valueBuilder:
             (d) =>
@@ -129,7 +129,7 @@ class _QuickStatsRowState extends State<QuickStatsRow> {
       QuickStatDefinition(
         key: 'avg_days_to_finish',
         icon: Icons.timer,
-        color: Colors.purple,
+        colorOf: (cs) => cs.secondary,
         labelBuilder: (ctx) => AppLocalizations.of(ctx)!.quick_stat_avg_days,
         valueBuilder:
             (d) =>
@@ -140,7 +140,7 @@ class _QuickStatsRowState extends State<QuickStatsRow> {
       QuickStatDefinition(
         key: 'avg_books_per_year',
         icon: Icons.trending_up,
-        color: Colors.cyan,
+        colorOf: (cs) => cs.tertiary,
         labelBuilder: (ctx) => AppLocalizations.of(ctx)!.quick_stat_books_year,
         valueBuilder:
             (d) =>
@@ -151,35 +151,35 @@ class _QuickStatsRowState extends State<QuickStatsRow> {
       QuickStatDefinition(
         key: 'dnf_count',
         icon: Icons.close,
-        color: Colors.red,
+        colorOf: (cs) => cs.error,
         labelBuilder: (ctx) => AppLocalizations.of(ctx)!.quick_stat_dnf,
         valueBuilder: (d) => '${d.dnfCount}',
       ),
       QuickStatDefinition(
         key: 'reread_count',
         icon: Icons.replay,
-        color: Colors.teal,
+        colorOf: (cs) => cs.tertiary,
         labelBuilder: (ctx) => AppLocalizations.of(ctx)!.quick_stat_rereads,
         valueBuilder: (d) => '${d.rereadCount}',
       ),
       QuickStatDefinition(
         key: 'series_count',
         icon: Icons.collections_bookmark,
-        color: Colors.indigo,
+        colorOf: (cs) => cs.primary,
         labelBuilder: (ctx) => AppLocalizations.of(ctx)!.quick_stat_series,
         valueBuilder: (d) => '${d.seriesCount}',
       ),
       QuickStatDefinition(
         key: 'sagas_completed',
         icon: Icons.check_circle,
-        color: Colors.green,
+        colorOf: (cs) => cs.primary,
         labelBuilder: (ctx) => AppLocalizations.of(ctx)!.quick_stat_sagas_done,
         valueBuilder: (d) => '${d.completedSagas}',
       ),
       QuickStatDefinition(
         key: 'next_milestone_owned',
         icon: Icons.flag,
-        color: Colors.green,
+        colorOf: (cs) => cs.primary,
         labelBuilder:
             (ctx) => AppLocalizations.of(ctx)!.quick_stat_milestone_owned,
         valueBuilder: (d) => '${d.booksToMilestoneOwned}',
@@ -187,7 +187,7 @@ class _QuickStatsRowState extends State<QuickStatsRow> {
       QuickStatDefinition(
         key: 'next_milestone_read',
         icon: Icons.flag_outlined,
-        color: Colors.blue,
+        colorOf: (cs) => cs.primary,
         labelBuilder:
             (ctx) => AppLocalizations.of(ctx)!.quick_stat_milestone_read,
         valueBuilder: (d) => '${d.booksToMilestoneRead}',
@@ -195,7 +195,7 @@ class _QuickStatsRowState extends State<QuickStatsRow> {
       QuickStatDefinition(
         key: 'days_read_this_year',
         icon: Icons.event_available,
-        color: Colors.green,
+        colorOf: (cs) => cs.primary,
         labelBuilder: (ctx) => AppLocalizations.of(ctx)!.quick_stat_days_read,
         valueBuilder: (d) => '${d.daysReadThisYear}',
       ),
@@ -237,7 +237,10 @@ class _QuickStatsRowState extends State<QuickStatsRow> {
                     final def = allDefs[index];
                     final isSelected = _selectedKeys.contains(def.key);
                     return ListTile(
-                      leading: Icon(def.icon, color: def.color),
+                      leading: Icon(
+                        def.icon,
+                        color: def.colorOf(Theme.of(ctx).colorScheme),
+                      ),
                       title: Text(def.labelBuilder(context)),
                       trailing:
                           isSelected
@@ -291,7 +294,11 @@ class _QuickStatsRowState extends State<QuickStatsRow> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(def.icon, color: def.color, size: 20),
+                    Icon(
+                      def.icon,
+                      color: def.colorOf(Theme.of(context).colorScheme),
+                      size: 20,
+                    ),
                     const SizedBox(height: 4),
                     Text(
                       value,
@@ -305,7 +312,7 @@ class _QuickStatsRowState extends State<QuickStatsRow> {
                       label,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontSize: 10,
-                        color: Colors.grey[600],
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       textAlign: TextAlign.center,
                       maxLines: 2,

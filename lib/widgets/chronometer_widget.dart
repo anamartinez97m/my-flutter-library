@@ -289,7 +289,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
             content: Text(
               '${AppLocalizations.of(context)!.reading_session_saved}: ${_formatDuration(savedDuration)}',
             ),
-            backgroundColor: Colors.green,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -299,7 +299,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('${AppLocalizations.of(context)!.error}: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -362,7 +362,9 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
                 ),
                 TextButton(
                   onPressed: () => Navigator.pop(context, true),
-                  style: TextButton.styleFrom(foregroundColor: Colors.red),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.error,
+                  ),
                   child: Text(AppLocalizations.of(context)!.stop),
                 ),
               ],
@@ -392,11 +394,13 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
+              color: Theme.of(
+                context,
+              ).colorScheme.shadow.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, -2),
             ),
@@ -443,7 +447,8 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
                                 TextButton(
                                   onPressed: () => Navigator.pop(context, true),
                                   style: TextButton.styleFrom(
-                                    foregroundColor: Colors.red,
+                                    foregroundColor:
+                                        Theme.of(context).colorScheme.error,
                                   ),
                                   child: Text(
                                     AppLocalizations.of(context)!.exit_label,
@@ -531,8 +536,8 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
                     icon: const Icon(Icons.stop),
                     label: Text(AppLocalizations.of(context)!.stop_and_save),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
+                      backgroundColor: Theme.of(context).colorScheme.error,
+                      foregroundColor: Theme.of(context).colorScheme.onError,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 24,
                         vertical: 12,

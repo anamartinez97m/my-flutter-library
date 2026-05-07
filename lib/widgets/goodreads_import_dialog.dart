@@ -153,7 +153,7 @@ class _GoodreadsImportDialogState extends State<GoodreadsImportDialog> {
                     content: Text(
                       AppLocalizations.of(context)!.please_select_or_enter_tag,
                     ),
-                    backgroundColor: Colors.red,
+                    backgroundColor: Theme.of(context).colorScheme.error,
                   ),
                 );
                 return;
@@ -164,8 +164,8 @@ class _GoodreadsImportDialogState extends State<GoodreadsImportDialog> {
             }
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.deepPurple,
-            foregroundColor: Colors.white,
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            foregroundColor: Theme.of(context).colorScheme.onPrimary,
           ),
           child: Text(AppLocalizations.of(context)!.import_label),
         ),

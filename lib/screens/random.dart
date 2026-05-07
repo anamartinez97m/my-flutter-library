@@ -347,16 +347,16 @@ class _RandomScreenState extends State<RandomScreen> {
               AppLocalizations.of(context)!.random_book_picker,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: Colors.deepPurple,
+                color: Theme.of(context).colorScheme.primary,
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               AppLocalizations.of(context)!.random_book_description,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -512,7 +512,10 @@ class _RandomScreenState extends State<RandomScreen> {
                                         )!.or_any_genre,
                                     style: TextStyle(
                                       fontSize: 11,
-                                      color: Colors.grey[600],
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                       fontStyle: FontStyle.italic,
                                     ),
                                   ),
@@ -520,7 +523,12 @@ class _RandomScreenState extends State<RandomScreen> {
                               ),
                               Container(
                                 decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey),
+                                  border: Border.all(
+                                    color:
+                                        Theme.of(
+                                          context,
+                                        ).colorScheme.outlineVariant,
+                                  ),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: ToggleButtons(
@@ -658,7 +666,10 @@ class _RandomScreenState extends State<RandomScreen> {
                                         )!.or_any_status,
                                     style: TextStyle(
                                       fontSize: 11,
-                                      color: Colors.grey[600],
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                       fontStyle: FontStyle.italic,
                                     ),
                                   ),
@@ -666,7 +677,12 @@ class _RandomScreenState extends State<RandomScreen> {
                               ),
                               Container(
                                 decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey),
+                                  border: Border.all(
+                                    color:
+                                        Theme.of(
+                                          context,
+                                        ).colorScheme.outlineVariant,
+                                  ),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: ToggleButtons(
@@ -947,9 +963,9 @@ class _RandomScreenState extends State<RandomScreen> {
                       AppLocalizations.of(
                         context,
                       )!.search_select_books_description,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     const SizedBox(height: 12),
 
@@ -1000,8 +1016,10 @@ class _RandomScreenState extends State<RandomScreen> {
                                   )!.get_random_book,
                             ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.deepPurple,
-                              foregroundColor: Colors.white,
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.primary,
+                              foregroundColor:
+                                  Theme.of(context).colorScheme.onPrimary,
                               padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
                           ),
@@ -1047,10 +1065,10 @@ class _RandomScreenState extends State<RandomScreen> {
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.book,
                           size: 60,
-                          color: Colors.deepPurple,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                         const SizedBox(height: 16),
                         Text(
@@ -1060,7 +1078,7 @@ class _RandomScreenState extends State<RandomScreen> {
                             context,
                           ).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: Colors.deepPurple,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -1081,8 +1099,10 @@ class _RandomScreenState extends State<RandomScreen> {
                             AppLocalizations.of(context)!.try_another,
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.deepPurple,
-                            foregroundColor: Colors.white,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary,
+                            foregroundColor:
+                                Theme.of(context).colorScheme.onPrimary,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -1091,7 +1111,8 @@ class _RandomScreenState extends State<RandomScreen> {
                           style: Theme.of(
                             context,
                           ).textTheme.bodySmall?.copyWith(
-                            color: Colors.grey[600],
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
                             fontStyle: FontStyle.italic,
                           ),
                         ),

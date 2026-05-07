@@ -18,8 +18,8 @@ class ReadingTimePlaceholderCard extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Colors.blue.withValues(alpha: 0.1),
-              Colors.purple.withValues(alpha: 0.1),
+              Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+              Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
             ],
           ),
         ),
@@ -30,14 +30,16 @@ class ReadingTimePlaceholderCard extends StatelessWidget {
               Icon(
                 Icons.access_time,
                 size: 48,
-                color: Colors.blue.withValues(alpha: 0.5),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.5),
               ),
               const SizedBox(height: 12),
               Text(
                 AppLocalizations.of(context)!.reading_time_of_day,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: Colors.grey[700],
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -48,17 +50,25 @@ class ReadingTimePlaceholderCard extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withValues(alpha: 0.2),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.tertiaryContainer.withValues(alpha: 0.4),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: Colors.amber.withValues(alpha: 0.5),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.tertiary.withValues(alpha: 0.5),
                     width: 1,
                   ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.schedule, size: 16, color: Colors.amber[800]),
+                    Icon(
+                      Icons.schedule,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.tertiary,
+                    ),
                     const SizedBox(width: 6),
                     Flexible(
                       child: Text(
@@ -66,7 +76,7 @@ class ReadingTimePlaceholderCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
-                          color: Colors.amber[800],
+                          color: Theme.of(context).colorScheme.tertiary,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -77,16 +87,16 @@ class ReadingTimePlaceholderCard extends StatelessWidget {
               const SizedBox(height: 12),
               Text(
                 AppLocalizations.of(context)!.track_when_you_read_most,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 4),
               Text(
                 AppLocalizations.of(context)!.morning_afternoon_night_owl,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[500],
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontStyle: FontStyle.italic,
                 ),
                 textAlign: TextAlign.center,
@@ -95,18 +105,22 @@ class ReadingTimePlaceholderCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.grey[100],
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.info_outline, size: 16, color: Colors.grey[600]),
+                    Icon(
+                      Icons.info_outline,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         AppLocalizations.of(context)!.requires_chronometer,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ),

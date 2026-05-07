@@ -46,7 +46,10 @@ class RatingDistributionCard extends StatelessWidget {
                           Container(
                             height: 24,
                             decoration: BoxDecoration(
-                              color: Colors.grey[200],
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainerHighest,
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
@@ -55,7 +58,7 @@ class RatingDistributionCard extends StatelessWidget {
                             child: Container(
                               height: 24,
                               decoration: BoxDecoration(
-                                color: Colors.amber,
+                                color: Theme.of(context).colorScheme.tertiary,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                             ),
@@ -69,8 +72,12 @@ class RatingDistributionCard extends StatelessWidget {
                               style: TextStyle(
                                 color:
                                     percentage > 0.15
-                                        ? Colors.white
-                                        : Colors.black87,
+                                        ? Theme.of(
+                                          context,
+                                        ).colorScheme.onTertiary
+                                        : Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
                               ),

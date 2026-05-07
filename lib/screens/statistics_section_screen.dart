@@ -60,9 +60,9 @@ class _StatisticsSectionScreenState extends State<StatisticsSectionScreen> {
               children: [
                 Text(
                   '${_currentPage + 1} / ${widget.children.length}',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),
@@ -84,7 +84,7 @@ class _StatisticsSectionScreenState extends State<StatisticsSectionScreen> {
                       color:
                           isActive
                               ? Theme.of(context).colorScheme.primary
-                              : Colors.grey[300],
+                              : Theme.of(context).colorScheme.outlineVariant,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   );

@@ -45,7 +45,7 @@ class BookExtremesCard extends StatelessWidget {
             _buildExtremeRow(
               context,
               icon: Icons.calendar_today,
-              color: Colors.blue,
+              color: Theme.of(context).colorScheme.primary,
               label1: AppLocalizations.of(context)!.oldest,
               value1: oldestYear != null ? '$oldestYear' : 'N/A',
               book1: oldestBookName,
@@ -58,7 +58,7 @@ class BookExtremesCard extends StatelessWidget {
             _buildExtremeRow(
               context,
               icon: Icons.menu_book,
-              color: Colors.purple,
+              color: Theme.of(context).colorScheme.secondary,
               label1: AppLocalizations.of(context)!.shortest,
               value1: shortestPages != null ? '$shortestPages pg' : 'N/A',
               book1: shortestBookName,
@@ -100,8 +100,12 @@ class BookExtremesCard extends StatelessWidget {
                       children: [
                         Text(
                           label1,
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: Colors.grey[600]),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodySmall?.copyWith(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                         ),
                         Text(
                           value1,
@@ -129,8 +133,12 @@ class BookExtremesCard extends StatelessWidget {
                       children: [
                         Text(
                           label2,
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: Colors.grey[600]),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodySmall?.copyWith(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                         ),
                         Text(
                           value2,

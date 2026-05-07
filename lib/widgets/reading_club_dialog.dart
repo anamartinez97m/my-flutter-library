@@ -170,8 +170,10 @@ class _ReadingClubDialogState extends State<ReadingClubDialog> {
                         style: TextStyle(
                           color:
                               _selectedDate == null
-                                  ? Colors.grey[600]
-                                  : Colors.black,
+                                  ? Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant
+                                  : Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       if (_selectedDate != null)
@@ -218,7 +220,7 @@ class _ReadingClubDialogState extends State<ReadingClubDialog> {
               Text(
                 AppLocalizations.of(context)!.track_reading_progress,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[600],
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontStyle: FontStyle.italic,
                 ),
               ),

@@ -63,9 +63,9 @@ class BookCompetitionCard extends StatelessWidget {
                   AppLocalizations.of(
                     context,
                   )!.no_books_read_in_year(currentYear.toString()),
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ),
           ],
@@ -80,7 +80,11 @@ class BookCompetitionCard extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.star, color: Colors.amber, size: 24),
+            Icon(
+              Icons.star,
+              color: Theme.of(context).colorScheme.tertiary,
+              size: 24,
+            ),
             const SizedBox(width: 8),
             Text(
               '${AppLocalizations.of(context)!.winner}:',
@@ -144,7 +148,8 @@ class BookCompetitionCard extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    color:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: Theme.of(
@@ -166,9 +171,9 @@ class BookCompetitionCard extends StatelessWidget {
             padding: const EdgeInsets.only(top: 4),
             child: Text(
               '... ${AppLocalizations.of(context)!.and_n_more((nominees.length - 6).toString())}',
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: Colors.grey),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ),
       ],

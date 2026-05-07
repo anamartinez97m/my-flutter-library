@@ -43,7 +43,7 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
             AppLocalizations.of(context)!.tbr_limit_set_to(limit.toString()),
           ),
           duration: const Duration(seconds: 2),
-          backgroundColor: Colors.green,
+          backgroundColor: Theme.of(context).colorScheme.primary,
         ),
       );
     }
@@ -138,7 +138,10 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
-        leading: const Icon(Icons.bookmark_add, color: Colors.deepPurple),
+        leading: Icon(
+          Icons.bookmark_add,
+          color: Theme.of(context).colorScheme.primary,
+        ),
         title: Text(AppLocalizations.of(context)!.tbr_limit),
         subtitle: Text(
           AppLocalizations.of(

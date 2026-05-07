@@ -21,12 +21,20 @@ class ReadingTimeOfDayCard extends StatelessWidget {
     'night': Icons.nights_stay,
   };
 
-  static const Map<String, Color> _slotColors = {
-    'late_night': Color(0xFF5C6BC0),
-    'morning': Color(0xFFFF9800),
-    'afternoon': Color(0xFFE65100),
-    'night': Color(0xFF283593),
-  };
+  Color _getSlotColor(String slot, ColorScheme cs) {
+    switch (slot) {
+      case 'late_night':
+        return cs.secondary;
+      case 'morning':
+        return cs.tertiary;
+      case 'afternoon':
+        return cs.secondary.withValues(alpha: 0.8);
+      case 'night':
+        return cs.primary;
+      default:
+        return cs.onSurfaceVariant;
+    }
+  }
 
   static const Map<String, String> _slotTimeRanges = {
     'late_night': '00:00 - 06:00',
@@ -73,13 +81,17 @@ class ReadingTimeOfDayCard extends StatelessWidget {
                 ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 16),
-              Icon(Icons.access_time, size: 48, color: Colors.grey[300]),
+              Icon(
+                Icons.access_time,
+                size: 48,
+                color: Theme.of(context).colorScheme.outlineVariant,
+              ),
               const SizedBox(height: 8),
               Text(
                 AppLocalizations.of(context)!.no_session_data,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -105,7 +117,8 @@ class ReadingTimeOfDayCard extends StatelessWidget {
       }
     }
 
-    final favColor = _slotColors[favoriteSlot] ?? Colors.grey;
+    final cs = Theme.of(context).colorScheme;
+    final favColor = _getSlotColor(favoriteSlot, cs);
 
     return Card(
       elevation: 2,
@@ -142,7 +155,7 @@ class ReadingTimeOfDayCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ],
@@ -156,7 +169,7 @@ class ReadingTimeOfDayCard extends StatelessWidget {
                   (readingTimeOfDay[slot]?['totalMinutes'] as int?) ?? 0;
               final percentage = maxCount > 0 ? count / maxCount : 0.0;
               final isFavorite = slot == favoriteSlot;
-              final color = _slotColors[slot] ?? Colors.grey;
+              final color = _getSlotColor(slot, cs);
 
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
@@ -184,7 +197,10 @@ class ReadingTimeOfDayCard extends StatelessWidget {
                               _slotTimeRanges[slot] ?? '',
                               style: TextStyle(
                                 fontSize: 10,
-                                color: Colors.grey[500],
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ],
@@ -202,7 +218,10 @@ class ReadingTimeOfDayCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(4),
                       child: LinearProgressIndicator(
                         value: percentage,
-                        backgroundColor: Colors.grey.shade200,
+                        backgroundColor:
+                            Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
                         valueColor: AlwaysStoppedAnimation<Color>(color),
                         minHeight: 8,
                       ),

@@ -186,14 +186,16 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primaryContainer.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
                   children: [
                     Icon(
                       Icons.check_circle,
-                      color: Colors.blue.shade700,
+                      color: Theme.of(context).colorScheme.primary,
                       size: 20,
                     ),
                     const SizedBox(width: 8),
@@ -202,7 +204,7 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                         context,
                       )!.books_selected(_selectedBooks.length),
                       style: TextStyle(
-                        color: Colors.blue.shade700,
+                        color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -224,7 +226,10 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                                 context,
                               )!.search_for_books_to_add
                               : AppLocalizations.of(context)!.no_books_found,
-                          style: TextStyle(color: Colors.grey[600]),
+                          style: TextStyle(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                         ),
                       )
                       : ListView.builder(
@@ -261,7 +266,10 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                                     'Current saga: ${book.saga}',
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: Colors.grey[600],
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                     ),
                                   ),
                               ],

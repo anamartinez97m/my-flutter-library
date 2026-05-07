@@ -46,18 +46,18 @@ class SeasonalReadingCard extends StatelessWidget {
     }
   }
 
-  Color _getSeasonColor(String season) {
+  Color _getSeasonColor(String season, ColorScheme cs) {
     switch (season) {
       case 'Winter':
-        return Colors.blue.shade300;
+        return cs.tertiary;
       case 'Spring':
-        return Colors.green.shade300;
+        return cs.primary;
       case 'Summer':
-        return Colors.orange.shade300;
+        return cs.secondary;
       case 'Fall':
-        return Colors.brown.shade300;
+        return cs.tertiary.withValues(alpha: 0.8);
       default:
-        return Colors.grey.shade300;
+        return cs.onSurfaceVariant;
     }
   }
 
@@ -124,10 +124,16 @@ class SeasonalReadingCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: _getSeasonColor(preferredSeason).withValues(alpha: 0.2),
+                  color: _getSeasonColor(
+                    preferredSeason,
+                    Theme.of(context).colorScheme,
+                  ).withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: _getSeasonColor(preferredSeason),
+                    color: _getSeasonColor(
+                      preferredSeason,
+                      Theme.of(context).colorScheme,
+                    ),
                     width: 2,
                   ),
                 ),
@@ -152,7 +158,10 @@ class SeasonalReadingCard extends StatelessWidget {
                             context,
                           ).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: _getSeasonColor(preferredSeason),
+                            color: _getSeasonColor(
+                              preferredSeason,
+                              Theme.of(context).colorScheme,
+                            ),
                           ),
                         ),
                       ],
@@ -204,9 +213,15 @@ class SeasonalReadingCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(4),
                         child: LinearProgressIndicator(
                           value: barWidth,
-                          backgroundColor: Colors.grey.shade200,
+                          backgroundColor:
+                              Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerHighest,
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            _getSeasonColor(entry.key),
+                            _getSeasonColor(
+                              entry.key,
+                              Theme.of(context).colorScheme,
+                            ),
                           ),
                           minHeight: 8,
                         ),
@@ -217,7 +232,10 @@ class SeasonalReadingCard extends StatelessWidget {
               }),
 
               const SizedBox(height: 8),
-              Divider(height: 1, color: Colors.grey[300]),
+              Divider(
+                height: 1,
+                color: Theme.of(context).colorScheme.outlineVariant,
+              ),
               const SizedBox(height: 16),
 
               // Most / Least comparison
@@ -233,7 +251,10 @@ class SeasonalReadingCard extends StatelessWidget {
                             l10n.most,
                             style: TextStyle(
                               fontSize: 11,
-                              color: Colors.grey[600],
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -246,23 +267,30 @@ class SeasonalReadingCard extends StatelessWidget {
                           ),
                           Text(
                             mostAvgPerYear,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 26,
-                              color: Colors.green,
+                              color: Theme.of(context).colorScheme.primary,
                             ),
                           ),
                           Text(
                             l10n.per_year,
                             style: TextStyle(
                               fontSize: 10,
-                              color: Colors.grey[600],
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    Container(width: 1, height: 60, color: Colors.grey[300]),
+                    Container(
+                      width: 1,
+                      height: 60,
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                    ),
                     Expanded(
                       child: Column(
                         children: [
@@ -270,7 +298,10 @@ class SeasonalReadingCard extends StatelessWidget {
                             l10n.least,
                             style: TextStyle(
                               fontSize: 11,
-                              color: Colors.grey[600],
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -283,17 +314,20 @@ class SeasonalReadingCard extends StatelessWidget {
                           ),
                           Text(
                             leastAvgPerYear,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 26,
-                              color: Colors.orange,
+                              color: Theme.of(context).colorScheme.secondary,
                             ),
                           ),
                           Text(
                             l10n.per_year,
                             style: TextStyle(
                               fontSize: 10,
-                              color: Colors.grey[600],
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ],
@@ -306,13 +340,16 @@ class SeasonalReadingCard extends StatelessWidget {
               // Seasonal genre preferences (moved from ReadingInsightsCard)
               if (topGenreBySeason.isNotEmpty) ...[
                 const SizedBox(height: 8),
-                Divider(height: 1, color: Colors.grey[300]),
+                Divider(
+                  height: 1,
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                ),
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.auto_stories,
-                      color: Colors.deepOrange,
+                      color: Theme.of(context).colorScheme.secondary,
                       size: 20,
                     ),
                     const SizedBox(width: 8),
@@ -350,9 +387,9 @@ class SeasonalReadingCard extends StatelessWidget {
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
                     l10n.no_reading_data_available,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
               ),

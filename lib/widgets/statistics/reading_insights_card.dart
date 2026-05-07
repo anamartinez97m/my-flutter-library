@@ -74,7 +74,7 @@ class ReadingInsightsCard extends StatelessWidget {
             _buildInsightRow(
               context,
               icon: Icons.local_fire_department,
-              color: Colors.orange,
+              color: Theme.of(context).colorScheme.secondary,
               title: AppLocalizations.of(context)!.reading_streaks,
               value:
                   '${AppLocalizations.of(context)!.current_label}: $currentStreak ${AppLocalizations.of(context)!.days} | ${AppLocalizations.of(context)!.best}: $longestStreak ${AppLocalizations.of(context)!.days}',
@@ -85,7 +85,7 @@ class ReadingInsightsCard extends StatelessWidget {
             _buildInsightRow(
               context,
               icon: Icons.close,
-              color: Colors.red,
+              color: Theme.of(context).colorScheme.error,
               title: AppLocalizations.of(context)!.dnf_rate,
               value:
                   '$dnfCount ${AppLocalizations.of(context)!.books} (${dnfRate.toStringAsFixed(1)}%)',
@@ -109,7 +109,7 @@ class ReadingInsightsCard extends StatelessWidget {
                   child: _buildInsightRow(
                     context,
                     icon: Icons.replay,
-                    color: Colors.teal,
+                    color: Theme.of(context).colorScheme.tertiary,
                     title: AppLocalizations.of(context)!.re_reads,
                     value:
                         '$rereadCount ${AppLocalizations.of(context)!.books}',
@@ -128,7 +128,7 @@ class ReadingInsightsCard extends StatelessWidget {
             _buildInsightRow(
               context,
               icon: Icons.collections_bookmark,
-              color: Colors.indigo,
+              color: Theme.of(context).colorScheme.primary,
               title: AppLocalizations.of(context)!.series_vs_standalone,
               value:
                   '$seriesBooks ${AppLocalizations.of(context)!.series} (${seriesPercentage.toStringAsFixed(1)}%) | $standaloneBooks ${AppLocalizations.of(context)!.standalone}',
@@ -141,7 +141,7 @@ class ReadingInsightsCard extends StatelessWidget {
             _buildInsightRow(
               context,
               icon: Icons.emoji_events,
-              color: Colors.amber,
+              color: Theme.of(context).colorScheme.tertiary,
               title: AppLocalizations.of(context)!.personal_bests,
               value:
                   '${AppLocalizations.of(context)!.most_in_month}: $mostBooksInMonth${bestMonth != null ? ' ($bestMonth)' : ''}',
@@ -156,7 +156,7 @@ class ReadingInsightsCard extends StatelessWidget {
             _buildInsightRow(
               context,
               icon: Icons.flag,
-              color: Colors.green,
+              color: Theme.of(context).colorScheme.primary,
               title: AppLocalizations.of(context)!.next_milestone_owned,
               value:
                   '$nextMilestoneOwned ${AppLocalizations.of(context)!.books} ($booksToMilestoneOwned ${AppLocalizations.of(context)!.to_go})',
@@ -167,7 +167,7 @@ class ReadingInsightsCard extends StatelessWidget {
             _buildInsightRow(
               context,
               icon: Icons.menu_book,
-              color: Colors.blue,
+              color: Theme.of(context).colorScheme.primary,
               title: AppLocalizations.of(context)!.next_milestone_read,
               value:
                   '$nextMilestoneRead ${AppLocalizations.of(context)!.books} ($booksToMilestoneRead ${AppLocalizations.of(context)!.to_go})',
@@ -178,7 +178,7 @@ class ReadingInsightsCard extends StatelessWidget {
             _buildInsightRow(
               context,
               icon: Icons.fast_forward,
-              color: Colors.purple,
+              color: Theme.of(context).colorScheme.secondary,
               title: AppLocalizations.of(context)!.binge_reading_series,
               value:
                   '${bingePercentage.toStringAsFixed(1)}% ${AppLocalizations.of(context)!.binge_reading_description}',
@@ -220,7 +220,7 @@ class ReadingInsightsCard extends StatelessWidget {
                 Text(
                   subtitle,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontStyle: FontStyle.italic,
                   ),
                 ),

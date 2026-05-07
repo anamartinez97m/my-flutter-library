@@ -58,19 +58,23 @@ class ReadingEfficiencyCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               AppLocalizations.of(context)!.books_faster_than_average,
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.blue.withValues(alpha: 0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primaryContainer.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: Colors.blue.withValues(alpha: 0.3),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -82,7 +86,7 @@ class ReadingEfficiencyCard extends StatelessWidget {
                       Icon(
                         Icons.info_outline,
                         size: 16,
-                        color: Colors.blue[700],
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                       const SizedBox(width: 6),
                       Flexible(
@@ -92,7 +96,7 @@ class ReadingEfficiencyCard extends StatelessWidget {
                             context,
                           ).textTheme.bodySmall?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: Colors.blue[700],
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
                       ),
@@ -102,7 +106,7 @@ class ReadingEfficiencyCard extends StatelessWidget {
                   Text(
                     AppLocalizations.of(context)!.efficiency_explanation,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey[700],
+                      color: Theme.of(context).colorScheme.onSurface,
                       height: 1.4,
                     ),
                   ),
@@ -114,9 +118,9 @@ class ReadingEfficiencyCard extends StatelessWidget {
               AppLocalizations.of(
                 context,
               )!.based_on_n_books(totalReadingsWithData.toString()),
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),

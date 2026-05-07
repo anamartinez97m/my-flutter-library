@@ -106,8 +106,8 @@ class _ReadingGoalsCardState extends State<ReadingGoalsCard>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Colors.green.withValues(alpha: 0.1),
-                  Colors.teal.withValues(alpha: 0.1),
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                  Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.1),
                 ],
               ),
             ),
@@ -118,14 +118,16 @@ class _ReadingGoalsCardState extends State<ReadingGoalsCard>
                   Icon(
                     Icons.flag,
                     size: 48,
-                    color: Colors.green.withValues(alpha: 0.5),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.5),
                   ),
                   const SizedBox(height: 12),
                   Text(
                     AppLocalizations.of(context)!.reading_goals_progress,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: Colors.grey[700],
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -134,9 +136,9 @@ class _ReadingGoalsCardState extends State<ReadingGoalsCard>
                     AppLocalizations.of(context)!.no_challenge_set_for_year(
                       DateTime.now().year.toString(),
                     ),
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 12),
@@ -227,7 +229,10 @@ class _ReadingGoalsCardState extends State<ReadingGoalsCard>
                       '$booksRead / $targetBooks',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: booksComplete ? Colors.green : null,
+                        color:
+                            booksComplete
+                                ? Theme.of(context).colorScheme.primary
+                                : null,
                       ),
                     ),
                   ],
@@ -238,10 +243,11 @@ class _ReadingGoalsCardState extends State<ReadingGoalsCard>
                   child: LinearProgressIndicator(
                     value: booksProgress.clamp(0.0, 1.0),
                     minHeight: 12,
-                    backgroundColor: Colors.grey[200],
+                    backgroundColor:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
                     valueColor: AlwaysStoppedAnimation<Color>(
                       booksComplete
-                          ? Colors.green
+                          ? Theme.of(context).colorScheme.primary
                           : Theme.of(context).colorScheme.primary,
                     ),
                   ),
@@ -262,7 +268,10 @@ class _ReadingGoalsCardState extends State<ReadingGoalsCard>
                       '$pagesRead / $targetPages',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: pagesComplete ? Colors.green : null,
+                        color:
+                            pagesComplete
+                                ? Theme.of(context).colorScheme.primary
+                                : null,
                       ),
                     ),
                   ],
@@ -273,9 +282,12 @@ class _ReadingGoalsCardState extends State<ReadingGoalsCard>
                   child: LinearProgressIndicator(
                     value: pagesProgress.clamp(0.0, 1.0),
                     minHeight: 12,
-                    backgroundColor: Colors.grey[200],
+                    backgroundColor:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      pagesComplete ? Colors.green : Colors.orange,
+                      pagesComplete
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.secondary,
                     ),
                   ),
                 ),

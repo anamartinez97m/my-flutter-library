@@ -37,11 +37,15 @@ class AverageRatingCard extends StatelessWidget {
                   averageRating.toStringAsFixed(2),
                   style: Theme.of(context).textTheme.displayLarge?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Colors.amber[700],
+                    color: Theme.of(context).colorScheme.tertiary,
                   ),
                 ),
                 const SizedBox(width: 8),
-                Icon(Icons.star, color: Colors.amber[700], size: 40),
+                Icon(
+                  Icons.star,
+                  color: Theme.of(context).colorScheme.tertiary,
+                  size: 40,
+                ),
               ],
             ),
             const SizedBox(height: 8),
@@ -49,9 +53,9 @@ class AverageRatingCard extends StatelessWidget {
               AppLocalizations.of(
                 context,
               )!.based_on_rated_books(ratedBooksCount.toString()),
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),

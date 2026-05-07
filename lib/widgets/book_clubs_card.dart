@@ -82,7 +82,7 @@ class _BookClubsCardState extends State<BookClubsCard> {
                     context,
                   )!.book_already_in_club(result.clubName),
                 ),
-                backgroundColor: Colors.orange,
+                backgroundColor: Theme.of(context).colorScheme.secondary,
               ),
             );
           }
@@ -99,7 +99,7 @@ class _BookClubsCardState extends State<BookClubsCard> {
               content: Text(
                 AppLocalizations.of(context)!.added_to_club(result.clubName),
               ),
-              backgroundColor: Colors.green,
+              backgroundColor: Theme.of(context).colorScheme.primary,
             ),
           );
         }
@@ -108,7 +108,7 @@ class _BookClubsCardState extends State<BookClubsCard> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('${AppLocalizations.of(context)!.error}: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -141,7 +141,7 @@ class _BookClubsCardState extends State<BookClubsCard> {
               content: Text(
                 AppLocalizations.of(context)!.club_membership_updated,
               ),
-              backgroundColor: Colors.green,
+              backgroundColor: Theme.of(context).colorScheme.primary,
             ),
           );
         }
@@ -150,7 +150,7 @@ class _BookClubsCardState extends State<BookClubsCard> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('${AppLocalizations.of(context)!.error}: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -176,7 +176,9 @@ class _BookClubsCardState extends State<BookClubsCard> {
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.error,
+                ),
                 child: Text(AppLocalizations.of(context)!.remove),
               ),
             ],
@@ -197,7 +199,7 @@ class _BookClubsCardState extends State<BookClubsCard> {
               content: Text(
                 AppLocalizations.of(context)!.removed_from_club(club.clubName),
               ),
-              backgroundColor: Colors.green,
+              backgroundColor: Theme.of(context).colorScheme.primary,
             ),
           );
         }
@@ -206,7 +208,7 @@ class _BookClubsCardState extends State<BookClubsCard> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('${AppLocalizations.of(context)!.error}: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -227,20 +229,24 @@ class _BookClubsCardState extends State<BookClubsCard> {
           children: [
             Row(
               children: [
-                Icon(Icons.groups, color: Colors.teal, size: 24),
+                Icon(
+                  Icons.groups,
+                  color: Theme.of(context).colorScheme.secondary,
+                  size: 24,
+                ),
                 AppTheme.horizontalSpaceLarge,
                 Expanded(
                   child: Text(
                     AppLocalizations.of(context)!.reading_clubs,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Colors.grey[600],
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.add_circle_outline),
-                  color: Colors.teal,
+                  color: Theme.of(context).colorScheme.secondary,
                   onPressed: _showAddClubDialog,
                   tooltip: AppLocalizations.of(context)!.add_to_club,
                 ),
@@ -258,7 +264,7 @@ class _BookClubsCardState extends State<BookClubsCard> {
                   child: Text(
                     AppLocalizations.of(context)!.not_in_any_clubs,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[500],
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontStyle: FontStyle.italic,
                     ),
                   ),
@@ -270,16 +276,26 @@ class _BookClubsCardState extends State<BookClubsCard> {
                   margin: const EdgeInsets.only(top: 12),
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.teal.withValues(alpha: 0.05),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.secondaryContainer.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.teal.withValues(alpha: 0.2)),
+                    border: Border.all(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.secondary.withValues(alpha: 0.3),
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.group, color: Colors.teal, size: 20),
+                          Icon(
+                            Icons.group,
+                            color: Theme.of(context).colorScheme.secondary,
+                            size: 20,
+                          ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
@@ -288,13 +304,13 @@ class _BookClubsCardState extends State<BookClubsCard> {
                                 context,
                               ).textTheme.titleSmall?.copyWith(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.teal[700],
+                                color: Theme.of(context).colorScheme.secondary,
                               ),
                             ),
                           ),
                           IconButton(
                             icon: const Icon(Icons.edit, size: 18),
-                            color: Colors.teal,
+                            color: Theme.of(context).colorScheme.secondary,
                             onPressed: () => _showEditClubDialog(club),
                             tooltip: AppLocalizations.of(context)!.edit,
                             padding: EdgeInsets.zero,
@@ -303,7 +319,7 @@ class _BookClubsCardState extends State<BookClubsCard> {
                           const SizedBox(width: 8),
                           IconButton(
                             icon: const Icon(Icons.delete, size: 18),
-                            color: Colors.red,
+                            color: Theme.of(context).colorScheme.error,
                             onPressed: () => _deleteClub(club),
                             tooltip: AppLocalizations.of(context)!.remove,
                             padding: EdgeInsets.zero,
@@ -318,13 +334,22 @@ class _BookClubsCardState extends State<BookClubsCard> {
                             Icon(
                               Icons.calendar_today,
                               size: 14,
-                              color: Colors.grey[600],
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                             ),
                             const SizedBox(width: 4),
                             Text(
                               '${AppLocalizations.of(context)!.target}: ${club.targetDate}',
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: Colors.grey[600]),
+                              style: Theme.of(
+                                context,
+                              ).textTheme.bodySmall?.copyWith(
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                              ),
                             ),
                           ],
                         ),
@@ -338,9 +363,12 @@ class _BookClubsCardState extends State<BookClubsCard> {
                               child: LinearProgressIndicator(
                                 value: club.readingProgress / 100,
                                 minHeight: 6,
-                                backgroundColor: Colors.grey[300],
-                                valueColor: const AlwaysStoppedAnimation<Color>(
-                                  Colors.teal,
+                                backgroundColor:
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.surfaceContainerHighest,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Theme.of(context).colorScheme.secondary,
                                 ),
                               ),
                             ),
@@ -352,7 +380,7 @@ class _BookClubsCardState extends State<BookClubsCard> {
                               context,
                             ).textTheme.bodySmall?.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: Colors.teal,
+                              color: Theme.of(context).colorScheme.secondary,
                             ),
                           ),
                         ],

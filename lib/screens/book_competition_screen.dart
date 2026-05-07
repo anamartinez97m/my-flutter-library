@@ -233,7 +233,11 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.emoji_events, color: Colors.amber, size: 32),
+                Icon(
+                  Icons.emoji_events,
+                  color: Theme.of(context).colorScheme.tertiary,
+                  size: 32,
+                ),
                 const SizedBox(width: 12),
                 Text(
                   AppLocalizations.of(context)!.year_winner,
@@ -267,7 +271,11 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
               ),
               child: Column(
                 children: [
-                  Icon(Icons.star, color: Colors.amber, size: 48),
+                  Icon(
+                    Icons.star,
+                    color: Theme.of(context).colorScheme.tertiary,
+                    size: 48,
+                  ),
                   const SizedBox(height: 8),
                   Text(
                     winner.bookName,
@@ -372,17 +380,23 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
                   ? Theme.of(
                     context,
                   ).colorScheme.primaryContainer.withValues(alpha: 0.4)
-                  : Colors.grey.withValues(alpha: 0.1),
+                  : Theme.of(
+                    context,
+                  ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color:
                 quarterlyWinner != null
-                    ? Theme.of(context).colorScheme.primary
-                    : canRunCompetition
                     ? Theme.of(
                       context,
                     ).colorScheme.primary.withValues(alpha: 0.5)
-                    : Colors.grey.withValues(alpha: 0.3),
+                    : canRunCompetition
+                    ? Theme.of(
+                      context,
+                    ).colorScheme.outlineVariant.withValues(alpha: 0.5)
+                    : Theme.of(
+                      context,
+                    ).colorScheme.outlineVariant.withValues(alpha: 0.5),
           ),
         ),
         child: Column(
@@ -411,7 +425,11 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
                 color: Theme.of(context).colorScheme.primary,
               )
             else
-              Icon(Icons.help_outline, size: 16, color: Colors.grey),
+              Icon(
+                Icons.help_outline,
+                size: 16,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
           ],
         ),
       ),
@@ -467,17 +485,23 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
                   ? Theme.of(
                     context,
                   ).colorScheme.secondaryContainer.withValues(alpha: 0.4)
-                  : Colors.grey.withValues(alpha: 0.1),
+                  : Theme.of(
+                    context,
+                  ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color:
                 semifinalWinner != null
-                    ? Theme.of(context).colorScheme.secondary
-                    : canRunCompetition
                     ? Theme.of(
                       context,
                     ).colorScheme.secondary.withValues(alpha: 0.5)
-                    : Colors.grey.withValues(alpha: 0.3),
+                    : canRunCompetition
+                    ? Theme.of(
+                      context,
+                    ).colorScheme.outlineVariant.withValues(alpha: 0.5)
+                    : Theme.of(
+                      context,
+                    ).colorScheme.outlineVariant.withValues(alpha: 0.5),
           ),
         ),
         child: Column(
@@ -508,7 +532,11 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
                 color: Theme.of(context).colorScheme.secondary,
               )
             else
-              Icon(Icons.help_outline, size: 20, color: Colors.grey),
+              Icon(
+                Icons.help_outline,
+                size: 20,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
           ],
         ),
       ),
@@ -565,7 +593,8 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
                       : null,
               color:
                   yearlyWinner == null && !canRunCompetition
-                      ? Colors.grey.withValues(alpha: 0.1)
+                      ? Theme.of(context).colorScheme.surfaceContainerHighest
+                          .withValues(alpha: 0.2)
                       : null,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
@@ -577,8 +606,10 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
                         : canRunCompetition
                         ? Theme.of(
                           context,
-                        ).colorScheme.inversePrimary.withValues(alpha: 0.3)
-                        : Colors.grey.withValues(alpha: 0.3),
+                        ).colorScheme.outlineVariant.withValues(alpha: 0.3)
+                        : Theme.of(
+                          context,
+                        ).colorScheme.outlineVariant.withValues(alpha: 0.3),
               ),
             ),
             child:
@@ -605,7 +636,11 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
                       size: 32,
                       color: Theme.of(context).colorScheme.inversePrimary,
                     )
-                    : Icon(Icons.help_outline, size: 32, color: Colors.grey),
+                    : Icon(
+                      Icons.help_outline,
+                      size: 32,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
           ),
         ),
       ],
@@ -649,10 +684,18 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
                   decoration: BoxDecoration(
                     color:
                         monthlyWinner != null
-                            ? Theme.of(context).colorScheme.surfaceContainerHighest
+                            ? Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest
                             : _isMonthDisabled(month)
-                            ? Colors.grey.withValues(alpha: 0.3)
-                            : Colors.grey.withValues(alpha: 0.1),
+                            ? Theme.of(context)
+                                .colorScheme
+                                .surfaceContainerHighest
+                                .withValues(alpha: 0.4)
+                            : Theme.of(context)
+                                .colorScheme
+                                .surfaceContainerHighest
+                                .withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                       color:
@@ -661,8 +704,10 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
                                 context,
                               ).colorScheme.outline.withValues(alpha: 0.3)
                               : _isMonthDisabled(month)
-                              ? Colors.grey.withValues(alpha: 0.4)
-                              : Colors.grey.withValues(alpha: 0.2),
+                              ? Theme.of(context).colorScheme.outlineVariant
+                                  .withValues(alpha: 0.6)
+                              : Theme.of(context).colorScheme.outlineVariant
+                                  .withValues(alpha: 0.3),
                     ),
                   ),
                   child: InkWell(
@@ -681,7 +726,9 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
                             fontSize: 11,
                             color:
                                 _isMonthDisabled(month)
-                                    ? Colors.grey[600]
+                                    ? Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant
                                     : null,
                           ),
                           textAlign: TextAlign.center,
@@ -702,12 +749,18 @@ class _BookCompetitionScreenState extends State<BookCompetitionScreen> {
                             ),
                           )
                         else if (_isMonthDisabled(month))
-                          Icon(Icons.block, size: 12, color: Colors.grey[600])
+                          Icon(
+                            Icons.block,
+                            size: 12,
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          )
                         else if (_isFutureMonth(month))
                           Icon(
                             Icons.help_outline,
                             size: 12,
-                            color: Colors.grey[600],
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
                           )
                         else
                           Container(

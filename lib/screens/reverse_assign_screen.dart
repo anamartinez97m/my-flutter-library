@@ -172,7 +172,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.bulk_updated_books(count)),
-          backgroundColor: Colors.green,
+          backgroundColor: Theme.of(context).colorScheme.primary,
         ),
       );
 
@@ -182,7 +182,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text('${l10n.error}: $e'),
-          backgroundColor: Colors.red,
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
     }
@@ -210,11 +210,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.assign_books_to_value),
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
-      ),
+      appBar: AppBar(title: Text(l10n.assign_books_to_value)),
       body: Stepper(
         currentStep: _currentStep,
         onStepContinue: _onStepContinue,
@@ -228,8 +224,8 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                   ElevatedButton(
                     onPressed: _canContinue() ? details.onStepContinue : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple,
-                      foregroundColor: Colors.white,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     ),
                     child: Text(l10n.continue_label),
                   ),
@@ -241,19 +237,19 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                             : null,
                     icon:
                         _isApplying
-                            ? const SizedBox(
+                            ? SizedBox(
                               width: 16,
                               height: 16,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: Colors.white,
+                                color: Theme.of(context).colorScheme.onPrimary,
                               ),
                             )
                             : const Icon(Icons.check),
                     label: Text(l10n.apply_to_n_books(_selectedBookIds.length)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     ),
                   ),
                 const SizedBox(width: 8),
@@ -350,25 +346,36 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
 
             return Card(
               elevation: isSelected ? 3 : 1,
-              color: isSelected ? Colors.deepPurple.shade50 : null,
+              color:
+                  isSelected
+                      ? Theme.of(
+                        context,
+                      ).colorScheme.primaryContainer.withValues(alpha: 0.3)
+                      : null,
               child: ListTile(
                 leading: Icon(
                   _getFieldIcon(key),
-                  color: isSelected ? Colors.deepPurple : Colors.grey,
+                  color:
+                      isSelected
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 title: Text(
                   _getFieldLabel(key),
                   style: TextStyle(
                     fontWeight:
                         isSelected ? FontWeight.bold : FontWeight.normal,
-                    color: isSelected ? Colors.deepPurple : null,
+                    color:
+                        isSelected
+                            ? Theme.of(context).colorScheme.primary
+                            : null,
                   ),
                 ),
                 trailing:
                     isSelected
-                        ? const Icon(
+                        ? Icon(
                           Icons.check_circle,
-                          color: Colors.deepPurple,
+                          color: Theme.of(context).colorScheme.primary,
                         )
                         : null,
                 onTap: () {
@@ -400,48 +407,56 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
         child: Center(
           child: Text(
             AppLocalizations.of(context)!.no_values_available,
-            style: TextStyle(color: Colors.grey[600]),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
         ),
       );
     }
 
-    return SizedBox(
-      height: 300,
-      child: ListView.builder(
-        shrinkWrap: true,
-        itemCount: _fieldValues.length,
-        itemBuilder: (context, index) {
-          final item = _fieldValues[index];
-          final valueName = _getValueName(item);
-          final isSelected = _selectedValue == valueName;
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: _fieldValues.length,
+      itemBuilder: (context, index) {
+        final item = _fieldValues[index];
+        final valueName = _getValueName(item);
+        final isSelected = _selectedValue == valueName;
 
-          return Card(
-            elevation: isSelected ? 3 : 1,
-            color: isSelected ? Colors.deepPurple.shade50 : null,
-            child: ListTile(
-              title: Text(
-                valueName,
-                style: TextStyle(
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  color: isSelected ? Colors.deepPurple : null,
-                ),
+        return Card(
+          elevation: isSelected ? 3 : 1,
+          color:
+              isSelected
+                  ? Theme.of(
+                    context,
+                  ).colorScheme.primaryContainer.withValues(alpha: 0.3)
+                  : null,
+          child: ListTile(
+            title: Text(
+              valueName,
+              style: TextStyle(
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color:
+                    isSelected ? Theme.of(context).colorScheme.primary : null,
               ),
-              trailing:
-                  isSelected
-                      ? const Icon(Icons.check_circle, color: Colors.deepPurple)
-                      : null,
-              onTap: () {
-                setState(() {
-                  _selectedValue = valueName;
-                  _candidateBooks = [];
-                  _selectedBookIds.clear();
-                });
-              },
             ),
-          );
-        },
-      ),
+            trailing:
+                isSelected
+                    ? Icon(
+                      Icons.check_circle,
+                      color: Theme.of(context).colorScheme.primary,
+                    )
+                    : null,
+            onTap: () {
+              setState(() {
+                _selectedValue = valueName;
+                _candidateBooks = [];
+                _selectedBookIds.clear();
+              });
+            },
+          ),
+        );
+      },
     );
   }
 
@@ -464,13 +479,23 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.blue.shade50,
+            color: Theme.of(
+              context,
+            ).colorScheme.primaryContainer.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.blue.shade200),
+            border: Border.all(
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.3),
+            ),
           ),
           child: Row(
             children: [
-              Icon(Icons.info_outline, color: Colors.blue.shade700, size: 20),
+              Icon(
+                Icons.info_outline,
+                color: Theme.of(context).colorScheme.primary,
+                size: 20,
+              ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -478,7 +503,10 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                     _selectedValue ?? '',
                     _getFieldLabel(_selectedField ?? ''),
                   ),
-                  style: TextStyle(fontSize: 13, color: Colors.blue.shade900),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
               ),
             ],
@@ -543,7 +571,10 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
         // Count
         Text(
           '${books.length} ${l10n.books_available}',
-          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+          style: TextStyle(
+            fontSize: 12,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         const SizedBox(height: 8),
 
@@ -559,12 +590,17 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                         Icon(
                           Icons.check_circle_outline,
                           size: 48,
-                          color: Colors.green[300],
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.6),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           l10n.all_books_already_have_value,
-                          style: TextStyle(color: Colors.grey[600]),
+                          style: TextStyle(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                           textAlign: TextAlign.center,
                         ),
                       ],
@@ -600,7 +636,10 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                                 book.author!,
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Colors.grey[600],
+                                  color:
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                                 ),
                               ),
                             if (currentValue.isNotEmpty)
@@ -608,14 +647,15 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                                 '${_getFieldLabel(_selectedField!)}: $currentValue',
                                 style: TextStyle(
                                   fontSize: 11,
-                                  color: Colors.orange[700],
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
                                   fontStyle: FontStyle.italic,
                                 ),
                               ),
                           ],
                         ),
                         dense: true,
-                        activeColor: Colors.deepPurple,
+                        activeColor: Theme.of(context).colorScheme.primary,
                       );
                     },
                   ),

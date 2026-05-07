@@ -120,7 +120,7 @@ class _BooksByDecadeCardState extends State<BooksByDecadeCard> {
               Text(
                 '(${AppLocalizations.of(context)!.based_on_publication_year})',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[600],
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontStyle: FontStyle.italic,
                 ),
               ),
@@ -170,7 +170,10 @@ class _BooksByDecadeCardState extends State<BooksByDecadeCard> {
                                   Container(
                                     height: 24,
                                     decoration: BoxDecoration(
-                                      color: Colors.grey[200],
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.surfaceContainerHighest,
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                   ),
@@ -179,7 +182,10 @@ class _BooksByDecadeCardState extends State<BooksByDecadeCard> {
                                     child: Container(
                                       height: 24,
                                       decoration: BoxDecoration(
-                                        color: Colors.green,
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.primary,
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                     ),
@@ -195,8 +201,12 @@ class _BooksByDecadeCardState extends State<BooksByDecadeCard> {
                                       style: TextStyle(
                                         color:
                                             percentage > 0.15
-                                                ? Colors.white
-                                                : Colors.black87,
+                                                ? Theme.of(
+                                                  context,
+                                                ).colorScheme.onPrimary
+                                                : Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurface,
                                         fontSize: 11,
                                         fontWeight: FontWeight.bold,
                                       ),

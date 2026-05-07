@@ -192,7 +192,10 @@ class _BundleReadDatesWidgetState extends State<BundleReadDatesWidget> {
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       child: Text(
                         AppLocalizations.of(context)!.no_reading_sessions,
-                        style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontSize: 13,
+                        ),
                       ),
                     )
                   else
@@ -202,9 +205,14 @@ class _BundleReadDatesWidgetState extends State<BundleReadDatesWidget> {
                         margin: const EdgeInsets.only(top: 8),
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.grey[50],
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest
+                              .withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.grey[300]!),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.outlineVariant,
+                          ),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -277,7 +285,9 @@ class _BundleReadDatesWidgetState extends State<BundleReadDatesWidget> {
                                           color:
                                               readDate.dateStarted != null
                                                   ? null
-                                                  : Colors.grey[600],
+                                                  : Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
                                         ),
                                       ),
                                     ),
@@ -327,7 +337,9 @@ class _BundleReadDatesWidgetState extends State<BundleReadDatesWidget> {
                                           color:
                                               readDate.dateFinished != null
                                                   ? null
-                                                  : Colors.grey[600],
+                                                  : Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
                                         ),
                                       ),
                                     ),

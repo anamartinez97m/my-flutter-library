@@ -146,7 +146,10 @@ class _ReadDatesWidgetState extends State<ReadDatesWidget> {
             child: Center(
               child: Text(
                 AppLocalizations.of(context)!.no_reading_sessions,
-                style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 14,
+                ),
               ),
             ),
           )
@@ -216,7 +219,9 @@ class _ReadDatesWidgetState extends State<ReadDatesWidget> {
                                   color:
                                       readDate.dateStarted != null
                                           ? null
-                                          : Colors.grey[600],
+                                          : Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                 ),
                               ),
                             ),
@@ -258,7 +263,9 @@ class _ReadDatesWidgetState extends State<ReadDatesWidget> {
                                   color:
                                       readDate.dateFinished != null
                                           ? null
-                                          : Colors.grey[600],
+                                          : Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                 ),
                               ),
                             ),

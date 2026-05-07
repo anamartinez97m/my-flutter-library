@@ -93,7 +93,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.field_name_already_exists(result)),
-            backgroundColor: Colors.orange,
+            backgroundColor: Theme.of(context).colorScheme.secondary,
           ),
         );
         return;
@@ -110,7 +110,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.added_value(result)),
-            backgroundColor: Colors.green,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       } catch (e) {
@@ -118,7 +118,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text('${l10n.error}: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -167,7 +167,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.field_name_already_exists(result)),
-            backgroundColor: Colors.orange,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
         return;
@@ -184,7 +184,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.updated_field_name(oldName, result)),
-            backgroundColor: Colors.green,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       } catch (e) {
@@ -192,7 +192,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text('${l10n.error}: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -228,20 +228,29 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.orange.shade50,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.secondaryContainer.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.orange),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.warning, color: Colors.orange),
+                        Icon(
+                          Icons.warning,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             AppLocalizations.of(
                               context,
                             )!.field_used_in_ratings(count),
-                            style: const TextStyle(color: Colors.orange),
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
                           ),
                         ),
                       ],
@@ -258,8 +267,8 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, true),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                  foregroundColor: Theme.of(context).colorScheme.onError,
                 ),
                 child: Text(AppLocalizations.of(context)!.delete),
               ),
@@ -278,7 +287,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.deleted_value(name)),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       } catch (e) {
@@ -286,7 +295,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text('${l10n.error}: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -374,7 +383,9 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                                           : Icons.star_border,
                                       color:
                                           isDefault
-                                              ? Colors.amber
+                                              ? Theme.of(
+                                                context,
+                                              ).colorScheme.tertiary
                                               : Theme.of(
                                                 context,
                                               ).colorScheme.primary,
@@ -401,7 +412,10 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                                         ),
                                         IconButton(
                                           icon: const Icon(Icons.delete),
-                                          color: Colors.red,
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.error,
                                           onPressed:
                                               () => _deleteFieldName(name),
                                           tooltip:

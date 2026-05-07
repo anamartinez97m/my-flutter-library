@@ -44,9 +44,11 @@ class _BooksByAuthorScreenState extends State<BooksByAuthorScreen> {
           title: Text(AppLocalizations.of(context)!.authors),
           bottom: TabBar(
             isScrollable: true,
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.white70,
-            indicatorColor: Colors.white,
+            labelColor: Theme.of(context).colorScheme.onPrimary,
+            unselectedLabelColor: Theme.of(
+              context,
+            ).colorScheme.onPrimary.withValues(alpha: 0.7),
+            indicatorColor: Theme.of(context).colorScheme.onPrimary,
             tabs: widget.authors.map((author) => Tab(text: author)).toList(),
           ),
         ),
@@ -226,13 +228,17 @@ class _LocalAuthorContent extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.person_outline, size: 64, color: Colors.grey[400]),
+              Icon(
+                Icons.person_outline,
+                size: 64,
+                color: Theme.of(context).colorScheme.outlineVariant,
+              ),
               const SizedBox(height: 16),
               Text(
                 AppLocalizations.of(context)!.no_books_for_author,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             ],
           ),
@@ -256,7 +262,7 @@ class _LocalAuthorContent extends StatelessWidget {
                             style: Theme.of(
                               context,
                             ).textTheme.headlineMedium?.copyWith(
-                              color: Colors.deepPurple,
+                              color: Theme.of(context).colorScheme.primary,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -277,14 +283,15 @@ class _LocalAuthorContent extends StatelessWidget {
                                   style: Theme.of(
                                     context,
                                   ).textTheme.headlineMedium?.copyWith(
-                                    color: Colors.amber[700],
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                                 const SizedBox(width: 4),
                                 Icon(
                                   Icons.star,
-                                  color: Colors.amber[700],
+                                  color: Theme.of(context).colorScheme.tertiary,
                                   size: 28,
                                 ),
                               ],
@@ -322,11 +329,14 @@ class _LocalAuthorContent extends StatelessWidget {
                       decoration: BoxDecoration(
                         color:
                             isRead
-                                ? Colors.grey[300]?.withValues(alpha: 0.3)
+                                ? Theme.of(context)
+                                    .colorScheme
+                                    .surfaceContainerHighest
+                                    .withValues(alpha: 0.5)
                                 : null,
                         border: Border(
                           bottom: BorderSide(
-                            color: Colors.grey[300]!,
+                            color: Theme.of(context).colorScheme.outlineVariant,
                             width: 1,
                           ),
                         ),
@@ -352,7 +362,12 @@ class _LocalAuthorContent extends StatelessWidget {
                                           isRead
                                               ? FontWeight.normal
                                               : FontWeight.w500,
-                                      color: isRead ? Colors.grey[700] : null,
+                                      color:
+                                          isRead
+                                              ? Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant
+                                              : null,
                                     ),
                                   ),
                                   if (book.saga != null &&
@@ -367,7 +382,10 @@ class _LocalAuthorContent extends StatelessWidget {
                                         style: Theme.of(
                                           context,
                                         ).textTheme.bodySmall?.copyWith(
-                                          color: Colors.grey[600],
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant,
                                           fontStyle: FontStyle.italic,
                                         ),
                                       ),
@@ -431,10 +449,14 @@ class _LocalAuthorContent extends StatelessWidget {
                                       padding: const EdgeInsets.only(left: 8.0),
                                       child: Text(
                                         displayText,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall
-                                            ?.copyWith(color: Colors.grey[600]),
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodySmall?.copyWith(
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant,
+                                        ),
                                       ),
                                     );
                                   } catch (e) {
@@ -448,10 +470,14 @@ class _LocalAuthorContent extends StatelessWidget {
                                     padding: const EdgeInsets.only(left: 8.0),
                                     child: Text(
                                       '${book.originalPublicationYear}',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(color: Colors.grey[600]),
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodySmall?.copyWith(
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                      ),
                                     ),
                                   );
                                 }
@@ -851,9 +877,9 @@ class _CatalogViewState extends State<_CatalogView> {
             const SizedBox(height: 16),
             Text(
               l10n.fetching_author_books,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),
@@ -865,13 +891,17 @@ class _CatalogViewState extends State<_CatalogView> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Theme.of(context).colorScheme.error,
+            ),
             const SizedBox(height: 16),
             Text(
               l10n.no_catalog_results,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: 8),
             TextButton(
@@ -888,13 +918,17 @@ class _CatalogViewState extends State<_CatalogView> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
+            Icon(
+              Icons.search_off,
+              size: 64,
+              color: Theme.of(context).colorScheme.outlineVariant,
+            ),
             const SizedBox(height: 16),
             Text(
               l10n.no_catalog_results,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),
@@ -920,9 +954,9 @@ class _CatalogViewState extends State<_CatalogView> {
                   const SizedBox(height: 8),
                   Text(
                     l10n.loading_more,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),
@@ -940,10 +974,14 @@ class _CatalogViewState extends State<_CatalogView> {
     Color? backgroundColor;
     if (item.isInLibrary && item.isRead) {
       // Read: grey background
-      backgroundColor = Colors.grey[300]?.withValues(alpha: 0.3);
+      backgroundColor = Theme.of(
+        context,
+      ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5);
     } else if (item.isInLibrary) {
       // In library but not read: subtle tint
-      backgroundColor = Colors.deepPurple.withValues(alpha: 0.05);
+      backgroundColor = Theme.of(
+        context,
+      ).colorScheme.primaryContainer.withValues(alpha: 0.15);
     }
 
     // Saga info (only available for local books)
@@ -978,7 +1016,10 @@ class _CatalogViewState extends State<_CatalogView> {
         decoration: BoxDecoration(
           color: backgroundColor,
           border: Border(
-            bottom: BorderSide(color: Colors.grey[300]!, width: 1),
+            bottom: BorderSide(
+              color: Theme.of(context).colorScheme.outlineVariant,
+              width: 1,
+            ),
           ),
         ),
         child: Padding(
@@ -991,7 +1032,7 @@ class _CatalogViewState extends State<_CatalogView> {
                   padding: const EdgeInsets.only(right: 8.0),
                   child: Icon(
                     Icons.check_circle,
-                    color: Colors.green[600],
+                    color: Theme.of(context).colorScheme.primary,
                     size: 20,
                   ),
                 ),
@@ -1006,8 +1047,8 @@ class _CatalogViewState extends State<_CatalogView> {
                             item.isRead ? FontWeight.normal : FontWeight.w500,
                         color:
                             item.isRead
-                                ? Colors.grey[700]
-                                : (item.isInLibrary ? null : Colors.grey[800]),
+                                ? Theme.of(context).colorScheme.onSurfaceVariant
+                                : null,
                       ),
                     ),
                     if (sagaText != null)
@@ -1018,7 +1059,8 @@ class _CatalogViewState extends State<_CatalogView> {
                           style: Theme.of(
                             context,
                           ).textTheme.bodySmall?.copyWith(
-                            color: Colors.grey[600],
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
                             fontStyle: FontStyle.italic,
                           ),
                         ),
@@ -1032,9 +1074,9 @@ class _CatalogViewState extends State<_CatalogView> {
                   padding: const EdgeInsets.only(left: 8.0),
                   child: Text(
                     '${item.displayYear}',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
             ],

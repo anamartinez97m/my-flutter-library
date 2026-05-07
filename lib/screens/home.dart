@@ -1421,6 +1421,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                       provider.clearAllFilters();
                                       setModalState(() {});
                                     },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withValues(alpha: 0.5),
+                                      foregroundColor:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onPrimary,
+                                    ),
                                     child: Text(
                                       AppLocalizations.of(context)!.clear,
                                     ),
@@ -1433,10 +1443,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                     onPressed: () {
                                       Navigator.pop(context);
                                     },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.deepPurple,
-                                      foregroundColor: Colors.white,
-                                    ),
                                     child: Text(
                                       AppLocalizations.of(context)!.apply,
                                     ),
@@ -1526,15 +1532,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 MaterialPageRoute(builder: (context) => const AddBookScreen()),
               );
             },
-            backgroundColor: Colors.deepPurple,
-            child: const Icon(Icons.add, color: Colors.white),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            child: Icon(
+              Icons.add,
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
           ),
           const SizedBox(height: 16),
           FloatingActionButton(
             heroTag: 'filters',
             onPressed: () => _showFilterSortSheet(context, provider),
-            backgroundColor: Colors.deepPurple,
-            child: const Icon(Icons.tune, color: Colors.white),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            child: Icon(
+              Icons.tune,
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
           ),
         ],
       ),
@@ -1628,13 +1640,17 @@ class _SearchButtonsWidgetState extends State<SearchButtonsWidget> {
             style: TextButton.styleFrom(
               backgroundColor:
                   isSelected
-                      ? Colors.deepPurple.withValues(alpha: (255.0 * 0.1))
+                      ? Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.1)
                       : null,
               shape: RoundedRectangleBorder(
                 borderRadius: const BorderRadius.all(Radius.circular(12)),
                 side: BorderSide(
                   color:
-                      isSelected ? Colors.deepPurple : Colors.deepPurpleAccent,
+                      isSelected
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.secondary,
                   width: isSelected ? 2 : 1,
                 ),
               ),
