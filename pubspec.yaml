@@ -58,6 +58,14 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
 
+  flutter_launcher_icons: ^0.14.1
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/icon.png"  # path to your PNG
+  min_sdk_android: 21
+
 # The following section is specific to Flutter packages.
 flutter:
   uses-material-design: true
