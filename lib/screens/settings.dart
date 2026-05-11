@@ -274,6 +274,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _setAutoBackupFrequency(BackupFrequency freq) async {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
       BackupService.prefAutoBackupFrequency,
@@ -292,7 +293,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               : l10n.auto_backup_enabled(label),
         ),
         backgroundColor:
-            freq == BackupFrequency.off ? Colors.grey : Colors.green,
+            freq == BackupFrequency.off
+                ? colorScheme.surfaceContainerHighest
+                : colorScheme.primary,
       ),
     );
   }
@@ -418,6 +421,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _signInWithGoogle() async {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
     setState(() => _isCloudBusy = true);
     try {
       final user = await GoogleAuthService.instance.signInWithGoogle();
@@ -432,7 +436,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.sign_in_failed),
-            backgroundColor: Colors.red,
+            backgroundColor: colorScheme.error,
           ),
         );
       }
@@ -443,7 +447,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text('${l10n.sign_in_failed}: $e'),
-          backgroundColor: Colors.red,
+          backgroundColor: colorScheme.error,
           duration: const Duration(seconds: 10),
         ),
       );
@@ -464,6 +468,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
     final navigator = Navigator.of(context, rootNavigator: true);
+    final colorScheme = Theme.of(context).colorScheme;
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -502,12 +507,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.cloud_backup_success),
-            backgroundColor: Colors.green,
+            backgroundColor: colorScheme.primary,
           ),
         );
       } else {
         messenger.showSnackBar(
-          SnackBar(content: Text(l10n.error), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(l10n.error),
+            backgroundColor: colorScheme.error,
+          ),
         );
       }
       setState(() => _isCloudBusy = false);
@@ -515,7 +523,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (!context.mounted) return;
       navigator.pop();
       messenger.showSnackBar(
-        SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(e.toString()),
+          backgroundColor: colorScheme.error,
+        ),
       );
       setState(() => _isCloudBusy = false);
     }
@@ -543,6 +554,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final bookProvider = Provider.of<BookProvider?>(context, listen: false);
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     final localeProvider = Provider.of<LocaleProvider>(context, listen: false);
+    final colorScheme = Theme.of(context).colorScheme;
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -555,7 +567,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 Text(
                   AppLocalizations.of(context)!.cloud_restore_warning,
-                  style: const TextStyle(color: Colors.red),
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
                 if (_backupMetadata != null) ...[
                   const SizedBox(height: 12),
@@ -580,8 +592,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, true),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                  foregroundColor: Theme.of(context).colorScheme.onError,
                 ),
                 child: Text(AppLocalizations.of(context)!.restore),
               ),
@@ -622,14 +634,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.cloud_restore_success),
-            backgroundColor: Colors.green,
+            backgroundColor: colorScheme.primary,
           ),
         );
       } else {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.no_cloud_backup),
-            backgroundColor: Colors.orange,
+            backgroundColor: colorScheme.secondary,
           ),
         );
       }
@@ -638,7 +650,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (!context.mounted) return;
       navigator.pop();
       messenger.showSnackBar(
-        SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(e.toString()),
+          backgroundColor: colorScheme.error,
+        ),
       );
       setState(() => _isCloudBusy = false);
     }
@@ -886,7 +901,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(AppLocalizations.of(context)!.backup_canceled),
-              backgroundColor: Colors.grey,
+              backgroundColor:
+                  Theme.of(context).colorScheme.surfaceContainerHighest,
             ),
           );
         }
@@ -907,7 +923,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 context,
               )!.backup_created_successfully(backupPath),
             ),
-            backgroundColor: Colors.green,
+            backgroundColor: Theme.of(context).colorScheme.primary,
             duration: const Duration(seconds: 4),
           ),
         );
@@ -963,7 +979,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   context,
                 )!.error_creating_backup(e.toString()),
               ),
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
               duration: const Duration(seconds: 5),
             ),
           );
@@ -1389,7 +1405,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               (context) => AlertDialog(
                 title: Row(
                   children: [
-                    Icon(Icons.check_circle, color: Colors.green, size: 28),
+                    Icon(
+                      Icons.check_circle,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 28,
+                    ),
                     const SizedBox(width: 8),
                     Text(AppLocalizations.of(context)!.import_completed_title),
                   ],
@@ -1470,7 +1490,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
-                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.error,
+                ),
                 child: Text(AppLocalizations.of(context)!.delete_all_data),
               ),
             ],
@@ -1527,7 +1549,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             content: Text(
               AppLocalizations.of(context)!.deleted_books(allBooks.length),
             ),
-            backgroundColor: Colors.green,
+            backgroundColor: Theme.of(context).colorScheme.primary,
             duration: const Duration(seconds: 3),
           ),
         );
@@ -1553,7 +1575,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             content: Text(
               AppLocalizations.of(context)!.error_deleting_data(e.toString()),
             ),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
             duration: const Duration(seconds: 5),
           ),
         );
@@ -1570,7 +1592,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)!.no_sessions_to_migrate),
-            backgroundColor: Colors.green,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -1585,7 +1607,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           (context) => AlertDialog(
             title: Row(
               children: [
-                const Icon(Icons.history, color: Colors.blue),
+                Icon(
+                  Icons.history,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -1618,14 +1643,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.blue.withValues(alpha: 0.1),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     AppLocalizations.of(context)!.migration_safe_info,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: Colors.blue,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 ),
@@ -1639,8 +1666,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, true),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
                 ),
                 child: Text(AppLocalizations.of(context)!.migrate),
               ),
@@ -1678,7 +1705,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       )!.migration_completed_with_errors
                       : AppLocalizations.of(context)!.migration_successful,
                   style: TextStyle(
-                    color: result.hasErrors ? Colors.orange : Colors.green,
+                    color:
+                        result.hasErrors
+                            ? Theme.of(context).colorScheme.secondary
+                            : Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 content: SingleChildScrollView(
@@ -1748,7 +1778,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 context,
               )!.error_migrating_reading_sessions(e.toString()),
             ),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
             duration: const Duration(seconds: 5),
           ),
         );
@@ -1788,8 +1818,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context, true),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
+                    backgroundColor: Theme.of(context).colorScheme.error,
+                    foregroundColor: Theme.of(context).colorScheme.onError,
                   ),
                   child: Text(AppLocalizations.of(context)!.replace_database),
                 ),
@@ -1823,7 +1853,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             content: Text(
               AppLocalizations.of(context)!.database_restored_successfully,
             ),
-            backgroundColor: Colors.green,
+            backgroundColor: Theme.of(context).colorScheme.primary,
             duration: const Duration(seconds: 3),
           ),
         );
@@ -1838,7 +1868,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           content: Text(
             AppLocalizations.of(context)!.error_importing_backup(e.toString()),
           ),
-          backgroundColor: Colors.red,
+          backgroundColor: Theme.of(context).colorScheme.error,
           duration: const Duration(seconds: 5),
         ),
       );
@@ -1867,7 +1897,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(AppLocalizations.of(context)!.no_books_to_export),
-              backgroundColor: Colors.orange,
+              backgroundColor: Theme.of(context).colorScheme.secondary,
             ),
           );
         }
@@ -2005,7 +2035,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(AppLocalizations.of(context)!.export_canceled),
-              backgroundColor: Colors.grey,
+              backgroundColor:
+                  Theme.of(context).colorScheme.surfaceContainerHighest,
             ),
           );
         }
@@ -2026,7 +2057,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 context,
               )!.exported_books(allBooks.length, filePath),
             ),
-            backgroundColor: Colors.green,
+            backgroundColor: Theme.of(context).colorScheme.primary,
             duration: const Duration(seconds: 4),
           ),
         );
@@ -2080,7 +2111,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               content: Text(
                 AppLocalizations.of(context)!.error_exporting_csv(e.toString()),
               ),
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
               duration: const Duration(seconds: 5),
             ),
           );
@@ -2111,7 +2142,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(AppLocalizations.of(context)!.no_books_to_export),
-              backgroundColor: Colors.orange,
+              backgroundColor: Theme.of(context).colorScheme.secondary,
             ),
           );
         }
@@ -2249,7 +2280,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(AppLocalizations.of(context)!.export_canceled),
-              backgroundColor: Colors.grey,
+              backgroundColor:
+                  Theme.of(context).colorScheme.surfaceContainerHighest,
             ),
           );
         }
@@ -2270,7 +2302,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 context,
               )!.exported_books(allBooks.length, filePath),
             ),
-            backgroundColor: Colors.green,
+            backgroundColor: Theme.of(context).colorScheme.primary,
             duration: const Duration(seconds: 4),
           ),
         );
@@ -2324,7 +2356,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               content: Text(
                 AppLocalizations.of(context)!.error_exporting_csv(e.toString()),
               ),
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
               duration: const Duration(seconds: 5),
             ),
           );
@@ -2622,7 +2654,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             color:
                 isSelected
                     ? Theme.of(context).colorScheme.primary
-                    : Colors.grey[300]!,
+                    : Theme.of(context).colorScheme.outlineVariant,
             width: isSelected ? 3 : 1,
           ),
         ),
@@ -2655,7 +2687,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Container(
               padding: const EdgeInsets.symmetric(vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(10),
                   bottomRight: Radius.circular(10),
@@ -2681,7 +2713,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         color:
                             isSelected
                                 ? Theme.of(context).colorScheme.primary
-                                : Colors.black87,
+                                : Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ),
@@ -3030,10 +3062,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       context,
                                     )!.customize_home_filters_subtitle,
                                     textAlign: TextAlign.center,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(color: Colors.grey[600]),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.copyWith(
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -3082,10 +3118,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       AppLocalizations.of(
                                         context,
                                       )!.default_sort_order_subtitle,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(color: Colors.grey[600]),
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodySmall?.copyWith(
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                      ),
                                     ),
                                     const SizedBox(height: 16),
                                     DropdownButtonFormField<String>(
@@ -3232,10 +3272,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       context,
                                     )!.customize_card_fields_subtitle,
                                     textAlign: TextAlign.center,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(color: Colors.grey[600]),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.copyWith(
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                    ),
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
@@ -3347,10 +3391,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         context,
                                       )!.sign_in_required,
                                       textAlign: TextAlign.center,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(color: Colors.grey[600]),
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodySmall?.copyWith(
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -3402,7 +3450,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                             style: Theme.of(
                                               context,
                                             ).textTheme.bodySmall?.copyWith(
-                                              color: Colors.grey[600],
+                                              color:
+                                                  Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
                                             ),
                                           ),
                                       ],
@@ -3429,7 +3480,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   Icon(
                                     Icons.info_outline,
                                     size: 16,
-                                    color: Colors.grey[600],
+                                    color:
+                                        Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
                                   ),
                                   const SizedBox(width: 8),
                                   Expanded(
@@ -3439,10 +3493,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           _backupMetadata!['timestamp'],
                                         ),
                                       ),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(color: Colors.grey[600]),
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodySmall?.copyWith(
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                      ),
                                     ),
                                   ),
                                   InkWell(
@@ -3462,8 +3520,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               padding: const EdgeInsets.only(bottom: 12.0),
                               child: Text(
                                 AppLocalizations.of(context)!.no_cloud_backup,
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(color: Colors.grey[600]),
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.bodySmall?.copyWith(
+                                  color:
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                ),
                               ),
                             ),
 
@@ -3488,7 +3552,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                             size: 36,
                                             color:
                                                 _isCloudBusy
-                                                    ? Colors.grey
+                                                    ? Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurfaceVariant
                                                     : Theme.of(
                                                       context,
                                                     ).colorScheme.primary,
@@ -3514,7 +3580,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                             style: Theme.of(
                                               context,
                                             ).textTheme.bodySmall?.copyWith(
-                                              color: Colors.grey[600],
+                                              color:
+                                                  Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
                                             ),
                                           ),
                                         ],
@@ -3543,7 +3612,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                             size: 36,
                                             color:
                                                 _isCloudBusy
-                                                    ? Colors.grey
+                                                    ? Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurfaceVariant
                                                     : Theme.of(
                                                       context,
                                                     ).colorScheme.primary,
@@ -3569,7 +3640,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                             style: Theme.of(
                                               context,
                                             ).textTheme.bodySmall?.copyWith(
-                                              color: Colors.grey[600],
+                                              color:
+                                                  Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
                                             ),
                                           ),
                                         ],
@@ -3604,8 +3678,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     AppLocalizations.of(
                                       context,
                                     )!.auto_backup_subtitle,
-                                    style: Theme.of(context).textTheme.bodySmall
-                                        ?.copyWith(color: Colors.grey[600]),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall?.copyWith(
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                    ),
                                   ),
                                   const SizedBox(height: 8),
                                   RadioListTile<BackupFrequency>(
@@ -3669,7 +3749,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         Icon(
                                           Icons.schedule,
                                           size: 14,
-                                          color: Colors.grey[500],
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant,
                                         ),
                                         const SizedBox(width: 6),
                                         Flexible(
@@ -3686,7 +3769,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                             style: Theme.of(
                                               context,
                                             ).textTheme.bodySmall?.copyWith(
-                                              color: Colors.grey[500],
+                                              color:
+                                                  Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
                                               fontSize: 11,
                                             ),
                                           ),
@@ -3789,7 +3875,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           style: Theme.of(
                                             context,
                                           ).textTheme.bodySmall?.copyWith(
-                                            color: Colors.grey[600],
+                                            color:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurfaceVariant,
                                           ),
                                         ),
                                       ],
@@ -3841,7 +3930,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           style: Theme.of(
                                             context,
                                           ).textTheme.bodySmall?.copyWith(
-                                            color: Colors.grey[600],
+                                            color:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurfaceVariant,
                                           ),
                                         ),
                                       ],
@@ -3890,20 +3982,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       context,
                                     )!.import_from_csv_file,
                                     textAlign: TextAlign.center,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(color: Colors.grey[600]),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.copyWith(
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                    ),
                                   ),
                                   const SizedBox(height: 12),
                                   // Case 1: Custom CSV
                                   Container(
                                     padding: const EdgeInsets.all(12),
                                     decoration: BoxDecoration(
-                                      color: Colors.blue[50],
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.primaryContainer,
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
-                                        color: Colors.blue[200]!,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary
+                                            .withValues(alpha: 0.3),
                                       ),
                                     ),
                                     child: Column(
@@ -3914,7 +4016,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           children: [
                                             Icon(
                                               Icons.table_chart_outlined,
-                                              color: Colors.blue[700],
+                                              color:
+                                                  Theme.of(
+                                                    context,
+                                                  ).colorScheme.primary,
                                               size: 20,
                                             ),
                                             const SizedBox(width: 8),
@@ -3923,7 +4028,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               style: Theme.of(
                                                 context,
                                               ).textTheme.bodySmall?.copyWith(
-                                                color: Colors.blue[900],
+                                                color:
+                                                    Theme.of(
+                                                      context,
+                                                    ).colorScheme.primary,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
@@ -3937,7 +4045,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           style: Theme.of(
                                             context,
                                           ).textTheme.bodySmall?.copyWith(
-                                            color: Colors.blue[800],
+                                            color:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.primary,
                                             fontSize: 11,
                                           ),
                                         ),
@@ -3946,7 +4057,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           children: [
                                             Icon(
                                               Icons.info_outline,
-                                              color: Colors.blue[600],
+                                              color:
+                                                  Theme.of(
+                                                    context,
+                                                  ).colorScheme.primary,
                                               size: 14,
                                             ),
                                             const SizedBox(width: 4),
@@ -3958,7 +4072,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                 style: Theme.of(
                                                   context,
                                                 ).textTheme.bodySmall?.copyWith(
-                                                  color: Colors.blue[700],
+                                                  color:
+                                                      Theme.of(
+                                                        context,
+                                                      ).colorScheme.primary,
                                                   fontSize: 11,
                                                   fontStyle: FontStyle.italic,
                                                 ),
@@ -3974,10 +4091,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   Container(
                                     padding: const EdgeInsets.all(12),
                                     decoration: BoxDecoration(
-                                      color: Colors.green[50],
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.tertiaryContainer,
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
-                                        color: Colors.green[200]!,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .tertiary
+                                            .withValues(alpha: 0.3),
                                       ),
                                     ),
                                     child: Column(
@@ -3988,7 +4111,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           children: [
                                             Icon(
                                               Icons.menu_book_outlined,
-                                              color: Colors.green[700],
+                                              color:
+                                                  Theme.of(
+                                                    context,
+                                                  ).colorScheme.tertiary,
                                               size: 20,
                                             ),
                                             const SizedBox(width: 8),
@@ -3997,7 +4123,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               style: Theme.of(
                                                 context,
                                               ).textTheme.bodySmall?.copyWith(
-                                                color: Colors.green[900],
+                                                color:
+                                                    Theme.of(
+                                                      context,
+                                                    ).colorScheme.tertiary,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
@@ -4011,7 +4140,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           style: Theme.of(
                                             context,
                                           ).textTheme.bodySmall?.copyWith(
-                                            color: Colors.green[800],
+                                            color:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.tertiary,
                                             fontSize: 11,
                                           ),
                                         ),
@@ -4174,8 +4306,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               AppLocalizations.of(
                                 context,
                               )!.enable_reading_reminders_subtitle,
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: Colors.grey[600]),
+                              style: Theme.of(
+                                context,
+                              ).textTheme.bodySmall?.copyWith(
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                              ),
                             ),
                             value: _readingReminderEnabled,
                             onChanged: (value) {
@@ -4196,7 +4334,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           )!.reading_reminder_disabled,
                                     ),
                                     backgroundColor:
-                                        value ? Colors.green : Colors.orange,
+                                        value
+                                            ? Theme.of(
+                                              context,
+                                            ).colorScheme.primary
+                                            : Theme.of(
+                                              context,
+                                            ).colorScheme.secondary,
                                   ),
                                 );
                               }
@@ -4208,7 +4352,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               color:
                                   _readingReminderEnabled
                                       ? Theme.of(context).colorScheme.primary
-                                      : Colors.grey,
+                                      : Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ),
@@ -4235,8 +4381,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 AppLocalizations.of(
                                   context,
                                 )!.reminder_time_subtitle,
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(color: Colors.grey[600]),
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.bodySmall?.copyWith(
+                                  color:
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                ),
                               ),
                               trailing: Container(
                                 padding: const EdgeInsets.symmetric(
@@ -4324,10 +4476,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       AppLocalizations.of(
                                         context,
                                       )!.reminder_all_started_subtitle,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(color: Colors.grey[600]),
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodySmall?.copyWith(
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                      ),
                                     ),
                                     value: true,
                                     groupValue: _readingReminderAllBooks,
@@ -4349,10 +4505,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       AppLocalizations.of(
                                         context,
                                       )!.reminder_last_started_subtitle,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(color: Colors.grey[600]),
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodySmall?.copyWith(
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                      ),
                                     ),
                                     value: false,
                                     groupValue: _readingReminderAllBooks,
@@ -4459,10 +4619,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       context,
                                     )!.manage_rating_field_names_subtitle,
                                     textAlign: TextAlign.center,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(color: Colors.grey[600]),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.copyWith(
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -4516,10 +4680,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       context,
                                     )!.manage_club_names_subtitle,
                                     textAlign: TextAlign.center,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(color: Colors.grey[600]),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.copyWith(
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -4573,10 +4741,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       context,
                                     )!.manage_dropdown_values_hint,
                                     textAlign: TextAlign.center,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(color: Colors.grey[600]),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.copyWith(
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -4603,8 +4775,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               AppLocalizations.of(
                                 context,
                               )!.show_price_statistics_subtitle,
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: Colors.grey[600]),
+                              style: Theme.of(
+                                context,
+                              ).textTheme.bodySmall?.copyWith(
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                              ),
                             ),
                             value: _showPriceStatistics,
                             onChanged: (value) {
@@ -4618,7 +4796,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               color:
                                   _showPriceStatistics
                                       ? Theme.of(context).colorScheme.primary
-                                      : Colors.grey,
+                                      : Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ),
@@ -4644,8 +4824,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               AppLocalizations.of(
                                 context,
                               )!.currency_setting_subtitle,
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: Colors.grey[600]),
+                              style: Theme.of(
+                                context,
+                              ).textTheme.bodySmall?.copyWith(
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                              ),
                             ),
                             trailing: Container(
                               padding: const EdgeInsets.symmetric(
@@ -4762,10 +4948,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       context,
                                     )!.assign_books_to_value_hint,
                                     textAlign: TextAlign.center,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(color: Colors.grey[600]),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.copyWith(
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -4819,10 +5009,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       context,
                                     )!.fill_empty_fields_hint,
                                     textAlign: TextAlign.center,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(color: Colors.grey[600]),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.copyWith(
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -4876,10 +5070,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       context,
                                     )!.smart_suggestions_hint,
                                     textAlign: TextAlign.center,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(color: Colors.grey[600]),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.copyWith(
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -4971,7 +5169,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           vertical: 4,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: Colors.orange,
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.secondary,
                                           borderRadius: BorderRadius.circular(
                                             12,
                                           ),
@@ -4980,8 +5181,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           AppLocalizations.of(
                                             context,
                                           )!.available,
-                                          style: const TextStyle(
-                                            color: Colors.white,
+                                          style: TextStyle(
+                                            color:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.onSecondary,
                                             fontSize: 12,
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -4989,9 +5193,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       );
                                     }
 
-                                    return const Icon(
+                                    return Icon(
                                       Icons.check_circle,
-                                      color: Colors.green,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
                                     );
                                   },
                                 ),
@@ -5008,9 +5213,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                               const Divider(height: 1),
                               ListTile(
-                                leading: const Icon(
+                                leading: Icon(
                                   Icons.history,
-                                  color: Colors.blue,
+                                  color: Theme.of(context).colorScheme.primary,
                                 ),
                                 title: Text(
                                   AppLocalizations.of(
@@ -5044,7 +5249,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           vertical: 4,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: Colors.blue,
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
                                           borderRadius: BorderRadius.circular(
                                             12,
                                           ),
@@ -5053,8 +5261,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           AppLocalizations.of(
                                             context,
                                           )!.available,
-                                          style: const TextStyle(
-                                            color: Colors.white,
+                                          style: TextStyle(
+                                            color:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.onPrimary,
                                             fontSize: 12,
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -5062,9 +5273,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       );
                                     }
 
-                                    return const Icon(
+                                    return Icon(
                                       Icons.check_circle,
-                                      color: Colors.green,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
                                     );
                                   },
                                 ),
@@ -5095,10 +5307,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   padding: const EdgeInsets.all(24.0),
                   child: Column(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.delete_forever,
                         size: 36,
-                        color: Colors.red,
+                        color: Theme.of(context).colorScheme.error,
                       ),
                       const SizedBox(height: 12),
                       Text(
@@ -5106,7 +5318,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: Colors.red,
+                          color: Theme.of(context).colorScheme.error,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -5116,7 +5328,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         )!.permanently_delete_all_books_from_the_database,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey[600],
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -5197,8 +5409,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             context,
                           )!.admin_csv_import_subtitle,
                           textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(color: Colors.grey[600]),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodyMedium?.copyWith(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                         ),
                       ],
                     ),
@@ -5254,7 +5470,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   decoration: BoxDecoration(
                     color: color,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey[300]!, width: 2),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                      width: 2,
+                    ),
                   ),
                   child: Center(
                     child: Text(
@@ -5278,11 +5497,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: Colors.grey[200],
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey[300]!, width: 2),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                    width: 2,
+                  ),
                 ),
-                child: Icon(Icons.palette, color: Colors.grey[600]),
+                child: Icon(
+                  Icons.palette,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
           ],
@@ -5319,7 +5544,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             color: selectedColor,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: Colors.grey[300]!,
+                              color:
+                                  Theme.of(context).colorScheme.outlineVariant,
                               width: 2,
                             ),
                           ),
@@ -5430,7 +5656,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   color: selectedColor,
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
-                                    color: Colors.grey[300]!,
+                                    color:
+                                        Theme.of(
+                                          context,
+                                        ).colorScheme.outlineVariant,
                                     width: 2,
                                   ),
                                 ),
@@ -5507,6 +5736,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         onColorChanged(selectedColor);
                         Navigator.pop(context);
                       },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onPrimary,
+                      ),
                       child: Text(AppLocalizations.of(context)!.apply),
                     ),
                   ],
@@ -5531,7 +5765,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           color: color,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelected ? Colors.black : Colors.grey[300]!,
+            color:
+                isSelected
+                    ? Theme.of(context).colorScheme.onSurface
+                    : Theme.of(context).colorScheme.outlineVariant,
             width: isSelected ? 3 : 1,
           ),
         ),
@@ -5563,7 +5800,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             color: selectedColor,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: Colors.grey[300]!,
+                              color:
+                                  Theme.of(context).colorScheme.outlineVariant,
                               width: 2,
                             ),
                           ),
@@ -5702,6 +5940,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         onColorChanged(selectedColor);
                         Navigator.pop(context);
                       },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onPrimary,
+                      ),
                       child: Text(AppLocalizations.of(context)!.apply),
                     ),
                   ],
@@ -5751,7 +5994,10 @@ class _ImportChoiceDialogState extends State<_ImportChoiceDialog> {
     return AlertDialog(
       title: Row(
         children: [
-          const Icon(Icons.import_export, color: Colors.blue),
+          Icon(
+            Icons.import_export,
+            color: Theme.of(context).colorScheme.primary,
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -5837,8 +6083,8 @@ class _ImportChoiceDialogState extends State<_ImportChoiceDialog> {
                     });
                   },
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
-            foregroundColor: Colors.white,
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            foregroundColor: Theme.of(context).colorScheme.onPrimary,
           ),
           child: Text(
             _importFromTag

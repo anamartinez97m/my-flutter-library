@@ -341,20 +341,20 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       _TopRankingCard(
         title: l10n.top_5_genres,
         books: books,
-        color: Colors.green,
+        color: Theme.of(context).colorScheme.tertiary,
         fieldExtractor: (book) => book.genre ?? '',
         topN: 5,
       ),
       _TopRankingCard(
         title: l10n.top_10_editorials,
         books: books,
-        color: Colors.orange,
+        color: Theme.of(context).colorScheme.secondary,
         fieldExtractor: (book) => book.editorialValue ?? '',
       ),
       _TopRankingCard(
         title: l10n.top_10_authors,
         books: books,
-        color: Colors.red,
+        color: Theme.of(context).colorScheme.error,
         fieldExtractor: (book) => book.author ?? '',
       ),
     ];
@@ -695,7 +695,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               child: Text(
                 l10n.quick_stat_long_press_hint,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[400],
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontSize: 10,
                 ),
                 textAlign: TextAlign.center,
@@ -735,7 +735,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                   ?.copyWith(fontWeight: FontWeight.w600),
                             ),
                           ),
-                          Icon(Icons.chevron_right, color: Colors.grey[400]),
+                          Icon(
+                            Icons.chevron_right,
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                         ],
                       ),
                     ),
@@ -791,18 +795,21 @@ class _UnifiedBreakdownCard extends StatefulWidget {
 class _UnifiedBreakdownCardState extends State<_UnifiedBreakdownCard> {
   String _selectedField = 'status';
 
-  static const _colorPalettes = <String, List<Color>>{
-    'status': [
-      Colors.deepPurple,
-      Colors.purple,
-      Colors.purpleAccent,
-      Colors.deepPurpleAccent,
-    ],
-    'format': [Colors.green, Colors.lime, Colors.lightGreen, Colors.teal],
-    'place': [Colors.purple, Colors.deepPurple, Colors.indigo, Colors.blue],
-    'language': [Colors.deepPurple, Colors.indigo, Colors.blue, Colors.cyan],
-    'genre': [Colors.orange, Colors.deepOrange, Colors.amber, Colors.brown],
-  };
+  List<Color> _getPaletteColors(BuildContext context, String field) {
+    final cs = Theme.of(context).colorScheme;
+    switch (field) {
+      case 'format':
+        return [cs.tertiary, cs.secondary, cs.primary, cs.tertiaryContainer];
+      case 'place':
+        return [cs.primary, cs.secondary, cs.tertiary, cs.secondaryContainer];
+      case 'language':
+        return [cs.secondary, cs.primary, cs.tertiary, cs.primaryContainer];
+      case 'genre':
+        return [cs.error, cs.secondary, cs.tertiary, cs.primary];
+      default:
+        return [cs.primary, cs.secondary, cs.tertiary, cs.error];
+    }
+  }
 
   Map<String, int> _getDataForField() {
     switch (_selectedField) {
@@ -867,7 +874,7 @@ class _UnifiedBreakdownCardState extends State<_UnifiedBreakdownCard> {
     final l10n = AppLocalizations.of(context)!;
     final data = _getDataForField();
     final total = data.values.fold<int>(0, (sum, v) => sum + v);
-    final colors = _colorPalettes[_selectedField] ?? _colorPalettes['status']!;
+    final colors = _getPaletteColors(context, _selectedField);
 
     final fieldOptions = ['status', 'format', 'place', 'language', 'genre'];
 
@@ -890,7 +897,10 @@ class _UnifiedBreakdownCardState extends State<_UnifiedBreakdownCard> {
             DropdownButton<String>(
               value: _selectedField,
               isExpanded: true,
-              underline: Container(height: 1, color: Colors.grey[300]),
+              underline: Container(
+                height: 1,
+                color: Theme.of(context).colorScheme.outlineVariant,
+              ),
               items:
                   fieldOptions.map((key) {
                     return DropdownMenuItem<String>(
@@ -931,7 +941,10 @@ class _UnifiedBreakdownCardState extends State<_UnifiedBreakdownCard> {
                                           ? Container(
                                             padding: const EdgeInsets.all(6),
                                             decoration: BoxDecoration(
-                                              color: Colors.white,
+                                              color:
+                                                  Theme.of(
+                                                    context,
+                                                  ).colorScheme.surface,
                                               borderRadius:
                                                   BorderRadius.circular(4),
                                               border: Border.all(
@@ -1108,7 +1121,10 @@ class _BooksReadPerYearCard extends StatelessWidget {
                                             Container(
                                               height: 24,
                                               decoration: BoxDecoration(
-                                                color: Colors.grey[200],
+                                                color:
+                                                    Theme.of(context)
+                                                        .colorScheme
+                                                        .surfaceContainerHighest,
                                                 borderRadius:
                                                     BorderRadius.circular(4),
                                               ),
@@ -1119,7 +1135,10 @@ class _BooksReadPerYearCard extends StatelessWidget {
                                                   percentage,
                                               height: 24,
                                               decoration: BoxDecoration(
-                                                color: Colors.blue,
+                                                color:
+                                                    Theme.of(
+                                                      context,
+                                                    ).colorScheme.primary,
                                                 borderRadius:
                                                     BorderRadius.circular(4),
                                               ),
@@ -1136,8 +1155,12 @@ class _BooksReadPerYearCard extends StatelessWidget {
                                                 style: TextStyle(
                                                   color:
                                                       percentage > 0.15
-                                                          ? Colors.white
-                                                          : Colors.black87,
+                                                          ? Theme.of(context)
+                                                              .colorScheme
+                                                              .onPrimary
+                                                          : Theme.of(context)
+                                                              .colorScheme
+                                                              .onSurface,
                                                   fontSize: 11,
                                                   fontWeight: FontWeight.bold,
                                                 ),
@@ -1222,7 +1245,10 @@ class _PagesReadPerYearCard extends StatelessWidget {
                                       Container(
                                         height: 24,
                                         decoration: BoxDecoration(
-                                          color: Colors.grey[200],
+                                          color:
+                                              Theme.of(context)
+                                                  .colorScheme
+                                                  .surfaceContainerHighest,
                                           borderRadius: BorderRadius.circular(
                                             4,
                                           ),
@@ -1233,7 +1259,10 @@ class _PagesReadPerYearCard extends StatelessWidget {
                                             constraints.maxWidth * percentage,
                                         height: 24,
                                         decoration: BoxDecoration(
-                                          color: Colors.amber,
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
                                           borderRadius: BorderRadius.circular(
                                             4,
                                           ),
@@ -1250,8 +1279,12 @@ class _PagesReadPerYearCard extends StatelessWidget {
                                           style: TextStyle(
                                             color:
                                                 percentage > 0.15
-                                                    ? Colors.white
-                                                    : Colors.black87,
+                                                    ? Theme.of(
+                                                      context,
+                                                    ).colorScheme.onPrimary
+                                                    : Theme.of(
+                                                      context,
+                                                    ).colorScheme.onSurface,
                                             fontSize: 11,
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -1320,7 +1353,10 @@ class _ReadingEfficiencyCard extends StatelessWidget {
                 color: Theme.of(context).colorScheme.primary,
               ),
               const SizedBox(height: 24),
-              Divider(height: 1, color: Colors.grey[300]),
+              Divider(
+                height: 1,
+                color: Theme.of(context).colorScheme.outlineVariant,
+              ),
               const SizedBox(height: 24),
             ],
             // Average Days to Finish
@@ -1334,7 +1370,10 @@ class _ReadingEfficiencyCard extends StatelessWidget {
                 color: Theme.of(context).colorScheme.primary,
               ),
               const SizedBox(height: 24),
-              Divider(height: 1, color: Colors.grey[300]),
+              Divider(
+                height: 1,
+                color: Theme.of(context).colorScheme.outlineVariant,
+              ),
               const SizedBox(height: 24),
             ],
             // Average Books Per Year
@@ -1386,9 +1425,9 @@ class _ReadingEfficiencyCard extends StatelessWidget {
             Flexible(
               child: Text(
                 unit,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -1397,9 +1436,9 @@ class _ReadingEfficiencyCard extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           subtitle,
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
           textAlign: TextAlign.center,
         ),
       ],
@@ -1507,7 +1546,9 @@ class _FormatByLanguageCard extends StatelessWidget {
                               Theme.of(context).colorScheme.primary;
                           final cellColor =
                               count == 0
-                                  ? Colors.grey.shade200
+                                  ? Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainerHighest
                                   : Color.lerp(
                                     baseColor.withValues(alpha: 0.2),
                                     baseColor,
@@ -1521,7 +1562,10 @@ class _FormatByLanguageCard extends StatelessWidget {
                               color: cellColor,
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(
-                                color: Colors.grey.shade300,
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.outlineVariant,
                                 width: 0.5,
                               ),
                             ),
@@ -1533,8 +1577,12 @@ class _FormatByLanguageCard extends StatelessWidget {
                                 fontWeight: FontWeight.w600,
                                 color:
                                     intensity > 0.5
-                                        ? Colors.white
-                                        : Colors.black87,
+                                        ? Theme.of(
+                                          context,
+                                        ).colorScheme.onPrimary
+                                        : Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
                               ),
                             ),
                           );
@@ -1647,7 +1695,7 @@ class _AvgDaysByFormatLanguageCard extends StatelessWidget {
                               context,
                             ).textTheme.bodySmall?.copyWith(
                               fontWeight: FontWeight.w700,
-                              color: Colors.deepOrange,
+                              color: Theme.of(context).colorScheme.secondary,
                             ),
                             textAlign: TextAlign.center,
                             overflow: TextOverflow.ellipsis,
@@ -1677,10 +1725,13 @@ class _AvgDaysByFormatLanguageCard extends StatelessWidget {
                           final days =
                               avgDaysByFormatLanguage[format]?[language] ?? 0.0;
                           final intensity = maxDays > 0 ? days / maxDays : 0.0;
-                          const baseColor = Colors.deepOrange;
+                          final baseColor =
+                              Theme.of(context).colorScheme.secondary;
                           final cellColor =
                               days == 0.0
-                                  ? Colors.grey.shade200
+                                  ? Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainerHighest
                                   : Color.lerp(
                                     baseColor.withValues(alpha: 0.2),
                                     baseColor,
@@ -1694,7 +1745,10 @@ class _AvgDaysByFormatLanguageCard extends StatelessWidget {
                               color: cellColor,
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(
-                                color: Colors.grey.shade300,
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.outlineVariant,
                                 width: 0.5,
                               ),
                             ),
@@ -1706,8 +1760,12 @@ class _AvgDaysByFormatLanguageCard extends StatelessWidget {
                                 fontWeight: FontWeight.w600,
                                 color:
                                     intensity > 0.5
-                                        ? Colors.white
-                                        : Colors.black87,
+                                        ? Theme.of(
+                                          context,
+                                        ).colorScheme.onSecondary
+                                        : Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
                               ),
                             ),
                           );
@@ -1733,8 +1791,10 @@ class _AvgDaysByFormatLanguageCard extends StatelessWidget {
                     margin: const EdgeInsets.symmetric(horizontal: 2),
                     decoration: BoxDecoration(
                       color: Color.lerp(
-                        Colors.deepOrange.withValues(alpha: 0.2),
-                        Colors.deepOrange,
+                        Theme.of(
+                          context,
+                        ).colorScheme.secondary.withValues(alpha: 0.2),
+                        Theme.of(context).colorScheme.secondary,
                         intensity,
                       ),
                       borderRadius: BorderRadius.circular(2),
@@ -1883,7 +1943,8 @@ class _TopRankingCardState extends State<_TopRankingCard> {
                                 '★ ${avgRating.toStringAsFixed(1)}',
                                 style: TextStyle(
                                   fontSize: 10,
-                                  color: Colors.amber[700],
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -1897,7 +1958,10 @@ class _TopRankingCardState extends State<_TopRankingCard> {
                             Container(
                               height: 24,
                               decoration: BoxDecoration(
-                                color: Colors.grey[200],
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.surfaceContainerHighest,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                             ),
@@ -1922,8 +1986,12 @@ class _TopRankingCardState extends State<_TopRankingCard> {
                                 style: TextStyle(
                                   color:
                                       percentage > 0.15
-                                          ? Colors.white
-                                          : Colors.black87,
+                                          ? Theme.of(
+                                            context,
+                                          ).colorScheme.onSecondary
+                                          : Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -2001,7 +2069,10 @@ class _PriceByFormatCard extends StatelessWidget {
                             '$count books',
                             style: TextStyle(
                               fontSize: 9,
-                              color: Colors.grey[500],
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ],
@@ -2014,7 +2085,10 @@ class _PriceByFormatCard extends StatelessWidget {
                           Container(
                             height: 24,
                             decoration: BoxDecoration(
-                              color: Colors.grey[200],
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainerHighest,
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
@@ -2023,7 +2097,7 @@ class _PriceByFormatCard extends StatelessWidget {
                             child: Container(
                               height: 24,
                               decoration: BoxDecoration(
-                                color: Colors.teal,
+                                color: Theme.of(context).colorScheme.tertiary,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                             ),
@@ -2037,8 +2111,12 @@ class _PriceByFormatCard extends StatelessWidget {
                               style: TextStyle(
                                 color:
                                     percentage > 0.15
-                                        ? Colors.white
-                                        : Colors.black87,
+                                        ? Theme.of(
+                                          context,
+                                        ).colorScheme.onTertiary
+                                        : Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -2117,7 +2195,10 @@ class _PriceByYearCard extends StatelessWidget {
                           Container(
                             height: 24,
                             decoration: BoxDecoration(
-                              color: Colors.grey[200],
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainerHighest,
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
@@ -2126,7 +2207,7 @@ class _PriceByYearCard extends StatelessWidget {
                             child: Container(
                               height: 24,
                               decoration: BoxDecoration(
-                                color: Colors.teal,
+                                color: Theme.of(context).colorScheme.tertiary,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                             ),
@@ -2140,8 +2221,12 @@ class _PriceByYearCard extends StatelessWidget {
                               style: TextStyle(
                                 color:
                                     percentage > 0.15
-                                        ? Colors.white
-                                        : Colors.black87,
+                                        ? Theme.of(
+                                          context,
+                                        ).colorScheme.onTertiary
+                                        : Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -2246,7 +2331,9 @@ class _PriceByMonthCardState extends State<_PriceByMonthCard> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey[300]!),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                    ),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: DropdownButton<int>(
@@ -2293,7 +2380,10 @@ class _PriceByMonthCardState extends State<_PriceByMonthCard> {
                           Container(
                             height: 20,
                             decoration: BoxDecoration(
-                              color: Colors.grey[200],
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainerHighest,
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
@@ -2303,7 +2393,7 @@ class _PriceByMonthCardState extends State<_PriceByMonthCard> {
                               child: Container(
                                 height: 20,
                                 decoration: BoxDecoration(
-                                  color: Colors.teal,
+                                  color: Theme.of(context).colorScheme.tertiary,
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                               ),
@@ -2319,8 +2409,12 @@ class _PriceByMonthCardState extends State<_PriceByMonthCard> {
                               style: TextStyle(
                                 color:
                                     percentage > 0.15
-                                        ? Colors.white
-                                        : Colors.black87,
+                                        ? Theme.of(
+                                          context,
+                                        ).colorScheme.onTertiary
+                                        : Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -2386,14 +2480,16 @@ class _MostLeastExpensiveCardState extends State<_MostLeastExpensiveCard> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.teal.withValues(alpha: 0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.tertiary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 children: [
                   Icon(
                     Icons.account_balance_wallet,
-                    color: Colors.teal,
+                    color: Theme.of(context).colorScheme.tertiary,
                     size: 28,
                   ),
                   const SizedBox(width: 12),
@@ -2414,7 +2510,7 @@ class _MostLeastExpensiveCardState extends State<_MostLeastExpensiveCard> {
                                   context,
                                 ).textTheme.headlineSmall?.copyWith(
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.teal,
+                                  color: Theme.of(context).colorScheme.tertiary,
                                 ),
                               ),
                               if (!_totalVisible)
@@ -2436,7 +2532,7 @@ class _MostLeastExpensiveCardState extends State<_MostLeastExpensiveCard> {
                   IconButton(
                     icon: Icon(
                       _totalVisible ? Icons.visibility_off : Icons.visibility,
-                      color: Colors.teal,
+                      color: Theme.of(context).colorScheme.tertiary,
                     ),
                     onPressed:
                         () => setState(() => _totalVisible = !_totalVisible),
@@ -2448,7 +2544,10 @@ class _MostLeastExpensiveCardState extends State<_MostLeastExpensiveCard> {
             // Most expensive
             if (widget.mostExpensiveName != null) ...[
               ListTile(
-                leading: const Icon(Icons.arrow_upward, color: Colors.red),
+                leading: Icon(
+                  Icons.arrow_upward,
+                  color: Theme.of(context).colorScheme.error,
+                ),
                 title: Text(
                   widget.mostExpensiveName!,
                   style: Theme.of(
@@ -2461,7 +2560,7 @@ class _MostLeastExpensiveCardState extends State<_MostLeastExpensiveCard> {
                   '${widget.currencySymbol}${widget.mostExpensivePrice?.toStringAsFixed(2) ?? ''}',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Colors.red,
+                    color: Theme.of(context).colorScheme.error,
                   ),
                 ),
               ),
@@ -2469,7 +2568,10 @@ class _MostLeastExpensiveCardState extends State<_MostLeastExpensiveCard> {
             // Least expensive
             if (widget.leastExpensiveName != null) ...[
               ListTile(
-                leading: const Icon(Icons.arrow_downward, color: Colors.green),
+                leading: Icon(
+                  Icons.arrow_downward,
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
                 title: Text(
                   widget.leastExpensiveName!,
                   style: Theme.of(
@@ -2482,7 +2584,7 @@ class _MostLeastExpensiveCardState extends State<_MostLeastExpensiveCard> {
                   '${widget.currencySymbol}${widget.leastExpensivePrice?.toStringAsFixed(2) ?? ''}',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Colors.green,
+                    color: Theme.of(context).colorScheme.tertiary,
                   ),
                 ),
               ),
@@ -2551,11 +2653,11 @@ class _PriceRangeEvolutionCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _legendDot(Colors.red, 'Max'),
+                _legendDot(Theme.of(context).colorScheme.error, 'Max'),
                 const SizedBox(width: 12),
-                _legendDot(Colors.teal, 'Avg'),
+                _legendDot(Theme.of(context).colorScheme.tertiary, 'Avg'),
                 const SizedBox(width: 12),
-                _legendDot(Colors.blue, 'Min'),
+                _legendDot(Theme.of(context).colorScheme.primary, 'Min'),
               ],
             ),
             const SizedBox(height: 16),
@@ -2610,8 +2712,13 @@ class _PriceRangeEvolutionCard extends StatelessWidget {
                     drawVerticalLine: false,
                     horizontalInterval: globalMax / 4,
                     getDrawingHorizontalLine:
-                        (value) =>
-                            FlLine(color: Colors.grey[200]!, strokeWidth: 1),
+                        (value) => FlLine(
+                          color:
+                              Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerHighest,
+                          strokeWidth: 1,
+                        ),
                   ),
                   borderData: FlBorderData(show: false),
                   lineTouchData: LineTouchData(
@@ -2629,7 +2736,9 @@ class _PriceRangeEvolutionCard extends StatelessWidget {
                           return LineTooltipItem(
                             '$label: $currencySymbol${spot.y.toStringAsFixed(1)}',
                             TextStyle(
-                              color: spot.bar.color ?? Colors.white,
+                              color:
+                                  spot.bar.color ??
+                                  Theme.of(context).colorScheme.surface,
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
                             ),
@@ -2643,7 +2752,9 @@ class _PriceRangeEvolutionCard extends StatelessWidget {
                     LineChartBarData(
                       spots: maxSpots,
                       isCurved: true,
-                      color: Colors.red.withValues(alpha: 0.7),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.error.withValues(alpha: 0.7),
                       barWidth: 2,
                       dotData: FlDotData(show: true),
                       belowBarData: BarAreaData(show: false),
@@ -2652,19 +2763,23 @@ class _PriceRangeEvolutionCard extends StatelessWidget {
                     LineChartBarData(
                       spots: avgSpots,
                       isCurved: true,
-                      color: Colors.teal,
+                      color: Theme.of(context).colorScheme.tertiary,
                       barWidth: 3,
                       dotData: FlDotData(show: true),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: Colors.teal.withValues(alpha: 0.1),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.tertiary.withValues(alpha: 0.1),
                       ),
                     ),
                     // Min line
                     LineChartBarData(
                       spots: minSpots,
                       isCurved: true,
-                      color: Colors.blue.withValues(alpha: 0.7),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.7),
                       barWidth: 2,
                       dotData: FlDotData(show: true),
                       belowBarData: BarAreaData(show: false),
@@ -2701,11 +2816,13 @@ class LineChartPainter extends CustomPainter {
   final double value;
   final double maxValue;
   final Color color;
+  final Color trackColor;
 
   LineChartPainter({
     required this.value,
     required this.maxValue,
     required this.color,
+    required this.trackColor,
   });
 
   @override
@@ -2717,7 +2834,7 @@ class LineChartPainter extends CustomPainter {
 
     final backgroundPaint =
         Paint()
-          ..color = Colors.grey[300]!
+          ..color = trackColor
           ..strokeWidth = 2;
     canvas.drawLine(
       Offset(0, centerY),
@@ -2750,7 +2867,8 @@ class LineChartPainter extends CustomPainter {
   bool shouldRepaint(LineChartPainter oldDelegate) {
     return oldDelegate.value != value ||
         oldDelegate.maxValue != maxValue ||
-        oldDelegate.color != color;
+        oldDelegate.color != color ||
+        oldDelegate.trackColor != trackColor;
   }
 }
 
@@ -2758,11 +2876,13 @@ class VerticalLineChartPainter extends CustomPainter {
   final double value;
   final double maxValue;
   final Color color;
+  final Color trackColor;
 
   VerticalLineChartPainter({
     required this.value,
     required this.maxValue,
     required this.color,
+    required this.trackColor,
   });
 
   @override
@@ -2774,7 +2894,7 @@ class VerticalLineChartPainter extends CustomPainter {
 
     final backgroundPaint =
         Paint()
-          ..color = Colors.grey[300]!
+          ..color = trackColor
           ..strokeWidth = 2;
     canvas.drawLine(
       Offset(centerX, 0),
@@ -2811,6 +2931,7 @@ class VerticalLineChartPainter extends CustomPainter {
   bool shouldRepaint(VerticalLineChartPainter oldDelegate) {
     return oldDelegate.value != value ||
         oldDelegate.maxValue != maxValue ||
-        oldDelegate.color != color;
+        oldDelegate.color != color ||
+        oldDelegate.trackColor != trackColor;
   }
 }

@@ -54,6 +54,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
     final controller = TextEditingController();
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
 
     final result = await showDialog<String>(
       context: context,
@@ -93,7 +94,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.field_name_already_exists(result)),
-            backgroundColor: Theme.of(context).colorScheme.secondary,
+            backgroundColor: colorScheme.secondary,
           ),
         );
         return;
@@ -110,7 +111,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.added_value(result)),
-            backgroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: colorScheme.primary,
           ),
         );
       } catch (e) {
@@ -118,7 +119,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text('${l10n.error}: $e'),
-            backgroundColor: Theme.of(context).colorScheme.error,
+            backgroundColor: colorScheme.error,
           ),
         );
       }
@@ -129,6 +130,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
     final controller = TextEditingController(text: oldName);
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
 
     final result = await showDialog<String>(
       context: context,
@@ -167,7 +169,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.field_name_already_exists(result)),
-            backgroundColor: Theme.of(context).colorScheme.error,
+            backgroundColor: colorScheme.error,
           ),
         );
         return;
@@ -184,7 +186,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.updated_field_name(oldName, result)),
-            backgroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: colorScheme.primary,
           ),
         );
       } catch (e) {
@@ -192,7 +194,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text('${l10n.error}: $e'),
-            backgroundColor: Theme.of(context).colorScheme.error,
+            backgroundColor: colorScheme.error,
           ),
         );
       }
@@ -202,6 +204,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
   Future<void> _deleteFieldName(String name) async {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
 
     // Check if this field name is used in any books
     final db = await DatabaseHelper.instance.database;
@@ -287,7 +290,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.deleted_value(name)),
-            backgroundColor: Theme.of(context).colorScheme.error,
+            backgroundColor: colorScheme.error,
           ),
         );
       } catch (e) {
@@ -295,7 +298,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text('${l10n.error}: $e'),
-            backgroundColor: Theme.of(context).colorScheme.error,
+            backgroundColor: colorScheme.error,
           ),
         );
       }

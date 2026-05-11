@@ -228,6 +228,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
     final provider = Provider.of<BookProvider?>(context, listen: false);
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
     setState(() => _isApplying = true);
 
     try {
@@ -245,7 +246,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.bulk_updated_books(count)),
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          backgroundColor: colorScheme.primary,
         ),
       );
 
@@ -274,7 +275,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text('${l10n.error}: $e'),
-          backgroundColor: Theme.of(context).colorScheme.error,
+          backgroundColor: colorScheme.error,
         ),
       );
     }

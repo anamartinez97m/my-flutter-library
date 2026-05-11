@@ -543,6 +543,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
     final navigator = Navigator.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
 
     try {
       final db = await DatabaseHelper.instance.database;
@@ -1048,7 +1049,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
               content: Text(
                 'Updated format saga for $updatedCount books in "${updatedBook.saga}"',
               ),
-              backgroundColor: Theme.of(context).colorScheme.primary,
+              backgroundColor: colorScheme.primary,
             ),
           );
         }
@@ -1104,7 +1105,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
               content: Text(
                 'Notification scheduled for ${_notificationDateTime!.toString().split('.')[0]}',
               ),
-              backgroundColor: Theme.of(context).colorScheme.primary,
+              backgroundColor: colorScheme.primary,
             ),
           );
         } catch (e, stackTrace) {
@@ -1113,7 +1114,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
           messenger.showSnackBar(
             SnackBar(
               content: Text('${l10n.error}: $e'),
-              backgroundColor: Theme.of(context).colorScheme.error,
+              backgroundColor: colorScheme.error,
             ),
           );
         }
@@ -1134,14 +1135,14 @@ class _EditBookScreenState extends State<EditBookScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.book_updated_successfully),
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          backgroundColor: colorScheme.primary,
         ),
       );
     } catch (e) {
       messenger.showSnackBar(
         SnackBar(
           content: Text('${l10n.error}: $e'),
-          backgroundColor: Theme.of(context).colorScheme.error,
+          backgroundColor: colorScheme.error,
         ),
       );
     }
@@ -2677,10 +2678,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
           _fetchedMetadataSource = metadata.source;
         });
 
+        final colorScheme = Theme.of(context).colorScheme;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)!.book_info_found),
-            backgroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: colorScheme.primary,
           ),
         );
       } else if (mounted) {

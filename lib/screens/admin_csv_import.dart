@@ -916,6 +916,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
   Future<void> _processImports() async {
     final provider = Provider.of<BookProvider?>(context, listen: false);
     final messenger = ScaffoldMessenger.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
     setState(() {
       _isLoading = true;
     });
@@ -1079,7 +1080,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text('Error: $e'),
-          backgroundColor: Theme.of(context).colorScheme.error,
+          backgroundColor: colorScheme.error,
         ),
       );
     }
@@ -1089,6 +1090,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final provider = Provider.of<BookProvider?>(context, listen: false);
     final navigator = Navigator.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
     setState(() {
       _isLoading = true;
     });
@@ -1234,7 +1236,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
             content: Text(
               'Import complete: $imported imported, $updated updated, $skipped skipped.',
             ),
-            backgroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: colorScheme.primary,
             duration: const Duration(seconds: 2),
           ),
         );
@@ -1253,7 +1255,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
             content: Text(
               'Partial import complete: $imported imported, $updated updated, $skipped skipped. ${_importItems.length} books remaining.',
             ),
-            backgroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: colorScheme.primary,
             duration: const Duration(seconds: 4),
           ),
         );
@@ -1265,7 +1267,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text('Error: $e'),
-          backgroundColor: Theme.of(context).colorScheme.error,
+          backgroundColor: colorScheme.error,
         ),
       );
     }

@@ -406,7 +406,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                 context,
               )!.error_refetching_metadata(e.toString()),
             ),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -494,7 +494,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           (context) => AlertDialog(
             icon: Icon(
               Icons.pause_circle_outline,
-              color: Colors.orange,
+              color: Theme.of(context).colorScheme.secondary,
               size: 48,
             ),
             title: Text(AppLocalizations.of(context)!.standby_suggestion_title),
@@ -509,8 +509,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, true),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  foregroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  foregroundColor: Theme.of(context).colorScheme.onSecondary,
                 ),
                 child: Text(AppLocalizations.of(context)!.move_to_standby),
               ),
@@ -526,6 +526,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   Future<void> _moveToStandby() async {
     final provider = Provider.of<BookProvider?>(context, listen: false);
     final messenger = ScaffoldMessenger.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
     try {
       final db = await DatabaseHelper.instance.database;
@@ -567,13 +568,16 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.move_to_standby),
-          backgroundColor: Colors.orange,
+          backgroundColor: colorScheme.secondary,
         ),
       );
     } catch (e) {
       debugPrint('[BookDetail] Error moving to standby: $e');
       messenger.showSnackBar(
-        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: colorScheme.error,
+        ),
       );
     }
   }
@@ -582,6 +586,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     final provider = Provider.of<BookProvider?>(context, listen: false);
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final colorScheme =
+        Theme.of(context).colorScheme; // Capture colorScheme here
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
@@ -622,13 +628,16 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.moved_back_to_reading),
-          backgroundColor: Colors.green,
+          backgroundColor: colorScheme.primary,
         ),
       );
     } catch (e) {
       debugPrint('[BookDetail] Error moving back to reading: $e');
       messenger.showSnackBar(
-        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: colorScheme.error,
+        ),
       );
     }
   }
@@ -649,6 +658,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     final provider = Provider.of<BookProvider?>(context, listen: false);
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final colorScheme =
+        Theme.of(context).colorScheme; // Capture colorScheme here
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
@@ -700,13 +711,16 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.started_reading),
-          backgroundColor: Colors.green,
+          backgroundColor: colorScheme.primary,
         ),
       );
     } catch (e) {
       debugPrint('Error starting reading: $e');
       messenger.showSnackBar(
-        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: colorScheme.error,
+        ),
       );
     }
   }
@@ -714,8 +728,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   Future<void> _quickFinishReading() async {
     final provider = Provider.of<BookProvider?>(context, listen: false);
     final messenger = ScaffoldMessenger.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
-    // Show modal to collect ratings and review
     final result = await showDialog<Map<String, dynamic>>(
       context: context,
       builder:
@@ -725,20 +739,15 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           ),
     );
 
-    if (result == null) return; // User cancelled
+    if (result == null) return;
 
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
       final today = DateTime.now().toIso8601String().split('T')[0];
 
-      // Get status values
       final statusList = await repository.getLookupValues('status');
-
-      // Check if there are any reading sessions
       final hasReadingSessions = _readDates.isNotEmpty;
-
-      // If there are reading sessions, mark as "Yes", otherwise "No"
       final targetStatus = statusList.firstWhere(
         (s) =>
             (s['value'] as String).toLowerCase() ==
@@ -746,10 +755,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         orElse: () => statusList.first,
       );
 
-      // Get current read count
       final currentReadCount = _currentBook.readCount ?? 0;
-
-      // Update status, increment read count, save review
       final ratings = result['ratings'] as List<Map<String, dynamic>>;
       await db.update(
         'book',
@@ -758,13 +764,12 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           'date_read_final': today,
           'read_count': currentReadCount + 1,
           'my_review': result['review'],
-          'reading_progress': 0, // Reset progress
+          'reading_progress': 0,
         },
         where: 'book_id = ?',
         whereArgs: [_currentBook.bookId!],
       );
 
-      // Save rating fields (rating is computed from these, not stored on book)
       final ratingFieldRepository = BookRatingFieldRepository(db);
       for (final rating in ratings) {
         await ratingFieldRepository.insertRatingField(
@@ -776,7 +781,6 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         );
       }
 
-      // If there's an open reading session, close it
       if (_readDates.isNotEmpty && _readDates.last.dateFinished == null) {
         final updatedReadDate = ReadDate(
           readDateId: _readDates.last.readDateId,
@@ -788,7 +792,6 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         );
         await repository.updateReadDate(updatedReadDate);
       } else {
-        // Create a new reading session with finish date
         await repository.addReadDate(
           ReadDate(
             bookId: _currentBook.bookId!,
@@ -799,7 +802,6 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         );
       }
 
-      // Reload book data
       final updatedBooks = await repository.getAllBooks();
       final updatedBook = updatedBooks.firstWhere(
         (b) => b.bookId == _currentBook.bookId,
@@ -811,10 +813,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       });
       await _loadReadDates();
 
-      // Reschedule reading reminders (book no longer started)
       NotificationService().scheduleReadingReminders();
 
-      // Update provider
       if (!context.mounted) return;
       await provider?.loadBooks();
 
@@ -822,13 +822,16 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.marked_as_finished),
-          backgroundColor: Colors.green,
+          backgroundColor: colorScheme.primary,
         ),
       );
     } catch (e) {
       debugPrint('Error finishing reading: $e');
       messenger.showSnackBar(
-        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: colorScheme.error,
+        ),
       );
     }
   }
@@ -837,6 +840,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     final provider = Provider.of<BookProvider?>(context, listen: false);
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
@@ -889,13 +893,16 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.marked_as_read),
-          backgroundColor: Colors.green,
+          backgroundColor: colorScheme.primary,
         ),
       );
     } catch (e) {
       debugPrint('Error marking as read: $e');
       messenger.showSnackBar(
-        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: colorScheme.error,
+        ),
       );
     }
   }
@@ -904,6 +911,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     final provider = Provider.of<BookProvider?>(context, listen: false);
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final colorScheme =
+        Theme.of(context).colorScheme; // Capture colorScheme here
     final isPercentage = _currentBook.progressType == 'percentage';
     final currentProgress = _currentBook.readingProgress ?? 0;
 
@@ -987,8 +996,14 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                             AppLocalizations.of(
                               context,
                             )!.total_pages(_currentBook.pages!),
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(color: Colors.grey[600]),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodySmall?.copyWith(
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                            ),
                           ),
                         ],
                       ],
@@ -1010,7 +1025,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   context,
                                 )!.enter_valid_number,
                               ),
-                              backgroundColor: Colors.red,
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.error,
                             ),
                           );
                           return;
@@ -1024,7 +1040,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   context,
                                 )!.percentage_cannot_exceed_100,
                               ),
-                              backgroundColor: Colors.red,
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.error,
                             ),
                           );
                           return;
@@ -1040,7 +1057,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   context,
                                 )!.page_cannot_exceed(_currentBook.pages!),
                               ),
-                              backgroundColor: Colors.red,
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.error,
                             ),
                           );
                           return;
@@ -1090,13 +1108,16 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.progress_updated),
-            backgroundColor: Colors.green,
+            backgroundColor: colorScheme.primary,
           ),
         );
       } catch (e) {
         debugPrint('Error updating progress: $e');
         messenger.showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: colorScheme.error,
+          ),
         );
       }
     }
@@ -1115,7 +1136,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)!.marked_read_today),
-            backgroundColor: Colors.green,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -1123,7 +1144,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       debugPrint('Error saving did read status: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
         );
       }
     }
@@ -1330,7 +1354,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(AppLocalizations.of(context)!.sessions_updated),
-              backgroundColor: Colors.green,
+              backgroundColor: Theme.of(context).colorScheme.primary,
             ),
           );
         }
@@ -1338,7 +1362,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         debugPrint('Error updating sessions: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+            SnackBar(
+              content: Text('Error: $e'),
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
           );
         }
       }
@@ -1426,7 +1453,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(AppLocalizations.of(context)!.session_added),
-                backgroundColor: Colors.green,
+                backgroundColor: Theme.of(context).colorScheme.primary,
               ),
             );
           }
@@ -1435,7 +1462,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         debugPrint('Error adding session: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+            SnackBar(
+              content: Text('Error: $e'),
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
           );
         }
       }
@@ -1812,19 +1842,19 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     switch (method) {
       case 'Time-based':
         timeIcon = Icons.timer;
-        timeColor = Colors.blue;
+        timeColor = Theme.of(context).colorScheme.primary;
         break;
       case 'DidRead-based':
         timeIcon = Icons.check_circle_outline;
-        timeColor = Colors.green;
+        timeColor = Theme.of(context).colorScheme.tertiary;
         break;
       case 'Date-based':
         timeIcon = Icons.date_range;
-        timeColor = Colors.orange;
+        timeColor = Theme.of(context).colorScheme.secondary;
         break;
       default:
         timeIcon = Icons.help_outline;
-        timeColor = Colors.grey;
+        timeColor = Theme.of(context).colorScheme.onSurfaceVariant;
     }
 
     return Card(
@@ -1850,7 +1880,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                       AppLocalizations.of(context)!.reading_time,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey[700],
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -1885,7 +1915,11 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Icon(Icons.info_outline, size: 16, color: Colors.grey[600]),
+                  Icon(
+                    Icons.info_outline,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ],
               ),
             ],
@@ -2066,8 +2100,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, true),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                  foregroundColor: Theme.of(context).colorScheme.onError,
                 ),
                 child: Text(AppLocalizations.of(context)!.delete),
               ),
@@ -2093,7 +2127,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
               content: Text(
                 AppLocalizations.of(context)!.book_updated_successfully,
               ),
-              backgroundColor: Colors.green,
+              backgroundColor: Theme.of(context).colorScheme.primary,
             ),
           );
         }
@@ -2104,7 +2138,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
               content: Text(
                 AppLocalizations.of(context)!.error_deleting_book(e.toString()),
               ),
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -2171,7 +2205,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
               // Book cover image with glassmorphism effect
               Container(
                 height: 250,
-                decoration: BoxDecoration(color: Colors.grey[300]),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                ),
                 child:
                     _currentBook.coverUrl != null &&
                             _currentBook.coverUrl!.isNotEmpty
@@ -2189,7 +2225,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                             BackdropFilter(
                               filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                               child: Container(
-                                color: Colors.black.withValues(alpha: 0.1),
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.shadow.withValues(alpha: 0.1),
                               ),
                             ),
                             // Centered cover with glassmorphism
@@ -2205,21 +2243,24 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     ),
                                     child: Container(
                                       decoration: BoxDecoration(
-                                        color: Colors.white.withValues(
-                                          alpha: 0.15,
-                                        ),
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .surface
+                                            .withValues(alpha: 0.15),
                                         borderRadius: BorderRadius.circular(12),
                                         border: Border.all(
-                                          color: Colors.white.withValues(
-                                            alpha: 0.2,
-                                          ),
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .surface
+                                              .withValues(alpha: 0.2),
                                           width: 1.5,
                                         ),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withValues(
-                                              alpha: 0.1,
-                                            ),
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .shadow
+                                                .withValues(alpha: 0.1),
                                             blurRadius: 20,
                                             spreadRadius: 5,
                                           ),
@@ -2252,7 +2293,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                                               loadingProgress
                                                                   .expectedTotalBytes!
                                                           : null,
-                                                  color: Colors.white,
+                                                  color:
+                                                      Theme.of(
+                                                        context,
+                                                      ).colorScheme.surface,
                                                 ),
                                               ),
                                             );
@@ -2269,18 +2313,28 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                                   mainAxisAlignment:
                                                       MainAxisAlignment.center,
                                                   children: [
-                                                    const Icon(
+                                                    Icon(
                                                       Icons.broken_image,
                                                       size: 60,
-                                                      color: Colors.white70,
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .surface
+                                                          .withValues(
+                                                            alpha: 0.7,
+                                                          ),
                                                     ),
                                                     const SizedBox(height: 6),
                                                     Text(
                                                       AppLocalizations.of(
                                                         context,
                                                       )!.failed_to_load_image,
-                                                      style: const TextStyle(
-                                                        color: Colors.white70,
+                                                      style: TextStyle(
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .surface
+                                                            .withValues(
+                                                              alpha: 0.7,
+                                                            ),
                                                         fontSize: 13,
                                                       ),
                                                     ),
@@ -2307,22 +2361,31 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                 const SizedBox(height: 12),
                                 Text(
                                   AppLocalizations.of(context)!.fetching_cover,
-                                  style: const TextStyle(
-                                    color: Colors.grey,
+                                  style: TextStyle(
+                                    color:
+                                        Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
                                     fontSize: 13,
                                   ),
                                 ),
                               ] else ...[
-                                const Icon(
+                                Icon(
                                   Icons.book,
                                   size: 60,
-                                  color: Colors.grey,
+                                  color:
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
                                   AppLocalizations.of(context)!.no_cover_image,
-                                  style: const TextStyle(
-                                    color: Colors.grey,
+                                  style: TextStyle(
+                                    color:
+                                        Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
                                     fontSize: 13,
                                   ),
                                 ),
@@ -2359,7 +2422,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                             color:
                                 _currentBook.tbr == true
                                     ? Theme.of(context).colorScheme.primary
-                                    : Colors.grey,
+                                    : Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                           ),
                           onPressed: () async {
                             try {
@@ -2619,9 +2684,17 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         builder: (context) {
                           final alreadyRead = _hasReadToday;
                           final borderColor =
-                              alreadyRead ? Colors.grey : Colors.orange;
+                              alreadyRead
+                                  ? Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant
+                                  : Theme.of(context).colorScheme.secondary;
                           final contentColor =
-                              alreadyRead ? Colors.grey : Colors.orange;
+                              alreadyRead
+                                  ? Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant
+                                  : Theme.of(context).colorScheme.secondary;
                           return Container(
                             height: 48,
                             decoration: BoxDecoration(
@@ -2674,10 +2747,14 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.blue.withValues(alpha: 0.05),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.05),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: Colors.blue.withValues(alpha: 0.2),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withValues(alpha: 0.2),
                           ),
                         ),
                         child: InkWell(
@@ -2736,7 +2813,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     return (progress / 100).clamp(0.0, 1.0);
                                   }(),
                                   minHeight: 8,
-                                  backgroundColor: Colors.grey[300],
+                                  backgroundColor:
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.surfaceContainerHighest,
                                   valueColor: AlwaysStoppedAnimation<Color>(
                                     Theme.of(context).colorScheme.primary,
                                   ),
@@ -2750,7 +2830,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                 style: Theme.of(
                                   context,
                                 ).textTheme.bodySmall?.copyWith(
-                                  color: Colors.grey[600],
+                                  color:
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                                   fontStyle: FontStyle.italic,
                                 ),
                               ),
@@ -2764,9 +2847,14 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                     // Description - Collapsible (always shown)
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.grey[100],
+                        color: Theme.of(context)
+                            .colorScheme
+                            .surfaceContainerHighest
+                            .withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey[300]!),
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.outlineVariant,
+                        ),
                       ),
                       child: Theme(
                         data: Theme.of(
@@ -2793,7 +2881,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               Icon(
                                 Icons.description,
                                 size: 16,
-                                color: Colors.grey[600],
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                               ),
                               const SizedBox(width: 4),
                               Text(
@@ -2801,7 +2892,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                 style: Theme.of(
                                   context,
                                 ).textTheme.bodySmall?.copyWith(
-                                  color: Colors.grey[600],
+                                  color:
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -2862,8 +2956,11 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                       AppLocalizations.of(
                                         context,
                                       )!.fetching_description,
-                                      style: const TextStyle(
-                                        color: Colors.grey,
+                                      style: TextStyle(
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
                                         fontSize: 13,
                                         fontStyle: FontStyle.italic,
                                       ),
@@ -2878,8 +2975,14 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   '. ',
                                   '.\n',
                                 ),
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(color: Colors.grey[700]),
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.bodySmall?.copyWith(
+                                  color:
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                ),
                               )
                             else
                               Text(
@@ -2889,7 +2992,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                 style: Theme.of(
                                   context,
                                 ).textTheme.bodySmall?.copyWith(
-                                  color: Colors.grey[600],
+                                  color:
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                                   fontStyle: FontStyle.italic,
                                 ),
                               ),
@@ -2942,7 +3048,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     style: Theme.of(
                                       context,
                                     ).textTheme.titleSmall?.copyWith(
-                                      color: Colors.grey[600],
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -2971,7 +3080,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                           context,
                                         )!.error_loading_bundle_books,
                                         style: TextStyle(
-                                          color: Colors.red[700],
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.error,
                                         ),
                                       ),
                                     );
@@ -3003,14 +3115,23 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                           Color statusColor;
                                           if (book.statusValue == 'Yes') {
                                             statusIcon = Icons.check_circle;
-                                            statusColor = Colors.green;
+                                            statusColor =
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.primary;
                                           } else if (book.statusValue ==
                                               'Started') {
                                             statusIcon = Icons.play_circle;
-                                            statusColor = Colors.orange;
+                                            statusColor =
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.secondary;
                                           } else {
                                             statusIcon = Icons.circle_outlined;
-                                            statusColor = Colors.grey;
+                                            statusColor =
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurfaceVariant;
                                           }
 
                                           return Column(
@@ -3048,7 +3169,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                                         style: TextStyle(
                                                           fontSize: 12,
                                                           color:
-                                                              Colors.grey[600],
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .onSurfaceVariant,
                                                         ),
                                                       ),
                                                     Row(
@@ -3394,7 +3517,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     style: Theme.of(
                                       context,
                                     ).textTheme.titleSmall?.copyWith(
-                                      color: Colors.grey[600],
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -3521,7 +3647,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     style: Theme.of(
                                       context,
                                     ).textTheme.titleSmall?.copyWith(
-                                      color: Colors.grey[600],
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -3628,7 +3757,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                       Card(
                         elevation: 1,
                         margin: const EdgeInsets.only(bottom: 12),
-                        color: Colors.orange.shade50,
+                        color: Theme.of(context).colorScheme.secondaryContainer,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -3680,7 +3809,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                           context,
                                         )!.removed_from_tbr,
                                       ),
-                                      backgroundColor: Colors.green,
+                                      backgroundColor:
+                                          Theme.of(context).colorScheme.primary,
                                       duration: const Duration(seconds: 2),
                                     ),
                                   );
@@ -3690,7 +3820,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text('Error: $e'),
-                                      backgroundColor: Colors.red,
+                                      backgroundColor:
+                                          Theme.of(context).colorScheme.error,
                                     ),
                                   );
                                 }
@@ -3699,7 +3830,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                           },
                           secondary: Icon(
                             Icons.bookmark_add,
-                            color: Colors.orange,
+                            color: Theme.of(context).colorScheme.secondary,
                             size: 24,
                           ),
                           title: Text(
@@ -3708,7 +3839,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               context,
                             ).textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: Colors.orange.shade700,
+                              color: Theme.of(context).colorScheme.secondary,
                             ),
                           ),
                           subtitle: Text(
@@ -3729,7 +3860,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         child: ListTile(
                           leading: Icon(
                             Icons.notifications_active,
-                            color: Colors.blue.shade700,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                           title: Text(
                             AppLocalizations.of(context)!.release_notification,
@@ -3789,7 +3920,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                 style: Theme.of(
                                   context,
                                 ).textTheme.titleSmall?.copyWith(
-                                  color: Colors.grey[600],
+                                  color:
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -3816,7 +3950,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                                 i < field.ratingValue.round()
                                                     ? Icons.favorite
                                                     : Icons.favorite_border,
-                                                color: Colors.red,
+                                                color:
+                                                    Theme.of(
+                                                      context,
+                                                    ).colorScheme.error,
                                                 size: 20,
                                               ),
                                             ),
@@ -3867,7 +4004,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     style: Theme.of(
                                       context,
                                     ).textTheme.titleSmall?.copyWith(
-                                      color: Colors.grey[600],
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -3958,7 +4098,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                       style: Theme.of(
                                         context,
                                       ).textTheme.titleSmall?.copyWith(
-                                        color: Colors.grey[600],
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
@@ -4083,7 +4226,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     style: Theme.of(
                                       context,
                                     ).textTheme.titleMedium?.copyWith(
-                                      color: Colors.grey[600],
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
@@ -4127,7 +4273,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     style: Theme.of(
                                       context,
                                     ).textTheme.titleMedium?.copyWith(
-                                      color: Colors.grey[600],
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
@@ -4173,7 +4322,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
             );
           },
           backgroundColor: Theme.of(context).colorScheme.primary,
-          child: const Icon(Icons.timer, color: Colors.white),
+          child: Icon(
+            Icons.timer,
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
         ),
       ),
     );
@@ -4200,7 +4352,7 @@ class _RatingCard extends StatelessWidget {
             Text(
               label,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey[600],
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -4214,7 +4366,7 @@ class _RatingCard extends StatelessWidget {
 
                 return Padding(
                   padding: const EdgeInsets.only(right: 4),
-                  child: _buildHeart(isFilled, isPartial),
+                  child: _buildHeart(context, isFilled, isPartial),
                 );
               }),
             ),
@@ -4224,21 +4376,37 @@ class _RatingCard extends StatelessWidget {
     );
   }
 
-  Widget _buildHeart(bool isFilled, bool isPartial) {
+  Widget _buildHeart(BuildContext context, bool isFilled, bool isPartial) {
     if (isFilled) {
-      return const Icon(Icons.favorite, color: Colors.red, size: 28);
+      return Icon(
+        Icons.favorite,
+        color: Theme.of(context).colorScheme.error,
+        size: 28,
+      );
     } else if (isPartial) {
       return Stack(
         children: [
-          Icon(Icons.favorite_border, color: Colors.grey[400], size: 28),
+          Icon(
+            Icons.favorite_border,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            size: 28,
+          ),
           ClipRect(
             clipper: _HalfClipper(),
-            child: const Icon(Icons.favorite, color: Colors.red, size: 28),
+            child: Icon(
+              Icons.favorite,
+              color: Theme.of(context).colorScheme.error,
+              size: 28,
+            ),
           ),
         ],
       );
     } else {
-      return Icon(Icons.favorite_border, color: Colors.grey[400], size: 28);
+      return Icon(
+        Icons.favorite_border,
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+        size: 28,
+      );
     }
   }
 }
@@ -4302,7 +4470,7 @@ class _DetailCard extends StatelessWidget {
                     Text(
                       label,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -4380,7 +4548,7 @@ class _TandemBooksCardState extends State<_TandemBooksCard> {
     return Card(
       elevation: 1,
       margin: const EdgeInsets.only(bottom: 12),
-      color: Colors.deepPurple.shade50,
+      color: Theme.of(context).colorScheme.primaryContainer,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -4391,7 +4559,7 @@ class _TandemBooksCardState extends State<_TandemBooksCard> {
               children: [
                 Icon(
                   Icons.swap_horizontal_circle_outlined,
-                  color: Colors.deepPurple,
+                  color: Theme.of(context).colorScheme.primary,
                   size: 24,
                 ),
                 const SizedBox(width: 16),
@@ -4402,7 +4570,7 @@ class _TandemBooksCardState extends State<_TandemBooksCard> {
                       Text(
                         AppLocalizations.of(context)!.tandem_books,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[700],
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -4413,7 +4581,7 @@ class _TandemBooksCardState extends State<_TandemBooksCard> {
                           context,
                         ).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: Colors.deepPurple.shade700,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ],
@@ -4428,7 +4596,7 @@ class _TandemBooksCardState extends State<_TandemBooksCard> {
               Text(
                 AppLocalizations.of(context)!.no_tandem_books,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey[600],
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontStyle: FontStyle.italic,
                 ),
               )
@@ -4448,10 +4616,12 @@ class _TandemBooksCardState extends State<_TandemBooksCard> {
                     margin: const EdgeInsets.only(bottom: 8),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: Colors.deepPurple.withValues(alpha: 0.2),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.2),
                         width: 1,
                       ),
                     ),
@@ -4460,7 +4630,7 @@ class _TandemBooksCardState extends State<_TandemBooksCard> {
                         Icon(
                           Icons.menu_book,
                           size: 20,
-                          color: Colors.deepPurple,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -4477,8 +4647,14 @@ class _TandemBooksCardState extends State<_TandemBooksCard> {
                                   book.author!.isNotEmpty)
                                 Text(
                                   book.author!,
-                                  style: Theme.of(context).textTheme.bodySmall
-                                      ?.copyWith(color: Colors.grey[600]),
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.bodySmall?.copyWith(
+                                    color:
+                                        Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
+                                  ),
                                 ),
                             ],
                           ),
@@ -4486,7 +4662,7 @@ class _TandemBooksCardState extends State<_TandemBooksCard> {
                         Icon(
                           Icons.arrow_forward_ios,
                           size: 16,
-                          color: Colors.grey[600],
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ],
                     ),
@@ -4569,7 +4745,9 @@ class _FinishBookDialogState extends State<_FinishBookDialog> {
                     if (_availableFieldNames.isEmpty)
                       Text(
                         AppLocalizations.of(context)!.no_rating_fields,
-                        style: const TextStyle(color: Colors.grey),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                       )
                     else
                       ..._availableFieldNames.map((fieldName) {
@@ -4594,7 +4772,10 @@ class _FinishBookDialogState extends State<_FinishBookDialog> {
                                               _ratings[fieldName]! >= starValue
                                           ? Icons.star
                                           : Icons.star_border,
-                                      color: Colors.amber,
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.secondary,
                                     ),
                                     onPressed: () {
                                       setState(() {

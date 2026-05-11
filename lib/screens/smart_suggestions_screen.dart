@@ -90,6 +90,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
     final provider = Provider.of<BookProvider?>(context, listen: false);
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
 
     try {
       final db = await DatabaseHelper.instance.database;
@@ -106,7 +107,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.suggestion_applied),
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          backgroundColor: colorScheme.primary,
         ),
       );
       setState(() {
@@ -116,7 +117,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text('${l10n.error}: $e'),
-          backgroundColor: Theme.of(context).colorScheme.error,
+          backgroundColor: colorScheme.error,
         ),
       );
     }

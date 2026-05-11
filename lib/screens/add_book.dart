@@ -425,6 +425,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
     final provider = Provider.of<BookProvider?>(context, listen: false);
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
@@ -755,7 +756,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text('${l10n.error}: $e'),
-          backgroundColor: Theme.of(context).colorScheme.error,
+          backgroundColor: colorScheme.error,
         ),
       );
     }

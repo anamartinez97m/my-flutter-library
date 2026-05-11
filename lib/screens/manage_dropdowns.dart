@@ -352,6 +352,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
     final provider = Provider.of<BookProvider?>(context, listen: false);
+    final colorScheme = Theme.of(context).colorScheme;
 
     final result = await showDialog<String>(
       context: context,
@@ -413,7 +414,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.value_added_successfully),
-            backgroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: colorScheme.primary,
           ),
         );
 
@@ -426,7 +427,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text('${l10n.error}: $e'),
-            backgroundColor: Theme.of(context).colorScheme.error,
+            backgroundColor: colorScheme.error,
           ),
         );
       }
@@ -441,6 +442,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
     final provider = Provider.of<BookProvider?>(context, listen: false);
+    final colorScheme = Theme.of(context).colorScheme;
 
     final result = await showDialog<String>(
       context: context,
@@ -530,7 +532,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.value_updated_successfully),
-            backgroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: colorScheme.primary,
           ),
         );
 
@@ -543,7 +545,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text('${l10n.error}: $e'),
-            backgroundColor: Theme.of(context).colorScheme.error,
+            backgroundColor: colorScheme.error,
           ),
         );
       }
@@ -554,6 +556,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
     final provider = Provider.of<BookProvider?>(context, listen: false);
+    final colorScheme = Theme.of(context).colorScheme;
 
     // Prevent deletion of core values
     if (_isCoreValue(value)) {
@@ -797,7 +800,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.value_deleted_successfully),
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          backgroundColor: colorScheme.primary,
         ),
       );
 
@@ -810,7 +813,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text('${l10n.error}: $e'),
-          backgroundColor: Theme.of(context).colorScheme.error,
+          backgroundColor: colorScheme.error,
         ),
       );
     }
