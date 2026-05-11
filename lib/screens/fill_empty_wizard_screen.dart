@@ -245,7 +245,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.bulk_updated_books(count)),
-          backgroundColor: Colors.green,
+          backgroundColor: Theme.of(context).colorScheme.primary,
         ),
       );
 

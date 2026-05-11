@@ -175,7 +175,7 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                 },
                 leading: Icon(
                   _showCurrentlyReading ? Icons.menu_book : Icons.pause_circle,
-                  color: Colors.deepPurple,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -185,7 +185,9 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: Colors.deepPurple.withValues(alpha: 0.3),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Row(
@@ -209,9 +211,8 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                               decoration: BoxDecoration(
                                 color:
                                     _showCurrentlyReading
-                                        ? Colors.deepPurple.withValues(
-                                          alpha: 0.1,
-                                        )
+                                        ? Theme.of(context).colorScheme.primary
+                                            .withValues(alpha: 0.1)
                                         : Colors.transparent,
                                 borderRadius: const BorderRadius.only(
                                   topLeft: Radius.circular(7),
@@ -225,8 +226,12 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                                   fontWeight: FontWeight.w600,
                                   color:
                                       _showCurrentlyReading
-                                          ? Colors.deepPurple
-                                          : Colors.grey[600],
+                                          ? Theme.of(
+                                            context,
+                                          ).colorScheme.primary
+                                          : Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                 ),
                               ),
                             ),
@@ -234,7 +239,9 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                           Container(
                             width: 1,
                             height: 20,
-                            color: Colors.deepPurple.withValues(alpha: 0.2),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withValues(alpha: 0.2),
                           ),
                           InkWell(
                             onTap: () {
@@ -254,9 +261,8 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                               decoration: BoxDecoration(
                                 color:
                                     !_showCurrentlyReading
-                                        ? Colors.deepPurple.withValues(
-                                          alpha: 0.1,
-                                        )
+                                        ? Theme.of(context).colorScheme.primary
+                                            .withValues(alpha: 0.1)
                                         : Colors.transparent,
                                 borderRadius: const BorderRadius.only(
                                   topRight: Radius.circular(7),
@@ -270,8 +276,12 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                                   fontWeight: FontWeight.w600,
                                   color:
                                       !_showCurrentlyReading
-                                          ? Colors.deepPurple
-                                          : Colors.grey[600],
+                                          ? Theme.of(
+                                            context,
+                                          ).colorScheme.primary
+                                          : Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                 ),
                               ),
                             ),
@@ -297,15 +307,22 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                                         ? Icons.menu_book_outlined
                                         : Icons.pause_circle_outline,
                                     size: 48,
-                                    color: Colors.grey[400],
+                                    color:
+                                        Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
                                   ),
                                   const SizedBox(height: 12),
                                   Text(
                                     emptyMessage,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(color: Colors.grey[600]),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.copyWith(
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -329,14 +346,13 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                                 margin: const EdgeInsets.only(bottom: 12),
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: Colors.deepPurple.withValues(
-                                    alpha: 0.05,
-                                  ),
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.primary.withValues(alpha: 0.05),
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
-                                    color: Colors.deepPurple.withValues(
-                                      alpha: 0.2,
-                                    ),
+                                    color: Theme.of(context).colorScheme.primary
+                                        .withValues(alpha: 0.2),
                                     width: 1,
                                   ),
                                 ),
@@ -350,9 +366,10 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                                         borderRadius: BorderRadius.circular(4),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withValues(
-                                              alpha: 0.2,
-                                            ),
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .shadow
+                                                .withValues(alpha: 0.2),
                                             blurRadius: 4,
                                             offset: const Offset(2, 2),
                                           ),
@@ -383,12 +400,12 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                                                               Alignment
                                                                   .bottomRight,
                                                           colors: [
-                                                            Colors
-                                                                .deepPurple
-                                                                .shade300,
-                                                            Colors
-                                                                .deepPurple
-                                                                .shade600,
+                                                            Theme.of(context)
+                                                                .colorScheme
+                                                                .primary,
+                                                            Theme.of(context)
+                                                                .colorScheme
+                                                                .primaryContainer,
                                                           ],
                                                         ),
                                                       ),
@@ -399,16 +416,17 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                                                               ? book.name![0]
                                                                   .toUpperCase()
                                                               : '?',
-                                                          style:
-                                                              const TextStyle(
-                                                                color:
-                                                                    Colors
-                                                                        .white,
-                                                                fontSize: 28,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                              ),
+                                                          style: TextStyle(
+                                                            color:
+                                                                Theme.of(
+                                                                      context,
+                                                                    )
+                                                                    .colorScheme
+                                                                    .onPrimary,
+                                                            fontSize: 28,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
                                                         ),
                                                       ),
                                                     );
@@ -421,12 +439,12 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                                                       end:
                                                           Alignment.bottomRight,
                                                       colors: [
-                                                        Colors
-                                                            .deepPurple
-                                                            .shade300,
-                                                        Colors
-                                                            .deepPurple
-                                                            .shade600,
+                                                        Theme.of(
+                                                          context,
+                                                        ).colorScheme.primary,
+                                                        Theme.of(context)
+                                                            .colorScheme
+                                                            .primaryContainer,
                                                       ],
                                                     ),
                                                   ),
@@ -437,8 +455,11 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                                                           ? book.name![0]
                                                               .toUpperCase()
                                                           : '?',
-                                                      style: const TextStyle(
-                                                        color: Colors.white,
+                                                      style: TextStyle(
+                                                        color:
+                                                            Theme.of(context)
+                                                                .colorScheme
+                                                                .onPrimary,
                                                         fontSize: 28,
                                                         fontWeight:
                                                             FontWeight.bold,
@@ -473,7 +494,10 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                                               style: Theme.of(
                                                 context,
                                               ).textTheme.bodySmall?.copyWith(
-                                                color: Colors.grey[600],
+                                                color:
+                                                    Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurfaceVariant,
                                                 fontSize: 12,
                                               ),
                                             ),
@@ -514,11 +538,17 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                                                       }(),
                                                       minHeight: 6,
                                                       backgroundColor:
-                                                          Colors.grey[300],
+                                                          Theme.of(context)
+                                                              .colorScheme
+                                                              .surfaceContainerHighest,
                                                       valueColor:
                                                           AlwaysStoppedAnimation<
                                                             Color
-                                                          >(Colors.deepPurple),
+                                                          >(
+                                                            Theme.of(context)
+                                                                .colorScheme
+                                                                .primary,
+                                                          ),
                                                     ),
                                                   ),
                                                 ),
@@ -543,7 +573,9 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                                                         fontWeight:
                                                             FontWeight.bold,
                                                         color:
-                                                            Colors.deepPurple,
+                                                            Theme.of(context)
+                                                                .colorScheme
+                                                                .primary,
                                                       ),
                                                 ),
                                               ],
@@ -555,7 +587,10 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                                     Icon(
                                       Icons.arrow_forward_ios,
                                       size: 16,
-                                      color: Colors.grey[600],
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                     ),
                                   ],
                                 ),
@@ -660,7 +695,7 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                 context,
               )!.books_removed_from_tbr(book.name ?? ''),
             ),
-            backgroundColor: Colors.green,
+            backgroundColor: Theme.of(context).colorScheme.primary,
             duration: const Duration(seconds: 2),
           ),
         );
@@ -668,7 +703,10 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
         );
       }
     }
@@ -686,7 +724,10 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
             _isExpanded = expanded;
           });
         },
-        leading: Icon(Icons.bookmark, color: Colors.deepPurple),
+        leading: Icon(
+          Icons.bookmark,
+          color: Theme.of(context).colorScheme.primary,
+        ),
         title: Row(
           children: [
             Expanded(
@@ -694,7 +735,7 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                 AppLocalizations.of(context)!.tbr_title,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Colors.deepPurple,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -703,7 +744,9 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
             if (_tbrBooks.isNotEmpty)
               Chip(
                 label: Text('${_tbrBooks.length}'),
-                backgroundColor: Colors.deepPurple.withValues(alpha: 0.1),
+                backgroundColor: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.1),
               ),
           ],
         ),
@@ -723,13 +766,20 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                           Icon(
                             Icons.bookmark_border,
                             size: 48,
-                            color: Colors.grey[400],
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                           const SizedBox(height: 12),
                           Text(
                             AppLocalizations.of(context)!.no_books_in_tbr,
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(color: Colors.grey[600]),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium?.copyWith(
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                            ),
                           ),
                         ],
                       ),
@@ -741,10 +791,14 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                       margin: const EdgeInsets.only(bottom: 12),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.orange.withValues(alpha: 0.05),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.secondary.withValues(alpha: 0.05),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: Colors.orange.withValues(alpha: 0.2),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.secondary.withValues(alpha: 0.2),
                           width: 1,
                         ),
                       ),
@@ -770,7 +824,9 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                                 borderRadius: BorderRadius.circular(4),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.2),
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.shadow.withValues(alpha: 0.2),
                                     blurRadius: 4,
                                     offset: const Offset(2, 2),
                                   ),
@@ -798,8 +854,12 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                                                   begin: Alignment.topLeft,
                                                   end: Alignment.bottomRight,
                                                   colors: [
-                                                    Colors.orange.shade300,
-                                                    Colors.orange.shade600,
+                                                    Theme.of(
+                                                      context,
+                                                    ).colorScheme.secondary,
+                                                    Theme.of(context)
+                                                        .colorScheme
+                                                        .secondaryContainer,
                                                   ],
                                                 ),
                                               ),
@@ -810,8 +870,11 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                                                       ? book.name![0]
                                                           .toUpperCase()
                                                       : '?',
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
+                                                  style: TextStyle(
+                                                    color:
+                                                        Theme.of(context)
+                                                            .colorScheme
+                                                            .onSecondary,
                                                     fontSize: 28,
                                                     fontWeight: FontWeight.bold,
                                                   ),
@@ -826,8 +889,12 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                                               begin: Alignment.topLeft,
                                               end: Alignment.bottomRight,
                                               colors: [
-                                                Colors.orange.shade300,
-                                                Colors.orange.shade600,
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.secondary,
+                                                Theme.of(context)
+                                                    .colorScheme
+                                                    .secondaryContainer,
                                               ],
                                             ),
                                           ),
@@ -836,8 +903,11 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                                               (book.name?.isNotEmpty ?? false)
                                                   ? book.name![0].toUpperCase()
                                                   : '?',
-                                              style: const TextStyle(
-                                                color: Colors.white,
+                                              style: TextStyle(
+                                                color:
+                                                    Theme.of(
+                                                      context,
+                                                    ).colorScheme.onSecondary,
                                                 fontSize: 28,
                                                 fontWeight: FontWeight.bold,
                                               ),
@@ -878,7 +948,10 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                                       style: Theme.of(
                                         context,
                                       ).textTheme.bodySmall?.copyWith(
-                                        color: Colors.grey[600],
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
                                         fontSize: 12,
                                       ),
                                     ),
@@ -889,7 +962,7 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                           ),
                           IconButton(
                             icon: const Icon(Icons.remove_circle_outline),
-                            color: Colors.orange,
+                            color: Theme.of(context).colorScheme.secondary,
                             onPressed: () => _uncheckTBR(book),
                             tooltip:
                                 AppLocalizations.of(context)!.remove_from_tbr,
@@ -983,7 +1056,10 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
             _isExpanded = expanded;
           });
         },
-        leading: Icon(Icons.groups, color: Colors.teal),
+        leading: Icon(
+          Icons.groups,
+          color: Theme.of(context).colorScheme.tertiary,
+        ),
         title: Row(
           children: [
             Expanded(
@@ -991,7 +1067,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                 AppLocalizations.of(context)!.clubs,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Colors.teal,
+                  color: Theme.of(context).colorScheme.tertiary,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -1000,7 +1076,9 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
             if (_clubsData.isNotEmpty)
               Chip(
                 label: Text('${_clubsData.length}'),
-                backgroundColor: Colors.teal.withValues(alpha: 0.1),
+                backgroundColor: Theme.of(
+                  context,
+                ).colorScheme.tertiary.withValues(alpha: 0.1),
               ),
           ],
         ),
@@ -1020,13 +1098,20 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                           Icon(
                             Icons.groups_outlined,
                             size: 48,
-                            color: Colors.grey[400],
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                           const SizedBox(height: 12),
                           Text(
                             AppLocalizations.of(context)!.no_clubs_yet,
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(color: Colors.grey[600]),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium?.copyWith(
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                            ),
                           ),
                           const SizedBox(height: 8),
                           Text(
@@ -1034,7 +1119,10 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                             style: Theme.of(
                               context,
                             ).textTheme.bodySmall?.copyWith(
-                              color: Colors.grey[500],
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                               fontStyle: FontStyle.italic,
                             ),
                           ),
@@ -1050,10 +1138,14 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                     return Container(
                       margin: const EdgeInsets.only(bottom: 16),
                       decoration: BoxDecoration(
-                        color: Colors.teal.withValues(alpha: 0.05),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.tertiary.withValues(alpha: 0.05),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: Colors.teal.withValues(alpha: 0.2),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.tertiary.withValues(alpha: 0.2),
                           width: 1,
                         ),
                       ),
@@ -1064,7 +1156,11 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                         ),
                         title: Row(
                           children: [
-                            Icon(Icons.group, color: Colors.teal, size: 20),
+                            Icon(
+                              Icons.group,
+                              color: Theme.of(context).colorScheme.tertiary,
+                              size: 20,
+                            ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
@@ -1073,19 +1169,23 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                                   context,
                                 ).textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.teal[700],
+                                  color: Theme.of(context).colorScheme.tertiary,
                                 ),
                               ),
                             ),
                             Chip(
                               label: Text('${books.length}'),
-                              backgroundColor: Colors.teal.withValues(
-                                alpha: 0.2,
-                              ),
+                              backgroundColor:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.tertiaryContainer,
                               labelStyle: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.teal[900],
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.onTertiaryContainer,
                               ),
                             ),
                           ],
@@ -1103,10 +1203,13 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                                 ),
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: Theme.of(context).colorScheme.surface,
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
-                                    color: Colors.teal.withValues(alpha: 0.1),
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .tertiary
+                                        .withValues(alpha: 0.1),
                                   ),
                                 ),
                                 child: Column(
@@ -1127,10 +1230,14 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                                       const SizedBox(height: 4),
                                       Text(
                                         book['author'] as String,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall
-                                            ?.copyWith(color: Colors.grey[600]),
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodySmall?.copyWith(
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant,
+                                        ),
                                       ),
                                     ],
                                     if (targetDate != null) ...[
@@ -1140,7 +1247,10 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                                           Icon(
                                             Icons.calendar_today,
                                             size: 14,
-                                            color: Colors.grey[600],
+                                            color:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurfaceVariant,
                                           ),
                                           const SizedBox(width: 4),
                                           Text(
@@ -1148,7 +1258,10 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                                             style: Theme.of(
                                               context,
                                             ).textTheme.bodySmall?.copyWith(
-                                              color: Colors.grey[600],
+                                              color:
+                                                  Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
                                             ),
                                           ),
                                         ],
@@ -1165,10 +1278,15 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                                             child: LinearProgressIndicator(
                                               value: progress / 100,
                                               minHeight: 6,
-                                              backgroundColor: Colors.grey[300],
+                                              backgroundColor:
+                                                  Theme.of(context)
+                                                      .colorScheme
+                                                      .surfaceContainerHighest,
                                               valueColor:
                                                   AlwaysStoppedAnimation<Color>(
-                                                    Colors.teal,
+                                                    Theme.of(
+                                                      context,
+                                                    ).colorScheme.tertiary,
                                                   ),
                                             ),
                                           ),
@@ -1180,7 +1298,10 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                                             context,
                                           ).textTheme.bodySmall?.copyWith(
                                             fontWeight: FontWeight.bold,
-                                            color: Colors.teal,
+                                            color:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.tertiary,
                                           ),
                                         ),
                                       ],

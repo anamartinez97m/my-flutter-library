@@ -755,7 +755,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text('${l10n.error}: $e'),
-          backgroundColor: Colors.red,
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
     }
@@ -1423,7 +1423,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
                               color:
                                   _notificationDateTime != null
                                       ? null
-                                      : Colors.grey,
+                                      : Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ),
@@ -1565,7 +1567,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       color:
                           _acquiredYearController.text.isNotEmpty
                               ? null
-                              : Colors.grey,
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ),
@@ -1813,9 +1815,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
                                           ),
                                         ),
                                         IconButton(
-                                          icon: const Icon(
+                                          icon: Icon(
                                             Icons.delete,
-                                            color: Colors.red,
+                                            color:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.error,
                                           ),
                                           onPressed:
                                               () => _removeRatingField(index),
@@ -1875,13 +1880,19 @@ class _AddBookScreenState extends State<AddBookScreen> {
                               if (!_ratingOverride)
                                 Text(
                                   '${_calculateAverageRating().toStringAsFixed(1)} (${AppLocalizations.of(context)!.auto_calculated})',
-                                  style: TextStyle(color: Colors.grey[600]),
+                                  style: TextStyle(
+                                    color:
+                                        Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
+                                  ),
                                 )
                               else
                                 Text(
                                   '${_myRating.toStringAsFixed(1)} (${AppLocalizations.of(context)!.manual})',
-                                  style: const TextStyle(
-                                    color: Colors.deepPurple,
+                                  style: TextStyle(
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                   ),
                                 ),
                             ],
@@ -1935,7 +1946,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   Text(
                     AppLocalizations.of(context)!.times_read,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[700],
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -1959,8 +1970,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
                           ).colorScheme.primary.withValues(alpha: 0.1),
                           foregroundColor:
                               Theme.of(context).colorScheme.primary,
-                          disabledBackgroundColor: Colors.grey[200],
-                          disabledForegroundColor: Colors.grey[400],
+                          disabledBackgroundColor:
+                              Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerHighest,
+                          disabledForegroundColor:
+                              Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -1970,7 +1985,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
                           vertical: 12,
                         ),
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey[400]!),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.outlineVariant,
+                          ),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -2089,7 +2106,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
             content: Text(
               AppLocalizations.of(context)!.isbn_required_for_fetch,
             ),
-            backgroundColor: Colors.orange,
+            backgroundColor: Theme.of(context).colorScheme.secondary,
           ),
         );
       }
@@ -2152,14 +2169,14 @@ class _AddBookScreenState extends State<AddBookScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)!.book_info_found),
-            backgroundColor: Colors.green,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)!.no_book_info_found),
-            backgroundColor: Colors.orange,
+            backgroundColor: Theme.of(context).colorScheme.secondary,
           ),
         );
       }
@@ -2169,7 +2186,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('${AppLocalizations.of(context)!.error}: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -2201,7 +2218,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('${AppLocalizations.of(context)!.error}: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }

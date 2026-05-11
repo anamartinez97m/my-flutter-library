@@ -303,7 +303,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error resuming: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -363,7 +363,10 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
         );
       }
     }
@@ -1074,7 +1077,10 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         _isLoading = false;
       });
       messenger.showSnackBar(
-        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
       );
     }
   }
@@ -1228,7 +1234,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
             content: Text(
               'Import complete: $imported imported, $updated updated, $skipped skipped.',
             ),
-            backgroundColor: Colors.green,
+            backgroundColor: Theme.of(context).colorScheme.primary,
             duration: const Duration(seconds: 2),
           ),
         );
@@ -1247,7 +1253,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
             content: Text(
               'Partial import complete: $imported imported, $updated updated, $skipped skipped. ${_importItems.length} books remaining.',
             ),
-            backgroundColor: Colors.green,
+            backgroundColor: Theme.of(context).colorScheme.primary,
             duration: const Duration(seconds: 4),
           ),
         );
@@ -1257,7 +1263,10 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         _isLoading = false;
       });
       messenger.showSnackBar(
-        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
       );
     }
   }
@@ -1271,11 +1280,8 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
           if (_importItems.isNotEmpty && !_isLoading)
             TextButton.icon(
               onPressed: _processImports,
-              icon: const Icon(Icons.check, color: Colors.white),
-              label: Text(
-                AppLocalizations.of(context)!.import_all,
-                style: const TextStyle(color: Colors.white),
-              ),
+              icon: const Icon(Icons.check),
+              label: Text(AppLocalizations.of(context)!.import_all),
             ),
         ],
       ),
@@ -1287,7 +1293,11 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.upload_file, size: 64, color: Colors.grey),
+                    Icon(
+                      Icons.upload_file,
+                      size: 64,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                     const SizedBox(height: 16),
                     Text(AppLocalizations.of(context)!.no_csv_file_selected),
                     const SizedBox(height: 24),
@@ -1327,8 +1337,10 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                                     onPressed:
                                         () => Navigator.pop(context, true),
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.red,
-                                      foregroundColor: Colors.white,
+                                      backgroundColor:
+                                          Theme.of(context).colorScheme.error,
+                                      foregroundColor:
+                                          Theme.of(context).colorScheme.onError,
                                     ),
                                     child: Text(
                                       AppLocalizations.of(context)!.clear_all,
@@ -1348,7 +1360,8 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                                     context,
                                   )!.cleared_reviewed_books,
                                 ),
-                                backgroundColor: Colors.green,
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.primary,
                               ),
                             );
                           }
@@ -1360,7 +1373,10 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                           context,
                         )!.clear_reviewed_books_cache,
                       ),
-                      style: TextButton.styleFrom(foregroundColor: Colors.grey),
+                      style: TextButton.styleFrom(
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ),
@@ -1409,10 +1425,12 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.surface,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.shadow.withValues(alpha: 0.1),
                           blurRadius: 4,
                           offset: const Offset(0, -2),
                         ),
@@ -1484,7 +1502,8 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                                 style: const TextStyle(fontSize: 13),
                               ),
                               style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.orange,
+                                foregroundColor:
+                                    Theme.of(context).colorScheme.secondary,
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 12,
                                   vertical: 8,
@@ -1540,7 +1559,8 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                                         }
                                         : null,
                                 style: OutlinedButton.styleFrom(
-                                  foregroundColor: Colors.orange,
+                                  foregroundColor:
+                                      Theme.of(context).colorScheme.secondary,
                                 ),
                                 child: Text(
                                   AppLocalizations.of(context)!.ignore,
@@ -1656,16 +1676,17 @@ class _BookImportPreview extends StatelessWidget {
 
   const _BookImportPreview({required this.item, required this.onChanged});
 
-  Color _getTypeColor() {
+  Color _getTypeColor(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     switch (item.importType) {
       case 'NEW':
-        return Colors.green;
+        return cs.primary;
       case 'UPDATE':
-        return Colors.orange;
+        return cs.secondary;
       case 'DUPLICATE':
-        return Colors.red;
+        return cs.error;
       default:
-        return Colors.grey;
+        return cs.onSurfaceVariant;
     }
   }
 
@@ -2152,9 +2173,9 @@ class _BookImportPreview extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: _getTypeColor().withValues(alpha: 0.1),
+              color: _getTypeColor(context).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: _getTypeColor()),
+              border: Border.all(color: _getTypeColor(context)),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -2165,13 +2186,13 @@ class _BookImportPreview extends StatelessWidget {
                       : item.importType == 'UPDATE'
                       ? Icons.update
                       : Icons.warning,
-                  color: _getTypeColor(),
+                  color: _getTypeColor(context),
                 ),
                 const SizedBox(width: 8),
                 Text(
                   item.importType,
                   style: TextStyle(
-                    color: _getTypeColor(),
+                    color: _getTypeColor(context),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -2437,7 +2458,7 @@ class _EditableDetailRowState extends State<_EditableDetailRow> {
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 11,
-                color: Colors.grey[700],
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -2450,9 +2471,9 @@ class _EditableDetailRowState extends State<_EditableDetailRow> {
                       keyboardType: widget.keyboardType,
                       maxLines: widget.maxLines,
                       autofocus: true,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
-                        color: Colors.black87,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                       decoration: InputDecoration(
                         isDense: true,
@@ -2519,7 +2540,10 @@ class _EditableDetailRowState extends State<_EditableDetailRow> {
                                       TextSpan(
                                         text: widget.oldValue,
                                         style: TextStyle(
-                                          color: Colors.grey[600],
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant,
                                           decoration:
                                               TextDecoration.lineThrough,
                                         ),
@@ -2538,10 +2562,16 @@ class _EditableDetailRowState extends State<_EditableDetailRow> {
                                       style: TextStyle(
                                         color:
                                             widget.value.isEmpty
-                                                ? Colors.grey[400]
+                                                ? Theme.of(
+                                                  context,
+                                                ).colorScheme.outlineVariant
                                                 : (widget.isHighlighted
-                                                    ? Colors.green[700]
-                                                    : Colors.black87),
+                                                    ? Theme.of(
+                                                      context,
+                                                    ).colorScheme.primary
+                                                    : Theme.of(
+                                                      context,
+                                                    ).colorScheme.onSurface),
                                         fontWeight:
                                             widget.isHighlighted
                                                 ? FontWeight.w600

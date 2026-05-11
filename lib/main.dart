@@ -168,6 +168,10 @@ class _AutoBackupRunnerState extends State<_AutoBackupRunner> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      NotificationService.setReadingReminderTitleBuilder(
+        (bookTitle) =>
+            AppLocalizations.of(context)!.have_you_read_today_book(bookTitle),
+      );
       _runAutoBackup();
       NotificationService().processPendingNavigation();
     });

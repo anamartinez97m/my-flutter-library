@@ -80,6 +80,16 @@ class NotificationService {
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
 
+  /// Optional localized title builder — set once from a context-aware widget.
+  /// Falls back to English when not set (e.g. during app startup before widgets).
+  static String Function(String bookTitle)? _readingReminderTitleBuilder;
+
+  static void setReadingReminderTitleBuilder(
+    String Function(String bookTitle) builder,
+  ) {
+    _readingReminderTitleBuilder = builder;
+  }
+
   Future<void> initialize() async {
     if (_initialized) return;
 
@@ -572,7 +582,8 @@ class NotificationService {
     try {
       await _notifications.zonedSchedule(
         notificationId,
-        'Have you read today?: $bookTitle',
+        _readingReminderTitleBuilder?.call(bookTitle) ??
+            'Have you read today?: $bookTitle',
         'Tap to open book details',
         scheduledDate,
         notificationDetails,

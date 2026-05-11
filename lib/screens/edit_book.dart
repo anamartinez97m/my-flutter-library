@@ -1048,7 +1048,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
               content: Text(
                 'Updated format saga for $updatedCount books in "${updatedBook.saga}"',
               ),
-              backgroundColor: Colors.blue,
+              backgroundColor: Theme.of(context).colorScheme.primary,
             ),
           );
         }
@@ -1104,7 +1104,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
               content: Text(
                 'Notification scheduled for ${_notificationDateTime!.toString().split('.')[0]}',
               ),
-              backgroundColor: Colors.green,
+              backgroundColor: Theme.of(context).colorScheme.primary,
             ),
           );
         } catch (e, stackTrace) {
@@ -1113,7 +1113,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
           messenger.showSnackBar(
             SnackBar(
               content: Text('${l10n.error}: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -1134,14 +1134,14 @@ class _EditBookScreenState extends State<EditBookScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.book_updated_successfully),
-          backgroundColor: Colors.green,
+          backgroundColor: Theme.of(context).colorScheme.primary,
         ),
       );
     } catch (e) {
       messenger.showSnackBar(
         SnackBar(
           content: Text('${l10n.error}: $e'),
-          backgroundColor: Colors.red,
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
     }
@@ -1291,6 +1291,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
                               context,
                             )!.please_enter_valid_year,
                           ),
+                          backgroundColor:
+                              Theme.of(context).colorScheme.secondary,
                         ),
                       );
                     }
@@ -1647,7 +1649,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       AppLocalizations.of(context)!.review_pages_warning,
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.orange.shade700,
+                        color: Theme.of(context).colorScheme.secondary,
                         fontStyle: FontStyle.italic,
                       ),
                     ),
@@ -1716,7 +1718,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
                                   context,
                                 )!.select_release_date,
                             style: TextStyle(
-                              color: _releaseDate != null ? null : Colors.grey,
+                              color:
+                                  _releaseDate != null
+                                      ? null
+                                      : Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ),
@@ -1819,7 +1826,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
                                 color:
                                     _notificationDateTime != null
                                         ? null
-                                        : Colors.grey,
+                                        : Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ),
@@ -1963,7 +1972,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
                         color:
                             _acquiredYearController.text.isNotEmpty
                                 ? null
-                                : Colors.grey,
+                                : Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -2061,7 +2072,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
                                             children: [
                                               Icon(
                                                 Icons.warning_amber,
-                                                color: Colors.orange,
+                                                color:
+                                                    Theme.of(
+                                                      context,
+                                                    ).colorScheme.secondary,
                                               ),
                                               const SizedBox(width: 8),
                                               Text(
@@ -2218,9 +2232,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
                                             ),
                                           ),
                                           IconButton(
-                                            icon: const Icon(
+                                            icon: Icon(
                                               Icons.delete,
-                                              color: Colors.red,
+                                              color:
+                                                  Theme.of(
+                                                    context,
+                                                  ).colorScheme.error,
                                             ),
                                             onPressed:
                                                 () => _removeRatingField(index),
@@ -2277,13 +2294,19 @@ class _EditBookScreenState extends State<EditBookScreen> {
                                 if (!_ratingOverride)
                                   Text(
                                     '${_calculateAverageRating().toStringAsFixed(1)} (${AppLocalizations.of(context)!.auto_calculated})',
-                                    style: TextStyle(color: Colors.grey[600]),
+                                    style: TextStyle(
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                    ),
                                   )
                                 else
                                   Text(
                                     '${_myRating.toStringAsFixed(1)} (${AppLocalizations.of(context)!.manual})',
-                                    style: const TextStyle(
-                                      color: Colors.deepPurple,
+                                    style: TextStyle(
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
                                     ),
                                   ),
                               ],
@@ -2336,7 +2359,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     Text(
                       AppLocalizations.of(context)!.times_read,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey[700],
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -2360,8 +2383,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
                             ).colorScheme.primary.withValues(alpha: 0.1),
                             foregroundColor:
                                 Theme.of(context).colorScheme.primary,
-                            disabledBackgroundColor: Colors.grey[200],
-                            disabledForegroundColor: Colors.grey[400],
+                            disabledBackgroundColor:
+                                Theme.of(
+                                  context,
+                                ).colorScheme.surfaceContainerHighest,
+                            disabledForegroundColor:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -2371,7 +2398,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
                             vertical: 12,
                           ),
                           decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey[400]!),
+                            border: Border.all(
+                              color:
+                                  Theme.of(context).colorScheme.outlineVariant,
+                            ),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -2438,7 +2468,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
                         children: [
                           Row(
                             children: [
-                              const Icon(Icons.timer, color: Colors.deepPurple),
+                              Icon(
+                                Icons.timer,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
                               const SizedBox(width: 8),
                               Text(
                                 AppLocalizations.of(
@@ -2478,7 +2511,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
                               margin: const EdgeInsets.only(bottom: 8),
                               child: ListTile(
                                 leading: CircleAvatar(
-                                  backgroundColor: Colors.deepPurple.shade100,
+                                  backgroundColor:
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.primaryContainer,
                                   child: Text('${index + 1}'),
                                 ),
                                 title: Text(
@@ -2494,9 +2530,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
                                   'Duration: $durationStr$clickedAtStr',
                                 ),
                                 trailing: IconButton(
-                                  icon: const Icon(
+                                  icon: Icon(
                                     Icons.delete,
-                                    color: Colors.red,
+                                    color: Theme.of(context).colorScheme.error,
                                   ),
                                   onPressed: () {
                                     setState(() {
@@ -2581,7 +2617,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
             content: Text(
               AppLocalizations.of(context)!.isbn_required_for_fetch,
             ),
-            backgroundColor: Colors.orange,
+            backgroundColor: Theme.of(context).colorScheme.secondary,
           ),
         );
       }
@@ -2644,14 +2680,14 @@ class _EditBookScreenState extends State<EditBookScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)!.book_info_found),
-            backgroundColor: Colors.green,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)!.no_book_info_found),
-            backgroundColor: Colors.orange,
+            backgroundColor: Theme.of(context).colorScheme.secondary,
           ),
         );
       }
@@ -2661,7 +2697,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('${AppLocalizations.of(context)!.error}: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -2693,7 +2729,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('${AppLocalizations.of(context)!.error}: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -2766,12 +2802,17 @@ class _ISBNScannerScreenState extends State<ISBNScannerScreen> {
                   vertical: 12,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.7),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.shadow.withValues(alpha: 0.7),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   AppLocalizations.of(context)!.point_camera_at_barcode,
-                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onInverseSurface,
+                    fontSize: 16,
+                  ),
                 ),
               ),
             ),

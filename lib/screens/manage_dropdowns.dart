@@ -1100,7 +1100,7 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
                     content: Text(
                       AppLocalizations.of(context)!.please_select_replacement,
                     ),
-                    backgroundColor: Colors.orange,
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
                   ),
                 );
                 return;
