@@ -46,9 +46,6 @@ Future<void> _handleBackgroundYesAction(int bookId) async {
     final sessionRepository = ReadingSessionRepository(db);
     await sessionRepository.createDidReadSession(bookId, true);
     debugPrint('📖 Background: marked book $bookId as read today');
-    // Cancel the notification after updating the DB
-    final notificationId = 100000 + bookId;
-    await FlutterLocalNotificationsPlugin().cancel(notificationId);
   } catch (e) {
     debugPrint('❌ Background error handling reading reminder action: $e');
   }
@@ -68,6 +65,9 @@ class NotificationService {
 
   // Notification ID range for reading reminders: 100000 + bookId
   static const int _readingReminderBaseId = 100000;
+
+  // Stores the book IDs that currently have active reading reminders scheduled
+  static const String prefReadingReminderBookIds = 'reading_reminder_book_ids';
 
   // SharedPreferences keys
   static const String prefReadingReminderEnabled = 'reading_reminder_enabled';
@@ -207,9 +207,6 @@ class NotificationService {
         final sessionRepository = ReadingSessionRepository(db);
         await sessionRepository.createDidReadSession(bookId, true);
         debugPrint('📖 Reading reminder: marked book $bookId as read today');
-        // Cancel the notification after updating the DB
-        final notificationId = _readingReminderBaseId + bookId;
-        await _notifications.cancel(notificationId);
       } catch (e) {
         debugPrint('❌ Error handling reading reminder action: $e');
       }
@@ -516,6 +513,14 @@ class NotificationService {
         );
       }
 
+      // Store scheduled book IDs for reliable cancellation later
+      final scheduledIds =
+          booksToRemind
+              .where((b) => b.bookId != null)
+              .map((b) => b.bookId!.toString())
+              .toList();
+      await prefs.setStringList(prefReadingReminderBookIds, scheduledIds);
+
       debugPrint(
         '📖 Scheduled reading reminders for ${booksToRemind.length} book(s) at $hour:${minute.toString().padLeft(2, '0')}',
       );
@@ -608,6 +613,18 @@ class NotificationService {
   Future<void> cancelAllReadingReminders() async {
     if (!_initialized) await initialize();
 
+    // Cancel by stored book IDs (reliable on all Android versions)
+    final prefs = await SharedPreferences.getInstance();
+    final savedIds = prefs.getStringList(prefReadingReminderBookIds) ?? [];
+    for (final idStr in savedIds) {
+      final bookId = int.tryParse(idStr);
+      if (bookId != null) {
+        await _notifications.cancel(_readingReminderBaseId + bookId);
+      }
+    }
+    await prefs.remove(prefReadingReminderBookIds);
+
+    // Also scan pending notifications as fallback (catches any stragglers)
     final pendingNotifications =
         await _notifications.pendingNotificationRequests();
     for (final notification in pendingNotifications) {

@@ -1650,7 +1650,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       AppLocalizations.of(context)!.review_pages_warning,
                       style: TextStyle(
                         fontSize: 12,
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: Theme.of(context).colorScheme.error,
                         fontStyle: FontStyle.italic,
                       ),
                     ),
