@@ -253,7 +253,6 @@ class BookRepository {
       left join format f on b.format_id = f.format_id
       left join format_saga fs on b.format_saga_id = fs.format_id
       where LOWER(s.value) = 'started'
-        AND b.bundle_parent_id IS NULL
         AND b.is_bundle != 1
       group by b.book_id
       order by b.date_read_initial DESC

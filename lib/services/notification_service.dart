@@ -472,8 +472,9 @@ class NotificationService {
 
   // ===== READING REMINDER METHODS =====
 
-  /// Schedule daily reading reminder notifications for started books
-  Future<void> scheduleReadingReminders() async {
+  /// Schedules daily reading reminder notifications.
+  /// Returns the number of books for which reminders were scheduled (0 if disabled).
+  Future<int> scheduleReadingReminders() async {
     if (!_initialized) await initialize();
 
     final prefs = await SharedPreferences.getInstance();
@@ -484,7 +485,7 @@ class NotificationService {
 
     if (!enabled) {
       debugPrint('📖 Reading reminders disabled, all canceled');
-      return;
+      return 0;
     }
 
     final hour = prefs.getInt(prefReadingReminderHour) ?? 21;
@@ -496,13 +497,18 @@ class NotificationService {
       final repository = BookRepository(db);
       final startedBooks = await repository.getStartedBooks();
 
+      debugPrint(
+        '📖 Found ${startedBooks.length} started book(s) in DB, allBooks=$allBooks',
+      );
+
       if (startedBooks.isEmpty) {
         debugPrint('📖 No started books found for reading reminders');
-        return;
+        return 0;
       }
 
       final booksToRemind = allBooks ? startedBooks : [startedBooks.first];
 
+      int scheduledCount = 0;
       for (final book in booksToRemind) {
         if (book.bookId == null) continue;
         await _scheduleDailyReadingReminder(
@@ -511,6 +517,7 @@ class NotificationService {
           hour: hour,
           minute: minute,
         );
+        scheduledCount++;
       }
 
       // Store scheduled book IDs for reliable cancellation later
@@ -522,10 +529,12 @@ class NotificationService {
       await prefs.setStringList(prefReadingReminderBookIds, scheduledIds);
 
       debugPrint(
-        '📖 Scheduled reading reminders for ${booksToRemind.length} book(s) at $hour:${minute.toString().padLeft(2, '0')}',
+        '📖 Scheduled reading reminders for $scheduledCount book(s) at $hour:${minute.toString().padLeft(2, '0')}',
       );
+      return scheduledCount;
     } catch (e) {
       debugPrint('❌ Error scheduling reading reminders: $e');
+      return 0;
     }
   }
 

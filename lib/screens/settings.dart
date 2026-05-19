@@ -221,7 +221,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
   }
 
-  Future<void> _saveReadingReminderSettings() async {
+  Future<void> _saveReadingReminderSettings({bool showFeedback = false}) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(
       NotificationService.prefReadingReminderEnabled,
@@ -240,9 +240,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _readingReminderAllBooks,
     );
 
-    // Reschedule notifications
+    // Reschedule notifications and show feedback
     final notificationService = NotificationService();
-    await notificationService.scheduleReadingReminders();
+    final count = await notificationService.scheduleReadingReminders();
+
+    if (showFeedback && mounted) {
+      final msg =
+          _readingReminderEnabled
+              ? 'Reminders scheduled for $count book(s)'
+              : 'Reading reminders disabled';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg), duration: const Duration(seconds: 3)),
+      );
+    }
   }
 
   Future<void> _loadPriceSettings() async {
@@ -4316,34 +4326,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                             ),
                             value: _readingReminderEnabled,
-                            onChanged: (value) {
+                            onChanged: (value) async {
                               setState(() {
                                 _readingReminderEnabled = value;
                               });
-                              _saveReadingReminderSettings();
-                              if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      value
-                                          ? AppLocalizations.of(
-                                            context,
-                                          )!.reading_reminder_enabled
-                                          : AppLocalizations.of(
-                                            context,
-                                          )!.reading_reminder_disabled,
-                                    ),
-                                    backgroundColor:
-                                        value
-                                            ? Theme.of(
-                                              context,
-                                            ).colorScheme.primary
-                                            : Theme.of(
-                                              context,
-                                            ).colorScheme.secondary,
-                                  ),
-                                );
-                              }
+                              await _saveReadingReminderSettings(
+                                showFeedback: true,
+                              );
                             },
                             secondary: Icon(
                               _readingReminderEnabled
@@ -4425,7 +4414,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     _readingReminderHour = picked.hour;
                                     _readingReminderMinute = picked.minute;
                                   });
-                                  _saveReadingReminderSettings();
+                                  await _saveReadingReminderSettings(
+                                    showFeedback: true,
+                                  );
                                 }
                               },
                             ),
@@ -4487,12 +4478,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     ),
                                     value: true,
                                     groupValue: _readingReminderAllBooks,
-                                    onChanged: (value) {
+                                    onChanged: (value) async {
                                       setState(() {
                                         _readingReminderAllBooks =
                                             value ?? true;
                                       });
-                                      _saveReadingReminderSettings();
+                                      await _saveReadingReminderSettings(
+                                        showFeedback: true,
+                                      );
                                     },
                                   ),
                                   RadioListTile<bool>(
@@ -4516,12 +4509,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     ),
                                     value: false,
                                     groupValue: _readingReminderAllBooks,
-                                    onChanged: (value) {
+                                    onChanged: (value) async {
                                       setState(() {
                                         _readingReminderAllBooks =
                                             value ?? true;
                                       });
-                                      _saveReadingReminderSettings();
+                                      await _saveReadingReminderSettings(
+                                        showFeedback: true,
+                                      );
                                     },
                                   ),
                                 ],
