@@ -23,7 +23,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 39,
+      version: 40,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -242,7 +242,8 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE IF NOT EXISTS rating_field_names (
         field_name_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name VARCHAR(100) NOT NULL UNIQUE
+        name VARCHAR(100) NOT NULL UNIQUE,
+        weight INTEGER NOT NULL DEFAULT 0
       )
     ''');
 
@@ -1176,6 +1177,16 @@ class DatabaseHelper {
     if (oldVersion < 39) {
       // Add acquired_date column to book table
       await db.execute('ALTER TABLE book ADD COLUMN acquired_date TEXT');
+    }
+    if (oldVersion < 40) {
+      // Add weight column to rating_field_names table
+      try {
+        await db.execute(
+          'ALTER TABLE rating_field_names ADD COLUMN weight INTEGER NOT NULL DEFAULT 0',
+        );
+      } catch (_) {
+        // Column already exists — safe to ignore
+      }
     }
     if (oldVersion < 38) {
       // Safety migration: ensure reading_progress exists in book_read_dates

@@ -64,9 +64,37 @@ class BookRatingFieldRepository {
   Future<double> calculateAverageRating(int bookId) async {
     final fields = await getRatingFieldsForBook(bookId);
     if (fields.isEmpty) return 0.0;
-    
+
     double sum = fields.fold(0.0, (prev, field) => prev + field.ratingValue);
     return sum / fields.length;
+  }
+
+  /// Calculate weighted average rating using configured field weights
+  Future<double> calculateWeightedAverageRating(
+    int bookId,
+    Map<String, int> weights,
+  ) async {
+    final fields = await getRatingFieldsForBook(bookId);
+    if (fields.isEmpty) return 0.0;
+
+    final weightedFields =
+        fields.where((f) => (weights[f.fieldName] ?? 0) > 0).toList();
+
+    if (weightedFields.isEmpty) {
+      // No weights configured — fall back to simple average
+      final sum = fields.fold(0.0, (prev, f) => prev + f.ratingValue);
+      return sum / fields.length;
+    }
+
+    final totalW = weightedFields.fold(
+      0,
+      (s, f) => s + (weights[f.fieldName] ?? 0),
+    );
+    final weightedSum = weightedFields.fold(
+      0.0,
+      (s, f) => s + f.ratingValue * (weights[f.fieldName] ?? 0),
+    );
+    return weightedSum / totalW;
   }
 
   /// Get all available rating field names
@@ -76,6 +104,28 @@ class BookRatingFieldRepository {
       orderBy: 'name ASC',
     );
     return maps.map((map) => map['name'] as String).toList();
+  }
+
+  /// Get all field names with their weights (Map of name to weight)
+  Future<Map<String, int>> getAllFieldNamesWithWeights() async {
+    final List<Map<String, dynamic>> maps = await db.query(
+      'rating_field_names',
+      orderBy: 'name ASC',
+    );
+    return {
+      for (final map in maps)
+        map['name'] as String: (map['weight'] as int? ?? 0),
+    };
+  }
+
+  /// Update the weight for a field name
+  Future<void> updateFieldWeight(String name, int weight) async {
+    await db.update(
+      'rating_field_names',
+      {'weight': weight},
+      where: 'name = ?',
+      whereArgs: [name],
+    );
   }
 
   /// Add a new rating field name
@@ -92,7 +142,7 @@ class BookRatingFieldRepository {
       where: 'name = ?',
       whereArgs: [oldName],
     );
-    
+
     // Update in book_rating_fields table
     await db.rawUpdate(
       'UPDATE book_rating_fields SET field_name = ? WHERE field_name = ?',
@@ -103,12 +153,8 @@ class BookRatingFieldRepository {
   /// Delete a rating field name
   Future<void> deleteFieldName(String name) async {
     // Delete from rating_field_names table
-    await db.delete(
-      'rating_field_names',
-      where: 'name = ?',
-      whereArgs: [name],
-    );
-    
+    await db.delete('rating_field_names', where: 'name = ?', whereArgs: [name]);
+
     // Delete all rating fields with this name from books
     await db.delete(
       'book_rating_fields',

@@ -13,6 +13,7 @@ class ManageRatingFieldsScreen extends StatefulWidget {
 
 class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
   List<String> _fieldNames = [];
+  Map<String, int> _fieldWeights = {};
   bool _isLoading = true;
   final _defaultSuggestions = [
     'Plot',
@@ -36,25 +37,104 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRatingFieldRepository(db);
       final names = await repository.getAllFieldNames();
+      final weights = await repository.getAllFieldNamesWithWeights();
 
       setState(() {
         _fieldNames = names;
+        _fieldWeights = weights;
         _isLoading = false;
       });
     } catch (e) {
       debugPrint('Error loading rating field names: $e');
       setState(() {
         _fieldNames = [];
+        _fieldWeights = {};
         _isLoading = false;
       });
     }
   }
 
+  int get _totalWeight => _fieldWeights.values.fold(0, (s, v) => s + v);
+
+  Future<void> _editFieldWeight(String name) async {
+    final l10n = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
+    final messenger = ScaffoldMessenger.of(context);
+    final currentWeight = _fieldWeights[name] ?? 0;
+    final controller = TextEditingController(text: currentWeight.toString());
+
+    final result = await showDialog<int>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text(l10n.edit_weight),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: controller,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: l10n.rating_field_weight,
+                    suffixText: '%',
+                    border: const OutlineInputBorder(),
+                    helperText: l10n.weight_range_hint,
+                  ),
+                  autofocus: true,
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(l10n.cancel),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  final value = int.tryParse(controller.text.trim());
+                  if (value != null && value >= 0 && value <= 100) {
+                    Navigator.pop(context, value);
+                  }
+                },
+                child: Text(l10n.save),
+              ),
+            ],
+          ),
+    );
+
+    if (result != null) {
+      try {
+        final db = await DatabaseHelper.instance.database;
+        final repository = BookRatingFieldRepository(db);
+        await repository.updateFieldWeight(name, result);
+        await _loadFieldNames();
+        if (!context.mounted) return;
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(l10n.weight_saved),
+            backgroundColor: colorScheme.primary,
+          ),
+        );
+      } catch (e) {
+        debugPrint('Error updating weight: $e');
+      }
+    }
+  }
+
   Future<void> _addFieldName() async {
-    final controller = TextEditingController();
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
+    final controller = TextEditingController();
 
     final result = await showDialog<String>(
       context: context,
@@ -350,6 +430,67 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                             )!.about_rating_fields_description,
                             style: const TextStyle(fontSize: 14),
                           ),
+                          if (_fieldNames.isNotEmpty) ...[
+                            const SizedBox(height: 12),
+                            Builder(
+                              builder: (context) {
+                                final total = _totalWeight;
+                                final isValid = total == 100;
+                                final hasWeights = total > 0;
+                                final color =
+                                    isValid
+                                        ? Theme.of(context).colorScheme.primary
+                                        : hasWeights
+                                        ? Theme.of(context).colorScheme.error
+                                        : Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant;
+                                return Wrap(
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  spacing: 6,
+                                  runSpacing: 4,
+                                  children: [
+                                    Icon(Icons.percent, size: 16, color: color),
+                                    Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.total_weight(total),
+                                      style: TextStyle(
+                                        color: color,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    if (!isValid && hasWeights)
+                                      Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.weight_must_sum_to_100,
+                                        style: TextStyle(
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.error,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    if (!hasWeights)
+                                      Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.weights_not_configured,
+                                        style: TextStyle(
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -377,6 +518,8 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                                   name,
                                 );
 
+                                final weight = _fieldWeights[name] ?? 0;
+                                final hasWeight = weight > 0;
                                 return Card(
                                   margin: const EdgeInsets.only(bottom: 8),
                                   child: ListTile(
@@ -405,6 +548,53 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                                     trailing: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
+                                        // Weight badge
+                                        GestureDetector(
+                                          onTap: () => _editFieldWeight(name),
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 4,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  hasWeight
+                                                      ? Theme.of(context)
+                                                          .colorScheme
+                                                          .primaryContainer
+                                                      : Theme.of(context)
+                                                          .colorScheme
+                                                          .surfaceContainerHighest,
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                              border: Border.all(
+                                                color:
+                                                    hasWeight
+                                                        ? Theme.of(
+                                                          context,
+                                                        ).colorScheme.primary
+                                                        : Theme.of(
+                                                          context,
+                                                        ).colorScheme.outline,
+                                              ),
+                                            ),
+                                            child: Text(
+                                              '$weight%',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                                color:
+                                                    hasWeight
+                                                        ? Theme.of(context)
+                                                            .colorScheme
+                                                            .onPrimaryContainer
+                                                        : Theme.of(context)
+                                                            .colorScheme
+                                                            .onSurfaceVariant,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
                                         IconButton(
                                           icon: const Icon(Icons.edit),
                                           onPressed: () => _editFieldName(name),

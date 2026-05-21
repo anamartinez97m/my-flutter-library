@@ -1194,7 +1194,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get about_rating_fields => 'Acerca de los Campos de Valoración';
 
   @override
-  String get about_rating_fields_description => 'Estos son los nombres de criterios disponibles al valorar libros. Puedes añadir nombres personalizados o editar los existentes. Los cambios se aplicarán a todas las valoraciones futuras.';
+  String get about_rating_fields_description => 'Estos son los nombres de criterios disponibles al valorar libros. Puedes añadir nombres personalizados, editarlos y asignar un porcentaje de peso a cada campo. Cuando los pesos están configurados y suman 100%, la valoración general se calculará como media ponderada.';
 
   @override
   String get no_rating_field_names => 'Aún no hay nombres de campos de valoración';
@@ -1204,6 +1204,29 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get add_field_name => 'Añadir Nombre de Campo';
+
+  @override
+  String get edit_weight => 'Editar Peso';
+
+  @override
+  String get rating_field_weight => 'Peso';
+
+  @override
+  String get weight_range_hint => 'Introduce un valor de 0 a 100';
+
+  @override
+  String get weight_saved => 'Peso guardado';
+
+  @override
+  String total_weight(int weight) {
+    return 'Total: $weight%';
+  }
+
+  @override
+  String get weight_must_sum_to_100 => 'Debe sumar 100% para activar la valoración ponderada';
+
+  @override
+  String get weights_not_configured => 'Sin pesos configurados — usando media simple';
 
   @override
   String get rename_club => 'Renombrar Club';

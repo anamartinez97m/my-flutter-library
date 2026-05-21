@@ -566,10 +566,21 @@
     "placeholders": { "error": {} }
   },
   "about_rating_fields": "About Rating Fields",
-  "about_rating_fields_description": "These are the criterion names available when rating books. You can add custom names or edit existing ones. Changes will apply to all future ratings.",
+  "about_rating_fields_description": "These are the criterion names available when rating books. You can add custom names, edit existing ones, and set a percentage weight for each field. When weights are configured and sum to 100%, the general rating will be calculated as a weighted average.",
   "no_rating_field_names": "No rating field names yet",
   "default_suggestion": "Default suggestion",
   "add_field_name": "Add Field Name",
+
+  "edit_weight": "Edit Weight",
+  "rating_field_weight": "Weight",
+  "weight_range_hint": "Enter a value from 0 to 100",
+  "weight_saved": "Weight saved",
+  "total_weight": "Total: {weight}%",
+  "@total_weight": {
+    "placeholders": { "weight": { "type": "int" } }
+  },
+  "weight_must_sum_to_100": "Must sum to 100% to activate weighted rating",
+  "weights_not_configured": "No weights set — using simple average",
 
   "rename_club": "Rename Club",
   "club_name": "Club Name",

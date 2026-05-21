@@ -1194,7 +1194,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get about_rating_fields => 'About Rating Fields';
 
   @override
-  String get about_rating_fields_description => 'These are the criterion names available when rating books. You can add custom names or edit existing ones. Changes will apply to all future ratings.';
+  String get about_rating_fields_description => 'These are the criterion names available when rating books. You can add custom names, edit existing ones, and set a percentage weight for each field. When weights are configured and sum to 100%, the general rating will be calculated as a weighted average.';
 
   @override
   String get no_rating_field_names => 'No rating field names yet';
@@ -1204,6 +1204,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get add_field_name => 'Add Field Name';
+
+  @override
+  String get edit_weight => 'Edit Weight';
+
+  @override
+  String get rating_field_weight => 'Weight';
+
+  @override
+  String get weight_range_hint => 'Enter a value from 0 to 100';
+
+  @override
+  String get weight_saved => 'Weight saved';
+
+  @override
+  String total_weight(int weight) {
+    return 'Total: $weight%';
+  }
+
+  @override
+  String get weight_must_sum_to_100 => 'Must sum to 100% to activate weighted rating';
+
+  @override
+  String get weights_not_configured => 'No weights set — using simple average';
 
   @override
   String get rename_club => 'Rename Club';

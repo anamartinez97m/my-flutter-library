@@ -53,6 +53,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   // Rating fields
   List<BookRatingField> _ratingFields = [];
   bool _ratingOverride = false;
+  Map<String, int> _fieldWeights = {};
   List<String> _ratingFieldSuggestions = [
     'Plot',
     'Characters',
@@ -167,9 +168,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRatingFieldRepository(db);
       final names = await repository.getAllFieldNames();
+      final weights = await repository.getAllFieldNamesWithWeights();
 
       setState(() {
         _ratingFieldSuggestions = names;
+        _fieldWeights = weights;
       });
     } catch (e) {
       debugPrint('Error loading rating field suggestions: $e');
@@ -778,11 +781,24 @@ class _AddBookScreenState extends State<AddBookScreen> {
   // Rating field helper methods
   double _calculateAverageRating() {
     if (_ratingFields.isEmpty) return 0.0;
-    double sum = _ratingFields.fold(
-      0.0,
-      (prev, field) => prev + field.ratingValue,
+    final weightedFields =
+        _ratingFields
+            .where((f) => (_fieldWeights[f.fieldName] ?? 0) > 0)
+            .toList();
+    if (weightedFields.isEmpty) {
+      // No weights configured — simple average
+      return _ratingFields.fold(0.0, (s, f) => s + f.ratingValue) /
+          _ratingFields.length;
+    }
+    final totalW = weightedFields.fold(
+      0,
+      (s, f) => s + (_fieldWeights[f.fieldName] ?? 0),
     );
-    return sum / _ratingFields.length;
+    return weightedFields.fold(
+          0.0,
+          (s, f) => s + f.ratingValue * (_fieldWeights[f.fieldName] ?? 0),
+        ) /
+        totalW;
   }
 
   double _calculateDisplayRating() {

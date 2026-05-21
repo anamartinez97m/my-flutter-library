@@ -2252,7 +2252,7 @@ abstract class AppLocalizations {
   /// No description provided for @about_rating_fields_description.
   ///
   /// In en, this message translates to:
-  /// **'These are the criterion names available when rating books. You can add custom names or edit existing ones. Changes will apply to all future ratings.'**
+  /// **'These are the criterion names available when rating books. You can add custom names, edit existing ones, and set a percentage weight for each field. When weights are configured and sum to 100%, the general rating will be calculated as a weighted average.'**
   String get about_rating_fields_description;
 
   /// No description provided for @no_rating_field_names.
@@ -2272,6 +2272,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add Field Name'**
   String get add_field_name;
+
+  /// No description provided for @edit_weight.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Weight'**
+  String get edit_weight;
+
+  /// No description provided for @rating_field_weight.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight'**
+  String get rating_field_weight;
+
+  /// No description provided for @weight_range_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a value from 0 to 100'**
+  String get weight_range_hint;
+
+  /// No description provided for @weight_saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight saved'**
+  String get weight_saved;
+
+  /// No description provided for @total_weight.
+  ///
+  /// In en, this message translates to:
+  /// **'Total: {weight}%'**
+  String total_weight(int weight);
+
+  /// No description provided for @weight_must_sum_to_100.
+  ///
+  /// In en, this message translates to:
+  /// **'Must sum to 100% to activate weighted rating'**
+  String get weight_must_sum_to_100;
+
+  /// No description provided for @weights_not_configured.
+  ///
+  /// In en, this message translates to:
+  /// **'No weights set — using simple average'**
+  String get weights_not_configured;
 
   /// No description provided for @rename_club.
   ///

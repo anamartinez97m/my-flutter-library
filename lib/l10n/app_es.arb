@@ -572,10 +572,21 @@
     "placeholders": { "error": {} }
   },
   "about_rating_fields": "Acerca de los Campos de Valoración",
-  "about_rating_fields_description": "Estos son los nombres de criterios disponibles al valorar libros. Puedes añadir nombres personalizados o editar los existentes. Los cambios se aplicarán a todas las valoraciones futuras.",
+  "about_rating_fields_description": "Estos son los nombres de criterios disponibles al valorar libros. Puedes añadir nombres personalizados, editarlos y asignar un porcentaje de peso a cada campo. Cuando los pesos están configurados y suman 100%, la valoración general se calculará como media ponderada.",
   "no_rating_field_names": "Aún no hay nombres de campos de valoración",
   "default_suggestion": "Sugerencia predeterminada",
   "add_field_name": "Añadir Nombre de Campo",
+
+  "edit_weight": "Editar Peso",
+  "rating_field_weight": "Peso",
+  "weight_range_hint": "Introduce un valor de 0 a 100",
+  "weight_saved": "Peso guardado",
+  "total_weight": "Total: {weight}%",
+  "@total_weight": {
+    "placeholders": { "weight": { "type": "int" } }
+  },
+  "weight_must_sum_to_100": "Debe sumar 100% para activar la valoración ponderada",
+  "weights_not_configured": "Sin pesos configurados — usando media simple",
 
   "rename_club": "Renombrar Club",
   "club_name": "Nombre del Club",
