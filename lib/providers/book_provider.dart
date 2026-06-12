@@ -335,42 +335,64 @@ class BookProvider extends ChangeNotifier {
     _displayBooks = List<Book>.from(_filteredBooks);
   }
 
+  bool _bookMatchesQuery(Book book, String normalizedQuery, int searchIndex) {
+    switch (searchIndex) {
+      case 0: // Search by Title
+        final normalizedTitle = _removeAccents((book.name ?? '').toLowerCase());
+        return normalizedTitle.contains(normalizedQuery);
+      case 1: // Search by ISBN
+        final normalizedIsbn = _removeAccents((book.isbn ?? '').toLowerCase());
+        return normalizedIsbn.contains(normalizedQuery);
+      case 2: // Search by Author
+        final normalizedAuthor = _removeAccents(
+          (book.author ?? '').toLowerCase(),
+        );
+        return normalizedAuthor.contains(normalizedQuery);
+      case 3: // Search by Saga or Saga Universe
+        final normalizedSaga = _removeAccents((book.saga ?? '').toLowerCase());
+        final normalizedSagaUniverse = _removeAccents(
+          (book.sagaUniverse ?? '').toLowerCase(),
+        );
+        return normalizedSaga.contains(normalizedQuery) ||
+            normalizedSagaUniverse.contains(normalizedQuery);
+      default:
+        return false;
+    }
+  }
+
   void _applySearch() {
     if (_currentSearchQuery.isEmpty) {
       _displayBooks = List.from(_filteredBooks);
     } else {
       final normalizedQuery = _removeAccents(_currentSearchQuery.toLowerCase());
-      _displayBooks =
-          _filteredBooks.where((book) {
-            switch (_currentSearchIndex) {
-              case 0: // Search by Title
-                final normalizedTitle = _removeAccents(
-                  (book.name ?? '').toLowerCase(),
-                );
-                return normalizedTitle.contains(normalizedQuery);
-              case 1: // Search by ISBN
-                final normalizedIsbn = _removeAccents(
-                  (book.isbn ?? '').toLowerCase(),
-                );
-                return normalizedIsbn.contains(normalizedQuery);
-              case 2: // Search by Author
-                final normalizedAuthor = _removeAccents(
-                  (book.author ?? '').toLowerCase(),
-                );
-                return normalizedAuthor.contains(normalizedQuery);
-              case 3: // Search by Saga or Saga Universe
-                final normalizedSaga = _removeAccents(
-                  (book.saga ?? '').toLowerCase(),
-                );
-                final normalizedSagaUniverse = _removeAccents(
-                  (book.sagaUniverse ?? '').toLowerCase(),
-                );
-                return normalizedSaga.contains(normalizedQuery) ||
-                    normalizedSagaUniverse.contains(normalizedQuery);
-              default:
-                return false;
-            }
-          }).toList();
+
+      // Search through the filtered (non-bundle-child) books
+      final matchedBooks =
+          _filteredBooks
+              .where(
+                (book) => _bookMatchesQuery(
+                  book,
+                  normalizedQuery,
+                  _currentSearchIndex,
+                ),
+              )
+              .toList();
+
+      // Also search through bundle child books so they appear in search results
+      final matchedBundleChildren =
+          _books
+              .where(
+                (book) =>
+                    book.bundleParentId != null &&
+                    _bookMatchesQuery(
+                      book,
+                      normalizedQuery,
+                      _currentSearchIndex,
+                    ),
+              )
+              .toList();
+
+      _displayBooks = [...matchedBooks, ...matchedBundleChildren];
     }
 
     // Re-apply sorting after search

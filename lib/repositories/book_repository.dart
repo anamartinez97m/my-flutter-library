@@ -982,6 +982,21 @@ class BookRepository {
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
 
+    // If this is an update (book already has an ID), clear old author/genre links first
+    // so that removed authors/genres are not preserved from the junction tables
+    if (book.bookId != null) {
+      await db.delete(
+        'books_by_author',
+        where: 'book_id = ?',
+        whereArgs: [bookId],
+      );
+      await db.delete(
+        'books_by_genre',
+        where: 'book_id = ?',
+        whereArgs: [bookId],
+      );
+    }
+
     // Link authors (many-to-many relationship)
     await _linkAuthors(bookId, book.author);
 
