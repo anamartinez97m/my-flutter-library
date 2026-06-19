@@ -33,19 +33,19 @@ dependencies:
   permission_handler: ^11.3.1
   fl_chart: ^0.69.0
   shared_preferences: ^2.2.2
-  intl: ^0.19.0
+  intl: ^0.20.2
   flutter_local_notifications: ^17.2.3
   timezone: ^0.9.4
   flutter_timezone: ^3.0.1
   wakelock_plus: ^1.2.8
-  mobile_scanner: ^5.1.0
+  mobile_scanner: ^7.0.0
   http: ^1.2.0
   in_app_update: ^4.2.3
-  firebase_core: ^3.8.1
-  firebase_auth: ^5.4.1
+  firebase_core: ^4.0.0
+  firebase_auth: ^6.0.0
   google_sign_in: ^6.2.2
-  firebase_storage: ^12.4.1
-  firebase_app_check: ^0.3.2+10
+  firebase_storage: ^13.0.0
+  firebase_app_check: ^0.4.0
 
 dev_dependencies:
   flutter_test:
@@ -71,8 +71,6 @@ flutter:
   uses-material-design: true
   generate: true
 
-  assets:
-    - assets/my_library.db
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a

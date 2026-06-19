@@ -188,7 +188,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get replace_database => 'Replace Database';
 
   @override
-  String get database_restored_successfully => 'Database restored successfully!';
+  String get database_restored_successfully =>
+      'Database restored successfully!';
 
   @override
   String import_backup_error(Object error) {
@@ -207,7 +208,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get import_database_backup => 'Import Database Backup';
 
   @override
-  String get import_backup_confirmation => 'This will replace your current database with the backup. All current data will be lost. Are you sure?';
+  String get import_backup_confirmation =>
+      'This will replace your current database with the backup. All current data will be lost. Are you sure?';
 
   @override
   String get select_backup_file => 'Select backup file';
@@ -228,7 +230,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleting_all_data => 'Deleting All Data...';
 
   @override
-  String get delete_all_data_confirmation => 'This will permanently delete ALL books from your library. This action cannot be undone!\n\nAre you sure you want to continue?';
+  String get delete_all_data_confirmation =>
+      'This will permanently delete ALL books from your library. This action cannot be undone!\n\nAre you sure you want to continue?';
 
   @override
   String deleted_books(Object count) {
@@ -256,7 +259,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get import_completed_with_duplicates => 'Import completed with duplicates!';
+  String get import_completed_with_duplicates =>
+      'Import completed with duplicates!';
 
   @override
   String imported_books(Object importedCount) {
@@ -277,7 +281,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get duplicate_books_not_imported => 'Duplicate books (not imported):';
 
   @override
-  String get books_already_exist => 'These books already exist in your library. You can add them manually if needed.';
+  String get books_already_exist =>
+      'These books already exist in your library. You can add them manually if needed.';
 
   @override
   String more_books(Object count) {
@@ -288,7 +293,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ok => 'OK';
 
   @override
-  String get permanently_delete_all_books_from_the_database => 'Permanently delete all books from the database';
+  String get permanently_delete_all_books_from_the_database =>
+      'Permanently delete all books from the database';
 
   @override
   String get light_theme_colors => 'Light Theme Colors';
@@ -303,19 +309,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get create_database_backup => 'Create Database Backup';
 
   @override
-  String get save_a_copy_of_your_library_database => 'Save a copy of your library database';
+  String get save_a_copy_of_your_library_database =>
+      'Save a copy of your library database';
 
   @override
   String get manage_dropdown_values => 'Manage Dropdown Values';
 
   @override
-  String get manage_dropdown_values_hint => 'Manage dropdown values for status, language, place, format, and format saga.';
+  String get manage_dropdown_values_hint =>
+      'Manage dropdown values for status, language, place, format, and format saga.';
 
   @override
-  String get import_from_csv_hint => 'Custom CSV columns: Title, Author, ISBN, ASIN, Saga, N_Saga, Saga Universe, Format Saga, Status, Editorial, Language, Place, Format, Genre, Pages, Original Publication Year, Loaned, Date Read Initial, Date Read Final, Read Count, My Rating, My Review, Notes, Price, Release Date, Is Bundle, Bundle Count, TBR, Is Tandem, Cover URL, Description, Created At, Acquired Date';
+  String get import_from_csv_hint =>
+      'Custom CSV columns: Title, Author, ISBN, ASIN, Saga, N_Saga, Saga Universe, Format Saga, Status, Editorial, Language, Place, Format, Genre, Pages, Original Publication Year, Loaned, Date Read Initial, Date Read Final, Read Count, My Rating, My Review, Notes, Price, Release Date, Is Bundle, Bundle Count, TBR, Is Tandem, Cover URL, Description, Created At, Acquired Date';
 
   @override
-  String get import_from_csv_tbreleased => 'For unreleased books use status tb_released';
+  String get import_from_csv_tbreleased =>
+      'For unreleased books use status tb_released';
 
   @override
   String get import_from_csv => 'Import book from CSV';
@@ -324,7 +334,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get import_from_csv_file => 'Import books from a CSV file';
 
   @override
-  String get restore_a_copy_of_your_library_database => 'Restore a copy of your library database';
+  String get restore_a_copy_of_your_library_database =>
+      'Restore a copy of your library database';
 
   @override
   String get theme => 'Theme';
@@ -384,7 +395,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirm_delete => 'Are you sure you want to delete this book?';
 
   @override
-  String get confirm_delete_all => 'This will permanently delete ALL books from your library. This action cannot be undone!\\n\\nAre you sure you want to continue?';
+  String get confirm_delete_all =>
+      'This will permanently delete ALL books from your library. This action cannot be undone!\\n\\nAre you sure you want to continue?';
 
   @override
   String get book_added_successfully => 'Book added successfully!';
@@ -414,7 +426,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get top_5_genres => 'Top 5 Genres';
 
   @override
-  String get about_box_children => 'Aplicación desarrollada con Flutter/Dart.\n Permite gestionar tu biblioteca personal y recibir recomendaciones de lectura personalizadas.';
+  String get about_box_children =>
+      'Aplicación desarrollada con Flutter/Dart.\n Permite gestionar tu biblioteca personal y recibir recomendaciones de lectura personalizadas.';
 
   @override
   String get sort_and_filter => 'Sort & Filter';
@@ -458,7 +471,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get max_tbr_books_description => 'Maximum number of books you can mark as \'To Be Read\' at once:';
+  String get max_tbr_books_description =>
+      'Maximum number of books you can mark as \'To Be Read\' at once:';
 
   @override
   String max_tbr_books_subtitle(Object tbrLimit) {
@@ -475,7 +489,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get books => 'books';
 
   @override
-  String get please_enter_valid_number => 'Please enter a valid number greater than 0';
+  String get please_enter_valid_number =>
+      'Please enter a valid number greater than 0';
 
   @override
   String get maximum_limit_200_books => 'Maximum limit is 200 books';
@@ -487,7 +502,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get this_is_a_bundle => 'This is a bundle';
 
   @override
-  String get check_if_this_book_contains_multiple_books => 'Check if this book contains multiple books in one volume';
+  String get check_if_this_book_contains_multiple_books =>
+      'Check if this book contains multiple books in one volume';
 
   @override
   String get number_of_books_in_bundle => 'Number of Books in Bundle';
@@ -520,7 +536,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stop_timer => 'Stop Timer';
 
   @override
-  String get do_you_want_to_stop_the_reading_timer => 'Do you want to stop the reading timer?';
+  String get do_you_want_to_stop_the_reading_timer =>
+      'Do you want to stop the reading timer?';
 
   @override
   String get stop => 'Stop';
@@ -632,7 +649,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirm_restore => 'Confirm Restore';
 
   @override
-  String get confirm_restore_message => 'This will replace your current database. Make sure you have a backup!';
+  String get confirm_restore_message =>
+      'This will replace your current database. Make sure you have a backup!';
 
   @override
   String get restore => 'Restore';
@@ -808,7 +826,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get update_available_title => 'Update Available';
 
   @override
-  String get update_available_message => 'A new version of My Book Vault is available. Update now to get the latest features and improvements.';
+  String get update_available_message =>
+      'A new version of My Book Vault is available. Update now to get the latest features and improvements.';
 
   @override
   String get update_now => 'Update';
@@ -820,19 +839,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get admin_mode => 'Admin Mode';
 
   @override
-  String get admin_mode_subtitle => 'Enable advanced features like admin CSV import';
+  String get admin_mode_subtitle =>
+      'Enable advanced features like admin CSV import';
 
   @override
   String get admin_csv_import => 'Admin CSV Import';
 
   @override
-  String get admin_csv_import_subtitle => 'Review and edit each book before importing';
+  String get admin_csv_import_subtitle =>
+      'Review and edit each book before importing';
 
   @override
   String get default_values => 'Default Values';
 
   @override
-  String get default_values_subtitle => 'TBR Limit, Sort Order, Home Filters, Card Fields';
+  String get default_values_subtitle =>
+      'TBR Limit, Sort Order, Home Filters, Card Fields';
 
   @override
   String get import_export => 'Import/Export';
@@ -841,13 +863,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get import_export_subtitle => 'CSV & Database Backup';
 
   @override
-  String get customize_home_filters_subtitle => 'Select which filters to show in the home screen';
+  String get customize_home_filters_subtitle =>
+      'Select which filters to show in the home screen';
 
   @override
   String get customize_card_fields => 'Customize Card Fields';
 
   @override
-  String get customize_card_fields_subtitle => 'Select which data to show in book cards';
+  String get customize_card_fields_subtitle =>
+      'Select which data to show in book cards';
 
   @override
   String fields_selected(Object count) {
@@ -858,7 +882,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get default_sort_order => 'Default Sort Order';
 
   @override
-  String get default_sort_order_subtitle => 'Set the default order for your book list';
+  String get default_sort_order_subtitle =>
+      'Set the default order for your book list';
 
   @override
   String get sort_by => 'Sort By';
@@ -901,10 +926,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get permission_required => 'Permission Required';
 
   @override
-  String get storage_permission_backup => 'Storage permission is needed to create backups. Would you like to grant permission?';
+  String get storage_permission_backup =>
+      'Storage permission is needed to create backups. Would you like to grant permission?';
 
   @override
-  String get storage_permission_export => 'Storage permission is needed to export CSV files. Would you like to grant permission?';
+  String get storage_permission_export =>
+      'Storage permission is needed to export CSV files. Would you like to grant permission?';
 
   @override
   String get grant_permission => 'Grant Permission';
@@ -931,7 +958,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get import_completed_title => 'Import Completed';
 
   @override
-  String import_result_message(Object imported, Object updated, Object skipped) {
+  String import_result_message(
+    Object imported,
+    Object updated,
+    Object skipped,
+  ) {
     return 'Imported: $imported books\nUpdated: $updated books\nSkipped: $skipped rows';
   }
 
@@ -942,13 +973,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleting_all_books => 'Deleting all books...';
 
   @override
-  String get goodreads_csv_hint => 'Goodreads CSV columns: Title, Author, ISBN13, ASIN, My Rating, Publisher, Binding, Number of Pages, Original Publication Year, Date Read, Date Added, Bookshelves, Exclusive Shelf, My Review, Read Count. Books must have \"owned\" or \"read-loaned\" in bookshelves to be imported';
+  String get goodreads_csv_hint =>
+      'Goodreads CSV columns: Title, Author, ISBN13, ASIN, My Rating, Publisher, Binding, Number of Pages, Original Publication Year, Date Read, Date Added, Bookshelves, Exclusive Shelf, My Review, Read Count. Books must have \"owned\" or \"read-loaned\" in bookshelves to be imported';
 
   @override
   String get manage_rating_field_names => 'Manage Rating Field Names';
 
   @override
-  String get manage_rating_field_names_subtitle => 'Add, edit, or remove rating criterion names';
+  String get manage_rating_field_names_subtitle =>
+      'Add, edit, or remove rating criterion names';
 
   @override
   String get manage_club_names => 'Manage Club Names';
@@ -960,7 +993,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get migrate_bundle_books_title => 'Migrate Bundle Books';
 
   @override
-  String get migrate_bundle_books_subtitle => 'Convert old bundles to new system';
+  String get migrate_bundle_books_subtitle =>
+      'Convert old bundles to new system';
 
   @override
   String get available => 'Available';
@@ -969,13 +1003,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get migrate_reading_sessions => 'Migrate Reading Sessions';
 
   @override
-  String get migrate_reading_sessions_subtitle => 'Move reading sessions to individual books';
+  String get migrate_reading_sessions_subtitle =>
+      'Move reading sessions to individual books';
 
   @override
   String get migrate_reading_sessions_question => 'Migrate Reading Sessions?';
 
   @override
-  String get no_sessions_to_migrate => 'No reading sessions to migrate. All sessions are already on individual books!';
+  String get no_sessions_to_migrate =>
+      'No reading sessions to migrate. All sessions are already on individual books!';
 
   @override
   String get migrating_reading_sessions => 'Migrating reading sessions...';
@@ -984,16 +1020,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get migration_successful => 'Migration Successful!';
 
   @override
-  String get migration_completed_with_errors => 'Migration Completed with Errors';
+  String get migration_completed_with_errors =>
+      'Migration Completed with Errors';
 
   @override
   String get what_will_happen => 'What will happen:';
 
   @override
-  String get migration_description => '• Reading sessions will be copied to individual books\n• Old bundle reading sessions will be deleted\n• This fixes inconsistencies in bundle reading history';
+  String get migration_description =>
+      '• Reading sessions will be copied to individual books\n• Old bundle reading sessions will be deleted\n• This fixes inconsistencies in bundle reading history';
 
   @override
-  String get migration_safe_info => 'ℹ️ This is safe and can be run multiple times';
+  String get migration_safe_info =>
+      'ℹ️ This is safe and can be run multiple times';
 
   @override
   String successful_bundles(Object count) {
@@ -1075,7 +1114,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get application_name => 'My Random Library';
 
   @override
-  String get application_legalese => '© 2025 Ana Martínez Montañez. All rights reserved.';
+  String get application_legalese =>
+      '© 2025 Ana Martínez Montañez. All rights reserved.';
 
   @override
   String get books_by_decade => 'Books by Decade';
@@ -1120,7 +1160,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unknown_show_as_question => 'Unknown (show as \"?\")';
 
   @override
-  String get for_sagas_unknown_length => 'For sagas with unknown or variable length';
+  String get for_sagas_unknown_length =>
+      'For sagas with unknown or variable length';
 
   @override
   String get continue_label => 'Continue';
@@ -1131,7 +1172,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get this_will_fail_constraint => 'This will fail if database constraints prevent it';
+  String get this_will_fail_constraint =>
+      'This will fail if database constraints prevent it';
 
   @override
   String get field_name => 'Field Name';
@@ -1194,7 +1236,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get about_rating_fields => 'About Rating Fields';
 
   @override
-  String get about_rating_fields_description => 'These are the criterion names available when rating books. You can add custom names, edit existing ones, and set a percentage weight for each field. When weights are configured and sum to 100%, the general rating will be calculated as a weighted average.';
+  String get about_rating_fields_description =>
+      'These are the criterion names available when rating books. You can add custom names, edit existing ones, and set a percentage weight for each field. When weights are configured and sum to 100%, the general rating will be calculated as a weighted average.';
 
   @override
   String get no_rating_field_names => 'No rating field names yet';
@@ -1223,7 +1266,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get weight_must_sum_to_100 => 'Must sum to 100% to activate weighted rating';
+  String get weight_must_sum_to_100 =>
+      'Must sum to 100% to activate weighted rating';
 
   @override
   String get weights_not_configured => 'No weights set — using simple average';
@@ -1293,7 +1337,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get custom_challenges => 'Custom Challenges';
 
   @override
-  String get custom_challenges_hint => 'Add custom reading goals (e.g., \"Read 5 classics\", \"Finish 3 series\")';
+  String get custom_challenges_hint =>
+      'Add custom reading goals (e.g., \"Read 5 classics\", \"Finish 3 series\")';
 
   @override
   String get goal_name => 'Goal name';
@@ -1314,7 +1359,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enter_valid_target_books => 'Please enter valid target books';
 
   @override
-  String get enter_valid_target_or_custom => 'Please enter valid target books or add custom challenges';
+  String get enter_valid_target_or_custom =>
+      'Please enter valid target books or add custom challenges';
 
   @override
   String get challenge_created => 'Challenge created successfully!';
@@ -1632,7 +1678,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get time_hhmmss => 'Time (HH:MM)';
 
   @override
-  String get duration_hint => 'Enter duration as: 1h 30m 5s, 90m, or just seconds';
+  String get duration_hint =>
+      'Enter duration as: 1h 30m 5s, 90m, or just seconds';
 
   @override
   String get sessions_updated => 'Sessions updated!';
@@ -1824,7 +1871,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rate_reading_experience => 'Rate your reading experience:';
 
   @override
-  String get no_rating_fields => 'No rating fields available. You can add them in Settings.';
+  String get no_rating_fields =>
+      'No rating fields available. You can add them in Settings.';
 
   @override
   String get write_review_optional => 'Write a review (optional):';
@@ -1841,10 +1889,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get how_many_books_saga => 'How many books should this saga show in statistics?';
+  String get how_many_books_saga =>
+      'How many books should this saga show in statistics?';
 
   @override
-  String get saga_completion_explanation => 'The saga completion card will show \"X / Y\" where Y is the number you specify.';
+  String get saga_completion_explanation =>
+      'The saga completion card will show \"X / Y\" where Y is the number you specify.';
 
   @override
   String get number_of_books => 'Number of books';
@@ -1865,16 +1915,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get value_deleted_successfully => 'Value deleted successfully';
 
   @override
-  String get core_status_warning => 'Core status: Only the label will change, not the database value or logic.';
+  String get core_status_warning =>
+      'Core status: Only the label will change, not the database value or logic.';
 
   @override
-  String get core_format_saga_warning => 'Core format saga: Only the label can be changed, this value cannot be deleted.';
+  String get core_format_saga_warning =>
+      'Core format saga: Only the label can be changed, this value cannot be deleted.';
 
   @override
-  String get core_status_cannot_delete => 'This is a core status value and cannot be deleted. The app logic depends on these values: Yes, No, Started, TBReleased, Abandoned, Repeated, and Standby.';
+  String get core_status_cannot_delete =>
+      'This is a core status value and cannot be deleted. The app logic depends on these values: Yes, No, Started, TBReleased, Abandoned, Repeated, and Standby.';
 
   @override
-  String get core_format_saga_cannot_delete => 'This is a core format saga value and cannot be deleted. The app logic depends on these values: Standalone, Bilogy, Trilogy, Tetralogy, Pentalogy, Hexalogy, 6+, and Saga.';
+  String get core_format_saga_cannot_delete =>
+      'This is a core format saga value and cannot be deleted. The app logic depends on these values: Standalone, Bilogy, Trilogy, Tetralogy, Pentalogy, Hexalogy, 6+, and Saga.';
 
   @override
   String get core_value_cannot_delete => 'Core value cannot be deleted';
@@ -1900,7 +1954,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get new_value => 'New value';
 
   @override
-  String get delete_may_fail => 'This will fail if database constraints prevent it';
+  String get delete_may_fail =>
+      'This will fail if database constraints prevent it';
 
   @override
   String get please_select_replacement => 'Please select a replacement value';
@@ -1924,7 +1979,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get any_notes_about_challenge => 'Any notes about this challenge';
 
   @override
-  String get add_custom_reading_goals => 'Add custom reading goals (e.g., \"Read 5 classics\", \"Finish 3 series\")';
+  String get add_custom_reading_goals =>
+      'Add custom reading goals (e.g., \"Read 5 classics\", \"Finish 3 series\")';
 
   @override
   String get no_challenges_yet => 'No challenges yet';
@@ -1963,16 +2019,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reading_status => 'Reading Status';
 
   @override
-  String get original_book_required => 'Original Book (required for Repeated status)';
+  String get original_book_required =>
+      'Original Book (required for Repeated status)';
 
   @override
   String get missing_required_fields => 'Missing Required Fields';
 
   @override
-  String get please_fill_required_fields => 'Please fill in the following required fields:';
+  String get please_fill_required_fields =>
+      'Please fill in the following required fields:';
 
   @override
-  String get tandem_requires_saga => 'Tandem books must have a Saga or Saga Universe.\n\nPlease fill in at least one of these fields to mark this book as Tandem.';
+  String get tandem_requires_saga =>
+      'Tandem books must have a Saga or Saga Universe.\n\nPlease fill in at least one of these fields to mark this book as Tandem.';
 
   @override
   String get search_original_book => 'Search for the original book...';
@@ -1996,7 +2055,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get search_or_add_genre => 'Type to search or add new genre';
 
   @override
-  String get original_publication_date => 'Original Publication Date (for notifications)';
+  String get original_publication_date =>
+      'Original Publication Date (for notifications)';
 
   @override
   String get release_date => 'Release Date';
@@ -2005,7 +2065,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get select_release_date => 'Select release date';
 
   @override
-  String get get_notified_when_released => 'Get notified when this book is released';
+  String get get_notified_when_released =>
+      'Get notified when this book is released';
 
   @override
   String get notification_date_time => 'Notification Date & Time';
@@ -2028,7 +2089,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mark_as_tandem => 'Mark as Tandem Book';
 
   @override
-  String get tandem_description => 'Read together with other books in this saga';
+  String get tandem_description =>
+      'Read together with other books in this saga';
 
   @override
   String get reading_information_optional => 'Reading Information (Optional)';
@@ -2091,7 +2153,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reading_timer => 'Reading Timer';
 
   @override
-  String get timer_exit_confirm => 'The timer is still counting. Are you sure you want to exit without stopping it?';
+  String get timer_exit_confirm =>
+      'The timer is still counting. Are you sure you want to exit without stopping it?';
 
   @override
   String get exit_label => 'Exit';
@@ -2106,7 +2169,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get restore_canceled => 'Restore canceled';
 
   @override
-  String get restore_warning => 'This will replace your current database. Make sure you have a backup!';
+  String get restore_warning =>
+      'This will replace your current database. Make sure you have a backup!';
 
   @override
   String get restore_database => 'Restore Database';
@@ -2143,7 +2207,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get not_in_any_clubs => 'Not in any clubs yet';
 
   @override
-  String get bundle_description => 'Check if this book contains multiple books in one volume';
+  String get bundle_description =>
+      'Check if this book contains multiple books in one volume';
 
   @override
   String get eg_3 => 'e.g., 3';
@@ -2158,7 +2223,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get map_status_values => 'Map Status Values';
 
   @override
-  String get match_csv_status_values => 'Match your CSV status values to app statuses:';
+  String get match_csv_status_values =>
+      'Match your CSV status values to app statuses:';
 
   @override
   String get leave_empty_if_not_used => 'Leave empty if not used in your CSV';
@@ -2194,7 +2260,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get progress_must_be_0_100 => 'Progress must be between 0 and 100';
 
   @override
-  String get track_reading_progress => 'Track your reading progress for this club';
+  String get track_reading_progress =>
+      'Track your reading progress for this club';
 
   @override
   String get how_import_books => 'How would you like to import your books?';
@@ -2301,13 +2368,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reading_efficiency_score => 'Reading Efficiency Score';
 
   @override
-  String get books_faster_than_average => 'of books read faster than your average pace';
+  String get books_faster_than_average =>
+      'of books read faster than your average pace';
 
   @override
   String get what_does_this_mean => 'What does this mean?';
 
   @override
-  String get efficiency_explanation => 'This compares each book\'s reading speed to your overall average. Higher percentages mean you\'re consistently reading at or above your typical pace.';
+  String get efficiency_explanation =>
+      'This compares each book\'s reading speed to your overall average. Higher percentages mean you\'re consistently reading at or above your typical pace.';
 
   @override
   String based_on_n_books(Object count) {
@@ -2380,7 +2449,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get binge_reading_series => 'Binge Reading (Series)';
 
   @override
-  String get binge_reading_description => 'of books finished within 14 days of previous';
+  String get binge_reading_description =>
+      'of books finished within 14 days of previous';
 
   @override
   String get best_past_books => 'Best Past Books';
@@ -2531,7 +2601,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get no_monthly_winners_quarter => 'No monthly winners for this quarter';
+  String get no_monthly_winners_quarter =>
+      'No monthly winners for this quarter';
 
   @override
   String get no_quarterly_winners => 'No quarterly winners available';
@@ -2575,7 +2646,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get random_book_picker => 'Random Book Picker';
 
   @override
-  String get random_book_description => 'Apply filters and get a random book suggestion';
+  String get random_book_description =>
+      'Apply filters and get a random book suggestion';
 
   @override
   String get and_all_genres => 'AND: must have all selected genres';
@@ -2605,7 +2677,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get or_select_specific_books => 'Or select specific books';
 
   @override
-  String get search_select_books_description => 'Search and select books by title to pick randomly from your custom list';
+  String get search_select_books_description =>
+      'Search and select books by title to pick randomly from your custom list';
 
   @override
   String get select_books => 'Select Books';
@@ -2651,7 +2724,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get no_migration_needed => 'All bundles are using the new system!\nNo migration needed.';
+  String get no_migration_needed =>
+      'All bundles are using the new system!\nNo migration needed.';
 
   @override
   String get last_migration_result => 'Last Migration Result';
@@ -2672,7 +2746,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clear_reviewed_books => 'Clear Reviewed Books?';
 
   @override
-  String get clear_reviewed_books_description => 'This will clear all tracked reviewed books from all import sessions. Use this if the count seems wrong.';
+  String get clear_reviewed_books_description =>
+      'This will clear all tracked reviewed books from all import sessions. Use this if the count seems wrong.';
 
   @override
   String get cleared_reviewed_books => 'Cleared all reviewed books tracking';
@@ -2703,7 +2778,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get import_this_book => 'Import this book';
 
   @override
-  String get storage_permission_needed => 'Storage permission is needed to create backups. Would you like to grant permission?';
+  String get storage_permission_needed =>
+      'Storage permission is needed to create backups. Would you like to grant permission?';
 
   @override
   String get import_error => 'Import Error';
@@ -2752,7 +2828,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloud_restore_success => 'Library restored from cloud';
 
   @override
-  String get cloud_restore_warning => 'This will replace ALL your current data with the cloud backup. This cannot be undone.';
+  String get cloud_restore_warning =>
+      'This will replace ALL your current data with the cloud backup. This cannot be undone.';
 
   @override
   String get cloud_backup_in_progress => 'Uploading backup...';
@@ -2778,7 +2855,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auto_backup => 'Auto Backup';
 
   @override
-  String get auto_backup_subtitle => 'Automatically back up locally and to cloud when you open the app';
+  String get auto_backup_subtitle =>
+      'Automatically back up locally and to cloud when you open the app';
 
   @override
   String auto_backup_enabled(Object frequency) {
@@ -2804,13 +2882,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reading_reminders => 'Reading Reminders';
 
   @override
-  String get reading_reminders_subtitle => 'Daily notifications to track your reading';
+  String get reading_reminders_subtitle =>
+      'Daily notifications to track your reading';
 
   @override
   String get enable_reading_reminders => 'Enable Reading Reminders';
 
   @override
-  String get enable_reading_reminders_subtitle => 'Get a daily notification asking if you\'ve read today';
+  String get enable_reading_reminders_subtitle =>
+      'Get a daily notification asking if you\'ve read today';
 
   @override
   String get reminder_time => 'Reminder Time';
@@ -2828,10 +2908,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reminder_last_started => 'Last started book only';
 
   @override
-  String get reminder_all_started_subtitle => 'One notification per book with Started status';
+  String get reminder_all_started_subtitle =>
+      'One notification per book with Started status';
 
   @override
-  String get reminder_last_started_subtitle => 'Only the most recently started book';
+  String get reminder_last_started_subtitle =>
+      'Only the most recently started book';
 
   @override
   String get have_you_read_today => 'Have you read today?';
@@ -2851,7 +2933,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reading_reminder_disabled => 'Reading reminders disabled';
 
   @override
-  String get no_started_books_for_reminder => 'No books with Started status to remind about';
+  String get no_started_books_for_reminder =>
+      'No books with Started status to remind about';
 
   @override
   String get fetch_book_info => 'Fetch book info';
@@ -2869,7 +2952,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get isbn_required_for_fetch => 'Enter an ISBN first';
 
   @override
-  String get review_pages_warning => 'Review the number of pages, it may not be correct';
+  String get review_pages_warning =>
+      'Review the number of pages, it may not be correct';
 
   @override
   String get section_reading_activity => 'Reading Activity';
@@ -2974,7 +3058,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get format_by_language => 'Format by Language';
 
   @override
-  String get avg_days_by_format_language => 'Avg. Days to Read by Format & Language';
+  String get avg_days_by_format_language =>
+      'Avg. Days to Read by Format & Language';
 
   @override
   String get daily_reading_heatmap => 'Days read in a year';
@@ -2991,19 +3076,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get show_price_statistics => 'Show Price Statistics';
 
   @override
-  String get show_price_statistics_subtitle => 'Display a price statistics section in your stats dashboard';
+  String get show_price_statistics_subtitle =>
+      'Display a price statistics section in your stats dashboard';
 
   @override
   String get currency_setting => 'Currency Symbol';
 
   @override
-  String get currency_setting_subtitle => 'Choose which currency symbol to display for prices';
+  String get currency_setting_subtitle =>
+      'Choose which currency symbol to display for prices';
 
   @override
   String get custom_currency_hint => 'Custom symbol';
 
   @override
-  String get no_price_data => 'No books with price data yet. Add prices to your books to see statistics.';
+  String get no_price_data =>
+      'No books with price data yet. Add prices to your books to see statistics.';
 
   @override
   String get section_price_statistics => 'Price Statistics';
@@ -3045,7 +3133,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get time_slot_late_night => 'Early Hours';
 
   @override
-  String get no_session_data => 'No reading session data yet. Use the chronometer to track your reading sessions.';
+  String get no_session_data =>
+      'No reading session data yet. Use the chronometer to track your reading sessions.';
 
   @override
   String favorite_reading_time(Object slot) {
@@ -3071,7 +3160,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get standby_suggestion_title => 'Move to Standby?';
 
   @override
-  String get standby_suggestion_body => 'It\'s been more than a week since you last read this book. Would you like to move it to Standby? This won\'t affect your reading statistics.';
+  String get standby_suggestion_body =>
+      'It\'s been more than a week since you last read this book. Would you like to move it to Standby? This won\'t affect your reading statistics.';
 
   @override
   String get move_to_standby => 'Move to Standby';
@@ -3095,13 +3185,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get library_display => 'Library Display';
 
   @override
-  String get library_display_subtitle => 'Home Filters, Card Fields, Sort Order, TBR Limit';
+  String get library_display_subtitle =>
+      'Home Filters, Card Fields, Sort Order, TBR Limit';
 
   @override
   String get library_customization => 'Library Customization';
 
   @override
-  String get library_customization_subtitle => 'Rating fields, clubs, dropdowns, price & currency';
+  String get library_customization_subtitle =>
+      'Rating fields, clubs, dropdowns, price & currency';
 
   @override
   String get migrations_section => 'Migrations';
@@ -3113,25 +3205,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get library_tools => 'Library Tools';
 
   @override
-  String get library_tools_subtitle => 'Bulk edit, fill empty fields, smart suggestions';
+  String get library_tools_subtitle =>
+      'Bulk edit, fill empty fields, smart suggestions';
 
   @override
   String get assign_books_to_value => 'Assign Books to Value';
 
   @override
-  String get assign_books_to_value_hint => 'Pick a value, then select books to assign it to';
+  String get assign_books_to_value_hint =>
+      'Pick a value, then select books to assign it to';
 
   @override
   String get fill_empty_fields => 'Fill Empty Fields';
 
   @override
-  String get fill_empty_fields_hint => 'Find books with missing data and fill them in groups';
+  String get fill_empty_fields_hint =>
+      'Find books with missing data and fill them in groups';
 
   @override
   String get smart_suggestions => 'Smart Suggestions';
 
   @override
-  String get smart_suggestions_hint => 'Auto-detect patterns and suggest bulk fixes';
+  String get smart_suggestions_hint =>
+      'Auto-detect patterns and suggest bulk fixes';
 
   @override
   String get select_field => 'Select Field';
@@ -3146,7 +3242,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get books_available => 'books available';
 
   @override
-  String get all_books_already_have_value => 'All books already have this value!';
+  String get all_books_already_have_value =>
+      'All books already have this value!';
 
   @override
   String get deselect_all => 'Deselect All';
@@ -3214,13 +3311,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wizard_complete => 'All groups processed!';
 
   @override
-  String get wizard_complete_message => 'You can go back to review or close this screen';
+  String get wizard_complete_message =>
+      'You can go back to review or close this screen';
 
   @override
   String get generating_suggestions => 'Analyzing your library...';
 
   @override
-  String get no_suggestions => 'No suggestions found. Your library data looks consistent!';
+  String get no_suggestions =>
+      'No suggestions found. Your library data looks consistent!';
 
   @override
   String suggestion_confidence(int percent) {
@@ -3259,7 +3358,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get affected_books => 'Affected books:';
 
   @override
-  String get all_suggestions_processed => 'All suggestions have been processed!';
+  String get all_suggestions_processed =>
+      'All suggestions have been processed!';
 
   @override
   String get library_overview => 'Library Overview';

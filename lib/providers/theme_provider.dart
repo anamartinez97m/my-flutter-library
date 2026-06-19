@@ -326,7 +326,7 @@ class ThemeProvider with ChangeNotifier {
         foregroundColor: colorScheme.onPrimary,
       ),
       iconTheme: IconThemeData(color: colorScheme.primary),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
@@ -381,7 +381,7 @@ class ThemeProvider with ChangeNotifier {
         foregroundColor: colorScheme.onPrimary,
       ),
       iconTheme: IconThemeData(color: colorScheme.primary),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
