@@ -102,11 +102,12 @@ class _BookListViewState extends State<BookListView> {
   ) {
     // Determine background color
     Color? backgroundColor;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     if (isRead) {
-      backgroundColor = Theme.of(context).colorScheme.surfaceContainerHighest;
+      backgroundColor = isDark ? Colors.grey.shade700 : Colors.grey.shade200;
     } else if (originalIsRead) {
       // Repeated book whose original is read - use a distinct color
-      backgroundColor = Theme.of(context).colorScheme.surfaceContainerHighest;
+      backgroundColor = isDark ? Colors.grey.shade700 : Colors.grey.shade200;
     }
 
     // Compute progress fraction for Started/Standby books

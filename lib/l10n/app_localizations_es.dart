@@ -165,8 +165,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get duration_label => 'Duración';
 
   @override
-  String get enter_valid_number =>
-      'Por favor ingresa un número válido (1 o mayor)';
+  String get enter_valid_number => 'Por favor ingresa un número válido (1 o mayor)';
 
   @override
   String get import_csv => 'Importar desde CSV';
@@ -189,8 +188,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get replace_database => 'Reemplazar Base de Datos';
 
   @override
-  String get database_restored_successfully =>
-      'Base de Datos Restaurada Exitosamente!';
+  String get database_restored_successfully => 'Base de Datos Restaurada Exitosamente!';
 
   @override
   String import_backup_error(Object error) {
@@ -209,8 +207,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get import_database_backup => 'Importar Base de Datos';
 
   @override
-  String get import_backup_confirmation =>
-      'Esta acción reemplazará tu base de datos actual con la copia de seguridad. Todos los datos actuales se perderán. ¿Estás seguro?';
+  String get import_backup_confirmation => 'Esta acción reemplazará tu base de datos actual con la copia de seguridad. Todos los datos actuales se perderán. ¿Estás seguro?';
 
   @override
   String get select_backup_file => 'Seleccionar archivo de copia de seguridad';
@@ -231,8 +228,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get deleting_all_data => 'Eliminando Todos los Datos...';
 
   @override
-  String get delete_all_data_confirmation =>
-      'Esta acción eliminará permanentemente todos los libros de tu biblioteca. Esta acción no se puede deshacer!\n\n¿Estás seguro de que quieres continuar?';
+  String get delete_all_data_confirmation => 'Esta acción eliminará permanentemente todos los libros de tu biblioteca. Esta acción no se puede deshacer!\n\n¿Estás seguro de que quieres continuar?';
 
   @override
   String deleted_books(Object count) {
@@ -260,8 +256,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get import_completed_with_duplicates =>
-      'Importación completada con duplicados!';
+  String get import_completed_with_duplicates => 'Importación completada con duplicados!';
 
   @override
   String imported_books(Object importedCount) {
@@ -279,12 +274,10 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get duplicate_books_not_imported =>
-      'Libros duplicados (no importados):';
+  String get duplicate_books_not_imported => 'Libros duplicados (no importados):';
 
   @override
-  String get books_already_exist =>
-      'Estos libros ya existen en tu biblioteca. Puedes añadirlos manualmente si lo deseas.';
+  String get books_already_exist => 'Estos libros ya existen en tu biblioteca. Puedes añadirlos manualmente si lo deseas.';
 
   @override
   String more_books(Object count) {
@@ -295,8 +288,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get ok => 'OK';
 
   @override
-  String get permanently_delete_all_books_from_the_database =>
-      'Eliminar permanentemente todos los libros de la base de datos';
+  String get permanently_delete_all_books_from_the_database => 'Eliminar permanentemente todos los libros de la base de datos';
 
   @override
   String get light_theme_colors => 'Colores de Tema Claro';
@@ -311,23 +303,19 @@ class AppLocalizationsEs extends AppLocalizations {
   String get create_database_backup => 'Crear Copia de Seguridad';
 
   @override
-  String get save_a_copy_of_your_library_database =>
-      'Guardar una copia de tu base de datos de biblioteca';
+  String get save_a_copy_of_your_library_database => 'Guardar una copia de tu base de datos de biblioteca';
 
   @override
   String get manage_dropdown_values => 'Gestionar valores de desplegable';
 
   @override
-  String get manage_dropdown_values_hint =>
-      'Gestionar valores de desplegable para estado, idioma, lugar, formato y formato saga.';
+  String get manage_dropdown_values_hint => 'Gestionar valores de desplegable para estado, idioma, lugar, formato y formato saga.';
 
   @override
-  String get import_from_csv_hint =>
-      'Columnas CSV personalizado: Title, Author, ISBN, ASIN, Saga, N_Saga, Saga Universe, Format Saga, Status, Editorial, Language, Place, Format, Genre, Pages, Original Publication Year, Loaned, Date Read Initial, Date Read Final, Read Count, My Rating, My Review, Notes, Price, Release Date, Is Bundle, Bundle Count, TBR, Is Tandem, Cover URL, Description, Created At, Acquired Date';
+  String get import_from_csv_hint => 'Columnas CSV personalizado: Title, Author, ISBN, ASIN, Saga, N_Saga, Saga Universe, Format Saga, Status, Editorial, Language, Place, Format, Genre, Pages, Original Publication Year, Loaned, Date Read Initial, Date Read Final, Read Count, My Rating, My Review, Notes, Price, Release Date, Is Bundle, Bundle Count, TBR, Is Tandem, Cover URL, Description, Created At, Acquired Date';
 
   @override
-  String get import_from_csv_tbreleased =>
-      'Para libros no publicados use estado TBReleased';
+  String get import_from_csv_tbreleased => 'Para libros no publicados use estado TBReleased';
 
   @override
   String get import_from_csv => 'Importar libro desde CSV';
@@ -336,8 +324,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get import_from_csv_file => 'Importar libros desde un archivo CSV';
 
   @override
-  String get restore_a_copy_of_your_library_database =>
-      'Restaurar una copia de tu base de datos de biblioteca';
+  String get restore_a_copy_of_your_library_database => 'Restaurar una copia de tu base de datos de biblioteca';
 
   @override
   String get theme => 'Tema';
@@ -394,12 +381,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get any => 'Cualquiera';
 
   @override
-  String get confirm_delete =>
-      '¿Estás seguro de que quieres eliminar este libro?';
+  String get confirm_delete => '¿Estás seguro de que quieres eliminar este libro?';
 
   @override
-  String get confirm_delete_all =>
-      'Esto eliminará permanentemente TODOS los libros de tu biblioteca. ¡Esta acción no se puede deshacer!\\n\\n¿Estás seguro de que quieres continuar?';
+  String get confirm_delete_all => 'Esto eliminará permanentemente TODOS los libros de tu biblioteca. ¡Esta acción no se puede deshacer!\\n\\n¿Estás seguro de que quieres continuar?';
 
   @override
   String get book_added_successfully => '¡Libro añadido con éxito!';
@@ -423,15 +408,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get add_read => 'Añadir Lectura';
 
   @override
-  String get tap_hearts_to_rate =>
-      'Toca los corazones para valorar (toca de nuevo para medio corazón)';
+  String get tap_hearts_to_rate => 'Toca los corazones para valorar (toca de nuevo para medio corazón)';
 
   @override
   String get top_5_genres => 'Top 5 Géneros';
 
   @override
-  String get about_box_children =>
-      'Aplicación desarrollada con Flutter/Dart.\n Permite gestionar tu biblioteca personal y recibir recomendaciones de lectura personalizadas.';
+  String get about_box_children => 'Aplicación desarrollada con Flutter/Dart.\n Permite gestionar tu biblioteca personal y recibir recomendaciones de lectura personalizadas.';
 
   @override
   String get sort_and_filter => 'Ordenar y Filtrar';
@@ -475,8 +458,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get max_tbr_books_description =>
-      'Número máximo de libros que puedes marcar como \'Por Leer\' a la vez:';
+  String get max_tbr_books_description => 'Número máximo de libros que puedes marcar como \'Por Leer\' a la vez:';
 
   @override
   String max_tbr_books_subtitle(Object tbrLimit) {
@@ -493,8 +475,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get books => 'libros';
 
   @override
-  String get please_enter_valid_number =>
-      'Por favor ingresa un número válido mayor a 0';
+  String get please_enter_valid_number => 'Por favor ingresa un número válido mayor a 0';
 
   @override
   String get maximum_limit_200_books => 'Límite máximo es de 200 libros';
@@ -506,8 +487,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get this_is_a_bundle => 'Esto es un paquete';
 
   @override
-  String get check_if_this_book_contains_multiple_books =>
-      'Marca si este libro contiene múltiples libros en un volumen';
+  String get check_if_this_book_contains_multiple_books => 'Marca si este libro contiene múltiples libros en un volumen';
 
   @override
   String get number_of_books_in_bundle => 'Número de libros en el paquete';
@@ -540,8 +520,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get stop_timer => 'Detener temporizador';
 
   @override
-  String get do_you_want_to_stop_the_reading_timer =>
-      '¿Quieres detener el temporizador de lectura?';
+  String get do_you_want_to_stop_the_reading_timer => '¿Quieres detener el temporizador de lectura?';
 
   @override
   String get stop => 'Detener';
@@ -653,8 +632,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get confirm_restore => 'Confirmar Restauración';
 
   @override
-  String get confirm_restore_message =>
-      'Esto reemplazará tu base de datos actual. ¡Asegúrate de tener una copia de seguridad!';
+  String get confirm_restore_message => 'Esto reemplazará tu base de datos actual. ¡Asegúrate de tener una copia de seguridad!';
 
   @override
   String get restore => 'Restaurar';
@@ -669,8 +647,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get missing_information => 'Información faltante';
 
   @override
-  String get enable_release_notification =>
-      'Habilitar notificación de lanzamiento';
+  String get enable_release_notification => 'Habilitar notificación de lanzamiento';
 
   @override
   String get add_to_tbr => 'Añadir a TBR (Para Leer)';
@@ -744,8 +721,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get import_all_books => 'Importar todos los libros';
 
   @override
-  String get import_books_from_tag =>
-      'Importar libros de una etiqueta específica';
+  String get import_books_from_tag => 'Importar libros de una etiqueta específica';
 
   @override
   String add_dropdown_value(Object valueType) {
@@ -832,8 +808,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get update_available_title => 'Actualización Disponible';
 
   @override
-  String get update_available_message =>
-      'Una nueva versión de My Book Vault está disponible. Actualiza ahora para obtener las últimas funciones y mejoras.';
+  String get update_available_message => 'Una nueva versión de My Book Vault está disponible. Actualiza ahora para obtener las últimas funciones y mejoras.';
 
   @override
   String get update_now => 'Actualizar';
@@ -845,22 +820,19 @@ class AppLocalizationsEs extends AppLocalizations {
   String get admin_mode => 'Modo Administrador';
 
   @override
-  String get admin_mode_subtitle =>
-      'Habilitar funciones avanzadas como importación CSV de administrador';
+  String get admin_mode_subtitle => 'Habilitar funciones avanzadas como importación CSV de administrador';
 
   @override
   String get admin_csv_import => 'Importación CSV Admin';
 
   @override
-  String get admin_csv_import_subtitle =>
-      'Revisar y editar cada libro antes de importar';
+  String get admin_csv_import_subtitle => 'Revisar y editar cada libro antes de importar';
 
   @override
   String get default_values => 'Valores Predeterminados';
 
   @override
-  String get default_values_subtitle =>
-      'Límite TBR, Orden, Filtros de Inicio, Campos de Tarjeta';
+  String get default_values_subtitle => 'Límite TBR, Orden, Filtros de Inicio, Campos de Tarjeta';
 
   @override
   String get import_export => 'Importar/Exportar';
@@ -869,15 +841,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get import_export_subtitle => 'CSV y Copia de Seguridad';
 
   @override
-  String get customize_home_filters_subtitle =>
-      'Seleccionar qué filtros mostrar en la pantalla de inicio';
+  String get customize_home_filters_subtitle => 'Seleccionar qué filtros mostrar en la pantalla de inicio';
 
   @override
   String get customize_card_fields => 'Personalizar Campos de Tarjeta';
 
   @override
-  String get customize_card_fields_subtitle =>
-      'Seleccionar qué datos mostrar en las tarjetas de libros';
+  String get customize_card_fields_subtitle => 'Seleccionar qué datos mostrar en las tarjetas de libros';
 
   @override
   String fields_selected(Object count) {
@@ -888,8 +858,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get default_sort_order => 'Orden Predeterminado';
 
   @override
-  String get default_sort_order_subtitle =>
-      'Establecer el orden predeterminado para tu lista de libros';
+  String get default_sort_order_subtitle => 'Establecer el orden predeterminado para tu lista de libros';
 
   @override
   String get sort_by => 'Ordenar Por';
@@ -932,19 +901,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get permission_required => 'Permiso Requerido';
 
   @override
-  String get storage_permission_backup =>
-      'Se necesita permiso de almacenamiento para crear copias de seguridad. ¿Desea conceder el permiso?';
+  String get storage_permission_backup => 'Se necesita permiso de almacenamiento para crear copias de seguridad. ¿Desea conceder el permiso?';
 
   @override
-  String get storage_permission_export =>
-      'Se necesita permiso de almacenamiento para exportar archivos CSV. ¿Desea conceder el permiso?';
+  String get storage_permission_export => 'Se necesita permiso de almacenamiento para exportar archivos CSV. ¿Desea conceder el permiso?';
 
   @override
   String get grant_permission => 'Conceder Permiso';
 
   @override
-  String get select_folder_save_backup =>
-      'Seleccionar carpeta para guardar copia de seguridad';
+  String get select_folder_save_backup => 'Seleccionar carpeta para guardar copia de seguridad';
 
   @override
   String get select_csv_file => 'Seleccionar archivo CSV';
@@ -953,8 +919,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get select_folder_save_csv => 'Seleccionar carpeta para guardar CSV';
 
   @override
-  String get select_folder_save_excel_csv =>
-      'Seleccionar carpeta para guardar CSV de Excel';
+  String get select_folder_save_excel_csv => 'Seleccionar carpeta para guardar CSV de Excel';
 
   @override
   String get please_select_csv_file => 'Por favor seleccione un archivo CSV';
@@ -966,11 +931,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get import_completed_title => 'Importación Completada';
 
   @override
-  String import_result_message(
-    Object imported,
-    Object updated,
-    Object skipped,
-  ) {
+  String import_result_message(Object imported, Object updated, Object skipped) {
     return 'Importados: $imported libros\nActualizados: $updated libros\nOmitidos: $skipped filas';
   }
 
@@ -981,30 +942,25 @@ class AppLocalizationsEs extends AppLocalizations {
   String get deleting_all_books => 'Eliminando todos los libros...';
 
   @override
-  String get goodreads_csv_hint =>
-      'Columnas CSV de Goodreads: Title, Author, ISBN13, ASIN, My Rating, Publisher, Binding, Number of Pages, Original Publication Year, Date Read, Date Added, Bookshelves, Exclusive Shelf, My Review, Read Count. Los libros deben tener \"owned\" o \"read-loaned\" en estanterías para ser importados';
+  String get goodreads_csv_hint => 'Columnas CSV de Goodreads: Title, Author, ISBN13, ASIN, My Rating, Publisher, Binding, Number of Pages, Original Publication Year, Date Read, Date Added, Bookshelves, Exclusive Shelf, My Review, Read Count. Los libros deben tener \"owned\" o \"read-loaned\" en estanterías para ser importados';
 
   @override
-  String get manage_rating_field_names =>
-      'Gestionar Nombres de Campos de Valoración';
+  String get manage_rating_field_names => 'Gestionar Nombres de Campos de Valoración';
 
   @override
-  String get manage_rating_field_names_subtitle =>
-      'Añadir, editar o eliminar nombres de criterios de valoración';
+  String get manage_rating_field_names_subtitle => 'Añadir, editar o eliminar nombres de criterios de valoración';
 
   @override
   String get manage_club_names => 'Gestionar Nombres de Clubes';
 
   @override
-  String get manage_club_names_subtitle =>
-      'Renombrar o eliminar clubes de lectura';
+  String get manage_club_names_subtitle => 'Renombrar o eliminar clubes de lectura';
 
   @override
   String get migrate_bundle_books_title => 'Migrar Libros de Paquete';
 
   @override
-  String get migrate_bundle_books_subtitle =>
-      'Convertir paquetes antiguos al nuevo sistema';
+  String get migrate_bundle_books_subtitle => 'Convertir paquetes antiguos al nuevo sistema';
 
   @override
   String get available => 'Disponible';
@@ -1013,16 +969,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get migrate_reading_sessions => 'Migrar Sesiones de Lectura';
 
   @override
-  String get migrate_reading_sessions_subtitle =>
-      'Mover sesiones de lectura a libros individuales';
+  String get migrate_reading_sessions_subtitle => 'Mover sesiones de lectura a libros individuales';
 
   @override
-  String get migrate_reading_sessions_question =>
-      '¿Migrar Sesiones de Lectura?';
+  String get migrate_reading_sessions_question => '¿Migrar Sesiones de Lectura?';
 
   @override
-  String get no_sessions_to_migrate =>
-      'No hay sesiones de lectura para migrar. ¡Todas las sesiones ya están en libros individuales!';
+  String get no_sessions_to_migrate => 'No hay sesiones de lectura para migrar. ¡Todas las sesiones ya están en libros individuales!';
 
   @override
   String get migrating_reading_sessions => 'Migrando sesiones de lectura...';
@@ -1031,19 +984,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get migration_successful => '¡Migración Exitosa!';
 
   @override
-  String get migration_completed_with_errors =>
-      'Migración Completada con Errores';
+  String get migration_completed_with_errors => 'Migración Completada con Errores';
 
   @override
   String get what_will_happen => 'Qué sucederá:';
 
   @override
-  String get migration_description =>
-      '• Las sesiones de lectura se copiarán a libros individuales\n• Las sesiones antiguas de paquetes se eliminarán\n• Esto corrige inconsistencias en el historial de lectura de paquetes';
+  String get migration_description => '• Las sesiones de lectura se copiarán a libros individuales\n• Las sesiones antiguas de paquetes se eliminarán\n• Esto corrige inconsistencias en el historial de lectura de paquetes';
 
   @override
-  String get migration_safe_info =>
-      'ℹ️ Esto es seguro y se puede ejecutar varias veces';
+  String get migration_safe_info => 'ℹ️ Esto es seguro y se puede ejecutar varias veces';
 
   @override
   String successful_bundles(Object count) {
@@ -1125,8 +1075,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get application_name => 'My Random Library';
 
   @override
-  String get application_legalese =>
-      '© 2025 Ana Martínez Montañez. Todos los derechos reservados.';
+  String get application_legalese => '© 2025 Ana Martínez Montañez. Todos los derechos reservados.';
 
   @override
   String get books_by_decade => 'Libros por Década';
@@ -1162,8 +1111,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get add_rating_criterion => 'Añadir Criterio de Valoración';
 
   @override
-  String get no_books_match_filters =>
-      'Ningún libro coincide con los filtros seleccionados';
+  String get no_books_match_filters => 'Ningún libro coincide con los filtros seleccionados';
 
   @override
   String get specific_number_of_books => 'Número específico de libros';
@@ -1172,8 +1120,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get unknown_show_as_question => 'Desconocido (mostrar como \"?\")';
 
   @override
-  String get for_sagas_unknown_length =>
-      'Para sagas con longitud desconocida o variable';
+  String get for_sagas_unknown_length => 'Para sagas con longitud desconocida o variable';
 
   @override
   String get continue_label => 'Continuar';
@@ -1184,8 +1131,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get this_will_fail_constraint =>
-      'Esto fallará si las restricciones de la base de datos lo impiden';
+  String get this_will_fail_constraint => 'Esto fallará si las restricciones de la base de datos lo impiden';
 
   @override
   String get field_name => 'Nombre del Campo';
@@ -1197,8 +1143,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get edit_rating_field_name => 'Editar Nombre de Campo de Valoración';
 
   @override
-  String get delete_rating_field_name =>
-      'Eliminar Nombre de Campo de Valoración';
+  String get delete_rating_field_name => 'Eliminar Nombre de Campo de Valoración';
 
   @override
   String field_name_already_exists(Object name) {
@@ -1249,12 +1194,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get about_rating_fields => 'Acerca de los Campos de Valoración';
 
   @override
-  String get about_rating_fields_description =>
-      'Estos son los nombres de criterios disponibles al valorar libros. Puedes añadir nombres personalizados, editarlos y asignar un porcentaje de peso a cada campo. Cuando los pesos están configurados y suman 100%, la valoración general se calculará como media ponderada.';
+  String get about_rating_fields_description => 'Estos son los nombres de criterios disponibles al valorar libros. Puedes añadir nombres personalizados, editarlos y asignar un porcentaje de peso a cada campo. Cuando los pesos están configurados y suman 100%, la valoración general se calculará como media ponderada.';
 
   @override
-  String get no_rating_field_names =>
-      'Aún no hay nombres de campos de valoración';
+  String get no_rating_field_names => 'Aún no hay nombres de campos de valoración';
 
   @override
   String get default_suggestion => 'Sugerencia predeterminada';
@@ -1280,12 +1223,10 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get weight_must_sum_to_100 =>
-      'Debe sumar 100% para activar la valoración ponderada';
+  String get weight_must_sum_to_100 => 'Debe sumar 100% para activar la valoración ponderada';
 
   @override
-  String get weights_not_configured =>
-      'Sin pesos configurados — usando media simple';
+  String get weights_not_configured => 'Sin pesos configurados — usando media simple';
 
   @override
   String get rename_club => 'Renombrar Club';
@@ -1328,8 +1269,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get no_clubs_yet => 'Aún no hay clubes';
 
   @override
-  String get add_books_to_clubs_hint =>
-      'Añade libros a clubes desde los detalles del libro';
+  String get add_books_to_clubs_hint => 'Añade libros a clubes desde los detalles del libro';
 
   @override
   String get book_word => 'libro';
@@ -1353,8 +1293,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get custom_challenges => 'Retos Personalizados';
 
   @override
-  String get custom_challenges_hint =>
-      'Añadir objetivos de lectura personalizados (ej., \"Leer 5 clásicos\", \"Terminar 3 series\")';
+  String get custom_challenges_hint => 'Añadir objetivos de lectura personalizados (ej., \"Leer 5 clásicos\", \"Terminar 3 series\")';
 
   @override
   String get goal_name => 'Nombre del objetivo';
@@ -1372,12 +1311,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get unit_hint => 'ej., libros, capítulos, páginas';
 
   @override
-  String get enter_valid_target_books =>
-      'Por favor ingrese un número válido de libros objetivo';
+  String get enter_valid_target_books => 'Por favor ingrese un número válido de libros objetivo';
 
   @override
-  String get enter_valid_target_or_custom =>
-      'Por favor ingrese libros objetivo válidos o añada retos personalizados';
+  String get enter_valid_target_or_custom => 'Por favor ingrese libros objetivo válidos o añada retos personalizados';
 
   @override
   String get challenge_created => '¡Reto creado exitosamente!';
@@ -1593,8 +1530,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get enter_book_title => 'Ingrese título del libro';
 
   @override
-  String get enter_author_names =>
-      'Ingrese nombre(s) del autor, separar con comas';
+  String get enter_author_names => 'Ingrese nombre(s) del autor, separar con comas';
 
   @override
   String get select_month => 'Seleccionar Mes';
@@ -1653,8 +1589,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get percentage_cannot_exceed_100 =>
-      'El porcentaje no puede superar 100';
+  String get percentage_cannot_exceed_100 => 'El porcentaje no puede superar 100';
 
   @override
   String page_cannot_exceed(Object count) {
@@ -1697,8 +1632,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get time_hhmmss => 'Tiempo (HH:MM)';
 
   @override
-  String get duration_hint =>
-      'Ingresa duración como: 1h 30m 5s, 90m, o solo segundos';
+  String get duration_hint => 'Ingresa duración como: 1h 30m 5s, 90m, o solo segundos';
 
   @override
   String get sessions_updated => '¡Sesiones actualizadas!';
@@ -1833,8 +1767,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get created_label => 'Creado';
 
   @override
-  String get bundle_timed_reading_sessions =>
-      'Sesiones Cronometradas del Paquete';
+  String get bundle_timed_reading_sessions => 'Sesiones Cronometradas del Paquete';
 
   @override
   String get tbr_label => 'Por Leer';
@@ -1891,8 +1824,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get rate_reading_experience => 'Califica tu experiencia de lectura:';
 
   @override
-  String get no_rating_fields =>
-      'No hay campos de calificación disponibles. Puedes añadirlos en Ajustes.';
+  String get no_rating_fields => 'No hay campos de calificación disponibles. Puedes añadirlos en Ajustes.';
 
   @override
   String get write_review_optional => 'Escribe una reseña (opcional):';
@@ -1909,12 +1841,10 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get how_many_books_saga =>
-      '¿Cuántos libros debería mostrar esta saga en las estadísticas?';
+  String get how_many_books_saga => '¿Cuántos libros debería mostrar esta saga en las estadísticas?';
 
   @override
-  String get saga_completion_explanation =>
-      'La tarjeta de completado de saga mostrará \"X / Y\" donde Y es el número que especifiques.';
+  String get saga_completion_explanation => 'La tarjeta de completado de saga mostrará \"X / Y\" donde Y es el número que especifiques.';
 
   @override
   String get number_of_books => 'Número de libros';
@@ -1935,24 +1865,19 @@ class AppLocalizationsEs extends AppLocalizations {
   String get value_deleted_successfully => 'Valor eliminado correctamente';
 
   @override
-  String get core_status_warning =>
-      'Estado principal: Solo cambiará la etiqueta, no el valor de la base de datos ni la lógica.';
+  String get core_status_warning => 'Estado principal: Solo cambiará la etiqueta, no el valor de la base de datos ni la lógica.';
 
   @override
-  String get core_format_saga_warning =>
-      'Formato saga principal: Solo se puede cambiar la etiqueta, este valor no se puede eliminar.';
+  String get core_format_saga_warning => 'Formato saga principal: Solo se puede cambiar la etiqueta, este valor no se puede eliminar.';
 
   @override
-  String get core_status_cannot_delete =>
-      'Este es un valor de estado principal y no se puede eliminar. La lógica de la app depende de estos valores: Yes, No, Started, TBReleased, Abandoned, Repeated y Standby.';
+  String get core_status_cannot_delete => 'Este es un valor de estado principal y no se puede eliminar. La lógica de la app depende de estos valores: Yes, No, Started, TBReleased, Abandoned, Repeated y Standby.';
 
   @override
-  String get core_format_saga_cannot_delete =>
-      'Este es un valor de formato saga principal y no se puede eliminar. La lógica de la app depende de estos valores: Standalone, Bilogy, Trilogy, Tetralogy, Pentalogy, Hexalogy, 6+ y Saga.';
+  String get core_format_saga_cannot_delete => 'Este es un valor de formato saga principal y no se puede eliminar. La lógica de la app depende de estos valores: Standalone, Bilogy, Trilogy, Tetralogy, Pentalogy, Hexalogy, 6+ y Saga.';
 
   @override
-  String get core_value_cannot_delete =>
-      'El valor principal no se puede eliminar';
+  String get core_value_cannot_delete => 'El valor principal no se puede eliminar';
 
   @override
   String get select_category => 'Seleccionar Categoría';
@@ -1975,12 +1900,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get new_value => 'Nuevo valor';
 
   @override
-  String get delete_may_fail =>
-      'Esto fallará si las restricciones de la base de datos lo impiden';
+  String get delete_may_fail => 'Esto fallará si las restricciones de la base de datos lo impiden';
 
   @override
-  String get please_select_replacement =>
-      'Por favor selecciona un valor de reemplazo';
+  String get please_select_replacement => 'Por favor selecciona un valor de reemplazo';
 
   @override
   String get please_enter_new_value => 'Por favor ingresa un nuevo valor';
@@ -2001,8 +1924,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get any_notes_about_challenge => 'Cualquier nota sobre este reto';
 
   @override
-  String get add_custom_reading_goals =>
-      'Añade metas de lectura personalizadas (ej., \"Leer 5 clásicos\", \"Terminar 3 series\")';
+  String get add_custom_reading_goals => 'Añade metas de lectura personalizadas (ej., \"Leer 5 clásicos\", \"Terminar 3 series\")';
 
   @override
   String get no_challenges_yet => 'Aún no hay retos';
@@ -2041,19 +1963,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get reading_status => 'Estado de Lectura';
 
   @override
-  String get original_book_required =>
-      'Libro Original (requerido para estado Repetido)';
+  String get original_book_required => 'Libro Original (requerido para estado Repetido)';
 
   @override
   String get missing_required_fields => 'Campos Obligatorios Faltantes';
 
   @override
-  String get please_fill_required_fields =>
-      'Por favor completa los siguientes campos obligatorios:';
+  String get please_fill_required_fields => 'Por favor completa los siguientes campos obligatorios:';
 
   @override
-  String get tandem_requires_saga =>
-      'Los libros en tándem deben tener una Saga o Universo de Saga.\n\nPor favor completa al menos uno de estos campos para marcar este libro como Tándem.';
+  String get tandem_requires_saga => 'Los libros en tándem deben tener una Saga o Universo de Saga.\n\nPor favor completa al menos uno de estos campos para marcar este libro como Tándem.';
 
   @override
   String get search_original_book => 'Buscar el libro original...';
@@ -2077,8 +1996,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get search_or_add_genre => 'Escribe para buscar o añadir género';
 
   @override
-  String get original_publication_date =>
-      'Fecha de Publicación Original (para notificaciones)';
+  String get original_publication_date => 'Fecha de Publicación Original (para notificaciones)';
 
   @override
   String get release_date => 'Fecha de Lanzamiento';
@@ -2087,22 +2005,19 @@ class AppLocalizationsEs extends AppLocalizations {
   String get select_release_date => 'Seleccionar fecha de lanzamiento';
 
   @override
-  String get get_notified_when_released =>
-      'Recibe una notificación cuando se publique este libro';
+  String get get_notified_when_released => 'Recibe una notificación cuando se publique este libro';
 
   @override
   String get notification_date_time => 'Fecha y Hora de Notificación';
 
   @override
-  String get select_notification_date =>
-      'Seleccionar fecha y hora de notificación';
+  String get select_notification_date => 'Seleccionar fecha y hora de notificación';
 
   @override
   String get book_lists => 'Listas de Libros';
 
   @override
-  String get mark_for_reading_list =>
-      'Marcar este libro para tu lista de lectura';
+  String get mark_for_reading_list => 'Marcar este libro para tu lista de lectura';
 
   @override
   String tbr_limit_message(Object limit) {
@@ -2116,8 +2031,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get tandem_description => 'Leer junto con otros libros de esta saga';
 
   @override
-  String get reading_information_optional =>
-      'Información de Lectura (Opcional)';
+  String get reading_information_optional => 'Información de Lectura (Opcional)';
 
   @override
   String get rating => 'Valoración';
@@ -2141,8 +2055,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get override_auto_calculation => 'Anular cálculo automático';
 
   @override
-  String get manually_set_rating =>
-      'Establecer la valoración general manualmente';
+  String get manually_set_rating => 'Establecer la valoración general manualmente';
 
   @override
   String get write_your_thoughts => 'Escribe tus opiniones sobre este libro...';
@@ -2157,8 +2070,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get acquired_date_hint => 'Año o fecha completa de adquisición';
 
   @override
-  String get add_notes_hint =>
-      'Añade cualquier nota adicional sobre este libro...';
+  String get add_notes_hint => 'Añade cualquier nota adicional sobre este libro...';
 
   @override
   String get point_camera_at_barcode => 'Apunta la cámara al código de barras';
@@ -2173,15 +2085,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get reading_session_saved => 'Sesión de lectura guardada';
 
   @override
-  String get stop_timer_confirm =>
-      '¿Quieres detener el temporizador de lectura?';
+  String get stop_timer_confirm => '¿Quieres detener el temporizador de lectura?';
 
   @override
   String get reading_timer => 'Temporizador de Lectura';
 
   @override
-  String get timer_exit_confirm =>
-      'El temporizador sigue contando. ¿Estás seguro de que quieres salir sin detenerlo?';
+  String get timer_exit_confirm => 'El temporizador sigue contando. ¿Estás seguro de que quieres salir sin detenerlo?';
 
   @override
   String get exit_label => 'Salir';
@@ -2196,8 +2106,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get restore_canceled => 'Restauración cancelada';
 
   @override
-  String get restore_warning =>
-      'Esto reemplazará tu base de datos actual. ¡Asegúrate de tener una copia de seguridad!';
+  String get restore_warning => 'Esto reemplazará tu base de datos actual. ¡Asegúrate de tener una copia de seguridad!';
 
   @override
   String get restore_database => 'Restaurar Base de Datos';
@@ -2206,8 +2115,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get restore_from_backup => 'Restaurar desde una copia anterior';
 
   @override
-  String get backup_restored_successfully =>
-      'Copia de seguridad restaurada correctamente';
+  String get backup_restored_successfully => 'Copia de seguridad restaurada correctamente';
 
   @override
   String get select => 'Seleccionar';
@@ -2235,8 +2143,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get not_in_any_clubs => 'No está en ningún club aún';
 
   @override
-  String get bundle_description =>
-      'Marca si este libro contiene varios libros en un volumen';
+  String get bundle_description => 'Marca si este libro contiene varios libros en un volumen';
 
   @override
   String get eg_3 => 'ej., 3';
@@ -2251,8 +2158,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get map_status_values => 'Mapear Valores de Estado';
 
   @override
-  String get match_csv_status_values =>
-      'Asocia los valores de estado de tu CSV con los estados de la app:';
+  String get match_csv_status_values => 'Asocia los valores de estado de tu CSV con los estados de la app:';
 
   @override
   String get leave_empty_if_not_used => 'Deja vacío si no se usa en tu CSV';
@@ -2267,8 +2173,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get add_to_reading_club => 'Añadir a Club de Lectura';
 
   @override
-  String get enter_or_select_club_name =>
-      'Ingresa o selecciona nombre del club';
+  String get enter_or_select_club_name => 'Ingresa o selecciona nombre del club';
 
   @override
   String get please_enter_club_name => 'Por favor ingresa un nombre de club';
@@ -2289,8 +2194,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get progress_must_be_0_100 => 'El progreso debe estar entre 0 y 100';
 
   @override
-  String get track_reading_progress =>
-      'Registra tu progreso de lectura para este club';
+  String get track_reading_progress => 'Registra tu progreso de lectura para este club';
 
   @override
   String get how_import_books => '¿Cómo te gustaría importar tus libros?';
@@ -2308,8 +2212,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get eg_owned_wishlist => 'ej., propio, lista de deseos';
 
   @override
-  String get please_select_or_enter_tag =>
-      'Por favor selecciona o ingresa una etiqueta';
+  String get please_select_or_enter_tag => 'Por favor selecciona o ingresa una etiqueta';
 
   @override
   String get import_label => 'Importar';
@@ -2348,8 +2251,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get read_label => 'Leídos';
 
   @override
-  String get based_on_publication_year =>
-      'Basado en el año de publicación original';
+  String get based_on_publication_year => 'Basado en el año de publicación original';
 
   @override
   String get create_challenge => 'Crear Desafío';
@@ -2372,8 +2274,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get per_year => 'por año';
 
   @override
-  String get seasonal_reading_preferences =>
-      'Preferencias de Lectura Estacional';
+  String get seasonal_reading_preferences => 'Preferencias de Lectura Estacional';
 
   @override
   String get you_read_most_in => 'Lees más en';
@@ -2388,12 +2289,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get available_now => 'Disponible Ahora';
 
   @override
-  String get set_and_track_reading_goals =>
-      'Establece y sigue metas de lectura';
+  String get set_and_track_reading_goals => 'Establece y sigue metas de lectura';
 
   @override
-  String get annual_book_page_challenges =>
-      'Desafíos anuales de libros y páginas';
+  String get annual_book_page_challenges => 'Desafíos anuales de libros y páginas';
 
   @override
   String get tap_to_manage_challenges => 'Toca para gestionar desafíos';
@@ -2402,15 +2301,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get reading_efficiency_score => 'Puntuación de Eficiencia de Lectura';
 
   @override
-  String get books_faster_than_average =>
-      'de libros leídos más rápido que tu ritmo promedio';
+  String get books_faster_than_average => 'de libros leídos más rápido que tu ritmo promedio';
 
   @override
   String get what_does_this_mean => '¿Qué significa esto?';
 
   @override
-  String get efficiency_explanation =>
-      'Esto compara la velocidad de lectura de cada libro con tu promedio general. Porcentajes más altos significan que lees consistentemente a tu ritmo típico o por encima.';
+  String get efficiency_explanation => 'Esto compara la velocidad de lectura de cada libro con tu promedio general. Porcentajes más altos significan que lees consistentemente a tu ritmo típico o por encima.';
 
   @override
   String based_on_n_books(Object count) {
@@ -2483,8 +2380,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get binge_reading_series => 'Lectura Maratón (Series)';
 
   @override
-  String get binge_reading_description =>
-      'de libros terminados en 14 días del anterior';
+  String get binge_reading_description => 'de libros terminados en 14 días del anterior';
 
   @override
   String get best_past_books => 'Mejores Libros Pasados';
@@ -2504,8 +2400,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get dnf_rate => 'Tasa de Abandono';
 
   @override
-  String get books_by_rating_distribution =>
-      'Libros por Distribución de Calificación';
+  String get books_by_rating_distribution => 'Libros por Distribución de Calificación';
 
   @override
   String get page_count_distribution => 'Distribución por Número de Páginas';
@@ -2580,8 +2475,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get past_years_competitions => 'Competiciones de Años Anteriores';
 
   @override
-  String get no_past_competitions_found =>
-      'No se encontraron competiciones anteriores';
+  String get no_past_competitions_found => 'No se encontraron competiciones anteriores';
 
   @override
   String get no_winner_set => 'Sin ganador establecido';
@@ -2637,8 +2531,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get no_monthly_winners_quarter =>
-      'Sin ganadores mensuales para este trimestre';
+  String get no_monthly_winners_quarter => 'Sin ganadores mensuales para este trimestre';
 
   @override
   String get no_quarterly_winners => 'Sin ganadores trimestrales disponibles';
@@ -2673,8 +2566,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get no_books_in_tbr => 'No hay libros en TBR';
 
   @override
-  String get add_books_to_clubs =>
-      'Añade libros a clubs desde los detalles del libro';
+  String get add_books_to_clubs => 'Añade libros a clubs desde los detalles del libro';
 
   @override
   String get clubs => 'Clubs';
@@ -2683,8 +2575,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get random_book_picker => 'Selector de Libro Aleatorio';
 
   @override
-  String get random_book_description =>
-      'Aplica filtros y obtén una sugerencia aleatoria';
+  String get random_book_description => 'Aplica filtros y obtén una sugerencia aleatoria';
 
   @override
   String get and_all_genres => 'Y: debe tener todos los géneros seleccionados';
@@ -2714,8 +2605,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get or_select_specific_books => 'O selecciona libros específicos';
 
   @override
-  String get search_select_books_description =>
-      'Busca y selecciona libros por título para elegir aleatoriamente de tu lista personalizada';
+  String get search_select_books_description => 'Busca y selecciona libros por título para elegir aleatoriamente de tu lista personalizada';
 
   @override
   String get select_books => 'Seleccionar Libros';
@@ -2761,8 +2651,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get no_migration_needed =>
-      '¡Todos los bundles usan el nuevo sistema!\nNo se necesita migración.';
+  String get no_migration_needed => '¡Todos los bundles usan el nuevo sistema!\nNo se necesita migración.';
 
   @override
   String get last_migration_result => 'Último Resultado de Migración';
@@ -2783,12 +2672,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get clear_reviewed_books => '¿Limpiar Libros Revisados?';
 
   @override
-  String get clear_reviewed_books_description =>
-      'Esto limpiará todos los libros revisados de todas las sesiones de importación. Usa esto si el conteo parece incorrecto.';
+  String get clear_reviewed_books_description => 'Esto limpiará todos los libros revisados de todas las sesiones de importación. Usa esto si el conteo parece incorrecto.';
 
   @override
-  String get cleared_reviewed_books =>
-      'Se limpiaron todos los libros revisados';
+  String get cleared_reviewed_books => 'Se limpiaron todos los libros revisados';
 
   @override
   String get clear_reviewed_books_cache => 'Limpiar Caché de Libros Revisados';
@@ -2816,8 +2703,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get import_this_book => 'Importar este libro';
 
   @override
-  String get storage_permission_needed =>
-      'Se necesita permiso de almacenamiento para crear copias de seguridad. ¿Deseas conceder el permiso?';
+  String get storage_permission_needed => 'Se necesita permiso de almacenamiento para crear copias de seguridad. ¿Deseas conceder el permiso?';
 
   @override
   String get import_error => 'Error de Importación';
@@ -2826,8 +2712,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get cloud_sync => 'Sincronización en la Nube';
 
   @override
-  String get cloud_sync_subtitle =>
-      'Copia de seguridad y restauración con Google';
+  String get cloud_sync_subtitle => 'Copia de seguridad y restauración con Google';
 
   @override
   String get sign_in_with_google => 'Iniciar sesión con Google';
@@ -2850,8 +2735,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get upload_your_library => 'Sube tu biblioteca a Google Cloud';
 
   @override
-  String get download_your_library =>
-      'Descarga tu biblioteca desde Google Cloud';
+  String get download_your_library => 'Descarga tu biblioteca desde Google Cloud';
 
   @override
   String last_backup(Object date) {
@@ -2868,8 +2752,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get cloud_restore_success => 'Biblioteca restaurada desde la nube';
 
   @override
-  String get cloud_restore_warning =>
-      'Esto reemplazará TODOS tus datos actuales con la copia de la nube. No se puede deshacer.';
+  String get cloud_restore_warning => 'Esto reemplazará TODOS tus datos actuales con la copia de la nube. No se puede deshacer.';
 
   @override
   String get cloud_backup_in_progress => 'Subiendo copia de seguridad...';
@@ -2895,8 +2778,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get auto_backup => 'Copia de Seguridad Automática';
 
   @override
-  String get auto_backup_subtitle =>
-      'Hacer copia de seguridad local y en la nube automáticamente al abrir la app';
+  String get auto_backup_subtitle => 'Hacer copia de seguridad local y en la nube automáticamente al abrir la app';
 
   @override
   String auto_backup_enabled(Object frequency) {
@@ -2922,22 +2804,19 @@ class AppLocalizationsEs extends AppLocalizations {
   String get reading_reminders => 'Recordatorios de Lectura';
 
   @override
-  String get reading_reminders_subtitle =>
-      'Notificaciones diarias para seguir tu lectura';
+  String get reading_reminders_subtitle => 'Notificaciones diarias para seguir tu lectura';
 
   @override
   String get enable_reading_reminders => 'Activar Recordatorios de Lectura';
 
   @override
-  String get enable_reading_reminders_subtitle =>
-      'Recibe una notificación diaria preguntando si has leído hoy';
+  String get enable_reading_reminders_subtitle => 'Recibe una notificación diaria preguntando si has leído hoy';
 
   @override
   String get reminder_time => 'Hora del Recordatorio';
 
   @override
-  String get reminder_time_subtitle =>
-      'Hora para recibir la notificación diaria';
+  String get reminder_time_subtitle => 'Hora para recibir la notificación diaria';
 
   @override
   String get reminder_books_option => 'Qué Libros Recordar';
@@ -2949,12 +2828,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get reminder_last_started => 'Solo el último libro iniciado';
 
   @override
-  String get reminder_all_started_subtitle =>
-      'Una notificación por libro con estado Iniciado';
+  String get reminder_all_started_subtitle => 'Una notificación por libro con estado Iniciado';
 
   @override
-  String get reminder_last_started_subtitle =>
-      'Solo el libro iniciado más recientemente';
+  String get reminder_last_started_subtitle => 'Solo el libro iniciado más recientemente';
 
   @override
   String get have_you_read_today => '¿Has leído hoy?';
@@ -2971,12 +2848,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get reading_reminder_enabled => 'Recordatorios de lectura activados';
 
   @override
-  String get reading_reminder_disabled =>
-      'Recordatorios de lectura desactivados';
+  String get reading_reminder_disabled => 'Recordatorios de lectura desactivados';
 
   @override
-  String get no_started_books_for_reminder =>
-      'No hay libros con estado Iniciado para recordar';
+  String get no_started_books_for_reminder => 'No hay libros con estado Iniciado para recordar';
 
   @override
   String get fetch_book_info => 'Buscar información del libro';
@@ -2994,8 +2869,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get isbn_required_for_fetch => 'Introduce un ISBN primero';
 
   @override
-  String get review_pages_warning =>
-      'Revisa el número de páginas, puede no ser correcto';
+  String get review_pages_warning => 'Revisa el número de páginas, puede no ser correcto';
 
   @override
   String get section_reading_activity => 'Actividad de Lectura';
@@ -3100,8 +2974,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get format_by_language => 'Formato por Idioma';
 
   @override
-  String get avg_days_by_format_language =>
-      'Media de Días de Lectura por Formato e Idioma';
+  String get avg_days_by_format_language => 'Media de Días de Lectura por Formato e Idioma';
 
   @override
   String get daily_reading_heatmap => 'Días leídos en un año';
@@ -3118,22 +2991,19 @@ class AppLocalizationsEs extends AppLocalizations {
   String get show_price_statistics => 'Mostrar Estadísticas de Precios';
 
   @override
-  String get show_price_statistics_subtitle =>
-      'Mostrar una sección de estadísticas de precios en tu panel de estadísticas';
+  String get show_price_statistics_subtitle => 'Mostrar una sección de estadísticas de precios en tu panel de estadísticas';
 
   @override
   String get currency_setting => 'Símbolo de Moneda';
 
   @override
-  String get currency_setting_subtitle =>
-      'Elige qué símbolo de moneda mostrar para los precios';
+  String get currency_setting_subtitle => 'Elige qué símbolo de moneda mostrar para los precios';
 
   @override
   String get custom_currency_hint => 'Símbolo personalizado';
 
   @override
-  String get no_price_data =>
-      'Aún no hay libros con datos de precio. Añade precios a tus libros para ver estadísticas.';
+  String get no_price_data => 'Aún no hay libros con datos de precio. Añade precios a tus libros para ver estadísticas.';
 
   @override
   String get section_price_statistics => 'Estadísticas de Precios';
@@ -3175,8 +3045,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get time_slot_late_night => 'Madrugada';
 
   @override
-  String get no_session_data =>
-      'Aún no hay datos de sesiones de lectura. Usa el cronómetro para registrar tus sesiones.';
+  String get no_session_data => 'Aún no hay datos de sesiones de lectura. Usa el cronómetro para registrar tus sesiones.';
 
   @override
   String favorite_reading_time(Object slot) {
@@ -3202,8 +3071,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get standby_suggestion_title => '¿Mover a En espera?';
 
   @override
-  String get standby_suggestion_body =>
-      'Ha pasado más de una semana desde la última vez que leíste este libro. ¿Te gustaría moverlo a En espera? Esto no afectará tus estadísticas de lectura.';
+  String get standby_suggestion_body => 'Ha pasado más de una semana desde la última vez que leíste este libro. ¿Te gustaría moverlo a En espera? Esto no afectará tus estadísticas de lectura.';
 
   @override
   String get move_to_standby => 'Mover a En espera';
@@ -3227,50 +3095,43 @@ class AppLocalizationsEs extends AppLocalizations {
   String get library_display => 'Visualización de Biblioteca';
 
   @override
-  String get library_display_subtitle =>
-      'Filtros de Inicio, Campos de Tarjeta, Orden, Límite TBR';
+  String get library_display_subtitle => 'Filtros de Inicio, Campos de Tarjeta, Orden, Límite TBR';
 
   @override
   String get library_customization => 'Personalización de Biblioteca';
 
   @override
-  String get library_customization_subtitle =>
-      'Campos de valoración, clubes, desplegables, precio y moneda';
+  String get library_customization_subtitle => 'Campos de valoración, clubes, desplegables, precio y moneda';
 
   @override
   String get migrations_section => 'Migraciones';
 
   @override
-  String get migrations_section_subtitle =>
-      'Herramientas de migración de datos';
+  String get migrations_section_subtitle => 'Herramientas de migración de datos';
 
   @override
   String get library_tools => 'Herramientas de Biblioteca';
 
   @override
-  String get library_tools_subtitle =>
-      'Edición masiva, completar campos, sugerencias inteligentes';
+  String get library_tools_subtitle => 'Edición masiva, completar campos, sugerencias inteligentes';
 
   @override
   String get assign_books_to_value => 'Asignar Libros a un Valor';
 
   @override
-  String get assign_books_to_value_hint =>
-      'Elige un valor y selecciona libros para asignarlo';
+  String get assign_books_to_value_hint => 'Elige un valor y selecciona libros para asignarlo';
 
   @override
   String get fill_empty_fields => 'Completar Campos Vacíos';
 
   @override
-  String get fill_empty_fields_hint =>
-      'Encuentra libros con datos faltantes y completa en grupos';
+  String get fill_empty_fields_hint => 'Encuentra libros con datos faltantes y completa en grupos';
 
   @override
   String get smart_suggestions => 'Sugerencias Inteligentes';
 
   @override
-  String get smart_suggestions_hint =>
-      'Detecta patrones y sugiere correcciones masivas';
+  String get smart_suggestions_hint => 'Detecta patrones y sugiere correcciones masivas';
 
   @override
   String get select_field => 'Seleccionar Campo';
@@ -3285,8 +3146,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get books_available => 'libros disponibles';
 
   @override
-  String get all_books_already_have_value =>
-      '¡Todos los libros ya tienen este valor!';
+  String get all_books_already_have_value => '¡Todos los libros ya tienen este valor!';
 
   @override
   String get deselect_all => 'Deseleccionar Todo';
@@ -3310,8 +3170,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get select_field_to_fill => 'Selecciona un campo para completar';
 
   @override
-  String get no_books_with_empty_field =>
-      '¡Todos los libros tienen este campo completo!';
+  String get no_books_with_empty_field => '¡Todos los libros tienen este campo completo!';
 
   @override
   String books_without_field(int count, String field) {
@@ -3355,15 +3214,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get wizard_complete => '¡Todos los grupos procesados!';
 
   @override
-  String get wizard_complete_message =>
-      'Puedes volver a revisar o cerrar esta pantalla';
+  String get wizard_complete_message => 'Puedes volver a revisar o cerrar esta pantalla';
 
   @override
   String get generating_suggestions => 'Analizando tu biblioteca...';
 
   @override
-  String get no_suggestions =>
-      'No se encontraron sugerencias. ¡Los datos de tu biblioteca se ven consistentes!';
+  String get no_suggestions => 'No se encontraron sugerencias. ¡Los datos de tu biblioteca se ven consistentes!';
 
   @override
   String suggestion_confidence(int percent) {
@@ -3402,8 +3259,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get affected_books => 'Libros afectados:';
 
   @override
-  String get all_suggestions_processed =>
-      '¡Todas las sugerencias han sido procesadas!';
+  String get all_suggestions_processed => '¡Todas las sugerencias han sido procesadas!';
 
   @override
   String get library_overview => 'Vista General';
