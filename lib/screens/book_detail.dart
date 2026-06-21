@@ -2565,65 +2565,70 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   ),
                                 ),
                               ),
-                            if (_currentBook.statusValue?.toLowerCase() !=
+                            if (_currentBook.statusValue?.toLowerCase() ==
                                 'started')
                               Container(
                                 width: 2,
                                 color: Theme.of(context).colorScheme.primary,
                                 margin: const EdgeInsets.symmetric(vertical: 8),
                               ),
-                            Expanded(
-                              child: InkWell(
-                                onTap: _quickFinishReading,
-                                borderRadius: BorderRadius.only(
-                                  topRight: const Radius.circular(6),
-                                  bottomRight: const Radius.circular(6),
-                                  topLeft:
-                                      _currentBook.statusValue?.toLowerCase() ==
-                                              'started'
-                                          ? const Radius.circular(6)
-                                          : Radius.zero,
-                                  bottomLeft:
-                                      _currentBook.statusValue?.toLowerCase() ==
-                                              'started'
-                                          ? const Radius.circular(6)
-                                          : Radius.zero,
-                                ),
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.check_circle,
-                                        color:
-                                            Theme.of(
-                                              context,
-                                            ).colorScheme.primary,
-                                        size: 20,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Flexible(
-                                        child: Text(
-                                          AppLocalizations.of(
-                                            context,
-                                          )!.mark_as_finished,
-                                          style: TextStyle(
-                                            color:
-                                                Theme.of(
-                                                  context,
-                                                ).colorScheme.primary,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
+                            if (_currentBook.statusValue?.toLowerCase() ==
+                                'started')
+                              Expanded(
+                                child: InkWell(
+                                  onTap: _quickFinishReading,
+                                  borderRadius: BorderRadius.only(
+                                    topRight: const Radius.circular(6),
+                                    bottomRight: const Radius.circular(6),
+                                    topLeft:
+                                        _currentBook.statusValue
+                                                    ?.toLowerCase() ==
+                                                'started'
+                                            ? const Radius.circular(6)
+                                            : Radius.zero,
+                                    bottomLeft:
+                                        _currentBook.statusValue
+                                                    ?.toLowerCase() ==
+                                                'started'
+                                            ? const Radius.circular(6)
+                                            : Radius.zero,
+                                  ),
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.check_circle,
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
+                                          size: 20,
                                         ),
-                                      ),
-                                    ],
+                                        const SizedBox(width: 4),
+                                        Flexible(
+                                          child: Text(
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.mark_as_finished,
+                                            style: TextStyle(
+                                              color:
+                                                  Theme.of(
+                                                    context,
+                                                  ).colorScheme.primary,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
                           ],
                         ),
                       ),
