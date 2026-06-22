@@ -2567,13 +2567,6 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               ),
                             if (_currentBook.statusValue?.toLowerCase() ==
                                 'started')
-                              Container(
-                                width: 2,
-                                color: Theme.of(context).colorScheme.primary,
-                                margin: const EdgeInsets.symmetric(vertical: 8),
-                              ),
-                            if (_currentBook.statusValue?.toLowerCase() ==
-                                'started')
                               Expanded(
                                 child: InkWell(
                                   onTap: _quickFinishReading,
