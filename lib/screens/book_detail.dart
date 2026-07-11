@@ -1231,8 +1231,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                       onChanged: (value) {
                                         try {
                                           final newDate = DateTime.parse(value);
-                                          editableSessions[index] = session
-                                              .copyWith(startTime: newDate);
+                                          editableSessions[index] =
+                                              editableSessions[index].copyWith(
+                                                startTime: newDate,
+                                              );
                                         } catch (e) {
                                           // Invalid date format
                                         }
@@ -1259,18 +1261,20 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                               timeParts[1],
                                             );
 
+                                            final currentSession =
+                                                editableSessions[index];
                                             final newClickedAt = DateTime(
-                                              session.clickedAt?.year ??
+                                              currentSession.clickedAt?.year ??
                                                   DateTime.now().year,
-                                              session.clickedAt?.month ??
+                                              currentSession.clickedAt?.month ??
                                                   DateTime.now().month,
-                                              session.clickedAt?.day ??
+                                              currentSession.clickedAt?.day ??
                                                   DateTime.now().day,
                                               hour,
                                               minute,
                                             );
-                                            editableSessions[index] = session
-                                                .copyWith(
+                                            editableSessions[index] =
+                                                currentSession.copyWith(
                                                   clickedAt: newClickedAt,
                                                 );
                                           }
@@ -1298,18 +1302,19 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                         try {
                                           final duration =
                                               _parseDurationToSeconds(value);
-                                          editableSessions[index] = session
-                                              .copyWith(
+                                          editableSessions[index] =
+                                              editableSessions[index].copyWith(
                                                 durationSeconds: duration,
                                               );
                                         } catch (e) {
                                           // Invalid duration format, try parsing as plain seconds
                                           try {
                                             final duration = int.parse(value);
-                                            editableSessions[index] = session
-                                                .copyWith(
-                                                  durationSeconds: duration,
-                                                );
+                                            editableSessions[index] =
+                                                editableSessions[index]
+                                                    .copyWith(
+                                                      durationSeconds: duration,
+                                                    );
                                           } catch (e2) {
                                             // Invalid format, ignore
                                           }
@@ -1380,6 +1385,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       text:
           '${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}',
     );
+    final durationController = TextEditingController();
 
     final result = await showDialog<bool>(
       context: context,
@@ -1406,6 +1412,16 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                     hintText: '14:30',
                   ),
                 ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: durationController,
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.duration_label,
+                    border: const OutlineInputBorder(),
+                    hintText: 'e.g., 1h 30m 5s or 90m or 3600',
+                    helperText: AppLocalizations.of(context)!.duration_hint,
+                  ),
+                ),
               ],
             ),
             actions: [
@@ -1425,6 +1441,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       try {
         final dateStr = dateController.text;
         final timeStr = timeController.text;
+        final durationStr = durationController.text.trim();
 
         final dateParts = dateStr.split('-');
         final timeParts = timeStr.split(':');
@@ -1438,6 +1455,15 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
             int.parse(timeParts[1]),
           );
 
+          int? parsedDuration;
+          if (durationStr.isNotEmpty) {
+            try {
+              parsedDuration = _parseDurationToSeconds(durationStr);
+            } catch (_) {
+              parsedDuration = int.tryParse(durationStr);
+            }
+          }
+
           final db = await DatabaseHelper.instance.database;
           final sessionRepository = ReadingSessionRepository(db);
 
@@ -1445,6 +1471,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
             _currentBook.bookId!,
             dateTime,
             didRead: true,
+            durationSeconds: parsedDuration,
           );
 
           await _loadReadDates();

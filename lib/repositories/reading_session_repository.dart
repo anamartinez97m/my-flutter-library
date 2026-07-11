@@ -159,15 +159,16 @@ class ReadingSessionRepository {
     int bookId,
     DateTime startTime, {
     bool didRead = true,
+    int? durationSeconds,
   }) async {
     final session = ReadingSession(
       bookId: bookId,
       startTime: startTime,
       endTime: null,
-      durationSeconds: 0,
+      durationSeconds: durationSeconds ?? 0,
       isActive: false,
       didRead: didRead,
-      clickedAt: DateTime.now(),
+      clickedAt: startTime,
     );
     return await db.insert('reading_sessions', session.toMap());
   }
