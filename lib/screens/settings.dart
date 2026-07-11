@@ -5452,30 +5452,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
         Row(
           children: [
             Expanded(
-              child: GestureDetector(
-                onTap:
-                    () =>
-                        _showColorPickerDialog(context, color, onColorChanged),
-                child: Container(
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.outlineVariant,
-                      width: 2,
-                    ),
+              child: Container(
+                height: 60,
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                    width: 2,
                   ),
-                  child: Center(
-                    child: Text(
-                      '#${color.toARGB32().toRadixString(16).toUpperCase().padLeft(8, '0')}',
-                      style: TextStyle(
-                        color:
-                            color.computeLuminance() > 0.5
-                                ? Colors.black
-                                : Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
+                ),
+                child: Center(
+                  child: Text(
+                    '#${color.toARGB32().toRadixString(16).toUpperCase().padLeft(8, '0')}',
+                    style: TextStyle(
+                      color:
+                          color.computeLuminance() > 0.5
+                              ? Colors.black
+                              : Colors.white,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
@@ -5507,439 +5502,218 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showColorPickerDialog(
-    BuildContext context,
-    Color initialColor,
-    Function(Color) onColorChanged,
-  ) {
-    Color selectedColor = initialColor;
-    bool showHueSlider = false;
-    double hue = HSVColor.fromColor(initialColor).hue;
-
-    showDialog(
-      context: context,
-      builder:
-          (context) => StatefulBuilder(
-            builder:
-                (context, setDialogState) => AlertDialog(
-                  title: Text(AppLocalizations.of(context)!.pick_a_color),
-                  content: SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Big square showing current color
-                        Container(
-                          width: 200,
-                          height: 200,
-                          decoration: BoxDecoration(
-                            color: selectedColor,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color:
-                                  Theme.of(context).colorScheme.outlineVariant,
-                              width: 2,
-                            ),
-                          ),
-                          child: Center(
-                            child: Text(
-                              '#${selectedColor.toARGB32().toRadixString(16).toUpperCase().padLeft(8, '0')}',
-                              style: TextStyle(
-                                color:
-                                    selectedColor.computeLuminance() > 0.5
-                                        ? Colors.black
-                                        : Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        // 7 quick color options + 1 hue picker
-                        Wrap(
-                          spacing: 12,
-                          runSpacing: 12,
-                          alignment: WrapAlignment.center,
-                          children: [
-                            // 7 quick color options
-                            _buildColorOption(
-                              const Color(0xFFa36361),
-                              selectedColor,
-                              (color) {
-                                setDialogState(() {
-                                  selectedColor = color;
-                                  showHueSlider = false;
-                                });
-                              },
-                            ),
-                            _buildColorOption(
-                              const Color(0xFFef476f),
-                              selectedColor,
-                              (color) {
-                                setDialogState(() {
-                                  selectedColor = color;
-                                  showHueSlider = false;
-                                });
-                              },
-                            ),
-                            _buildColorOption(
-                              const Color(0xFFc8a8e9),
-                              selectedColor,
-                              (color) {
-                                setDialogState(() {
-                                  selectedColor = color;
-                                  showHueSlider = false;
-                                });
-                              },
-                            ),
-                            _buildColorOption(
-                              const Color(0xFF14919b),
-                              selectedColor,
-                              (color) {
-                                setDialogState(() {
-                                  selectedColor = color;
-                                  showHueSlider = false;
-                                });
-                              },
-                            ),
-                            _buildColorOption(
-                              const Color(0xFF854f6c),
-                              selectedColor,
-                              (color) {
-                                setDialogState(() {
-                                  selectedColor = color;
-                                  showHueSlider = false;
-                                });
-                              },
-                            ),
-                            _buildColorOption(
-                              const Color(0xFF0c7075),
-                              selectedColor,
-                              (color) {
-                                setDialogState(() {
-                                  selectedColor = color;
-                                  showHueSlider = false;
-                                });
-                              },
-                            ),
-                            _buildColorOption(
-                              const Color(0xFF662549),
-                              selectedColor,
-                              (color) {
-                                setDialogState(() {
-                                  selectedColor = color;
-                                  showHueSlider = false;
-                                });
-                              },
-                            ),
-                            // 8th square: colorized palette icon for hue picker
-                            GestureDetector(
-                              onTap: () {
-                                setDialogState(() {
-                                  showHueSlider = !showHueSlider;
-                                  hue = HSVColor.fromColor(selectedColor).hue;
-                                });
-                              },
-                              child: Container(
-                                width: 60,
-                                height: 60,
-                                decoration: BoxDecoration(
-                                  color: selectedColor,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color:
-                                        Theme.of(
-                                          context,
-                                        ).colorScheme.outlineVariant,
-                                    width: 2,
-                                  ),
-                                ),
-                                child: Icon(
-                                  Icons.palette,
-                                  color:
-                                      selectedColor.computeLuminance() > 0.5
-                                          ? Colors.black54
-                                          : Colors.white54,
-                                  size: 32,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        // Hue slider (shown when palette icon is tapped)
-                        if (showHueSlider) ...[
-                          const SizedBox(height: 24),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                AppLocalizations.of(context)!.hue,
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                              const SizedBox(height: 8),
-                              Container(
-                                height: 30,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      HSVColor.fromAHSV(1, 0, 1, 1).toColor(),
-                                      HSVColor.fromAHSV(1, 60, 1, 1).toColor(),
-                                      HSVColor.fromAHSV(1, 120, 1, 1).toColor(),
-                                      HSVColor.fromAHSV(1, 180, 1, 1).toColor(),
-                                      HSVColor.fromAHSV(1, 240, 1, 1).toColor(),
-                                      HSVColor.fromAHSV(1, 300, 1, 1).toColor(),
-                                      HSVColor.fromAHSV(1, 360, 1, 1).toColor(),
-                                    ],
-                                  ),
-                                ),
-                                child: Slider(
-                                  value: hue,
-                                  min: 0,
-                                  max: 360,
-                                  onChanged: (newHue) {
-                                    setDialogState(() {
-                                      hue = newHue;
-                                      selectedColor =
-                                          HSVColor.fromAHSV(
-                                            1,
-                                            hue,
-                                            1,
-                                            1,
-                                          ).toColor();
-                                    });
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(AppLocalizations.of(context)!.cancel),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        onColorChanged(selectedColor);
-                        Navigator.pop(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onPrimary,
-                      ),
-                      child: Text(AppLocalizations.of(context)!.apply),
-                    ),
-                  ],
-                ),
-          ),
-    );
-  }
-
-  Widget _buildColorOption(
-    Color color,
-    Color selectedColor,
-    Function(Color) onTap,
-  ) {
-    final isSelected = color.toARGB32() == selectedColor.toARGB32();
-    return GestureDetector(
-      onTap: () => onTap(color),
-      onLongPress: () => _showHexInputDialog(color, onTap),
-      child: Container(
-        width: 50,
-        height: 50,
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color:
-                isSelected
-                    ? Theme.of(context).colorScheme.onSurface
-                    : Theme.of(context).colorScheme.outlineVariant,
-            width: isSelected ? 3 : 1,
-          ),
-        ),
-      ),
-    );
-  }
-
   void _showHexInputDialog(Color initialColor, Function(Color) onColorChanged) {
+    final initialHsv = HSVColor.fromColor(initialColor);
     Color selectedColor = initialColor;
-    double hue = HSVColor.fromColor(initialColor).hue;
+    double hue = initialHsv.hue;
+    double saturation = initialHsv.saturation;
+    double brightness = initialHsv.value;
+    final squareKey = GlobalKey();
+    const double squareHeight = 180.0;
 
     showDialog(
       context: context,
       builder:
           (context) => StatefulBuilder(
-            builder:
-                (context, setDialogState) => AlertDialog(
-                  title: Text(
-                    AppLocalizations.of(context)!.pick_a_custom_color,
-                  ),
-                  content: SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 150,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            color: selectedColor,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color:
-                                  Theme.of(context).colorScheme.outlineVariant,
-                              width: 2,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          '#${selectedColor.toARGB32().toRadixString(16).toUpperCase().padLeft(8, '0')}',
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 16),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              AppLocalizations.of(context)!.hue,
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                            const SizedBox(height: 8),
-                            Container(
-                              height: 30,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                gradient: LinearGradient(
-                                  colors: [
-                                    HSVColor.fromAHSV(1, 0, 1, 1).toColor(),
-                                    HSVColor.fromAHSV(1, 60, 1, 1).toColor(),
-                                    HSVColor.fromAHSV(1, 120, 1, 1).toColor(),
-                                    HSVColor.fromAHSV(1, 180, 1, 1).toColor(),
-                                    HSVColor.fromAHSV(1, 240, 1, 1).toColor(),
-                                    HSVColor.fromAHSV(1, 300, 1, 1).toColor(),
-                                    HSVColor.fromAHSV(1, 360, 1, 1).toColor(),
-                                  ],
-                                ),
-                              ),
-                              child: Slider(
-                                value: hue,
-                                min: 0,
-                                max: 360,
-                                onChanged: (newHue) {
-                                  setDialogState(() {
-                                    hue = newHue;
-                                    selectedColor =
+            builder: (context, setDialogState) {
+              void updateFromSquare(Offset localPos) {
+                final box =
+                    squareKey.currentContext?.findRenderObject() as RenderBox?;
+                final width = box?.size.width ?? 256.0;
+                final sat = (localPos.dx / width).clamp(0.0, 1.0);
+                final bri = (1 - localPos.dy / squareHeight).clamp(0.0, 1.0);
+                setDialogState(() {
+                  saturation = sat;
+                  brightness = bri;
+                  selectedColor =
+                      HSVColor.fromAHSV(
+                        1,
+                        hue,
+                        saturation,
+                        brightness,
+                      ).toColor();
+                });
+              }
+
+              return AlertDialog(
+                title: Text(AppLocalizations.of(context)!.pick_a_custom_color),
+                content: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // 2D Saturation/Brightness square
+                      GestureDetector(
+                        key: squareKey,
+                        onPanUpdate: (d) => updateFromSquare(d.localPosition),
+                        onTapDown: (d) => updateFromSquare(d.localPosition),
+                        child: SizedBox(
+                          height: squareHeight,
+                          child: Stack(
+                            clipBehavior: Clip.hardEdge,
+                            children: [
+                              Positioned.fill(
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    color:
                                         HSVColor.fromAHSV(
                                           1,
                                           hue,
                                           1,
                                           1,
-                                        ).toColor();
-                                  });
-                                },
+                                        ).toColor(),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              ),
+                              Positioned.fill(
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    gradient: const LinearGradient(
+                                      colors: [
+                                        Colors.white,
+                                        Colors.transparent,
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Positioned.fill(
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    gradient: const LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        Colors.transparent,
+                                        Colors.black,
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Align(
+                                alignment: Alignment(
+                                  saturation * 2 - 1,
+                                  (1 - brightness) * 2 - 1,
+                                ),
+                                child: Container(
+                                  width: 20,
+                                  height: 20,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 2,
+                                    ),
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: Colors.black26,
+                                        blurRadius: 4,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Hue slider
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            AppLocalizations.of(context)!.hue,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            height: 30,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              gradient: LinearGradient(
+                                colors: [
+                                  HSVColor.fromAHSV(1, 0, 1, 1).toColor(),
+                                  HSVColor.fromAHSV(1, 60, 1, 1).toColor(),
+                                  HSVColor.fromAHSV(1, 120, 1, 1).toColor(),
+                                  HSVColor.fromAHSV(1, 180, 1, 1).toColor(),
+                                  HSVColor.fromAHSV(1, 240, 1, 1).toColor(),
+                                  HSVColor.fromAHSV(1, 300, 1, 1).toColor(),
+                                  HSVColor.fromAHSV(1, 360, 1, 1).toColor(),
+                                ],
                               ),
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            _buildColorOption(
-                              const Color(0xFFa36361),
-                              selectedColor,
-                              (color) {
+                            child: Slider(
+                              value: hue,
+                              min: 0,
+                              max: 360,
+                              onChanged: (newHue) {
                                 setDialogState(() {
-                                  selectedColor = color;
+                                  hue = newHue;
+                                  selectedColor =
+                                      HSVColor.fromAHSV(
+                                        1,
+                                        hue,
+                                        saturation,
+                                        brightness,
+                                      ).toColor();
                                 });
                               },
                             ),
-                            _buildColorOption(
-                              const Color(0xFFef476f),
-                              selectedColor,
-                              (color) {
-                                setDialogState(() {
-                                  selectedColor = color;
-                                });
-                              },
-                            ),
-                            _buildColorOption(
-                              const Color(0xFFc8a8e9),
-                              selectedColor,
-                              (color) {
-                                setDialogState(() {
-                                  selectedColor = color;
-                                });
-                              },
-                            ),
-                            _buildColorOption(
-                              const Color(0xFF14919b),
-                              selectedColor,
-                              (color) {
-                                setDialogState(() {
-                                  selectedColor = color;
-                                });
-                              },
-                            ),
-                            _buildColorOption(
-                              const Color(0xFF854f6c),
-                              selectedColor,
-                              (color) {
-                                setDialogState(() {
-                                  selectedColor = color;
-                                });
-                              },
-                            ),
-                            _buildColorOption(
-                              const Color(0xFF0c7075),
-                              selectedColor,
-                              (color) {
-                                setDialogState(() {
-                                  selectedColor = color;
-                                });
-                              },
-                            ),
-                            _buildColorOption(
-                              const Color(0xFF662549),
-                              selectedColor,
-                              (color) {
-                                setDialogState(() {
-                                  selectedColor = color;
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(AppLocalizations.of(context)!.cancel),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        onColorChanged(selectedColor);
-                        Navigator.pop(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onPrimary,
+                          ),
+                        ],
                       ),
-                      child: Text(AppLocalizations.of(context)!.apply),
-                    ),
-                  ],
+                      const SizedBox(height: 16),
+                      // Color preview + hex code
+                      Container(
+                        width: 150,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: selectedColor,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.outlineVariant,
+                            width: 2,
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '#${selectedColor.toARGB32().toRadixString(16).toUpperCase().padLeft(8, '0').substring(2)}',
+                            style: TextStyle(
+                              color:
+                                  selectedColor.computeLuminance() > 0.5
+                                      ? Colors.black
+                                      : Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text(AppLocalizations.of(context)!.cancel),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      onColorChanged(selectedColor);
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                    child: Text(AppLocalizations.of(context)!.apply),
+                  ),
+                ],
+              );
+            },
           ),
     );
   }
