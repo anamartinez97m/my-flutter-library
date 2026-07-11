@@ -12,10 +12,6 @@
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
 		67B5055F2FE3C9FB0089DCE1 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 67B5055E2FE3C9FB0089DCE1 /* GoogleService-Info.plist */; };
-		67B505622FE3CB220089DCE1 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 67B505612FE3CB220089DCE1 /* FirebaseAppCheck */; };
-		67B505642FE3CB220089DCE1 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 67B505632FE3CB220089DCE1 /* FirebaseAuth */; };
-		67B505662FE3CB220089DCE1 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 67B505652FE3CB220089DCE1 /* FirebaseCore */; };
-		67B505682FE3CB220089DCE1 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 67B505672FE3CB220089DCE1 /* FirebaseStorage */; };
 		68F5283EF2B6A101901D38CA /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CD5867A15B0FB11752FA329 /* Pods_RunnerTests.framework */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		78A318202AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */; };
@@ -81,11 +77,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				78A318202AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage in Frameworks */,
-				67B505662FE3CB220089DCE1 /* FirebaseCore in Frameworks */,
-				67B505622FE3CB220089DCE1 /* FirebaseAppCheck in Frameworks */,
 				33044D5BB068254757B25352 /* Pods_Runner.framework in Frameworks */,
-				67B505642FE3CB220089DCE1 /* FirebaseAuth in Frameworks */,
-				67B505682FE3CB220089DCE1 /* FirebaseStorage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -221,10 +213,6 @@
 			name = Runner;
 			packageProductDependencies = (
 				78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */,
-				67B505612FE3CB220089DCE1 /* FirebaseAppCheck */,
-				67B505632FE3CB220089DCE1 /* FirebaseAuth */,
-				67B505652FE3CB220089DCE1 /* FirebaseCore */,
-				67B505672FE3CB220089DCE1 /* FirebaseStorage */,
 			);
 			productName = Runner;
 			productReference = 97C146EE1CF9000F007C117D /* Runner.app */;
@@ -261,7 +249,6 @@
 			mainGroup = 97C146E51CF9000F007C117D;
 			packageReferences = (
 				781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "FlutterGeneratedPluginSwiftPackage" */,
-				67B505602FE3CB220089DCE1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			productRefGroup = 97C146EF1CF9000F007C117D /* Products */;
 			projectDirPath = "";
@@ -811,38 +798,7 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		67B505602FE3CB220089DCE1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 12.15.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
 /* Begin XCSwiftPackageProductDependency section */
-		67B505612FE3CB220089DCE1 /* FirebaseAppCheck */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 67B505602FE3CB220089DCE1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAppCheck;
-		};
-		67B505632FE3CB220089DCE1 /* FirebaseAuth */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 67B505602FE3CB220089DCE1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAuth;
-		};
-		67B505652FE3CB220089DCE1 /* FirebaseCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 67B505602FE3CB220089DCE1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseCore;
-		};
-		67B505672FE3CB220089DCE1 /* FirebaseStorage */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 67B505602FE3CB220089DCE1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseStorage;
-		};
 		78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FlutterGeneratedPluginSwiftPackage;
