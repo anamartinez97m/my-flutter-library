@@ -7,8 +7,10 @@ import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/providers/locale_provider.dart';
 import 'package:myrandomlibrary/providers/theme_provider.dart';
+import 'package:myrandomlibrary/screens/get_started_screen.dart';
 import 'package:myrandomlibrary/screens/navigation.dart';
 import 'package:myrandomlibrary/services/backup_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:myrandomlibrary/services/google_auth_service.dart';
 import 'package:myrandomlibrary/services/notification_service.dart';
 import 'package:provider/provider.dart';
@@ -164,9 +166,14 @@ class _AutoBackupRunner extends StatefulWidget {
 }
 
 class _AutoBackupRunnerState extends State<_AutoBackupRunner> {
+  bool? _hasSeenOnboarding;
+
+  static const String _onboardingKey = 'has_seen_onboarding';
+
   @override
   void initState() {
     super.initState();
+    _checkOnboardingStatus();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       NotificationService.setReadingReminderTitleBuilder(
         (bookTitle) =>
@@ -175,6 +182,14 @@ class _AutoBackupRunnerState extends State<_AutoBackupRunner> {
       _runAutoBackup();
       NotificationService().processPendingNavigation();
     });
+  }
+
+  Future<void> _checkOnboardingStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final seen = prefs.getBool(_onboardingKey) ?? false;
+    if (mounted) {
+      setState(() => _hasSeenOnboarding = seen);
+    }
   }
 
   Future<void> _runAutoBackup() async {
@@ -191,6 +206,12 @@ class _AutoBackupRunnerState extends State<_AutoBackupRunner> {
 
   @override
   Widget build(BuildContext context) {
+    if (_hasSeenOnboarding == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (!_hasSeenOnboarding!) {
+      return const GetStartedScreen();
+    }
     return const NavigationScreen();
   }
 }

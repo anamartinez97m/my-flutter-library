@@ -3718,4 +3718,83 @@ class AppLocalizationsEs extends AppLocalizations {
   String pages_count(Object count) {
     return '$count páginas';
   }
+
+  @override
+  String get get_started => 'Comenzar';
+
+  @override
+  String get tutorial_title => 'Tutorial';
+
+  @override
+  String get tutorial_subtitle => 'Aprende a usar la aplicación';
+
+  @override
+  String get tutorial_section_navigation => 'Navegación e Inicio';
+
+  @override
+  String get tutorial_section_adding_books => 'Añadir y Editar Libros';
+
+  @override
+  String get tutorial_section_book_detail => 'Detalle del Libro';
+
+  @override
+  String get tutorial_section_my_books => 'Mis Libros';
+
+  @override
+  String get tutorial_section_statistics => 'Estadísticas';
+
+  @override
+  String get tutorial_section_book_competition => 'Competición de Libros';
+
+  @override
+  String get tutorial_section_random => 'Pantalla Aleatoria';
+
+  @override
+  String get tutorial_section_settings => 'Ajustes';
+
+  @override
+  String get tutorial_section_library_tools => 'Herramientas de Biblioteca';
+
+  @override
+  String get tutorial_section_dialogs => 'Diálogos y Flujos Clave';
+
+  @override
+  String get tutorial_desc_navigation =>
+      'La pantalla de Inicio es tu vista principal de la biblioteca. Usa la barra de navegación inferior para moverte entre Inicio, Estadísticas, Mis Libros, Aleatorio y Ajustes. En Inicio, pulsa el botón + para añadir un libro rápidamente, o pulsa el icono de filtro para ordenar y filtrar tu biblioteca por estado, formato, idioma y más. Usa la barra de búsqueda para encontrar libros por título, autor o ISBN.';
+
+  @override
+  String get tutorial_desc_adding_books =>
+      'Pulsa el botón + en Inicio para abrir el formulario de Añadir Libro. Introduce el ISBN y pulsa el icono de búsqueda para rellenar automáticamente el título, autor, editorial, páginas, idioma, portada y descripción desde Google Books o Open Library. También puedes escanear el código de barras directamente con el icono de cámara. Al introducir el nombre de una saga, selecciónala de las sugerencias para rellenar automáticamente el campo de formato de saga. Los bundles (packs de libros) se crean activando el interruptor de bundle y vinculando libros individuales.';
+
+  @override
+  String get tutorial_desc_book_detail =>
+      'Abre cualquier libro para ver su pantalla de detalle completa. Para libros con estado Iniciado o En Espera, se muestra una barra de progreso — púlsala para actualizar tu progreso de lectura por porcentaje o número de página. Usa los botones Comenzar a Leer, Marcar como Terminado y Marcar como Leído para cambiar el estado. El widget de sesiones de lectura registra cada día que lees y te permite anotar sesiones de ¿Has leído hoy?. Pulsa el icono de actualizar para obtener portada y descripción actualizadas de internet.';
+
+  @override
+  String get tutorial_desc_my_books =>
+      'La pestaña Mis Libros te permite explorar tu biblioteca desde distintos ángulos: agrupados por Autor, Saga, Década o Año. La vista de Sagas muestra el progreso de finalización de cada serie (por ejemplo, 2 / 3 para una trilogía). Pulsa cualquier grupo para ver los libros que contiene. Usa la pantalla de detalle de saga para ver exactamente qué libros tienes y cuáles faltan.';
+
+  @override
+  String get tutorial_desc_statistics =>
+      'La pestaña de Estadísticas ofrece una visión completa de tus hábitos de lectura. El panel muestra la tarjeta de libros totales, tu último libro y cuatro fichas de Estadísticas Rápidas configurables — mantén pulsada cualquier ficha para cambiar el dato que muestra. Pulsa cualquier tarjeta de sección para abrir un carrusel de gráficos: Actividad Lectora (libros y páginas por año), Desglose de Biblioteca (estado, formato, idioma, lugar), Top Rankings (autores, géneros, editoriales), Valoraciones y Páginas, Sagas y Series, Patrones de Lectura (mapa de calor, rachas, lectura estacional) y Campeones de Libros. Establece objetivos de lectura anuales en la tarjeta de Objetivos de Lectura.';
+
+  @override
+  String get tutorial_desc_book_competition =>
+      'La Competición de Libros organiza un torneo mensual entre tus libros iniciados. Cada mes, vota por tu libro favorito entre los candidatos actuales. Los ganadores avanzan por rondas mensuales, trimestrales, semifinales y anuales. Accede a la competición desde la sección de Estadísticas o desde la pantalla dedicada. Los resultados de años anteriores también están disponibles para consultar.';
+
+  @override
+  String get tutorial_desc_random =>
+      'La pantalla Aleatorio elige un libro aleatorio de tu biblioteca según los filtros que selecciones. Agita o pulsa para obtener una sugerencia cuando no sepas qué leer. La sección de Desafíos del Año te permite establecer objetivos de lectura y hacer seguimiento de retos temáticos a lo largo del año.';
+
+  @override
+  String get tutorial_desc_settings =>
+      'Los Ajustes están organizados en secciones desplegables. Apariencia: elige el tema Claro, Oscuro o del Sistema y personaliza tu paleta de colores. Visualización de Biblioteca: establece límites de lista de lectura pendiente, configura qué filtros y campos de tarjeta se muestran en Inicio, y establece el orden de clasificación predeterminado. Sincronización en la Nube: haz una copia de seguridad de tu biblioteca en la nube o restáurala desde una copia anterior, y configura la frecuencia de copia automática. Importar/Exportar: importa desde CSV (incluidas exportaciones de Goodreads) o exporta tu biblioteca completa. Recordatorios de Lectura: establece una notificación diaria para animarte a registrar tu lectura.';
+
+  @override
+  String get tutorial_desc_library_tools =>
+      'Las Herramientas de Biblioteca (en Ajustes) contienen tres utilidades de edición masiva. Asignar Libros a Valor: elige un campo y un valor, luego selecciona qué libros asignarlo — útil para etiquetar muchos libros a la vez. Asistente para Rellenar Campos Vacíos: muestra libros con un campo específico vacío, agrupados por autor, con sugerencias inteligentes de libros del mismo autor. Sugerencias Inteligentes: la aplicación analiza tu biblioteca en busca de inconsistencias (por ejemplo, libros de la misma saga con distintos valores de formato) y propone correcciones que puedes aceptar o rechazar una a una.';
+
+  @override
+  String get tutorial_desc_dialogs =>
+      'Hay varios diálogos y flujos importantes disponibles en toda la aplicación. Añadir Rápido: un formulario mínimo accesible desde Inicio para entrada rápida de libros. Club de Lectura: registra y haz seguimiento de sesiones de club de lectura para un libro. Importación CSV: importa libros desde una exportación de Goodreads o un archivo CSV personalizado, con mapeo de columnas y traducción de estados. Eliminar Todos los Datos: en Ajustes, esto elimina permanentemente toda tu biblioteca — siempre se muestra un diálogo de confirmación antes de continuar.';
 }

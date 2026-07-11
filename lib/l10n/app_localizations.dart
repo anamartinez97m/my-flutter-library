@@ -6631,6 +6631,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} pages'**
   String pages_count(Object count);
+
+  /// No description provided for @get_started.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Started'**
+  String get get_started;
+
+  /// No description provided for @tutorial_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Tutorial'**
+  String get tutorial_title;
+
+  /// No description provided for @tutorial_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn how to use the app'**
+  String get tutorial_subtitle;
+
+  /// No description provided for @tutorial_section_navigation.
+  ///
+  /// In en, this message translates to:
+  /// **'Navigation & Home'**
+  String get tutorial_section_navigation;
+
+  /// No description provided for @tutorial_section_adding_books.
+  ///
+  /// In en, this message translates to:
+  /// **'Adding & Editing Books'**
+  String get tutorial_section_adding_books;
+
+  /// No description provided for @tutorial_section_book_detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Book Detail'**
+  String get tutorial_section_book_detail;
+
+  /// No description provided for @tutorial_section_my_books.
+  ///
+  /// In en, this message translates to:
+  /// **'My Books'**
+  String get tutorial_section_my_books;
+
+  /// No description provided for @tutorial_section_statistics.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics'**
+  String get tutorial_section_statistics;
+
+  /// No description provided for @tutorial_section_book_competition.
+  ///
+  /// In en, this message translates to:
+  /// **'Book Competition'**
+  String get tutorial_section_book_competition;
+
+  /// No description provided for @tutorial_section_random.
+  ///
+  /// In en, this message translates to:
+  /// **'Random Screen'**
+  String get tutorial_section_random;
+
+  /// No description provided for @tutorial_section_settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get tutorial_section_settings;
+
+  /// No description provided for @tutorial_section_library_tools.
+  ///
+  /// In en, this message translates to:
+  /// **'Library Tools'**
+  String get tutorial_section_library_tools;
+
+  /// No description provided for @tutorial_section_dialogs.
+  ///
+  /// In en, this message translates to:
+  /// **'Key Dialogs & Flows'**
+  String get tutorial_section_dialogs;
+
+  /// No description provided for @tutorial_desc_navigation.
+  ///
+  /// In en, this message translates to:
+  /// **'The Home screen is your main library view. Use the bottom navigation bar to switch between Home, Statistics, My Books, Random, and Settings. On Home, tap the + button to add a new book quickly, or tap the filter icon to sort and filter your library by status, format, language, and more. Use the search bar to find books by title, author, or ISBN.'**
+  String get tutorial_desc_navigation;
+
+  /// No description provided for @tutorial_desc_adding_books.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the + FAB on Home to open the Add Book form. Enter the ISBN and tap the search icon to auto-fill title, author, publisher, pages, language, cover, and description from Google Books or Open Library. You can also scan the barcode directly with the camera icon. When entering a saga name, select it from the suggestions to auto-fill the format saga field. Bundles (box sets) can be created by enabling the bundle toggle and linking individual books.'**
+  String get tutorial_desc_adding_books;
+
+  /// No description provided for @tutorial_desc_book_detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Open any book to see its full detail screen. For books with a Started or Standby status, a progress bar is shown — tap it to update your reading progress by percentage or page number. Use the Start Reading, Mark as Finished, and Mark as Read buttons to change status. The reading sessions widget tracks each day you read and lets you log Did you read today? sessions. Tap the refresh icon to fetch updated cover and description from the internet.'**
+  String get tutorial_desc_book_detail;
+
+  /// No description provided for @tutorial_desc_my_books.
+  ///
+  /// In en, this message translates to:
+  /// **'The My Books tab lets you browse your library from different angles: grouped by Author, Saga, Decade, or Year. The Saga view shows completion progress for each series (e.g. 2 / 3 for a trilogy). Tap any group to see the books inside. Use the saga completion detail screen to see exactly which books you have and which are missing.'**
+  String get tutorial_desc_my_books;
+
+  /// No description provided for @tutorial_desc_statistics.
+  ///
+  /// In en, this message translates to:
+  /// **'The Statistics tab gives you a full overview of your reading habits. The dashboard shows a total books card, your latest book, and four configurable Quick Stats tiles — long-press any tile to change the stat it shows. Tap any section card to open a carousel of charts: Reading Activity (books and pages per year), Library Breakdown (status, format, language, place), Top Rankings (authors, genres, publishers), Ratings & Pages, Sagas & Series, Reading Patterns (heatmap, streaks, seasonal reading), and Best Book Champions. Set yearly reading goals in the Reading Goals card.'**
+  String get tutorial_desc_statistics;
+
+  /// No description provided for @tutorial_desc_book_competition.
+  ///
+  /// In en, this message translates to:
+  /// **'The Book Competition feature runs a monthly tournament between your started books. Each month, vote for your favourite book from the current candidates. Winners advance through monthly, quarterly, semifinal, and yearly rounds. Access the competition from the Statistics section or the dedicated screen. Past years\' results are also available to review.'**
+  String get tutorial_desc_book_competition;
+
+  /// No description provided for @tutorial_desc_random.
+  ///
+  /// In en, this message translates to:
+  /// **'The Random screen picks a random book from your library based on your chosen filters. Shake or tap to get a suggestion when you\'re not sure what to read next. The Year Challenges section lets you set reading goals and track themed challenges throughout the year.'**
+  String get tutorial_desc_random;
+
+  /// No description provided for @tutorial_desc_settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings is organized into collapsible sections. Appearance: choose Light, Dark, or System theme and customize your colour palette. Library Display: set TBR limits, configure which filters and card fields are shown on Home, and set the default sort order. Cloud Sync: back up your library to the cloud or restore from a previous backup, and configure automatic backup frequency. Import/Export: import from CSV (including Goodreads exports) or export your full library. Reading Reminders: set a daily notification to prompt you to log your reading.'**
+  String get tutorial_desc_settings;
+
+  /// No description provided for @tutorial_desc_library_tools.
+  ///
+  /// In en, this message translates to:
+  /// **'Library Tools (found in Settings) contains three bulk-edit utilities. Assign Books to Value: pick a field and a value, then select which books to assign it to — useful for tagging many books at once. Fill Empty Fields Wizard: shows books with a specific field empty, grouped by author, with smart suggestions from peer books. Smart Suggestions: the app analyses your library for inconsistencies (e.g. books in the same saga with different format values) and proposes fixes that you can accept or reject one by one.'**
+  String get tutorial_desc_library_tools;
+
+  /// No description provided for @tutorial_desc_dialogs.
+  ///
+  /// In en, this message translates to:
+  /// **'Several important dialogs and flows are available throughout the app. Quick Add: a minimal form accessible from Home for rapid book entry. Reading Club: log and track reading club sessions for a book. CSV Import: import books from a Goodreads export or a custom CSV file, with column mapping and status translation. Delete All Data: found in Settings, this permanently removes your entire library — a confirmation dialog is always shown before proceeding.'**
+  String get tutorial_desc_dialogs;
 }
 
 class _AppLocalizationsDelegate

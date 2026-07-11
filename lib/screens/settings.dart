@@ -15,6 +15,7 @@ import 'package:myrandomlibrary/screens/manage_dropdowns.dart';
 import 'package:myrandomlibrary/screens/manage_rating_fields.dart';
 import 'package:myrandomlibrary/screens/manage_club_names.dart';
 import 'package:myrandomlibrary/screens/bundle_migration_screen.dart';
+import 'package:myrandomlibrary/screens/tutorial_screen.dart';
 import 'package:myrandomlibrary/screens/reverse_assign_screen.dart';
 import 'package:myrandomlibrary/screens/fill_empty_wizard_screen.dart';
 import 'package:myrandomlibrary/screens/smart_suggestions_screen.dart';
@@ -2745,6 +2746,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
+            const SizedBox(height: 16),
+
+            // ===== TUTORIAL SECTION =====
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                leading: Icon(
+                  Icons.school_outlined,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                title: Text(
+                  AppLocalizations.of(context)!.tutorial_title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                subtitle: Text(
+                  AppLocalizations.of(context)!.tutorial_subtitle,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
+                ),
+                trailing: Icon(
+                  Icons.chevron_right,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const TutorialScreen()),
+                  );
+                },
+              ),
+            ),
             const SizedBox(height: 16),
 
             // ===== APPEARANCE SECTION (COLLAPSIBLE) =====
