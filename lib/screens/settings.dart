@@ -4007,9 +4007,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     padding: const EdgeInsets.all(12),
                                     decoration: BoxDecoration(
                                       color:
-                                          Theme.of(
-                                            context,
-                                          ).colorScheme.primaryContainer,
+                                          Theme.of(context).colorScheme.surface,
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
                                         color: Theme.of(context)
@@ -4102,9 +4100,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     padding: const EdgeInsets.all(12),
                                     decoration: BoxDecoration(
                                       color:
-                                          Theme.of(
-                                            context,
-                                          ).colorScheme.tertiaryContainer,
+                                          Theme.of(context).colorScheme.surface,
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
                                         color: Theme.of(context)
@@ -4124,7 +4120,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               color:
                                                   Theme.of(
                                                     context,
-                                                  ).colorScheme.tertiary,
+                                                  ).colorScheme.primary,
                                               size: 20,
                                             ),
                                             const SizedBox(width: 8),
@@ -4136,7 +4132,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                 color:
                                                     Theme.of(
                                                       context,
-                                                    ).colorScheme.tertiary,
+                                                    ).colorScheme.primary,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
@@ -4153,7 +4149,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                             color:
                                                 Theme.of(
                                                   context,
-                                                ).colorScheme.tertiary,
+                                                ).colorScheme.primary,
                                             fontSize: 11,
                                           ),
                                         ),
