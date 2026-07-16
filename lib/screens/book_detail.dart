@@ -225,11 +225,12 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     final hasAsin = _currentBook.asin != null && _currentBook.asin!.isNotEmpty;
     final hasTitle = _currentBook.name != null && _currentBook.name!.isNotEmpty;
 
-    // If metadata exists and we have identifiers, assume it's current
-    // (In a more sophisticated implementation, you could store the ISBN used for fetching
-    // and compare it, but for now we'll refetch only if metadata is missing)
-    if (hasMetadata) {
-      debugPrint('[BookDetail] Metadata already exists, skipping fetch');
+    // Skip if already fetched before (even if no result was found)
+    final alreadyAttempted =
+        _currentBook.metadataFetchedAt != null &&
+        _currentBook.metadataFetchedAt!.isNotEmpty;
+    if (hasMetadata || alreadyAttempted) {
+      debugPrint('[BookDetail] Metadata already fetched, skipping auto-fetch');
       return;
     }
 
@@ -344,7 +345,15 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           debugPrint('[BookDetail] Book updated with fetched metadata');
         }
       } else {
-        debugPrint('[BookDetail] No metadata found');
+        debugPrint('[BookDetail] No metadata found, marking as attempted');
+        // Mark as attempted so we don't retry on every open
+        final db = await DatabaseHelper.instance.database;
+        await db.update(
+          'book',
+          {'metadata_fetched_at': DateTime.now().toIso8601String()},
+          where: 'book_id = ?',
+          whereArgs: [_currentBook.bookId!],
+        );
         if (mounted) {
           setState(() {
             _isFetchingMetadata = false;
@@ -2881,150 +2890,157 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                           color: Theme.of(context).colorScheme.outlineVariant,
                         ),
                       ),
-                      child: Theme(
-                        data: Theme.of(
-                          context,
-                        ).copyWith(dividerColor: Colors.transparent),
-                        child: ExpansionTile(
-                          initiallyExpanded: _isDescriptionExpanded,
-                          onExpansionChanged: (expanded) {
-                            setState(() {
-                              _isDescriptionExpanded = expanded;
-                            });
-                          },
-                          tilePadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 4,
-                          ),
-                          childrenPadding: const EdgeInsets.only(
-                            left: 12,
-                            right: 12,
-                            bottom: 12,
-                          ),
-                          title: Row(
-                            children: [
-                              Icon(
-                                Icons.description,
-                                size: 16,
-                                color:
-                                    Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                AppLocalizations.of(context)!.description,
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.bodySmall?.copyWith(
+                      child: Material(
+                        type: MaterialType.transparency,
+                        child: Theme(
+                          data: Theme.of(
+                            context,
+                          ).copyWith(dividerColor: Colors.transparent),
+                          child: ExpansionTile(
+                            initiallyExpanded: _isDescriptionExpanded,
+                            onExpansionChanged: (expanded) {
+                              setState(() {
+                                _isDescriptionExpanded = expanded;
+                              });
+                            },
+                            tilePadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 4,
+                            ),
+                            childrenPadding: const EdgeInsets.only(
+                              left: 12,
+                              right: 12,
+                              bottom: 12,
+                            ),
+                            title: Row(
+                              children: [
+                                Icon(
+                                  Icons.description,
+                                  size: 16,
                                   color:
                                       Theme.of(
                                         context,
                                       ).colorScheme.onSurfaceVariant,
-                                  fontWeight: FontWeight.w600,
                                 ),
-                              ),
-                              if (_isAdmin &&
-                                  _currentBook.metadataSource != null) ...[
                                 const SizedBox(width: 4),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.primary
-                                        .withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Text(
-                                    _currentBook.metadataSource ==
-                                            'google_books'
-                                        ? AppLocalizations.of(
+                                Text(
+                                  AppLocalizations.of(context)!.description,
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.bodySmall?.copyWith(
+                                    color:
+                                        Theme.of(
                                           context,
-                                        )!.google_books
-                                        : _currentBook.metadataSource ==
-                                            'open_library'
-                                        ? AppLocalizations.of(
-                                          context,
-                                        )!.open_library
-                                        : 'API',
-                                    style: TextStyle(
-                                      fontSize: 9,
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                        ).colorScheme.onSurfaceVariant,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                              ],
-                            ],
-                          ),
-                          children: [
-                            if (_isFetchingMetadata)
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12.0,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const SizedBox(
-                                      width: 16,
-                                      height: 16,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                      ),
+                                if (_isAdmin &&
+                                    _currentBook.metadataSource != null) ...[
+                                  const SizedBox(width: 4),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
                                     ),
-                                    const SizedBox(width: 12),
-                                    Text(
-                                      AppLocalizations.of(
-                                        context,
-                                      )!.fetching_description,
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      _currentBook.metadataSource ==
+                                              'google_books'
+                                          ? AppLocalizations.of(
+                                            context,
+                                          )!.google_books
+                                          : _currentBook.metadataSource ==
+                                              'open_library'
+                                          ? AppLocalizations.of(
+                                            context,
+                                          )!.open_library
+                                          : 'API',
                                       style: TextStyle(
+                                        fontSize: 9,
                                         color:
                                             Theme.of(
                                               context,
-                                            ).colorScheme.onSurfaceVariant,
-                                        fontSize: 13,
-                                        fontStyle: FontStyle.italic,
+                                            ).colorScheme.primary,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                  ],
+                                  ),
+                                ],
+                              ],
+                            ),
+                            children: [
+                              if (_isFetchingMetadata)
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12.0,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.fetching_description,
+                                        style: TextStyle(
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant,
+                                          fontSize: 13,
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              else if (_currentBook.description != null &&
+                                  _currentBook.description!.isNotEmpty)
+                                Text(
+                                  _currentBook.description!.replaceAll(
+                                    '. ',
+                                    '.\n',
+                                  ),
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.bodySmall?.copyWith(
+                                    color:
+                                        Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
+                                  ),
+                                )
+                              else
+                                Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.no_description_available,
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.bodySmall?.copyWith(
+                                    color:
+                                        Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
+                                    fontStyle: FontStyle.italic,
+                                  ),
                                 ),
-                              )
-                            else if (_currentBook.description != null &&
-                                _currentBook.description!.isNotEmpty)
-                              Text(
-                                _currentBook.description!.replaceAll(
-                                  '. ',
-                                  '.\n',
-                                ),
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.bodySmall?.copyWith(
-                                  color:
-                                      Theme.of(
-                                        context,
-                                      ).colorScheme.onSurfaceVariant,
-                                ),
-                              )
-                            else
-                              Text(
-                                AppLocalizations.of(
-                                  context,
-                                )!.no_description_available,
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.bodySmall?.copyWith(
-                                  color:
-                                      Theme.of(
-                                        context,
-                                      ).colorScheme.onSurfaceVariant,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
