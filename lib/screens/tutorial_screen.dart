@@ -383,6 +383,7 @@ class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
             onPageChanged: (i) => setState(() => _currentIndex = i),
             itemBuilder: (context, index) {
               return InteractiveViewer(
+                panEnabled: false,
                 minScale: 0.5,
                 maxScale: 4.0,
                 child: Center(

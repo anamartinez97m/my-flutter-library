@@ -342,6 +342,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
             _isFetchingMetadata = false;
           });
 
+          // Update provider so the stale book object in the list gets refreshed
+          final provider = Provider.of<BookProvider?>(context, listen: false);
+          await provider?.loadBooks();
+
           debugPrint('[BookDetail] Book updated with fetched metadata');
         }
       } else {
@@ -358,6 +362,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           setState(() {
             _isFetchingMetadata = false;
           });
+
+          // Update provider so the stale book object in the list gets refreshed
+          final provider = Provider.of<BookProvider?>(context, listen: false);
+          await provider?.loadBooks();
         }
       }
     } catch (e) {
