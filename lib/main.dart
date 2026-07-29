@@ -5,10 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
+import 'package:myrandomlibrary/providers/feature_flag_provider.dart';
 import 'package:myrandomlibrary/providers/locale_provider.dart';
 import 'package:myrandomlibrary/providers/theme_provider.dart';
 import 'package:myrandomlibrary/screens/get_started_screen.dart';
 import 'package:myrandomlibrary/screens/navigation.dart';
+import 'package:myrandomlibrary/screens/new_ui/new_navigation_screen.dart';
 import 'package:myrandomlibrary/services/backup_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:myrandomlibrary/services/google_auth_service.dart';
@@ -50,6 +52,7 @@ void main() async {
           ChangeNotifierProvider<BookProvider>.value(value: bookProvider),
           ChangeNotifierProvider(create: (_) => ThemeProvider()),
           ChangeNotifierProvider(create: (_) => LocaleProvider()),
+          ChangeNotifierProvider(create: (_) => FeatureFlagProvider()),
         ],
         child: const MyApp(),
       ),
@@ -63,6 +66,7 @@ void main() async {
         providers: [
           ChangeNotifierProvider(create: (_) => ThemeProvider()),
           ChangeNotifierProvider(create: (_) => LocaleProvider()),
+          ChangeNotifierProvider(create: (_) => FeatureFlagProvider()),
         ],
         child: const MyApp(),
       ),
@@ -211,6 +215,10 @@ class _AutoBackupRunnerState extends State<_AutoBackupRunner> {
     }
     if (!_hasSeenOnboarding!) {
       return const GetStartedScreen();
+    }
+    final flags = Provider.of<FeatureFlagProvider>(context);
+    if (flags.newUiEnabled) {
+      return const NewNavigationScreen();
     }
     return const NavigationScreen();
   }

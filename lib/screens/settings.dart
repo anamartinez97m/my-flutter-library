@@ -19,6 +19,7 @@ import 'package:myrandomlibrary/screens/tutorial_screen.dart';
 import 'package:myrandomlibrary/screens/reverse_assign_screen.dart';
 import 'package:myrandomlibrary/screens/fill_empty_wizard_screen.dart';
 import 'package:myrandomlibrary/screens/smart_suggestions_screen.dart';
+import 'package:myrandomlibrary/providers/feature_flag_provider.dart';
 import 'package:myrandomlibrary/services/google_auth_service.dart';
 import 'package:myrandomlibrary/services/backup_service.dart';
 import 'package:myrandomlibrary/services/notification_service.dart';
@@ -5455,6 +5456,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               const SizedBox(height: 16),
             ],
+
+            // ===== NEW UI DEV PREVIEW (only visible to dev account) =====
+            Consumer<FeatureFlagProvider>(
+              builder: (context, flags, _) {
+                if (!flags.isDevUser) return const SizedBox.shrink();
+                return Column(
+                  children: [
+                    Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: CheckboxListTile(
+                        title: const Text('New UI Preview'),
+                        subtitle: const Text(
+                          'Enable the new UI design (dev only)',
+                        ),
+                        value: flags.newUiEnabled,
+                        onChanged: (value) => flags.setToggle(value ?? false),
+                        secondary: const Icon(Icons.preview_rounded),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                );
+              },
+            ),
 
             // ===== ABOUT =====
             AboutListTile(
