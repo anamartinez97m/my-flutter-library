@@ -687,6 +687,25 @@ class _AddBookScreenState extends State<AddBookScreen> {
         }
       }
 
+      // If book belongs to a saga and has a format saga, update all books in that saga
+      final sagaName = _sagaController.text.trim();
+      if (sagaName.isNotEmpty && _selectedFormatSagaId != null) {
+        final updatedCount = await repository.updateFormatSagaForAllBooksInSaga(
+          sagaName,
+          _selectedFormatSagaId!,
+        );
+        if (updatedCount > 1 && context.mounted) {
+          messenger.showSnackBar(
+            SnackBar(
+              content: Text(
+                'Updated format saga for $updatedCount books in "$sagaName"',
+              ),
+              backgroundColor: colorScheme.primary,
+            ),
+          );
+        }
+      }
+
       // Reload books in provider
       if (!context.mounted) return;
       await provider?.loadBooks();
@@ -1224,6 +1243,23 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 prefixIcon: Icons.collections_bookmark,
                 suggestions: _sagaSuggestions,
                 textCapitalization: TextCapitalization.words,
+                onSelected: (selectedSaga) async {
+                  // Auto-fill format saga from existing books with this saga
+                  try {
+                    final db = await DatabaseHelper.instance.database;
+                    final repository = BookRepository(db);
+                    final formatSagaId = await repository
+                        .getFormatSagaIdForSaga(selectedSaga);
+
+                    if (formatSagaId != null && mounted) {
+                      setState(() {
+                        _selectedFormatSagaId = formatSagaId;
+                      });
+                    }
+                  } catch (e) {
+                    debugPrint('Error auto-filling format saga: $e');
+                  }
+                },
               ),
               const SizedBox(height: 16),
 
