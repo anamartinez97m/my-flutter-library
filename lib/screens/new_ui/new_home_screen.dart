@@ -68,6 +68,13 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
       _selectedPrice;
 
   Set<String> _enabledFilters = {};
+  Set<String> _enabledCardFields = {
+    'title',
+    'author',
+    'saga',
+    'format',
+    'language',
+  };
   bool _isAdmin = false;
 
   void clearSearch() {
@@ -85,6 +92,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     super.initState();
     widget.onRegisterClearSearch?.call(clearSearch);
     _loadEnabledFilters();
+    _loadEnabledCardFields();
     _loadFilterOptions();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final p = Provider.of<BookProvider?>(context, listen: false);
@@ -154,6 +162,16 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
   }
 
   bool _isFilterEnabled(String key) => _enabledFilters.contains(key);
+
+  Future<void> _loadEnabledCardFields() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getStringList('enabled_card_fields');
+    if (!mounted) return;
+    setState(() {
+      _enabledCardFields =
+          saved?.toSet() ?? {'title', 'author', 'saga', 'format', 'language'};
+    });
+  }
 
   Future<void> _loadFilterOptions() async {
     try {
@@ -948,7 +966,11 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                 return ListView.builder(
                   padding: const EdgeInsets.fromLTRB(20, 4, 20, 100),
                   itemCount: p.books.length,
-                  itemBuilder: (ctx, i) => _NewBookCard(book: p.books[i]),
+                  itemBuilder:
+                      (ctx, i) => _NewBookCard(
+                        book: p.books[i],
+                        enabledCardFields: _enabledCardFields,
+                      ),
                 );
               },
             ),
@@ -993,21 +1015,27 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
 
 class _NewBookCard extends StatelessWidget {
   final Book book;
-  const _NewBookCard({required this.book});
+  final Set<String> enabledCardFields;
+  const _NewBookCard({required this.book, required this.enabledCardFields});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isRead =
         book.statusValue?.toLowerCase() == 'yes' ||
         book.statusValue?.toLowerCase() == 'repeated';
 
     final meta = <_MetaItem>[];
-    if (book.saga != null && book.saga!.isNotEmpty) {
+    if (enabledCardFields.contains('saga') &&
+        book.saga != null &&
+        book.saga!.isNotEmpty) {
       final label =
           '${book.saga}${book.nSaga != null && book.nSaga!.isNotEmpty ? " #${book.nSaga}" : ""}';
       meta.add(_MetaItem(icon: Icons.auto_stories_outlined, text: label));
     }
-    if (book.formatValue != null && book.formatValue!.isNotEmpty) {
+    if (enabledCardFields.contains('format') &&
+        book.formatValue != null &&
+        book.formatValue!.isNotEmpty) {
       meta.add(
         _MetaItem(
           icon: Icons.import_contacts_outlined,
@@ -1015,19 +1043,101 @@ class _NewBookCard extends StatelessWidget {
         ),
       );
     }
-    if (book.pages != null) {
+    if (enabledCardFields.contains('language') &&
+        book.languageValue != null &&
+        book.languageValue!.isNotEmpty) {
       meta.add(
-        _MetaItem(icon: Icons.menu_book_outlined, text: '${book.pages} PAGES'),
+        _MetaItem(
+          icon: Icons.translate_outlined,
+          text: book.languageValue!.toUpperCase(),
+        ),
       );
     }
-    if (book.dateReadFinal != null && book.dateReadFinal!.isNotEmpty) {
-      final year = book.dateReadFinal!.split('-').first;
+    if (enabledCardFields.contains('pages') && book.pages != null) {
       meta.add(
-        _MetaItem(icon: Icons.calendar_today_outlined, text: 'READ: $year'),
+        _MetaItem(
+          icon: Icons.menu_book_outlined,
+          text: l10n.pages_field_label('${book.pages}').toUpperCase(),
+        ),
       );
     }
-    if (book.myRating != null) {
+    if (enabledCardFields.contains('genre') &&
+        book.genre != null &&
+        book.genre!.isNotEmpty) {
+      meta.add(
+        _MetaItem(
+          icon: Icons.category_outlined,
+          text: book.genre!.toUpperCase(),
+        ),
+      );
+    }
+    if (enabledCardFields.contains('editorial') &&
+        book.editorialValue != null &&
+        book.editorialValue!.isNotEmpty) {
+      meta.add(
+        _MetaItem(
+          icon: Icons.apartment_outlined,
+          text: book.editorialValue!.toUpperCase(),
+        ),
+      );
+    }
+    if (enabledCardFields.contains('isbn') &&
+        (book.isbn != null || book.asin != null)) {
+      meta.add(_MetaItem(icon: Icons.tag, text: (book.isbn ?? book.asin)!));
+    }
+    if (enabledCardFields.contains('publication_year') &&
+        book.originalPublicationYear != null) {
+      meta.add(
+        _MetaItem(
+          icon: Icons.calendar_today_outlined,
+          text: '${book.originalPublicationYear}',
+        ),
+      );
+    }
+    if (enabledCardFields.contains('publication_date') &&
+        book.notificationDatetime != null &&
+        book.notificationDatetime!.isNotEmpty) {
+      meta.add(
+        _MetaItem(
+          icon: Icons.notifications_none_outlined,
+          text: book.notificationDatetime!.split('T')[0],
+        ),
+      );
+    }
+    if (enabledCardFields.contains('rating') && book.myRating != null) {
       meta.add(_MetaItem(icon: Icons.star_outline, text: '${book.myRating}/5'));
+    }
+    if (enabledCardFields.contains('read_count') &&
+        book.readCount != null &&
+        book.readCount! > 0) {
+      meta.add(
+        _MetaItem(icon: Icons.repeat_outlined, text: 'x${book.readCount}'),
+      );
+    }
+    if (enabledCardFields.contains('status') &&
+        book.statusValue != null &&
+        book.statusValue!.isNotEmpty) {
+      meta.add(
+        _MetaItem(
+          icon: Icons.info_outline,
+          text:
+              StatusHelper.getLocalizedLabel(
+                book.statusValue!,
+                l10n,
+              ).toUpperCase(),
+        ),
+      );
+    }
+    if (enabledCardFields.contains('progress') &&
+        book.readingProgress != null &&
+        book.readingProgress! > 0 &&
+        (book.statusValue?.toLowerCase() == 'started' ||
+            book.statusValue?.toLowerCase() == 'standby')) {
+      final pct =
+          book.progressType == 'pages' && book.pages != null && book.pages! > 0
+              ? '${(book.readingProgress! * 100 / book.pages!).round()}%'
+              : '${book.readingProgress}%';
+      meta.add(_MetaItem(icon: Icons.trending_up, text: pct));
     }
 
     final bool hasProgress =
@@ -1108,7 +1218,9 @@ class _NewBookCard extends StatelessWidget {
                   ),
 
                   // Author
-                  if (book.author != null && book.author!.isNotEmpty) ...[
+                  if (enabledCardFields.contains('author') &&
+                      book.author != null &&
+                      book.author!.isNotEmpty) ...[
                     const SizedBox(height: 5),
                     Text(
                       book.author!,
