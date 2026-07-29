@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/feature_flag_provider.dart';
-import 'package:myrandomlibrary/screens/home.dart';
+import 'package:myrandomlibrary/screens/new_ui/new_home_screen.dart';
 import 'package:myrandomlibrary/screens/my_books.dart';
 import 'package:myrandomlibrary/screens/random.dart';
 import 'package:myrandomlibrary/screens/settings.dart';
@@ -98,7 +98,7 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
   }
 
   List<Widget> get widgetOptions => [
-    HomeScreen(onRegisterClearSearch: _registerClearSearch),
+    NewHomeScreen(onRegisterClearSearch: _registerClearSearch),
     const StatisticsScreen(),
     const MyBooksScreen(),
     const RandomScreen(),
@@ -132,7 +132,12 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(AppLocalizations.of(context)!.app_title),
+          backgroundColor: const Color(0xFF43102B),
+          foregroundColor: Colors.white,
+          title: Text(
+            AppLocalizations.of(context)!.app_title,
+            style: const TextStyle(color: Colors.white, fontFamily: 'Manrope'),
+          ),
           actions: [
             // Dev-only escape hatch — tap to switch back to the old UI
             Consumer<FeatureFlagProvider>(
@@ -147,12 +152,7 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
             ),
           ],
         ),
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: widgetOptions.elementAt(_selectedIndex),
-          ),
-        ),
+        body: SafeArea(child: widgetOptions.elementAt(_selectedIndex)),
         bottomNavigationBar: NavigationBar(
           onDestinationSelected: (int index) {
             if (_selectedIndex == 0 && index != 0) {
