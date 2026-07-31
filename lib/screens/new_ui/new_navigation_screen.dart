@@ -33,6 +33,7 @@ class NewNavigationScreen extends StatefulWidget {
 
 class _NewNavigationScreenState extends State<NewNavigationScreen> {
   int _selectedIndex = 0;
+  bool _useInlineHeader = false;
   VoidCallback? _clearHomeSearch;
   final AppUpdateService _appUpdateService = AppUpdateService();
 
@@ -120,6 +121,57 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
     );
   }
 
+  Widget _buildInlineHeader(BuildContext context) {
+    return Container(
+      color: const Color(0xFFFDF8F6),
+      padding: const EdgeInsets.fromLTRB(25, 20, 8, 12),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              AppLocalizations.of(context)!.app_title,
+              style: const TextStyle(
+                fontFamily: 'Manrope',
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: Color(0xFF43102B),
+                letterSpacing: -0.5,
+              ),
+            ),
+          ),
+          Consumer<FeatureFlagProvider>(
+            builder: (context, flags, _) {
+              if (!flags.isDevUser) return const SizedBox.shrink();
+              return IconButton(
+                icon: const Icon(
+                  Icons.undo_rounded,
+                  color: Color(0xFF514348),
+                  size: 20,
+                ),
+                tooltip: 'Switch to old UI',
+                onPressed: () => flags.setToggle(false),
+                visualDensity: VisualDensity.compact,
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(
+              Icons.view_compact_alt_outlined,
+              color: Color(0xFF514348),
+              size: 20,
+            ),
+            tooltip: 'Switch to full header',
+            onPressed:
+                () => setState(() {
+                  _useInlineHeader = false;
+                }),
+            visualDensity: VisualDensity.compact,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildContent(BuildContext context) {
     return PopScope(
       canPop: _selectedIndex == 0,
@@ -131,28 +183,48 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: const Color(0xFF43102B),
-          foregroundColor: Colors.white,
-          title: Text(
-            AppLocalizations.of(context)!.app_title,
-            style: const TextStyle(color: Colors.white, fontFamily: 'Manrope'),
+        appBar:
+            _useInlineHeader
+                ? null
+                : AppBar(
+                  backgroundColor: const Color(0xFF43102B),
+                  foregroundColor: Colors.white,
+                  title: Text(
+                    AppLocalizations.of(context)!.app_title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'Manrope',
+                    ),
+                  ),
+                  actions: [
+                    Consumer<FeatureFlagProvider>(
+                      builder: (context, flags, _) {
+                        if (!flags.isDevUser) return const SizedBox.shrink();
+                        return IconButton(
+                          icon: const Icon(Icons.undo_rounded),
+                          tooltip: 'Switch to old UI',
+                          onPressed: () => flags.setToggle(false),
+                        );
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.view_compact_alt_outlined),
+                      tooltip: 'Switch to minimal header',
+                      onPressed:
+                          () => setState(() {
+                            _useInlineHeader = true;
+                          }),
+                    ),
+                  ],
+                ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              if (_useInlineHeader) _buildInlineHeader(context),
+              Expanded(child: widgetOptions.elementAt(_selectedIndex)),
+            ],
           ),
-          actions: [
-            // Dev-only escape hatch — tap to switch back to the old UI
-            Consumer<FeatureFlagProvider>(
-              builder: (context, flags, _) {
-                if (!flags.isDevUser) return const SizedBox.shrink();
-                return IconButton(
-                  icon: const Icon(Icons.undo_rounded),
-                  tooltip: 'Switch to old UI',
-                  onPressed: () => flags.setToggle(false),
-                );
-              },
-            ),
-          ],
         ),
-        body: SafeArea(child: widgetOptions.elementAt(_selectedIndex)),
         bottomNavigationBar: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
