@@ -3,7 +3,7 @@ import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/feature_flag_provider.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_home_screen.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_my_books_screen.dart';
-import 'package:myrandomlibrary/screens/random.dart';
+import 'package:myrandomlibrary/screens/new_ui/new_random_screen.dart';
 import 'package:myrandomlibrary/screens/settings.dart';
 import 'package:myrandomlibrary/screens/statistics.dart';
 import 'package:myrandomlibrary/services/app_update_service.dart';
@@ -101,7 +101,7 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
     NewHomeScreen(onRegisterClearSearch: _registerClearSearch),
     const StatisticsScreen(useNewUi: true),
     const NewMyBooksScreen(),
-    const RandomScreen(),
+    const NewRandomScreen(),
     const SettingsScreen(),
   ];
 
