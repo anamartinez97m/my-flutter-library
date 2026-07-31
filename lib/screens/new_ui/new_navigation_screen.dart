@@ -153,43 +153,70 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
           ],
         ),
         body: SafeArea(child: widgetOptions.elementAt(_selectedIndex)),
-        bottomNavigationBar: NavigationBar(
-          onDestinationSelected: (int index) {
-            if (_selectedIndex == 0 && index != 0) {
-              _clearHomeSearch?.call();
-            }
-            setState(() {
-              _selectedIndex = index;
-            });
-          },
-          indicatorColor: Theme.of(context).navigationBarTheme.indicatorColor,
-          selectedIndex: _selectedIndex,
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-          destinations: <Widget>[
-            NavigationDestination(
-              icon: const Icon(Icons.cottage_outlined),
-              label: AppLocalizations.of(context)!.home,
-              tooltip: AppLocalizations.of(context)!.home,
-            ),
-            NavigationDestination(
-              icon: const Icon(Icons.donut_large_outlined),
-              label: AppLocalizations.of(context)!.statistics,
-              tooltip: AppLocalizations.of(context)!.statistics,
-            ),
-            NavigationDestination(
-              icon: const Icon(Icons.bookmark_outline_outlined),
-              label: AppLocalizations.of(context)!.my_books,
-              tooltip: AppLocalizations.of(context)!.my_books,
-            ),
-            NavigationDestination(
-              icon: const Icon(Icons.shuffle_outlined),
-              label: AppLocalizations.of(context)!.random,
-              tooltip: AppLocalizations.of(context)!.random,
-            ),
-            NavigationDestination(
-              icon: const Icon(Icons.settings_outlined),
-              label: AppLocalizations.of(context)!.settings,
-              tooltip: AppLocalizations.of(context)!.settings,
+        bottomNavigationBar: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(height: 1, color: const Color(0xFF43102B)),
+            NavigationBarTheme(
+              data: NavigationBarThemeData(
+                height: 64,
+                backgroundColor: const Color(0xFFFDF8F6),
+                indicatorColor: const Color(0xFFECE7E5),
+                indicatorShape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                iconTheme: WidgetStateProperty.resolveWith((states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return const IconThemeData(
+                      color: Color(0xFF43102B),
+                      size: 22,
+                    );
+                  }
+                  return const IconThemeData(
+                    color: Color(0xFF514348),
+                    size: 22,
+                  );
+                }),
+                labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+              ),
+              child: NavigationBar(
+                onDestinationSelected: (int index) {
+                  if (_selectedIndex == 0 && index != 0) {
+                    _clearHomeSearch?.call();
+                  }
+                  setState(() {
+                    _selectedIndex = index;
+                  });
+                },
+                selectedIndex: _selectedIndex,
+                destinations: <Widget>[
+                  NavigationDestination(
+                    icon: const Icon(Icons.cottage_outlined),
+                    label: AppLocalizations.of(context)!.home,
+                    tooltip: AppLocalizations.of(context)!.home,
+                  ),
+                  NavigationDestination(
+                    icon: const Icon(Icons.bar_chart_outlined),
+                    label: AppLocalizations.of(context)!.statistics,
+                    tooltip: AppLocalizations.of(context)!.statistics,
+                  ),
+                  NavigationDestination(
+                    icon: const Icon(Icons.bookmark_outline_outlined),
+                    label: AppLocalizations.of(context)!.my_books,
+                    tooltip: AppLocalizations.of(context)!.my_books,
+                  ),
+                  NavigationDestination(
+                    icon: const Icon(Icons.shuffle_outlined),
+                    label: AppLocalizations.of(context)!.random,
+                    tooltip: AppLocalizations.of(context)!.random,
+                  ),
+                  NavigationDestination(
+                    icon: const Icon(Icons.settings_outlined),
+                    label: AppLocalizations.of(context)!.settings,
+                    tooltip: AppLocalizations.of(context)!.settings,
+                  ),
+                ],
+              ),
             ),
           ],
         ),
