@@ -209,7 +209,34 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     }
   }
 
-  // ── Filter sheet helper ──────────────────────────────────────────────────────
+  // ── Filter sheet helpers ─────────────────────────────────────────────────────
+
+  InputDecoration _figmaDropdownDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: const TextStyle(
+        color: Color(0xFF514348),
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+      ),
+      floatingLabelBehavior: FloatingLabelBehavior.always,
+      filled: true,
+      fillColor: _kBg,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Color(0xFF27231E)),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Color(0xFF27231E)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Color(0xFF27231E)),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 17, vertical: 17),
+    );
+  }
 
   Widget _filterDropdown({
     required BuildContext ctx,
@@ -226,37 +253,27 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     if (adminOnly && !_isAdmin) return const SizedBox.shrink();
     if (!_isFilterEnabled(filterKey)) return const SizedBox.shrink();
     final l10n = AppLocalizations.of(ctx)!;
-    return Column(
-      children: [
-        DropdownButtonFormField<String>(
-          initialValue: value,
-          isExpanded: true,
-          menuMaxHeight: 300,
-          decoration: InputDecoration(
-            labelText: label,
-            border: const OutlineInputBorder(),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 8,
-            ),
-            isDense: true,
-          ),
-          items: [
-            DropdownMenuItem(value: null, child: Text(l10n.any)),
-            if (withEmpty)
-              DropdownMenuItem(value: '__EMPTY__', child: Text(l10n.empty)),
-            ...extras,
-          ],
-          onChanged: (v) {
-            setState(() => assign(v));
-            v != null
-                ? provider.filterBooks(filterKey, v)
-                : provider.filterBooks('all', null);
-            setModalState(() {});
-          },
-        ),
-        const SizedBox(height: 8),
-      ],
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: DropdownButtonFormField<String>(
+        initialValue: value,
+        isExpanded: true,
+        menuMaxHeight: 300,
+        decoration: _figmaDropdownDecoration(label),
+        items: [
+          DropdownMenuItem(value: null, child: Text(l10n.any)),
+          if (withEmpty)
+            DropdownMenuItem(value: '__EMPTY__', child: Text(l10n.empty)),
+          ...extras,
+        ],
+        onChanged: (v) {
+          setState(() => assign(v));
+          v != null
+              ? provider.filterBooks(filterKey, v)
+              : provider.filterBooks('all', null);
+          setModalState(() {});
+        },
+      ),
     );
   }
 
@@ -273,36 +290,26 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     if (adminOnly && !_isAdmin) return const SizedBox.shrink();
     if (!_isFilterEnabled(filterKey)) return const SizedBox.shrink();
     final l10n = AppLocalizations.of(ctx)!;
-    return Column(
-      children: [
-        DropdownButtonFormField<String>(
-          initialValue: value,
-          isExpanded: true,
-          menuMaxHeight: 300,
-          decoration: InputDecoration(
-            labelText: label,
-            border: const OutlineInputBorder(),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 8,
-            ),
-            isDense: true,
-          ),
-          items: [
-            DropdownMenuItem(value: null, child: Text(l10n.any)),
-            DropdownMenuItem(value: 'true', child: Text(l10n.yes)),
-            DropdownMenuItem(value: 'false', child: Text(l10n.no)),
-          ],
-          onChanged: (v) {
-            setState(() => assign(v));
-            v != null
-                ? provider.filterBooks(filterKey, v)
-                : provider.filterBooks('all', null);
-            setModalState(() {});
-          },
-        ),
-        const SizedBox(height: 8),
-      ],
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: DropdownButtonFormField<String>(
+        initialValue: value,
+        isExpanded: true,
+        menuMaxHeight: 300,
+        decoration: _figmaDropdownDecoration(label),
+        items: [
+          DropdownMenuItem(value: null, child: Text(l10n.any)),
+          DropdownMenuItem(value: 'true', child: Text(l10n.yes)),
+          DropdownMenuItem(value: 'false', child: Text(l10n.no)),
+        ],
+        onChanged: (v) {
+          setState(() => assign(v));
+          v != null
+              ? provider.filterBooks(filterKey, v)
+              : provider.filterBooks('all', null);
+          setModalState(() {});
+        },
+      ),
     );
   }
 
@@ -310,496 +317,696 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder:
           (ctx) => DraggableScrollableSheet(
-            initialChildSize: 0.6,
-            minChildSize: 0.4,
-            maxChildSize: 0.75,
+            initialChildSize: 0.85,
+            minChildSize: 0.5,
+            maxChildSize: 0.95,
             expand: false,
             builder:
                 (ctx, scrollController) => StatefulBuilder(
                   builder: (ctx, setModalState) {
                     final l10n = AppLocalizations.of(ctx)!;
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: ListView(
-                        controller: scrollController,
-                        children: [
-                          const SizedBox(height: 12),
-                          Text(
-                            l10n.sort_and_filter,
-                            style: Theme.of(ctx).textTheme.titleSmall,
-                          ),
-                          const Divider(),
-                          ListTile(
-                            leading: const Icon(Icons.sort),
-                            title: DropdownButton<String>(
-                              value: _sortBy,
-                              isExpanded: true,
-                              underline: const SizedBox(),
-                              items: [
-                                DropdownMenuItem(
-                                  value: 'name',
-                                  child: Text(l10n.book_name),
+                    return ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(12),
+                      ),
+                      child: Container(
+                        color: _kBg,
+                        child: Column(
+                          children: [
+                            // ── Header ──────────────────────────────────────
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 16,
+                              ),
+                              decoration: const BoxDecoration(
+                                color: _kBg,
+                                border: Border(
+                                  bottom: BorderSide(color: _kDivider),
                                 ),
-                                DropdownMenuItem(
-                                  value: 'author',
-                                  child: Text(l10n.author),
-                                ),
-                                DropdownMenuItem(
-                                  value: 'created_at',
-                                  child: Text(l10n.date_created),
-                                ),
-                              ],
-                              onChanged: (v) {
-                                if (v != null) {
-                                  setState(() => _sortBy = v);
-                                  provider.sortBooks(_sortBy, _ascending);
-                                  setModalState(() {});
-                                }
-                              },
-                            ),
-                            trailing: IconButton(
-                              icon: Icon(
-                                _ascending
-                                    ? Icons.arrow_upward
-                                    : Icons.arrow_downward,
                               ),
-                              onPressed: () {
-                                setState(() => _ascending = !_ascending);
-                                provider.sortBooks(_sortBy, _ascending);
-                                setModalState(() {});
-                              },
-                            ),
-                          ),
-                          const Divider(height: 24),
-                          Text(
-                            l10n.filters,
-                            style: Theme.of(ctx).textTheme.titleSmall,
-                          ),
-                          const SizedBox(height: 8),
-                          _filterDropdown(
-                            ctx: ctx,
-                            provider: provider,
-                            setModalState: setModalState,
-                            filterKey: 'title',
-                            label: l10n.book_name,
-                            value: _selectedTitle,
-                            assign: (v) => _selectedTitle = v,
-                            extras: [],
-                            withEmpty: true,
-                          ),
-                          _filterDropdown(
-                            ctx: ctx,
-                            provider: provider,
-                            setModalState: setModalState,
-                            filterKey: 'isbn',
-                            label: l10n.isbn_asin,
-                            value: _selectedIsbnAsin,
-                            assign: (v) => _selectedIsbnAsin = v,
-                            extras: [],
-                            withEmpty: true,
-                          ),
-                          _filterDropdown(
-                            ctx: ctx,
-                            provider: provider,
-                            setModalState: setModalState,
-                            filterKey: 'author',
-                            label: l10n.author,
-                            value: _selectedAuthor,
-                            assign: (v) => _selectedAuthor = v,
-                            extras: [],
-                            withEmpty: true,
-                          ),
-                          _filterDropdown(
-                            ctx: ctx,
-                            provider: provider,
-                            setModalState: setModalState,
-                            filterKey: 'status',
-                            label: l10n.status,
-                            value: _selectedStatus,
-                            assign: (v) => _selectedStatus = v,
-                            extras:
-                                _statusList
-                                    .map(
-                                      (i) => DropdownMenuItem<String>(
-                                        value: i['value'] as String,
-                                        child: Text(
-                                          StatusHelper.getLocalizedLabel(
-                                            i['value'] as String,
-                                            l10n,
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                    .toList(),
-                          ),
-                          _filterDropdown(
-                            ctx: ctx,
-                            provider: provider,
-                            setModalState: setModalState,
-                            filterKey: 'format',
-                            label: l10n.format,
-                            value: _selectedFormat,
-                            assign: (v) => _selectedFormat = v,
-                            withEmpty: true,
-                            extras:
-                                _formatList
-                                    .map(
-                                      (i) => DropdownMenuItem<String>(
-                                        value: i['value'] as String,
-                                        child: Text(i['value'] as String),
-                                      ),
-                                    )
-                                    .toList(),
-                          ),
-                          _filterDropdown(
-                            ctx: ctx,
-                            provider: provider,
-                            setModalState: setModalState,
-                            filterKey: 'genre',
-                            label: l10n.genre,
-                            value: _selectedGenre,
-                            assign: (v) => _selectedGenre = v,
-                            withEmpty: true,
-                            extras:
-                                _genreList
-                                    .map(
-                                      (i) => DropdownMenuItem<String>(
-                                        value: i['value'] as String,
-                                        child: Text(i['value'] as String),
-                                      ),
-                                    )
-                                    .toList(),
-                          ),
-                          _filterDropdown(
-                            ctx: ctx,
-                            provider: provider,
-                            setModalState: setModalState,
-                            filterKey: 'language',
-                            label: l10n.language,
-                            value: _selectedLanguage,
-                            assign: (v) => _selectedLanguage = v,
-                            withEmpty: true,
-                            extras:
-                                _languageList
-                                    .map(
-                                      (i) => DropdownMenuItem<String>(
-                                        value: i['value'] as String,
-                                        child: Text(i['value'] as String),
-                                      ),
-                                    )
-                                    .toList(),
-                          ),
-                          _filterDropdown(
-                            ctx: ctx,
-                            provider: provider,
-                            setModalState: setModalState,
-                            filterKey: 'place',
-                            label: l10n.place,
-                            value: _selectedPlace,
-                            assign: (v) => _selectedPlace = v,
-                            withEmpty: true,
-                            extras:
-                                _placeList
-                                    .map(
-                                      (i) => DropdownMenuItem<String>(
-                                        value: i['value'] as String,
-                                        child: Text(i['value'] as String),
-                                      ),
-                                    )
-                                    .toList(),
-                          ),
-                          _filterDropdown(
-                            ctx: ctx,
-                            provider: provider,
-                            setModalState: setModalState,
-                            filterKey: 'editorial',
-                            label: l10n.editorial,
-                            value: _selectedEditorial,
-                            assign: (v) => _selectedEditorial = v,
-                            withEmpty: true,
-                            extras:
-                                _editorialList
-                                    .map(
-                                      (i) => DropdownMenuItem<String>(
-                                        value: i['value'] as String,
-                                        child: Text(i['value'] as String),
-                                      ),
-                                    )
-                                    .toList(),
-                          ),
-                          _filterDropdown(
-                            ctx: ctx,
-                            provider: provider,
-                            setModalState: setModalState,
-                            filterKey: 'saga',
-                            label: l10n.saga,
-                            value: _selectedSaga,
-                            assign: (v) => _selectedSaga = v,
-                            withEmpty: true,
-                            extras:
-                                _sagaList
-                                    .map(
-                                      (i) => DropdownMenuItem<String>(
-                                        value: i['name'] as String,
-                                        child: Text(i['name'] as String),
-                                      ),
-                                    )
-                                    .toList(),
-                          ),
-                          _filterDropdown(
-                            ctx: ctx,
-                            provider: provider,
-                            setModalState: setModalState,
-                            filterKey: 'saga_universe',
-                            label: l10n.saga_universe,
-                            value: _selectedSagaUniverse,
-                            assign: (v) => _selectedSagaUniverse = v,
-                            withEmpty: true,
-                            extras:
-                                _sagaUniverseList
-                                    .map(
-                                      (i) => DropdownMenuItem<String>(
-                                        value: i['name'] as String,
-                                        child: Text(i['name'] as String),
-                                      ),
-                                    )
-                                    .toList(),
-                          ),
-                          _filterDropdown(
-                            ctx: ctx,
-                            provider: provider,
-                            setModalState: setModalState,
-                            filterKey: 'format_saga',
-                            label: l10n.format_saga,
-                            value: _selectedFormatSaga,
-                            assign: (v) => _selectedFormatSaga = v,
-                            withEmpty: true,
-                            extras:
-                                _formatSagaList
-                                    .map(
-                                      (i) => DropdownMenuItem<String>(
-                                        value: i['value'] as String,
-                                        child: Text(
-                                          FormatSagaHelper.getLocalizedLabel(
-                                            i['value'] as String,
-                                            l10n,
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                    .toList(),
-                          ),
-                          _filterDropdown(
-                            ctx: ctx,
-                            provider: provider,
-                            setModalState: setModalState,
-                            filterKey: 'pages_empty',
-                            label: l10n.pages,
-                            value: _selectedPagesEmpty,
-                            assign: (v) => _selectedPagesEmpty = v,
-                            withEmpty: true,
-                            adminOnly: true,
-                            extras: [
-                              DropdownMenuItem(
-                                value: '<100',
-                                child: Text(l10n.pages_range_under_100),
-                              ),
-                              DropdownMenuItem(
-                                value: '100-300',
-                                child: Text(l10n.pages_range_100_300),
-                              ),
-                              DropdownMenuItem(
-                                value: '300-500',
-                                child: Text(l10n.pages_range_300_500),
-                              ),
-                              DropdownMenuItem(
-                                value: '500-700',
-                                child: Text(l10n.pages_range_500_700),
-                              ),
-                              DropdownMenuItem(
-                                value: '700+',
-                                child: Text(l10n.pages_range_700_plus),
-                              ),
-                            ],
-                          ),
-                          _yesNoDropdown(
-                            ctx: ctx,
-                            provider: provider,
-                            setModalState: setModalState,
-                            filterKey: 'is_bundle',
-                            label: l10n.bundle,
-                            value: _selectedIsBundle,
-                            assign: (v) => _selectedIsBundle = v,
-                          ),
-                          _yesNoDropdown(
-                            ctx: ctx,
-                            provider: provider,
-                            setModalState: setModalState,
-                            filterKey: 'is_tandem',
-                            label: l10n.tandem,
-                            value: _selectedIsTandem,
-                            assign: (v) => _selectedIsTandem = v,
-                          ),
-                          _yesNoDropdown(
-                            ctx: ctx,
-                            provider: provider,
-                            setModalState: setModalState,
-                            filterKey: 'saga_format_without_saga',
-                            label: l10n.saga_format_without_saga,
-                            value: _selectedSagaFormatWithoutSaga,
-                            assign: (v) => _selectedSagaFormatWithoutSaga = v,
-                            adminOnly: true,
-                          ),
-                          _yesNoDropdown(
-                            ctx: ctx,
-                            provider: provider,
-                            setModalState: setModalState,
-                            filterKey: 'saga_format_without_nsaga',
-                            label: l10n.saga_format_without_n_saga,
-                            value: _selectedSagaFormatWithoutNSaga,
-                            assign: (v) => _selectedSagaFormatWithoutNSaga = v,
-                            adminOnly: true,
-                          ),
-                          _filterDropdown(
-                            ctx: ctx,
-                            provider: provider,
-                            setModalState: setModalState,
-                            filterKey: 'publication_year_empty',
-                            label: l10n.publication_year_empty,
-                            value: _selectedPublicationYearEmpty,
-                            assign: (v) => _selectedPublicationYearEmpty = v,
-                            withEmpty: true,
-                            adminOnly: true,
-                            extras: [],
-                          ),
-                          _filterDropdown(
-                            ctx: ctx,
-                            provider: provider,
-                            setModalState: setModalState,
-                            filterKey: 'rating',
-                            label: l10n.rating_filter,
-                            value: _selectedRating,
-                            assign: (v) => _selectedRating = v,
-                            extras: const [
-                              DropdownMenuItem(
-                                value: '0-1',
-                                child: Text('0–1 ⭐'),
-                              ),
-                              DropdownMenuItem(
-                                value: '1-2',
-                                child: Text('1–2 ⭐'),
-                              ),
-                              DropdownMenuItem(
-                                value: '2-3',
-                                child: Text('2–3 ⭐'),
-                              ),
-                              DropdownMenuItem(
-                                value: '3-4',
-                                child: Text('3–4 ⭐'),
-                              ),
-                              DropdownMenuItem(
-                                value: '4-5',
-                                child: Text('4–5 ⭐'),
-                              ),
-                            ],
-                          ),
-                          _yesNoDropdown(
-                            ctx: ctx,
-                            provider: provider,
-                            setModalState: setModalState,
-                            filterKey: 'saga_without_format_saga',
-                            label: l10n.saga_without_format_saga,
-                            value: _selectedSagaWithoutFormatSaga,
-                            assign: (v) => _selectedSagaWithoutFormatSaga = v,
-                            adminOnly: true,
-                          ),
-                          _filterDropdown(
-                            ctx: ctx,
-                            provider: provider,
-                            setModalState: setModalState,
-                            filterKey: 'price',
-                            label: l10n.filter_price,
-                            value: _selectedPrice,
-                            assign: (v) => _selectedPrice = v,
-                            withEmpty: true,
-                            extras: [
-                              DropdownMenuItem(
-                                value: 'free',
-                                child: Text(l10n.price_free),
-                              ),
-                              DropdownMenuItem(
-                                value: '<5',
-                                child: Text(l10n.price_range_under_5),
-                              ),
-                              DropdownMenuItem(
-                                value: '5-15',
-                                child: Text(l10n.price_range_5_15),
-                              ),
-                              DropdownMenuItem(
-                                value: '15-30',
-                                child: Text(l10n.price_range_15_30),
-                              ),
-                              DropdownMenuItem(
-                                value: '30+',
-                                child: Text(l10n.price_range_30_plus),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      _selectedFormat =
-                                          _selectedLanguage =
-                                              _selectedGenre =
-                                                  _selectedPlace =
-                                                      _selectedStatus =
-                                                          _selectedTitle =
-                                                              _selectedIsbnAsin =
-                                                                  _selectedAuthor =
-                                                                      _selectedEditorial =
-                                                                          _selectedSaga =
-                                                                              _selectedSagaUniverse =
-                                                                                  _selectedFormatSaga =
-                                                                                      _selectedPagesEmpty =
-                                                                                          _selectedIsBundle =
-                                                                                              _selectedIsTandem =
-                                                                                                  _selectedSagaFormatWithoutSaga =
-                                                                                                      _selectedSagaFormatWithoutNSaga =
-                                                                                                          _selectedSagaWithoutFormatSaga =
-                                                                                                              _selectedPublicationYearEmpty =
-                                                                                                                  _selectedRating = _selectedPrice = null;
-                                    });
-                                    provider.clearAllFilters();
-                                    setModalState(() {});
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Theme.of(ctx)
-                                        .colorScheme
-                                        .primary
-                                        .withValues(alpha: 0.5),
-                                    foregroundColor:
-                                        Theme.of(ctx).colorScheme.onPrimary,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    l10n.sort_and_filter,
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF1C1B1A),
+                                    ),
                                   ),
-                                  child: Text(l10n.clear),
+                                  GestureDetector(
+                                    onTap: () => Navigator.pop(ctx),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(8),
+                                      child: const Icon(
+                                        Icons.close,
+                                        size: 18,
+                                        color: Color(0xFF1C1B1A),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // ── Scrollable content ───────────────────────────
+                            Expanded(
+                              child: ListView(
+                                controller: scrollController,
+                                padding: const EdgeInsets.fromLTRB(
+                                  20,
+                                  24,
+                                  20,
+                                  16,
+                                ),
+                                children: [
+                                  // Sort section
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.sort,
+                                        size: 18,
+                                        color: Color(0xFF1C1B1A),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        l10n.sort_by,
+                                        style: const TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w600,
+                                          color: Color(0xFF1C1B1A),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 17,
+                                      vertical: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: _kBg,
+                                      border: Border.all(
+                                        color: const Color(0xFF27231E),
+                                      ),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: DropdownButtonHideUnderline(
+                                            child: DropdownButton<String>(
+                                              value: _sortBy,
+                                              isExpanded: true,
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                color: Color(0xFF1C1B1A),
+                                              ),
+                                              icon: const Icon(
+                                                Icons.keyboard_arrow_down,
+                                                color: Color(0xFF1C1B1A),
+                                              ),
+                                              items: [
+                                                DropdownMenuItem(
+                                                  value: 'name',
+                                                  child: Text(l10n.book_name),
+                                                ),
+                                                DropdownMenuItem(
+                                                  value: 'author',
+                                                  child: Text(l10n.author),
+                                                ),
+                                                DropdownMenuItem(
+                                                  value: 'created_at',
+                                                  child: Text(
+                                                    l10n.date_created,
+                                                  ),
+                                                ),
+                                              ],
+                                              onChanged: (v) {
+                                                if (v != null) {
+                                                  setState(() => _sortBy = v);
+                                                  provider.sortBooks(
+                                                    _sortBy,
+                                                    _ascending,
+                                                  );
+                                                  setModalState(() {});
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        GestureDetector(
+                                          onTap: () {
+                                            setState(
+                                              () => _ascending = !_ascending,
+                                            );
+                                            provider.sortBooks(
+                                              _sortBy,
+                                              _ascending,
+                                            );
+                                            setModalState(() {});
+                                          },
+                                          child: Container(
+                                            width: 40,
+                                            height: 40,
+                                            decoration: BoxDecoration(
+                                              color: _kFabSmall,
+                                              border: Border.all(
+                                                color: const Color(0xFFD5C2C7),
+                                              ),
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Icon(
+                                              _ascending
+                                                  ? Icons.arrow_upward
+                                                  : Icons.arrow_downward,
+                                              size: 16,
+                                              color: _kInactiveText,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  const Divider(
+                                    color: _kDivider,
+                                    height: 1,
+                                    thickness: 1,
+                                  ),
+                                  const SizedBox(height: 24),
+                                  // Filters heading
+                                  Text(
+                                    l10n.filters,
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF1C1B1A),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  _filterDropdown(
+                                    ctx: ctx,
+                                    provider: provider,
+                                    setModalState: setModalState,
+                                    filterKey: 'title',
+                                    label: l10n.book_name,
+                                    value: _selectedTitle,
+                                    assign: (v) => _selectedTitle = v,
+                                    extras: [],
+                                    withEmpty: true,
+                                  ),
+                                  _filterDropdown(
+                                    ctx: ctx,
+                                    provider: provider,
+                                    setModalState: setModalState,
+                                    filterKey: 'isbn',
+                                    label: l10n.isbn_asin,
+                                    value: _selectedIsbnAsin,
+                                    assign: (v) => _selectedIsbnAsin = v,
+                                    extras: [],
+                                    withEmpty: true,
+                                  ),
+                                  _filterDropdown(
+                                    ctx: ctx,
+                                    provider: provider,
+                                    setModalState: setModalState,
+                                    filterKey: 'author',
+                                    label: l10n.author,
+                                    value: _selectedAuthor,
+                                    assign: (v) => _selectedAuthor = v,
+                                    extras: [],
+                                    withEmpty: true,
+                                  ),
+                                  _filterDropdown(
+                                    ctx: ctx,
+                                    provider: provider,
+                                    setModalState: setModalState,
+                                    filterKey: 'status',
+                                    label: l10n.status,
+                                    value: _selectedStatus,
+                                    assign: (v) => _selectedStatus = v,
+                                    extras:
+                                        _statusList
+                                            .where((i) => i['value'] != null)
+                                            .map(
+                                              (i) => DropdownMenuItem<String>(
+                                                value: i['value'] as String,
+                                                child: Text(
+                                                  StatusHelper.getLocalizedLabel(
+                                                    i['value'] as String,
+                                                    l10n,
+                                                  ),
+                                                ),
+                                              ),
+                                            )
+                                            .toList(),
+                                  ),
+                                  _filterDropdown(
+                                    ctx: ctx,
+                                    provider: provider,
+                                    setModalState: setModalState,
+                                    filterKey: 'format',
+                                    label: l10n.format,
+                                    value: _selectedFormat,
+                                    assign: (v) => _selectedFormat = v,
+                                    withEmpty: true,
+                                    extras:
+                                        _formatList
+                                            .where((i) => i['value'] != null)
+                                            .map(
+                                              (i) => DropdownMenuItem<String>(
+                                                value: i['value'] as String,
+                                                child: Text(
+                                                  i['value'] as String,
+                                                ),
+                                              ),
+                                            )
+                                            .toList(),
+                                  ),
+                                  _filterDropdown(
+                                    ctx: ctx,
+                                    provider: provider,
+                                    setModalState: setModalState,
+                                    filterKey: 'genre',
+                                    label: l10n.genre,
+                                    value: _selectedGenre,
+                                    assign: (v) => _selectedGenre = v,
+                                    withEmpty: true,
+                                    extras:
+                                        _genreList
+                                            .where((i) => i['value'] != null)
+                                            .map(
+                                              (i) => DropdownMenuItem<String>(
+                                                value: i['value'] as String,
+                                                child: Text(
+                                                  i['value'] as String,
+                                                ),
+                                              ),
+                                            )
+                                            .toList(),
+                                  ),
+                                  _filterDropdown(
+                                    ctx: ctx,
+                                    provider: provider,
+                                    setModalState: setModalState,
+                                    filterKey: 'language',
+                                    label: l10n.language,
+                                    value: _selectedLanguage,
+                                    assign: (v) => _selectedLanguage = v,
+                                    withEmpty: true,
+                                    extras:
+                                        _languageList
+                                            .where((i) => i['value'] != null)
+                                            .map(
+                                              (i) => DropdownMenuItem<String>(
+                                                value: i['value'] as String,
+                                                child: Text(
+                                                  i['value'] as String,
+                                                ),
+                                              ),
+                                            )
+                                            .toList(),
+                                  ),
+                                  _filterDropdown(
+                                    ctx: ctx,
+                                    provider: provider,
+                                    setModalState: setModalState,
+                                    filterKey: 'place',
+                                    label: l10n.place,
+                                    value: _selectedPlace,
+                                    assign: (v) => _selectedPlace = v,
+                                    withEmpty: true,
+                                    extras:
+                                        _placeList
+                                            .where((i) => i['value'] != null)
+                                            .map(
+                                              (i) => DropdownMenuItem<String>(
+                                                value: i['value'] as String,
+                                                child: Text(
+                                                  i['value'] as String,
+                                                ),
+                                              ),
+                                            )
+                                            .toList(),
+                                  ),
+                                  _filterDropdown(
+                                    ctx: ctx,
+                                    provider: provider,
+                                    setModalState: setModalState,
+                                    filterKey: 'editorial',
+                                    label: l10n.editorial,
+                                    value: _selectedEditorial,
+                                    assign: (v) => _selectedEditorial = v,
+                                    withEmpty: true,
+                                    extras:
+                                        _editorialList
+                                            .where((i) => i['value'] != null)
+                                            .map(
+                                              (i) => DropdownMenuItem<String>(
+                                                value: i['value'] as String,
+                                                child: Text(
+                                                  i['value'] as String,
+                                                ),
+                                              ),
+                                            )
+                                            .toList(),
+                                  ),
+                                  _filterDropdown(
+                                    ctx: ctx,
+                                    provider: provider,
+                                    setModalState: setModalState,
+                                    filterKey: 'saga',
+                                    label: l10n.saga,
+                                    value: _selectedSaga,
+                                    assign: (v) => _selectedSaga = v,
+                                    withEmpty: true,
+                                    extras:
+                                        _sagaList
+                                            .where((i) => i['name'] != null)
+                                            .map(
+                                              (i) => DropdownMenuItem<String>(
+                                                value: i['name'] as String,
+                                                child: Text(
+                                                  i['name'] as String,
+                                                ),
+                                              ),
+                                            )
+                                            .toList(),
+                                  ),
+                                  _filterDropdown(
+                                    ctx: ctx,
+                                    provider: provider,
+                                    setModalState: setModalState,
+                                    filterKey: 'saga_universe',
+                                    label: l10n.saga_universe,
+                                    value: _selectedSagaUniverse,
+                                    assign: (v) => _selectedSagaUniverse = v,
+                                    withEmpty: true,
+                                    extras:
+                                        _sagaUniverseList
+                                            .where((i) => i['name'] != null)
+                                            .map(
+                                              (i) => DropdownMenuItem<String>(
+                                                value: i['name'] as String,
+                                                child: Text(
+                                                  i['name'] as String,
+                                                ),
+                                              ),
+                                            )
+                                            .toList(),
+                                  ),
+                                  _filterDropdown(
+                                    ctx: ctx,
+                                    provider: provider,
+                                    setModalState: setModalState,
+                                    filterKey: 'format_saga',
+                                    label: l10n.format_saga,
+                                    value: _selectedFormatSaga,
+                                    assign: (v) => _selectedFormatSaga = v,
+                                    withEmpty: true,
+                                    extras:
+                                        _formatSagaList
+                                            .where((i) => i['value'] != null)
+                                            .map(
+                                              (i) => DropdownMenuItem<String>(
+                                                value: i['value'] as String,
+                                                child: Text(
+                                                  FormatSagaHelper.getLocalizedLabel(
+                                                    i['value'] as String,
+                                                    l10n,
+                                                  ),
+                                                ),
+                                              ),
+                                            )
+                                            .toList(),
+                                  ),
+                                  _filterDropdown(
+                                    ctx: ctx,
+                                    provider: provider,
+                                    setModalState: setModalState,
+                                    filterKey: 'pages_empty',
+                                    label: l10n.pages,
+                                    value: _selectedPagesEmpty,
+                                    assign: (v) => _selectedPagesEmpty = v,
+                                    withEmpty: true,
+                                    adminOnly: true,
+                                    extras: [
+                                      DropdownMenuItem(
+                                        value: '<100',
+                                        child: Text(l10n.pages_range_under_100),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: '100-300',
+                                        child: Text(l10n.pages_range_100_300),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: '300-500',
+                                        child: Text(l10n.pages_range_300_500),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: '500-700',
+                                        child: Text(l10n.pages_range_500_700),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: '700+',
+                                        child: Text(l10n.pages_range_700_plus),
+                                      ),
+                                    ],
+                                  ),
+                                  _yesNoDropdown(
+                                    ctx: ctx,
+                                    provider: provider,
+                                    setModalState: setModalState,
+                                    filterKey: 'is_bundle',
+                                    label: l10n.bundle,
+                                    value: _selectedIsBundle,
+                                    assign: (v) => _selectedIsBundle = v,
+                                  ),
+                                  _yesNoDropdown(
+                                    ctx: ctx,
+                                    provider: provider,
+                                    setModalState: setModalState,
+                                    filterKey: 'is_tandem',
+                                    label: l10n.tandem,
+                                    value: _selectedIsTandem,
+                                    assign: (v) => _selectedIsTandem = v,
+                                  ),
+                                  _yesNoDropdown(
+                                    ctx: ctx,
+                                    provider: provider,
+                                    setModalState: setModalState,
+                                    filterKey: 'saga_format_without_saga',
+                                    label: l10n.saga_format_without_saga,
+                                    value: _selectedSagaFormatWithoutSaga,
+                                    assign:
+                                        (v) =>
+                                            _selectedSagaFormatWithoutSaga = v,
+                                    adminOnly: true,
+                                  ),
+                                  _yesNoDropdown(
+                                    ctx: ctx,
+                                    provider: provider,
+                                    setModalState: setModalState,
+                                    filterKey: 'saga_format_without_nsaga',
+                                    label: l10n.saga_format_without_n_saga,
+                                    value: _selectedSagaFormatWithoutNSaga,
+                                    assign:
+                                        (v) =>
+                                            _selectedSagaFormatWithoutNSaga = v,
+                                    adminOnly: true,
+                                  ),
+                                  _filterDropdown(
+                                    ctx: ctx,
+                                    provider: provider,
+                                    setModalState: setModalState,
+                                    filterKey: 'publication_year_empty',
+                                    label: l10n.publication_year_empty,
+                                    value: _selectedPublicationYearEmpty,
+                                    assign:
+                                        (v) =>
+                                            _selectedPublicationYearEmpty = v,
+                                    withEmpty: true,
+                                    adminOnly: true,
+                                    extras: [],
+                                  ),
+                                  _filterDropdown(
+                                    ctx: ctx,
+                                    provider: provider,
+                                    setModalState: setModalState,
+                                    filterKey: 'rating',
+                                    label: l10n.rating_filter,
+                                    value: _selectedRating,
+                                    assign: (v) => _selectedRating = v,
+                                    extras: const [
+                                      DropdownMenuItem(
+                                        value: '0-1',
+                                        child: Text('0–1 ⭐'),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: '1-2',
+                                        child: Text('1–2 ⭐'),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: '2-3',
+                                        child: Text('2–3 ⭐'),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: '3-4',
+                                        child: Text('3–4 ⭐'),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: '4-5',
+                                        child: Text('4–5 ⭐'),
+                                      ),
+                                    ],
+                                  ),
+                                  _yesNoDropdown(
+                                    ctx: ctx,
+                                    provider: provider,
+                                    setModalState: setModalState,
+                                    filterKey: 'saga_without_format_saga',
+                                    label: l10n.saga_without_format_saga,
+                                    value: _selectedSagaWithoutFormatSaga,
+                                    assign:
+                                        (v) =>
+                                            _selectedSagaWithoutFormatSaga = v,
+                                    adminOnly: true,
+                                  ),
+                                  _filterDropdown(
+                                    ctx: ctx,
+                                    provider: provider,
+                                    setModalState: setModalState,
+                                    filterKey: 'price',
+                                    label: l10n.filter_price,
+                                    value: _selectedPrice,
+                                    assign: (v) => _selectedPrice = v,
+                                    withEmpty: true,
+                                    extras: [
+                                      DropdownMenuItem(
+                                        value: 'free',
+                                        child: Text(l10n.price_free),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: '<5',
+                                        child: Text(l10n.price_range_under_5),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: '5-15',
+                                        child: Text(l10n.price_range_5_15),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: '15-30',
+                                        child: Text(l10n.price_range_15_30),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: '30+',
+                                        child: Text(l10n.price_range_30_plus),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // ── Footer ──────────────────────────────────────
+                            Container(
+                              padding: EdgeInsets.fromLTRB(
+                                20,
+                                11,
+                                20,
+                                20 + MediaQuery.of(ctx).viewPadding.bottom,
+                              ),
+                              decoration: const BoxDecoration(
+                                color: _kBg,
+                                border: Border(
+                                  top: BorderSide(color: _kDivider),
                                 ),
                               ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                flex: 2,
-                                child: ElevatedButton(
-                                  onPressed: () => Navigator.pop(ctx),
-                                  child: Text(l10n.apply),
-                                ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: SizedBox(
+                                      height: 44,
+                                      child: OutlinedButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            _selectedFormat =
+                                                _selectedLanguage =
+                                                    _selectedGenre =
+                                                        _selectedPlace =
+                                                            _selectedStatus =
+                                                                _selectedTitle =
+                                                                    _selectedIsbnAsin =
+                                                                        _selectedAuthor =
+                                                                            _selectedEditorial =
+                                                                                _selectedSaga =
+                                                                                    _selectedSagaUniverse =
+                                                                                        _selectedFormatSaga =
+                                                                                            _selectedPagesEmpty =
+                                                                                                _selectedIsBundle =
+                                                                                                    _selectedIsTandem =
+                                                                                                        _selectedSagaFormatWithoutSaga =
+                                                                                                            _selectedSagaFormatWithoutNSaga =
+                                                                                                                _selectedSagaWithoutFormatSaga =
+                                                                                                                    _selectedPublicationYearEmpty =
+                                                                                                                        _selectedRating =
+                                                                                                                            _selectedPrice = null;
+                                          });
+                                          provider.clearAllFilters();
+                                          setModalState(() {});
+                                        },
+                                        style: OutlinedButton.styleFrom(
+                                          side: const BorderSide(
+                                            color: Color(0xFF837378),
+                                          ),
+                                          shape: const StadiumBorder(),
+                                          foregroundColor: _kPrimary,
+                                          textStyle: const TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                            letterSpacing: 0.26,
+                                          ),
+                                        ),
+                                        child: Text(l10n.clear),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: SizedBox(
+                                      height: 44,
+                                      child: ElevatedButton(
+                                        onPressed: () => Navigator.pop(ctx),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: _kPrimary,
+                                          foregroundColor: Colors.white,
+                                          shape: const StadiumBorder(),
+                                          elevation: 3,
+                                          shadowColor: Colors.black.withValues(
+                                            alpha: 0.2,
+                                          ),
+                                          textStyle: const TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                            letterSpacing: 0.26,
+                                          ),
+                                        ),
+                                        child: Text(l10n.apply),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 40),
-                        ],
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   },
