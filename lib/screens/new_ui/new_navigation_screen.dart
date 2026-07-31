@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/feature_flag_provider.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_home_screen.dart';
-import 'package:myrandomlibrary/screens/my_books.dart';
+import 'package:myrandomlibrary/screens/new_ui/new_my_books_screen.dart';
 import 'package:myrandomlibrary/screens/random.dart';
 import 'package:myrandomlibrary/screens/settings.dart';
 import 'package:myrandomlibrary/screens/statistics.dart';
@@ -100,7 +100,7 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
   List<Widget> get widgetOptions => [
     NewHomeScreen(onRegisterClearSearch: _registerClearSearch),
     const StatisticsScreen(),
-    const MyBooksScreen(),
+    const NewMyBooksScreen(),
     const RandomScreen(),
     const SettingsScreen(),
   ];
