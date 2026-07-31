@@ -35,7 +35,8 @@ import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class StatisticsScreen extends StatefulWidget {
-  const StatisticsScreen({super.key});
+  final bool useNewUi;
+  const StatisticsScreen({super.key, this.useNewUi = false});
 
   @override
   State<StatisticsScreen> createState() => _StatisticsScreenState();
@@ -639,12 +640,22 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         ),
     ];
 
+    if (widget.useNewUi) {
+      return _buildV2Scaffold(
+        context,
+        stats,
+        latestBookName,
+        sections,
+        currentYear,
+        l10n,
+      );
+    }
+
     return Scaffold(
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Column(
           children: [
-            // Header row: Total Books + Latest Book
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Row(
@@ -658,8 +669,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               ),
             ),
             const SizedBox(height: 8),
-
-            // Book Competition Card
             if (!_isLoadingCompetition)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -682,14 +691,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 ),
               ),
             const SizedBox(height: 16),
-
-            // Quick Stats Row
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 5),
               child: QuickStatsRow(data: stats),
             ),
             const SizedBox(height: 4),
-            // Hint text
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
@@ -702,8 +708,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               ),
             ),
             const SizedBox(height: 12),
-
-            // Section cards grid
             ...sections.map(
               (section) => Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -748,6 +752,326 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               ),
             ),
             const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildV2Scaffold(
+    BuildContext context,
+    StatisticsData stats,
+    String? latestBookName,
+    List<_SectionDef> sections,
+    int currentYear,
+    AppLocalizations l10n,
+  ) {
+    const kBg = Color(0xFFFDF8F6);
+    const kPrimary = Color(0xFF43102B);
+    const kSub = Color(0xFF514348);
+    const kText = Color(0xFF1C1B1A);
+    const kBadgeBg = Color(0xFFF2EDEB);
+    const kBadgeBorder = Color(0xFFD5C2C7);
+
+    BoxDecoration cardDeco({double radius = 12}) => BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(radius),
+      border: Border.all(color: const Color(0x1A27231E)),
+      boxShadow: const [
+        BoxShadow(
+          color: Color(0x0A000000),
+          blurRadius: 6,
+          offset: Offset(0, 4),
+        ),
+      ],
+    );
+
+    return Scaffold(
+      backgroundColor: kBg,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 24,
+          bottom: 25,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Bento cards
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 25,
+                      vertical: 46,
+                    ),
+                    decoration: cardDeco(radius: 16),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.library_books,
+                          size: 30,
+                          color: kPrimary,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          l10n.total_books,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: kSub,
+                            letterSpacing: 0.26,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '${stats.totalCount}',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: kPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(25),
+                    decoration: cardDeco(radius: 16),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.new_releases,
+                          size: 32,
+                          color: kPrimary,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          l10n.latest_book_added,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: kSub,
+                            letterSpacing: 0.26,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          latestBookName != null && latestBookName.isNotEmpty
+                              ? latestBookName
+                              : l10n.no_books_in_database,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: kPrimary,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+
+            // Competition card
+            if (!_isLoadingCompetition)
+              GestureDetector(
+                onTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => BookCompetitionScreen(year: currentYear),
+                    ),
+                  );
+                  _loadCompetitionData();
+                },
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: cardDeco(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.emoji_events,
+                            color: kPrimary,
+                            size: 22,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              l10n.best_book_of_year(currentYear.toString()),
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: kPrimary,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const Icon(
+                            Icons.arrow_forward_ios,
+                            size: 12,
+                            color: kSub,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      if (_yearlyWinner != null) ...[
+                        Text(
+                          '${l10n.winner}:',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: kSub,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color: kBadgeBg,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: kBadgeBorder),
+                          ),
+                          child: Text(
+                            _yearlyWinner!.bookName,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: kPrimary,
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ] else if (_nominees.isNotEmpty) ...[
+                        Text(
+                          '${l10n.nominees}:',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: kSub,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 6,
+                          children:
+                              _nominees
+                                  .take(6)
+                                  .map(
+                                    (n) => Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 5,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: kBadgeBg,
+                                        borderRadius: BorderRadius.circular(
+                                          9999,
+                                        ),
+                                        border: Border.all(color: kBadgeBorder),
+                                      ),
+                                      child: Text(
+                                        n.bookName,
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: kPrimary,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                        ),
+                        if (_nominees.length > 6)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              '... ${l10n.and_n_more((_nominees.length - 6).toString())}',
+                              style: const TextStyle(fontSize: 12, color: kSub),
+                            ),
+                          ),
+                      ] else
+                        Text(
+                          l10n.no_books_read_in_year(currentYear.toString()),
+                          style: const TextStyle(fontSize: 13, color: kSub),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            const SizedBox(height: 24),
+
+            // Quick Stats
+            QuickStatsRow(data: stats, useNewUi: true),
+            const SizedBox(height: 8),
+            Center(
+              child: Text(
+                l10n.quick_stat_long_press_hint,
+                style: const TextStyle(fontSize: 12, color: kSub),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Section nav cards
+            ...sections.map(
+              (section) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: GestureDetector(
+                  onTap: section.onTap,
+                  child: Container(
+                    padding: const EdgeInsets.all(17),
+                    decoration: cardDeco(),
+                    child: Row(
+                      children: [
+                        Icon(section.icon, color: kPrimary, size: 20),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            section.title,
+                            style: const TextStyle(fontSize: 16, color: kText),
+                          ),
+                        ),
+                        const Icon(
+                          Icons.arrow_forward_ios,
+                          size: 12,
+                          color: kSub,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

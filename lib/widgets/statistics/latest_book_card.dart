@@ -8,6 +8,7 @@ class LatestBookCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -23,7 +24,7 @@ class LatestBookCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              AppLocalizations.of(context)!.latest_book_added,
+              l10n.latest_book_added,
               textAlign: TextAlign.center,
               style: Theme.of(
                 context,
@@ -35,7 +36,7 @@ class LatestBookCard extends StatelessWidget {
             Text(
               latestBookName != null && latestBookName!.isNotEmpty
                   ? latestBookName!
-                  : AppLocalizations.of(context)!.no_books_in_database,
+                  : l10n.no_books_in_database,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: Theme.of(context).colorScheme.primary,
                 fontWeight: FontWeight.w600,

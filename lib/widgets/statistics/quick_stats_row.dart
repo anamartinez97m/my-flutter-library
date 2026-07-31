@@ -24,8 +24,9 @@ class QuickStatDefinition {
 /// A row of 4 user-configurable stat tiles.
 class QuickStatsRow extends StatefulWidget {
   final StatisticsData data;
+  final bool useNewUi;
 
-  const QuickStatsRow({super.key, required this.data});
+  const QuickStatsRow({super.key, required this.data, this.useNewUi = false});
 
   @override
   State<QuickStatsRow> createState() => _QuickStatsRowState();
@@ -277,6 +278,59 @@ class _QuickStatsRowState extends State<QuickStatsRow> {
         if (def == null) return const Expanded(child: SizedBox.shrink());
         final value = def.valueBuilder(widget.data);
         final label = def.labelBuilder(context);
+        if (widget.useNewUi) {
+          return Expanded(
+            child: GestureDetector(
+              onLongPress: () => _showStatPicker(index),
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 3),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0x1A27231E)),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x0A000000),
+                      blurRadius: 6,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(def.icon, color: const Color(0xFF43102B), size: 20),
+                    const SizedBox(height: 4),
+                    Text(
+                      value,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF43102B),
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      label,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: Color(0xFF514348),
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
         return Expanded(
           child: GestureDetector(
             onLongPress: () => _showStatPicker(index),

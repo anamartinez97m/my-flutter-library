@@ -99,7 +99,7 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
 
   List<Widget> get widgetOptions => [
     NewHomeScreen(onRegisterClearSearch: _registerClearSearch),
-    const StatisticsScreen(),
+    const StatisticsScreen(useNewUi: true),
     const NewMyBooksScreen(),
     const RandomScreen(),
     const SettingsScreen(),
