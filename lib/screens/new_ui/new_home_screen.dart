@@ -1205,7 +1205,9 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
             onPressed:
                 () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const AddBookScreen()),
+                  MaterialPageRoute(
+                    builder: (_) => const AddBookScreen(useNewUi: true),
+                  ),
                 ),
             backgroundColor: _kPrimary,
             elevation: 6,

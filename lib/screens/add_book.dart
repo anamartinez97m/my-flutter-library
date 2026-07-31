@@ -22,7 +22,8 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:myrandomlibrary/services/book_metadata_service.dart';
 
 class AddBookScreen extends StatefulWidget {
-  const AddBookScreen({super.key});
+  final bool useNewUi;
+  const AddBookScreen({super.key, this.useNewUi = false});
 
   @override
   State<AddBookScreen> createState() => _AddBookScreenState();
@@ -972,11 +973,79 @@ class _AddBookScreenState extends State<AddBookScreen> {
     }
   }
 
+  // ─── v2 design tokens ───────────────────────────────────────────────────
+  static const _kBg = Color(0xFFFDF8F6);
+  static const _kPrimary = Color(0xFF43102B);
+  static const _kSub = Color(0xFF514348);
+  static const _kInputBorder = Color(0xFF6B7280);
+  static const _kNotesBorder = Color(0xFFD5C2C7);
+
+  InputDecoration _v2Deco(
+    String label,
+    IconData icon, {
+    Widget? suffix,
+    String? hint,
+    bool notesStyle = false,
+  }) {
+    final borderColor = notesStyle ? _kNotesBorder : _kInputBorder;
+    return InputDecoration(
+      labelText: label,
+      filled: true,
+      fillColor: Colors.white,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: borderColor),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: borderColor),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: _kPrimary, width: 1.5),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: Colors.red.shade400),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: Colors.red.shade400, width: 1.5),
+      ),
+      prefixIcon: Icon(icon, color: _kSub, size: 20),
+      suffixIcon: suffix,
+      hintText: hint,
+      hintStyle: const TextStyle(color: _kInputBorder, fontSize: 14),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    );
+  }
+
+  Widget _v2SectionHeading(String title) => Padding(
+    padding: const EdgeInsets.only(bottom: 10),
+    child: Text(
+      title,
+      style: const TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+        color: _kPrimary,
+        fontFamily: 'Manrope',
+      ),
+    ),
+  );
+
+  Widget _v2Divider() => const Padding(
+    padding: EdgeInsets.only(top: 17, bottom: 17),
+    child: Divider(color: Color(0x4DD5C2C7), thickness: 1, height: 1),
+  );
+
+  // ─── build ───────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
+
+    if (widget.useNewUi) return _buildV2Scaffold(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -2276,6 +2345,1034 @@ class _AddBookScreenState extends State<AddBookScreen> {
         );
       }
     }
+  }
+
+  Scaffold _buildV2Scaffold(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Scaffold(
+      backgroundColor: _kBg,
+      appBar: AppBar(
+        backgroundColor: _kPrimary,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        title: Text(
+          l10n.add_book,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            color: Colors.white,
+            fontFamily: 'Manrope',
+          ),
+        ),
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new_outlined,
+            color: Colors.white,
+          ),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.check, color: Colors.white),
+            onPressed: _saveBook,
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: Theme(
+              data: Theme.of(context).copyWith(
+                inputDecorationTheme: InputDecorationTheme(
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: _kInputBorder),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: _kInputBorder),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: _kPrimary, width: 1.5),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                ),
+              ),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ..._v2PrimaryInfo(context, l10n),
+                      _v2Divider(),
+                      ..._v2Identification(context, l10n),
+                      _v2Divider(),
+                      ..._v2FormatSection(context, l10n),
+                      _v2Divider(),
+                      ..._v2Acquisition(context, l10n),
+                      _v2Divider(),
+                      ..._v2Classification(context, l10n),
+                      _v2Divider(),
+                      ..._v2BookListsSection(context, l10n),
+                      _v2Divider(),
+                      ..._v2Notes(context, l10n),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          _v2FooterButton(context, l10n),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _v2PrimaryInfo(BuildContext context, AppLocalizations l10n) {
+    return [
+      _v2SectionHeading('Primary Info'),
+      DropdownButtonFormField<int>(
+        value: _selectedStatusId,
+        decoration: _v2Deco(
+          '${l10n.reading_status} *',
+          Icons.check_circle_outline,
+        ),
+        dropdownColor: Colors.white,
+        items:
+            _statusList
+                .map(
+                  (status) => DropdownMenuItem<int>(
+                    value: status['status_id'] as int,
+                    child: Text(
+                      StatusHelper.getLocalizedLabel(
+                        status['value'] as String,
+                        l10n,
+                      ),
+                    ),
+                  ),
+                )
+                .toList(),
+        onChanged: (value) {
+          setState(() {
+            _selectedStatusId = value;
+            final status = _statusList.firstWhere(
+              (s) => s['status_id'] == value,
+              orElse: () => {},
+            );
+            _selectedStatusValue = status['value'] as String?;
+            if (_selectedStatusValue != 'Repeated') {
+              _selectedOriginalBookId = null;
+            }
+          });
+        },
+        validator: (value) => value == null ? l10n.status_is_required : null,
+      ),
+      if (_selectedStatusValue == 'Repeated') ...[
+        const SizedBox(height: 10),
+        FutureBuilder<List<Book>>(
+          future: _loadAllBooksForSelection(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const SizedBox(
+                height: 50,
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+            final books = snapshot.data!;
+            Book? selectedBook;
+            if (_selectedOriginalBookId != null) {
+              try {
+                selectedBook = books.firstWhere(
+                  (b) => b.bookId == _selectedOriginalBookId,
+                );
+              } catch (e) {
+                selectedBook = null;
+              }
+            }
+            return Autocomplete<Book>(
+              initialValue:
+                  _selectedOriginalBookId != null && selectedBook != null
+                      ? TextEditingValue(
+                        text:
+                            '${selectedBook.name}${selectedBook.author != null ? " - ${selectedBook.author}" : ""}',
+                      )
+                      : const TextEditingValue(),
+              optionsBuilder: (tv) {
+                if (tv.text.isEmpty) return books;
+                return books.where(
+                  (b) => '${b.name} ${b.author ?? ""}'.toLowerCase().contains(
+                    tv.text.toLowerCase(),
+                  ),
+                );
+              },
+              displayStringForOption:
+                  (b) => '${b.name}${b.author != null ? " - ${b.author}" : ""}',
+              onSelected:
+                  (b) => setState(() {
+                    _selectedOriginalBookId = b.bookId;
+                  }),
+              fieldViewBuilder:
+                  (ctx, ctrl, fn, submit) => TextFormField(
+                    controller: ctrl,
+                    focusNode: fn,
+                    decoration: _v2Deco('${l10n.original_book} *', Icons.book),
+                    validator:
+                        (v) =>
+                            _selectedStatusValue == 'Repeated' &&
+                                    _selectedOriginalBookId == null
+                                ? l10n.original_book_is_required
+                                : null,
+                  ),
+            );
+          },
+        ),
+      ],
+      const SizedBox(height: 10),
+      TextFormField(
+        controller: _nameController,
+        decoration: _v2Deco(l10n.book_name, Icons.book_outlined),
+        textCapitalization: TextCapitalization.sentences,
+      ),
+      const SizedBox(height: 10),
+      ChipAutocompleteField(
+        labelText: l10n.authors,
+        prefixIcon: Icons.person,
+        suggestions: _authorSuggestions,
+        initialValues: _selectedAuthors,
+        hintText: l10n.search_or_add_author,
+        onChanged:
+            (v) => setState(() {
+              _selectedAuthors = v;
+            }),
+      ),
+      const SizedBox(height: 10),
+      ChipAutocompleteField(
+        labelText: l10n.genres,
+        prefixIcon: Icons.category,
+        suggestions: _genreSuggestions,
+        initialValues: _selectedGenres,
+        hintText: l10n.search_or_add_genre,
+        onChanged:
+            (v) => setState(() {
+              _selectedGenres = v;
+            }),
+      ),
+      const SizedBox(height: 10),
+      AutocompleteTextField(
+        controller: _sagaController,
+        labelText: l10n.saga,
+        prefixIcon: Icons.collections_bookmark,
+        suggestions: _sagaSuggestions,
+        textCapitalization: TextCapitalization.words,
+        onSelected: (selectedSaga) async {
+          try {
+            final db = await DatabaseHelper.instance.database;
+            final repo = BookRepository(db);
+            final id = await repo.getFormatSagaIdForSaga(selectedSaga);
+            if (id != null && mounted) {
+              setState(() {
+                _selectedFormatSagaId = id;
+              });
+            }
+          } catch (e) {
+            debugPrint('Error auto-filling format saga: $e');
+          }
+        },
+      ),
+      const SizedBox(height: 10),
+      TextFormField(
+        controller: _nSagaController,
+        decoration: _v2Deco(l10n.saga_number, Icons.format_list_numbered),
+      ),
+      const SizedBox(height: 10),
+      AutocompleteTextField(
+        controller: _sagaUniverseController,
+        labelText: l10n.saga_universe,
+        prefixIcon: Icons.public,
+        suggestions: _sagaUniverseSuggestions,
+        textCapitalization: TextCapitalization.words,
+      ),
+    ];
+  }
+
+  List<Widget> _v2Identification(BuildContext context, AppLocalizations l10n) {
+    return [
+      _v2SectionHeading('Identification'),
+      TextFormField(
+        controller: _isbnController,
+        decoration: _v2Deco(
+          l10n.isbn,
+          Icons.numbers,
+          suffix: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _isFetchingMetadata
+                  ? const Padding(
+                    padding: EdgeInsets.all(12),
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  )
+                  : IconButton(
+                    icon: const Icon(Icons.search),
+                    onPressed: _fetchMetadataByIsbn,
+                    tooltip: l10n.fetch_book_info,
+                  ),
+              IconButton(
+                icon: const Icon(Icons.qr_code_scanner_outlined),
+                onPressed: _scanISBN,
+                tooltip: l10n.scan_isbn,
+              ),
+            ],
+          ),
+        ),
+        keyboardType: TextInputType.number,
+      ),
+      const SizedBox(height: 10),
+      TextFormField(
+        controller: _asinController,
+        decoration: _v2Deco(l10n.asin, Icons.qr_code),
+      ),
+      const SizedBox(height: 10),
+      ChipAutocompleteField(
+        labelText: l10n.editorial,
+        prefixIcon: Icons.business,
+        suggestions: _editorialSuggestions,
+        initialValues: _selectedEditorial,
+        maxSelections: 1,
+        hintText: l10n.select_publisher,
+        onChanged:
+            (v) => setState(() {
+              _selectedEditorial = v;
+            }),
+      ),
+      const SizedBox(height: 10),
+      TextFormField(
+        controller: _publicationYearController,
+        decoration: _v2Deco(l10n.publication_year, Icons.calendar_today),
+        keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      ),
+      if (_statusList.isNotEmpty &&
+          _selectedStatusId != null &&
+          _statusList.any(
+            (s) =>
+                s['status_id'] == _selectedStatusId &&
+                (s['value'] as String).toLowerCase() == 'tbreleased',
+          )) ...[
+        const SizedBox(height: 10),
+        Text(
+          l10n.original_publication_date,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            color: _kSub,
+          ),
+        ),
+        const SizedBox(height: 6),
+        InkWell(
+          onTap: () async {
+            final d = await showDatePicker(
+              context: context,
+              initialDate: _releaseDate ?? DateTime.now(),
+              firstDate: DateTime(1900),
+              lastDate: DateTime(2100),
+            );
+            if (d != null) {
+              setState(() {
+                _releaseDate = d;
+                _publicationYearController.text = d.year.toString();
+              });
+            }
+          },
+          child: InputDecorator(
+            decoration: _v2Deco(l10n.release_date, Icons.calendar_today),
+            child: Text(
+              _releaseDate != null
+                  ? '${_releaseDate!.day}/${_releaseDate!.month}/${_releaseDate!.year}'
+                  : l10n.select_release_date,
+              style: TextStyle(
+                color: _releaseDate != null ? null : _kInputBorder,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        CheckboxListTile(
+          title: Text(l10n.enable_release_notification),
+          subtitle: Text(l10n.get_notified_when_released),
+          value: _notificationEnabled,
+          controlAffinity: ListTileControlAffinity.leading,
+          onChanged: (value) {
+            setState(() {
+              _notificationEnabled = value ?? false;
+              if (_notificationEnabled && _notificationDateTime == null) {
+                _notificationDateTime =
+                    _releaseDate != null
+                        ? DateTime(
+                          _releaseDate!.year,
+                          _releaseDate!.month,
+                          _releaseDate!.day,
+                          9,
+                          0,
+                        )
+                        : DateTime.now().add(const Duration(days: 1));
+                _notificationTime = const TimeOfDay(hour: 9, minute: 0);
+              }
+            });
+          },
+        ),
+        if (_notificationEnabled) ...[
+          const SizedBox(height: 6),
+          InkWell(
+            onTap: () async {
+              final d = await showDatePicker(
+                context: context,
+                initialDate: _notificationDateTime ?? DateTime.now(),
+                firstDate: DateTime.now(),
+                lastDate: DateTime(2100),
+              );
+              if (d != null) {
+                if (!context.mounted) return;
+                final t = await showTimePicker(
+                  context: context,
+                  initialTime:
+                      _notificationTime ?? const TimeOfDay(hour: 9, minute: 0),
+                );
+                if (t != null) {
+                  setState(() {
+                    _notificationDateTime = DateTime(
+                      d.year,
+                      d.month,
+                      d.day,
+                      t.hour,
+                      t.minute,
+                    );
+                    _notificationTime = t;
+                  });
+                }
+              }
+            },
+            child: InputDecorator(
+              decoration: _v2Deco(
+                l10n.notification_date_time,
+                Icons.notifications_active,
+              ),
+              child: Text(
+                _notificationDateTime != null
+                    ? '${_notificationDateTime!.day}/${_notificationDateTime!.month}/${_notificationDateTime!.year} at ${_notificationTime!.format(context)}'
+                    : l10n.select_notification_date,
+                style: TextStyle(
+                  color: _notificationDateTime != null ? null : _kInputBorder,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ],
+    ];
+  }
+
+  List<Widget> _v2FormatSection(BuildContext context, AppLocalizations l10n) {
+    return [
+      _v2SectionHeading('Format'),
+      DropdownButtonFormField<int>(
+        value: _selectedFormatId,
+        decoration: _v2Deco(l10n.format, Icons.import_contacts),
+        dropdownColor: Colors.white,
+        items:
+            _formatList
+                .map(
+                  (f) => DropdownMenuItem<int>(
+                    value: f['format_id'] as int,
+                    child: Text(f['value'] as String),
+                  ),
+                )
+                .toList(),
+        onChanged:
+            (v) => setState(() {
+              _selectedFormatId = v;
+            }),
+      ),
+      const SizedBox(height: 10),
+      DropdownButtonFormField<int>(
+        value: _selectedFormatSagaId,
+        decoration: _v2Deco(l10n.format_saga, Icons.format_shapes),
+        dropdownColor: Colors.white,
+        items:
+            _formatSagaList
+                .map(
+                  (f) => DropdownMenuItem<int>(
+                    value: f['format_id'] as int,
+                    child: Text(
+                      FormatSagaHelper.getLocalizedLabel(
+                        f['value'] as String,
+                        l10n,
+                      ),
+                    ),
+                  ),
+                )
+                .toList(),
+        onChanged:
+            (v) => setState(() {
+              _selectedFormatSagaId = v;
+            }),
+      ),
+      const SizedBox(height: 10),
+      TextFormField(
+        controller: _pagesController,
+        decoration: _v2Deco(l10n.pages, Icons.description),
+        keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      ),
+      if (_pagesFetchedFromApi)
+        Padding(
+          padding: const EdgeInsets.only(top: 4, left: 12),
+          child: Text(
+            l10n.review_pages_warning,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.red.shade400,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ),
+      const SizedBox(height: 10),
+      DropdownButtonFormField<int>(
+        value: _selectedLanguageId,
+        decoration: _v2Deco(l10n.language, Icons.language),
+        dropdownColor: Colors.white,
+        items:
+            _languageList
+                .map(
+                  (lang) => DropdownMenuItem<int>(
+                    value: lang['language_id'] as int,
+                    child: Text(lang['name'] as String),
+                  ),
+                )
+                .toList(),
+        onChanged:
+            (v) => setState(() {
+              _selectedLanguageId = v;
+            }),
+      ),
+      const SizedBox(height: 10),
+      TextFormField(
+        controller: _priceController,
+        decoration: _v2Deco(
+          l10n.price,
+          Icons.attach_money,
+          hint: l10n.enter_book_price,
+        ),
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+        ],
+      ),
+    ];
+  }
+
+  List<Widget> _v2Acquisition(BuildContext context, AppLocalizations l10n) {
+    return [
+      _v2SectionHeading('Acquisition'),
+      InkWell(
+        onTap: _showAcquiredDatePicker,
+        child: InputDecorator(
+          decoration: _v2Deco(l10n.acquired_date, Icons.calendar_today),
+          child: Text(
+            _acquiredYearController.text.isNotEmpty
+                ? _acquiredYearController.text
+                : l10n.select_acquired_date,
+            style: TextStyle(
+              color:
+                  _acquiredYearController.text.isNotEmpty
+                      ? null
+                      : _kInputBorder,
+            ),
+          ),
+        ),
+      ),
+      const SizedBox(height: 10),
+      DropdownButtonFormField<int>(
+        value: _selectedPlaceId,
+        decoration: _v2Deco(l10n.place, Icons.place),
+        dropdownColor: Colors.white,
+        items:
+            _placeList
+                .map(
+                  (p) => DropdownMenuItem<int>(
+                    value: p['place_id'] as int,
+                    child: Text(p['name'] as String),
+                  ),
+                )
+                .toList(),
+        onChanged:
+            (v) => setState(() {
+              _selectedPlaceId = v;
+            }),
+      ),
+      const SizedBox(height: 10),
+      DropdownButtonFormField<String>(
+        value: _selectedLoaned,
+        decoration: _v2Deco(l10n.loaned, Icons.swap_horiz),
+        dropdownColor: Colors.white,
+        items: [
+          DropdownMenuItem(value: 'yes', child: Text(l10n.yes)),
+          DropdownMenuItem(value: 'no', child: Text(l10n.no)),
+        ],
+        onChanged:
+            (v) => setState(() {
+              _selectedLoaned = v;
+            }),
+      ),
+    ];
+  }
+
+  List<Widget> _v2Classification(BuildContext context, AppLocalizations l10n) {
+    return [
+      _v2SectionHeading('Classification'),
+      Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: _kInputBorder),
+        ),
+        child: ExpansionTile(
+          leading: const Icon(Icons.star_rate, color: _kSub),
+          title: Text(
+            l10n.rating,
+            style: const TextStyle(color: Color(0xFF1C1B1A)),
+          ),
+          subtitle: Text(
+            _ratingFields.isEmpty
+                ? l10n.no_ratings_yet
+                : '${l10n.average}: ${_calculateDisplayRating().toStringAsFixed(1)}',
+            style: const TextStyle(color: _kSub, fontSize: 13),
+          ),
+          initiallyExpanded: false,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ..._ratingFields.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final field = entry.value;
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      elevation: 1,
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: DropdownButtonFormField<String>(
+                                    value: field.fieldName,
+                                    decoration: InputDecoration(
+                                      labelText: l10n.criterion,
+                                      border: const OutlineInputBorder(),
+                                    ),
+                                    items: () {
+                                      final all =
+                                          <String>{
+                                              ..._ratingFieldSuggestions,
+                                              ..._ratingFields.map(
+                                                (f) => f.fieldName,
+                                              ),
+                                            }.toList()
+                                            ..sort();
+                                      return all
+                                          .map(
+                                            (n) => DropdownMenuItem(
+                                              value: n,
+                                              child: Text(n),
+                                            ),
+                                          )
+                                          .toList();
+                                    }(),
+                                    onChanged: (value) {
+                                      if (value != null) {
+                                        setState(() {
+                                          _ratingFields[index] =
+                                              BookRatingField(
+                                                ratingFieldId:
+                                                    field.ratingFieldId,
+                                                bookId: field.bookId,
+                                                fieldName: value,
+                                                ratingValue: field.ratingValue,
+                                              );
+                                        });
+                                      }
+                                    },
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.delete,
+                                    color: Colors.red.shade400,
+                                  ),
+                                  onPressed: () => _removeRatingField(index),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            HeartRatingInput(
+                              initialRating: field.ratingValue,
+                              onRatingChanged: (r) {
+                                setState(() {
+                                  _ratingFields[index] = BookRatingField(
+                                    ratingFieldId: field.ratingFieldId,
+                                    bookId: field.bookId,
+                                    fieldName: field.fieldName,
+                                    ratingValue: r,
+                                  );
+                                  if (!_ratingOverride) {
+                                    _myRating = _calculateAverageRating();
+                                  }
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+                  TextButton.icon(
+                    onPressed: _addRatingField,
+                    icon: const Icon(Icons.add),
+                    label: Text(l10n.add_rating_criterion),
+                  ),
+                  const Divider(),
+                  Row(
+                    children: [
+                      Text(
+                        '${l10n.general_rating}:',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        !_ratingOverride
+                            ? '${_calculateAverageRating().toStringAsFixed(1)} (${l10n.auto_calculated})'
+                            : '${_myRating.toStringAsFixed(1)} (${l10n.manual})',
+                        style: TextStyle(
+                          color: _ratingOverride ? _kPrimary : _kSub,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  SwitchListTile(
+                    title: Text(l10n.override_auto_calculation),
+                    subtitle: Text(l10n.manually_set_rating),
+                    value: _ratingOverride,
+                    onChanged: (v) {
+                      setState(() {
+                        _ratingOverride = v;
+                        if (!v) {
+                          _myRating = _calculateAverageRating();
+                        }
+                      });
+                    },
+                  ),
+                  if (_ratingOverride)
+                    HeartRatingInput(
+                      initialRating: _myRating,
+                      onRatingChanged: (r) {
+                        setState(() {
+                          _myRating = r;
+                        });
+                      },
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 10),
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.times_read,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: _kSub,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              IconButton(
+                onPressed:
+                    _readCount > 0
+                        ? () {
+                          setState(() {
+                            _readCount--;
+                          });
+                        }
+                        : null,
+                icon: const Icon(Icons.remove),
+                style: IconButton.styleFrom(
+                  backgroundColor: const Color(0x1A43102B),
+                  foregroundColor: _kPrimary,
+                  disabledBackgroundColor: const Color(0xFFECE7E5),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  border: Border.all(color: _kNotesBorder),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '$_readCount',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1C1B1A),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    _readCount++;
+                  });
+                },
+                icon: const Icon(Icons.add),
+                style: IconButton.styleFrom(
+                  backgroundColor: _kPrimary,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      const SizedBox(height: 10),
+      BundleInputWidgetV2(
+        initialIsBundle: _isBundle,
+        initialBundleCount: _bundleCount,
+        initialBundleBooks: _bundleBooks,
+        statusOptions: _statusList,
+        onChanged: (isBundle, count, books) {
+          setState(() {
+            _isBundle = isBundle;
+            _bundleCount = count;
+            _bundleBooks = books;
+          });
+        },
+      ),
+    ];
+  }
+
+  List<Widget> _v2BookListsSection(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) {
+    return [
+      _v2SectionHeading(l10n.book_lists),
+      Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: _kNotesBorder),
+        ),
+        child: Column(
+          children: [
+            CheckboxListTile(
+              title: Text(
+                l10n.add_to_tbr,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1C1B1A),
+                ),
+              ),
+              subtitle: Text(
+                l10n.mark_for_reading_list,
+                style: const TextStyle(fontSize: 11, color: _kSub),
+              ),
+              value: _tbr,
+              secondary: const Icon(Icons.bookmark_add, color: _kSub),
+              onChanged: (value) async {
+                if (value == true) {
+                  final db = await DatabaseHelper.instance.database;
+                  final repo = BookRepository(db);
+                  final currentCount = await repo.getTBRCount();
+                  final limit = await getTBRLimit();
+                  if (currentCount >= limit) {
+                    if (context.mounted) {
+                      showDialog(
+                        context: context,
+                        builder:
+                            (ctx) => AlertDialog(
+                              title: Row(
+                                children: [
+                                  Icon(
+                                    Icons.warning_amber,
+                                    color: Theme.of(ctx).colorScheme.secondary,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(l10n.tbr_limit_reached),
+                                ],
+                              ),
+                              content: Text(l10n.tbr_limit_message(limit)),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(ctx),
+                                  child: Text(l10n.ok),
+                                ),
+                              ],
+                            ),
+                      );
+                    }
+                    return;
+                  }
+                }
+                setState(() {
+                  _tbr = value ?? false;
+                });
+              },
+            ),
+            const Divider(height: 1, color: Color(0x4DD5C2C7)),
+            CheckboxListTile(
+              title: Text(
+                l10n.mark_as_tandem,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1C1B1A),
+                ),
+              ),
+              subtitle: Text(
+                l10n.tandem_description,
+                style: const TextStyle(fontSize: 11, color: _kSub),
+              ),
+              value: _isTandem,
+              secondary: const Icon(
+                Icons.swap_horizontal_circle_outlined,
+                color: _kSub,
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _isTandem = value ?? false;
+                });
+              },
+            ),
+          ],
+        ),
+      ),
+    ];
+  }
+
+  List<Widget> _v2Notes(BuildContext context, AppLocalizations l10n) {
+    return [
+      _v2SectionHeading(l10n.notes),
+      if (!_isBundle) ...[
+        ReadDatesWidget(
+          bookId: 0,
+          initialReadDates: _readDates,
+          onChanged: (readDates) {
+            setState(() {
+              _readDates = readDates;
+              _readCount =
+                  readDates
+                      .where(
+                        (rd) =>
+                            rd.dateFinished != null &&
+                            rd.dateFinished!.isNotEmpty,
+                      )
+                      .length;
+            });
+          },
+        ),
+        const SizedBox(height: 10),
+      ],
+      TextFormField(
+        controller: _myReviewController,
+        decoration: _v2Deco(
+          l10n.my_review,
+          Icons.rate_review,
+          hint: l10n.write_your_thoughts,
+          notesStyle: true,
+        ),
+        maxLines: 5,
+        keyboardType: TextInputType.multiline,
+        textCapitalization: TextCapitalization.sentences,
+      ),
+      const SizedBox(height: 10),
+      TextFormField(
+        controller: _notesController,
+        decoration: _v2Deco(
+          l10n.notes,
+          Icons.notes,
+          hint: l10n.add_notes_hint,
+          notesStyle: true,
+        ),
+        maxLines: 5,
+        keyboardType: TextInputType.multiline,
+        textCapitalization: TextCapitalization.sentences,
+      ),
+    ];
+  }
+
+  Widget _v2FooterButton(BuildContext context, AppLocalizations l10n) {
+    return SafeArea(
+      top: false,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(16, 17, 16, 16),
+        decoration: const BoxDecoration(
+          color: Color(0xE6FDF8F6),
+          border: Border(top: BorderSide(color: Color(0x33D5C2C7))),
+        ),
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: _saveBook,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _kPrimary,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              elevation: 0,
+            ),
+            child: Text(
+              l10n.add_book,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.26,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
