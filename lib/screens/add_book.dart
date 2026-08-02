@@ -798,6 +798,101 @@ class _AddBookScreenState extends State<AddBookScreen> {
     }
   }
 
+  /// Fills form fields with data from the selected original book.
+  /// Excluded fields: isbn, asin, format, pages, language, price, acquired date, place, reading sessions.
+  Future<void> _fillFromOriginalBook(Book book) async {
+    List<BookRatingField> originalRatingFields = [];
+    try {
+      if (book.bookId != null) {
+        final db = await DatabaseHelper.instance.database;
+        final ratingRepo = BookRatingFieldRepository(db);
+        originalRatingFields = await ratingRepo.getRatingFieldsForBook(
+          book.bookId!,
+        );
+      }
+    } catch (e) {
+      debugPrint('Error loading rating fields for original book: $e');
+    }
+
+    int? formatSagaId;
+    if (book.formatSagaValue != null) {
+      try {
+        final match = _formatSagaList.firstWhere(
+          (fs) =>
+              (fs['value'] as String?)?.toLowerCase() ==
+              book.formatSagaValue!.toLowerCase(),
+        );
+        formatSagaId = match['format_id'] as int?;
+      } catch (_) {}
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _nameController.text = book.name ?? '';
+
+      _selectedAuthors =
+          (book.author != null && book.author!.isNotEmpty)
+              ? book.author!
+                  .split(',')
+                  .map((a) => a.trim())
+                  .where((a) => a.isNotEmpty)
+                  .toList()
+              : [];
+
+      _selectedGenres =
+          (book.genre != null && book.genre!.isNotEmpty)
+              ? book.genre!
+                  .split(',')
+                  .map((g) => g.trim())
+                  .where((g) => g.isNotEmpty)
+                  .toList()
+              : [];
+
+      _selectedEditorial =
+          (book.editorialValue != null && book.editorialValue!.isNotEmpty)
+              ? [book.editorialValue!]
+              : [];
+
+      _sagaController.text = book.saga ?? '';
+      _nSagaController.text = book.nSaga ?? '';
+      _sagaUniverseController.text = book.sagaUniverse ?? '';
+
+      _selectedFormatSagaId = formatSagaId;
+
+      _publicationYearController.text =
+          book.originalPublicationYear != null
+              ? book.originalPublicationYear.toString()
+              : '';
+
+      _selectedLoaned = book.loaned;
+
+      _myReviewController.text = book.myReview ?? '';
+      _notesController.text = book.notes ?? '';
+
+      _myRating = book.myRating ?? 0.0;
+      _ratingOverride = book.ratingOverride ?? false;
+
+      _ratingFields =
+          originalRatingFields
+              .map(
+                (f) => BookRatingField(
+                  bookId: 0,
+                  fieldName: f.fieldName,
+                  ratingValue: f.ratingValue,
+                ),
+              )
+              .toList();
+
+      _fetchedCoverUrl = book.coverUrl;
+      _fetchedDescription = book.description;
+      _fetchedMetadataSource = book.metadataSource;
+
+      _tbr = book.tbr ?? false;
+      _isTandem = book.isTandem ?? false;
+    });
+  }
+
   // Rating field helper methods
   double _calculateAverageRating() {
     if (_ratingFields.isEmpty) return 0.0;
@@ -1162,6 +1257,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                         setState(() {
                           _selectedOriginalBookId = book.bookId;
                         });
+                        _fillFromOriginalBook(book);
                       },
                       fieldViewBuilder: (
                         context,
@@ -2516,10 +2612,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
               },
               displayStringForOption:
                   (b) => '${b.name}${b.author != null ? " - ${b.author}" : ""}',
-              onSelected:
-                  (b) => setState(() {
-                    _selectedOriginalBookId = b.bookId;
-                  }),
+              onSelected: (b) {
+                setState(() {
+                  _selectedOriginalBookId = b.bookId;
+                });
+                _fillFromOriginalBook(b);
+              },
               fieldViewBuilder:
                   (ctx, ctrl, fn, submit) => TextFormField(
                     controller: ctrl,
