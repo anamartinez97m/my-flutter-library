@@ -1072,6 +1072,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   static const _kBg = Color(0xFFFDF8F6);
   static const _kPrimary = Color(0xFF43102B);
   static const _kSub = Color(0xFF514348);
+  static const _kLabel = Color(0xCC43102B);
   static const _kInputBorder = Color(0xFF6B7280);
   static const _kNotesBorder = Color(0xFFD5C2C7);
 
@@ -1110,7 +1111,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
       prefixIcon: Icon(icon, color: _kSub, size: 20),
       suffixIcon: suffix,
       hintText: hint,
-      hintStyle: const TextStyle(color: _kInputBorder, fontSize: 14),
+      hintStyle: const TextStyle(color: _kLabel, fontSize: 14),
+      labelStyle: const TextStyle(color: _kLabel, fontSize: 14),
+      floatingLabelStyle: const TextStyle(color: _kPrimary, fontSize: 12),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     );
   }
@@ -2479,9 +2482,31 @@ class _AddBookScreenState extends State<AddBookScreen> {
           Expanded(
             child: Theme(
               data: Theme.of(context).copyWith(
+                colorScheme: Theme.of(context).colorScheme.copyWith(
+                  primary: _kPrimary,
+                  onPrimary: Colors.white,
+                  primaryContainer: const Color(0xFFF2EDEB),
+                  onPrimaryContainer: _kPrimary,
+                  onSurfaceVariant: _kLabel,
+                ),
+                chipTheme: const ChipThemeData(
+                  backgroundColor: Color(0xFFF2EDEB),
+                  labelStyle: TextStyle(color: _kPrimary, fontSize: 12),
+                  deleteIconColor: _kSub,
+                  side: BorderSide(color: _kNotesBorder),
+                  shape: StadiumBorder(),
+                  padding: EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+                ),
                 inputDecorationTheme: InputDecorationTheme(
                   filled: true,
                   fillColor: Colors.white,
+                  labelStyle: const TextStyle(color: _kLabel, fontSize: 14),
+                  hintStyle: const TextStyle(color: _kLabel, fontSize: 14),
+                  floatingLabelStyle: const TextStyle(
+                    color: _kPrimary,
+                    fontSize: 12,
+                  ),
+                  prefixIconColor: _kSub,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: const BorderSide(color: _kInputBorder),
@@ -2775,7 +2800,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
           style: const TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 14,
-            color: _kSub,
+            color: _kPrimary,
           ),
         ),
         const SizedBox(height: 6),
@@ -2800,16 +2825,24 @@ class _AddBookScreenState extends State<AddBookScreen> {
               _releaseDate != null
                   ? '${_releaseDate!.day}/${_releaseDate!.month}/${_releaseDate!.year}'
                   : l10n.select_release_date,
-              style: TextStyle(
-                color: _releaseDate != null ? null : _kInputBorder,
-              ),
+              style: TextStyle(color: _releaseDate != null ? null : _kLabel),
             ),
           ),
         ),
         const SizedBox(height: 10),
         CheckboxListTile(
-          title: Text(l10n.enable_release_notification),
-          subtitle: Text(l10n.get_notified_when_released),
+          title: Text(
+            l10n.enable_release_notification,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: _kPrimary,
+            ),
+          ),
+          subtitle: Text(
+            l10n.get_notified_when_released,
+            style: const TextStyle(fontSize: 11, color: _kLabel),
+          ),
           value: _notificationEnabled,
           controlAffinity: ListTileControlAffinity.leading,
           onChanged: (value) {
@@ -2872,7 +2905,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     ? '${_notificationDateTime!.day}/${_notificationDateTime!.month}/${_notificationDateTime!.year} at ${_notificationTime!.format(context)}'
                     : l10n.select_notification_date,
                 style: TextStyle(
-                  color: _notificationDateTime != null ? null : _kInputBorder,
+                  color: _notificationDateTime != null ? null : _kLabel,
                 ),
               ),
             ),
@@ -2993,10 +3026,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 ? _acquiredYearController.text
                 : l10n.select_acquired_date,
             style: TextStyle(
-              color:
-                  _acquiredYearController.text.isNotEmpty
-                      ? null
-                      : _kInputBorder,
+              color: _acquiredYearController.text.isNotEmpty ? null : _kLabel,
             ),
           ),
         ),
@@ -3048,15 +3078,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
         ),
         child: ExpansionTile(
           leading: const Icon(Icons.star_rate, color: _kSub),
-          title: Text(
-            l10n.rating,
-            style: const TextStyle(color: Color(0xFF1C1B1A)),
-          ),
+          title: Text(l10n.rating, style: const TextStyle(color: _kPrimary)),
           subtitle: Text(
             _ratingFields.isEmpty
                 ? l10n.no_ratings_yet
                 : '${l10n.average}: ${_calculateDisplayRating().toStringAsFixed(1)}',
-            style: const TextStyle(color: _kSub, fontSize: 13),
+            style: const TextStyle(color: _kLabel, fontSize: 13),
           ),
           initiallyExpanded: false,
           children: [
@@ -3211,7 +3238,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: _kSub,
+              color: _kPrimary,
             ),
           ),
           const SizedBox(height: 8),
@@ -3306,12 +3333,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF1C1B1A),
+                  color: _kPrimary,
                 ),
               ),
               subtitle: Text(
                 l10n.mark_for_reading_list,
-                style: const TextStyle(fontSize: 11, color: _kSub),
+                style: const TextStyle(fontSize: 11, color: _kLabel),
               ),
               value: _tbr,
               secondary: const Icon(Icons.bookmark_add, color: _kSub),
@@ -3362,12 +3389,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF1C1B1A),
+                  color: _kPrimary,
                 ),
               ),
               subtitle: Text(
                 l10n.tandem_description,
-                style: const TextStyle(fontSize: 11, color: _kSub),
+                style: const TextStyle(fontSize: 11, color: _kLabel),
               ),
               value: _isTandem,
               secondary: const Icon(

@@ -17,29 +17,6 @@ const _kBadge = Color(0xFFF2EDEB);
 const _kSub = Color(0xFF514348);
 const _kLetter = Color(0xFFD68DAC);
 
-class _Card extends StatelessWidget {
-  final Widget child;
-  const _Card({required this.child});
-  @override
-  Widget build(BuildContext context) => Container(
-    width: double.infinity,
-    padding: const EdgeInsets.all(17),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: _kBorder),
-      boxShadow: const [
-        BoxShadow(
-          color: Color(0x0D000000),
-          blurRadius: 1,
-          offset: Offset(0, 1),
-        ),
-      ],
-    ),
-    child: child,
-  );
-}
-
 Widget _cover(dynamic book) {
   final letter =
       (book.name?.isNotEmpty ?? false) ? book.name![0].toUpperCase() : '?';
@@ -216,11 +193,12 @@ class _NewMyBooksScreenState extends State<NewMyBooksScreen> {
     return Scaffold(
       backgroundColor: _kBg,
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _Card(
+            // ── Reading / Standby ──────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -310,11 +288,23 @@ class _NewMyBooksScreenState extends State<NewMyBooksScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const Divider(
+              color: _kBorder,
+              height: 1,
+              thickness: 1,
+              indent: 40,
+              endIndent: 40,
+            ),
             _ClubsCard(key: _clubsKey),
-            const SizedBox(height: 24),
+            const Divider(
+              color: _kBorder,
+              height: 1,
+              thickness: 1,
+              indent: 40,
+              endIndent: 40,
+            ),
             _TBRCard(provider: provider),
-            const SizedBox(height: 16),
+            const SizedBox(height: 80),
           ],
         ),
       ),
@@ -404,48 +394,56 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return _Card(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Icon(Icons.bookmark_outline, color: _kDark, size: 20),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  l10n.tbr_title,
-                  style: const TextStyle(fontSize: 18, color: _kDark),
-                ),
+              Row(
+                children: [
+                  const Icon(Icons.bookmark_outline, color: _kDark, size: 20),
+                  const SizedBox(width: 12),
+                  Text(
+                    l10n.tbr_title,
+                    style: const TextStyle(fontSize: 18, color: _kPrimary),
+                  ),
+                ],
               ),
-              if (_books.isNotEmpty) ...[
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 13,
-                    vertical: 5,
-                  ),
-                  decoration: BoxDecoration(
-                    color: _kBadge,
-                    border: Border.all(color: _kBorder),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    '${_books.length}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Color(0xFF1C1B1A),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 13,
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _kBadge,
+                      border: Border.all(color: _kBorder),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      '${_books.length}',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Color(0xFF1C1B1A),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
-              ],
-              GestureDetector(
-                onTap: () => setState(() => _exp = !_exp),
-                child: Icon(
-                  _exp ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                  color: _kSub,
-                  size: 20,
-                ),
+                  const SizedBox(width: 12),
+                  GestureDetector(
+                    onTap: () => setState(() => _exp = !_exp),
+                    child: Icon(
+                      _exp
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
+                      color: _kSub,
+                      size: 20,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -571,7 +569,7 @@ class _ClubsCard extends StatefulWidget {
 
 class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
   Map<String, List<Map<String, dynamic>>> _clubs = {};
-  bool _loading = true, _exp = false;
+  bool _loading = true, _exp = true;
 
   @override
   void initState() {
@@ -617,19 +615,23 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return _Card(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Icon(Icons.groups_outlined, color: _kDark, size: 20),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  l10n.clubs,
-                  style: const TextStyle(fontSize: 18, color: _kDark),
-                ),
+              Row(
+                children: [
+                  const Icon(Icons.groups_outlined, color: _kPrimary, size: 20),
+                  const SizedBox(width: 12),
+                  Text(
+                    l10n.clubs,
+                    style: const TextStyle(fontSize: 18, color: _kPrimary),
+                  ),
+                ],
               ),
               GestureDetector(
                 onTap: () => setState(() => _exp = !_exp),
@@ -647,7 +649,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
               const Center(child: CircularProgressIndicator())
             else if (_clubs.isEmpty)
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24),
+                padding: const EdgeInsets.symmetric(vertical: 16),
                 child: Center(
                   child: Column(
                     children: [
@@ -670,150 +672,137 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                 ),
               )
             else
-              Column(
-                children:
-                    _clubs.entries.map<Widget>((e) {
-                      final books = e.value;
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        decoration: BoxDecoration(
-                          color: _kBg,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: _kBorder),
-                        ),
-                        child: ExpansionTile(
-                          tilePadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 4,
-                          ),
-                          title: Row(
+              SizedBox(
+                height: 144,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  clipBehavior: Clip.none,
+                  itemCount: _clubs.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 16),
+                  itemBuilder: (ctx, i) {
+                    final entry = _clubs.entries.elementAt(i);
+                    final clubName = entry.key;
+                    final books = entry.value;
+                    final firstBook = books.isNotEmpty ? books.first : null;
+                    final prog = (firstBook?['reading_progress'] as int?) ?? 0;
+                    final target = firstBook?['target_date'] as String?;
+                    return Container(
+                      width: 256,
+                      padding: const EdgeInsets.all(17),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF7F3F0),
+                        border: Border.all(color: _kBorder),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
                             children: [
-                              const Icon(Icons.group, color: _kDark, size: 18),
+                              const Icon(
+                                Icons.groups,
+                                color: _kPrimary,
+                                size: 14,
+                              ),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  e.key,
+                                  clubName,
                                   style: const TextStyle(
-                                    color: _kDark,
-                                    fontSize: 16,
+                                    fontSize: 14,
+                                    color: _kPrimary,
                                   ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
+                              const SizedBox(width: 8),
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 8,
                                   vertical: 2,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: _kBadge,
-                                  border: Border.all(color: _kBorder),
-                                  borderRadius: BorderRadius.circular(6),
+                                  color: const Color(0xFFFEB0D0),
+                                  borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
                                   '${books.length}',
                                   style: const TextStyle(
-                                    fontSize: 13,
-                                    color: Color(0xFF1C1B1A),
+                                    fontSize: 12,
+                                    color: _kPrimary,
                                   ),
                                 ),
                               ),
                             ],
                           ),
-                          children:
-                              books.map((book) {
-                                final prog =
-                                    book['reading_progress'] as int? ?? 0;
-                                final target = book['target_date'] as String?;
-                                return Container(
-                                  margin: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 4,
+                          if (firstBook != null) ...[
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  firstBook['book_name'] as String? ??
+                                      l10n.unknown,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Color(0xFF1C1B1A),
                                   ),
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(color: _kBorder),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                if (firstBook['author'] != null &&
+                                    (firstBook['author'] as String).isNotEmpty)
+                                  Text(
+                                    firstBook['author'] as String,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: _kSub,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                if (target != null)
+                                  Row(
                                     children: [
-                                      Text(
-                                        book['book_name'] as String? ??
-                                            l10n.unknown,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          color: _kPrimary,
-                                        ),
+                                      const Icon(
+                                        Icons.calendar_today,
+                                        size: 9,
+                                        color: _kSub,
                                       ),
-                                      if (book['author'] != null &&
-                                          (book['author'] as String)
-                                              .isNotEmpty) ...[
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          book['author'] as String,
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: _kSub,
-                                          ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        target,
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          color: _kSub,
                                         ),
-                                      ],
-                                      if (target != null) ...[
-                                        const SizedBox(height: 4),
-                                        Row(
-                                          children: [
-                                            const Icon(
-                                              Icons.calendar_today,
-                                              size: 12,
-                                              color: _kSub,
-                                            ),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              '${l10n.target}: $target',
-                                              style: const TextStyle(
-                                                fontSize: 12,
-                                                color: _kSub,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                      const SizedBox(height: 8),
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(9999),
-                                              child: LinearProgressIndicator(
-                                                value: prog / 100,
-                                                minHeight: 6,
-                                                backgroundColor: _kProgBg,
-                                                valueColor:
-                                                    const AlwaysStoppedAnimation<
-                                                      Color
-                                                    >(_kPrimary),
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            '$prog%',
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                              color: _kSub,
-                                            ),
-                                          ),
-                                        ],
                                       ),
                                     ],
+                                  )
+                                else
+                                  const SizedBox.shrink(),
+                                Text(
+                                  '$prog%',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: _kPrimary,
                                   ),
-                                );
-                              }).toList(),
-                        ),
-                      );
-                    }).toList(),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
           ],
         ],
