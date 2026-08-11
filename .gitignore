@@ -50,3 +50,4 @@ app.*.map.json
 # Firebase / Google Services (contains API keys)
 android/app/google-services.json
 ios/GoogleService-Info.plist
+dart_defines.json

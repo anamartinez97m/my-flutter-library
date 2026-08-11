@@ -6,7 +6,12 @@ import '../model/book_metadata.dart';
 /// Service for fetching book metadata from Google Books API
 /// API Documentation: https://developers.google.com/books/docs/v1/using
 class GoogleBooksService {
-  static const String _baseUrl = 'https://www.googleapis.com/books/v1/volumes';
+  static const googleBooksApiKey = String.fromEnvironment(
+    'GOOGLE_BOOKS_API_KEY',
+  );
+
+  static const String _baseUrl =
+      'https://www.googleapis.com/books/v1/volumes?key=$googleBooksApiKey';
   static const Duration _timeout = Duration(seconds: 10);
 
   // Rate limiting: Google Books allows ~1000 requests/day for free tier
@@ -30,7 +35,7 @@ class GoogleBooksService {
       }
 
       // Build URL with optional language restriction
-      String urlString = '$_baseUrl?q=isbn:$cleanIsbn';
+      String urlString = '$_baseUrl&q=isbn:$cleanIsbn';
       if (language != null && language.isNotEmpty) {
         final langCode = _mapLanguageCode(language);
         if (langCode != null) {
@@ -40,6 +45,8 @@ class GoogleBooksService {
       }
       final url = Uri.parse(urlString);
       debugPrint('[GoogleBooks] Fetching by ISBN: $cleanIsbn');
+      debugPrint('[GoogleBooks] API KEY: $googleBooksApiKey');
+      debugPrint('[GoogleBooks] URI: $url');
 
       final response = await http.get(url).timeout(_timeout);
 
@@ -59,6 +66,7 @@ class GoogleBooksService {
         }
       } else {
         debugPrint('[GoogleBooks] API error: ${response.statusCode}');
+        debugPrint('[GoogleBooks] API error: ${response.body}');
       }
     } catch (e) {
       debugPrint('[GoogleBooks] Error fetching by ISBN: $e');
@@ -90,7 +98,7 @@ class GoogleBooksService {
       }
 
       // Build URL with optional language restriction
-      String urlString = '$_baseUrl?q=$query&maxResults=1';
+      String urlString = '$_baseUrl&q=$query&maxResults=1';
       if (language != null && language.isNotEmpty) {
         final langCode = _mapLanguageCode(language);
         if (langCode != null) {
@@ -144,7 +152,7 @@ class GoogleBooksService {
 
       final query = 'inauthor:${_sanitizeQuery(author)}';
       String urlString =
-          '$_baseUrl?q=$query&maxResults=40&startIndex=$startIndex&printType=books&orderBy=relevance';
+          '$_baseUrl&q=$query&maxResults=40&startIndex=$startIndex&printType=books&orderBy=relevance';
       if (language != null && language.isNotEmpty) {
         final langCode = _mapLanguageCode(language);
         if (langCode != null) {
