@@ -1108,7 +1108,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(color: Colors.red.shade400, width: 1.5),
       ),
-      prefixIcon: Icon(icon, color: _kSub, size: 20),
+      prefixIcon: Icon(icon, color: _kPrimary, size: 20),
       suffixIcon: suffix,
       hintText: hint,
       hintStyle: const TextStyle(color: _kLabel, fontSize: 14),
@@ -1172,6 +1172,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.check_circle),
                 ),
+                style: const TextStyle(fontFamily: 'Manrope', color: _kPrimary),
                 items:
                     _statusList.map((status) {
                       return DropdownMenuItem<int>(
@@ -1664,6 +1665,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.format_shapes),
                 ),
+                style: const TextStyle(fontFamily: 'Manrope', color: _kPrimary),
                 items:
                     _formatSagaList.map((format) {
                       return DropdownMenuItem<int>(
@@ -1692,6 +1694,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.language),
                 ),
+                style: const TextStyle(fontFamily: 'Manrope', color: _kPrimary),
                 items:
                     _languageList.map((lang) {
                       return DropdownMenuItem<int>(
@@ -1715,6 +1718,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.place),
                 ),
+                style: const TextStyle(fontFamily: 'Manrope', color: _kPrimary),
                 items:
                     _placeList.map((place) {
                       return DropdownMenuItem<int>(
@@ -1738,6 +1742,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.import_contacts),
                 ),
+                style: const TextStyle(fontFamily: 'Manrope', color: _kPrimary),
                 items:
                     _formatList.map((format) {
                       return DropdownMenuItem<int>(
@@ -1803,6 +1808,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.swap_horiz),
                 ),
+                style: const TextStyle(fontFamily: 'Manrope', color: _kPrimary),
                 items: [
                   DropdownMenuItem(
                     value: 'yes',
@@ -1919,7 +1925,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
                             _tbr = value ?? false;
                           });
                         },
-                        secondary: const Icon(Icons.bookmark_add),
+                        secondary: const Icon(
+                          Icons.bookmark_add,
+                          color: _kPrimary,
+                        ),
                       ),
                       CheckboxListTile(
                         title: Text(
@@ -1936,6 +1945,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                         },
                         secondary: const Icon(
                           Icons.swap_horizontal_circle_outlined,
+                          color: _kPrimary,
                         ),
                       ),
                     ],
@@ -1999,6 +2009,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
                                                   )!.criterion,
                                               border:
                                                   const OutlineInputBorder(),
+                                            ),
+                                            style: const TextStyle(
+                                              fontFamily: 'Manrope',
+                                              color: _kPrimary,
                                             ),
                                             items: () {
                                               // Combine suggestions with existing field names to avoid missing values
@@ -2506,7 +2520,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     color: _kPrimary,
                     fontSize: 12,
                   ),
-                  prefixIconColor: _kSub,
+                  prefixIconColor: _kPrimary,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: const BorderSide(color: _kInputBorder),
@@ -2568,6 +2582,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
           Icons.check_circle_outline,
         ),
         dropdownColor: Colors.white,
+        style: const TextStyle(fontFamily: 'Manrope', color: _kPrimary),
         items:
             _statusList
                 .map(
@@ -2922,6 +2937,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         value: _selectedFormatId,
         decoration: _v2Deco(l10n.format, Icons.import_contacts),
         dropdownColor: Colors.white,
+        style: const TextStyle(fontFamily: 'Manrope', color: _kPrimary),
         items:
             _formatList
                 .map(
@@ -2941,6 +2957,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         value: _selectedFormatSagaId,
         decoration: _v2Deco(l10n.format_saga, Icons.format_shapes),
         dropdownColor: Colors.white,
+        style: const TextStyle(fontFamily: 'Manrope', color: _kPrimary),
         items:
             _formatSagaList
                 .map(
@@ -2984,6 +3001,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         value: _selectedLanguageId,
         decoration: _v2Deco(l10n.language, Icons.language),
         dropdownColor: Colors.white,
+        style: const TextStyle(fontFamily: 'Manrope', color: _kPrimary),
         items:
             _languageList
                 .map(
@@ -3036,6 +3054,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         value: _selectedPlaceId,
         decoration: _v2Deco(l10n.place, Icons.place),
         dropdownColor: Colors.white,
+        style: const TextStyle(fontFamily: 'Manrope', color: _kPrimary),
         items:
             _placeList
                 .map(
@@ -3055,6 +3074,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         value: _selectedLoaned,
         decoration: _v2Deco(l10n.loaned, Icons.swap_horiz),
         dropdownColor: Colors.white,
+        style: const TextStyle(fontFamily: 'Manrope', color: _kPrimary),
         items: [
           DropdownMenuItem(value: 'yes', child: Text(l10n.yes)),
           DropdownMenuItem(value: 'no', child: Text(l10n.no)),
@@ -3077,7 +3097,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
           border: Border.all(color: _kInputBorder),
         ),
         child: ExpansionTile(
-          leading: const Icon(Icons.star_rate, color: _kSub),
+          leading: const Icon(Icons.star_rate, color: _kPrimary),
           title: Text(l10n.rating, style: const TextStyle(color: _kPrimary)),
           subtitle: Text(
             _ratingFields.isEmpty
@@ -3111,6 +3131,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
                                     decoration: InputDecoration(
                                       labelText: l10n.criterion,
                                       border: const OutlineInputBorder(),
+                                    ),
+                                    style: const TextStyle(
+                                      fontFamily: 'Manrope',
+                                      color: _kPrimary,
                                     ),
                                     items: () {
                                       final all =
@@ -3302,6 +3326,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         initialBundleCount: _bundleCount,
         initialBundleBooks: _bundleBooks,
         statusOptions: _statusList,
+        titleColor: _kPrimary,
         onChanged: (isBundle, count, books) {
           setState(() {
             _isBundle = isBundle;
@@ -3341,7 +3366,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 style: const TextStyle(fontSize: 11, color: _kLabel),
               ),
               value: _tbr,
-              secondary: const Icon(Icons.bookmark_add, color: _kSub),
+              secondary: const Icon(Icons.bookmark_add, color: _kPrimary),
               onChanged: (value) async {
                 if (value == true) {
                   final db = await DatabaseHelper.instance.database;
@@ -3399,7 +3424,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
               value: _isTandem,
               secondary: const Icon(
                 Icons.swap_horizontal_circle_outlined,
-                color: _kSub,
+                color: _kPrimary,
               ),
               onChanged: (value) {
                 setState(() {
@@ -3420,6 +3445,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         ReadDatesWidget(
           bookId: 0,
           initialReadDates: _readDates,
+          titleColor: _kPrimary,
           onChanged: (readDates) {
             setState(() {
               _readDates = readDates;

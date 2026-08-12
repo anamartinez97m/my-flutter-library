@@ -51,6 +51,7 @@ class BundleInputWidgetV2 extends StatefulWidget {
   final Function(bool isBundle, int? count, List<BundleBookData>? bundleBooks)
   onChanged;
   final bool editMode; // If true, only show title and nsaga fields
+  final Color? titleColor;
 
   const BundleInputWidgetV2({
     super.key,
@@ -60,6 +61,7 @@ class BundleInputWidgetV2 extends StatefulWidget {
     this.statusOptions,
     required this.onChanged,
     this.editMode = false, // Default to false (show all fields)
+    this.titleColor,
   });
 
   @override
@@ -125,7 +127,13 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CheckboxListTile(
-          title: Text(AppLocalizations.of(context)!.this_is_a_bundle),
+          title: Text(
+            AppLocalizations.of(context)!.this_is_a_bundle,
+            style:
+                widget.titleColor != null
+                    ? TextStyle(color: widget.titleColor)
+                    : null,
+          ),
           subtitle: Text(AppLocalizations.of(context)!.bundle_description),
           value: _isBundle,
           onChanged: (value) {

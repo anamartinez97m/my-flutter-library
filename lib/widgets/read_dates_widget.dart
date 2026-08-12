@@ -6,12 +6,14 @@ class ReadDatesWidget extends StatefulWidget {
   final int bookId;
   final List<ReadDate> initialReadDates;
   final Function(List<ReadDate>) onChanged;
+  final Color? titleColor;
 
   const ReadDatesWidget({
     super.key,
     required this.bookId,
     required this.initialReadDates,
     required this.onChanged,
+    this.titleColor,
   });
 
   @override
@@ -128,9 +130,10 @@ class _ReadDatesWidgetState extends State<ReadDatesWidget> {
           children: [
             Text(
               AppLocalizations.of(context)!.reading_sessions,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: widget.titleColor,
+              ),
             ),
             TextButton.icon(
               onPressed: _addReadDate,

@@ -16,7 +16,7 @@
       "request": "launch",
       "type": "dart",
       "flutterMode": "profile",
-            "toolArgs": [
+      "toolArgs": [
         "--dart-define-from-file",
         "dart_defines.json"
       ]
@@ -26,7 +26,7 @@
       "request": "launch",
       "type": "dart",
       "flutterMode": "release",
-            "toolArgs": [
+      "toolArgs": [
         "--dart-define-from-file",
         "dart_defines.json"
       ]
@@ -37,7 +37,7 @@
       "type": "dart",
       "flutterMode": "debug",
       "deviceId": "apple",
-            "toolArgs": [
+      "toolArgs": [
         "--dart-define-from-file",
         "dart_defines.json"
       ]
@@ -48,7 +48,7 @@
       "type": "dart",
       "flutterMode": "profile",
       "deviceId": "apple",
-            "toolArgs": [
+      "toolArgs": [
         "--dart-define-from-file",
         "dart_defines.json"
       ]

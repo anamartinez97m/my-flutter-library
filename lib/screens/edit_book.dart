@@ -1366,6 +1366,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     border: const OutlineInputBorder(),
                     prefixIcon: const Icon(Icons.check_circle),
                   ),
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    color: Color(0xFF43102B),
+                  ),
                   items:
                       _statusList.map((status) {
                         return DropdownMenuItem<int>(
@@ -1863,6 +1867,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.format_shapes),
                   ),
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    color: Color(0xFF43102B),
+                  ),
                   items:
                       _formatSagaList.map((format) {
                         return DropdownMenuItem<int>(
@@ -1891,6 +1899,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     border: const OutlineInputBorder(),
                     prefixIcon: const Icon(Icons.language),
                   ),
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    color: Color(0xFF43102B),
+                  ),
                   items:
                       _languageList.map((lang) {
                         return DropdownMenuItem<int>(
@@ -1914,6 +1926,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     border: const OutlineInputBorder(),
                     prefixIcon: const Icon(Icons.place),
                   ),
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    color: Color(0xFF43102B),
+                  ),
                   items:
                       _placeList.map((place) {
                         return DropdownMenuItem<int>(
@@ -1936,6 +1952,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     labelText: AppLocalizations.of(context)!.format,
                     border: const OutlineInputBorder(),
                     prefixIcon: const Icon(Icons.import_contacts),
+                  ),
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    color: Color(0xFF43102B),
                   ),
                   items:
                       _formatList.map((format) {
@@ -2005,6 +2025,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     labelText: AppLocalizations.of(context)!.loaned,
                     border: const OutlineInputBorder(),
                     prefixIcon: const Icon(Icons.swap_horiz),
+                  ),
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    color: Color(0xFF43102B),
                   ),
                   items: [
                     DropdownMenuItem(
@@ -2211,6 +2235,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
                                                     )!.criterion,
                                                 border:
                                                     const OutlineInputBorder(),
+                                              ),
+                                              style: const TextStyle(
+                                                fontFamily: 'Manrope',
+                                                color: Color(0xFF43102B),
                                               ),
                                               items: () {
                                                 // Combine suggestions with existing field names to avoid missing values
