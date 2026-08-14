@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/new_ui_design_tokens.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/feature_flag_provider.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_home_screen.dart';
@@ -111,10 +112,12 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
     final base = Theme.of(context);
     return Theme(
       data: base.copyWith(
-        textTheme: base.textTheme.apply(fontFamily: 'Manrope'),
+        textTheme: base.textTheme.apply(
+          fontFamily: NewUiDesignTokens.fontFamilyPrimary,
+        ),
         appBarTheme: base.appBarTheme.copyWith(
           titleTextStyle: (base.appBarTheme.titleTextStyle ?? const TextStyle())
-              .copyWith(fontFamily: 'Manrope'),
+              .copyWith(fontFamily: NewUiDesignTokens.fontFamilyPrimary),
         ),
       ),
       child: _buildContent(context),
@@ -123,7 +126,7 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
 
   Widget _buildInlineHeader(BuildContext context) {
     return Container(
-      color: const Color(0xFFFDF8F6),
+      color: NewUiDesignTokens.background,
       padding: const EdgeInsets.fromLTRB(25, 20, 8, 12),
       child: Row(
         children: [
@@ -131,10 +134,10 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
             child: Text(
               AppLocalizations.of(context)!.app_title,
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: NewUiDesignTokens.fontFamilyPrimary,
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
-                color: Color(0xFF43102B),
+                color: NewUiDesignTokens.primary,
                 letterSpacing: -0.5,
               ),
             ),
@@ -145,7 +148,7 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
               return IconButton(
                 icon: const Icon(
                   Icons.undo_rounded,
-                  color: Color(0xFF514348),
+                  color: NewUiDesignTokens.textSecondary,
                   size: 20,
                 ),
                 tooltip: 'Switch to old UI',
@@ -157,7 +160,7 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
           IconButton(
             icon: const Icon(
               Icons.view_compact_alt_outlined,
-              color: Color(0xFF514348),
+              color: NewUiDesignTokens.textSecondary,
               size: 20,
             ),
             tooltip: 'Switch to full header',
@@ -187,13 +190,13 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
             _useInlineHeader
                 ? null
                 : AppBar(
-                  backgroundColor: const Color(0xFF43102B),
+                  backgroundColor: NewUiDesignTokens.primary,
                   foregroundColor: Colors.white,
                   title: Text(
                     AppLocalizations.of(context)!.app_title,
                     style: const TextStyle(
                       color: Colors.white,
-                      fontFamily: 'Manrope',
+                      fontFamily: NewUiDesignTokens.fontFamilyPrimary,
                     ),
                   ),
                   actions: [
@@ -228,24 +231,24 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
         bottomNavigationBar: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(height: 1, color: const Color(0xFF43102B)),
+            Container(height: 1, color: NewUiDesignTokens.primary),
             NavigationBarTheme(
               data: NavigationBarThemeData(
                 height: 64,
-                backgroundColor: const Color(0xFFFDF8F6),
-                indicatorColor: const Color(0xFFECE7E5),
+                backgroundColor: NewUiDesignTokens.background,
+                indicatorColor: NewUiDesignTokens.activeBackground,
                 indicatorShape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(12)),
                 ),
                 iconTheme: WidgetStateProperty.resolveWith((states) {
                   if (states.contains(WidgetState.selected)) {
                     return const IconThemeData(
-                      color: Color(0xFF43102B),
+                      color: NewUiDesignTokens.primary,
                       size: 22,
                     );
                   }
                   return const IconThemeData(
-                    color: Color(0xFF514348),
+                    color: NewUiDesignTokens.textSecondary,
                     size: 22,
                   );
                 }),

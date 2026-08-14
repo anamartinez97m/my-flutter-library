@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/new_ui_design_tokens.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
@@ -10,15 +11,6 @@ import 'package:myrandomlibrary/utils/format_saga_helper.dart';
 import 'package:myrandomlibrary/utils/status_helper.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-// ── Figma design tokens ────────────────────────────────────────────────────────
-const _kPrimary = Color(0xFF43102B);
-const _kBg = Color(0xFFFDF8F6);
-const _kBorder = Color(0xFFCEC5BE);
-const _kDivider = Color(0xFFE6E2DF);
-const _kText = Color(0xFF5F5E5C);
-const _kInactiveText = Color(0xFF514348);
-const _kFabSmall = Color(0xFFECE7E5);
 
 class NewHomeScreen extends StatefulWidget {
   final void Function(VoidCallback)? onRegisterClearSearch;
@@ -215,24 +207,24 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     return InputDecoration(
       labelText: label,
       labelStyle: const TextStyle(
-        color: Color(0xFF514348),
+        color: NewUiDesignTokens.textSecondary,
         fontSize: 16,
         fontWeight: FontWeight.w400,
       ),
       floatingLabelBehavior: FloatingLabelBehavior.always,
       filled: true,
-      fillColor: _kBg,
+      fillColor: NewUiDesignTokens.background,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Color(0xFF27231E)),
+        borderSide: const BorderSide(color: NewUiDesignTokens.inputBorder),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Color(0xFF27231E)),
+        borderSide: const BorderSide(color: NewUiDesignTokens.inputBorder),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Color(0xFF27231E)),
+        borderSide: const BorderSide(color: NewUiDesignTokens.inputBorder),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 17, vertical: 17),
     );
@@ -333,7 +325,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                         top: Radius.circular(12),
                       ),
                       child: Container(
-                        color: _kBg,
+                        color: NewUiDesignTokens.background,
                         child: Column(
                           children: [
                             // ── Header ──────────────────────────────────────
@@ -343,9 +335,11 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                 vertical: 16,
                               ),
                               decoration: const BoxDecoration(
-                                color: _kBg,
+                                color: NewUiDesignTokens.background,
                                 border: Border(
-                                  bottom: BorderSide(color: _kDivider),
+                                  bottom: BorderSide(
+                                    color: NewUiDesignTokens.divider,
+                                  ),
                                 ),
                               ),
                               child: Row(
@@ -357,7 +351,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                     style: const TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.w700,
-                                      color: Color(0xFF1C1B1A),
+                                      color: NewUiDesignTokens.textHighEmphasis,
                                     ),
                                   ),
                                   GestureDetector(
@@ -367,7 +361,8 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                       child: const Icon(
                                         Icons.close,
                                         size: 18,
-                                        color: Color(0xFF1C1B1A),
+                                        color:
+                                            NewUiDesignTokens.textHighEmphasis,
                                       ),
                                     ),
                                   ),
@@ -391,7 +386,8 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                       const Icon(
                                         Icons.sort,
                                         size: 18,
-                                        color: Color(0xFF1C1B1A),
+                                        color:
+                                            NewUiDesignTokens.textHighEmphasis,
                                       ),
                                       const SizedBox(width: 12),
                                       Text(
@@ -399,7 +395,9 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                         style: const TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.w600,
-                                          color: Color(0xFF1C1B1A),
+                                          color:
+                                              NewUiDesignTokens
+                                                  .textHighEmphasis,
                                         ),
                                       ),
                                     ],
@@ -411,9 +409,9 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                       vertical: 8,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: _kBg,
+                                      color: NewUiDesignTokens.background,
                                       border: Border.all(
-                                        color: const Color(0xFF27231E),
+                                        color: NewUiDesignTokens.inputBorder,
                                       ),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
@@ -426,11 +424,15 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                               isExpanded: true,
                                               style: const TextStyle(
                                                 fontSize: 16,
-                                                color: Color(0xFF1C1B1A),
+                                                color:
+                                                    NewUiDesignTokens
+                                                        .textHighEmphasis,
                                               ),
                                               icon: const Icon(
                                                 Icons.keyboard_arrow_down,
-                                                color: Color(0xFF1C1B1A),
+                                                color:
+                                                    NewUiDesignTokens
+                                                        .textHighEmphasis,
                                               ),
                                               items: [
                                                 DropdownMenuItem(
@@ -477,9 +479,11 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                             width: 40,
                                             height: 40,
                                             decoration: BoxDecoration(
-                                              color: _kFabSmall,
+                                              color:
+                                                  NewUiDesignTokens
+                                                      .activeBackground,
                                               border: Border.all(
-                                                color: const Color(0xFFD5C2C7),
+                                                color: NewUiDesignTokens.border,
                                               ),
                                               shape: BoxShape.circle,
                                             ),
@@ -488,7 +492,9 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                                   ? Icons.arrow_upward
                                                   : Icons.arrow_downward,
                                               size: 16,
-                                              color: _kInactiveText,
+                                              color:
+                                                  NewUiDesignTokens
+                                                      .textSecondary,
                                             ),
                                           ),
                                         ),
@@ -497,7 +503,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                   ),
                                   const SizedBox(height: 24),
                                   const Divider(
-                                    color: _kDivider,
+                                    color: NewUiDesignTokens.divider,
                                     height: 1,
                                     thickness: 1,
                                   ),
@@ -508,7 +514,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                     style: const TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.w600,
-                                      color: Color(0xFF1C1B1A),
+                                      color: NewUiDesignTokens.textHighEmphasis,
                                     ),
                                   ),
                                   const SizedBox(height: 16),
@@ -924,9 +930,11 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                 20 + MediaQuery.of(ctx).viewPadding.bottom,
                               ),
                               decoration: const BoxDecoration(
-                                color: _kBg,
+                                color: NewUiDesignTokens.background,
                                 border: Border(
-                                  top: BorderSide(color: _kDivider),
+                                  top: BorderSide(
+                                    color: NewUiDesignTokens.divider,
+                                  ),
                                 ),
                               ),
                               child: Row(
@@ -964,10 +972,11 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                         },
                                         style: OutlinedButton.styleFrom(
                                           side: const BorderSide(
-                                            color: Color(0xFF837378),
+                                            color: NewUiDesignTokens.textLight,
                                           ),
                                           shape: const StadiumBorder(),
-                                          foregroundColor: _kPrimary,
+                                          foregroundColor:
+                                              NewUiDesignTokens.primary,
                                           textStyle: const TextStyle(
                                             fontSize: 13,
                                             fontWeight: FontWeight.w600,
@@ -985,7 +994,8 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                       child: ElevatedButton(
                                         onPressed: () => Navigator.pop(ctx),
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: _kPrimary,
+                                          backgroundColor:
+                                              NewUiDesignTokens.primary,
                                           foregroundColor: Colors.white,
                                           shape: const StadiumBorder(),
                                           elevation: 3,
@@ -1022,7 +1032,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     final provider = Provider.of<BookProvider?>(context);
     if (provider == null || provider.isLoading) {
       return const Scaffold(
-        backgroundColor: _kBg,
+        backgroundColor: NewUiDesignTokens.background,
         body: Center(child: CircularProgressIndicator()),
       );
     }
@@ -1036,12 +1046,12 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     ];
 
     return Scaffold(
-      backgroundColor: _kBg,
+      backgroundColor: NewUiDesignTokens.background,
       body: Column(
         children: [
           // ── Search section ─────────────────────────────────────────────────
           Container(
-            color: _kBg,
+            color: NewUiDesignTokens.background,
             padding: const EdgeInsets.fromLTRB(0, 12, 0, 8),
             child: Column(
               children: [
@@ -1068,9 +1078,13 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                             vertical: 8,
                           ),
                           decoration: BoxDecoration(
-                            color: sel ? _kPrimary : Colors.white,
+                            color:
+                                sel ? NewUiDesignTokens.primary : Colors.white,
                             border: Border.all(
-                              color: sel ? _kPrimary : _kBorder,
+                              color:
+                                  sel
+                                      ? NewUiDesignTokens.primary
+                                      : NewUiDesignTokens.borderLight,
                             ),
                             borderRadius: BorderRadius.circular(9999),
                           ),
@@ -1079,7 +1093,10 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: sel ? Colors.white : _kInactiveText,
+                              color:
+                                  sel
+                                      ? Colors.white
+                                      : NewUiDesignTokens.textSecondary,
                               letterSpacing: 0.26,
                             ),
                           ),
@@ -1095,7 +1112,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                     height: 50,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      border: Border.all(color: const Color(0xFF27231E)),
+                      border: Border.all(color: NewUiDesignTokens.inputBorder),
                       borderRadius: BorderRadius.circular(8),
                       boxShadow: [
                         BoxShadow(
@@ -1108,7 +1125,11 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                     child: Row(
                       children: [
                         const SizedBox(width: 16),
-                        const Icon(Icons.search, color: _kText, size: 18),
+                        const Icon(
+                          Icons.search,
+                          color: NewUiDesignTokens.textMuted,
+                          size: 18,
+                        ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: TextField(
@@ -1123,7 +1144,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                               focusedBorder: InputBorder.none,
                               hintText: l10n.search_hint,
                               hintStyle: const TextStyle(
-                                color: _kText,
+                                color: NewUiDesignTokens.textMuted,
                                 fontSize: 14,
                               ),
                               isDense: true,
@@ -1131,7 +1152,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                             ),
                             style: const TextStyle(
                               fontSize: 14,
-                              color: Color(0xFF27231E),
+                              color: NewUiDesignTokens.inputBorder,
                             ),
                           ),
                         ),
@@ -1144,7 +1165,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                           icon: const Icon(
                             Icons.close,
                             size: 14,
-                            color: _kText,
+                            color: NewUiDesignTokens.textMuted,
                           ),
                           onPressed: () {
                             _searchController.clear();
@@ -1193,10 +1214,14 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
             child: FloatingActionButton(
               heroTag: 'new_filters',
               onPressed: () => _showFilterSortSheet(context, provider),
-              backgroundColor: _kFabSmall,
+              backgroundColor: NewUiDesignTokens.activeBackground,
               elevation: 3,
               shape: const CircleBorder(),
-              child: const Icon(Icons.tune, color: _kInactiveText, size: 17),
+              child: const Icon(
+                Icons.tune,
+                color: NewUiDesignTokens.textSecondary,
+                size: 17,
+              ),
             ),
           ),
           const SizedBox(height: 12),
@@ -1209,7 +1234,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                     builder: (_) => const AddBookScreen(useNewUi: true),
                   ),
                 ),
-            backgroundColor: _kPrimary,
+            backgroundColor: NewUiDesignTokens.primary,
             elevation: 6,
             shape: const CircleBorder(),
             child: const Icon(Icons.add, color: Colors.white),
@@ -1372,8 +1397,8 @@ class _NewBookCard extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
-          color: isRead ? const Color(0xFFF5F3F2) : Colors.white,
-          border: Border.all(color: _kBorder),
+          color: isRead ? NewUiDesignTokens.surfaceMuted : Colors.white,
+          border: Border.all(color: NewUiDesignTokens.borderLight),
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
@@ -1400,7 +1425,7 @@ class _NewBookCard extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 19,
                             fontWeight: FontWeight.w600,
-                            color: _kPrimary,
+                            color: NewUiDesignTokens.primary,
                             height: 1.25,
                           ),
                         ),
@@ -1409,19 +1434,19 @@ class _NewBookCard extends StatelessWidget {
                         const Icon(
                           Icons.bookmark_add,
                           size: 16,
-                          color: _kPrimary,
+                          color: NewUiDesignTokens.primary,
                         ),
                       if (book.isBundle == true)
                         const Icon(
                           Icons.library_books,
                           size: 16,
-                          color: _kPrimary,
+                          color: NewUiDesignTokens.primary,
                         ),
                       if (book.isTandem == true)
                         const Icon(
                           Icons.swap_horiz,
                           size: 16,
-                          color: _kPrimary,
+                          color: NewUiDesignTokens.primary,
                         ),
                     ],
                   ),
@@ -1435,12 +1460,16 @@ class _NewBookCard extends StatelessWidget {
                       book.author!,
                       style: const TextStyle(
                         fontSize: 13,
-                        color: _kText,
+                        color: NewUiDesignTokens.textMuted,
                         height: 1.43,
                       ),
                     ),
                     const SizedBox(height: 10),
-                    const Divider(height: 1, thickness: 1, color: _kDivider),
+                    const Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: NewUiDesignTokens.divider,
+                    ),
                   ],
 
                   // Metadata grid
@@ -1461,7 +1490,11 @@ class _NewBookCard extends StatelessWidget {
                                       2,
                                   child: Row(
                                     children: [
-                                      Icon(m.icon, size: 12, color: _kText),
+                                      Icon(
+                                        m.icon,
+                                        size: 12,
+                                        color: NewUiDesignTokens.textMuted,
+                                      ),
                                       const SizedBox(width: 5),
                                       Expanded(
                                         child: Text(
@@ -1469,7 +1502,7 @@ class _NewBookCard extends StatelessWidget {
                                           overflow: TextOverflow.ellipsis,
                                           style: const TextStyle(
                                             fontSize: 11,
-                                            color: _kText,
+                                            color: NewUiDesignTokens.textMuted,
                                             fontWeight: FontWeight.w500,
                                             letterSpacing: 0.5,
                                           ),
@@ -1496,8 +1529,10 @@ class _NewBookCard extends StatelessWidget {
                 ),
                 child: LinearProgressIndicator(
                   value: progressFraction,
-                  backgroundColor: _kDivider,
-                  valueColor: const AlwaysStoppedAnimation(_kPrimary),
+                  backgroundColor: NewUiDesignTokens.divider,
+                  valueColor: const AlwaysStoppedAnimation(
+                    NewUiDesignTokens.primary,
+                  ),
                   minHeight: 4,
                 ),
               ),

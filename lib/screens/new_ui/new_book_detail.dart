@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/new_ui_design_tokens.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
 import 'package:myrandomlibrary/config/app_theme.dart';
@@ -38,12 +39,6 @@ class NewBookDetailScreen extends StatefulWidget {
 }
 
 class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
-  // v2 design tokens - match the colors used across the new UI.
-  static const _kPrimary = Color(0xFF43102B);
-  static const _kSub = Color(0xFF514348);
-  static const _kBorder = Color(0xFF27231E);
-  static const _kBg = Color(0xFFFDF8F6);
-
   late Book _currentBook;
   List<ReadDate> _readDates = [];
   Map<int, List<ReadDate>> _bundleReadDates = {};
@@ -66,13 +61,15 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
       padding: const EdgeInsets.only(bottom: 9),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: _kBorder.withValues(alpha: 0.2)),
+          bottom: BorderSide(
+            color: NewUiDesignTokens.inputBorder.withValues(alpha: 0.2),
+          ),
         ),
       ),
       child: Row(
         children: [
           if (icon != null) ...[
-            Icon(icon, color: _kPrimary, size: 20),
+            Icon(icon, color: NewUiDesignTokens.primary, size: 20),
             const SizedBox(width: 8),
           ],
           Expanded(
@@ -81,8 +78,8 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
-                color: _kPrimary,
-                fontFamily: 'Manrope',
+                color: NewUiDesignTokens.primary,
+                fontFamily: NewUiDesignTokens.fontFamilyPrimary,
               ),
             ),
           ),
@@ -99,9 +96,11 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(13),
         decoration: BoxDecoration(
-          color: _kPrimary.withValues(alpha: 0.05),
+          color: NewUiDesignTokens.primary.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: _kPrimary.withValues(alpha: 0.1)),
+          border: Border.all(
+            color: NewUiDesignTokens.primary.withValues(alpha: 0.1),
+          ),
         ),
         child: child,
       ),
@@ -2039,7 +2038,11 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                   ),
                 ),
               ),
-              const Icon(Icons.info_outline, size: 16, color: _kSub),
+              const Icon(
+                Icons.info_outline,
+                size: 16,
+                color: NewUiDesignTokens.textSecondary,
+              ),
             ],
           ),
         ),
@@ -2331,9 +2334,9 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: _kBg,
+        backgroundColor: NewUiDesignTokens.background,
         appBar: AppBar(
-          backgroundColor: _kPrimary,
+          backgroundColor: NewUiDesignTokens.primary,
           foregroundColor: Colors.white,
           elevation: 0,
           title: Text(
@@ -2342,7 +2345,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
               fontWeight: FontWeight.bold,
               fontSize: 20,
               color: Colors.white,
-              fontFamily: 'Manrope',
+              fontFamily: NewUiDesignTokens.fontFamilyPrimary,
             ),
           ),
           actions: [
@@ -2391,7 +2394,9 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
               // Book cover image with glassmorphism effect
               Container(
                 height: 250,
-                decoration: const BoxDecoration(color: Color(0xFFE6E2DF)),
+                decoration: const BoxDecoration(
+                  color: NewUiDesignTokens.divider,
+                ),
                 child:
                     _currentBook.coverUrl != null &&
                             _currentBook.coverUrl!.isNotEmpty
@@ -2557,7 +2562,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                 const Icon(
                                   Icons.book,
                                   size: 60,
-                                  color: _kPrimary,
+                                  color: NewUiDesignTokens.primary,
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
@@ -2815,8 +2820,9 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                     style: const TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.w600,
-                                      color: _kPrimary,
-                                      fontFamily: 'Manrope',
+                                      color: NewUiDesignTokens.primary,
+                                      fontFamily:
+                                          NewUiDesignTokens.fontFamilyPrimary,
                                     ),
                                   ),
                                 ],
@@ -2837,7 +2843,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                         ),
                                         valueColor:
                                             const AlwaysStoppedAnimation(
-                                              _kPrimary,
+                                              NewUiDesignTokens.primary,
                                             ),
                                       ),
                                     ),
@@ -2847,9 +2853,10 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                         context,
                                       )!.tap_to_update_progress,
                                       style: const TextStyle(
-                                        color: _kSub,
+                                        color: NewUiDesignTokens.textSecondary,
                                         fontSize: 13,
-                                        fontFamily: 'Manrope',
+                                        fontFamily:
+                                            NewUiDesignTokens.fontFamilyPrimary,
                                       ),
                                     ),
                                   ],
@@ -2912,7 +2919,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                 _isDescriptionExpanded
                                     ? Icons.expand_less
                                     : Icons.expand_more,
-                                color: _kPrimary,
+                                color: NewUiDesignTokens.primary,
                                 size: 20,
                               ),
                             ],
@@ -2944,10 +2951,11 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                         context,
                                       )!.fetching_description,
                                       style: const TextStyle(
-                                        color: _kSub,
+                                        color: NewUiDesignTokens.textSecondary,
                                         fontSize: 13,
                                         fontStyle: FontStyle.italic,
-                                        fontFamily: 'Manrope',
+                                        fontFamily:
+                                            NewUiDesignTokens.fontFamilyPrimary,
                                       ),
                                     ),
                                   ],
@@ -2960,9 +2968,10 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                     '.\n',
                                   ),
                                   style: const TextStyle(
-                                    color: _kSub,
+                                    color: NewUiDesignTokens.textSecondary,
                                     fontSize: 13,
-                                    fontFamily: 'Manrope',
+                                    fontFamily:
+                                        NewUiDesignTokens.fontFamilyPrimary,
                                   ),
                                   maxLines: _isDescriptionExpanded ? null : 1,
                                   overflow:
@@ -2976,10 +2985,11 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                     context,
                                   )!.no_description_available,
                                   style: const TextStyle(
-                                    color: _kSub,
+                                    color: NewUiDesignTokens.textSecondary,
                                     fontSize: 13,
                                     fontStyle: FontStyle.italic,
-                                    fontFamily: 'Manrope',
+                                    fontFamily:
+                                        NewUiDesignTokens.fontFamilyPrimary,
                                   ),
                                 ),
                             ],
@@ -3468,9 +3478,9 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                               if (index > 0)
                                                 Divider(
                                                   height: 1,
-                                                  color: _kBorder.withValues(
-                                                    alpha: 0.2,
-                                                  ),
+                                                  color: NewUiDesignTokens
+                                                      .inputBorder
+                                                      .withValues(alpha: 0.2),
                                                 ),
                                               ListTile(
                                                 contentPadding:
@@ -3879,13 +3889,17 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                     // checkbox on the trailing side), a subtitle, and a
                     // divider below.
                     if (_currentBook.tbr == true) ...[
-                      Divider(color: _kBorder.withValues(alpha: 0.2)),
+                      Divider(
+                        color: NewUiDesignTokens.inputBorder.withValues(
+                          alpha: 0.2,
+                        ),
+                      ),
                       const SizedBox(height: 16),
                       Row(
                         children: [
                           const Icon(
                             Icons.bookmark_add,
-                            color: _kPrimary,
+                            color: NewUiDesignTokens.primary,
                             size: 20,
                           ),
                           const SizedBox(width: 8),
@@ -3895,14 +3909,14 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                               style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w600,
-                                color: _kPrimary,
-                                fontFamily: 'Manrope',
+                                color: NewUiDesignTokens.primary,
+                                fontFamily: NewUiDesignTokens.fontFamilyPrimary,
                               ),
                             ),
                           ),
                           Checkbox(
                             value: true,
-                            activeColor: _kPrimary,
+                            activeColor: NewUiDesignTokens.primary,
                             onChanged: (value) async {
                               if (value == false) {
                                 // Uncheck TBR
@@ -3978,12 +3992,16 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                       Text(
                         AppLocalizations.of(context)!.tbr_list_subtitle,
                         style: const TextStyle(
-                          color: _kPrimary,
-                          fontFamily: 'Manrope',
+                          color: NewUiDesignTokens.primary,
+                          fontFamily: NewUiDesignTokens.fontFamilyPrimary,
                         ),
                       ),
                       const SizedBox(height: 16),
-                      Divider(color: _kBorder.withValues(alpha: 0.2)),
+                      Divider(
+                        color: NewUiDesignTokens.inputBorder.withValues(
+                          alpha: 0.2,
+                        ),
+                      ),
                       const SizedBox(height: 12),
                     ],
 
@@ -4083,9 +4101,10 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                       context,
                                     )!.auto_calculated,
                                 style: const TextStyle(
-                                  color: _kSub,
+                                  color: NewUiDesignTokens.textSecondary,
                                   fontSize: 14,
-                                  fontFamily: 'Manrope',
+                                  fontFamily:
+                                      NewUiDesignTokens.fontFamilyPrimary,
                                 ),
                               ),
                               const SizedBox(height: 16),
@@ -4212,7 +4231,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                   onPressed: _showEditSessionsModal,
                                   icon: const Icon(
                                     Icons.edit,
-                                    color: _kPrimary,
+                                    color: NewUiDesignTokens.primary,
                                     size: 20,
                                   ),
                                   tooltip:
@@ -4224,7 +4243,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                 onPressed: _showAddSessionModal,
                                 icon: const Icon(
                                   Icons.add,
-                                  color: _kPrimary,
+                                  color: NewUiDesignTokens.primary,
                                   size: 20,
                                 ),
                                 tooltip:
@@ -4420,7 +4439,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                   ),
             );
           },
-          backgroundColor: _kPrimary,
+          backgroundColor: NewUiDesignTokens.primary,
           elevation: 6,
           shape: const CircleBorder(),
           child: const Icon(Icons.timer, color: Colors.white),
@@ -4784,10 +4803,6 @@ class _NewBookClubsCard extends StatefulWidget {
 }
 
 class _NewBookClubsCardState extends State<_NewBookClubsCard> {
-  static const _kPrimary = Color(0xFF43102B);
-  static const _kSub = Color(0xFF514348);
-  static const _kBorder = Color(0xFF27231E);
-
   List<ReadingClub> _clubs = [];
   bool _isLoading = true;
   List<String> _existingClubNames = [];
@@ -4996,12 +5011,14 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
           padding: const EdgeInsets.only(bottom: 9),
           decoration: BoxDecoration(
             border: Border(
-              bottom: BorderSide(color: _kBorder.withValues(alpha: 0.2)),
+              bottom: BorderSide(
+                color: NewUiDesignTokens.inputBorder.withValues(alpha: 0.2),
+              ),
             ),
           ),
           child: Row(
             children: [
-              Icon(Icons.groups, color: _kPrimary, size: 20),
+              Icon(Icons.groups, color: NewUiDesignTokens.primary, size: 20),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -5009,13 +5026,16 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
-                    color: _kPrimary,
-                    fontFamily: 'Manrope',
+                    color: NewUiDesignTokens.primary,
+                    fontFamily: NewUiDesignTokens.fontFamilyPrimary,
                   ),
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.add_circle_outline, color: _kPrimary),
+                icon: const Icon(
+                  Icons.add_circle_outline,
+                  color: NewUiDesignTokens.primary,
+                ),
                 onPressed: _showAddClubDialog,
                 tooltip: AppLocalizations.of(context)!.add_to_club,
               ),
@@ -5033,7 +5053,10 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Text(
               AppLocalizations.of(context)!.not_in_any_clubs,
-              style: const TextStyle(color: _kSub, fontStyle: FontStyle.italic),
+              style: const TextStyle(
+                color: NewUiDesignTokens.textSecondary,
+                fontStyle: FontStyle.italic,
+              ),
             ),
           )
         else
@@ -5044,10 +5067,10 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
                     margin: const EdgeInsets.only(bottom: 8),
                     padding: const EdgeInsets.all(13),
                     decoration: BoxDecoration(
-                      color: _kPrimary.withValues(alpha: 0.05),
+                      color: NewUiDesignTokens.primary.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: _kPrimary.withValues(alpha: 0.1),
+                        color: NewUiDesignTokens.primary.withValues(alpha: 0.1),
                       ),
                     ),
                     child: Column(
@@ -5055,7 +5078,11 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.group, color: _kPrimary, size: 15),
+                            const Icon(
+                              Icons.group,
+                              color: NewUiDesignTokens.primary,
+                              size: 15,
+                            ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
@@ -5064,15 +5091,16 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 0.2,
-                                  color: _kPrimary,
-                                  fontFamily: 'Manrope',
+                                  color: NewUiDesignTokens.primary,
+                                  fontFamily:
+                                      NewUiDesignTokens.fontFamilyPrimary,
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             IconButton(
                               icon: const Icon(Icons.edit, size: 16),
-                              color: _kPrimary,
+                              color: NewUiDesignTokens.primary,
                               onPressed: () => _showEditClubDialog(club),
                               tooltip: AppLocalizations.of(context)!.edit,
                               padding: EdgeInsets.zero,
@@ -5099,14 +5127,14 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
                               const Icon(
                                 Icons.calendar_today,
                                 size: 12,
-                                color: _kSub,
+                                color: NewUiDesignTokens.textSecondary,
                               ),
                               const SizedBox(width: 4),
                               Text(
                                 '${AppLocalizations.of(context)!.target}: ${club.targetDate}',
                                 style: const TextStyle(
                                   fontSize: 14,
-                                  color: _kSub,
+                                  color: NewUiDesignTokens.textSecondary,
                                 ),
                               ),
                             ],
@@ -5121,10 +5149,10 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
                                 child: LinearProgressIndicator(
                                   value: club.readingProgress / 100,
                                   minHeight: 6,
-                                  backgroundColor: const Color(0xFFE6E2DF),
+                                  backgroundColor: NewUiDesignTokens.divider,
                                   valueColor:
                                       const AlwaysStoppedAnimation<Color>(
-                                        _kPrimary,
+                                        NewUiDesignTokens.primary,
                                       ),
                                 ),
                               ),
@@ -5135,7 +5163,7 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
                               style: const TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color: _kPrimary,
+                                color: NewUiDesignTokens.primary,
                               ),
                             ),
                           ],
@@ -5264,7 +5292,11 @@ class _FinishBookDialogState extends State<_FinishBookDialog> {
                         );
                       }),
                     const SizedBox(height: 16),
-                    Divider(color: Color(0xFF27231E).withValues(alpha: 0.2)),
+                    Divider(
+                      color: NewUiDesignTokens.inputBorder.withValues(
+                        alpha: 0.2,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     Text(
                       AppLocalizations.of(context)!.write_review_optional,

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/new_ui_design_tokens.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:myrandomlibrary/helpers/statistics_calculator.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
@@ -290,11 +291,13 @@ class _QuickStatsRowState extends State<QuickStatsRow> {
                 ),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0x1A27231E)),
+                  borderRadius: BorderRadius.circular(
+                    NewUiDesignTokens.radiusLarge,
+                  ),
+                  border: Border.all(color: NewUiDesignTokens.borderSubtle),
                   boxShadow: const [
                     BoxShadow(
-                      color: Color(0x0A000000),
+                      color: NewUiDesignTokens.shadowColor,
                       blurRadius: 6,
                       offset: Offset(0, 4),
                     ),
@@ -303,14 +306,14 @@ class _QuickStatsRowState extends State<QuickStatsRow> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(def.icon, color: const Color(0xFF43102B), size: 20),
+                    Icon(def.icon, color: NewUiDesignTokens.primary, size: 20),
                     const SizedBox(height: 4),
                     Text(
                       value,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF43102B),
+                        color: NewUiDesignTokens.primary,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -319,7 +322,7 @@ class _QuickStatsRowState extends State<QuickStatsRow> {
                       label,
                       style: const TextStyle(
                         fontSize: 10,
-                        color: Color(0xFF514348),
+                        color: NewUiDesignTokens.textSecondary,
                       ),
                       textAlign: TextAlign.center,
                       maxLines: 2,
@@ -338,7 +341,9 @@ class _QuickStatsRowState extends State<QuickStatsRow> {
               elevation: 2,
               margin: const EdgeInsets.symmetric(horizontal: 3),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(
+                  NewUiDesignTokens.radiusLarge,
+                ),
               ),
               child: Padding(
                 padding: const EdgeInsets.symmetric(

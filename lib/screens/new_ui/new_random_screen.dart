@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/new_ui_design_tokens.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/model/book.dart';
@@ -8,14 +9,6 @@ import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/screens/book_detail.dart';
 import 'package:myrandomlibrary/widgets/chip_autocomplete_field.dart';
 import 'package:provider/provider.dart';
-
-const _kBg = Color(0xFFFDF8F6);
-const _kPrimary = Color(0xFF43102B);
-const _kSub = Color(0xFF514348);
-const _kText = Color(0xFF1C1B1A);
-const _kBorder = Color(0xFFD5C2C7);
-const _kActionBorder = Color(0xFFE6E2DF);
-const _kClearBtn = Color(0xFFE6E2DF);
 
 class NewRandomScreen extends StatefulWidget {
   const NewRandomScreen({super.key});
@@ -262,26 +255,29 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
     labelStyle: const TextStyle(
       fontSize: 11,
       fontWeight: FontWeight.w500,
-      color: _kSub,
+      color: NewUiDesignTokens.textSecondary,
       letterSpacing: 0.55,
     ),
     floatingLabelStyle: const TextStyle(
       fontSize: 11,
       fontWeight: FontWeight.w500,
-      color: _kSub,
+      color: NewUiDesignTokens.textSecondary,
       letterSpacing: 0.55,
     ),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
-      borderSide: const BorderSide(color: _kBorder),
+      borderSide: const BorderSide(color: NewUiDesignTokens.border),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
-      borderSide: const BorderSide(color: _kBorder),
+      borderSide: const BorderSide(color: NewUiDesignTokens.border),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
-      borderSide: const BorderSide(color: _kPrimary, width: 1.5),
+      borderSide: const BorderSide(
+        color: NewUiDesignTokens.primary,
+        width: 1.5,
+      ),
     ),
     contentPadding: const EdgeInsets.symmetric(horizontal: 17, vertical: 13),
   );
@@ -291,12 +287,12 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
     final l10n = AppLocalizations.of(context)!;
     if (_isLoading) {
       return const Scaffold(
-        backgroundColor: _kBg,
+        backgroundColor: NewUiDesignTokens.background,
         body: Center(child: CircularProgressIndicator()),
       );
     }
     return Scaffold(
-      backgroundColor: _kBg,
+      backgroundColor: NewUiDesignTokens.background,
       body: Column(
         children: [
           Expanded(
@@ -316,14 +312,17 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
-                      color: _kPrimary,
+                      color: NewUiDesignTokens.primary,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     l10n.random_book_description,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 14, color: _kSub),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: NewUiDesignTokens.textSecondary,
+                    ),
                   ),
                   const SizedBox(height: 32),
                   _buildMainCard(l10n),
@@ -347,10 +346,10 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0x4DCEC5BE)),
+        border: Border.all(color: NewUiDesignTokens.borderFaint),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x0A000000),
+            color: NewUiDesignTokens.shadowColor,
             blurRadius: 12,
             offset: Offset(0, 4),
           ),
@@ -369,7 +368,7 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
-                    color: _kText,
+                    color: NewUiDesignTokens.textHighEmphasis,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -379,7 +378,7 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            child: Divider(color: _kBorder, height: 1),
+            child: Divider(color: NewUiDesignTokens.border, height: 1),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
@@ -404,7 +403,10 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
           value: _filterLanguage,
           isExpanded: true,
           decoration: _deco(l10n.language),
-          style: const TextStyle(fontSize: 16, color: _kText),
+          style: const TextStyle(
+            fontSize: 16,
+            color: NewUiDesignTokens.textHighEmphasis,
+          ),
           dropdownColor: Colors.white,
           items: [
             DropdownMenuItem(value: null, child: Text(l10n.any)),
@@ -433,7 +435,10 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
           value: _filterPlace,
           isExpanded: true,
           decoration: _deco(l10n.place),
-          style: const TextStyle(fontSize: 16, color: _kText),
+          style: const TextStyle(
+            fontSize: 16,
+            color: NewUiDesignTokens.textHighEmphasis,
+          ),
           dropdownColor: Colors.white,
           items: [
             DropdownMenuItem(value: null, child: Text(l10n.any)),
@@ -462,7 +467,10 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
           value: _filterTBR,
           isExpanded: true,
           decoration: _deco(l10n.tbr_filter_label),
-          style: const TextStyle(fontSize: 16, color: _kText),
+          style: const TextStyle(
+            fontSize: 16,
+            color: NewUiDesignTokens.textHighEmphasis,
+          ),
           dropdownColor: Colors.white,
           items: [
             DropdownMenuItem(value: null, child: Text(l10n.any)),
@@ -476,7 +484,10 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
           value: _filterEditorial,
           isExpanded: true,
           decoration: _deco(l10n.editorial),
-          style: const TextStyle(fontSize: 16, color: _kText),
+          style: const TextStyle(
+            fontSize: 16,
+            color: NewUiDesignTokens.textHighEmphasis,
+          ),
           dropdownColor: Colors.white,
           items: [
             DropdownMenuItem(value: null, child: Text(l10n.any)),
@@ -494,7 +505,10 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
           value: _filterPages,
           isExpanded: true,
           decoration: _deco(l10n.pages),
-          style: const TextStyle(fontSize: 16, color: _kText),
+          style: const TextStyle(
+            fontSize: 16,
+            color: NewUiDesignTokens.textHighEmphasis,
+          ),
           dropdownColor: Colors.white,
           items: [
             DropdownMenuItem(value: null, child: Text(l10n.any)),
@@ -511,7 +525,10 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
           value: _filterYear,
           isExpanded: true,
           decoration: _deco(l10n.publication_year_decade),
-          style: const TextStyle(fontSize: 16, color: _kText),
+          style: const TextStyle(
+            fontSize: 16,
+            color: NewUiDesignTokens.textHighEmphasis,
+          ),
           dropdownColor: Colors.white,
           items: [
             DropdownMenuItem(value: null, child: Text(l10n.any)),
@@ -540,7 +557,10 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
           value: _filterAuthor,
           isExpanded: true,
           decoration: _deco(l10n.author),
-          style: const TextStyle(fontSize: 16, color: _kText),
+          style: const TextStyle(
+            fontSize: 16,
+            color: NewUiDesignTokens.textHighEmphasis,
+          ),
           dropdownColor: Colors.white,
           items: [
             DropdownMenuItem(value: null, child: Text(l10n.any)),
@@ -586,11 +606,17 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
           borderRadius: BorderRadius.circular(8),
           child: InputDecorator(
             decoration: _deco(label).copyWith(
-              suffixIcon: const Icon(Icons.arrow_drop_down, color: _kSub),
+              suffixIcon: const Icon(
+                Icons.arrow_drop_down,
+                color: NewUiDesignTokens.textSecondary,
+              ),
             ),
             child: Text(
               selected.isEmpty ? l10n.any : selected.join(', '),
-              style: const TextStyle(fontSize: 16, color: _kText),
+              style: const TextStyle(
+                fontSize: 16,
+                color: NewUiDesignTokens.textHighEmphasis,
+              ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -608,7 +634,7 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
                         : (orLabel ?? l10n.or_any_genre),
                     style: const TextStyle(
                       fontSize: 11,
-                      color: _kSub,
+                      color: NewUiDesignTokens.textSecondary,
                       fontStyle: FontStyle.italic,
                     ),
                   ),
@@ -616,7 +642,7 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
               ),
               Container(
                 decoration: BoxDecoration(
-                  border: Border.all(color: _kBorder),
+                  border: Border.all(color: NewUiDesignTokens.border),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: ToggleButtons(
@@ -655,13 +681,16 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
-            color: _kText,
+            color: NewUiDesignTokens.textHighEmphasis,
           ),
         ),
         const SizedBox(height: 8),
         Text(
           l10n.search_select_books_description,
-          style: const TextStyle(fontSize: 14, color: _kSub),
+          style: const TextStyle(
+            fontSize: 14,
+            color: NewUiDesignTokens.textSecondary,
+          ),
         ),
         const SizedBox(height: 12),
         Consumer<BookProvider>(
@@ -704,10 +733,10 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0x4DCEC5BE)),
+          border: Border.all(color: NewUiDesignTokens.borderFaint),
           boxShadow: const [
             BoxShadow(
-              color: Color(0x0A000000),
+              color: NewUiDesignTokens.shadowColor,
               blurRadius: 12,
               offset: Offset(0, 4),
             ),
@@ -715,7 +744,11 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
         ),
         child: Column(
           children: [
-            const Icon(Icons.auto_stories, size: 48, color: _kPrimary),
+            const Icon(
+              Icons.auto_stories,
+              size: 48,
+              color: NewUiDesignTokens.primary,
+            ),
             const SizedBox(height: 16),
             Text(
               _randomBook!.name ?? l10n.unknown,
@@ -723,7 +756,7 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: _kPrimary,
+                color: NewUiDesignTokens.primary,
               ),
             ),
             if (_randomBook!.author != null) ...[
@@ -731,7 +764,10 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
               Text(
                 'by ${_randomBook!.author}',
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 14, color: _kSub),
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: NewUiDesignTokens.textSecondary,
+                ),
               ),
             ],
             const SizedBox(height: 16),
@@ -743,7 +779,7 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
                   vertical: 10,
                 ),
                 decoration: BoxDecoration(
-                  color: _kPrimary,
+                  color: NewUiDesignTokens.primary,
                   borderRadius: BorderRadius.circular(9999),
                 ),
                 child: Text(
@@ -761,7 +797,7 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
               l10n.tap_to_view_details,
               style: const TextStyle(
                 fontSize: 12,
-                color: _kSub,
+                color: NewUiDesignTokens.textSecondary,
                 fontStyle: FontStyle.italic,
               ),
             ),
@@ -775,8 +811,8 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: const BoxDecoration(
-        color: _kBg,
-        border: Border(top: BorderSide(color: _kActionBorder)),
+        color: NewUiDesignTokens.background,
+        border: Border(top: BorderSide(color: NewUiDesignTokens.actionBorder)),
       ),
       child: Row(
         children: [
@@ -787,7 +823,7 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
               child: Container(
                 height: 44,
                 decoration: BoxDecoration(
-                  color: _kPrimary,
+                  color: NewUiDesignTokens.primary,
                   borderRadius: BorderRadius.circular(9999),
                 ),
                 child: Row(
@@ -823,7 +859,7 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
               child: Container(
                 height: 44,
                 decoration: BoxDecoration(
-                  color: _kClearBtn,
+                  color: NewUiDesignTokens.clearButton,
                   borderRadius: BorderRadius.circular(9999),
                 ),
                 child: Center(
@@ -832,7 +868,7 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
                     style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: _kSub,
+                      color: NewUiDesignTokens.textSecondary,
                       letterSpacing: 0.26,
                     ),
                   ),

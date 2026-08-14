@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/new_ui_design_tokens.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
@@ -766,20 +767,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     int currentYear,
     AppLocalizations l10n,
   ) {
-    const kBg = Color(0xFFFDF8F6);
-    const kPrimary = Color(0xFF43102B);
-    const kSub = Color(0xFF514348);
-    const kText = Color(0xFF1C1B1A);
-    const kBadgeBg = Color(0xFFF2EDEB);
-    const kBadgeBorder = Color(0xFFD5C2C7);
-
     BoxDecoration cardDeco({double radius = 12}) => BoxDecoration(
       color: Colors.white,
       borderRadius: BorderRadius.circular(radius),
-      border: Border.all(color: const Color(0x1A27231E)),
+      border: Border.all(color: NewUiDesignTokens.borderSubtle),
       boxShadow: const [
         BoxShadow(
-          color: Color(0x0A000000),
+          color: NewUiDesignTokens.shadowColor,
           blurRadius: 6,
           offset: Offset(0, 4),
         ),
@@ -787,7 +781,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     );
 
     return Scaffold(
-      backgroundColor: kBg,
+      backgroundColor: NewUiDesignTokens.background,
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(
           left: 20,
@@ -815,7 +809,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         const Icon(
                           Icons.library_books,
                           size: 30,
-                          color: kPrimary,
+                          color: NewUiDesignTokens.primary,
                         ),
                         const SizedBox(height: 8),
                         Text(
@@ -824,7 +818,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
-                            color: kSub,
+                            color: NewUiDesignTokens.textSecondary,
                             letterSpacing: 0.26,
                           ),
                         ),
@@ -835,7 +829,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: kPrimary,
+                            color: NewUiDesignTokens.primary,
                           ),
                         ),
                       ],
@@ -853,7 +847,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         const Icon(
                           Icons.new_releases,
                           size: 32,
-                          color: kPrimary,
+                          color: NewUiDesignTokens.primary,
                         ),
                         const SizedBox(height: 8),
                         Text(
@@ -862,7 +856,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
-                            color: kSub,
+                            color: NewUiDesignTokens.textSecondary,
                             letterSpacing: 0.26,
                           ),
                           maxLines: 2,
@@ -876,7 +870,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: kPrimary,
+                            color: NewUiDesignTokens.primary,
                           ),
                           textAlign: TextAlign.center,
                           maxLines: 3,
@@ -913,7 +907,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         children: [
                           const Icon(
                             Icons.emoji_events,
-                            color: kPrimary,
+                            color: NewUiDesignTokens.primary,
                             size: 22,
                           ),
                           const SizedBox(width: 8),
@@ -923,7 +917,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: kPrimary,
+                                color: NewUiDesignTokens.primary,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -931,7 +925,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           const Icon(
                             Icons.arrow_forward_ios,
                             size: 12,
-                            color: kSub,
+                            color: NewUiDesignTokens.textSecondary,
                           ),
                         ],
                       ),
@@ -942,7 +936,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
-                            color: kSub,
+                            color: NewUiDesignTokens.textSecondary,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -953,16 +947,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             vertical: 10,
                           ),
                           decoration: BoxDecoration(
-                            color: kBadgeBg,
+                            color: NewUiDesignTokens.surfaceLight,
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: kBadgeBorder),
+                            border: Border.all(color: NewUiDesignTokens.border),
                           ),
                           child: Text(
                             _yearlyWinner!.bookName,
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: kPrimary,
+                              color: NewUiDesignTokens.primary,
                             ),
                             textAlign: TextAlign.center,
                             maxLines: 2,
@@ -975,7 +969,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
-                            color: kSub,
+                            color: NewUiDesignTokens.textSecondary,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -992,17 +986,19 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                         vertical: 5,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: kBadgeBg,
+                                        color: NewUiDesignTokens.surfaceLight,
                                         borderRadius: BorderRadius.circular(
                                           9999,
                                         ),
-                                        border: Border.all(color: kBadgeBorder),
+                                        border: Border.all(
+                                          color: NewUiDesignTokens.border,
+                                        ),
                                       ),
                                       child: Text(
                                         n.bookName,
                                         style: const TextStyle(
                                           fontSize: 13,
-                                          color: kPrimary,
+                                          color: NewUiDesignTokens.primary,
                                         ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
@@ -1016,13 +1012,19 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             padding: const EdgeInsets.only(top: 4),
                             child: Text(
                               '... ${l10n.and_n_more((_nominees.length - 6).toString())}',
-                              style: const TextStyle(fontSize: 12, color: kSub),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: NewUiDesignTokens.textSecondary,
+                              ),
                             ),
                           ),
                       ] else
                         Text(
                           l10n.no_books_read_in_year(currentYear.toString()),
-                          style: const TextStyle(fontSize: 13, color: kSub),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: NewUiDesignTokens.textSecondary,
+                          ),
                         ),
                     ],
                   ),
@@ -1036,7 +1038,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             Center(
               child: Text(
                 l10n.quick_stat_long_press_hint,
-                style: const TextStyle(fontSize: 12, color: kSub),
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: NewUiDesignTokens.textSecondary,
+                ),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -1053,18 +1058,25 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     decoration: cardDeco(),
                     child: Row(
                       children: [
-                        Icon(section.icon, color: kPrimary, size: 20),
+                        Icon(
+                          section.icon,
+                          color: NewUiDesignTokens.primary,
+                          size: 20,
+                        ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             section.title,
-                            style: const TextStyle(fontSize: 16, color: kText),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: NewUiDesignTokens.textHighEmphasis,
+                            ),
                           ),
                         ),
                         const Icon(
                           Icons.arrow_forward_ios,
                           size: 12,
-                          color: kSub,
+                          color: NewUiDesignTokens.textSecondary,
                         ),
                       ],
                     ),
