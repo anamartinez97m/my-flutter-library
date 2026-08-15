@@ -1420,6 +1420,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       });
                                       provider.clearAllFilters();
                                       setModalState(() {});
+                                      Navigator.pop(context);
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Theme.of(context)

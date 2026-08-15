@@ -961,6 +961,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                           });
                                           provider.clearAllFilters();
                                           setModalState(() {});
+                                          Navigator.pop(ctx);
                                         },
                                         style: OutlinedButton.styleFrom(
                                           side: const BorderSide(
