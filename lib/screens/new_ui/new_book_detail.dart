@@ -3343,6 +3343,18 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                           );
                         }
 
+                        // TBR
+                        addCell(
+                          _DetailCard(
+                            icon: Icons.bookmark_add,
+                            label: 'TBR',
+                            value:
+                                _currentBook.tbr == true
+                                    ? AppLocalizations.of(context)!.yes
+                                    : AppLocalizations.of(context)!.no,
+                          ),
+                        );
+
                         return _buildBentoGrid(entries);
                       },
                     ),
@@ -3873,119 +3885,6 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                           ),
                         ),
                       ),
-
-                    // TBR - styled like the Reading Clubs section: a
-                    // divider above, an icon+title header (with the TBR
-                    // checkbox on the trailing side), a subtitle, and a
-                    // divider below.
-                    if (_currentBook.tbr == true) ...[
-                      Divider(color: _kBorder.withValues(alpha: 0.2)),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.bookmark_add,
-                            color: _kPrimary,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              AppLocalizations.of(context)!.tbr_label,
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
-                                color: _kPrimary,
-                                fontFamily: 'Manrope',
-                              ),
-                            ),
-                          ),
-                          Checkbox(
-                            value: true,
-                            activeColor: _kPrimary,
-                            onChanged: (value) async {
-                              if (value == false) {
-                                // Uncheck TBR
-                                try {
-                                  final db =
-                                      await DatabaseHelper.instance.database;
-                                  await db.update(
-                                    'book',
-                                    {'tbr': 0},
-                                    where: 'book_id = ?',
-                                    whereArgs: [_currentBook.bookId],
-                                  );
-
-                                  if (context.mounted) {
-                                    // Reload provider and navigate back
-                                    final provider = Provider.of<BookProvider?>(
-                                      context,
-                                      listen: false,
-                                    );
-                                    await provider?.loadBooks();
-
-                                    if (!context.mounted) return;
-                                    // Refresh the screen by popping and pushing again
-                                    final updatedBooks =
-                                        provider?.allBooks ?? [];
-                                    final updatedBook = updatedBooks.firstWhere(
-                                      (b) => b.bookId == _currentBook.bookId,
-                                      orElse: () => _currentBook,
-                                    );
-
-                                    Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (context) => NewBookDetailScreen(
-                                              book: updatedBook,
-                                            ),
-                                      ),
-                                    );
-
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          AppLocalizations.of(
-                                            context,
-                                          )!.removed_from_tbr,
-                                        ),
-                                        backgroundColor:
-                                            Theme.of(
-                                              context,
-                                            ).colorScheme.primary,
-                                        duration: const Duration(seconds: 2),
-                                      ),
-                                    );
-                                  }
-                                } catch (e) {
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('Error: $e'),
-                                        backgroundColor:
-                                            Theme.of(context).colorScheme.error,
-                                      ),
-                                    );
-                                  }
-                                }
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        AppLocalizations.of(context)!.tbr_list_subtitle,
-                        style: const TextStyle(
-                          color: _kPrimary,
-                          fontFamily: 'Manrope',
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Divider(color: _kBorder.withValues(alpha: 0.2)),
-                      const SizedBox(height: 12),
-                    ],
 
                     // Notification Badge
                     if (_currentBook.notificationEnabled == true &&
