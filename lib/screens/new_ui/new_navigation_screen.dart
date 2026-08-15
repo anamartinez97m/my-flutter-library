@@ -33,7 +33,6 @@ class NewNavigationScreen extends StatefulWidget {
 
 class _NewNavigationScreenState extends State<NewNavigationScreen> {
   int _selectedIndex = 0;
-  bool _useInlineHeader = false;
   VoidCallback? _clearHomeSearch;
   final AppUpdateService _appUpdateService = AppUpdateService();
 
@@ -154,19 +153,6 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
               );
             },
           ),
-          IconButton(
-            icon: const Icon(
-              Icons.view_compact_alt_outlined,
-              color: Color(0xFF514348),
-              size: 20,
-            ),
-            tooltip: 'Switch to full header',
-            onPressed:
-                () => setState(() {
-                  _useInlineHeader = false;
-                }),
-            visualDensity: VisualDensity.compact,
-          ),
         ],
       ),
     );
@@ -183,44 +169,10 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
         }
       },
       child: Scaffold(
-        appBar:
-            _useInlineHeader
-                ? null
-                : AppBar(
-                  backgroundColor: const Color(0xFF43102B),
-                  foregroundColor: Colors.white,
-                  title: Text(
-                    AppLocalizations.of(context)!.app_title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontFamily: 'Manrope',
-                    ),
-                  ),
-                  actions: [
-                    Consumer<FeatureFlagProvider>(
-                      builder: (context, flags, _) {
-                        if (!flags.isDevUser) return const SizedBox.shrink();
-                        return IconButton(
-                          icon: const Icon(Icons.undo_rounded),
-                          tooltip: 'Switch to old UI',
-                          onPressed: () => flags.setToggle(false),
-                        );
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.view_compact_alt_outlined),
-                      tooltip: 'Switch to minimal header',
-                      onPressed:
-                          () => setState(() {
-                            _useInlineHeader = true;
-                          }),
-                    ),
-                  ],
-                ),
         body: SafeArea(
           child: Column(
             children: [
-              if (_useInlineHeader) _buildInlineHeader(context),
+              _buildInlineHeader(context),
               Expanded(child: widgetOptions.elementAt(_selectedIndex)),
             ],
           ),

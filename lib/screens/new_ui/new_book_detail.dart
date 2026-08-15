@@ -2339,15 +2339,17 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
       child: Scaffold(
         backgroundColor: _kBg,
         appBar: AppBar(
-          backgroundColor: _kPrimary,
-          foregroundColor: Colors.white,
+          backgroundColor: _kBg,
+          foregroundColor: _kPrimary,
+          iconTheme: const IconThemeData(color: _kPrimary),
+          actionsIconTheme: const IconThemeData(color: _kPrimary),
           elevation: 0,
           title: Text(
             AppLocalizations.of(context)!.book_details,
             style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 20,
-              color: Colors.white,
+              color: _kPrimary,
               fontFamily: 'Manrope',
             ),
           ),
