@@ -190,7 +190,10 @@ class CsvImportHelper {
   static Book? _parseFormat1(List<dynamic> row, List<dynamic> headers) {
     final headerMap = <String, int>{};
     for (int i = 0; i < headers.length; i++) {
-      headerMap[headers[i].toString().toLowerCase()] = i;
+      final raw = headers[i].toString().toLowerCase().trim();
+      headerMap[raw] = i;
+      headerMap[raw.replaceAll('_', ' ')] = i;
+      headerMap[raw.replaceAll(' ', '_')] = i;
     }
 
     String? getValue(String key) {
@@ -209,7 +212,7 @@ class CsvImportHelper {
     final genre = getValue('genre');
     var saga = getValue('saga');
     var nSaga = getValue('n_saga') ?? getValue('n saga');
-    final sagaUniverse = getValue('saga universe');
+    final sagaUniverse = getValue('saga universe') ?? getValue('sagauniverse');
     final formatSaga = getValue('format saga') ?? getValue('format_saga');
     var isbn = getValue('isbn') ?? getValue('isbn13');
     var asin = getValue('asin');
@@ -222,9 +225,9 @@ class CsvImportHelper {
     final loaned = getValue('loaned');
     final dateReadInitial = getValue('date read initial');
     final dateReadFinal = getValue('date read final');
-    final readCountStr = getValue('read count');
-    final myReview = getValue('my review');
-    final myRatingStr = getValue('my rating');
+    final readCountStr = getValue('read count') ?? getValue('readcount');
+    final myReview = getValue('my review') ?? getValue('review');
+    final myRatingStr = getValue('my rating') ?? getValue('rating');
     final notes = getValue('notes');
     final priceStr = getValue('price');
     final isBundleStr = getValue('is bundle');
@@ -353,7 +356,10 @@ class CsvImportHelper {
   }) {
     final headerMap = <String, int>{};
     for (int i = 0; i < headers.length; i++) {
-      headerMap[headers[i].toString().toLowerCase()] = i;
+      final raw = headers[i].toString().toLowerCase().trim();
+      headerMap[raw] = i;
+      headerMap[raw.replaceAll('_', ' ')] = i;
+      headerMap[raw.replaceAll(' ', '_')] = i;
     }
 
     String? getValue(String key) {
@@ -376,7 +382,7 @@ class CsvImportHelper {
     final dateAdded = getValue('date added');
     final bookshelves = getValue('bookshelves');
     final myReview = getValue('my review');
-    final readCountStr = getValue('read count');
+    final readCountStr = getValue('read count') ?? getValue('readcount');
 
     // Check if book should be imported based on bookshelves
     bool isOwned = false;

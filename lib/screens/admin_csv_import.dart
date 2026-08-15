@@ -1750,6 +1750,12 @@ class _BookImportPreview extends StatelessWidget {
         return book.readCount != null && book.readCount! > 0;
       case 'rating':
         return book.myRating != null;
+      case 'review':
+        return book.myReview != null && book.myReview!.isNotEmpty;
+      case 'notes':
+        return book.notes != null && book.notes!.isNotEmpty;
+      case 'price':
+        return book.price != null;
       default:
         return false;
     }
@@ -1801,6 +1807,10 @@ class _BookImportPreview extends StatelessWidget {
     bool useReadCount = false,
     bool useMyRating = false,
     bool useMyReview = false,
+    String? notes,
+    double? price,
+    bool useNotes = false,
+    bool usePrice = false,
   }) {
     return Book(
       bookId: book.bookId,
@@ -1832,6 +1842,8 @@ class _BookImportPreview extends StatelessWidget {
       readCount: useReadCount ? readCount : book.readCount,
       myRating: useMyRating ? myRating : book.myRating,
       myReview: useMyReview ? myReview : book.myReview,
+      notes: useNotes ? notes : book.notes,
+      price: usePrice ? price : book.price,
       isBundle: book.isBundle,
       bundleCount: book.bundleCount,
       bundleNumbers: book.bundleNumbers,
@@ -1849,8 +1861,6 @@ class _BookImportPreview extends StatelessWidget {
       bundleParentId: book.bundleParentId,
       readingProgress: book.readingProgress,
       progressType: book.progressType,
-      notes: book.notes,
-      price: book.price,
       ratingOverride: book.ratingOverride,
       releaseDate: book.releaseDate,
       coverUrl: book.coverUrl,
@@ -1994,6 +2004,16 @@ class _BookImportPreview extends StatelessWidget {
           useMyReview: true,
         );
         break;
+      case 'notes':
+        updatedBook = _copyBookWith(book, notes: nullableStr, useNotes: true);
+        break;
+      case 'price':
+        updatedBook = _copyBookWith(
+          book,
+          price: trimmedValue.isEmpty ? null : double.tryParse(trimmedValue),
+          usePrice: true,
+        );
+        break;
       default:
         return;
     }
@@ -2066,6 +2086,12 @@ class _BookImportPreview extends StatelessWidget {
         break;
       case 'review':
         oldValue = existing.myReview;
+        break;
+      case 'notes':
+        oldValue = existing.notes;
+        break;
+      case 'price':
+        oldValue = existing.price?.toString();
         break;
       case 'sagaUniverse':
         oldValue = existing.sagaUniverse;
@@ -2159,6 +2185,16 @@ class _BookImportPreview extends StatelessWidget {
       case 'rating':
         return newBook.myRating != existingBook.myRating &&
             newBook.myRating != null;
+      case 'review':
+        return newBook.myReview != existingBook.myReview &&
+            newBook.myReview != null &&
+            newBook.myReview!.isNotEmpty;
+      case 'notes':
+        return newBook.notes != existingBook.notes &&
+            newBook.notes != null &&
+            newBook.notes!.isNotEmpty;
+      case 'price':
+        return newBook.price != existingBook.price && newBook.price != null;
       default:
         return false;
     }
@@ -2375,6 +2411,22 @@ class _BookImportPreview extends StatelessWidget {
             onChanged: (value) => _updateField('review', value),
             oldValue: _getOldValue('review'),
             maxLines: 3,
+          ),
+          _EditableDetailRow(
+            label: 'Notes',
+            value: item.book.notes ?? '',
+            isHighlighted: _isFieldNew(item, 'notes'),
+            onChanged: (value) => _updateField('notes', value),
+            oldValue: _getOldValue('notes'),
+            maxLines: 3,
+          ),
+          _EditableDetailRow(
+            label: 'Price',
+            value: item.book.price?.toString() ?? '',
+            isHighlighted: _isFieldNew(item, 'price'),
+            onChanged: (value) => _updateField('price', value),
+            oldValue: _getOldValue('price'),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
           ),
         ],
       ),
