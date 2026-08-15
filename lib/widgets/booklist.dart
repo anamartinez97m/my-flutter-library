@@ -4,6 +4,7 @@ import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/screens/book_detail.dart';
+import 'package:myrandomlibrary/utils/format_saga_helper.dart';
 import 'package:myrandomlibrary/utils/status_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -100,6 +101,8 @@ class _BookListViewState extends State<BookListView> {
     bool isRead,
     bool originalIsRead,
   ) {
+    final l10n = AppLocalizations.of(context)!;
+
     // Determine background color
     Color? backgroundColor;
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -200,6 +203,19 @@ class _BookListViewState extends State<BookListView> {
                   ? ' #${book.nSaga}'
                   : ''),
           style: Theme.of(context).textTheme.bodySmall,
+        ),
+        const SizedBox(height: 3),
+      ],
+
+      // Saga Universe
+      if (_enabledCardFields.contains('saga_universe') &&
+          book.sagaUniverse != null &&
+          book.sagaUniverse!.isNotEmpty) ...[
+        Text(
+          '${l10n.saga_universe}: ${book.sagaUniverse!}',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         const SizedBox(height: 3),
       ],
@@ -319,7 +335,7 @@ class _BookListViewState extends State<BookListView> {
             ),
             const SizedBox(width: 4),
             Text(
-              '${book.myRating}',
+              '${l10n.my_rating_label}: ${book.myRating}',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
@@ -383,9 +399,9 @@ class _BookListViewState extends State<BookListView> {
                     book.pages! > 0) {
                   final percent =
                       (book.readingProgress! * 100 / book.pages!).round();
-                  return '$percent%';
+                  return '${l10n.progress_percentage}: $percent%';
                 }
-                return '${book.readingProgress}%';
+                return '${l10n.progress_percentage}: ${book.readingProgress}%';
               }(),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -393,6 +409,55 @@ class _BookListViewState extends State<BookListView> {
             ),
           ],
         ),
+      ],
+
+      // Price
+      if (_enabledCardFields.contains('price') && book.price != null) ...[
+        Text(
+          '${l10n.price_label}: ${book.price!.toStringAsFixed(2)}',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 3),
+      ],
+
+      // Acquired Date
+      if (_enabledCardFields.contains('acquired_date') &&
+          book.acquiredDate != null &&
+          book.acquiredDate!.isNotEmpty) ...[
+        Text(
+          '${l10n.acquired_date}: ${book.acquiredDate!.split('-').reversed.join('/')}',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 3),
+      ],
+
+      // Original Book
+      if (_enabledCardFields.contains('original_book') &&
+          book.originalBookId != null) ...[
+        Text(
+          l10n.original_book,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 3),
+      ],
+
+      // Format Saga
+      if (_enabledCardFields.contains('format_saga') &&
+          book.formatSagaValue != null &&
+          book.formatSagaValue!.isNotEmpty) ...[
+        Text(
+          '${l10n.format_saga}: ${FormatSagaHelper.getLocalizedLabel(book.formatSagaValue!, l10n)}',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 3),
       ],
     ];
 

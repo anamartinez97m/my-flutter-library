@@ -1241,7 +1241,24 @@ class _NewBookCard extends StatelessWidget {
         book.saga!.isNotEmpty) {
       final label =
           '${book.saga}${book.nSaga != null && book.nSaga!.isNotEmpty ? " #${book.nSaga}" : ""}';
-      meta.add(_MetaItem(icon: Icons.auto_stories_outlined, text: label));
+      meta.add(
+        _MetaItem(
+          icon: Icons.auto_stories_outlined,
+          text: l10n.saga_with_colon(label),
+          fullWidth: true,
+        ),
+      );
+    }
+    if (enabledCardFields.contains('saga_universe') &&
+        book.sagaUniverse != null &&
+        book.sagaUniverse!.isNotEmpty) {
+      meta.add(
+        _MetaItem(
+          icon: Icons.public_outlined,
+          text: '${l10n.saga_universe}: ${book.sagaUniverse}',
+          fullWidth: true,
+        ),
+      );
     }
     if (enabledCardFields.contains('format') &&
         book.formatValue != null &&
@@ -1249,7 +1266,7 @@ class _NewBookCard extends StatelessWidget {
       meta.add(
         _MetaItem(
           icon: Icons.import_contacts_outlined,
-          text: book.formatValue!.toUpperCase(),
+          text: l10n.format_with_colon(book.formatValue!.toUpperCase()),
         ),
       );
     }
@@ -1259,7 +1276,7 @@ class _NewBookCard extends StatelessWidget {
       meta.add(
         _MetaItem(
           icon: Icons.translate_outlined,
-          text: book.languageValue!.toUpperCase(),
+          text: l10n.language_with_colon(book.languageValue!.toUpperCase()),
         ),
       );
     }
@@ -1267,7 +1284,7 @@ class _NewBookCard extends StatelessWidget {
       meta.add(
         _MetaItem(
           icon: Icons.menu_book_outlined,
-          text: l10n.pages_field_label('${book.pages}').toUpperCase(),
+          text: l10n.pages_field_label('${book.pages}'),
         ),
       );
     }
@@ -1277,7 +1294,7 @@ class _NewBookCard extends StatelessWidget {
       meta.add(
         _MetaItem(
           icon: Icons.category_outlined,
-          text: book.genre!.toUpperCase(),
+          text: l10n.genre_field_label(book.genre!),
         ),
       );
     }
@@ -1287,20 +1304,25 @@ class _NewBookCard extends StatelessWidget {
       meta.add(
         _MetaItem(
           icon: Icons.apartment_outlined,
-          text: book.editorialValue!.toUpperCase(),
+          text: l10n.editorial_field_label(book.editorialValue!),
         ),
       );
     }
     if (enabledCardFields.contains('isbn') &&
         (book.isbn != null || book.asin != null)) {
-      meta.add(_MetaItem(icon: Icons.tag, text: (book.isbn ?? book.asin)!));
+      meta.add(
+        _MetaItem(
+          icon: Icons.tag,
+          text: l10n.isbn_with_colon((book.isbn ?? book.asin)!),
+        ),
+      );
     }
     if (enabledCardFields.contains('publication_year') &&
         book.originalPublicationYear != null) {
       meta.add(
         _MetaItem(
           icon: Icons.calendar_today_outlined,
-          text: '${book.originalPublicationYear}',
+          text: l10n.published_field_label('${book.originalPublicationYear}'),
         ),
       );
     }
@@ -1310,18 +1332,28 @@ class _NewBookCard extends StatelessWidget {
       meta.add(
         _MetaItem(
           icon: Icons.notifications_none_outlined,
-          text: book.notificationDatetime!.split('T')[0],
+          text: l10n.publication_date_field_label(
+            book.notificationDatetime!.split('T')[0],
+          ),
         ),
       );
     }
     if (enabledCardFields.contains('rating') && book.myRating != null) {
-      meta.add(_MetaItem(icon: Icons.star_outline, text: '${book.myRating}/5'));
+      meta.add(
+        _MetaItem(
+          icon: Icons.star_outline,
+          text: '${l10n.my_rating_label}: ${book.myRating}/5',
+        ),
+      );
     }
     if (enabledCardFields.contains('read_count') &&
         book.readCount != null &&
         book.readCount! > 0) {
       meta.add(
-        _MetaItem(icon: Icons.repeat_outlined, text: 'x${book.readCount}'),
+        _MetaItem(
+          icon: Icons.repeat_outlined,
+          text: l10n.read_count_field_label('${book.readCount}'),
+        ),
       );
     }
     if (enabledCardFields.contains('status') &&
@@ -1330,11 +1362,9 @@ class _NewBookCard extends StatelessWidget {
       meta.add(
         _MetaItem(
           icon: Icons.info_outline,
-          text:
-              StatusHelper.getLocalizedLabel(
-                book.statusValue!,
-                l10n,
-              ).toUpperCase(),
+          text: l10n.status_field_label(
+            StatusHelper.getLocalizedLabel(book.statusValue!, l10n),
+          ),
         ),
       );
     }
@@ -1347,7 +1377,52 @@ class _NewBookCard extends StatelessWidget {
           book.progressType == 'pages' && book.pages != null && book.pages! > 0
               ? '${(book.readingProgress! * 100 / book.pages!).round()}%'
               : '${book.readingProgress}%';
-      meta.add(_MetaItem(icon: Icons.trending_up, text: pct));
+      meta.add(
+        _MetaItem(
+          icon: Icons.trending_up,
+          text: '${l10n.progress_percentage}: $pct',
+        ),
+      );
+    }
+
+    if (enabledCardFields.contains('price') && book.price != null) {
+      meta.add(
+        _MetaItem(
+          icon: Icons.attach_money_outlined,
+          text: '${l10n.price_label}: ${book.price!.toStringAsFixed(2)}',
+        ),
+      );
+    }
+    if (enabledCardFields.contains('acquired_date') &&
+        book.acquiredDate != null &&
+        book.acquiredDate!.isNotEmpty) {
+      meta.add(
+        _MetaItem(
+          icon: Icons.calendar_today_outlined,
+          text:
+              '${l10n.acquired_date}: ${book.acquiredDate!.split('-').reversed.join('/')}',
+        ),
+      );
+    }
+    if (enabledCardFields.contains('original_book') &&
+        book.originalBookId != null) {
+      meta.add(
+        _MetaItem(
+          icon: Icons.repeat_outlined,
+          text: l10n.original_book.toUpperCase(),
+        ),
+      );
+    }
+    if (enabledCardFields.contains('format_saga') &&
+        book.formatSagaValue != null &&
+        book.formatSagaValue!.isNotEmpty) {
+      meta.add(
+        _MetaItem(
+          icon: Icons.format_shapes,
+          text:
+              '${l10n.format_saga}: ${FormatSagaHelper.getLocalizedLabel(book.formatSagaValue!, l10n)}',
+        ),
+      );
     }
 
     final bool hasProgress =
@@ -1455,11 +1530,15 @@ class _NewBookCard extends StatelessWidget {
                               .map(
                                 (m) => SizedBox(
                                   width:
-                                      (MediaQuery.of(context).size.width -
-                                          40 -
-                                          34 -
-                                          8) /
-                                      2,
+                                      m.fullWidth
+                                          ? MediaQuery.of(context).size.width -
+                                              40 -
+                                              34
+                                          : (MediaQuery.of(context).size.width -
+                                                  40 -
+                                                  34 -
+                                                  8) /
+                                              2,
                                   child: Row(
                                     children: [
                                       Icon(m.icon, size: 12, color: _kText),
@@ -1514,5 +1593,10 @@ class _NewBookCard extends StatelessWidget {
 class _MetaItem {
   final IconData icon;
   final String text;
-  const _MetaItem({required this.icon, required this.text});
+  final bool fullWidth;
+  const _MetaItem({
+    required this.icon,
+    required this.text,
+    this.fullWidth = false,
+  });
 }

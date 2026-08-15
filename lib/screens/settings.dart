@@ -152,6 +152,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     'read_count',
     'status',
     'progress',
+    'saga_universe',
+    'price',
+    'acquired_date',
+    'original_book',
+    'format_saga',
   ];
 
   String _getCardFieldLabel(BuildContext context, String key) {
@@ -187,6 +192,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return l10n.card_field_status;
       case 'progress':
         return l10n.card_field_progress;
+      case 'saga_universe':
+        return l10n.saga_universe;
+      case 'price':
+        return l10n.price_label;
+      case 'acquired_date':
+        return l10n.acquired_date;
+      case 'original_book':
+        return l10n.original_book;
+      case 'format_saga':
+        return l10n.format_saga;
       default:
         return key;
     }
