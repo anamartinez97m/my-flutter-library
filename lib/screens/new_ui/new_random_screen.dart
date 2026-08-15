@@ -9,6 +9,7 @@ import 'package:myrandomlibrary/screens/book_detail.dart';
 import 'package:myrandomlibrary/widgets/chip_autocomplete_field.dart';
 import 'package:provider/provider.dart';
 import 'package:myrandomlibrary/widgets/shimmer_loading.dart';
+import 'package:myrandomlibrary/widgets/random_shimmer.dart';
 
 const _kBg = Color(0xFFFDF8F6);
 const _kPrimary = Color(0xFF43102B);
@@ -291,7 +292,10 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     if (_isLoading) {
-      return Scaffold(backgroundColor: _kBg, body: ShimmerLoading());
+      return const Scaffold(
+        backgroundColor: _kBg,
+        body: ShimmerLoading(child: RandomShimmer()),
+      );
     }
     return Scaffold(
       backgroundColor: _kBg,
