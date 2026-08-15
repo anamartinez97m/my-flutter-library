@@ -3018,6 +3018,18 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                           );
                         }
 
+                        // TBR
+                        addCell(
+                          _DetailCard(
+                            icon: Icons.bookmark_add,
+                            label: 'TBR',
+                            value:
+                                _currentBook.tbr == true
+                                    ? AppLocalizations.of(context)!.yes
+                                    : AppLocalizations.of(context)!.no,
+                          ),
+                        );
+
                         // Original Book (for repeated books)
                         if (_currentBook.statusValue?.toLowerCase() ==
                                 'repeated' &&
@@ -3087,7 +3099,11 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                               child: _DetailCard(
                                 icon: Icons.person,
                                 label: AppLocalizations.of(context)!.author,
-                                value: _currentBook.author!,
+                                value: _currentBook.author!
+                                    .split(',')
+                                    .map((a) => a.trim())
+                                    .where((a) => a.isNotEmpty)
+                                    .join('\n'),
                                 trailingIcon: Icons.open_in_new,
                               ),
                             ),
@@ -3119,18 +3135,6 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                           );
                         }
 
-                        // Editorial
-                        if (_currentBook.editorialValue != null &&
-                            _currentBook.editorialValue!.isNotEmpty) {
-                          addCell(
-                            _DetailCard(
-                              icon: Icons.business,
-                              label: AppLocalizations.of(context)!.editorial,
-                              value: _currentBook.editorialValue!,
-                            ),
-                          );
-                        }
-
                         // Genre
                         if (_currentBook.genre != null &&
                             _currentBook.genre!.isNotEmpty) {
@@ -3138,8 +3142,13 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                             _DetailCard(
                               icon: Icons.category,
                               label: AppLocalizations.of(context)!.genre,
-                              value: _currentBook.genre!,
+                              value: _currentBook.genre!
+                                  .split(',')
+                                  .map((g) => g.trim())
+                                  .where((g) => g.isNotEmpty)
+                                  .join('\n'),
                             ),
+                            fullWidth: true,
                           );
                         }
 
@@ -3202,26 +3211,6 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                           );
                         }
 
-                        // Pages
-                        if (_currentBook.pages != null) {
-                          addCell(
-                            _DetailCard(
-                              icon: Icons.description,
-                              label: AppLocalizations.of(context)!.pages,
-                              value: _currentBook.pages.toString(),
-                            ),
-                          );
-                        }
-
-                        // Original publication year/date
-                        if (_currentBook.originalPublicationYear != null) {
-                          for (final w in _buildPublicationInfo(
-                            _currentBook.originalPublicationYear!,
-                          )) {
-                            addCell(w);
-                          }
-                        }
-
                         // Format Saga
                         if (_currentBook.formatSagaValue != null &&
                             _currentBook.formatSagaValue!.isNotEmpty) {
@@ -3237,6 +3226,38 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                           );
                         }
 
+                        // Editorial
+                        if (_currentBook.editorialValue != null &&
+                            _currentBook.editorialValue!.isNotEmpty) {
+                          addCell(
+                            _DetailCard(
+                              icon: Icons.business,
+                              label: AppLocalizations.of(context)!.editorial,
+                              value: _currentBook.editorialValue!,
+                            ),
+                          );
+                        }
+
+                        // Original publication year/date
+                        if (_currentBook.originalPublicationYear != null) {
+                          for (final w in _buildPublicationInfo(
+                            _currentBook.originalPublicationYear!,
+                          )) {
+                            addCell(w);
+                          }
+                        }
+
+                        // Pages
+                        if (_currentBook.pages != null) {
+                          addCell(
+                            _DetailCard(
+                              icon: Icons.description,
+                              label: AppLocalizations.of(context)!.pages,
+                              value: _currentBook.pages.toString(),
+                            ),
+                          );
+                        }
+
                         // Language
                         if (_currentBook.languageValue != null &&
                             _currentBook.languageValue!.isNotEmpty) {
@@ -3245,18 +3266,6 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                               icon: Icons.language,
                               label: AppLocalizations.of(context)!.language,
                               value: _currentBook.languageValue!,
-                            ),
-                          );
-                        }
-
-                        // Place
-                        if (_currentBook.placeValue != null &&
-                            _currentBook.placeValue!.isNotEmpty) {
-                          addCell(
-                            _DetailCard(
-                              icon: Icons.place,
-                              label: AppLocalizations.of(context)!.place,
-                              value: _currentBook.placeValue!,
                             ),
                           );
                         }
@@ -3306,6 +3315,18 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                           );
                         }
 
+                        // Place
+                        if (_currentBook.placeValue != null &&
+                            _currentBook.placeValue!.isNotEmpty) {
+                          addCell(
+                            _DetailCard(
+                              icon: Icons.place,
+                              label: AppLocalizations.of(context)!.place,
+                              value: _currentBook.placeValue!,
+                            ),
+                          );
+                        }
+
                         // Loaned
                         if (_currentBook.loaned != null &&
                             _currentBook.loaned!.isNotEmpty) {
@@ -3314,19 +3335,6 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                               icon: Icons.swap_horiz,
                               label: AppLocalizations.of(context)!.loaned,
                               value: _currentBook.loaned!,
-                            ),
-                          );
-                        }
-
-                        // Created At
-                        if (_currentBook.createdAt != null &&
-                            _currentBook.createdAt!.isNotEmpty) {
-                          addCell(
-                            _DetailCard(
-                              icon: Icons.access_time,
-                              label:
-                                  AppLocalizations.of(context)!.created_label,
-                              value: _formatDateTime(_currentBook.createdAt!),
                             ),
                           );
                         }
@@ -3343,17 +3351,18 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                           );
                         }
 
-                        // TBR
-                        addCell(
-                          _DetailCard(
-                            icon: Icons.bookmark_add,
-                            label: 'TBR',
-                            value:
-                                _currentBook.tbr == true
-                                    ? AppLocalizations.of(context)!.yes
-                                    : AppLocalizations.of(context)!.no,
-                          ),
-                        );
+                        // Created At
+                        if (_currentBook.createdAt != null &&
+                            _currentBook.createdAt!.isNotEmpty) {
+                          addCell(
+                            _DetailCard(
+                              icon: Icons.access_time,
+                              label:
+                                  AppLocalizations.of(context)!.created_label,
+                              value: _formatDateTime(_currentBook.createdAt!),
+                            ),
+                          );
+                        }
 
                         return _buildBentoGrid(entries);
                       },
