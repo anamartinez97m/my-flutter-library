@@ -53,7 +53,13 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
   int _bundleBooksKey = 0; // Key to force FutureBuilder rebuild
   bool _isDescriptionExpanded = false; // Track description expansion state
   bool _isFetchingMetadata = false; // Track if metadata is being fetched
+  bool _showAllSessions = false; // Track reading sessions expansion state
   String _currencySymbol = '€';
+
+  List<ReadingSession> get _visibleChronometerSessions =>
+      _showAllSessions
+          ? _chronometerSessions
+          : _chronometerSessions.take(3).toList();
   bool _isAdmin = false;
 
   // Shared v2 section helpers used by the detail cards.
@@ -4143,10 +4149,10 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                             ],
                           ),
                           const SizedBox(height: 16),
-                          ...List.generate(_chronometerSessions.length, (
+                          ...List.generate(_visibleChronometerSessions.length, (
                             index,
                           ) {
-                            final session = _chronometerSessions[index];
+                            final session = _visibleChronometerSessions[index];
                             String displayText;
 
                             // Check if there's duration data first
@@ -4187,7 +4193,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                               child: Row(
                                 children: [
                                   Text(
-                                    '${index + 1}.',
+                                    '${_chronometerSessions.length - index}.',
                                     style: Theme.of(context).textTheme.bodySmall
                                         ?.copyWith(fontWeight: FontWeight.w600),
                                   ),
@@ -4203,6 +4209,19 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                               ),
                             );
                           }),
+                          if (_chronometerSessions.length > 3)
+                            Center(
+                              child: TextButton(
+                                onPressed:
+                                    () => setState(
+                                      () =>
+                                          _showAllSessions = !_showAllSessions,
+                                    ),
+                                child: Text(
+                                  _showAllSessions ? 'View less' : 'View more',
+                                ),
+                              ),
+                            ),
                         ],
                       ),
 
