@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/widgets/shimmer_loading.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
@@ -25,6 +26,7 @@ import 'package:myrandomlibrary/widgets/statistics/quick_stats_row.dart';
 import 'package:myrandomlibrary/widgets/statistics/daily_reading_heatmap_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:myrandomlibrary/widgets/statistics/book_competition_card.dart';
+import 'package:myrandomlibrary/widgets/statistics/statistics_shimmer.dart';
 import 'package:myrandomlibrary/model/book_competition.dart';
 import 'package:myrandomlibrary/repositories/book_competition_repository.dart';
 import 'package:myrandomlibrary/screens/book_competition_screen.dart';
@@ -521,14 +523,18 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     final provider = Provider.of<BookProvider?>(context);
 
     if (provider == null || provider.isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return widget.useNewUi
+          ? const Scaffold(body: ShimmerLoading(child: StatisticsShimmer()))
+          : const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     // Trigger provider-dependent loads once provider is ready
     _triggerProviderDependentLoads();
 
     if (_isLoadingReadDates || _isLoadingSessions) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return widget.useNewUi
+          ? const Scaffold(body: ShimmerLoading(child: StatisticsShimmer()))
+          : const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     final books = provider.allBooks;

@@ -10,6 +10,7 @@ import 'package:myrandomlibrary/utils/format_saga_helper.dart';
 import 'package:myrandomlibrary/utils/status_helper.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:myrandomlibrary/widgets/shimmer_loading.dart';
 
 // ── Figma design tokens ────────────────────────────────────────────────────────
 const _kPrimary = Color(0xFF43102B);
@@ -1022,10 +1023,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
   Widget build(BuildContext context) {
     final provider = Provider.of<BookProvider?>(context);
     if (provider == null || provider.isLoading) {
-      return const Scaffold(
-        backgroundColor: _kBg,
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return Scaffold(backgroundColor: _kBg, body: ShimmerLoading());
     }
 
     final l10n = AppLocalizations.of(context)!;

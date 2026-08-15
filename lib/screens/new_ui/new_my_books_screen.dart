@@ -6,6 +6,7 @@ import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/repositories/reading_club_repository.dart';
 import 'package:myrandomlibrary/screens/book_detail.dart';
 import 'package:provider/provider.dart';
+import 'package:myrandomlibrary/widgets/shimmer_loading.dart';
 
 const _kBg = Color(0xFFFDF8F6);
 const _kDark = Color(0xFF5D2641);
@@ -168,10 +169,7 @@ class _NewMyBooksScreenState extends State<NewMyBooksScreen> {
     final l10n = AppLocalizations.of(context)!;
     final provider = Provider.of<BookProvider?>(context);
     if (provider == null || provider.isLoading) {
-      return const Scaffold(
-        backgroundColor: _kBg,
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return Scaffold(backgroundColor: _kBg, body: ShimmerLoading());
     }
 
     final reading =
