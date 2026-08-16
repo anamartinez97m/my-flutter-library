@@ -4862,6 +4862,72 @@ abstract class AppLocalizations {
   /// **'Tap card to view details'**
   String get tap_to_view_details;
 
+  /// No description provided for @discover_next_read.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover Your Next Read'**
+  String get discover_next_read;
+
+  /// No description provided for @set_preferences_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Set your preferences and let the vault decide.'**
+  String get set_preferences_description;
+
+  /// No description provided for @select_books_card_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose specific shelves or collections'**
+  String get select_books_card_subtitle;
+
+  /// No description provided for @surprise_me.
+  ///
+  /// In en, this message translates to:
+  /// **'Surprise Me'**
+  String get surprise_me;
+
+  /// No description provided for @see_all_count.
+  ///
+  /// In en, this message translates to:
+  /// **'See all ({count})'**
+  String see_all_count(Object count);
+
+  /// No description provided for @select_genres.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Genres'**
+  String get select_genres;
+
+  /// No description provided for @search_genres.
+  ///
+  /// In en, this message translates to:
+  /// **'Search genres...'**
+  String get search_genres;
+
+  /// No description provided for @popular_genres.
+  ///
+  /// In en, this message translates to:
+  /// **'Popular Genres'**
+  String get popular_genres;
+
+  /// No description provided for @all_genres.
+  ///
+  /// In en, this message translates to:
+  /// **'All Genres'**
+  String get all_genres;
+
+  /// No description provided for @clear_filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Filters'**
+  String get clear_filters;
+
+  /// No description provided for @anywhere_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Anywhere'**
+  String get anywhere_label;
+
   /// No description provided for @migration_completed_errors.
   ///
   /// In en, this message translates to:

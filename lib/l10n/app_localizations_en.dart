@@ -2698,6 +2698,43 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tap_to_view_details => 'Tap card to view details';
 
   @override
+  String get discover_next_read => 'Discover Your Next Read';
+
+  @override
+  String get set_preferences_description =>
+      'Set your preferences and let the vault decide.';
+
+  @override
+  String get select_books_card_subtitle =>
+      'Choose specific shelves or collections';
+
+  @override
+  String get surprise_me => 'Surprise Me';
+
+  @override
+  String see_all_count(Object count) {
+    return 'See all ($count)';
+  }
+
+  @override
+  String get select_genres => 'Select Genres';
+
+  @override
+  String get search_genres => 'Search genres...';
+
+  @override
+  String get popular_genres => 'Popular Genres';
+
+  @override
+  String get all_genres => 'All Genres';
+
+  @override
+  String get clear_filters => 'Clear Filters';
+
+  @override
+  String get anywhere_label => 'Anywhere';
+
+  @override
   String get migration_completed_errors => 'Migration Completed with Errors';
 
   @override

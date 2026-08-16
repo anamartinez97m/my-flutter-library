@@ -2735,6 +2735,43 @@ class AppLocalizationsEs extends AppLocalizations {
   String get tap_to_view_details => 'Toca la tarjeta para ver detalles';
 
   @override
+  String get discover_next_read => 'Descubre Tu Próxima Lectura';
+
+  @override
+  String get set_preferences_description =>
+      'Configura tus preferencias y deja que la biblioteca decida.';
+
+  @override
+  String get select_books_card_subtitle =>
+      'Elige estanterías o colecciones específicas';
+
+  @override
+  String get surprise_me => 'Sorpréndeme';
+
+  @override
+  String see_all_count(Object count) {
+    return 'Ver todos ($count)';
+  }
+
+  @override
+  String get select_genres => 'Seleccionar Géneros';
+
+  @override
+  String get search_genres => 'Buscar géneros...';
+
+  @override
+  String get popular_genres => 'Géneros Populares';
+
+  @override
+  String get all_genres => 'Todos los Géneros';
+
+  @override
+  String get clear_filters => 'Borrar Filtros';
+
+  @override
+  String get anywhere_label => 'Cualquier lugar';
+
+  @override
   String get migration_completed_errors => 'Migración Completada con Errores';
 
   @override

@@ -4,7 +4,7 @@ import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/repositories/reading_club_repository.dart';
-import 'package:myrandomlibrary/screens/book_detail.dart';
+import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
 import 'package:provider/provider.dart';
 import 'package:myrandomlibrary/widgets/shimmer_loading.dart';
 
@@ -275,7 +275,7 @@ class _NewMyBooksScreenState extends State<NewMyBooksScreen> {
                                       context,
                                       MaterialPageRoute(
                                         builder:
-                                            (_) => BookDetailScreen(book: b),
+                                            (_) => NewBookDetailScreen(book: b),
                                       ),
                                     ),
                                   ),
@@ -486,7 +486,8 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                                       context,
                                       MaterialPageRoute(
                                         builder:
-                                            (_) => BookDetailScreen(book: book),
+                                            (_) =>
+                                                NewBookDetailScreen(book: book),
                                       ),
                                     );
                                     _load();
@@ -501,8 +502,9 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                                         context,
                                         MaterialPageRoute(
                                           builder:
-                                              (_) =>
-                                                  BookDetailScreen(book: book),
+                                              (_) => NewBookDetailScreen(
+                                                book: book,
+                                              ),
                                         ),
                                       );
                                       _load();
@@ -567,7 +569,7 @@ class _ClubsCard extends StatefulWidget {
 
 class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
   Map<String, List<Map<String, dynamic>>> _clubs = {};
-  bool _loading = true, _exp = true;
+  bool _loading = true, _exp = false;
 
   @override
   void initState() {
@@ -607,6 +609,23 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
     } catch (e) {
       debugPrint('clubs: $e');
       if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _openBook(int? bookId) async {
+    if (bookId == null) return;
+    try {
+      final book = await BookRepository(
+        await DatabaseHelper.instance.database,
+      ).getBookById(bookId);
+      if (!mounted || book == null) return;
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => NewBookDetailScreen(book: book)),
+      );
+      _load();
+    } catch (e) {
+      debugPrint('open club book: $e');
     }
   }
 
@@ -684,119 +703,127 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                     final firstBook = books.isNotEmpty ? books.first : null;
                     final prog = (firstBook?['reading_progress'] as int?) ?? 0;
                     final target = firstBook?['target_date'] as String?;
-                    return Container(
-                      width: 256,
-                      padding: const EdgeInsets.all(17),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF7F3F0),
-                        border: Border.all(color: _kBorder),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.groups,
-                                color: _kPrimary,
-                                size: 14,
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  clubName,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: _kPrimary,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFEB0D0),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  '${books.length}',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: _kPrimary,
-                                  ),
-                                ),
-                              ),
-                            ],
+                    return GestureDetector(
+                      onTap:
+                          () => _openBook(
+                            (firstBook?['book_id'] as num?)?.toInt(),
                           ),
-                          if (firstBook != null) ...[
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Container(
+                        width: 256,
+                        padding: const EdgeInsets.all(17),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF7F3F0),
+                          border: Border.all(color: _kBorder),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
                               children: [
-                                Text(
-                                  firstBook['book_name'] as String? ??
-                                      l10n.unknown,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: Color(0xFF1C1B1A),
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                                const Icon(
+                                  Icons.groups,
+                                  color: _kPrimary,
+                                  size: 14,
                                 ),
-                                const SizedBox(height: 4),
-                                if (firstBook['author'] != null &&
-                                    (firstBook['author'] as String).isNotEmpty)
-                                  Text(
-                                    firstBook['author'] as String,
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    clubName,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: _kPrimary,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFEB0D0),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    '${books.length}',
                                     style: const TextStyle(
                                       fontSize: 12,
-                                      color: _kSub,
+                                      color: _kPrimary,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            if (firstBook != null) ...[
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    firstBook['book_name'] as String? ??
+                                        l10n.unknown,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Color(0xFF1C1B1A),
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                if (target != null)
-                                  Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.calendar_today,
-                                        size: 9,
+                                  const SizedBox(height: 4),
+                                  if (firstBook['author'] != null &&
+                                      (firstBook['author'] as String)
+                                          .isNotEmpty)
+                                    Text(
+                                      firstBook['author'] as String,
+                                      style: const TextStyle(
+                                        fontSize: 12,
                                         color: _kSub,
                                       ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        target,
-                                        style: const TextStyle(
-                                          fontSize: 10,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  if (target != null)
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.calendar_today,
+                                          size: 9,
                                           color: _kSub,
                                         ),
-                                      ),
-                                    ],
-                                  )
-                                else
-                                  const SizedBox.shrink(),
-                                Text(
-                                  '$prog%',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: _kPrimary,
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          target,
+                                          style: const TextStyle(
+                                            fontSize: 10,
+                                            color: _kSub,
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  else
+                                    const SizedBox.shrink(),
+                                  Text(
+                                    '$prog%',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: _kPrimary,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
+                                ],
+                              ),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
                     );
                   },

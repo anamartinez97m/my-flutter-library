@@ -6,6 +6,7 @@ import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/screens/book_detail.dart';
+import 'package:myrandomlibrary/screens/new_ui/new_genre_selection_screen.dart';
 import 'package:myrandomlibrary/widgets/chip_autocomplete_field.dart';
 import 'package:provider/provider.dart';
 import 'package:myrandomlibrary/widgets/shimmer_loading.dart';
@@ -14,10 +15,15 @@ import 'package:myrandomlibrary/widgets/random_shimmer.dart';
 const _kBg = Color(0xFFFDF8F6);
 const _kPrimary = Color(0xFF43102B);
 const _kSub = Color(0xFF514348);
-const _kText = Color(0xFF1C1B1A);
 const _kBorder = Color(0xFFD5C2C7);
-const _kActionBorder = Color(0xFFE6E2DF);
-const _kClearBtn = Color(0xFFE6E2DF);
+const _kCardBg = Color(0xB3FDF8F6);
+const _kCardBorder = Color(0x4DD5C2C7);
+const _kChipBg = Color(0x80F2EDEB);
+const _kChipBorder = Color(0x80D5C2C7);
+const _kChipSelected = Color(0xE643102B);
+const _kCardShadow = [
+  BoxShadow(color: Color(0x0A000000), blurRadius: 12, offset: Offset(0, 4)),
+];
 
 class NewRandomScreen extends StatefulWidget {
   const NewRandomScreen({super.key});
@@ -259,35 +265,6 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
     });
   }
 
-  InputDecoration _deco(String label) => InputDecoration(
-    labelText: label,
-    labelStyle: const TextStyle(
-      fontSize: 11,
-      fontWeight: FontWeight.w500,
-      color: _kSub,
-      letterSpacing: 0.55,
-    ),
-    floatingLabelStyle: const TextStyle(
-      fontSize: 11,
-      fontWeight: FontWeight.w500,
-      color: _kSub,
-      letterSpacing: 0.55,
-    ),
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8),
-      borderSide: const BorderSide(color: _kBorder),
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8),
-      borderSide: const BorderSide(color: _kBorder),
-    ),
-    focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8),
-      borderSide: const BorderSide(color: _kPrimary, width: 1.5),
-    ),
-    contentPadding: const EdgeInsets.symmetric(horizontal: 17, vertical: 13),
-  );
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -299,396 +276,610 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
     }
     return Scaffold(
       backgroundColor: _kBg,
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.only(
-                left: 20,
-                right: 20,
-                top: 24,
-                bottom: 16,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    l10n.random_book_picker,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: _kPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    l10n.random_book_description,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 14, color: _kSub),
-                  ),
-                  const SizedBox(height: 32),
-                  _buildMainCard(l10n),
-                  if (_randomBook != null) ...[
-                    const SizedBox(height: 24),
-                    _buildResultCard(l10n),
-                  ],
-                  const SizedBox(height: 8),
-                ],
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l10n.discover_next_read,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: _kPrimary,
               ),
             ),
-          ),
-          _buildActionBar(l10n),
-        ],
+            const SizedBox(height: 8),
+            Text(
+              l10n.set_preferences_description,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 14, color: _kPrimary),
+            ),
+            const SizedBox(height: 24),
+            _buildSelectBooksCard(l10n),
+            const SizedBox(height: 16),
+            _buildFormatCard(l10n),
+            const SizedBox(height: 16),
+            _buildLanguageCard(l10n),
+            const SizedBox(height: 16),
+            _buildGenreCard(l10n),
+            const SizedBox(height: 16),
+            _buildStatusPlaceCard(l10n),
+            const SizedBox(height: 16),
+            _buildTBRCard(l10n),
+            const SizedBox(height: 16),
+            _buildEditorialCard(l10n),
+            const SizedBox(height: 16),
+            _buildPagesCard(l10n),
+            const SizedBox(height: 16),
+            _buildDecadeCard(l10n),
+            const SizedBox(height: 16),
+            _buildAuthorCard(l10n),
+            if (_randomBook != null) ...[
+              const SizedBox(height: 24),
+              _buildResultCard(l10n),
+            ],
+            const SizedBox(height: 24),
+            _buildActionButtons(l10n),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildMainCard(AppLocalizations l10n) {
+  // ── Shared building blocks ──────────────────────────────────────────────
+
+  Widget _sectionCard({
+    required IconData icon,
+    required String title,
+    required Widget child,
+  }) {
     return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(17),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _kCardBg,
+        border: Border.all(color: _kCardBorder),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0x4DCEC5BE)),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0A000000),
-            blurRadius: 12,
-            offset: Offset(0, 4),
-          ),
-        ],
+        boxShadow: _kCardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.filters,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: _kText,
-                  ),
+          Row(
+            children: [
+              Icon(icon, size: 15, color: _kPrimary),
+              const SizedBox(width: 8),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: _kPrimary,
+                  letterSpacing: 0.26,
                 ),
-                const SizedBox(height: 24),
-                _buildFiltersList(l10n),
-              ],
-            ),
+              ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            child: Divider(color: _kBorder, height: 1),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-            child: _buildCustomBookSection(l10n),
-          ),
+          const SizedBox(height: 12),
+          child,
         ],
       ),
     );
   }
 
-  Widget _buildFiltersList(AppLocalizations l10n) {
-    return Column(
+  Widget _smallChip({
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 9),
+        decoration: BoxDecoration(
+          color: selected ? _kChipSelected : _kChipBg,
+          borderRadius: BorderRadius.circular(9999),
+          border: selected ? null : Border.all(color: _kChipBorder),
+          boxShadow:
+              selected
+                  ? const [
+                    BoxShadow(
+                      color: Color(0x0D000000),
+                      blurRadius: 2,
+                      offset: Offset(0, 1),
+                    ),
+                  ]
+                  : null,
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.55,
+            color: selected ? Colors.white : _kSub,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _andOrToggle({
+    required bool useAndLogic,
+    required ValueChanged<bool> onChanged,
+    required String andLabel,
+    required String orLabel,
+  }) {
+    return Row(
       children: [
-        _buildMultiField(
-          label: l10n.format,
-          selected: _filterFormat,
-          items: _formatList.map((f) => f['value'] as String).toList(),
-          onChanged: (v) => setState(() => _filterFormat = v),
+        Expanded(
+          child: Text(
+            useAndLogic ? andLabel : orLabel,
+            style: const TextStyle(
+              fontSize: 11,
+              color: _kSub,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
         ),
-        const SizedBox(height: 20),
-        DropdownButtonFormField<String?>(
-          value: _filterLanguage,
-          isExpanded: true,
-          decoration: _deco(l10n.language),
-          style: const TextStyle(fontSize: 16, color: _kText),
-          dropdownColor: Colors.white,
-          items: [
-            DropdownMenuItem(value: null, child: Text(l10n.any)),
-            ..._languageList.map(
-              (e) => DropdownMenuItem<String?>(
-                value: e['name'] as String,
-                child: Text(e['name'] as String),
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: _kBorder),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: ToggleButtons(
+            isSelected: [useAndLogic, !useAndLogic],
+            onPressed: (i) => onChanged(i == 0),
+            borderRadius: BorderRadius.circular(8),
+            constraints: const BoxConstraints(minHeight: 32, minWidth: 40),
+            children: const [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 6),
+                child: Text('AND', style: TextStyle(fontSize: 10)),
               ),
-            ),
-          ],
-          onChanged: (v) => setState(() => _filterLanguage = v),
-        ),
-        const SizedBox(height: 20),
-        _buildMultiField(
-          label: l10n.genre,
-          selected: _filterGenre,
-          items: _genreList.map((g) => g['name'] as String).toList(),
-          onChanged: (v) => setState(() => _filterGenre = v),
-          andLogic: _filterGenre.length > 1 ? _genreUseAndLogic : null,
-          onAndLogicToggle: (v) => setState(() => _genreUseAndLogic = v),
-          andLabel: l10n.and_all_genres,
-          orLabel: l10n.or_any_genre,
-        ),
-        const SizedBox(height: 20),
-        DropdownButtonFormField<String?>(
-          value: _filterPlace,
-          isExpanded: true,
-          decoration: _deco(l10n.place),
-          style: const TextStyle(fontSize: 16, color: _kText),
-          dropdownColor: Colors.white,
-          items: [
-            DropdownMenuItem(value: null, child: Text(l10n.any)),
-            ..._placeList.map(
-              (e) => DropdownMenuItem<String?>(
-                value: e['name'] as String,
-                child: Text(e['name'] as String),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 6),
+                child: Text('OR', style: TextStyle(fontSize: 10)),
               ),
-            ),
-          ],
-          onChanged: (v) => setState(() => _filterPlace = v),
-        ),
-        const SizedBox(height: 20),
-        _buildMultiField(
-          label: l10n.status,
-          selected: _filterStatus,
-          items: _statusList.map((s) => s['value'] as String).toList(),
-          onChanged: (v) => setState(() => _filterStatus = v),
-          andLogic: _filterStatus.length > 1 ? _statusUseAndLogic : null,
-          onAndLogicToggle: (v) => setState(() => _statusUseAndLogic = v),
-          andLabel: l10n.and_not_practical,
-          orLabel: l10n.or_any_status,
-        ),
-        const SizedBox(height: 20),
-        DropdownButtonFormField<bool?>(
-          value: _filterTBR,
-          isExpanded: true,
-          decoration: _deco(l10n.tbr_filter_label),
-          style: const TextStyle(fontSize: 16, color: _kText),
-          dropdownColor: Colors.white,
-          items: [
-            DropdownMenuItem(value: null, child: Text(l10n.any)),
-            DropdownMenuItem(value: true, child: Text(l10n.yes_in_tbr)),
-            DropdownMenuItem(value: false, child: Text(l10n.no_not_in_tbr)),
-          ],
-          onChanged: (v) => setState(() => _filterTBR = v),
-        ),
-        const SizedBox(height: 20),
-        DropdownButtonFormField<String?>(
-          value: _filterEditorial,
-          isExpanded: true,
-          decoration: _deco(l10n.editorial),
-          style: const TextStyle(fontSize: 16, color: _kText),
-          dropdownColor: Colors.white,
-          items: [
-            DropdownMenuItem(value: null, child: Text(l10n.any)),
-            ..._editorialList.map(
-              (e) => DropdownMenuItem<String?>(
-                value: e['name'] as String,
-                child: Text(e['name'] as String),
-              ),
-            ),
-          ],
-          onChanged: (v) => setState(() => _filterEditorial = v),
-        ),
-        const SizedBox(height: 20),
-        DropdownButtonFormField<String?>(
-          value: _filterPages,
-          isExpanded: true,
-          decoration: _deco(l10n.pages),
-          style: const TextStyle(fontSize: 16, color: _kText),
-          dropdownColor: Colors.white,
-          items: [
-            DropdownMenuItem(value: null, child: Text(l10n.any)),
-            const DropdownMenuItem(value: '0-200', child: Text('0-200')),
-            const DropdownMenuItem(value: '200-400', child: Text('200-400')),
-            const DropdownMenuItem(value: '400-600', child: Text('400-600')),
-            const DropdownMenuItem(value: '600-900', child: Text('600-900')),
-            const DropdownMenuItem(value: '900+', child: Text('900+')),
-          ],
-          onChanged: (v) => setState(() => _filterPages = v),
-        ),
-        const SizedBox(height: 20),
-        DropdownButtonFormField<String?>(
-          value: _filterYear,
-          isExpanded: true,
-          decoration: _deco(l10n.publication_year_decade),
-          style: const TextStyle(fontSize: 16, color: _kText),
-          dropdownColor: Colors.white,
-          items: [
-            DropdownMenuItem(value: null, child: Text(l10n.any)),
-            ...[
-              '1900',
-              '1910',
-              '1920',
-              '1930',
-              '1940',
-              '1950',
-              '1960',
-              '1970',
-              '1980',
-              '1990',
-              '2000',
-              '2010',
-              '2020',
-            ].map(
-              (y) => DropdownMenuItem<String?>(value: y, child: Text('${y}s')),
-            ),
-          ],
-          onChanged: (v) => setState(() => _filterYear = v),
-        ),
-        const SizedBox(height: 20),
-        DropdownButtonFormField<String?>(
-          value: _filterAuthor,
-          isExpanded: true,
-          decoration: _deco(l10n.author),
-          style: const TextStyle(fontSize: 16, color: _kText),
-          dropdownColor: Colors.white,
-          items: [
-            DropdownMenuItem(value: null, child: Text(l10n.any)),
-            ..._authorList.map(
-              (a) => DropdownMenuItem<String?>(
-                value: a['name'] as String,
-                child: Text(a['name'] as String),
-              ),
-            ),
-          ],
-          onChanged: (v) => setState(() => _filterAuthor = v),
+            ],
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildMultiField({
-    required String label,
+  Widget _multiChipsField({
     required List<String> selected,
-    required List<String> items,
+    required List<String> options,
+    required String anyLabel,
     required ValueChanged<List<String>> onChanged,
-    bool? andLogic,
-    ValueChanged<bool>? onAndLogicToggle,
-    String? andLabel,
-    String? orLabel,
   }) {
-    final l10n = AppLocalizations.of(context)!;
-    return Column(
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
       children: [
-        InkWell(
-          onTap: () async {
-            final r = await showDialog<List<String>>(
-              context: context,
-              builder:
-                  (ctx) => _MultiSelectDialog(
-                    title: label,
-                    items: items,
-                    initialSelected: selected,
-                  ),
-            );
-            if (r != null) onChanged(r);
-          },
-          borderRadius: BorderRadius.circular(8),
-          child: InputDecorator(
-            decoration: _deco(label).copyWith(
-              suffixIcon: const Icon(Icons.arrow_drop_down, color: _kSub),
-            ),
-            child: Text(
-              selected.isEmpty ? l10n.any : selected.join(', '),
-              style: const TextStyle(fontSize: 16, color: _kText),
-              overflow: TextOverflow.ellipsis,
-            ),
+        _smallChip(
+          label: anyLabel,
+          selected: selected.isEmpty,
+          onTap: () => onChanged([]),
+        ),
+        ...options.map(
+          (o) => _smallChip(
+            label: o,
+            selected: selected.contains(o),
+            onTap: () {
+              final next = List<String>.from(selected);
+              if (next.contains(o)) {
+                next.remove(o);
+              } else {
+                next.add(o);
+              }
+              onChanged(next);
+            },
           ),
         ),
-        if (andLogic != null && onAndLogicToggle != null) ...[
-          const SizedBox(height: 8),
+      ],
+    );
+  }
+
+  Widget _singleChipsField<T>({
+    required T? selected,
+    required List<T> options,
+    required String Function(T) labelOf,
+    required String anyLabel,
+    required ValueChanged<T?> onChanged,
+  }) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        _smallChip(
+          label: anyLabel,
+          selected: selected == null,
+          onTap: () => onChanged(null),
+        ),
+        ...options.map(
+          (o) => _smallChip(
+            label: labelOf(o),
+            selected: selected == o,
+            onTap: () => onChanged(selected == o ? null : o),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ── Sections ─────────────────────────────────────────────────────────────
+
+  Widget _buildSelectBooksCard(AppLocalizations l10n) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(17),
+      decoration: BoxDecoration(
+        color: _kCardBg,
+        border: Border.all(color: _kCardBorder),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: _kCardShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           Row(
             children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 4),
-                  child: Text(
-                    andLogic
-                        ? (andLabel ?? l10n.and_all_genres)
-                        : (orLabel ?? l10n.or_any_genre),
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: _kSub,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
+              Container(
+                width: 40,
+                height: 40,
+                decoration: const BoxDecoration(
+                  color: _kPrimary,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.library_books,
+                  color: Colors.white,
+                  size: 20,
                 ),
               ),
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: _kBorder),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: ToggleButtons(
-                  isSelected: [andLogic, !andLogic],
-                  onPressed: (i) => onAndLogicToggle(i == 0),
-                  borderRadius: BorderRadius.circular(8),
-                  constraints: const BoxConstraints(
-                    minHeight: 32,
-                    minWidth: 40,
-                  ),
-                  children: const [
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 6),
-                      child: Text('AND', style: TextStyle(fontSize: 10)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.select_books,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: _kPrimary,
+                      ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 6),
-                      child: Text('OR', style: TextStyle(fontSize: 10)),
+                    const SizedBox(height: 2),
+                    Text(
+                      l10n.select_books_card_subtitle,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: _kPrimary.withValues(alpha: 0.8),
+                      ),
                     ),
                   ],
                 ),
               ),
             ],
           ),
+          const SizedBox(height: 16),
+          const Divider(color: _kBorder, height: 1),
+          const SizedBox(height: 16),
+          Text(
+            l10n.search_select_books_description,
+            style: const TextStyle(fontSize: 12, color: _kSub),
+          ),
+          const SizedBox(height: 12),
+          Consumer<BookProvider>(
+            builder: (context, provider, _) {
+              final titles =
+                  provider.allBooks
+                      .map((b) => b.name ?? '')
+                      .where((n) => n.isNotEmpty)
+                      .toList()
+                    ..sort();
+              return ChipAutocompleteField(
+                labelText: l10n.select_books,
+                prefixIcon: Icons.library_books,
+                suggestions: titles,
+                initialValues: _selectedBookTitles,
+                hintText: l10n.type_to_search_books,
+                onChanged:
+                    (values) => setState(() {
+                      _selectedBookTitles = values;
+                      _useCustomList = values.isNotEmpty;
+                    }),
+              );
+            },
+          ),
         ],
-      ],
+      ),
     );
   }
 
-  Widget _buildCustomBookSection(AppLocalizations l10n) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          l10n.or_select_specific_books,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            color: _kText,
+  Widget _buildFormatCard(AppLocalizations l10n) {
+    return _sectionCard(
+      icon: Icons.menu_book_outlined,
+      title: l10n.format,
+      child: _multiChipsField(
+        selected: _filterFormat,
+        options: _formatList.map((f) => f['value'] as String).toList(),
+        anyLabel: l10n.any,
+        onChanged: (v) => setState(() => _filterFormat = v),
+      ),
+    );
+  }
+
+  Widget _buildLanguageCard(AppLocalizations l10n) {
+    return _sectionCard(
+      icon: Icons.language,
+      title: l10n.language,
+      child: _singleChipsField<String>(
+        selected: _filterLanguage,
+        options: _languageList.map((e) => e['name'] as String).toList(),
+        labelOf: (v) => v,
+        anyLabel: l10n.all_label,
+        onChanged: (v) => setState(() => _filterLanguage = v),
+      ),
+    );
+  }
+
+  Widget _buildGenreCard(AppLocalizations l10n) {
+    final allGenreNames = _genreList.map((g) => g['name'] as String).toList();
+    final popular = allGenreNames.take(8).toList();
+    return _sectionCard(
+      icon: Icons.category_outlined,
+      title: l10n.genre,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _smallChip(
+                label: l10n.surprise_me,
+                selected: _filterGenre.isEmpty,
+                onTap: () => setState(() => _filterGenre = []),
+              ),
+              ...popular.map(
+                (g) => _smallChip(
+                  label: g,
+                  selected: _filterGenre.contains(g),
+                  onTap: () {
+                    final next = List<String>.from(_filterGenre);
+                    if (next.contains(g)) {
+                      next.remove(g);
+                    } else {
+                      next.add(g);
+                    }
+                    setState(() => _filterGenre = next);
+                  },
+                ),
+              ),
+            ],
           ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          l10n.search_select_books_description,
-          style: const TextStyle(fontSize: 14, color: _kSub),
-        ),
-        const SizedBox(height: 12),
-        Consumer<BookProvider>(
-          builder: (context, provider, _) {
-            final titles =
-                provider.allBooks
-                    .map((b) => b.name ?? '')
-                    .where((n) => n.isNotEmpty)
-                    .toList()
-                  ..sort();
-            return ChipAutocompleteField(
-              labelText: l10n.select_books,
-              prefixIcon: Icons.library_books,
-              suggestions: titles,
-              initialValues: _selectedBookTitles,
-              hintText: l10n.type_to_search_books,
-              onChanged:
-                  (values) => setState(() {
-                    _selectedBookTitles = values;
-                    _useCustomList = values.isNotEmpty;
-                  }),
-            );
-          },
-        ),
-      ],
+          if (_filterGenre.length > 1) ...[
+            const SizedBox(height: 8),
+            _andOrToggle(
+              useAndLogic: _genreUseAndLogic,
+              onChanged: (v) => setState(() => _genreUseAndLogic = v),
+              andLabel: l10n.and_all_genres,
+              orLabel: l10n.or_any_genre,
+            ),
+          ],
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: GestureDetector(
+              onTap: () async {
+                final result = await Navigator.push<GenreSelectionResult>(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (_) => NewGenreSelectionScreen(
+                          allGenres: allGenreNames,
+                          popularGenres: popular,
+                          initialSelected: _filterGenre,
+                          initialUseAndLogic: _genreUseAndLogic,
+                        ),
+                  ),
+                );
+                if (result != null) {
+                  setState(() {
+                    _filterGenre = result.selected;
+                    _genreUseAndLogic = result.useAndLogic;
+                  });
+                }
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    l10n.see_all_count(allGenreNames.length.toString()),
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: _kPrimary,
+                      letterSpacing: 0.55,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  const Icon(Icons.chevron_right, size: 12, color: _kPrimary),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusPlaceCard(AppLocalizations l10n) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(17),
+      decoration: BoxDecoration(
+        color: _kCardBg,
+        border: Border.all(color: _kCardBorder),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: _kCardShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.flag_outlined, size: 15, color: _kPrimary),
+              const SizedBox(width: 8),
+              Text(
+                l10n.status,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: _kPrimary,
+                  letterSpacing: 0.26,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _multiChipsField(
+            selected: _filterStatus,
+            options: _statusList.map((s) => s['value'] as String).toList(),
+            anyLabel: l10n.any,
+            onChanged: (v) => setState(() => _filterStatus = v),
+          ),
+          if (_filterStatus.length > 1) ...[
+            const SizedBox(height: 8),
+            _andOrToggle(
+              useAndLogic: _statusUseAndLogic,
+              onChanged: (v) => setState(() => _statusUseAndLogic = v),
+              andLabel: l10n.and_not_practical,
+              orLabel: l10n.or_any_status,
+            ),
+          ],
+          const SizedBox(height: 16),
+          const Divider(color: _kBorder, height: 1),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              const Icon(
+                Icons.location_on_outlined,
+                size: 15,
+                color: _kPrimary,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                l10n.place,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: _kPrimary,
+                  letterSpacing: 0.26,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _singleChipsField<String>(
+            selected: _filterPlace,
+            options: _placeList.map((e) => e['name'] as String).toList(),
+            labelOf: (v) => v,
+            anyLabel: l10n.anywhere_label,
+            onChanged: (v) => setState(() => _filterPlace = v),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTBRCard(AppLocalizations l10n) {
+    return _sectionCard(
+      icon: Icons.bookmark_border,
+      title: l10n.tbr_filter_label,
+      child: _singleChipsField<bool>(
+        selected: _filterTBR,
+        options: const [true, false],
+        labelOf: (v) => v ? l10n.yes_in_tbr : l10n.no_not_in_tbr,
+        anyLabel: l10n.any,
+        onChanged: (v) => setState(() => _filterTBR = v),
+      ),
+    );
+  }
+
+  Widget _buildEditorialCard(AppLocalizations l10n) {
+    return _sectionCard(
+      icon: Icons.business_outlined,
+      title: l10n.editorial,
+      child: _singleChipsField<String>(
+        selected: _filterEditorial,
+        options: _editorialList.map((e) => e['name'] as String).toList(),
+        labelOf: (v) => v,
+        anyLabel: l10n.any,
+        onChanged: (v) => setState(() => _filterEditorial = v),
+      ),
+    );
+  }
+
+  Widget _buildPagesCard(AppLocalizations l10n) {
+    return _sectionCard(
+      icon: Icons.description_outlined,
+      title: l10n.pages,
+      child: _singleChipsField<String>(
+        selected: _filterPages,
+        options: const ['0-200', '200-400', '400-600', '600-900', '900+'],
+        labelOf: (v) => v,
+        anyLabel: l10n.any,
+        onChanged: (v) => setState(() => _filterPages = v),
+      ),
+    );
+  }
+
+  Widget _buildDecadeCard(AppLocalizations l10n) {
+    return _sectionCard(
+      icon: Icons.calendar_today_outlined,
+      title: l10n.publication_year_decade,
+      child: _singleChipsField<String>(
+        selected: _filterYear,
+        options: const [
+          '1900',
+          '1910',
+          '1920',
+          '1930',
+          '1940',
+          '1950',
+          '1960',
+          '1970',
+          '1980',
+          '1990',
+          '2000',
+          '2010',
+          '2020',
+        ],
+        labelOf: (v) => '${v}s',
+        anyLabel: l10n.any,
+        onChanged: (v) => setState(() => _filterYear = v),
+      ),
+    );
+  }
+
+  Widget _buildAuthorCard(AppLocalizations l10n) {
+    return _sectionCard(
+      icon: Icons.person_outline,
+      title: l10n.author,
+      child: _singleChipsField<String>(
+        selected: _filterAuthor,
+        options: _authorList.map((a) => a['name'] as String).toList(),
+        labelOf: (v) => v,
+        anyLabel: l10n.any,
+        onChanged: (v) => setState(() => _filterAuthor = v),
+      ),
     );
   }
 
@@ -707,13 +898,7 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: const Color(0x4DCEC5BE)),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x0A000000),
-              blurRadius: 12,
-              offset: Offset(0, 4),
-            ),
-          ],
+          boxShadow: _kCardShadow,
         ),
         child: Column(
           children: [
@@ -773,141 +958,69 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
     );
   }
 
-  Widget _buildActionBar(AppLocalizations l10n) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      decoration: const BoxDecoration(
-        color: _kBg,
-        border: Border(top: BorderSide(color: _kActionBorder)),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 2,
-            child: GestureDetector(
-              onTap: _getRandomBook,
-              child: Container(
-                height: 44,
-                decoration: BoxDecoration(
-                  color: _kPrimary,
-                  borderRadius: BorderRadius.circular(9999),
+  Widget _buildActionButtons(AppLocalizations l10n) {
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: _getRandomBook,
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            decoration: BoxDecoration(
+              color: _kPrimary,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x33430E29),
+                  blurRadius: 8,
+                  offset: Offset(0, 6),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.casino, color: Colors.white, size: 14),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: Text(
-                        _useCustomList
-                            ? l10n.random_from_selected(
-                              _selectedBookTitles.length.toString(),
-                            )
-                            : l10n.get_random_book,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                          letterSpacing: 0.26,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              ],
             ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: GestureDetector(
-              onTap: _clearFilters,
-              child: Container(
-                height: 44,
-                decoration: BoxDecoration(
-                  color: _kClearBtn,
-                  borderRadius: BorderRadius.circular(9999),
-                ),
-                child: Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.casino, color: Colors.white, size: 18),
+                const SizedBox(width: 8),
+                Flexible(
                   child: Text(
-                    l10n.clear,
+                    _useCustomList
+                        ? l10n.random_from_selected(
+                          _selectedBookTitles.length.toString(),
+                        )
+                        : l10n.get_random_book,
+                    textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: _kSub,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                       letterSpacing: 0.26,
                     ),
+                    overflow: TextOverflow.ellipsis,
                   ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        GestureDetector(
+          onTap: _clearFilters,
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 13),
+            child: Center(
+              child: Text(
+                l10n.clear_filters,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: _kPrimary,
+                  letterSpacing: 0.26,
                 ),
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MultiSelectDialog extends StatefulWidget {
-  final String title;
-  final List<String> items;
-  final List<String> initialSelected;
-  const _MultiSelectDialog({
-    required this.title,
-    required this.items,
-    required this.initialSelected,
-  });
-  @override
-  State<_MultiSelectDialog> createState() => _MultiSelectDialogState();
-}
-
-class _MultiSelectDialogState extends State<_MultiSelectDialog> {
-  late List<String> _selected;
-  @override
-  void initState() {
-    super.initState();
-    _selected = List.from(widget.initialSelected);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return AlertDialog(
-      title: Text(widget.title),
-      content: SizedBox(
-        width: double.maxFinite,
-        child: ListView.builder(
-          shrinkWrap: true,
-          itemCount: widget.items.length,
-          itemBuilder: (_, i) {
-            final item = widget.items[i];
-            return CheckboxListTile(
-              title: Text(item),
-              value: _selected.contains(item),
-              onChanged:
-                  (checked) => setState(() {
-                    if (checked == true) {
-                      _selected.add(item);
-                    } else {
-                      _selected.remove(item);
-                    }
-                  }),
-            );
-          },
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => setState(() => _selected.clear()),
-          child: Text(l10n.clear_all),
-        ),
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(l10n.cancel),
-        ),
-        ElevatedButton(
-          onPressed: () => Navigator.pop(context, _selected),
-          child: Text(l10n.ok),
         ),
       ],
     );
