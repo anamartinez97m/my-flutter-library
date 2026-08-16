@@ -568,7 +568,7 @@ class _ClubsCard extends StatefulWidget {
 }
 
 class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
-  Map<String, List<Map<String, dynamic>>> _clubs = {};
+  List<Map<String, dynamic>> _clubs = [];
   bool _loading = true, _exp = false;
 
   @override
@@ -595,14 +595,9 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
           await ReadingClubRepository(
             await DatabaseHelper.instance.database,
           ).getAllClubsWithBooks();
-      final Map<String, List<Map<String, dynamic>>> g = {};
-      for (final c in all) {
-        final n = c['club_name'] as String;
-        g.putIfAbsent(n, () => []).add(c);
-      }
       if (mounted) {
         setState(() {
-          _clubs = g;
+          _clubs = all;
           _loading = false;
         });
       }
@@ -697,17 +692,17 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                   itemCount: _clubs.length,
                   separatorBuilder: (_, __) => const SizedBox(width: 16),
                   itemBuilder: (ctx, i) {
-                    final entry = _clubs.entries.elementAt(i);
-                    final clubName = entry.key;
-                    final books = entry.value;
-                    final firstBook = books.isNotEmpty ? books.first : null;
-                    final prog = (firstBook?['reading_progress'] as int?) ?? 0;
-                    final target = firstBook?['target_date'] as String?;
+                    final item = _clubs[i];
+                    final clubName =
+                        item['club_name'] as String? ?? l10n.unknown;
+                    final bookName =
+                        item['book_name'] as String? ?? l10n.unknown;
+                    final author = item['author'] as String?;
+                    final prog = (item['reading_progress'] as int?) ?? 0;
+                    final target = item['target_date'] as String?;
                     return GestureDetector(
                       onTap:
-                          () => _openBook(
-                            (firstBook?['book_id'] as num?)?.toInt(),
-                          ),
+                          () => _openBook((item['book_id'] as num?)?.toInt()),
                       child: Container(
                         width: 256,
                         padding: const EdgeInsets.all(17),
@@ -738,90 +733,66 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                                const SizedBox(width: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFEB0D0),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Text(
-                                    '${books.length}',
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: _kPrimary,
-                                    ),
-                                  ),
-                                ),
                               ],
                             ),
-                            if (firstBook != null) ...[
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  bookName,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Color(0xFF1C1B1A),
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                if (author != null && author.isNotEmpty)
                                   Text(
-                                    firstBook['book_name'] as String? ??
-                                        l10n.unknown,
+                                    author,
                                     style: const TextStyle(
-                                      fontSize: 14,
-                                      color: Color(0xFF1C1B1A),
+                                      fontSize: 12,
+                                      color: _kSub,
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  const SizedBox(height: 4),
-                                  if (firstBook['author'] != null &&
-                                      (firstBook['author'] as String)
-                                          .isNotEmpty)
-                                    Text(
-                                      firstBook['author'] as String,
-                                      style: const TextStyle(
-                                        fontSize: 12,
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                if (target != null)
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.calendar_today,
+                                        size: 9,
                                         color: _kSub,
                                       ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  if (target != null)
-                                    Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.calendar_today,
-                                          size: 9,
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        target,
+                                        style: const TextStyle(
+                                          fontSize: 10,
                                           color: _kSub,
                                         ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          target,
-                                          style: const TextStyle(
-                                            fontSize: 10,
-                                            color: _kSub,
-                                          ),
-                                        ),
-                                      ],
-                                    )
-                                  else
-                                    const SizedBox.shrink(),
-                                  Text(
-                                    '$prog%',
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      color: _kPrimary,
-                                    ),
+                                      ),
+                                    ],
+                                  )
+                                else
+                                  const SizedBox.shrink(),
+                                Text(
+                                  '$prog%',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: _kPrimary,
                                   ),
-                                ],
-                              ),
-                            ],
+                                ),
+                              ],
+                            ),
                           ],
                         ),
                       ),

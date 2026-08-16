@@ -169,6 +169,7 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
         }
       },
       child: Scaffold(
+        backgroundColor: const Color(0xFFFDF8F6),
         body: SafeArea(
           child: Column(
             children: [
