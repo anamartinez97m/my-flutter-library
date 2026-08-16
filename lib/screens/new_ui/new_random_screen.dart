@@ -7,6 +7,7 @@ import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/screens/book_detail.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_genre_selection_screen.dart';
+import 'package:myrandomlibrary/screens/new_ui/new_option_selection_screen.dart';
 import 'package:myrandomlibrary/widgets/chip_autocomplete_field.dart';
 import 'package:provider/provider.dart';
 import 'package:myrandomlibrary/widgets/shimmer_loading.dart';
@@ -603,13 +604,34 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
   }
 
   Widget _buildFormatCard(AppLocalizations l10n) {
+    final allFormats = _formatList.map((f) => f['value'] as String).toList();
+    if (allFormats.length <= 5) {
+      return _sectionCard(
+        icon: Icons.menu_book_outlined,
+        title: l10n.format,
+        child: _multiChipsField(
+          selected: _filterFormat,
+          options: allFormats,
+          anyLabel: l10n.any,
+          onChanged: (v) => setState(() => _filterFormat = v),
+        ),
+      );
+    }
+    final popular = _mostUsedOptions(
+      allOptions: allFormats,
+      valuesOf: (b) => [if (b.formatValue != null) b.formatValue!],
+    );
     return _sectionCard(
       icon: Icons.menu_book_outlined,
       title: l10n.format,
-      child: _multiChipsField(
+      child: _seeAllOptionsField(
+        l10n: l10n,
+        fieldTitle: l10n.format,
         selected: _filterFormat,
-        options: _formatList.map((f) => f['value'] as String).toList(),
+        popular: popular,
+        allOptions: allFormats,
         anyLabel: l10n.any,
+        multiSelect: true,
         onChanged: (v) => setState(() => _filterFormat = v),
       ),
     );
@@ -629,9 +651,144 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
     );
   }
 
+  /// Ranks [allOptions] by how often they occur across the library (as
+  /// reported by [valuesOf] for each book) and returns the top [limit].
+  List<String> _mostUsedOptions({
+    required List<String> allOptions,
+    required Iterable<String> Function(Book) valuesOf,
+    int limit = 4,
+  }) {
+    final provider = Provider.of<BookProvider?>(context, listen: false);
+    final counts = <String, int>{};
+    if (provider != null) {
+      for (final book in provider.allBooks) {
+        for (final v in valuesOf(book)) {
+          if (v.isEmpty) continue;
+          counts[v] = (counts[v] ?? 0) + 1;
+        }
+      }
+    }
+    final sorted = List<String>.from(allOptions)..sort((a, b) {
+      final diff = (counts[b] ?? 0).compareTo(counts[a] ?? 0);
+      if (diff != 0) return diff;
+      return a.compareTo(b);
+    });
+    return sorted.where((o) => (counts[o] ?? 0) > 0).take(limit).toList();
+  }
+
+  List<String> _mostReadGenres(List<String> allGenreNames, {int limit = 4}) {
+    return _mostUsedOptions(
+      allOptions: allGenreNames,
+      valuesOf:
+          (book) =>
+              book.genre
+                  ?.split(',')
+                  .map((g) => g.trim())
+                  .where((g) => g.isNotEmpty) ??
+              const <String>[],
+      limit: limit,
+    );
+  }
+
+  /// Builds a compact filter section that only shows the most-used options
+  /// (plus an "any"/clear chip) with a "See all (N)" link that opens the
+  /// full [NewOptionSelectionScreen] picker. Used for filters that have
+  /// more than a handful of possible values.
+  Widget _seeAllOptionsField({
+    required AppLocalizations l10n,
+    required String fieldTitle,
+    required List<String> selected,
+    required List<String> popular,
+    required List<String> allOptions,
+    required String anyLabel,
+    required bool multiSelect,
+    required ValueChanged<List<String>> onChanged,
+    String Function(String)? labelBuilder,
+  }) {
+    String labelOf(String v) => labelBuilder != null ? labelBuilder(v) : v;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            _smallChip(
+              label: anyLabel,
+              selected: selected.isEmpty,
+              onTap: () => onChanged([]),
+            ),
+            ...popular.map(
+              (o) => _smallChip(
+                label: labelOf(o),
+                selected: selected.contains(o),
+                onTap: () {
+                  if (multiSelect) {
+                    final next = List<String>.from(selected);
+                    if (next.contains(o)) {
+                      next.remove(o);
+                    } else {
+                      next.add(o);
+                    }
+                    onChanged(next);
+                  } else {
+                    onChanged(selected.contains(o) ? [] : [o]);
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerRight,
+          child: GestureDetector(
+            onTap: () async {
+              final result = await Navigator.push<OptionSelectionResult>(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (_) => NewOptionSelectionScreen(
+                        title: l10n.select_field_options(fieldTitle),
+                        searchHint: l10n.search_field_options(fieldTitle),
+                        popularLabel: l10n.most_used_label,
+                        allLabel: l10n.all_field_options(fieldTitle),
+                        anyLabel: anyLabel,
+                        allOptions: allOptions,
+                        popularOptions: popular,
+                        initialSelected: selected,
+                        multiSelect: multiSelect,
+                        labelBuilder: labelBuilder,
+                      ),
+                ),
+              );
+              if (result != null) onChanged(result.selected);
+            },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  l10n.see_all_count(allOptions.length.toString()),
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    color: _kPrimary,
+                    letterSpacing: 0.55,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                const Icon(Icons.chevron_right, size: 12, color: _kPrimary),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildGenreCard(AppLocalizations l10n) {
     final allGenreNames = _genreList.map((g) => g['name'] as String).toList();
-    final popular = allGenreNames.take(8).toList();
+    final popular = _mostReadGenres(allGenreNames);
     return _sectionCard(
       icon: Icons.category_outlined,
       title: l10n.genre,
@@ -787,12 +944,37 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
             ],
           ),
           const SizedBox(height: 12),
-          _singleChipsField<String>(
-            selected: _filterPlace,
-            options: _placeList.map((e) => e['name'] as String).toList(),
-            labelOf: (v) => v,
-            anyLabel: l10n.anywhere_label,
-            onChanged: (v) => setState(() => _filterPlace = v),
+          Builder(
+            builder: (context) {
+              final allPlaces =
+                  _placeList.map((e) => e['name'] as String).toList();
+              if (allPlaces.length <= 5) {
+                return _singleChipsField<String>(
+                  selected: _filterPlace,
+                  options: allPlaces,
+                  labelOf: (v) => v,
+                  anyLabel: l10n.anywhere_label,
+                  onChanged: (v) => setState(() => _filterPlace = v),
+                );
+              }
+              final popular = _mostUsedOptions(
+                allOptions: allPlaces,
+                valuesOf: (b) => [if (b.placeValue != null) b.placeValue!],
+              );
+              return _seeAllOptionsField(
+                l10n: l10n,
+                fieldTitle: l10n.place,
+                selected: _filterPlace == null ? [] : [_filterPlace!],
+                popular: popular,
+                allOptions: allPlaces,
+                anyLabel: l10n.anywhere_label,
+                multiSelect: false,
+                onChanged:
+                    (v) => setState(
+                      () => _filterPlace = v.isEmpty ? null : v.first,
+                    ),
+              );
+            },
           ),
         ],
       ),
@@ -814,15 +996,39 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
   }
 
   Widget _buildEditorialCard(AppLocalizations l10n) {
+    final allEditorials =
+        _editorialList.map((e) => e['name'] as String).toList();
+    if (allEditorials.length <= 5) {
+      return _sectionCard(
+        icon: Icons.business_outlined,
+        title: l10n.editorial,
+        child: _singleChipsField<String>(
+          selected: _filterEditorial,
+          options: allEditorials,
+          labelOf: (v) => v,
+          anyLabel: l10n.any,
+          onChanged: (v) => setState(() => _filterEditorial = v),
+        ),
+      );
+    }
+    final popular = _mostUsedOptions(
+      allOptions: allEditorials,
+      valuesOf: (b) => [if (b.editorialValue != null) b.editorialValue!],
+    );
     return _sectionCard(
       icon: Icons.business_outlined,
       title: l10n.editorial,
-      child: _singleChipsField<String>(
-        selected: _filterEditorial,
-        options: _editorialList.map((e) => e['name'] as String).toList(),
-        labelOf: (v) => v,
+      child: _seeAllOptionsField(
+        l10n: l10n,
+        fieldTitle: l10n.editorial,
+        selected: _filterEditorial == null ? [] : [_filterEditorial!],
+        popular: popular,
+        allOptions: allEditorials,
         anyLabel: l10n.any,
-        onChanged: (v) => setState(() => _filterEditorial = v),
+        multiSelect: false,
+        onChanged:
+            (v) =>
+                setState(() => _filterEditorial = v.isEmpty ? null : v.first),
       ),
     );
   }
@@ -841,44 +1047,100 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
     );
   }
 
+  static const _decadeOptions = [
+    '1900',
+    '1910',
+    '1920',
+    '1930',
+    '1940',
+    '1950',
+    '1960',
+    '1970',
+    '1980',
+    '1990',
+    '2000',
+    '2010',
+    '2020',
+  ];
+
   Widget _buildDecadeCard(AppLocalizations l10n) {
+    if (_decadeOptions.length <= 5) {
+      return _sectionCard(
+        icon: Icons.calendar_today_outlined,
+        title: l10n.publication_year_decade,
+        child: _singleChipsField<String>(
+          selected: _filterYear,
+          options: _decadeOptions,
+          labelOf: (v) => '${v}s',
+          anyLabel: l10n.any,
+          onChanged: (v) => setState(() => _filterYear = v),
+        ),
+      );
+    }
+    final popular = _mostUsedOptions(
+      allOptions: _decadeOptions,
+      valuesOf: (b) {
+        final year = b.originalPublicationYear;
+        if (year == null) return const <String>[];
+        return [((year ~/ 10) * 10).toString()];
+      },
+    );
     return _sectionCard(
       icon: Icons.calendar_today_outlined,
       title: l10n.publication_year_decade,
-      child: _singleChipsField<String>(
-        selected: _filterYear,
-        options: const [
-          '1900',
-          '1910',
-          '1920',
-          '1930',
-          '1940',
-          '1950',
-          '1960',
-          '1970',
-          '1980',
-          '1990',
-          '2000',
-          '2010',
-          '2020',
-        ],
-        labelOf: (v) => '${v}s',
+      child: _seeAllOptionsField(
+        l10n: l10n,
+        fieldTitle: l10n.publication_year_decade,
+        selected: _filterYear == null ? [] : [_filterYear!],
+        popular: popular,
+        allOptions: _decadeOptions,
         anyLabel: l10n.any,
-        onChanged: (v) => setState(() => _filterYear = v),
+        multiSelect: false,
+        labelBuilder: (v) => '${v}s',
+        onChanged:
+            (v) => setState(() => _filterYear = v.isEmpty ? null : v.first),
       ),
     );
   }
 
   Widget _buildAuthorCard(AppLocalizations l10n) {
+    final allAuthors = _authorList.map((a) => a['name'] as String).toList();
+    if (allAuthors.length <= 5) {
+      return _sectionCard(
+        icon: Icons.person_outline,
+        title: l10n.author,
+        child: _singleChipsField<String>(
+          selected: _filterAuthor,
+          options: allAuthors,
+          labelOf: (v) => v,
+          anyLabel: l10n.any,
+          onChanged: (v) => setState(() => _filterAuthor = v),
+        ),
+      );
+    }
+    final popular = _mostUsedOptions(
+      allOptions: allAuthors,
+      valuesOf:
+          (b) =>
+              b.author
+                  ?.split(',')
+                  .map((a) => a.trim())
+                  .where((a) => a.isNotEmpty) ??
+              const <String>[],
+    );
     return _sectionCard(
       icon: Icons.person_outline,
       title: l10n.author,
-      child: _singleChipsField<String>(
-        selected: _filterAuthor,
-        options: _authorList.map((a) => a['name'] as String).toList(),
-        labelOf: (v) => v,
+      child: _seeAllOptionsField(
+        l10n: l10n,
+        fieldTitle: l10n.author,
+        selected: _filterAuthor == null ? [] : [_filterAuthor!],
+        popular: popular,
+        allOptions: allAuthors,
         anyLabel: l10n.any,
-        onChanged: (v) => setState(() => _filterAuthor = v),
+        multiSelect: false,
+        onChanged:
+            (v) => setState(() => _filterAuthor = v.isEmpty ? null : v.first),
       ),
     );
   }

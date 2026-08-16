@@ -1215,6 +1215,19 @@
   "search_genres": "Search genres...",
   "popular_genres": "Popular Genres",
   "all_genres": "All Genres",
+  "select_field_options": "Select {field}",
+  "@select_field_options": {
+    "placeholders": { "field": {} }
+  },
+  "search_field_options": "Search {field}...",
+  "@search_field_options": {
+    "placeholders": { "field": {} }
+  },
+  "most_used_label": "Most Used",
+  "all_field_options": "All {field}",
+  "@all_field_options": {
+    "placeholders": { "field": {} }
+  },
   "clear_filters": "Clear Filters",
   "anywhere_label": "Anywhere",
   "migration_completed_errors": "Migration Completed with Errors",

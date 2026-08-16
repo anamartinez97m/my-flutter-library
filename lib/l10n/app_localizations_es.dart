@@ -2766,6 +2766,24 @@ class AppLocalizationsEs extends AppLocalizations {
   String get all_genres => 'Todos los Géneros';
 
   @override
+  String select_field_options(Object field) {
+    return 'Seleccionar $field';
+  }
+
+  @override
+  String search_field_options(Object field) {
+    return 'Buscar $field...';
+  }
+
+  @override
+  String get most_used_label => 'Más Usados';
+
+  @override
+  String all_field_options(Object field) {
+    return 'Todos: $field';
+  }
+
+  @override
   String get clear_filters => 'Borrar Filtros';
 
   @override

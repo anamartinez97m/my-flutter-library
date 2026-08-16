@@ -9,40 +9,49 @@ const _kChipBg = Color(0xFFF2EDEB);
 const _kChipBorder = Color(0x80D5C2C7);
 const _kChipSelected = Color(0xE643102B);
 
-/// Result returned by [NewGenreSelectionScreen] when the user taps Apply.
-class GenreSelectionResult {
+/// Result returned by [NewOptionSelectionScreen] when the user taps Apply.
+class OptionSelectionResult {
   final List<String> selected;
-  final bool useAndLogic;
-  const GenreSelectionResult({
-    required this.selected,
-    required this.useAndLogic,
-  });
+  const OptionSelectionResult({required this.selected});
 }
 
-class NewGenreSelectionScreen extends StatefulWidget {
-  final List<String> allGenres;
-  final List<String> popularGenres;
+/// Generic full-list picker used by the "See all" links on the random
+/// screen filters (Format, Place, Editorial, Publication year, Author...).
+class NewOptionSelectionScreen extends StatefulWidget {
+  final String title;
+  final String searchHint;
+  final String popularLabel;
+  final String allLabel;
+  final String anyLabel;
+  final List<String> allOptions;
+  final List<String> popularOptions;
   final List<String> initialSelected;
-  final bool initialUseAndLogic;
+  final bool multiSelect;
+  final String Function(String)? labelBuilder;
 
-  const NewGenreSelectionScreen({
+  const NewOptionSelectionScreen({
     super.key,
-    required this.allGenres,
-    required this.popularGenres,
+    required this.title,
+    required this.searchHint,
+    required this.popularLabel,
+    required this.allLabel,
+    required this.anyLabel,
+    required this.allOptions,
+    required this.popularOptions,
     required this.initialSelected,
-    required this.initialUseAndLogic,
+    this.multiSelect = false,
+    this.labelBuilder,
   });
 
   @override
-  State<NewGenreSelectionScreen> createState() =>
-      _NewGenreSelectionScreenState();
+  State<NewOptionSelectionScreen> createState() =>
+      _NewOptionSelectionScreenState();
 }
 
-class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
+class _NewOptionSelectionScreenState extends State<NewOptionSelectionScreen> {
   static const int _maxGroupSize = 10;
 
   late List<String> _selected;
-  late bool _useAndLogic;
   final _searchController = TextEditingController();
   String _query = '';
   final Set<String> _collapsedGroups = {};
@@ -51,7 +60,6 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
   void initState() {
     super.initState();
     _selected = List.from(widget.initialSelected);
-    _useAndLogic = widget.initialUseAndLogic;
   }
 
   @override
@@ -60,33 +68,44 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
     super.dispose();
   }
 
-  void _toggle(String genre) {
+  void _toggle(String option) {
     setState(() {
-      if (_selected.contains(genre)) {
-        _selected.remove(genre);
+      if (widget.multiSelect) {
+        if (_selected.contains(option)) {
+          _selected.remove(option);
+        } else {
+          _selected.add(option);
+        }
       } else {
-        _selected.add(genre);
+        _selected = _selected.contains(option) ? [] : [option];
       }
     });
   }
 
-  Map<String, List<String>> _groupedGenres(List<String> genres) {
-    final sorted = List<String>.from(genres)..sort();
+  String _labelOf(String option) =>
+      widget.labelBuilder != null ? widget.labelBuilder!(option) : option;
+
+  Map<String, List<String>> _groupedOptions(List<String> options) {
+    final sorted = List<String>.from(options)
+      ..sort((a, b) => _labelOf(a).compareTo(_labelOf(b)));
     final groups = <String, List<String>>{};
     const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     for (int i = 0; i < letters.length; i += 3) {
       final end = (i + 3 > letters.length) ? letters.length : i + 3;
       final rangeLetters = letters.substring(i, end);
       final items =
-          sorted.where((g) {
-            final first = g.isNotEmpty ? g[0].toUpperCase() : '';
+          sorted.where((o) {
+            final label = _labelOf(o);
+            final first = label.isNotEmpty ? label[0].toUpperCase() : '';
             return rangeLetters.contains(first);
           }).toList();
       if (items.isEmpty) continue;
       if (rangeLetters.length > 1 && items.length > _maxGroupSize) {
         for (final letter in rangeLetters.split('')) {
           final letterItems =
-              items.where((g) => g[0].toUpperCase() == letter).toList();
+              items
+                  .where((o) => _labelOf(o)[0].toUpperCase() == letter)
+                  .toList();
           if (letterItems.isNotEmpty) groups[letter] = letterItems;
         }
       } else {
@@ -98,8 +117,9 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
       }
     }
     final other =
-        sorted.where((g) {
-          final first = g.isNotEmpty ? g[0].toUpperCase() : '';
+        sorted.where((o) {
+          final label = _labelOf(o);
+          final first = label.isNotEmpty ? label[0].toUpperCase() : '';
           return !letters.contains(first);
         }).toList();
     if (other.isNotEmpty) groups['#'] = other;
@@ -140,10 +160,10 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
     );
   }
 
-  Widget _chip(String label) {
-    final selected = _selected.contains(label);
+  Widget _chip(String option) {
+    final selected = _selected.contains(option);
     return GestureDetector(
-      onTap: () => _toggle(label),
+      onTap: () => _toggle(option),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
@@ -165,7 +185,7 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              label,
+              _labelOf(option),
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -202,14 +222,18 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final filteredPopular =
-        widget.popularGenres
-            .where((g) => g.toLowerCase().contains(_query.toLowerCase()))
+        widget.popularOptions
+            .where(
+              (o) => _labelOf(o).toLowerCase().contains(_query.toLowerCase()),
+            )
             .toList();
     final filteredAll =
-        widget.allGenres
-            .where((g) => g.toLowerCase().contains(_query.toLowerCase()))
+        widget.allOptions
+            .where(
+              (o) => _labelOf(o).toLowerCase().contains(_query.toLowerCase()),
+            )
             .toList();
-    final grouped = _groupedGenres(filteredAll);
+    final grouped = _groupedOptions(filteredAll);
 
     return Scaffold(
       backgroundColor: _kBg,
@@ -236,7 +260,7 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
                   ),
                   Expanded(
                     child: Text(
-                      l10n.select_genres,
+                      widget.title,
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -250,10 +274,7 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
                     onPressed:
                         () => Navigator.pop(
                           context,
-                          GenreSelectionResult(
-                            selected: _selected,
-                            useAndLogic: _useAndLogic,
-                          ),
+                          OptionSelectionResult(selected: _selected),
                         ),
                     child: Text(
                       l10n.apply,
@@ -276,7 +297,7 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
                     controller: _searchController,
                     onChanged: (v) => setState(() => _query = v),
                     decoration: InputDecoration(
-                      hintText: l10n.search_genres,
+                      hintText: widget.searchHint,
                       hintStyle: const TextStyle(color: Color(0xFF5F5E5C)),
                       prefixIcon: const Icon(
                         Icons.search,
@@ -307,9 +328,43 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
                       contentPadding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      GestureDetector(
+                        onTap: () => setState(() => _selected = []),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color:
+                                _selected.isEmpty ? _kChipSelected : _kChipBg,
+                            borderRadius: BorderRadius.circular(9999),
+                            border:
+                                _selected.isEmpty
+                                    ? null
+                                    : Border.all(color: _kChipBorder),
+                          ),
+                          child: Text(
+                            widget.anyLabel,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.26,
+                              color: _selected.isEmpty ? Colors.white : _kSub,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                   if (filteredPopular.isNotEmpty) ...[
                     const SizedBox(height: 24),
-                    _sectionHeading(l10n.popular_genres),
+                    _sectionHeading(widget.popularLabel),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
@@ -319,7 +374,7 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
                   ],
                   if (grouped.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    _sectionHeading(l10n.all_genres),
+                    _sectionHeading(widget.allLabel),
                     const SizedBox(height: 16),
                     for (final entry in grouped.entries) ...[
                       _groupHeader(entry.key),
@@ -344,57 +399,6 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
                         ),
                       ),
                     ),
-                  if (_selected.length > 1) ...[
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            _useAndLogic
-                                ? l10n.and_all_genres
-                                : l10n.or_any_genre,
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: _kSub,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(color: _kBorder),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: ToggleButtons(
-                            isSelected: [_useAndLogic, !_useAndLogic],
-                            onPressed:
-                                (i) => setState(() => _useAndLogic = i == 0),
-                            borderRadius: BorderRadius.circular(8),
-                            constraints: const BoxConstraints(
-                              minHeight: 32,
-                              minWidth: 40,
-                            ),
-                            children: const [
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 6),
-                                child: Text(
-                                  'AND',
-                                  style: TextStyle(fontSize: 10),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 6),
-                                child: Text(
-                                  'OR',
-                                  style: TextStyle(fontSize: 10),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
                 ],
               ),
             ),

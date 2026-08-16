@@ -4916,6 +4916,30 @@ abstract class AppLocalizations {
   /// **'All Genres'**
   String get all_genres;
 
+  /// No description provided for @select_field_options.
+  ///
+  /// In en, this message translates to:
+  /// **'Select {field}'**
+  String select_field_options(Object field);
+
+  /// No description provided for @search_field_options.
+  ///
+  /// In en, this message translates to:
+  /// **'Search {field}...'**
+  String search_field_options(Object field);
+
+  /// No description provided for @most_used_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Most Used'**
+  String get most_used_label;
+
+  /// No description provided for @all_field_options.
+  ///
+  /// In en, this message translates to:
+  /// **'All {field}'**
+  String all_field_options(Object field);
+
   /// No description provided for @clear_filters.
   ///
   /// In en, this message translates to:
