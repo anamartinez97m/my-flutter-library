@@ -582,6 +582,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  String? _getLatestBackupTimestamp() {
+    final manual = _backupMetadata?['timestamp'] as String?;
+    final auto = _lastAutoBackupTimestamp;
+    if (manual == null && auto == null) return null;
+    final manualDt = manual != null ? DateTime.tryParse(manual) : null;
+    final autoDt = auto != null ? DateTime.tryParse(auto) : null;
+    if (manualDt != null && autoDt != null) {
+      return manualDt.isAfter(autoDt) ? manual : auto;
+    }
+    return manualDt != null ? manual : auto;
+  }
+
   Future<void> _downloadBackup() async {
     if (_currentUser == null) return;
     final messenger = ScaffoldMessenger.of(context);
@@ -910,6 +922,150 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       child: Text(AppLocalizations.of(context)!.close),
                     ),
                   ],
+                ),
+          ),
+    );
+  }
+
+  void _showV2SelectionModal(
+    BuildContext context, {
+    required String title,
+    required List<String> allKeys,
+    required Set<String> selected,
+    required String Function(String) getLabel,
+    required void Function(Set<String>) onSave,
+  }) {
+    final localSelected = <String>{...selected};
+    final l10n = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      builder:
+          (context) => StatefulBuilder(
+            builder:
+                (context, setDialogState) => Dialog(
+                  backgroundColor: Colors.white,
+                  elevation: 8,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: const BorderSide(color: Color(0x4DD5C2C7)),
+                  ),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 420),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 16, 12, 16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                title,
+                                style: const TextStyle(
+                                  fontFamily: 'Manrope',
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                  color: _kV2Primary,
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.close,
+                                  color: _kV2Text,
+                                  size: 20,
+                                ),
+                                onPressed: () => Navigator.pop(context),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Divider(color: Color(0x4DD5C2C7), height: 1),
+                        Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children:
+                                allKeys.map((key) {
+                                  final isSelected = localSelected.contains(
+                                    key,
+                                  );
+                                  return _buildChip(
+                                    getLabel(key),
+                                    isSelected,
+                                    () {
+                                      setDialogState(() {
+                                        if (isSelected) {
+                                          localSelected.remove(key);
+                                        } else {
+                                          localSelected.add(key);
+                                        }
+                                      });
+                                    },
+                                  );
+                                }).toList(),
+                          ),
+                        ),
+                        Container(
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFF7F3F0),
+                            border: Border(
+                              top: BorderSide(color: Color(0x4DD5C2C7)),
+                            ),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              TextButton(
+                                onPressed:
+                                    () => setDialogState(
+                                      () => localSelected.clear(),
+                                    ),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: _kV2Primary,
+                                ),
+                                child: Text(l10n.clear_all),
+                              ),
+                              Row(
+                                children: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: _kV2Primary,
+                                    ),
+                                    child: Text(l10n.cancel),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      onSave(localSelected);
+                                      Navigator.pop(context);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: _kV2Primary,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 8,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    child: Text(l10n.ok),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
           ),
     );
@@ -4800,13 +4956,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           child: InkWell(
                             onTap: () {
-                              final useNewUi = context.read<FeatureFlagProvider>().newUiEnabled;
+                              final useNewUi =
+                                  context
+                                      .read<FeatureFlagProvider>()
+                                      .newUiEnabled;
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder:
-                                      (context) =>
-                                          ManageDropdownsScreen(useNewUi: useNewUi),
+                                      (context) => ManageDropdownsScreen(
+                                        useNewUi: useNewUi,
+                                      ),
                                 ),
                               );
                             },
@@ -5588,30 +5748,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            // Header
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      l10n.application_name,
-                      style: const TextStyle(
-                        fontFamily: 'Manrope',
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: _kV2Primary,
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.refresh, color: _kV2Primary, size: 20),
-                      onPressed: () => setState(() {}),
-                    ),
-                  ],
-                ),
-              ),
-            ),
             // Main content
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -5625,7 +5761,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const TutorialScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => const TutorialScreen(),
+                        ),
                       );
                     },
                   ),
@@ -5716,7 +5854,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     icon: Icons.delete_forever,
                     iconColor: Colors.red.shade700,
                     title: l10n.delete_all_data,
-                    subtitle: l10n.permanently_delete_all_books_from_the_database,
+                    subtitle:
+                        l10n.permanently_delete_all_books_from_the_database,
                     onTap: () => _deleteAllData(context),
                   ),
                   const SizedBox(height: 16),
@@ -5797,7 +5936,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         },
                         child: Row(
                           children: [
-                            const Icon(Icons.info_outline, size: 17, color: _kV2SubText),
+                            const Icon(
+                              Icons.info_outline,
+                              size: 17,
+                              color: _kV2SubText,
+                            ),
                             const SizedBox(width: 12),
                             Text(
                               'About ${l10n.application_name}',
@@ -5837,7 +5980,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           color: Colors.white.withValues(alpha: 0.7),
           borderRadius: BorderRadius.circular(12),
           boxShadow: const [
-            BoxShadow(color: Color(0x0A000000), blurRadius: 12, offset: Offset(0, 4)),
+            BoxShadow(
+              color: Color(0x0A000000),
+              blurRadius: 12,
+              offset: Offset(0, 4),
+            ),
           ],
         ),
         child: Row(
@@ -5869,10 +6016,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: _kV2SubText,
-                    ),
+                    style: const TextStyle(fontSize: 14, color: _kV2SubText),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -5912,7 +6056,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               color: Colors.white.withValues(alpha: 0.7),
               borderRadius: BorderRadius.circular(12),
               boxShadow: const [
-                BoxShadow(color: Color(0x0A000000), blurRadius: 12, offset: Offset(0, 4)),
+                BoxShadow(
+                  color: Color(0x0A000000),
+                  blurRadius: 12,
+                  offset: Offset(0, 4),
+                ),
               ],
             ),
             child: Row(
@@ -5996,7 +6144,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           color: Colors.white.withValues(alpha: 0.7),
           borderRadius: BorderRadius.circular(12),
           boxShadow: const [
-            BoxShadow(color: Color(0x0A000000), blurRadius: 12, offset: Offset(0, 4)),
+            BoxShadow(
+              color: Color(0x0A000000),
+              blurRadius: 12,
+              offset: Offset(0, 4),
+            ),
           ],
         ),
         child: Column(
@@ -6009,17 +6161,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 fontFamily: 'Manrope',
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
-                color: iconColor == Colors.red.shade700 ? Colors.red.shade700 : _kV2Text,
+                color:
+                    iconColor == Colors.red.shade700
+                        ? Colors.red.shade700
+                        : _kV2Text,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               subtitle,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 14,
-                color: _kV2SubText,
-              ),
+              style: const TextStyle(fontSize: 14, color: _kV2SubText),
             ),
           ],
         ),
@@ -6040,7 +6192,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         color: Colors.white.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(12),
         boxShadow: const [
-          BoxShadow(color: Color(0x0A000000), blurRadius: 12, offset: Offset(0, 4)),
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 12,
+            offset: Offset(0, 4),
+          ),
         ],
       ),
       child: Row(
@@ -6072,21 +6228,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: _kV2SubText,
-                  ),
+                  style: const TextStyle(fontSize: 14, color: _kV2SubText),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
-          Switch(
-            value: value,
-            onChanged: onChanged,
-            activeColor: _kV2Primary,
-          ),
+          Switch(value: value, onChanged: onChanged, activeColor: _kV2Primary),
         ],
       ),
     );
@@ -6119,7 +6268,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: Text(l10n.theme_light),
                   value: AppThemeMode.light,
                   groupValue: themeProvider.themeMode,
-                  onChanged: (v) { if (v != null) themeProvider.setThemeMode(v); },
+                  onChanged: (v) {
+                    if (v != null) themeProvider.setThemeMode(v);
+                  },
                   dense: true,
                   contentPadding: EdgeInsets.zero,
                 ),
@@ -6127,7 +6278,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: Text(l10n.theme_dark),
                   value: AppThemeMode.dark,
                   groupValue: themeProvider.themeMode,
-                  onChanged: (v) { if (v != null) themeProvider.setThemeMode(v); },
+                  onChanged: (v) {
+                    if (v != null) themeProvider.setThemeMode(v);
+                  },
                   dense: true,
                   contentPadding: EdgeInsets.zero,
                 ),
@@ -6135,7 +6288,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: Text(l10n.theme_system),
                   value: AppThemeMode.system,
                   groupValue: themeProvider.themeMode,
-                  onChanged: (v) { if (v != null) themeProvider.setThemeMode(v); },
+                  onChanged: (v) {
+                    if (v != null) themeProvider.setThemeMode(v);
+                  },
                   dense: true,
                   contentPadding: EdgeInsets.zero,
                 ),
@@ -6185,7 +6340,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               value: localeProvider.locale.languageCode,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
               ),
               items: [
                 DropdownMenuItem(
@@ -6224,80 +6382,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Home Filters
-        Text(
-          l10n.customize_home_filters,
-          style: const TextStyle(
-            fontFamily: 'Manrope',
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: _kV2Text,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(l10n.customize_home_filters_subtitle, style: const TextStyle(fontSize: 13, color: _kV2SubText)),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: _availableFilterKeys.map((key) {
-            final enabled = _enabledFilters.contains(key);
-            return FilterChip(
-              label: Text(_getFilterLabel(context, key)),
-              selected: enabled,
-              onSelected: (val) {
-                setState(() {
-                  if (val) {
-                    _enabledFilters.add(key);
-                  } else {
-                    _enabledFilters.remove(key);
-                  }
+        _buildV2SettingsButton(
+          icon: Icons.tune,
+          label: l10n.customize_home_filters,
+          onTap:
+              () => _showV2SelectionModal(
+                context,
+                title: l10n.customize_home_filters,
+                allKeys: _availableFilterKeys,
+                selected: _enabledFilters,
+                getLabel: (key) => _getFilterLabel(context, key),
+                onSave: (selected) {
+                  setState(() => _enabledFilters = selected);
                   _saveEnabledFilters();
-                });
-              },
-              selectedColor: _kV2Primary.withValues(alpha: 0.15),
-              checkmarkColor: _kV2Primary,
-              side: BorderSide(color: enabled ? _kV2Primary.withValues(alpha: 0.3) : _kV2Border.withValues(alpha: 0.2)),
-            );
-          }).toList(),
+                },
+              ),
         ),
-        const SizedBox(height: 24),
-        // Card Fields
-        Text(
-          l10n.customize_card_fields,
-          style: const TextStyle(
-            fontFamily: 'Manrope',
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: _kV2Text,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(l10n.customize_card_fields_subtitle, style: const TextStyle(fontSize: 13, color: _kV2SubText)),
         const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: _availableCardFieldKeys.map((key) {
-            final enabled = _enabledCardFields.contains(key);
-            return FilterChip(
-              label: Text(_getCardFieldLabel(context, key)),
-              selected: enabled,
-              onSelected: (val) {
-                setState(() {
-                  if (val) {
-                    _enabledCardFields.add(key);
-                  } else {
-                    _enabledCardFields.remove(key);
-                  }
+        _buildV2SettingsButton(
+          icon: Icons.view_agenda,
+          label: l10n.customize_card_fields,
+          onTap:
+              () => _showV2SelectionModal(
+                context,
+                title: l10n.customize_card_fields,
+                allKeys: _availableCardFieldKeys,
+                selected: _enabledCardFields,
+                getLabel: (key) => _getCardFieldLabel(context, key),
+                onSave: (selected) {
+                  setState(() => _enabledCardFields = selected);
                   _saveEnabledCardFields();
-                });
-              },
-              selectedColor: _kV2Primary.withValues(alpha: 0.15),
-              checkmarkColor: _kV2Primary,
-              side: BorderSide(color: enabled ? _kV2Primary.withValues(alpha: 0.3) : _kV2Border.withValues(alpha: 0.2)),
-            );
-          }).toList(),
+                },
+              ),
         ),
         const SizedBox(height: 24),
         // TBR Limit
@@ -6308,6 +6424,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildV2CloudSyncContent(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final lastTs = _getLatestBackupTimestamp();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -6319,7 +6436,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: _kV2Primary,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           )
         else ...[
@@ -6330,13 +6449,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Expanded(
                 child: Text(
                   _currentUser!.email ?? '',
-                  style: const TextStyle(fontFamily: 'Manrope', fontSize: 14, color: _kV2Text),
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 14,
+                    color: _kV2Text,
+                  ),
                 ),
               ),
-              TextButton(
-                onPressed: _signOut,
-                child: Text(l10n.sign_out),
-              ),
+              TextButton(onPressed: _signOut, child: Text(l10n.sign_out)),
             ],
           ),
           const SizedBox(height: 16),
@@ -6348,12 +6468,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Expanded(
                   child: ElevatedButton.icon(
                     icon: const Icon(Icons.cloud_upload, size: 18),
-                    label: Text(l10n.backup_to_cloud),
+                    label: Text(
+                      l10n.backup_to_cloud,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
                     onPressed: _uploadBackup,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _kV2Primary,
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 14,
+                      ),
+                      textStyle: const TextStyle(
+                        fontFamily: 'Manrope',
+                        fontSize: 14,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                   ),
                 ),
@@ -6361,21 +6495,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Expanded(
                   child: OutlinedButton.icon(
                     icon: const Icon(Icons.cloud_download, size: 18),
-                    label: Text(l10n.restore),
+                    label: Text(
+                      l10n.restore,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
                     onPressed: _backupMetadata != null ? _downloadBackup : null,
                     style: OutlinedButton.styleFrom(
                       foregroundColor: _kV2Primary,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 14,
+                      ),
+                      textStyle: const TextStyle(
+                        fontFamily: 'Manrope',
+                        fontSize: 14,
+                      ),
                       side: const BorderSide(color: _kV2Primary),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                   ),
                 ),
               ],
             ),
-            if (_backupMetadata != null) ...[
+            if (lastTs != null) ...[
               const SizedBox(height: 12),
               Text(
-                l10n.last_backup(_backupMetadata!['timestamp'] ?? 'N/A'),
+                l10n.last_backup(_formatTimestamp(lastTs)),
                 style: const TextStyle(fontSize: 12, color: _kV2SubText),
               ),
             ],
@@ -6439,12 +6587,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: Text(l10n.reminder_time),
             trailing: Text(
               '${_readingReminderHour.toString().padLeft(2, '0')}:${_readingReminderMinute.toString().padLeft(2, '0')}',
-              style: const TextStyle(fontFamily: 'Manrope', fontWeight: FontWeight.w600),
+              style: const TextStyle(
+                fontFamily: 'Manrope',
+                fontWeight: FontWeight.w600,
+              ),
             ),
             onTap: () async {
               final time = await showTimePicker(
                 context: context,
-                initialTime: TimeOfDay(hour: _readingReminderHour, minute: _readingReminderMinute),
+                initialTime: TimeOfDay(
+                  hour: _readingReminderHour,
+                  minute: _readingReminderMinute,
+                ),
               );
               if (time != null) {
                 setState(() {
@@ -6506,7 +6660,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const ManageRatingFieldsScreen()),
+              MaterialPageRoute(
+                builder: (_) => const ManageRatingFieldsScreen(),
+              ),
             );
           },
         ),
@@ -6560,7 +6716,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     isDense: true,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 8,
+                    ),
                   ),
                   onChanged: (val) {
                     _currencySymbol = val;
