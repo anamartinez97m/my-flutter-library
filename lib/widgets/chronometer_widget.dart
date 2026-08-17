@@ -608,103 +608,130 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
               ),
             ),
             // Content
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  // Header
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        AppLocalizations.of(context)!.reading_timer,
-                        style: const TextStyle(
-                          fontFamily: 'Manrope',
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: kText,
+            SafeArea(
+              top: false,
+              left: false,
+              right: false,
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    // Header
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.reading_timer,
+                          style: const TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: kText,
+                          ),
                         ),
-                      ),
-                      GestureDetector(
-                        onTap: () async {
-                          if (_isRunning) {
-                            final shouldClose = await showDialog<bool>(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: Text(
-                                  AppLocalizations.of(context)!.timer_is_running,
-                                ),
-                                content: Text(
-                                  AppLocalizations.of(context)!.timer_exit_confirm,
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context, false),
-                                    child: Text(
-                                      AppLocalizations.of(context)!.cancel,
+                        GestureDetector(
+                          onTap: () async {
+                            if (_isRunning) {
+                              final shouldClose = await showDialog<bool>(
+                                context: context,
+                                builder:
+                                    (context) => AlertDialog(
+                                      title: Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.timer_is_running,
+                                      ),
+                                      content: Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.timer_exit_confirm,
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed:
+                                              () =>
+                                                  Navigator.pop(context, false),
+                                          child: Text(
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.cancel,
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed:
+                                              () =>
+                                                  Navigator.pop(context, true),
+                                          style: TextButton.styleFrom(
+                                            foregroundColor:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.error,
+                                          ),
+                                          child: Text(
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.exit_label,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context, true),
-                                    style: TextButton.styleFrom(
-                                      foregroundColor:
-                                          Theme.of(context).colorScheme.error,
-                                    ),
-                                    child: Text(
-                                      AppLocalizations.of(context)!.exit_label,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                            if (shouldClose == true && context.mounted) {
+                              );
+                              if (shouldClose == true && context.mounted) {
+                                Navigator.pop(context);
+                              }
+                            } else {
                               Navigator.pop(context);
                             }
-                          } else {
-                            Navigator.pop(context);
-                          }
-                        },
-                        child: const Padding(
-                          padding: EdgeInsets.all(8),
-                          child: Icon(Icons.close, size: 14, color: kText),
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.all(8),
+                            child: Icon(Icons.close, size: 14, color: kText),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    // Timer Display
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 49,
+                        horizontal: 25,
+                      ),
+                      decoration: BoxDecoration(
+                        color: kTimerBg,
+                        borderRadius: BorderRadius.circular(32),
+                        border: Border.all(color: kTimerBorder),
+                      ),
+                      child: Center(
+                        child: Text(
+                          _formatDuration(_elapsedSeconds),
+                          style: const TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 56,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF43102B),
+                            letterSpacing: -1.4,
+                            fontFeatures: [FontFeature.tabularFigures()],
+                          ),
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  // Timer Display
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 49, horizontal: 25),
-                    decoration: BoxDecoration(
-                      color: kTimerBg,
-                      borderRadius: BorderRadius.circular(32),
-                      border: Border.all(color: kTimerBorder),
                     ),
-                    child: Center(
-                      child: Text(
-                        _formatDuration(_elapsedSeconds),
-                        style: const TextStyle(
-                          fontFamily: 'Manrope',
-                          fontSize: 56,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF43102B),
-                          letterSpacing: -1.4,
-                          fontFeatures: [FontFeature.tabularFigures()],
+                    const SizedBox(height: 24),
+                    // Actions
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8, bottom: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: _buildV2Actions(
+                          context,
+                          kPrimary,
+                          kButtonText,
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  // Actions
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8, bottom: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: _buildV2Actions(context, kPrimary, kButtonText),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],
@@ -713,7 +740,11 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
     );
   }
 
-  List<Widget> _buildV2Actions(BuildContext context, Color kPrimary, Color kButtonText) {
+  List<Widget> _buildV2Actions(
+    BuildContext context,
+    Color kPrimary,
+    Color kButtonText,
+  ) {
     final l10n = AppLocalizations.of(context)!;
 
     if (!_isRunning && _elapsedSeconds == 0) {
