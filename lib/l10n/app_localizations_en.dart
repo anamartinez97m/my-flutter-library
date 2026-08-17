@@ -1111,7 +1111,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hue => 'Hue';
 
   @override
-  String get application_name => 'My Random Library';
+  String get application_name => 'My Book Vault';
 
   @override
   String get application_legalese =>

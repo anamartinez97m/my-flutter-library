@@ -2051,7 +2051,7 @@ abstract class AppLocalizations {
   /// No description provided for @application_name.
   ///
   /// In en, this message translates to:
-  /// **'My Random Library'**
+  /// **'My Book Vault'**
   String get application_name;
 
   /// No description provided for @application_legalese.
