@@ -31,6 +31,11 @@ import 'package:myrandomlibrary/widgets/status_mapping_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+const _kChipBg = Color(0xFFF2EDEB);
+const _kChipBorder = Color(0x80D5C2C7);
+const _kChipSelected = Color(0xE643102B);
+const _kSub = Color(0xFF514348);
+
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -732,6 +737,48 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  Widget _buildChip(String label, bool selected, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: selected ? _kChipSelected : _kChipBg,
+          borderRadius: BorderRadius.circular(9999),
+          border: selected ? null : Border.all(color: _kChipBorder),
+          boxShadow:
+              selected
+                  ? const [
+                    BoxShadow(
+                      color: Color(0x0D000000),
+                      blurRadius: 1,
+                      offset: Offset(0, 1),
+                    ),
+                  ]
+                  : null,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.26,
+                color: selected ? Colors.white : _kSub,
+              ),
+            ),
+            if (selected) ...[
+              const SizedBox(width: 4),
+              const Icon(Icons.check, size: 12, color: Colors.white),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   void _showFiltersDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -744,29 +791,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   content: SizedBox(
                     width: double.maxFinite,
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: _availableFilterKeys.length,
-                      itemBuilder: (context, index) {
-                        final key = _availableFilterKeys[index];
-                        final label = _getFilterLabel(context, key);
-
-                        return CheckboxListTile(
-                          title: Text(label),
-                          value: _enabledFilters.contains(key),
-                          onChanged: (value) {
-                            setState(() {
-                              if (value == true) {
-                                _enabledFilters.add(key);
-                              } else {
-                                _enabledFilters.remove(key);
-                              }
-                            });
-                            setDialogState(() {}); // Rebuild dialog
-                            _saveEnabledFilters();
-                          },
-                        );
-                      },
+                    child: SingleChildScrollView(
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children:
+                            _availableFilterKeys.map((key) {
+                              final label = _getFilterLabel(context, key);
+                              final selected = _enabledFilters.contains(key);
+                              return _buildChip(label, selected, () {
+                                setState(() {
+                                  if (selected) {
+                                    _enabledFilters.remove(key);
+                                  } else {
+                                    _enabledFilters.add(key);
+                                  }
+                                });
+                                setDialogState(() {});
+                                _saveEnabledFilters();
+                              });
+                            }).toList(),
+                      ),
                     ),
                   ),
                   actions: [
@@ -775,7 +820,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         setState(() {
                           _enabledFilters = _availableFilterKeys.toSet();
                         });
-                        setDialogState(() {}); // Rebuild dialog
+                        setDialogState(() {});
                         _saveEnabledFilters();
                       },
                       child: Text(AppLocalizations.of(context)!.select_all),
@@ -785,7 +830,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         setState(() {
                           _enabledFilters.clear();
                         });
-                        setDialogState(() {}); // Rebuild dialog
+                        setDialogState(() {});
                         _saveEnabledFilters();
                       },
                       child: Text(AppLocalizations.of(context)!.clear_all),
@@ -812,29 +857,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   content: SizedBox(
                     width: double.maxFinite,
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: _availableCardFieldKeys.length,
-                      itemBuilder: (context, index) {
-                        final key = _availableCardFieldKeys[index];
-                        final label = _getCardFieldLabel(context, key);
-
-                        return CheckboxListTile(
-                          title: Text(label),
-                          value: _enabledCardFields.contains(key),
-                          onChanged: (value) {
-                            setState(() {
-                              if (value == true) {
-                                _enabledCardFields.add(key);
-                              } else {
-                                _enabledCardFields.remove(key);
-                              }
-                            });
-                            setDialogState(() {}); // Rebuild dialog
-                            _saveEnabledCardFields();
-                          },
-                        );
-                      },
+                    child: SingleChildScrollView(
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children:
+                            _availableCardFieldKeys.map((key) {
+                              final label = _getCardFieldLabel(context, key);
+                              final selected = _enabledCardFields.contains(key);
+                              return _buildChip(label, selected, () {
+                                setState(() {
+                                  if (selected) {
+                                    _enabledCardFields.remove(key);
+                                  } else {
+                                    _enabledCardFields.add(key);
+                                  }
+                                });
+                                setDialogState(() {});
+                                _saveEnabledCardFields();
+                              });
+                            }).toList(),
+                      ),
                     ),
                   ),
                   actions: [
@@ -843,7 +886,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         setState(() {
                           _enabledCardFields = _availableCardFieldKeys.toSet();
                         });
-                        setDialogState(() {}); // Rebuild dialog
+                        setDialogState(() {});
                         _saveEnabledCardFields();
                       },
                       child: Text(AppLocalizations.of(context)!.select_all),
@@ -853,7 +896,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         setState(() {
                           _enabledCardFields.clear();
                         });
-                        setDialogState(() {}); // Rebuild dialog
+                        setDialogState(() {});
                         _saveEnabledCardFields();
                       },
                       child: Text(AppLocalizations.of(context)!.clear_all),

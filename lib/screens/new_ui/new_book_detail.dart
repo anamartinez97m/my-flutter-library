@@ -2399,7 +2399,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
               // Book cover image with glassmorphism effect
               Container(
                 height: 250,
-                decoration: const BoxDecoration(color: Color(0xFFE6E2DF)),
+                decoration: const BoxDecoration(color: Color(0xFFFDF8F6)),
                 child:
                     _currentBook.coverUrl != null &&
                             _currentBook.coverUrl!.isNotEmpty
