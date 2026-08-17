@@ -6,7 +6,8 @@ import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:provider/provider.dart';
 
 class ManageDropdownsScreen extends StatefulWidget {
-  const ManageDropdownsScreen({super.key});
+  final bool useNewUi;
+  const ManageDropdownsScreen({super.key, this.useNewUi = false});
 
   @override
   State<ManageDropdownsScreen> createState() => _ManageDropdownsScreenState();
@@ -124,6 +125,13 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
 
   /// Shows a dialog to ask for expected books count for format_saga values
   Future<int?> _showFormatSagaHelper(String formatSagaName) async {
+    if (widget.useNewUi) {
+      return _showFormatSagaHelperV2(formatSagaName);
+    }
+    return _showFormatSagaHelperV1(formatSagaName);
+  }
+
+  Future<int?> _showFormatSagaHelperV1(String formatSagaName) async {
     final controller = TextEditingController();
     String? selectedOption = 'number'; // 'number' or 'unknown'
 
@@ -317,6 +325,370 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                   ],
                 ),
           ),
+    );
+  }
+
+  Future<int?> _showFormatSagaHelperV2(String formatSagaName) async {
+    final controller = TextEditingController();
+    String? selectedOption = 'number';
+
+    const kBg = Color(0xFFFDF8F6);
+    const kPrimary = Color(0xFF5D2641);
+    const kText = Color(0xFF1C1B1B);
+    const kSub = Color(0xFF49454F);
+    const kBorder = Color(0xFFDDD9D7);
+    const kInfoBg = Color(0x1A5D2641);
+    const kInfoBorder = Color(0x335D2641);
+
+    return await showDialog<int?>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          final l10n = AppLocalizations.of(context)!;
+          return Dialog(
+            backgroundColor: kBg,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            elevation: 25,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 384),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(24, 24, 24, 80),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Header
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.auto_stories,
+                                color: kPrimary,
+                                size: 24,
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                l10n.saga_completion_setup,
+                                style: const TextStyle(
+                                  fontFamily: 'Manrope',
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                  color: kPrimary,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          // Action text
+                          Text(
+                            l10n.you_are_adding(formatSagaName),
+                            style: const TextStyle(
+                              fontFamily: 'Manrope',
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: kText,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          // Info box
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(17),
+                            decoration: BoxDecoration(
+                              color: kInfoBg,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: kInfoBorder),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  l10n.how_many_books_saga,
+                                  style: const TextStyle(
+                                    fontFamily: 'Manrope',
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: kPrimary,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  l10n.saga_completion_explanation,
+                                  style: const TextStyle(
+                                    fontFamily: 'Manrope',
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.normal,
+                                    color: kSub,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+                          // Option 1: Specific number
+                          GestureDetector(
+                            onTap: () => setState(() => selectedOption = 'number'),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 4),
+                                  child: _buildV2Radio(selectedOption == 'number'),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        l10n.specific_number_of_books,
+                                        style: const TextStyle(
+                                          fontFamily: 'Manrope',
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.normal,
+                                          color: kText,
+                                        ),
+                                      ),
+                                      if (selectedOption == 'number') ...[
+                                        const SizedBox(height: 16),
+                                        // Floating label input
+                                        Stack(
+                                          clipBehavior: Clip.none,
+                                          children: [
+                                            TextField(
+                                              controller: controller,
+                                              keyboardType: TextInputType.number,
+                                              autofocus: true,
+                                              style: const TextStyle(
+                                                fontFamily: 'Manrope',
+                                                fontSize: 18,
+                                                color: kText,
+                                              ),
+                                              decoration: InputDecoration(
+                                                contentPadding: const EdgeInsets.symmetric(
+                                                  horizontal: 17,
+                                                  vertical: 13,
+                                                ),
+                                                border: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(8),
+                                                  borderSide: const BorderSide(color: kSub),
+                                                ),
+                                                enabledBorder: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(8),
+                                                  borderSide: const BorderSide(color: kSub),
+                                                ),
+                                                focusedBorder: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(8),
+                                                  borderSide: const BorderSide(color: kPrimary, width: 2),
+                                                ),
+                                                labelText: l10n.number_of_books,
+                                                labelStyle: const TextStyle(
+                                                  fontFamily: 'Manrope',
+                                                  fontSize: 12,
+                                                  color: kPrimary,
+                                                ),
+                                                floatingLabelBehavior: FloatingLabelBehavior.always,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          // Option 2: Unknown
+                          GestureDetector(
+                            onTap: () => setState(() => selectedOption = 'unknown'),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 4),
+                                  child: _buildV2Radio(selectedOption == 'unknown'),
+                                ),
+                                const SizedBox(width: 16),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      l10n.unknown_show_as_question,
+                                      style: const TextStyle(
+                                        fontFamily: 'Manrope',
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.normal,
+                                        color: kText,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      l10n.for_sagas_unknown_length,
+                                      style: const TextStyle(
+                                        fontFamily: 'Manrope',
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.normal,
+                                        color: kSub,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          // Examples
+                          Text(
+                            '${l10n.examples}:',
+                            style: const TextStyle(
+                              fontFamily: 'Manrope',
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: kText,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 24),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildV2Example('Trilogy:', ' 3 books'),
+                                const SizedBox(height: 8),
+                                _buildV2Example('Heptalogy:', ' 7 books'),
+                                const SizedBox(height: 8),
+                                _buildV2Example('Saga:', ' ? (unknown)'),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Sticky footer
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    decoration: const BoxDecoration(
+                      color: kBg,
+                      border: Border(top: BorderSide(color: kBorder)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, null),
+                          style: TextButton.styleFrom(
+                            foregroundColor: kPrimary,
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            l10n.cancel,
+                            style: const TextStyle(
+                              fontFamily: 'Manrope',
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton(
+                          onPressed: () {
+                            if (selectedOption == 'unknown') {
+                              Navigator.pop(context, -1);
+                            } else {
+                              final value = int.tryParse(controller.text.trim());
+                              if (value == null || value < 1) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(l10n.enter_valid_number),
+                                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                                  ),
+                                );
+                                return;
+                              }
+                              Navigator.pop(context, value);
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: kPrimary,
+                            foregroundColor: Colors.white,
+                            elevation: 4,
+                            shadowColor: const Color(0x1A000000),
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            l10n.continue_label,
+                            style: const TextStyle(
+                              fontFamily: 'Manrope',
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildV2Radio(bool selected) {
+    if (selected) {
+      return Container(
+        width: 18,
+        height: 18,
+        decoration: BoxDecoration(
+          color: const Color(0xFF2563EB),
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(Icons.check, size: 12, color: Colors.white),
+      );
+    }
+    return Container(
+      width: 16,
+      height: 16,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        border: Border.all(color: const Color(0xFF6B7280)),
+      ),
+    );
+  }
+
+  Widget _buildV2Example(String label, String value) {
+    return RichText(
+      text: TextSpan(
+        style: const TextStyle(
+          fontFamily: 'Manrope',
+          fontSize: 14,
+          color: Color(0xFF49454F),
+        ),
+        children: [
+          TextSpan(
+            text: label,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          TextSpan(text: value),
+        ],
+      ),
     );
   }
 

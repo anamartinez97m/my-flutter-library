@@ -102,7 +102,7 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
     const StatisticsScreen(useNewUi: true),
     const NewMyBooksScreen(),
     const NewRandomScreen(),
-    const SettingsScreen(),
+    const SettingsScreen(useNewUi: true),
   ];
 
   @override

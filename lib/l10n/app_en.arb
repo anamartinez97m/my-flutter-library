@@ -1128,6 +1128,12 @@
   "morning_afternoon_night_owl": "Morning, afternoon, or night owl?",
   "requires_chronometer": "Requires chronometer feature",
   "saga_completion_rate": "Saga Completion Rate",
+  "completion_rate": "Completion Rate",
+  "status_breakdown": "Status Breakdown",
+  "n_series_completed": "{count} Series Completed",
+  "@n_series_completed": {
+    "placeholders": { "count": {} }
+  },
   "completed": "Completed",
   "in_progress": "In Progress",
   "not_started": "Not Started",

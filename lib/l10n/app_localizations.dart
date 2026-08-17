@@ -4538,6 +4538,24 @@ abstract class AppLocalizations {
   /// **'Saga Completion Rate'**
   String get saga_completion_rate;
 
+  /// No description provided for @completion_rate.
+  ///
+  /// In en, this message translates to:
+  /// **'Completion Rate'**
+  String get completion_rate;
+
+  /// No description provided for @status_breakdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Status Breakdown'**
+  String get status_breakdown;
+
+  /// No description provided for @n_series_completed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Series Completed'**
+  String n_series_completed(Object count);
+
   /// No description provided for @completed.
   ///
   /// In en, this message translates to:
