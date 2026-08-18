@@ -756,41 +756,53 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildChip(String label, bool selected, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: selected ? _kChipSelected : _kChipBg,
-          borderRadius: BorderRadius.circular(9999),
-          border: selected ? null : Border.all(color: _kChipBorder),
-          boxShadow:
-              selected
-                  ? const [
-                    BoxShadow(
-                      color: Color(0x0D000000),
-                      blurRadius: 1,
-                      offset: Offset(0, 1),
-                    ),
-                  ]
-                  : null,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.26,
-                color: selected ? Colors.white : _kSub,
-              ),
+      child: LayoutBuilder(
+        builder: (_, constraints) {
+          final maxTextWidth =
+              (constraints.maxWidth - 48).clamp(0.0, 180.0).toDouble();
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: selected ? _kChipSelected : _kChipBg,
+              borderRadius: BorderRadius.circular(9999),
+              border: selected ? null : Border.all(color: _kChipBorder),
+              boxShadow:
+                  selected
+                      ? const [
+                        BoxShadow(
+                          color: Color(0x0D000000),
+                          blurRadius: 1,
+                          offset: Offset(0, 1),
+                        ),
+                      ]
+                      : null,
             ),
-            if (selected) ...[
-              const SizedBox(width: 4),
-              const Icon(Icons.check, size: 12, color: Colors.white),
-            ],
-          ],
-        ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: maxTextWidth),
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.26,
+                      color: selected ? Colors.white : _kSub,
+                    ),
+                    softWrap: true,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (selected) ...[
+                  const SizedBox(width: 4),
+                  const Icon(Icons.check, size: 12, color: Colors.white),
+                ],
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -980,30 +992,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ),
                         const Divider(color: Color(0x4DD5C2C7), height: 1),
-                        Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children:
-                                allKeys.map((key) {
-                                  final isSelected = localSelected.contains(
-                                    key,
-                                  );
-                                  return _buildChip(
-                                    getLabel(key),
-                                    isSelected,
-                                    () {
-                                      setDialogState(() {
-                                        if (isSelected) {
-                                          localSelected.remove(key);
-                                        } else {
-                                          localSelected.add(key);
-                                        }
-                                      });
-                                    },
-                                  );
-                                }).toList(),
+                        ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxHeight: MediaQuery.of(context).size.height * 0.55,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: SingleChildScrollView(
+                              child: Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children:
+                                    allKeys.map((key) {
+                                      final isSelected = localSelected.contains(
+                                        key,
+                                      );
+                                      return _buildChip(
+                                        getLabel(key),
+                                        isSelected,
+                                        () {
+                                          setDialogState(() {
+                                            if (isSelected) {
+                                              localSelected.remove(key);
+                                            } else {
+                                              localSelected.add(key);
+                                            }
+                                          });
+                                        },
+                                      );
+                                    }).toList(),
+                              ),
+                            ),
                           ),
                         ),
                         Container(
