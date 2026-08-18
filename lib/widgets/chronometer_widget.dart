@@ -11,11 +11,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ChronometerWidget extends StatefulWidget {
   final int bookId;
   final VoidCallback? onSessionComplete;
+  final bool useNewUi;
 
   const ChronometerWidget({
     super.key,
     required this.bookId,
     this.onSessionComplete,
+    this.useNewUi = false,
   });
 
   @override
@@ -382,6 +384,13 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
 
   @override
   Widget build(BuildContext context) {
+    if (widget.useNewUi) {
+      return _buildV2(context);
+    }
+    return _buildV1(context);
+  }
+
+  Widget _buildV1(BuildContext context) {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
@@ -548,6 +557,294 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
             ),
             const SizedBox(height: 50),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildV2(BuildContext context) {
+    const kBg = Color(0xFFFDF8F6);
+    const kPrimary = Color(0xFF5D2641);
+    const kText = Color(0xFF1C1B1A);
+    const kTimerBg = Color(0xFFF7F3F0);
+    const kTimerBorder = Color(0x33D5C2C7);
+    const kButtonText = Color(0xFFD68DAC);
+
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final shouldPop = await _handleBackButton();
+        if (shouldPop && context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: kBg,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          border: Border.all(color: const Color(0x4DD5C2C7)),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x1F000000),
+              blurRadius: 32,
+              offset: Offset(0, -8),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle
+            Padding(
+              padding: const EdgeInsets.only(top: 12, bottom: 4),
+              child: Container(
+                width: 48,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: const Color(0x80D5C2C7),
+                  borderRadius: BorderRadius.circular(9999),
+                ),
+              ),
+            ),
+            // Content
+            SafeArea(
+              top: false,
+              left: false,
+              right: false,
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    // Header
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.reading_timer,
+                          style: const TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: kText,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () async {
+                            if (_isRunning) {
+                              final shouldClose = await showDialog<bool>(
+                                context: context,
+                                builder:
+                                    (context) => AlertDialog(
+                                      title: Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.timer_is_running,
+                                      ),
+                                      content: Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.timer_exit_confirm,
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed:
+                                              () =>
+                                                  Navigator.pop(context, false),
+                                          child: Text(
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.cancel,
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed:
+                                              () =>
+                                                  Navigator.pop(context, true),
+                                          style: TextButton.styleFrom(
+                                            foregroundColor:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.error,
+                                          ),
+                                          child: Text(
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.exit_label,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                              );
+                              if (shouldClose == true && context.mounted) {
+                                Navigator.pop(context);
+                              }
+                            } else {
+                              Navigator.pop(context);
+                            }
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.all(8),
+                            child: Icon(Icons.close, size: 14, color: kText),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    // Timer Display
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 49,
+                        horizontal: 25,
+                      ),
+                      decoration: BoxDecoration(
+                        color: kTimerBg,
+                        borderRadius: BorderRadius.circular(32),
+                        border: Border.all(color: kTimerBorder),
+                      ),
+                      child: Center(
+                        child: Text(
+                          _formatDuration(_elapsedSeconds),
+                          style: const TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 56,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF43102B),
+                            letterSpacing: -1.4,
+                            fontFeatures: [FontFeature.tabularFigures()],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    // Actions
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8, bottom: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: _buildV2Actions(
+                          context,
+                          kPrimary,
+                          kButtonText,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildV2Actions(
+    BuildContext context,
+    Color kPrimary,
+    Color kButtonText,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
+
+    if (!_isRunning && _elapsedSeconds == 0) {
+      // Start button
+      return [
+        _buildV2Button(
+          onPressed: _createNewSession,
+          icon: Icons.play_arrow,
+          label: l10n.start,
+          bgColor: kPrimary,
+          textColor: kButtonText,
+        ),
+      ];
+    }
+
+    if (_isRunning) {
+      // Pause + Stop
+      return [
+        _buildV2Button(
+          onPressed: _pauseTimer,
+          icon: Icons.pause,
+          label: l10n.pause,
+          bgColor: kPrimary,
+          textColor: kButtonText,
+        ),
+        const SizedBox(width: 12),
+        _buildV2Button(
+          onPressed: _stopAndSaveSession,
+          icon: Icons.stop,
+          label: l10n.stop_and_save,
+          bgColor: const Color(0xFF8B1A1A),
+          textColor: const Color(0xFFFFCDD2),
+        ),
+      ];
+    }
+
+    // Paused: Resume + Stop
+    return [
+      _buildV2Button(
+        onPressed: _startTimer,
+        icon: Icons.play_arrow,
+        label: l10n.resume,
+        bgColor: kPrimary,
+        textColor: kButtonText,
+      ),
+      const SizedBox(width: 12),
+      _buildV2Button(
+        onPressed: _stopAndSaveSession,
+        icon: Icons.stop,
+        label: l10n.stop_and_save,
+        bgColor: const Color(0xFF8B1A1A),
+        textColor: const Color(0xFFFFCDD2),
+      ),
+    ];
+  }
+
+  Widget _buildV2Button({
+    required VoidCallback onPressed,
+    required IconData icon,
+    required String label,
+    required Color bgColor,
+    required Color textColor,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: bgColor.withValues(alpha: 0.2),
+            blurRadius: 6,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, size: 14, color: textColor),
+                const SizedBox(width: 8),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: textColor,
+                    letterSpacing: 0.26,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

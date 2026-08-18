@@ -7,6 +7,7 @@ import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/screens/books_by_year.dart';
+import 'package:myrandomlibrary/screens/sagas_series_screen.dart';
 import 'package:myrandomlibrary/screens/statistics_section_screen.dart';
 import 'package:myrandomlibrary/helpers/statistics_calculator.dart';
 import 'package:myrandomlibrary/widgets/statistics/total_books_card.dart';
@@ -606,17 +607,30 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       _SectionDef(
         title: l10n.section_sagas_series,
         icon: Icons.collections_bookmark,
-        onTap:
-            () => _navigateToSection(
+        onTap: () {
+          final currentStats = _computeCurrentStats(books);
+          if (widget.useNewUi) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => SagasSeriesScreen(
+                  sagaStats: currentStats.sagaStats,
+                  completedSagas: currentStats.completedSagas,
+                  partialSagas: currentStats.partialSagas,
+                  unstartedSagas: currentStats.unstartedSagas,
+                  books: books,
+                ),
+              ),
+            );
+          } else {
+            _navigateToSection(
               context,
               l10n.section_sagas_series,
               Icons.collections_bookmark,
-              _buildSagasAndSeriesCards(
-                context,
-                _computeCurrentStats(books),
-                books,
-              ),
-            ),
+              _buildSagasAndSeriesCards(context, currentStats, books),
+            );
+          }
+        },
       ),
       _SectionDef(
         title: l10n.section_reading_patterns,

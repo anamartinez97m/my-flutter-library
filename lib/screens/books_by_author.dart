@@ -9,8 +9,9 @@ import 'package:provider/provider.dart';
 
 class BooksByAuthorScreen extends StatefulWidget {
   final List<String> authors;
+  final bool useNewUi;
 
-  const BooksByAuthorScreen({super.key, required this.authors});
+  const BooksByAuthorScreen({super.key, required this.authors, this.useNewUi = false});
 
   @override
   State<BooksByAuthorScreen> createState() => _BooksByAuthorScreenState();
@@ -30,6 +31,12 @@ class _BooksByAuthorScreenState extends State<BooksByAuthorScreen> {
 
     // If single author, show simple screen
     if (widget.authors.length == 1) {
+      if (widget.useNewUi) {
+        return _SingleAuthorScreenV2(
+          author: widget.authors.first,
+          provider: provider,
+        );
+      }
       return _SingleAuthorScreen(
         author: widget.authors.first,
         provider: provider,
@@ -37,6 +44,12 @@ class _BooksByAuthorScreenState extends State<BooksByAuthorScreen> {
     }
 
     // If multiple authors, show tabs
+    if (widget.useNewUi) {
+      return _MultiAuthorScreenV2(
+        authors: widget.authors,
+        provider: provider,
+      );
+    }
     return DefaultTabController(
       length: widget.authors.length,
       child: Scaffold(
@@ -1083,6 +1096,388 @@ class _CatalogViewState extends State<_CatalogView> {
           ),
         ),
       ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// V2 DESIGN
+// ─────────────────────────────────────────────────────────────────────────────
+
+const _kV2Bg = Color(0xFFFDF8F6);
+const _kV2AppBar = Color(0xFF43102B);
+const _kV2Text = Color(0xFF1C1B1A);
+const _kV2Sub = Color(0xFF5F5E5C);
+const _kV2YearBg = Color(0xFFF2EDEB);
+const _kV2YearText = Color(0xFF3D3833);
+const _kV2Border = Color(0x1A27231E);
+
+class _SingleAuthorScreenV2 extends StatelessWidget {
+  final String author;
+  final BookProvider provider;
+
+  const _SingleAuthorScreenV2({required this.author, required this.provider});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: _kV2Bg,
+      body: _AuthorContentV2(author: author, provider: provider),
+    );
+  }
+}
+
+class _MultiAuthorScreenV2 extends StatefulWidget {
+  final List<String> authors;
+  final BookProvider provider;
+
+  const _MultiAuthorScreenV2({required this.authors, required this.provider});
+
+  @override
+  State<_MultiAuthorScreenV2> createState() => _MultiAuthorScreenV2State();
+}
+
+class _MultiAuthorScreenV2State extends State<_MultiAuthorScreenV2>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: widget.authors.length, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: _kV2Bg,
+      appBar: AppBar(
+        backgroundColor: _kV2AppBar,
+        foregroundColor: Colors.white,
+        elevation: 1,
+        title: Text(
+          AppLocalizations.of(context)!.authors,
+          style: const TextStyle(
+            fontFamily: 'Manrope',
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            letterSpacing: -0.5,
+          ),
+        ),
+        centerTitle: true,
+        bottom: TabBar(
+          controller: _tabController,
+          isScrollable: true,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white70,
+          indicatorColor: Colors.white,
+          labelStyle: const TextStyle(
+            fontFamily: 'Manrope',
+            fontWeight: FontWeight.w600,
+          ),
+          tabs: widget.authors.map((a) => Tab(text: a)).toList(),
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: widget.authors.map((author) {
+          return _AuthorContentV2(author: author, provider: widget.provider);
+        }).toList(),
+      ),
+    );
+  }
+}
+
+class _AuthorContentV2 extends StatelessWidget {
+  final String author;
+  final BookProvider provider;
+
+  const _AuthorContentV2({required this.author, required this.provider});
+
+  @override
+  Widget build(BuildContext context) {
+    final filteredBooks = provider.allBooks.where((book) {
+      if (book.author == null) return false;
+      final bookAuthors =
+          book.author!.split(',').map((a) => a.trim().toLowerCase()).toList();
+      return bookAuthors.contains(author.toLowerCase());
+    }).toList();
+
+    final readBooksWithRating = filteredBooks.where((book) {
+      return book.statusValue?.toLowerCase() == 'yes' &&
+          book.myRating != null &&
+          book.myRating! > 0;
+    }).toList();
+
+    double? averageRating;
+    if (readBooksWithRating.isNotEmpty) {
+      final totalRating = readBooksWithRating.fold<double>(
+        0.0,
+        (sum, book) => sum + (book.myRating ?? 0),
+      );
+      averageRating = totalRating / readBooksWithRating.length;
+    }
+
+    filteredBooks.sort((a, b) {
+      final aYear = a.originalPublicationYear;
+      final bYear = b.originalPublicationYear;
+      if (aYear != null && bYear != null) return aYear.compareTo(bYear);
+      if (aYear != null) return -1;
+      if (bYear != null) return 1;
+      return (a.name ?? '').compareTo(b.name ?? '');
+    });
+
+    if (filteredBooks.isEmpty) {
+      return CustomScrollView(
+        slivers: [
+          _buildV2AppBar(context),
+          SliverFillRemaining(
+            child: Center(
+              child: Text(
+                AppLocalizations.of(context)!.no_books_for_author,
+                style: const TextStyle(
+                  fontFamily: 'Manrope',
+                  fontSize: 16,
+                  color: _kV2Sub,
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return CustomScrollView(
+      slivers: [
+        _buildV2AppBar(context),
+        // Stats card
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 24),
+            child: Center(
+              child: Container(
+                width: 350,
+                padding: const EdgeInsets.symmetric(vertical: 25),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: _kV2Border),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x0A000000),
+                      blurRadius: 6,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    // Total books
+                    Column(
+                      children: [
+                        Text(
+                          '${filteredBooks.length}',
+                          style: const TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: _kV2AppBar,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          AppLocalizations.of(context)!.total_books.toUpperCase(),
+                          style: const TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                            color: _kV2Sub,
+                            letterSpacing: 0.55,
+                          ),
+                        ),
+                      ],
+                    ),
+                    // Average rating
+                    if (averageRating != null)
+                      Column(
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                averageRating.toStringAsFixed(1),
+                                style: const TextStyle(
+                                  fontFamily: 'Manrope',
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: _kV2AppBar,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Icon(Icons.star, size: 17, color: _kV2AppBar),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            AppLocalizations.of(context)!.average_rating.toUpperCase(),
+                            style: const TextStyle(
+                              fontFamily: 'Manrope',
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              color: _kV2Sub,
+                              letterSpacing: 0.55,
+                            ),
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        // Book list
+        SliverPadding(
+          padding: const EdgeInsets.only(top: 32),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                final book = filteredBooks[index];
+                final isRead = book.statusValue?.toLowerCase() == 'yes';
+                final sagaText = (book.saga != null && book.saga!.isNotEmpty)
+                    ? (book.nSaga != null && book.nSaga!.isNotEmpty
+                        ? '${book.saga} #${book.nSaga}'
+                        : book.saga!)
+                    : null;
+
+                return InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BookDetailScreen(book: book),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 20,
+                    ),
+                    decoration: const BoxDecoration(
+                      color: _kV2Bg,
+                      border: Border(
+                        bottom: BorderSide(color: _kV2Border),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Opacity(
+                            opacity: isRead ? 0.6 : 1.0,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  book.name ?? AppLocalizations.of(context)!.unknown,
+                                  style: const TextStyle(
+                                    fontFamily: 'Manrope',
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w600,
+                                    color: _kV2Text,
+                                  ),
+                                ),
+                                if (sagaText != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 4),
+                                    child: Opacity(
+                                      opacity: 0.8,
+                                      child: Text(
+                                        sagaText,
+                                        style: const TextStyle(
+                                          fontFamily: 'Manrope',
+                                          fontSize: 14,
+                                          color: _kV2Sub,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (isRead)
+                              const Padding(
+                                padding: EdgeInsets.only(right: 4),
+                                child: Icon(
+                                  Icons.check_circle,
+                                  size: 15,
+                                  color: _kV2AppBar,
+                                ),
+                              ),
+                            if (book.originalPublicationYear != null)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: _kV2YearBg,
+                                  borderRadius: BorderRadius.circular(9999),
+                                ),
+                                child: Text(
+                                  '${book.originalPublicationYear}',
+                                  style: const TextStyle(
+                                    fontFamily: 'Manrope',
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w500,
+                                    color: _kV2YearText,
+                                    letterSpacing: 0.55,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+              childCount: filteredBooks.length,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  SliverAppBar _buildV2AppBar(BuildContext context) {
+    return SliverAppBar(
+      backgroundColor: _kV2AppBar,
+      foregroundColor: Colors.white,
+      elevation: 1,
+      pinned: true,
+      title: Text(
+        author,
+        style: const TextStyle(
+          fontFamily: 'Manrope',
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+          letterSpacing: -0.5,
+        ),
+      ),
+      centerTitle: true,
     );
   }
 }

@@ -1134,6 +1134,12 @@
   "morning_afternoon_night_owl": "¿Mañana, tarde o noctámbulo?",
   "requires_chronometer": "Requiere función de cronómetro",
   "saga_completion_rate": "Tasa de Completado de Sagas",
+  "completion_rate": "Tasa de Completado",
+  "status_breakdown": "Desglose por Estado",
+  "n_series_completed": "{count} Series Completadas",
+  "@n_series_completed": {
+    "placeholders": { "count": {} }
+  },
   "completed": "Completadas",
   "in_progress": "En Progreso",
   "not_started": "Sin Empezar",

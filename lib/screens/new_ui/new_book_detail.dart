@@ -3100,6 +3100,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                     builder:
                                         (context) => BooksByAuthorScreen(
                                           authors: authors,
+                                          useNewUi: true,
                                         ),
                                   ),
                                 );
@@ -4343,6 +4344,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
               builder:
                   (context) => ChronometerWidget(
                     bookId: _currentBook.bookId!,
+                    useNewUi: true,
                     onSessionComplete: () {
                       _loadReadDates();
                     },

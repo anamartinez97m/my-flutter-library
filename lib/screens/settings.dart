@@ -37,7 +37,8 @@ const _kChipSelected = Color(0xE643102B);
 const _kSub = Color(0xFF514348);
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  final bool useNewUi;
+  const SettingsScreen({super.key, this.useNewUi = false});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -47,6 +48,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _isAdmin = false;
   Set<String> _enabledFilters = {};
   Set<String> _enabledCardFields = {};
+
+  // V2: track which sections are expanded (all collapsed by default)
+  final Set<String> _v2ExpandedSections = {};
 
   // Reading Reminders state
   bool _readingReminderEnabled = false;
@@ -578,6 +582,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  String? _getLatestBackupTimestamp() {
+    final manual = _backupMetadata?['timestamp'] as String?;
+    final auto = _lastAutoBackupTimestamp;
+    if (manual == null && auto == null) return null;
+    final manualDt = manual != null ? DateTime.tryParse(manual) : null;
+    final autoDt = auto != null ? DateTime.tryParse(auto) : null;
+    if (manualDt != null && autoDt != null) {
+      return manualDt.isAfter(autoDt) ? manual : auto;
+    }
+    return manualDt != null ? manual : auto;
+  }
+
   Future<void> _downloadBackup() async {
     if (_currentUser == null) return;
     final messenger = ScaffoldMessenger.of(context);
@@ -906,6 +922,150 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       child: Text(AppLocalizations.of(context)!.close),
                     ),
                   ],
+                ),
+          ),
+    );
+  }
+
+  void _showV2SelectionModal(
+    BuildContext context, {
+    required String title,
+    required List<String> allKeys,
+    required Set<String> selected,
+    required String Function(String) getLabel,
+    required void Function(Set<String>) onSave,
+  }) {
+    final localSelected = <String>{...selected};
+    final l10n = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      builder:
+          (context) => StatefulBuilder(
+            builder:
+                (context, setDialogState) => Dialog(
+                  backgroundColor: Colors.white,
+                  elevation: 8,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: const BorderSide(color: Color(0x4DD5C2C7)),
+                  ),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 420),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 16, 12, 16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                title,
+                                style: const TextStyle(
+                                  fontFamily: 'Manrope',
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                  color: _kV2Primary,
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.close,
+                                  color: _kV2Text,
+                                  size: 20,
+                                ),
+                                onPressed: () => Navigator.pop(context),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Divider(color: Color(0x4DD5C2C7), height: 1),
+                        Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children:
+                                allKeys.map((key) {
+                                  final isSelected = localSelected.contains(
+                                    key,
+                                  );
+                                  return _buildChip(
+                                    getLabel(key),
+                                    isSelected,
+                                    () {
+                                      setDialogState(() {
+                                        if (isSelected) {
+                                          localSelected.remove(key);
+                                        } else {
+                                          localSelected.add(key);
+                                        }
+                                      });
+                                    },
+                                  );
+                                }).toList(),
+                          ),
+                        ),
+                        Container(
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFF7F3F0),
+                            border: Border(
+                              top: BorderSide(color: Color(0x4DD5C2C7)),
+                            ),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              TextButton(
+                                onPressed:
+                                    () => setDialogState(
+                                      () => localSelected.clear(),
+                                    ),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: _kV2Primary,
+                                ),
+                                child: Text(l10n.clear_all),
+                              ),
+                              Row(
+                                children: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: _kV2Primary,
+                                    ),
+                                    child: Text(l10n.cancel),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      onSave(localSelected);
+                                      Navigator.pop(context);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: _kV2Primary,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 8,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    child: Text(l10n.ok),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
           ),
     );
@@ -2798,6 +2958,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.useNewUi) return _buildV2Scaffold(context);
     return Scaffold(
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -4795,12 +4956,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           child: InkWell(
                             onTap: () {
+                              final useNewUi =
+                                  context
+                                      .read<FeatureFlagProvider>()
+                                      .newUiEnabled;
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder:
-                                      (context) =>
-                                          const ManageDropdownsScreen(),
+                                      (context) => ManageDropdownsScreen(
+                                        useNewUi: useNewUi,
+                                      ),
                                 ),
                               );
                             },
@@ -5559,6 +5725,1112 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
             const SizedBox(height: 8), // Bottom margin
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // V2 DESIGN
+  // ─────────────────────────────────────────────────────────────────────────
+  static const _kV2Bg = Color(0xFFFDF8F6);
+  static const _kV2Primary = Color(0xFF43102B);
+  static const _kV2Text = Color(0xFF1C1B1A);
+  static const _kV2SubText = Color(0xFF5F5E5C);
+  static const _kV2IconBg = Color(0xFFF2EDEB);
+  static const _kV2Border = Color(0xFF27231E);
+
+  Widget _buildV2Scaffold(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Scaffold(
+      backgroundColor: _kV2Bg,
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            // Main content
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  // Tutorial row (navigable, not collapsible)
+                  _buildV2NavRow(
+                    icon: Icons.school_outlined,
+                    title: l10n.tutorial_title,
+                    subtitle: l10n.tutorial_subtitle,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const TutorialScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Appearance
+                  _buildV2CollapsibleSection(
+                    key: 'appearance',
+                    icon: Icons.palette,
+                    title: l10n.appearance,
+                    subtitle: l10n.appearance_subtitle,
+                    children: [_buildV2AppearanceContent(context)],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Library Display
+                  _buildV2CollapsibleSection(
+                    key: 'library_display',
+                    icon: Icons.view_list,
+                    title: l10n.library_display,
+                    subtitle: l10n.library_display_subtitle,
+                    children: [_buildV2LibraryDisplayContent(context)],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Cloud Sync
+                  _buildV2CollapsibleSection(
+                    key: 'cloud_sync',
+                    icon: Icons.cloud_outlined,
+                    title: l10n.cloud_sync,
+                    subtitle: l10n.cloud_sync_subtitle,
+                    children: [_buildV2CloudSyncContent(context)],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Import/Export
+                  _buildV2CollapsibleSection(
+                    key: 'import_export',
+                    icon: Icons.import_export,
+                    title: l10n.import_export,
+                    subtitle: l10n.import_export_subtitle,
+                    children: [_buildV2ImportExportContent(context)],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Reading Reminders
+                  _buildV2CollapsibleSection(
+                    key: 'reading_reminders',
+                    icon: Icons.notifications_outlined,
+                    title: l10n.reading_reminders,
+                    subtitle: l10n.reading_reminders_subtitle,
+                    children: [_buildV2ReadingRemindersContent(context)],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Library Customization
+                  _buildV2CollapsibleSection(
+                    key: 'library_customization',
+                    icon: Icons.tune,
+                    title: l10n.library_customization,
+                    subtitle: l10n.library_customization_subtitle,
+                    children: [_buildV2LibraryCustomizationContent(context)],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Library Tools
+                  _buildV2CollapsibleSection(
+                    key: 'library_tools',
+                    icon: Icons.build_outlined,
+                    title: l10n.library_tools,
+                    subtitle: l10n.library_tools_subtitle,
+                    children: [_buildV2LibraryToolsContent(context)],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Migrations
+                  _buildV2CollapsibleSection(
+                    key: 'migrations',
+                    icon: Icons.swap_horiz,
+                    title: l10n.migrations_section,
+                    subtitle: l10n.migrations_section_subtitle,
+                    children: [_buildV2MigrationsContent(context)],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Delete All Data (action card)
+                  _buildV2ActionCard(
+                    icon: Icons.delete_forever,
+                    iconColor: Colors.red.shade700,
+                    title: l10n.delete_all_data,
+                    subtitle:
+                        l10n.permanently_delete_all_books_from_the_database,
+                    onTap: () => _deleteAllData(context),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Admin Mode toggle
+                  _buildV2ToggleRow(
+                    icon: Icons.admin_panel_settings_outlined,
+                    title: l10n.admin_mode,
+                    subtitle: l10n.admin_mode_subtitle,
+                    value: _isAdmin,
+                    onChanged: (val) async {
+                      setState(() => _isAdmin = val);
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.setBool('is_admin', val);
+                    },
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Admin-only items
+                  if (_isAdmin) ...[
+                    _buildV2ActionCard(
+                      icon: Icons.upload_file,
+                      iconColor: _kV2Primary,
+                      title: l10n.admin_csv_import,
+                      subtitle: l10n.admin_csv_import_subtitle,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const AdminCsvImportScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+
+                  // New UI Preview (dev only)
+                  Consumer<FeatureFlagProvider>(
+                    builder: (context, flags, _) {
+                      if (!flags.isDevUser) return const SizedBox.shrink();
+                      return _buildV2ToggleRow(
+                        icon: Icons.auto_awesome,
+                        title: 'New UI Preview',
+                        subtitle: 'Enable the new UI design (dev only)',
+                        value: flags.newUiEnabled,
+                        onChanged: (val) => flags.setToggle(val),
+                      );
+                    },
+                  ),
+
+                  // About footer
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16, bottom: 32),
+                    child: Container(
+                      padding: const EdgeInsets.only(top: 25),
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          top: BorderSide(color: Color(0xFFCEC5BE)),
+                        ),
+                      ),
+                      child: GestureDetector(
+                        onTap: () {
+                          showAboutDialog(
+                            context: context,
+                            applicationName: l10n.application_name,
+                            applicationVersion: '1.0.0',
+                            applicationIcon: const FlutterLogo(),
+                            applicationLegalese: l10n.application_legalese,
+                            children: [
+                              const SizedBox(height: 16),
+                              Text(
+                                l10n.about_box_children,
+                                textAlign: TextAlign.justify,
+                              ),
+                            ],
+                          );
+                        },
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.info_outline,
+                              size: 17,
+                              color: _kV2SubText,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              'About ${l10n.application_name}',
+                              style: const TextStyle(
+                                fontFamily: 'Manrope',
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: _kV2SubText,
+                                letterSpacing: 0.26,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ]),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildV2NavRow({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.7),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x0A000000),
+              blurRadius: 12,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: const BoxDecoration(
+                color: _kV2IconBg,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: _kV2Primary, size: 20),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: _kV2Text,
+                      letterSpacing: 0.26,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(fontSize: 14, color: _kV2SubText),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: _kV2SubText, size: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildV2CollapsibleSection({
+    required String key,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required List<Widget> children,
+  }) {
+    final isExpanded = _v2ExpandedSections.contains(key);
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              if (isExpanded) {
+                _v2ExpandedSections.remove(key);
+              } else {
+                _v2ExpandedSections.add(key);
+              }
+            });
+          },
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.7),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x0A000000),
+                  blurRadius: 12,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: const BoxDecoration(
+                    color: _kV2IconBg,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, color: _kV2Primary, size: 20),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: _kV2Text,
+                          letterSpacing: 0.26,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: _kV2SubText,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  isExpanded ? Icons.expand_less : Icons.expand_more,
+                  color: _kV2Primary,
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (isExpanded)
+          Container(
+            margin: const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: _kV2Border.withValues(alpha: 0.1)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: children,
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildV2ActionCard({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.7),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x0A000000),
+              blurRadius: 12,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: iconColor, size: 25),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: TextStyle(
+                fontFamily: 'Manrope',
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color:
+                    iconColor == Colors.red.shade700
+                        ? Colors.red.shade700
+                        : _kV2Text,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 14, color: _kV2SubText),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildV2ToggleRow({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.7),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 12,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: const BoxDecoration(
+              color: _kV2IconBg,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: _kV2Primary, size: 20),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: _kV2Text,
+                    letterSpacing: 0.26,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: const TextStyle(fontSize: 14, color: _kV2SubText),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          Switch(value: value, onChanged: onChanged, activeColor: _kV2Primary),
+        ],
+      ),
+    );
+  }
+
+  // V2 Section content helpers - reuse existing logic with V2 styling
+
+  Widget _buildV2AppearanceContent(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Theme mode
+        Consumer<ThemeProvider>(
+          builder: (context, themeProvider, _) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.theme_mode,
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: _kV2Text,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                RadioListTile<AppThemeMode>(
+                  title: Text(l10n.theme_light),
+                  value: AppThemeMode.light,
+                  groupValue: themeProvider.themeMode,
+                  onChanged: (v) {
+                    if (v != null) themeProvider.setThemeMode(v);
+                  },
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+                RadioListTile<AppThemeMode>(
+                  title: Text(l10n.theme_dark),
+                  value: AppThemeMode.dark,
+                  groupValue: themeProvider.themeMode,
+                  onChanged: (v) {
+                    if (v != null) themeProvider.setThemeMode(v);
+                  },
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+                RadioListTile<AppThemeMode>(
+                  title: Text(l10n.theme_system),
+                  value: AppThemeMode.system,
+                  groupValue: themeProvider.themeMode,
+                  onChanged: (v) {
+                    if (v != null) themeProvider.setThemeMode(v);
+                  },
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  l10n.light_theme_colors,
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: _kV2Text,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildLightThemeGrid(context, themeProvider),
+                const SizedBox(height: 16),
+                Text(
+                  l10n.dark_theme_colors,
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: _kV2Text,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildDarkThemeGrid(context, themeProvider),
+              ],
+            );
+          },
+        ),
+        const SizedBox(height: 20),
+        // Language
+        Text(
+          l10n.language,
+          style: const TextStyle(
+            fontFamily: 'Manrope',
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: _kV2Text,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Consumer<LocaleProvider>(
+          builder: (context, localeProvider, _) {
+            return DropdownButtonFormField<String>(
+              value: localeProvider.locale.languageCode,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+              ),
+              items: [
+                DropdownMenuItem(
+                  value: 'en',
+                  child: Row(
+                    children: [
+                      const Text('🇬🇧'),
+                      const SizedBox(width: 12),
+                      Text(l10n.english),
+                    ],
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'es',
+                  child: Row(
+                    children: [
+                      const Text('🇪🇸'),
+                      const SizedBox(width: 12),
+                      Text(l10n.spanish),
+                    ],
+                  ),
+                ),
+              ],
+              onChanged: (value) {
+                if (value != null) localeProvider.setLocale(Locale(value));
+              },
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildV2LibraryDisplayContent(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildV2SettingsButton(
+          icon: Icons.tune,
+          label: l10n.customize_home_filters,
+          onTap:
+              () => _showV2SelectionModal(
+                context,
+                title: l10n.customize_home_filters,
+                allKeys: _availableFilterKeys,
+                selected: _enabledFilters,
+                getLabel: (key) => _getFilterLabel(context, key),
+                onSave: (selected) {
+                  setState(() => _enabledFilters = selected);
+                  _saveEnabledFilters();
+                },
+              ),
+        ),
+        const SizedBox(height: 12),
+        _buildV2SettingsButton(
+          icon: Icons.view_agenda,
+          label: l10n.customize_card_fields,
+          onTap:
+              () => _showV2SelectionModal(
+                context,
+                title: l10n.customize_card_fields,
+                allKeys: _availableCardFieldKeys,
+                selected: _enabledCardFields,
+                getLabel: (key) => _getCardFieldLabel(context, key),
+                onSave: (selected) {
+                  setState(() => _enabledCardFields = selected);
+                  _saveEnabledCardFields();
+                },
+              ),
+        ),
+        const SizedBox(height: 24),
+        // TBR Limit
+        const TBRLimitSetting(),
+      ],
+    );
+  }
+
+  Widget _buildV2CloudSyncContent(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final lastTs = _getLatestBackupTimestamp();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (_currentUser == null)
+          ElevatedButton.icon(
+            icon: const Icon(Icons.login),
+            label: Text(l10n.sign_in_with_google),
+            onPressed: _signInWithGoogle,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _kV2Primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          )
+        else ...[
+          Row(
+            children: [
+              const Icon(Icons.account_circle, color: _kV2Primary, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  _currentUser!.email ?? '',
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 14,
+                    color: _kV2Text,
+                  ),
+                ),
+              ),
+              TextButton(onPressed: _signOut, child: Text(l10n.sign_out)),
+            ],
+          ),
+          const SizedBox(height: 16),
+          if (_isCloudBusy)
+            const Center(child: CircularProgressIndicator())
+          else ...[
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.cloud_upload, size: 18),
+                    label: Text(
+                      l10n.backup_to_cloud,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                    onPressed: _uploadBackup,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _kV2Primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 14,
+                      ),
+                      textStyle: const TextStyle(
+                        fontFamily: 'Manrope',
+                        fontSize: 14,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.cloud_download, size: 18),
+                    label: Text(
+                      l10n.restore,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                    onPressed: _backupMetadata != null ? _downloadBackup : null,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: _kV2Primary,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 14,
+                      ),
+                      textStyle: const TextStyle(
+                        fontFamily: 'Manrope',
+                        fontSize: 14,
+                      ),
+                      side: const BorderSide(color: _kV2Primary),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            if (lastTs != null) ...[
+              const SizedBox(height: 12),
+              Text(
+                l10n.last_backup(_formatTimestamp(lastTs)),
+                style: const TextStyle(fontSize: 12, color: _kV2SubText),
+              ),
+            ],
+          ],
+        ],
+      ],
+    );
+  }
+
+  Widget _buildV2ImportExportContent(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildV2SettingsButton(
+          icon: Icons.upload_file,
+          label: l10n.export_csv,
+          onTap: () => _exportToCsv(context),
+        ),
+        const SizedBox(height: 12),
+        _buildV2SettingsButton(
+          icon: Icons.download,
+          label: l10n.import_csv,
+          onTap: () => _importFromCsv(context),
+        ),
+        const SizedBox(height: 12),
+        _buildV2SettingsButton(
+          icon: Icons.save,
+          label: l10n.create_backup,
+          onTap: () => _createBackup(context),
+        ),
+        const SizedBox(height: 12),
+        _buildV2SettingsButton(
+          icon: Icons.restore,
+          label: l10n.import_backup,
+          onTap: () => _importBackup(context),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildV2ReadingRemindersContent(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SwitchListTile(
+          title: Text(l10n.enable_reading_reminders),
+          value: _readingReminderEnabled,
+          onChanged: (val) {
+            setState(() => _readingReminderEnabled = val);
+            _saveReadingReminderSettings(showFeedback: true);
+          },
+          activeColor: _kV2Primary,
+          contentPadding: EdgeInsets.zero,
+        ),
+        if (_readingReminderEnabled) ...[
+          const SizedBox(height: 12),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(l10n.reminder_time),
+            trailing: Text(
+              '${_readingReminderHour.toString().padLeft(2, '0')}:${_readingReminderMinute.toString().padLeft(2, '0')}',
+              style: const TextStyle(
+                fontFamily: 'Manrope',
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            onTap: () async {
+              final time = await showTimePicker(
+                context: context,
+                initialTime: TimeOfDay(
+                  hour: _readingReminderHour,
+                  minute: _readingReminderMinute,
+                ),
+              );
+              if (time != null) {
+                setState(() {
+                  _readingReminderHour = time.hour;
+                  _readingReminderMinute = time.minute;
+                });
+                _saveReadingReminderSettings(showFeedback: true);
+              }
+            },
+          ),
+          Text(
+            l10n.reminder_books_option,
+            style: const TextStyle(
+              fontFamily: 'Manrope',
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: _kV2Text,
+            ),
+          ),
+          const SizedBox(height: 8),
+          RadioListTile<bool>(
+            title: Text(l10n.reminder_all_started),
+            subtitle: Text(l10n.reminder_all_started_subtitle),
+            value: true,
+            groupValue: _readingReminderAllBooks,
+            onChanged: (val) {
+              setState(() => _readingReminderAllBooks = val ?? true);
+              _saveReadingReminderSettings(showFeedback: true);
+            },
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+          ),
+          RadioListTile<bool>(
+            title: Text(l10n.reminder_last_started),
+            subtitle: Text(l10n.reminder_last_started_subtitle),
+            value: false,
+            groupValue: _readingReminderAllBooks,
+            onChanged: (val) {
+              setState(() => _readingReminderAllBooks = val ?? false);
+              _saveReadingReminderSettings(showFeedback: true);
+            },
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildV2LibraryCustomizationContent(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final useNewUi = context.read<FeatureFlagProvider>().newUiEnabled;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildV2SettingsButton(
+          icon: Icons.star_border,
+          label: l10n.manage_rating_field_names,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const ManageRatingFieldsScreen(),
+              ),
+            );
+          },
+        ),
+        const SizedBox(height: 12),
+        _buildV2SettingsButton(
+          icon: Icons.group,
+          label: l10n.manage_club_names,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ManageClubNamesScreen()),
+            );
+          },
+        ),
+        const SizedBox(height: 12),
+        _buildV2SettingsButton(
+          icon: Icons.settings_outlined,
+          label: l10n.manage_dropdown_values,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ManageDropdownsScreen(useNewUi: useNewUi),
+              ),
+            );
+          },
+        ),
+        const SizedBox(height: 12),
+        // Price & currency
+        SwitchListTile(
+          title: Text(l10n.show_price_statistics),
+          value: _showPriceStatistics,
+          onChanged: (val) {
+            setState(() => _showPriceStatistics = val);
+            _savePriceSettings();
+          },
+          activeColor: _kV2Primary,
+          contentPadding: EdgeInsets.zero,
+        ),
+        if (_showPriceStatistics) ...[
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Text(l10n.currency_setting, style: const TextStyle(fontSize: 14)),
+              const SizedBox(width: 12),
+              SizedBox(
+                width: 60,
+                child: TextFormField(
+                  initialValue: _currencySymbol,
+                  textAlign: TextAlign.center,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 8,
+                    ),
+                  ),
+                  onChanged: (val) {
+                    _currencySymbol = val;
+                    _savePriceSettings();
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildV2LibraryToolsContent(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildV2SettingsButton(
+          icon: Icons.edit_note,
+          label: l10n.assign_books_to_value,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ReverseAssignScreen()),
+            );
+          },
+        ),
+        const SizedBox(height: 12),
+        _buildV2SettingsButton(
+          icon: Icons.auto_fix_high,
+          label: l10n.fill_empty_fields,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const FillEmptyWizardScreen()),
+            );
+          },
+        ),
+        const SizedBox(height: 12),
+        _buildV2SettingsButton(
+          icon: Icons.lightbulb_outline,
+          label: l10n.smart_suggestions,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SmartSuggestionsScreen()),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildV2MigrationsContent(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildV2SettingsButton(
+          icon: Icons.sync_alt,
+          label: l10n.migrate_bundle_books_title,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const BundleMigrationScreen()),
+            );
+          },
+        ),
+        const SizedBox(height: 12),
+        _buildV2SettingsButton(
+          icon: Icons.history,
+          label: l10n.migrate_reading_sessions,
+          onTap: () => _migrateReadingSessions(context),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildV2SettingsButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        decoration: BoxDecoration(
+          color: _kV2Primary.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: _kV2Primary.withValues(alpha: 0.1)),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: _kV2Primary, size: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontFamily: 'Manrope',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: _kV2Text,
+                ),
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: _kV2SubText, size: 16),
           ],
         ),
       ),

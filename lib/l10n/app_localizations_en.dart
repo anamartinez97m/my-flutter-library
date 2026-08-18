@@ -2519,6 +2519,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get saga_completion_rate => 'Saga Completion Rate';
 
   @override
+  String get completion_rate => 'Completion Rate';
+
+  @override
+  String get status_breakdown => 'Status Breakdown';
+
+  @override
+  String n_series_completed(Object count) {
+    return '$count Series Completed';
+  }
+
+  @override
   String get completed => 'Completed';
 
   @override
