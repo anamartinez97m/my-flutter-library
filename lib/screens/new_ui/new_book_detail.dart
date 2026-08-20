@@ -2809,61 +2809,54 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                             percentage = '$progress%';
                             progressValue = (progress / 100).clamp(0.0, 1.0);
                           }
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildSectionHeader(
-                                title:
-                                    AppLocalizations.of(
-                                      context,
-                                    )!.reading_progress,
-                                trailing: [
-                                  Text(
-                                    percentage,
-                                    style: const TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w600,
-                                      color: _kPrimary,
-                                      fontFamily: 'Manrope',
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              GestureDetector(
-                                onTap: _showProgressModal,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(9999),
-                                      child: LinearProgressIndicator(
-                                        value: progressValue,
-                                        minHeight: 6,
-                                        backgroundColor: const Color(
-                                          0xFFE6E2DF,
-                                        ),
-                                        valueColor:
-                                            const AlwaysStoppedAnimation(
-                                              _kPrimary,
-                                            ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
+                          return GestureDetector(
+                            onTap: _showProgressModal,
+                            behavior: HitTestBehavior.opaque,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildSectionHeader(
+                                  title:
                                       AppLocalizations.of(
                                         context,
-                                      )!.tap_to_update_progress,
+                                      )!.reading_progress,
+                                  trailing: [
+                                    Text(
+                                      percentage,
                                       style: const TextStyle(
-                                        color: _kSub,
-                                        fontSize: 13,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w600,
+                                        color: _kPrimary,
                                         fontFamily: 'Manrope',
                                       ),
                                     ),
                                   ],
                                 ),
-                              ),
-                            ],
+                                const SizedBox(height: 16),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(9999),
+                                  child: LinearProgressIndicator(
+                                    value: progressValue,
+                                    minHeight: 6,
+                                    backgroundColor: const Color(0xFFE6E2DF),
+                                    valueColor: const AlwaysStoppedAnimation(
+                                      _kPrimary,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.tap_to_update_progress,
+                                  style: const TextStyle(
+                                    color: _kSub,
+                                    fontSize: 13,
+                                    fontFamily: 'Manrope',
+                                  ),
+                                ),
+                              ],
+                            ),
                           );
                         },
                       ),

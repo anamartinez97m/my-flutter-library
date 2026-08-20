@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
+import 'package:myrandomlibrary/screens/new_ui/new_saga_completion_detail_screen.dart';
 import 'package:myrandomlibrary/screens/saga_completion_detail.dart';
 
 /// Displays saga completion statistics
@@ -19,6 +20,7 @@ class SagaCompletionCard extends StatelessWidget {
   final int unstartedSagas;
   final Map<String, Map<String, dynamic>> sagaStats;
   final List<Book> books;
+  final bool useNewUi;
 
   const SagaCompletionCard({
     super.key,
@@ -27,6 +29,7 @@ class SagaCompletionCard extends StatelessWidget {
     required this.unstartedSagas,
     required this.sagaStats,
     required this.books,
+    this.useNewUi = false,
   });
 
   @override
@@ -39,10 +42,16 @@ class SagaCompletionCard extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder:
-                (_) => SagaCompletionDetailScreen(
-                  sagaStats: sagaStats,
-                  books: books,
-                ),
+                (_) =>
+                    useNewUi
+                        ? NewSagaCompletionDetailScreen(
+                          sagaStats: sagaStats,
+                          books: books,
+                        )
+                        : SagaCompletionDetailScreen(
+                          sagaStats: sagaStats,
+                          books: books,
+                        ),
           ),
         );
       },

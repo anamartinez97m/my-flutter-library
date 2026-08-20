@@ -7,6 +7,7 @@ import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/screens/books_by_year.dart';
+import 'package:myrandomlibrary/screens/ratings_pages_screen.dart';
 import 'package:myrandomlibrary/screens/sagas_series_screen.dart';
 import 'package:myrandomlibrary/screens/statistics_section_screen.dart';
 import 'package:myrandomlibrary/helpers/statistics_calculator.dart';
@@ -400,6 +401,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         partialSagas: stats.partialSagas,
         unstartedSagas: stats.unstartedSagas,
         books: books,
+        useNewUi: widget.useNewUi,
       ),
     ];
   }
@@ -596,13 +598,38 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       _SectionDef(
         title: l10n.section_ratings_pages,
         icon: Icons.star_half,
-        onTap:
-            () => _navigateToSection(
+        onTap: () {
+          final currentStats = _computeCurrentStats(books);
+          if (widget.useNewUi) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (_) => RatingsPagesScreen(
+                      averageRating: currentStats.averageRating,
+                      ratedBooksCount: currentStats.ratedBooksCount,
+                      ratingDistribution: currentStats.ratingDistribution,
+                      pageDistribution: currentStats.pageDistribution,
+                      oldestYear: currentStats.oldestYear,
+                      oldestBookName: currentStats.oldestBookName,
+                      newestYear: currentStats.newestYear,
+                      newestBookName: currentStats.newestBookName,
+                      shortestPages: currentStats.shortestPages,
+                      shortestBookName: currentStats.shortestBookName,
+                      longestPages: currentStats.longestPages,
+                      longestBookName: currentStats.longestBookName,
+                    ),
+              ),
+            );
+          } else {
+            _navigateToSection(
               context,
               l10n.section_ratings_pages,
               Icons.star_half,
-              _buildRatingsAndPagesCards(context, _computeCurrentStats(books)),
-            ),
+              _buildRatingsAndPagesCards(context, currentStats),
+            );
+          }
+        },
       ),
       _SectionDef(
         title: l10n.section_sagas_series,
@@ -613,13 +640,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => SagasSeriesScreen(
-                  sagaStats: currentStats.sagaStats,
-                  completedSagas: currentStats.completedSagas,
-                  partialSagas: currentStats.partialSagas,
-                  unstartedSagas: currentStats.unstartedSagas,
-                  books: books,
-                ),
+                builder:
+                    (_) => SagasSeriesScreen(
+                      sagaStats: currentStats.sagaStats,
+                      completedSagas: currentStats.completedSagas,
+                      partialSagas: currentStats.partialSagas,
+                      unstartedSagas: currentStats.unstartedSagas,
+                      books: books,
+                    ),
               ),
             );
           } else {
@@ -819,94 +847,96 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Bento cards
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 25,
-                      vertical: 46,
-                    ),
-                    decoration: cardDeco(radius: 16),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.library_books,
-                          size: 30,
-                          color: kPrimary,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          l10n.total_books,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: kSub,
-                            letterSpacing: 0.26,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '${stats.totalCount}',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 25,
+                        vertical: 46,
+                      ),
+                      decoration: cardDeco(radius: 16),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.library_books,
+                            size: 30,
                             color: kPrimary,
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 8),
+                          Text(
+                            l10n.total_books,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: kSub,
+                              letterSpacing: 0.26,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '${stats.totalCount}',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: kPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(25),
-                    decoration: cardDeco(radius: 16),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.new_releases,
-                          size: 32,
-                          color: kPrimary,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          l10n.latest_book_added,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: kSub,
-                            letterSpacing: 0.26,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          latestBookName != null && latestBookName.isNotEmpty
-                              ? latestBookName
-                              : l10n.no_books_in_database,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(25),
+                      decoration: cardDeco(radius: 16),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.new_releases,
+                            size: 32,
                             color: kPrimary,
                           ),
-                          textAlign: TextAlign.center,
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+                          const SizedBox(height: 8),
+                          Text(
+                            l10n.latest_book_added,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: kSub,
+                              letterSpacing: 0.26,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            latestBookName != null && latestBookName.isNotEmpty
+                                ? latestBookName
+                                : l10n.no_books_in_database,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: kPrimary,
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             const SizedBox(height: 24),
 
