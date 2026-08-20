@@ -1107,7 +1107,6 @@ class _CatalogViewState extends State<_CatalogView> {
 
 const _kV2Bg = Color(0xFFFDF8F6);
 const _kV2AppBar = Color(0xFF43102B);
-const _kV2Text = Color(0xFF1C1B1A);
 const _kV2Sub = Color(0xFF5F5E5C);
 const _kV2YearBg = Color(0xFFF2EDEB);
 const _kV2YearText = Color(0xFF3D3833);
@@ -1159,31 +1158,41 @@ class _MultiAuthorScreenV2State extends State<_MultiAuthorScreenV2>
     return Scaffold(
       backgroundColor: _kV2Bg,
       appBar: AppBar(
-        backgroundColor: _kV2AppBar,
-        foregroundColor: Colors.white,
-        elevation: 1,
+        backgroundColor: _kV2Bg,
+        foregroundColor: _kV2AppBar,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
         title: Text(
           AppLocalizations.of(context)!.authors,
           style: const TextStyle(
             fontFamily: 'Manrope',
             fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            color: _kV2AppBar,
             letterSpacing: -0.5,
           ),
         ),
         centerTitle: true,
-        bottom: TabBar(
-          controller: _tabController,
-          isScrollable: true,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white70,
-          indicatorColor: Colors.white,
-          labelStyle: const TextStyle(
-            fontFamily: 'Manrope',
-            fontWeight: FontWeight.w600,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TabBar(
+                controller: _tabController,
+                isScrollable: true,
+                labelColor: _kV2AppBar,
+                unselectedLabelColor: _kV2AppBar.withValues(alpha: 0.6),
+                indicatorColor: _kV2AppBar,
+                labelStyle: const TextStyle(
+                  fontFamily: 'Manrope',
+                  fontWeight: FontWeight.w600,
+                ),
+                tabs: widget.authors.map((a) => Tab(text: a)).toList(),
+              ),
+              Container(height: 1, color: const Color(0xFFD5C2C7)),
+            ],
           ),
-          tabs: widget.authors.map((a) => Tab(text: a)).toList(),
         ),
       ),
       body: TabBarView(
@@ -1200,14 +1209,35 @@ class _MultiAuthorScreenV2State extends State<_MultiAuthorScreenV2>
   }
 }
 
-class _AuthorContentV2 extends StatelessWidget {
+class _AuthorContentV2 extends StatefulWidget {
   final String author;
   final BookProvider provider;
 
   const _AuthorContentV2({required this.author, required this.provider});
 
   @override
+  State<_AuthorContentV2> createState() => _AuthorContentV2State();
+}
+
+class _AuthorContentV2State extends State<_AuthorContentV2> {
+  bool _showFullCatalog = false;
+
+  String get author => widget.author;
+  BookProvider get provider => widget.provider;
+
+  @override
   Widget build(BuildContext context) {
+    if (_showFullCatalog) {
+      return CustomScrollView(
+        slivers: [
+          _buildV2AppBar(context),
+          SliverFillRemaining(
+            child: _CatalogView(author: author, provider: provider),
+          ),
+        ],
+      );
+    }
+
     final filteredBooks =
         provider.allBooks.where((book) {
           if (book.author == null) return false;
@@ -1408,7 +1438,7 @@ class _AuthorContentV2 extends StatelessWidget {
                                   fontFamily: 'Manrope',
                                   fontSize: 20,
                                   fontWeight: FontWeight.w600,
-                                  color: _kV2Text,
+                                  color: _kV2AppBar,
                                 ),
                               ),
                               if (sagaText != null)
@@ -1477,22 +1507,42 @@ class _AuthorContentV2 extends StatelessWidget {
   }
 
   SliverAppBar _buildV2AppBar(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SliverAppBar(
-      backgroundColor: _kV2AppBar,
-      foregroundColor: Colors.white,
-      elevation: 1,
+      backgroundColor: _kV2Bg,
+      foregroundColor: _kV2AppBar,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
       pinned: true,
       title: Text(
         author,
         style: const TextStyle(
           fontFamily: 'Manrope',
           fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
+          fontWeight: FontWeight.w600,
+          color: _kV2AppBar,
           letterSpacing: -0.5,
         ),
       ),
       centerTitle: true,
+      actions: [
+        IconButton(
+          icon: Icon(
+            _showFullCatalog ? Icons.library_books : Icons.travel_explore,
+            color: _kV2AppBar,
+          ),
+          tooltip: _showFullCatalog ? l10n.my_library_view : l10n.full_catalog,
+          onPressed: () {
+            setState(() {
+              _showFullCatalog = !_showFullCatalog;
+            });
+          },
+        ),
+      ],
+      bottom: const PreferredSize(
+        preferredSize: Size.fromHeight(1),
+        child: Divider(height: 1, color: Color(0xFFD5C2C7)),
+      ),
     );
   }
 }
