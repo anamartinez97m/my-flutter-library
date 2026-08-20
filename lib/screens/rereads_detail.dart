@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
-import 'package:myrandomlibrary/screens/book_detail.dart';
+import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
 import 'package:provider/provider.dart';
 
 class RereadsDetailScreen extends StatelessWidget {
@@ -114,7 +114,7 @@ class RereadsDetailScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => BookDetailScreen(book: book),
+                        builder: (context) => NewBookDetailScreen(book: book),
                       ),
                     );
                   },

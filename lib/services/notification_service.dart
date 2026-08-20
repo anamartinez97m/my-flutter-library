@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
-import 'package:myrandomlibrary/screens/book_detail.dart';
+import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
 
 /// Top-level function required for background notification action handling.
 /// Must be a top-level or static function.
@@ -238,7 +238,9 @@ class NotificationService {
       final navigator = navigatorKey.currentState;
       if (navigator != null) {
         navigator.push(
-          MaterialPageRoute(builder: (context) => BookDetailScreen(book: book)),
+          MaterialPageRoute(
+            builder: (context) => NewBookDetailScreen(book: book),
+          ),
         );
       } else {
         // Navigator not ready yet — store for processPendingNavigation()

@@ -7,7 +7,7 @@ import 'package:myrandomlibrary/screens/saga_completion_detail.dart';
 
 /// New Sagas & Series statistics screen matching the redesigned UI.
 /// Shows a circular completion rate chart and a status breakdown with bars.
-/// Tapping the search icon navigates to the existing detail screen.
+/// Tapping a status breakdown row navigates to the detail screen.
 class SagasSeriesScreen extends StatelessWidget {
   final Map<String, Map<String, dynamic>> sagaStats;
   final int completedSagas;
@@ -60,28 +60,9 @@ class SagasSeriesScreen extends StatelessWidget {
           ),
         ),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search, color: kPrimary),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => SagaCompletionDetailScreen(
-                    sagaStats: sagaStats,
-                    books: books,
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(
-            height: 1,
-            color: const Color(0xFFD5C2C7),
-          ),
+          child: Container(height: 1, color: const Color(0xFFD5C2C7)),
         ),
       ),
       body: SingleChildScrollView(
@@ -145,10 +126,7 @@ class SagasSeriesScreen extends StatelessWidget {
                   Center(
                     child: Text(
                       l10n.n_series_completed(completedSagas.toString()),
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: kSub,
-                      ),
+                      style: const TextStyle(fontSize: 14, color: kSub),
                     ),
                   ),
                 ],
@@ -193,6 +171,7 @@ class SagasSeriesScreen extends StatelessWidget {
                     total: total,
                     color: kPrimary,
                     labelColor: kPrimary,
+                    onTap: () => _openDetail(context, 0),
                   ),
                   const SizedBox(height: 16),
                   _buildStatusBar(
@@ -201,6 +180,7 @@ class SagasSeriesScreen extends StatelessWidget {
                     total: total,
                     color: kSecondary,
                     labelColor: kSecondary,
+                    onTap: () => _openDetail(context, 1),
                   ),
                   const SizedBox(height: 16),
                   _buildStatusBar(
@@ -209,12 +189,48 @@ class SagasSeriesScreen extends StatelessWidget {
                     total: total,
                     color: kMuted,
                     labelColor: kSub,
+                    onTap: () => _openDetail(context, 2),
                   ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            GestureDetector(
+              onTap: () => _openDetail(context, 0),
+              behavior: HitTestBehavior.opaque,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'View more',
+                    style: const TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: kPrimary,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  const Icon(Icons.chevron_right, color: kPrimary, size: 18),
                 ],
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _openDetail(BuildContext context, int initialTabIndex) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (_) => SagaCompletionDetailScreen(
+              sagaStats: sagaStats,
+              books: books,
+              initialTabIndex: initialTabIndex,
+            ),
       ),
     );
   }
@@ -225,72 +241,77 @@ class SagasSeriesScreen extends StatelessWidget {
     required int total,
     required Color color,
     required Color labelColor,
+    VoidCallback? onTap,
   }) {
     final fraction = total > 0 ? count / total : 0.0;
     const kText = Color(0xFF1C1B1A);
     const kBarBg = Color(0xFFE6E2DF);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 8,
-                  height: 8,
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: labelColor,
+                      letterSpacing: 0.26,
+                    ),
+                  ),
+                ],
+              ),
+              const Spacer(),
+              Text(
+                '$count',
+                style: const TextStyle(
+                  fontFamily: 'Manrope',
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: kText,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(9999),
+            child: Container(
+              height: 8,
+              width: double.infinity,
+              color: kBarBg,
+              child: FractionallySizedBox(
+                alignment: Alignment.centerLeft,
+                widthFactor: fraction,
+                child: Container(
                   decoration: BoxDecoration(
                     color: color,
-                    shape: BoxShape.circle,
+                    borderRadius: BorderRadius.circular(9999),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontFamily: 'Manrope',
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: labelColor,
-                    letterSpacing: 0.26,
-                  ),
-                ),
-              ],
-            ),
-            const Spacer(),
-            Text(
-              '$count',
-              style: const TextStyle(
-                fontFamily: 'Manrope',
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: kText,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(9999),
-          child: Container(
-            height: 8,
-            width: double.infinity,
-            color: kBarBg,
-            child: FractionallySizedBox(
-              alignment: Alignment.centerLeft,
-              widthFactor: fraction,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(9999),
                 ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -314,20 +335,22 @@ class _CompletionRingPainter extends CustomPainter {
     const strokeWidth = 14.0;
 
     // Track
-    final trackPaint = Paint()
-      ..color = trackColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth
-      ..strokeCap = StrokeCap.round;
+    final trackPaint =
+        Paint()
+          ..color = trackColor
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = strokeWidth
+          ..strokeCap = StrokeCap.round;
 
     canvas.drawCircle(center, radius, trackPaint);
 
     // Progress arc
-    final progressPaint = Paint()
-      ..color = primaryColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth
-      ..strokeCap = StrokeCap.round;
+    final progressPaint =
+        Paint()
+          ..color = primaryColor
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = strokeWidth
+          ..strokeCap = StrokeCap.round;
 
     final sweepAngle = 2 * pi * percentage;
     canvas.drawArc(

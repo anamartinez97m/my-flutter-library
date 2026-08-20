@@ -4,7 +4,7 @@ import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/repositories/reading_club_repository.dart';
-import 'package:myrandomlibrary/screens/book_detail.dart';
+import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
 import 'package:provider/provider.dart';
 
 class MyBooksScreen extends StatefulWidget {
@@ -238,7 +238,7 @@ class _MyBooksScreenState extends State<MyBooksScreen> {
                                   MaterialPageRoute(
                                     builder:
                                         (context) =>
-                                            BookDetailScreen(book: book),
+                                            NewBookDetailScreen(book: book),
                                   ),
                                 );
                               },
@@ -712,7 +712,8 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                                 context,
                                 MaterialPageRoute(
                                   builder:
-                                      (context) => BookDetailScreen(book: book),
+                                      (context) =>
+                                          NewBookDetailScreen(book: book),
                                 ),
                               );
                               // Reload TBR list when returning from book detail
@@ -827,7 +828,7 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                                   MaterialPageRoute(
                                     builder:
                                         (context) =>
-                                            BookDetailScreen(book: book),
+                                            NewBookDetailScreen(book: book),
                                   ),
                                 );
                                 // Reload TBR list when returning from book detail

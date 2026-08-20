@@ -56,6 +56,14 @@ class BookProvider extends ChangeNotifier {
     return result;
   }
 
+  /// Normalizes text for searching by lowercasing, removing accents and
+  /// stripping single/double quotes so that e.g. "i'll" matches "ill".
+  String _normalizeForSearch(String text) {
+    return _removeAccents(
+      text.toLowerCase(),
+    ).replaceAll(RegExp(r'''['"]+'''), '');
+  }
+
   Future<void> loadBooks() async {
     // Get fresh database instance in case it was closed/reopened
     final db = await DatabaseHelper.instance.database;
@@ -338,20 +346,18 @@ class BookProvider extends ChangeNotifier {
   bool _bookMatchesQuery(Book book, String normalizedQuery, int searchIndex) {
     switch (searchIndex) {
       case 0: // Search by Title
-        final normalizedTitle = _removeAccents((book.name ?? '').toLowerCase());
+        final normalizedTitle = _normalizeForSearch(book.name ?? '');
         return normalizedTitle.contains(normalizedQuery);
       case 1: // Search by ISBN
-        final normalizedIsbn = _removeAccents((book.isbn ?? '').toLowerCase());
+        final normalizedIsbn = _normalizeForSearch(book.isbn ?? '');
         return normalizedIsbn.contains(normalizedQuery);
       case 2: // Search by Author
-        final normalizedAuthor = _removeAccents(
-          (book.author ?? '').toLowerCase(),
-        );
+        final normalizedAuthor = _normalizeForSearch(book.author ?? '');
         return normalizedAuthor.contains(normalizedQuery);
       case 3: // Search by Saga or Saga Universe
-        final normalizedSaga = _removeAccents((book.saga ?? '').toLowerCase());
-        final normalizedSagaUniverse = _removeAccents(
-          (book.sagaUniverse ?? '').toLowerCase(),
+        final normalizedSaga = _normalizeForSearch(book.saga ?? '');
+        final normalizedSagaUniverse = _normalizeForSearch(
+          book.sagaUniverse ?? '',
         );
         return normalizedSaga.contains(normalizedQuery) ||
             normalizedSagaUniverse.contains(normalizedQuery);
@@ -364,7 +370,7 @@ class BookProvider extends ChangeNotifier {
     if (_currentSearchQuery.isEmpty) {
       _displayBooks = List.from(_filteredBooks);
     } else {
-      final normalizedQuery = _removeAccents(_currentSearchQuery.toLowerCase());
+      final normalizedQuery = _normalizeForSearch(_currentSearchQuery);
 
       // Search through the filtered (non-bundle-child) books
       final matchedBooks =

@@ -10,11 +10,13 @@ enum _SortMode { name, ascending, descending }
 class SagaCompletionDetailScreen extends StatefulWidget {
   final Map<String, Map<String, dynamic>> sagaStats;
   final List<Book> books;
+  final int initialTabIndex;
 
   const SagaCompletionDetailScreen({
     super.key,
     required this.sagaStats,
     required this.books,
+    this.initialTabIndex = 0,
   });
 
   @override
@@ -24,8 +26,14 @@ class SagaCompletionDetailScreen extends StatefulWidget {
 
 class _SagaCompletionDetailScreenState
     extends State<SagaCompletionDetailScreen> {
-  int _selectedTabIndex = 0;
+  late int _selectedTabIndex;
   _SortMode _sortMode = _SortMode.name;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedTabIndex = widget.initialTabIndex;
+  }
 
   List<MapEntry<String, Map<String, dynamic>>> get _completedSagas {
     return widget.sagaStats.entries.where((e) {

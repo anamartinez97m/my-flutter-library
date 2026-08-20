@@ -5,7 +5,7 @@ import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
-import 'package:myrandomlibrary/screens/book_detail.dart';
+import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_genre_selection_screen.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_option_selection_screen.dart';
 import 'package:myrandomlibrary/widgets/chip_autocomplete_field.dart';
@@ -1151,7 +1151,7 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
           () => Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => BookDetailScreen(book: _randomBook!),
+              builder: (_) => NewBookDetailScreen(book: _randomBook!),
             ),
           ),
       child: Container(

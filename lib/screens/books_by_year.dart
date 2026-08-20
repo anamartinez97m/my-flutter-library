@@ -4,7 +4,7 @@ import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
-import 'package:myrandomlibrary/screens/book_detail.dart';
+import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
 
 class BooksByYearScreen extends StatefulWidget {
   final int initialYear;
@@ -358,7 +358,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => BookDetailScreen(book: book),
+              builder: (context) => NewBookDetailScreen(book: book),
             ),
           );
         },
