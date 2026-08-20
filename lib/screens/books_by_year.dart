@@ -9,6 +9,15 @@ import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
 class BooksByYearScreen extends StatefulWidget {
   final int initialYear;
 
+  static const kBg = Color(0xFFFDF8F6);
+  static const kPrimary = Color(0xFF43102B);
+  static const kSecondary = Color(0xFF894B67);
+  static const kTertiary = Color(0xFFBC92A6);
+  static const kText = Color(0xFF1C1B1A);
+  static const kSub = Color(0xFF514348);
+  static const kBorder = Color(0x4DD5C2C7);
+  static const kDivider = Color(0xFFE6E2DF);
+
   const BooksByYearScreen({super.key, required this.initialYear});
 
   @override
@@ -16,6 +25,14 @@ class BooksByYearScreen extends StatefulWidget {
 }
 
 class _BooksByYearScreenState extends State<BooksByYearScreen> {
+  static const _kBg = BooksByYearScreen.kBg;
+  static const _kPrimary = BooksByYearScreen.kPrimary;
+  static const _kSecondary = BooksByYearScreen.kSecondary;
+  static const _kText = BooksByYearScreen.kText;
+  static const _kSub = BooksByYearScreen.kSub;
+  static const _kBorder = BooksByYearScreen.kBorder;
+  static const _kDivider = BooksByYearScreen.kDivider;
+
   late int _selectedYear;
   List<int> _availableYears = [];
   final Map<int, int> _yearBookCounts = {};
@@ -177,13 +194,21 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
           if (currentIndex == index) {
             // Return month header
             return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              margin: const EdgeInsets.only(top: 8),
+              decoration: BoxDecoration(
+                color: _kPrimary.withValues(alpha: 0.06),
+                border: Border(bottom: BorderSide(color: _kDivider, width: 1)),
+              ),
               child: Text(
                 _getMonthName(date.month),
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontFamily: 'Manrope',
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: _kPrimary,
+                ),
               ),
             );
           }
@@ -204,13 +229,41 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.books_by_year)),
+      backgroundColor: _kBg,
+      appBar: AppBar(
+        backgroundColor: _kBg,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: _kPrimary),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          l10n.books_by_year,
+          style: const TextStyle(
+            fontFamily: 'Manrope',
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: _kPrimary,
+            letterSpacing: -0.5,
+          ),
+        ),
+        centerTitle: true,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(height: 1, color: const Color(0xFFD5C2C7)),
+        ),
+      ),
       body: FutureBuilder<List<int>>(
         future: _loadYears(),
         builder: (context, yearsSnapshot) {
           if (!yearsSnapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(color: _kPrimary),
+            );
           }
 
           _availableYears = yearsSnapshot.data!;
@@ -225,7 +278,9 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
             future: _loadBooksForYear(_selectedYear),
             builder: (context, booksSnapshot) {
               if (!booksSnapshot.hasData) {
-                return const Center(child: CircularProgressIndicator());
+                return const Center(
+                  child: CircularProgressIndicator(color: _kPrimary),
+                );
               }
 
               final booksDataForYear = booksSnapshot.data!;
@@ -234,40 +289,63 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
                 children: [
                   // Year selector
                   Container(
-                    padding: const EdgeInsets.all(16),
-                    color:
-                        Theme.of(context).colorScheme.surfaceContainerHighest,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      border: Border(
+                        bottom: BorderSide(color: _kDivider, width: 1),
+                      ),
+                    ),
                     child: Row(
                       children: [
                         Text(
-                          '${AppLocalizations.of(context)!.year}: ',
+                          '${l10n.year}: ',
                           style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Manrope',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: _kPrimary,
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: 12),
                         Expanded(
-                          child: DropdownButton<int>(
-                            value: _selectedYear,
-                            isExpanded: true,
-                            items:
-                                _availableYears.map((year) {
-                                  final count = _yearBookCounts[year] ?? 0;
-                                  return DropdownMenuItem<int>(
-                                    value: year,
-                                    child: Text(
-                                      '$year ($count ${AppLocalizations.of(context)!.books})',
-                                    ),
-                                  );
-                                }).toList(),
-                            onChanged: (year) {
-                              if (year != null) {
-                                setState(() {
-                                  _selectedYear = year;
-                                });
-                              }
-                            },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: _kBorder),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: DropdownButton<int>(
+                              value: _selectedYear,
+                              isExpanded: true,
+                              underline: const SizedBox.shrink(),
+                              dropdownColor: Colors.white,
+                              style: const TextStyle(
+                                fontFamily: 'Manrope',
+                                fontSize: 14,
+                                color: _kText,
+                              ),
+                              items:
+                                  _availableYears.map((year) {
+                                    final count = _yearBookCounts[year] ?? 0;
+                                    return DropdownMenuItem<int>(
+                                      value: year,
+                                      child: Text(
+                                        '$year ($count ${l10n.books})',
+                                      ),
+                                    );
+                                  }).toList(),
+                              onChanged: (year) {
+                                if (year != null) {
+                                  setState(() {
+                                    _selectedYear = year;
+                                  });
+                                }
+                              },
+                            ),
                           ),
                         ),
                       ],
@@ -279,7 +357,11 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
                         booksDataForYear.isEmpty
                             ? Center(
                               child: Text(
-                                AppLocalizations.of(context)!.no_books_in_year,
+                                l10n.no_books_in_year,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: _kSub,
+                                ),
                               ),
                             )
                             : ListView.builder(
@@ -304,6 +386,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
 
   Widget _buildBookCard(BuildContext context, Map<String, dynamic> bookData) {
     final book = Book.fromMap(bookData);
+    final l10n = AppLocalizations.of(context)!;
     // Parse date for display
     String dateStr = '';
     if (book.dateReadFinal != null) {
@@ -321,39 +404,28 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
       subtitleParts.add(book.author!);
     }
     if (dateStr.isNotEmpty) {
-      subtitleParts.add('${AppLocalizations.of(context)!.finished}: $dateStr');
+      subtitleParts.add('${l10n.finished}: $dateStr');
     }
     if (book.pages != null && book.pages! > 0) {
-      subtitleParts.add('${book.pages} ${AppLocalizations.of(context)!.pages}');
+      subtitleParts.add('${book.pages} ${l10n.pages}');
     }
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: ListTile(
-        title: Text(
-          _getDisplayName(bookData),
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle:
-            subtitleParts.isNotEmpty ? Text(subtitleParts.join(' • ')) : null,
-        trailing:
-            book.myRating != null && book.myRating! > 0
-                ? Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.favorite,
-                      color: Theme.of(context).colorScheme.error,
-                      size: 16,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      book.myRating!.toStringAsFixed(1),
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                )
-                : null,
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: _kBorder),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x08000000),
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10),
         onTap: () {
           Navigator.push(
             context,
@@ -362,6 +434,55 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
             ),
           );
         },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _getDisplayName(bookData),
+                      style: const TextStyle(
+                        fontFamily: 'Manrope',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: _kText,
+                      ),
+                    ),
+                    if (subtitleParts.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitleParts.join(' \u2022 '),
+                        style: const TextStyle(fontSize: 12, color: _kSub),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              if (book.myRating != null && book.myRating! > 0) ...[
+                const SizedBox(width: 8),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.favorite, color: _kSecondary, size: 14),
+                    const SizedBox(width: 4),
+                    Text(
+                      book.myRating!.toStringAsFixed(1),
+                      style: const TextStyle(
+                        fontFamily: 'Manrope',
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: _kSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }

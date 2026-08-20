@@ -9,6 +9,15 @@ class BooksByDecadeScreen extends StatefulWidget {
   final String initialDecade;
   final bool showReadOnly;
 
+  static const kBg = Color(0xFFFDF8F6);
+  static const kPrimary = Color(0xFF43102B);
+  static const kSecondary = Color(0xFF894B67);
+  static const kTertiary = Color(0xFFBC92A6);
+  static const kText = Color(0xFF1C1B1A);
+  static const kSub = Color(0xFF514348);
+  static const kBorder = Color(0x4DD5C2C7);
+  static const kDivider = Color(0xFFE6E2DF);
+
   const BooksByDecadeScreen({
     super.key,
     required this.initialDecade,
@@ -20,6 +29,14 @@ class BooksByDecadeScreen extends StatefulWidget {
 }
 
 class _BooksByDecadeScreenState extends State<BooksByDecadeScreen> {
+  static const _kBg = BooksByDecadeScreen.kBg;
+  static const _kPrimary = BooksByDecadeScreen.kPrimary;
+  static const _kSecondary = BooksByDecadeScreen.kSecondary;
+  static const _kText = BooksByDecadeScreen.kText;
+  static const _kSub = BooksByDecadeScreen.kSub;
+  static const _kBorder = BooksByDecadeScreen.kBorder;
+  static const _kDivider = BooksByDecadeScreen.kDivider;
+
   late String _selectedDecade;
   List<String> _availableDecades = [];
 
@@ -31,9 +48,33 @@ class _BooksByDecadeScreenState extends State<BooksByDecadeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
+      backgroundColor: _kBg,
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.books_by_decade),
+        backgroundColor: _kBg,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: _kPrimary),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          l10n.books_by_decade,
+          style: const TextStyle(
+            fontFamily: 'Manrope',
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: _kPrimary,
+            letterSpacing: -0.5,
+          ),
+        ),
+        centerTitle: true,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(height: 1, color: const Color(0xFFD5C2C7)),
+        ),
       ),
       body: Consumer<BookProvider>(
         builder: (context, provider, child) {
@@ -117,72 +158,96 @@ class _BooksByDecadeScreenState extends State<BooksByDecadeScreen> {
             children: [
               // Decade selector
               Container(
-                padding: const EdgeInsets.all(16),
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  border: Border(
+                    bottom: BorderSide(color: _kDivider, width: 1),
+                  ),
+                ),
                 child: Row(
                   children: [
                     Text(
-                      '${AppLocalizations.of(context)!.decade}: ',
+                      '${l10n.decade}: ',
                       style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Manrope',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: _kPrimary,
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 12),
                     Expanded(
-                      child: DropdownButton<String>(
-                        value: _selectedDecade,
-                        isExpanded: true,
-                        items:
-                            _availableDecades.map((decade) {
-                              // Calculate total book count (including bundles)
-                              int totalCount = 0;
-                              for (var book in books) {
-                                // Filter based on showReadOnly parameter
-                                final isRead =
-                                    book.readCount != null &&
-                                    book.readCount! > 0;
-                                final shouldInclude =
-                                    widget.showReadOnly ? isRead : true;
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: _kBorder),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: DropdownButton<String>(
+                          value: _selectedDecade,
+                          isExpanded: true,
+                          underline: const SizedBox.shrink(),
+                          dropdownColor: Colors.white,
+                          style: const TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 14,
+                            color: _kText,
+                          ),
+                          items:
+                              _availableDecades.map((decade) {
+                                // Calculate total book count (including bundles)
+                                int totalCount = 0;
+                                for (var book in books) {
+                                  // Filter based on showReadOnly parameter
+                                  final isRead =
+                                      book.readCount != null &&
+                                      book.readCount! > 0;
+                                  final shouldInclude =
+                                      widget.showReadOnly ? isRead : true;
 
-                                if (!shouldInclude ||
-                                    book.originalPublicationYear == null) {
-                                  continue;
+                                  if (!shouldInclude ||
+                                      book.originalPublicationYear == null) {
+                                    continue;
+                                  }
+
+                                  int pubYear = book.originalPublicationYear!;
+                                  if (pubYear > 9999) {
+                                    pubYear = pubYear ~/ 10000;
+                                  }
+
+                                  final decadeNum = (pubYear ~/ 10) * 10;
+                                  final decadeLabel = '${decadeNum}s';
+
+                                  if (decadeLabel == decade) {
+                                    final multiplier =
+                                        (book.isBundle == true &&
+                                                book.bundleCount != null &&
+                                                book.bundleCount! > 0)
+                                            ? book.bundleCount!
+                                            : 1;
+                                    totalCount += multiplier;
+                                  }
                                 }
 
-                                int pubYear = book.originalPublicationYear!;
-                                if (pubYear > 9999) {
-                                  pubYear = pubYear ~/ 10000;
-                                }
-
-                                final decadeNum = (pubYear ~/ 10) * 10;
-                                final decadeLabel = '${decadeNum}s';
-
-                                if (decadeLabel == decade) {
-                                  final multiplier =
-                                      (book.isBundle == true &&
-                                              book.bundleCount != null &&
-                                              book.bundleCount! > 0)
-                                          ? book.bundleCount!
-                                          : 1;
-                                  totalCount += multiplier;
-                                }
-                              }
-
-                              return DropdownMenuItem<String>(
-                                value: decade,
-                                child: Text(
-                                  '$decade ($totalCount ${AppLocalizations.of(context)!.books})',
-                                ),
-                              );
-                            }).toList(),
-                        onChanged: (decade) {
-                          if (decade != null) {
-                            setState(() {
-                              _selectedDecade = decade;
-                            });
-                          }
-                        },
+                                return DropdownMenuItem<String>(
+                                  value: decade,
+                                  child: Text(
+                                    '$decade ($totalCount ${l10n.books})',
+                                  ),
+                                );
+                              }).toList(),
+                          onChanged: (decade) {
+                            if (decade != null) {
+                              setState(() {
+                                _selectedDecade = decade;
+                              });
+                            }
+                          },
+                        ),
                       ),
                     ),
                   ],
@@ -194,10 +259,12 @@ class _BooksByDecadeScreenState extends State<BooksByDecadeScreen> {
                     booksForDecade.isEmpty
                         ? Center(
                           child: Text(
-                            AppLocalizations.of(context)!.no_books_from_decade,
+                            l10n.no_books_from_decade,
+                            style: const TextStyle(fontSize: 14, color: _kSub),
                           ),
                         )
                         : ListView.builder(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
                           itemCount: booksForDecade.length,
                           itemBuilder: (context, index) {
                             final book = booksForDecade[index];
@@ -213,6 +280,7 @@ class _BooksByDecadeScreenState extends State<BooksByDecadeScreen> {
   }
 
   Widget _buildBookCard(BuildContext context, Book book) {
+    final l10n = AppLocalizations.of(context)!;
     // Get original publication year
     String pubYearStr = '';
     if (book.originalPublicationYear != null) {
@@ -232,25 +300,22 @@ class _BooksByDecadeScreenState extends State<BooksByDecadeScreen> {
       subtitleParts.add(book.author!);
     }
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: ListTile(
-        title: Text(
-          book.name ?? AppLocalizations.of(context)!.unknown,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle:
-            subtitleParts.isNotEmpty ? Text(subtitleParts.join(' • ')) : null,
-        trailing:
-            pubYearStr.isNotEmpty
-                ? Text(
-                  pubYearStr,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                  ),
-                )
-                : null,
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: _kBorder),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x08000000),
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10),
         onTap: () {
           Navigator.push(
             context,
@@ -259,6 +324,48 @@ class _BooksByDecadeScreenState extends State<BooksByDecadeScreen> {
             ),
           );
         },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      book.name ?? l10n.unknown,
+                      style: const TextStyle(
+                        fontFamily: 'Manrope',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: _kText,
+                      ),
+                    ),
+                    if (subtitleParts.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitleParts.join(' \u2022 '),
+                        style: const TextStyle(fontSize: 12, color: _kSub),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              if (pubYearStr.isNotEmpty) ...[
+                const SizedBox(width: 8),
+                Text(
+                  pubYearStr,
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: _kSecondary,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }
