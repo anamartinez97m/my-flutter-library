@@ -7,8 +7,10 @@ import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/screens/books_by_year.dart';
+import 'package:myrandomlibrary/screens/library_breakdown_screen.dart';
 import 'package:myrandomlibrary/screens/price_statistics_screen.dart';
 import 'package:myrandomlibrary/screens/ratings_pages_screen.dart';
+import 'package:myrandomlibrary/screens/reading_activity_screen.dart';
 import 'package:myrandomlibrary/screens/reading_patterns_screen.dart';
 import 'package:myrandomlibrary/screens/sagas_series_screen.dart';
 import 'package:myrandomlibrary/screens/statistics_section_screen.dart';
@@ -556,32 +558,71 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       _SectionDef(
         title: l10n.section_reading_activity,
         icon: Icons.auto_graph,
-        onTap:
-            () => _navigateToSection(
+        onTap: () {
+          final currentStats = _computeCurrentStats(books);
+          if (widget.useNewUi) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (_) => ReadingActivityScreen(
+                      booksReadPerYear: _booksReadPerYear,
+                      pagesReadPerYear: _pagesReadPerYear,
+                      monthlyHeatmap: currentStats.monthlyHeatmap,
+                      dailyHeatmap: currentStats.dailyHeatmap,
+                      readingVelocity: currentStats.readingVelocity,
+                      averageDaysToFinish: currentStats.averageDaysToFinish,
+                      averageBooksPerYear: currentStats.averageBooksPerYear,
+                      booksUsedInAverageDays:
+                          currentStats.booksUsedInAverageDays,
+                      yearsWithBooks: currentStats.yearsWithBooks,
+                      books: books,
+                    ),
+              ),
+            );
+          } else {
+            _navigateToSection(
               context,
               l10n.section_reading_activity,
               Icons.auto_graph,
-              _buildReadingActivityCards(
-                context,
-                _computeCurrentStats(books),
-                books,
-              ),
-            ),
+              _buildReadingActivityCards(context, currentStats, books),
+            );
+          }
+        },
       ),
       _SectionDef(
         title: l10n.section_library_breakdown,
         icon: Icons.library_books,
-        onTap:
-            () => _navigateToSection(
+        onTap: () {
+          final currentStats = _computeCurrentStats(books);
+          if (widget.useNewUi) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (_) => LibraryBreakdownScreen(
+                      statusCounts: currentStats.statusCounts,
+                      formatCounts: currentStats.formatCounts,
+                      placeCounts: currentStats.placeCounts,
+                      languageCounts: currentStats.languageCounts,
+                      totalCount: currentStats.totalCount,
+                      books: books,
+                      formatByLanguageCounts:
+                          currentStats.formatByLanguageCounts,
+                      avgDaysByFormatLanguage:
+                          currentStats.avgDaysByFormatLanguage,
+                    ),
+              ),
+            );
+          } else {
+            _navigateToSection(
               context,
               l10n.section_library_breakdown,
               Icons.library_books,
-              _buildLibraryBreakdownCards(
-                context,
-                _computeCurrentStats(books),
-                books,
-              ),
-            ),
+              _buildLibraryBreakdownCards(context, currentStats, books),
+            );
+          }
+        },
       ),
       _SectionDef(
         title: l10n.section_top_rankings,
