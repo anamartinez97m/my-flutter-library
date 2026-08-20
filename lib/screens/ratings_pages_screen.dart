@@ -24,6 +24,7 @@ class RatingsPagesScreen extends StatefulWidget {
   static const kBg = Color(0xFFFDF8F6);
   static const kPrimary = Color(0xFF43102B);
   static const kSecondary = Color(0xFF894B67);
+  static const kTertiary = Color(0xFFBC92A6);
   static const kMuted = Color(0xFFD5C2C7);
   static const kText = Color(0xFF1C1B1A);
   static const kSub = Color(0xFF514348);
@@ -55,6 +56,7 @@ class _RatingsPagesScreenState extends State<RatingsPagesScreen> {
   static const _kBg = RatingsPagesScreen.kBg;
   static const _kPrimary = RatingsPagesScreen.kPrimary;
   static const _kSecondary = RatingsPagesScreen.kSecondary;
+  static const _kTertiary = RatingsPagesScreen.kTertiary;
   static const _kText = RatingsPagesScreen.kText;
   static const _kSub = RatingsPagesScreen.kSub;
   static const _kBorder = RatingsPagesScreen.kBorder;
@@ -124,7 +126,7 @@ class _RatingsPagesScreenState extends State<RatingsPagesScreen> {
               title: l10n.page_count_distribution,
               child: _buildDistributionContent(
                 distribution: widget.pageDistribution,
-                barColor: _kSecondary,
+                barColor: _kTertiary,
                 labelBuilder:
                     (key) => Text(
                       key,
@@ -138,7 +140,7 @@ class _RatingsPagesScreenState extends State<RatingsPagesScreen> {
               title: l10n.books_by_rating_distribution,
               child: _buildDistributionContent(
                 distribution: widget.ratingDistribution,
-                barColor: _kPrimary,
+                barColor: _kSecondary,
                 labelBuilder: _buildRatingLabel,
               ),
             ),
@@ -236,11 +238,11 @@ class _RatingsPagesScreenState extends State<RatingsPagesScreen> {
                 fontFamily: 'Manrope',
                 fontSize: 40,
                 fontWeight: FontWeight.bold,
-                color: _kPrimary,
+                color: _kSecondary,
               ),
             ),
             const SizedBox(width: 8),
-            const Icon(Icons.star, color: _kPrimary, size: 34),
+            const Icon(Icons.star, color: _kSecondary, size: 34),
           ],
         ),
         const SizedBox(height: 8),
@@ -363,7 +365,7 @@ class _RatingsPagesScreenState extends State<RatingsPagesScreen> {
       children: [
         _buildExtremeRow(
           icon: Icons.calendar_today,
-          color: _kPrimary,
+          color: _kSecondary,
           label1: l10n.oldest,
           value1: widget.oldestYear != null ? '${widget.oldestYear}' : 'N/A',
           book1: widget.oldestBookName,
@@ -377,7 +379,7 @@ class _RatingsPagesScreenState extends State<RatingsPagesScreen> {
         ),
         _buildExtremeRow(
           icon: Icons.menu_book,
-          color: _kSecondary,
+          color: _kTertiary,
           label1: l10n.shortest,
           value1:
               widget.shortestPages != null

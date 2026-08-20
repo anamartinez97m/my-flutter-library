@@ -7,9 +7,12 @@ import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/screens/books_by_year.dart';
+import 'package:myrandomlibrary/screens/price_statistics_screen.dart';
 import 'package:myrandomlibrary/screens/ratings_pages_screen.dart';
+import 'package:myrandomlibrary/screens/reading_patterns_screen.dart';
 import 'package:myrandomlibrary/screens/sagas_series_screen.dart';
 import 'package:myrandomlibrary/screens/statistics_section_screen.dart';
+import 'package:myrandomlibrary/screens/top_rankings_screen.dart';
 import 'package:myrandomlibrary/helpers/statistics_calculator.dart';
 import 'package:myrandomlibrary/widgets/statistics/total_books_card.dart';
 import 'package:myrandomlibrary/widgets/statistics/latest_book_card.dart';
@@ -583,17 +586,24 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       _SectionDef(
         title: l10n.section_top_rankings,
         icon: Icons.leaderboard,
-        onTap:
-            () => _navigateToSection(
+        onTap: () {
+          if (widget.useNewUi) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => TopRankingsScreen(books: books),
+              ),
+            );
+          } else {
+            final currentStats = _computeCurrentStats(books);
+            _navigateToSection(
               context,
               l10n.section_top_rankings,
               Icons.leaderboard,
-              _buildTopRankingsCards(
-                context,
-                _computeCurrentStats(books),
-                books,
-              ),
-            ),
+              _buildTopRankingsCards(context, currentStats, books),
+            );
+          }
+        },
       ),
       _SectionDef(
         title: l10n.section_ratings_pages,
@@ -663,28 +673,80 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       _SectionDef(
         title: l10n.section_reading_patterns,
         icon: Icons.insights,
-        onTap:
-            () => _navigateToSection(
+        onTap: () {
+          final currentStats = _computeCurrentStats(books);
+          if (widget.useNewUi) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (_) => ReadingPatternsScreen(
+                      currentStreak: currentStats.currentStreak,
+                      longestStreak: currentStats.longestStreak,
+                      dnfCount: currentStats.dnfCount,
+                      dnfRate: currentStats.dnfRate,
+                      rereadCount: currentStats.rereadCount,
+                      mostRereadBook: currentStats.mostRereadBook,
+                      seriesBooks: currentStats.totalBooksInSeries,
+                      standaloneBooks: currentStats.standaloneBooks,
+                      seriesBooksRead: currentStats.totalBooksInSeriesRead,
+                      standaloneBooksRead: currentStats.standaloneBooksRead,
+                      seriesPercentage: currentStats.seriesPercentage,
+                      seriesCount: currentStats.seriesCount,
+                      mostBooksInMonth: currentStats.mostBooksInMonth,
+                      bestMonth: currentStats.bestMonth,
+                      fastestDays: currentStats.fastestDays,
+                      fastestBookName: currentStats.fastestBookName,
+                      nextMilestoneOwned: currentStats.nextMilestoneOwned,
+                      booksToMilestoneOwned: currentStats.booksToMilestoneOwned,
+                      nextMilestoneRead: currentStats.nextMilestoneRead,
+                      booksToMilestoneRead: currentStats.booksToMilestoneRead,
+                      bingePercentage: currentStats.bingePercentage,
+                      seasonalReading: currentStats.seasonalReading,
+                      seasonalReadingPerYear:
+                          currentStats.seasonalReadingPerYear,
+                      yearsCount: currentStats.yearsCount,
+                      topGenreBySeason: currentStats.topGenreBySeason,
+                      readingTimeOfDay: currentStats.readingTimeOfDay,
+                    ),
+              ),
+            );
+          } else {
+            _navigateToSection(
               context,
               l10n.section_reading_patterns,
               Icons.insights,
-              _buildReadingPatternsCards(context, _computeCurrentStats(books)),
-            ),
+              _buildReadingPatternsCards(context, currentStats),
+            );
+          }
+        },
       ),
       if (_showPriceStatistics)
         _SectionDef(
           title: l10n.section_price_statistics,
           icon: Icons.attach_money,
-          onTap:
-              () => _navigateToSection(
+          onTap: () {
+            final currentStats = _computeCurrentStats(books);
+            if (widget.useNewUi) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (_) => PriceStatisticsScreen(
+                        priceStats: currentStats.priceStats,
+                        currencySymbol: _currencySymbol,
+                      ),
+                ),
+              );
+            } else {
+              _navigateToSection(
                 context,
                 l10n.section_price_statistics,
                 Icons.attach_money,
-                _buildPriceStatisticsCards(
-                  context,
-                  _computeCurrentStats(books),
-                ),
-              ),
+                _buildPriceStatisticsCards(context, currentStats),
+              );
+            }
+          },
         ),
     ];
 

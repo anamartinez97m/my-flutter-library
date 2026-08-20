@@ -4,13 +4,51 @@ import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
 import 'package:provider/provider.dart';
 
+/// Re-reads detail screen matching the redesigned (v2) UI.
+///
+/// Lists all books that have been read more than once, sorted by re-read
+/// count. Tapping a book opens the v2 book detail.
 class RereadsDetailScreen extends StatelessWidget {
+  static const kBg = Color(0xFFFDF8F6);
+  static const kPrimary = Color(0xFF43102B);
+  static const kSecondary = Color(0xFF894B67);
+  static const kMuted = Color(0xFFD5C2C7);
+  static const kText = Color(0xFF1C1B1A);
+  static const kSub = Color(0xFF514348);
+  static const kBorder = Color(0x4DD5C2C7);
+
   const RereadsDetailScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.re_read_books)),
+      backgroundColor: kBg,
+      appBar: AppBar(
+        backgroundColor: kBg,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: kPrimary),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          l10n.re_read_books,
+          style: const TextStyle(
+            fontFamily: 'Manrope',
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: kPrimary,
+            letterSpacing: -0.5,
+          ),
+        ),
+        centerTitle: true,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(height: 1, color: const Color(0xFFD5C2C7)),
+        ),
+      ),
       body: Consumer<BookProvider>(
         builder: (context, provider, child) {
           final books = provider.allBooks;
@@ -33,16 +71,14 @@ class RereadsDetailScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.replay,
-                    size: 64,
-                    color: Theme.of(context).colorScheme.outlineVariant,
-                  ),
+                  const Icon(Icons.replay, size: 64, color: kMuted),
                   const SizedBox(height: 16),
                   Text(
-                    AppLocalizations.of(context)!.no_re_read_books_yet,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    l10n.no_re_read_books_yet,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: kSub,
                     ),
                   ),
                 ],
@@ -51,7 +87,12 @@ class RereadsDetailScreen extends StatelessWidget {
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
+            padding: const EdgeInsets.only(
+              left: 20,
+              right: 20,
+              top: 20,
+              bottom: 20,
+            ),
             itemCount: rereadBooks.length + 1,
             itemBuilder: (context, index) {
               // Add SizedBox at the end
@@ -62,54 +103,9 @@ class RereadsDetailScreen extends StatelessWidget {
               final book = rereadBooks[index];
               final readCount = book.readCount ?? 0;
 
-              return Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  leading: CircleAvatar(
-                    backgroundColor: Theme.of(context).colorScheme.secondary,
-                    child: Text(
-                      '${readCount}x',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSecondary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  title: Text(
-                    book.name ?? AppLocalizations.of(context)!.unknown,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (book.author != null && book.author!.isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          book.author!,
-                          style: TextStyle(
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                      const SizedBox(height: 4),
-                      Text(
-                        AppLocalizations.of(
-                          context,
-                        )!.read_n_times(readCount.toString()),
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.secondary,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                  trailing: const Icon(Icons.chevron_right),
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: InkWell(
                   onTap: () {
                     Navigator.push(
                       context,
@@ -118,6 +114,79 @@ class RereadsDetailScreen extends StatelessWidget {
                       ),
                     );
                   },
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: kBorder),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0x0A000000),
+                          blurRadius: 6,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: kSecondary,
+                          child: Text(
+                            '${readCount}x',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                book.name ?? l10n.unknown,
+                                style: const TextStyle(
+                                  fontFamily: 'Manrope',
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: kText,
+                                ),
+                              ),
+                              if (book.author != null &&
+                                  book.author!.isNotEmpty) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  book.author!,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    color: kSub,
+                                  ),
+                                ),
+                              ],
+                              const SizedBox(height: 6),
+                              Text(
+                                l10n.read_n_times(readCount.toString()),
+                                style: const TextStyle(
+                                  color: kSecondary,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.chevron_right, color: kPrimary),
+                      ],
+                    ),
+                  ),
                 ),
               );
             },
