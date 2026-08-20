@@ -36,13 +36,13 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
   List<String> _filterFormat = [];
   String? _filterLanguage;
   List<String> _filterGenre = [];
-  String? _filterPlace;
+  List<String> _filterPlace = [];
   List<String> _filterStatus = [];
-  String? _filterEditorial;
+  List<String> _filterEditorial = [];
   String? _filterFormatSaga;
-  String? _filterPages;
-  String? _filterYear;
-  String? _filterAuthor;
+  List<String> _filterPages = [];
+  List<String> _filterYear = [];
+  List<String> _filterAuthor = [];
   bool? _filterTBR;
   bool _genreUseAndLogic = true;
   bool _statusUseAndLogic = false;
@@ -138,45 +138,46 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
                 }
               }
             }
-            if (_filterPlace != null && book.placeValue != _filterPlace) {
-              return false;
+            if (_filterPlace.isNotEmpty) {
+              if (book.placeValue == null ||
+                  !_filterPlace.contains(book.placeValue)) {
+                return false;
+              }
             }
-            if (_filterEditorial != null &&
-                book.editorialValue != _filterEditorial) {
-              return false;
+            if (_filterEditorial.isNotEmpty) {
+              if (book.editorialValue == null ||
+                  !_filterEditorial.contains(book.editorialValue)) {
+                return false;
+              }
             }
             if (_filterFormatSaga != null &&
                 book.formatSagaValue != _filterFormatSaga) {
               return false;
             }
-            if (_filterAuthor != null &&
-                !(book.author?.contains(_filterAuthor!) ?? false)) {
-              return false;
-            }
-            if (_filterPages != null && book.pages != null) {
-              final p = book.pages!;
-              switch (_filterPages) {
-                case '0-200':
-                  if (p < 0 || p > 200) return false;
-                  break;
-                case '200-400':
-                  if (p < 200 || p > 400) return false;
-                  break;
-                case '400-600':
-                  if (p < 400 || p > 600) return false;
-                  break;
-                case '600-900':
-                  if (p < 600 || p > 900) return false;
-                  break;
-                case '900+':
-                  if (p < 900) return false;
-                  break;
+            if (_filterAuthor.isNotEmpty) {
+              final authors =
+                  book.author
+                      ?.split(',')
+                      .map((a) => a.trim())
+                      .where((a) => a.isNotEmpty)
+                      .toList() ??
+                  [];
+              if (!_filterAuthor.any((a) => authors.contains(a))) {
+                return false;
               }
             }
-            if (_filterYear != null && book.originalPublicationYear != null) {
+            if (_filterPages.isNotEmpty && book.pages != null) {
+              final p = book.pages!;
+              if (!_filterPages.any((range) => _pagesInRange(p, range))) {
+                return false;
+              }
+            }
+            if (_filterYear.isNotEmpty &&
+                book.originalPublicationYear != null) {
               final decade = (book.originalPublicationYear! ~/ 10) * 10;
-              final fd = int.tryParse(_filterYear!);
-              if (fd != null && decade != fd) return false;
+              if (!_filterYear.any((y) => (int.tryParse(y) ?? -1) == decade)) {
+                return false;
+              }
             }
             return true;
           }).toList();
@@ -247,18 +248,35 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
     return result;
   }
 
+  bool _pagesInRange(int pages, String range) {
+    switch (range) {
+      case '0-200':
+        return pages >= 0 && pages <= 200;
+      case '200-400':
+        return pages >= 200 && pages <= 400;
+      case '400-600':
+        return pages >= 400 && pages <= 600;
+      case '600-900':
+        return pages >= 600 && pages <= 900;
+      case '900+':
+        return pages >= 900;
+      default:
+        return false;
+    }
+  }
+
   void _clearFilters() {
     setState(() {
       _filterFormat = [];
       _filterLanguage = null;
       _filterGenre = [];
-      _filterPlace = null;
+      _filterPlace = [];
       _filterStatus = [];
-      _filterEditorial = null;
+      _filterEditorial = [];
       _filterFormatSaga = null;
-      _filterPages = null;
-      _filterYear = null;
-      _filterAuthor = null;
+      _filterPages = [];
+      _filterYear = [];
+      _filterAuthor = [];
       _filterTBR = null;
       _randomBook = null;
       _selectedBookTitles = [];
@@ -456,6 +474,7 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
     required List<String> options,
     required String anyLabel,
     required ValueChanged<List<String>> onChanged,
+    String Function(String)? labelBuilder,
   }) {
     return Wrap(
       spacing: 8,
@@ -466,9 +485,10 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
           selected: selected.isEmpty,
           onTap: () => onChanged([]),
         ),
-        ...options.map(
-          (o) => _smallChip(
-            label: o,
+        ...options.map((o) {
+          final label = labelBuilder?.call(o) ?? o;
+          return _smallChip(
+            label: label,
             selected: selected.contains(o),
             onTap: () {
               final next = List<String>.from(selected);
@@ -479,8 +499,8 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
               }
               onChanged(next);
             },
-          ),
-        ),
+          );
+        }),
       ],
     );
   }
@@ -949,10 +969,9 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
               final allPlaces =
                   _placeList.map((e) => e['name'] as String).toList();
               if (allPlaces.length <= 5) {
-                return _singleChipsField<String>(
+                return _multiChipsField(
                   selected: _filterPlace,
                   options: allPlaces,
-                  labelOf: (v) => v,
                   anyLabel: l10n.anywhere_label,
                   onChanged: (v) => setState(() => _filterPlace = v),
                 );
@@ -964,15 +983,12 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
               return _seeAllOptionsField(
                 l10n: l10n,
                 fieldTitle: l10n.place,
-                selected: _filterPlace == null ? [] : [_filterPlace!],
+                selected: _filterPlace,
                 popular: popular,
                 allOptions: allPlaces,
                 anyLabel: l10n.anywhere_label,
-                multiSelect: false,
-                onChanged:
-                    (v) => setState(
-                      () => _filterPlace = v.isEmpty ? null : v.first,
-                    ),
+                multiSelect: true,
+                onChanged: (v) => setState(() => _filterPlace = v),
               );
             },
           ),
@@ -1002,10 +1018,9 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
       return _sectionCard(
         icon: Icons.business_outlined,
         title: l10n.editorial,
-        child: _singleChipsField<String>(
+        child: _multiChipsField(
           selected: _filterEditorial,
           options: allEditorials,
-          labelOf: (v) => v,
           anyLabel: l10n.any,
           onChanged: (v) => setState(() => _filterEditorial = v),
         ),
@@ -1021,14 +1036,12 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
       child: _seeAllOptionsField(
         l10n: l10n,
         fieldTitle: l10n.editorial,
-        selected: _filterEditorial == null ? [] : [_filterEditorial!],
+        selected: _filterEditorial,
         popular: popular,
         allOptions: allEditorials,
         anyLabel: l10n.any,
-        multiSelect: false,
-        onChanged:
-            (v) =>
-                setState(() => _filterEditorial = v.isEmpty ? null : v.first),
+        multiSelect: true,
+        onChanged: (v) => setState(() => _filterEditorial = v),
       ),
     );
   }
@@ -1037,10 +1050,9 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
     return _sectionCard(
       icon: Icons.description_outlined,
       title: l10n.pages,
-      child: _singleChipsField<String>(
+      child: _multiChipsField(
         selected: _filterPages,
         options: const ['0-200', '200-400', '400-600', '600-900', '900+'],
-        labelOf: (v) => v,
         anyLabel: l10n.any,
         onChanged: (v) => setState(() => _filterPages = v),
       ),
@@ -1068,11 +1080,11 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
       return _sectionCard(
         icon: Icons.calendar_today_outlined,
         title: l10n.publication_year_decade,
-        child: _singleChipsField<String>(
+        child: _multiChipsField(
           selected: _filterYear,
           options: _decadeOptions,
-          labelOf: (v) => '${v}s',
           anyLabel: l10n.any,
+          labelBuilder: (v) => '${v}s',
           onChanged: (v) => setState(() => _filterYear = v),
         ),
       );
@@ -1091,14 +1103,13 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
       child: _seeAllOptionsField(
         l10n: l10n,
         fieldTitle: l10n.publication_year_decade,
-        selected: _filterYear == null ? [] : [_filterYear!],
+        selected: _filterYear,
         popular: popular,
         allOptions: _decadeOptions,
         anyLabel: l10n.any,
-        multiSelect: false,
+        multiSelect: true,
         labelBuilder: (v) => '${v}s',
-        onChanged:
-            (v) => setState(() => _filterYear = v.isEmpty ? null : v.first),
+        onChanged: (v) => setState(() => _filterYear = v),
       ),
     );
   }
@@ -1109,10 +1120,9 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
       return _sectionCard(
         icon: Icons.person_outline,
         title: l10n.author,
-        child: _singleChipsField<String>(
+        child: _multiChipsField(
           selected: _filterAuthor,
           options: allAuthors,
-          labelOf: (v) => v,
           anyLabel: l10n.any,
           onChanged: (v) => setState(() => _filterAuthor = v),
         ),
@@ -1134,13 +1144,12 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
       child: _seeAllOptionsField(
         l10n: l10n,
         fieldTitle: l10n.author,
-        selected: _filterAuthor == null ? [] : [_filterAuthor!],
+        selected: _filterAuthor,
         popular: popular,
         allOptions: allAuthors,
         anyLabel: l10n.any,
-        multiSelect: false,
-        onChanged:
-            (v) => setState(() => _filterAuthor = v.isEmpty ? null : v.first),
+        multiSelect: true,
+        onChanged: (v) => setState(() => _filterAuthor = v),
       ),
     );
   }

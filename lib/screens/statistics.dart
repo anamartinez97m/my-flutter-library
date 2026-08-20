@@ -613,13 +613,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => SagasSeriesScreen(
-                  sagaStats: currentStats.sagaStats,
-                  completedSagas: currentStats.completedSagas,
-                  partialSagas: currentStats.partialSagas,
-                  unstartedSagas: currentStats.unstartedSagas,
-                  books: books,
-                ),
+                builder:
+                    (_) => SagasSeriesScreen(
+                      sagaStats: currentStats.sagaStats,
+                      completedSagas: currentStats.completedSagas,
+                      partialSagas: currentStats.partialSagas,
+                      unstartedSagas: currentStats.unstartedSagas,
+                      books: books,
+                    ),
               ),
             );
           } else {
@@ -819,94 +820,96 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Bento cards
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 25,
-                      vertical: 46,
-                    ),
-                    decoration: cardDeco(radius: 16),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.library_books,
-                          size: 30,
-                          color: kPrimary,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          l10n.total_books,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: kSub,
-                            letterSpacing: 0.26,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '${stats.totalCount}',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 25,
+                        vertical: 46,
+                      ),
+                      decoration: cardDeco(radius: 16),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.library_books,
+                            size: 30,
                             color: kPrimary,
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 8),
+                          Text(
+                            l10n.total_books,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: kSub,
+                              letterSpacing: 0.26,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '${stats.totalCount}',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: kPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(25),
-                    decoration: cardDeco(radius: 16),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.new_releases,
-                          size: 32,
-                          color: kPrimary,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          l10n.latest_book_added,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: kSub,
-                            letterSpacing: 0.26,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          latestBookName != null && latestBookName.isNotEmpty
-                              ? latestBookName
-                              : l10n.no_books_in_database,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(25),
+                      decoration: cardDeco(radius: 16),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.new_releases,
+                            size: 32,
                             color: kPrimary,
                           ),
-                          textAlign: TextAlign.center,
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+                          const SizedBox(height: 8),
+                          Text(
+                            l10n.latest_book_added,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: kSub,
+                              letterSpacing: 0.26,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            latestBookName != null && latestBookName.isNotEmpty
+                                ? latestBookName
+                                : l10n.no_books_in_database,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: kPrimary,
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             const SizedBox(height: 24),
 
