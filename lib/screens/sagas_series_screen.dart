@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
-import 'package:myrandomlibrary/screens/saga_completion_detail.dart';
+import 'package:myrandomlibrary/screens/new_ui/new_saga_completion_detail_screen.dart';
 
 /// New Sagas & Series statistics screen matching the redesigned UI.
 /// Shows a circular completion rate chart and a status breakdown with bars.
@@ -226,7 +226,7 @@ class SagasSeriesScreen extends StatelessWidget {
       context,
       MaterialPageRoute(
         builder:
-            (_) => SagaCompletionDetailScreen(
+            (_) => NewSagaCompletionDetailScreen(
               sagaStats: sagaStats,
               books: books,
               initialTabIndex: initialTabIndex,

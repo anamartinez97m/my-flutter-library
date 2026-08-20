@@ -7,6 +7,7 @@ import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/screens/books_by_year.dart';
+import 'package:myrandomlibrary/screens/ratings_pages_screen.dart';
 import 'package:myrandomlibrary/screens/sagas_series_screen.dart';
 import 'package:myrandomlibrary/screens/statistics_section_screen.dart';
 import 'package:myrandomlibrary/helpers/statistics_calculator.dart';
@@ -400,6 +401,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         partialSagas: stats.partialSagas,
         unstartedSagas: stats.unstartedSagas,
         books: books,
+        useNewUi: widget.useNewUi,
       ),
     ];
   }
@@ -596,13 +598,38 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       _SectionDef(
         title: l10n.section_ratings_pages,
         icon: Icons.star_half,
-        onTap:
-            () => _navigateToSection(
+        onTap: () {
+          final currentStats = _computeCurrentStats(books);
+          if (widget.useNewUi) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (_) => RatingsPagesScreen(
+                      averageRating: currentStats.averageRating,
+                      ratedBooksCount: currentStats.ratedBooksCount,
+                      ratingDistribution: currentStats.ratingDistribution,
+                      pageDistribution: currentStats.pageDistribution,
+                      oldestYear: currentStats.oldestYear,
+                      oldestBookName: currentStats.oldestBookName,
+                      newestYear: currentStats.newestYear,
+                      newestBookName: currentStats.newestBookName,
+                      shortestPages: currentStats.shortestPages,
+                      shortestBookName: currentStats.shortestBookName,
+                      longestPages: currentStats.longestPages,
+                      longestBookName: currentStats.longestBookName,
+                    ),
+              ),
+            );
+          } else {
+            _navigateToSection(
               context,
               l10n.section_ratings_pages,
               Icons.star_half,
-              _buildRatingsAndPagesCards(context, _computeCurrentStats(books)),
-            ),
+              _buildRatingsAndPagesCards(context, currentStats),
+            );
+          }
+        },
       ),
       _SectionDef(
         title: l10n.section_sagas_series,
