@@ -347,6 +347,8 @@
   "mark_as_tandem_book": "Marcar como libro Tándem",
   "scan_isbn": "Escanear ISBN",
   "customize_home_filters": "Personalizar filtros de inicio",
+  "normal_filters": "Filtros normales",
+  "advanced_filters": "Filtros avanzados",
   "select_all": "Seleccionar todo",
   "clear_all": "Limpiar todo",
   "books_removed_from_tbr": "{bookName} eliminado de TBR",
@@ -1637,6 +1639,11 @@
   "@publication_days_remaining": {
     "placeholders": { "count": { "type": "int" } }
   },
+  "release_countdown": "Tiempo hasta la publicación",
+  "release_countdown_days": "Días",
+  "release_countdown_hours": "Horas",
+  "release_countdown_minutes": "Minutos",
+  "release_countdown_seconds": "Segundos",
   "read_count_field_label": "Veces leído: {value}",
   "@read_count_field_label": {
     "placeholders": { "value": {} }

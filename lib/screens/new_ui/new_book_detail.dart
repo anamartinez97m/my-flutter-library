@@ -1,6 +1,8 @@
+import 'dart:async';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:ui';
 import 'package:myrandomlibrary/config/app_theme.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
@@ -55,6 +57,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
   bool _isFetchingMetadata = false; // Track if metadata is being fetched
   bool _showAllSessions = false; // Track reading sessions expansion state
   String _currencySymbol = '€';
+  Timer? _releaseCountdownTimer;
 
   List<ReadingSession> get _visibleChronometerSessions =>
       _showAllSessions
@@ -174,6 +177,17 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
     _fetchMetadataIfMissing();
     // Check if book has been idle for more than a week (Started status only)
     _checkStandbySuggestion();
+    if (_currentBook.statusValue?.toLowerCase() == 'tbreleased') {
+      _releaseCountdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (mounted) setState(() {});
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _releaseCountdownTimer?.cancel();
+    super.dispose();
   }
 
   Future<List<Book>> _loadBundleBooks() async {
@@ -2223,6 +2237,108 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
     );
   }
 
+  DateTime? get _releaseDate {
+    final storedReleaseDate = _currentBook.releaseDate;
+    if (storedReleaseDate != null && storedReleaseDate.isNotEmpty) {
+      final parsed = DateTime.tryParse(storedReleaseDate);
+      if (parsed != null) {
+        return DateTime(parsed.year, parsed.month, parsed.day);
+      }
+    }
+
+    final publicationDate = _currentBook.originalPublicationYear;
+    if (publicationDate != null && publicationDate > 9999) {
+      return DateTime(
+        publicationDate ~/ 10000,
+        (publicationDate % 10000) ~/ 100,
+        publicationDate % 100,
+      );
+    }
+
+    final notificationDate = _currentBook.notificationDatetime;
+    if (notificationDate != null && notificationDate.isNotEmpty) {
+      final parsed = DateTime.tryParse(notificationDate);
+      if (parsed != null) {
+        return DateTime(parsed.year, parsed.month, parsed.day);
+      }
+    }
+    return null;
+  }
+
+  Widget _buildReleaseCountdown() {
+    final l10n = AppLocalizations.of(context)!;
+    final releaseDate = _releaseDate;
+    final remaining = releaseDate?.difference(DateTime.now()) ?? Duration.zero;
+    final totalSeconds = remaining.isNegative ? 0 : remaining.inSeconds;
+    final days = totalSeconds ~/ Duration.secondsPerDay;
+    final hours =
+        (totalSeconds % Duration.secondsPerDay) ~/ Duration.secondsPerHour;
+    final minutes =
+        (totalSeconds % Duration.secondsPerHour) ~/ Duration.secondsPerMinute;
+    final seconds = totalSeconds % Duration.secondsPerMinute;
+
+    Widget unit(int value, String label) => Expanded(
+      child: Column(
+        children: [
+          Text(
+            value.toString().padLeft(2, '0'),
+            style: const TextStyle(
+              color: _kPrimary,
+              fontSize: 28,
+              fontWeight: FontWeight.w700,
+              fontFamily: 'Manrope',
+            ),
+          ),
+          Text(
+            label,
+            style: const TextStyle(
+              color: _kSub,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              fontFamily: 'Manrope',
+            ),
+          ),
+        ],
+      ),
+    );
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: _kPrimary.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: _kPrimary.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        children: [
+          Text(
+            l10n.release_countdown,
+            style: const TextStyle(
+              color: _kPrimary,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              fontFamily: 'Manrope',
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              unit(days, l10n.release_countdown_days),
+              const Text(':', style: TextStyle(color: _kPrimary, fontSize: 24)),
+              unit(hours, l10n.release_countdown_hours),
+              const Text(':', style: TextStyle(color: _kPrimary, fontSize: 24)),
+              unit(minutes, l10n.release_countdown_minutes),
+              const Text(':', style: TextStyle(color: _kPrimary, fontSize: 24)),
+              unit(seconds, l10n.release_countdown_seconds),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   /// Build publication info - shows year and optionally full date for TBReleased books
   List<Widget> _buildPublicationInfo(int pubYearOrDate) {
     final widgets = <Widget>[];
@@ -2712,45 +2828,56 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
 
                     // Primary action buttons - stacked full-width outlined buttons
                     if (_currentBook.isBundle != true) ...[
-                      if (_currentBook.statusValue?.toLowerCase() != 'started')
-                        _FullWidthActionButton(
-                          icon:
-                              _currentBook.statusValue?.toLowerCase() ==
-                                      'standby'
-                                  ? Icons.replay
-                                  : Icons.play_arrow,
-                          label:
-                              _currentBook.statusValue?.toLowerCase() ==
-                                      'standby'
-                                  ? AppLocalizations.of(
-                                    context,
-                                  )!.move_back_to_reading
-                                  : AppLocalizations.of(context)!.start_reading,
-                          color: Theme.of(context).colorScheme.primary,
-                          onTap:
-                              _currentBook.statusValue?.toLowerCase() ==
-                                      'standby'
-                                  ? _moveBackToReading
-                                  : _quickStartReading,
-                        ),
-                      if (_currentBook.statusValue?.toLowerCase() == 'started')
-                        _FullWidthActionButton(
-                          icon: Icons.check_circle,
-                          label: AppLocalizations.of(context)!.mark_as_finished,
-                          color: Theme.of(context).colorScheme.primary,
-                          onTap: _quickFinishReading,
-                        ),
+                      if (_currentBook.statusValue?.toLowerCase() ==
+                          'tbreleased')
+                        _buildReleaseCountdown()
+                      else ...[
+                        if (_currentBook.statusValue?.toLowerCase() !=
+                            'started')
+                          _FullWidthActionButton(
+                            icon:
+                                _currentBook.statusValue?.toLowerCase() ==
+                                        'standby'
+                                    ? Icons.replay
+                                    : Icons.play_arrow,
+                            label:
+                                _currentBook.statusValue?.toLowerCase() ==
+                                        'standby'
+                                    ? AppLocalizations.of(
+                                      context,
+                                    )!.move_back_to_reading
+                                    : AppLocalizations.of(
+                                      context,
+                                    )!.start_reading,
+                            color: Theme.of(context).colorScheme.primary,
+                            onTap:
+                                _currentBook.statusValue?.toLowerCase() ==
+                                        'standby'
+                                    ? _moveBackToReading
+                                    : _quickStartReading,
+                          ),
+                        if (_currentBook.statusValue?.toLowerCase() ==
+                            'started')
+                          _FullWidthActionButton(
+                            icon: Icons.check_circle,
+                            label:
+                                AppLocalizations.of(context)!.mark_as_finished,
+                            color: Theme.of(context).colorScheme.primary,
+                            onTap: _quickFinishReading,
+                          ),
 
-                      // Mark as Read button (full width) - hidden when Started or Standby
-                      if (_currentBook.statusValue?.toLowerCase() !=
-                              'started' &&
-                          _currentBook.statusValue?.toLowerCase() != 'standby')
-                        _FullWidthActionButton(
-                          icon: Icons.done_all,
-                          label: AppLocalizations.of(context)!.mark_as_read,
-                          color: Theme.of(context).colorScheme.primary,
-                          onTap: _markAsRead,
-                        ),
+                        // Mark as Read button (full width) - hidden when Started or Standby
+                        if (_currentBook.statusValue?.toLowerCase() !=
+                                'started' &&
+                            _currentBook.statusValue?.toLowerCase() !=
+                                'standby')
+                          _FullWidthActionButton(
+                            icon: Icons.done_all,
+                            label: AppLocalizations.of(context)!.mark_as_read,
+                            color: Theme.of(context).colorScheme.primary,
+                            onTap: _markAsRead,
+                          ),
+                      ],
                     ],
 
                     // Did you read today? button (only for Started or Standby status, not for bundles)

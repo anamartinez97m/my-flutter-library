@@ -94,6 +94,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     'price',
   ];
 
+  static const Set<String> _advancedFilterKeys = {
+    'title',
+    'isbn',
+    'author',
+    'saga_format_without_saga',
+    'saga_format_without_nsaga',
+    'saga_without_format_saga',
+    'publication_year_empty',
+  };
+
   String _getFilterLabel(BuildContext context, String key) {
     final l10n = AppLocalizations.of(context)!;
     switch (key) {
@@ -946,6 +956,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required Set<String> selected,
     required String Function(String) getLabel,
     required void Function(Set<String>) onSave,
+    Set<String> advancedKeys = const {},
   }) {
     final localSelected = <String>{...selected};
     final l10n = AppLocalizations.of(context)!;
@@ -969,15 +980,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Padding(
                           padding: const EdgeInsets.fromLTRB(20, 16, 12, 16),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                title,
-                                style: const TextStyle(
-                                  fontFamily: 'Manrope',
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w600,
-                                  color: _kV2Primary,
+                              Expanded(
+                                child: Text(
+                                  title,
+                                  style: const TextStyle(
+                                    fontFamily: 'Manrope',
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w600,
+                                    color: _kV2Primary,
+                                  ),
                                 ),
                               ),
                               IconButton(
@@ -994,33 +1006,76 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         const Divider(color: Color(0x4DD5C2C7), height: 1),
                         ConstrainedBox(
                           constraints: BoxConstraints(
-                            maxHeight: MediaQuery.of(context).size.height * 0.55,
+                            maxHeight:
+                                MediaQuery.of(context).size.height * 0.55,
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(20),
                             child: SingleChildScrollView(
-                              child: Wrap(
-                                spacing: 8,
-                                runSpacing: 8,
-                                children:
-                                    allKeys.map((key) {
-                                      final isSelected = localSelected.contains(
-                                        key,
-                                      );
-                                      return _buildChip(
-                                        getLabel(key),
-                                        isSelected,
-                                        () {
-                                          setDialogState(() {
-                                            if (isSelected) {
-                                              localSelected.remove(key);
-                                            } else {
-                                              localSelected.add(key);
-                                            }
-                                          });
-                                        },
-                                      );
-                                    }).toList(),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (advancedKeys.isNotEmpty) ...[
+                                    Text(
+                                      l10n.normal_filters,
+                                      style: const TextStyle(
+                                        fontFamily: 'Manrope',
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: _kV2Primary,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                  ],
+                                  Wrap(
+                                    spacing: 8,
+                                    runSpacing: 8,
+                                    children:
+                                        allKeys
+                                            .where(
+                                              (key) =>
+                                                  !advancedKeys.contains(key),
+                                            )
+                                            .map(
+                                              (key) => _buildV2SelectionChip(
+                                                key,
+                                                localSelected,
+                                                getLabel,
+                                                setDialogState,
+                                              ),
+                                            )
+                                            .toList(),
+                                  ),
+                                  if (advancedKeys.isNotEmpty) ...[
+                                    const SizedBox(height: 20),
+                                    Text(
+                                      l10n.advanced_filters,
+                                      style: const TextStyle(
+                                        fontFamily: 'Manrope',
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: _kV2Primary,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Wrap(
+                                      spacing: 8,
+                                      runSpacing: 8,
+                                      children:
+                                          allKeys
+                                              .where(advancedKeys.contains)
+                                              .map(
+                                                (key) => _buildV2SelectionChip(
+                                                  key,
+                                                  localSelected,
+                                                  getLabel,
+                                                  setDialogState,
+                                                ),
+                                              )
+                                              .toList(),
+                                    ),
+                                  ],
+                                ],
                               ),
                             ),
                           ),
@@ -1088,6 +1143,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
           ),
     );
+  }
+
+  Widget _buildV2SelectionChip(
+    String key,
+    Set<String> selected,
+    String Function(String) getLabel,
+    StateSetter setDialogState,
+  ) {
+    final isSelected = selected.contains(key);
+    return _buildChip(getLabel(key), isSelected, () {
+      setDialogState(() {
+        if (isSelected) {
+          selected.remove(key);
+        } else {
+          selected.add(key);
+        }
+      });
+    });
   }
 
   void _showLoadingDialog(String message) {
@@ -6408,9 +6481,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
               () => _showV2SelectionModal(
                 context,
                 title: l10n.customize_home_filters,
-                allKeys: _availableFilterKeys,
+                allKeys:
+                    _availableFilterKeys
+                        .where(
+                          (key) =>
+                              _isAdmin || !_advancedFilterKeys.contains(key),
+                        )
+                        .toList(),
                 selected: _enabledFilters,
                 getLabel: (key) => _getFilterLabel(context, key),
+                advancedKeys: _isAdmin ? _advancedFilterKeys : const {},
                 onSave: (selected) {
                   setState(() => _enabledFilters = selected);
                   _saveEnabledFilters();

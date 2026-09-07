@@ -20,6 +20,9 @@ const _kDivider = Color(0xFFE6E2DF);
 const _kText = Color(0xFF5F5E5C);
 const _kInactiveText = Color(0xFF514348);
 const _kFabSmall = Color(0xFFECE7E5);
+const _kChipBg = Color(0x80F2EDEB);
+const _kChipBorder = Color(0x80D5C2C7);
+const _kChipSelected = Color(0xE643102B);
 
 class NewHomeScreen extends StatefulWidget {
   final void Function(VoidCallback)? onRegisterClearSearch;
@@ -236,6 +239,98 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
         borderSide: const BorderSide(color: Color(0xFF27231E)),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 17, vertical: 17),
+    );
+  }
+
+  Widget _filterChip({
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 9),
+        decoration: BoxDecoration(
+          color: selected ? _kChipSelected : _kChipBg,
+          borderRadius: BorderRadius.circular(9999),
+          border: selected ? null : Border.all(color: _kChipBorder),
+          boxShadow:
+              selected
+                  ? const [
+                    BoxShadow(
+                      color: Color(0x0D000000),
+                      blurRadius: 2,
+                      offset: Offset(0, 1),
+                    ),
+                  ]
+                  : null,
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.55,
+            color: selected ? Colors.white : _kInactiveText,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _singleChoiceChipFilter({
+    required BookProvider provider,
+    required StateSetter setModalState,
+    required String filterKey,
+    required String label,
+    required String? value,
+    required void Function(String?) assign,
+    required Map<String, String> options,
+    bool adminOnly = false,
+  }) {
+    if (adminOnly && !_isAdmin) return const SizedBox.shrink();
+    if (!_isFilterEnabled(filterKey)) return const SizedBox.shrink();
+
+    void select(String? next) {
+      setState(() => assign(next));
+      provider.filterBooks(filterKey, next);
+      setModalState(() {});
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: _kPrimary,
+              letterSpacing: 0.26,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children:
+                options.entries
+                    .map(
+                      (option) => _filterChip(
+                        label: option.value,
+                        selected: value == option.key,
+                        onTap:
+                            () =>
+                                select(value == option.key ? null : option.key),
+                      ),
+                    )
+                    .toList(),
+          ),
+        ],
+      ),
     );
   }
 
@@ -513,6 +608,47 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                     ),
                                   ),
                                   const SizedBox(height: 16),
+                                  _singleChoiceChipFilter(
+                                    provider: provider,
+                                    setModalState: setModalState,
+                                    filterKey: 'status',
+                                    label: l10n.status,
+                                    value: _selectedStatus,
+                                    assign: (v) => _selectedStatus = v,
+                                    options: {
+                                      for (final status in _statusList)
+                                        if (status['value'] != null)
+                                          status['value'] as String:
+                                              StatusHelper.getLocalizedLabel(
+                                                status['value'] as String,
+                                                l10n,
+                                              ),
+                                    },
+                                  ),
+                                  _singleChoiceChipFilter(
+                                    provider: provider,
+                                    setModalState: setModalState,
+                                    filterKey: 'is_bundle',
+                                    label: l10n.bundle,
+                                    value: _selectedIsBundle,
+                                    assign: (v) => _selectedIsBundle = v,
+                                    options: {
+                                      'true': l10n.yes,
+                                      'false': l10n.no,
+                                    },
+                                  ),
+                                  _singleChoiceChipFilter(
+                                    provider: provider,
+                                    setModalState: setModalState,
+                                    filterKey: 'is_tandem',
+                                    label: l10n.tandem,
+                                    value: _selectedIsTandem,
+                                    assign: (v) => _selectedIsTandem = v,
+                                    options: {
+                                      'true': l10n.yes,
+                                      'false': l10n.no,
+                                    },
+                                  ),
                                   _filterDropdown(
                                     ctx: ctx,
                                     provider: provider,
@@ -523,6 +659,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                     assign: (v) => _selectedTitle = v,
                                     extras: [],
                                     withEmpty: true,
+                                    adminOnly: true,
                                   ),
                                   _filterDropdown(
                                     ctx: ctx,
@@ -534,6 +671,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                     assign: (v) => _selectedIsbnAsin = v,
                                     extras: [],
                                     withEmpty: true,
+                                    adminOnly: true,
                                   ),
                                   _filterDropdown(
                                     ctx: ctx,
@@ -545,52 +683,22 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                     assign: (v) => _selectedAuthor = v,
                                     extras: [],
                                     withEmpty: true,
+                                    adminOnly: true,
                                   ),
-                                  _filterDropdown(
-                                    ctx: ctx,
-                                    provider: provider,
-                                    setModalState: setModalState,
-                                    filterKey: 'status',
-                                    label: l10n.status,
-                                    value: _selectedStatus,
-                                    assign: (v) => _selectedStatus = v,
-                                    extras:
-                                        _statusList
-                                            .where((i) => i['value'] != null)
-                                            .map(
-                                              (i) => DropdownMenuItem<String>(
-                                                value: i['value'] as String,
-                                                child: Text(
-                                                  StatusHelper.getLocalizedLabel(
-                                                    i['value'] as String,
-                                                    l10n,
-                                                  ),
-                                                ),
-                                              ),
-                                            )
-                                            .toList(),
-                                  ),
-                                  _filterDropdown(
-                                    ctx: ctx,
+                                  _singleChoiceChipFilter(
                                     provider: provider,
                                     setModalState: setModalState,
                                     filterKey: 'format',
                                     label: l10n.format,
                                     value: _selectedFormat,
                                     assign: (v) => _selectedFormat = v,
-                                    withEmpty: true,
-                                    extras:
-                                        _formatList
-                                            .where((i) => i['value'] != null)
-                                            .map(
-                                              (i) => DropdownMenuItem<String>(
-                                                value: i['value'] as String,
-                                                child: Text(
-                                                  i['value'] as String,
-                                                ),
-                                              ),
-                                            )
-                                            .toList(),
+                                    options: {
+                                      '__EMPTY__': l10n.empty,
+                                      for (final format in _formatList)
+                                        if (format['value'] != null)
+                                          format['value'] as String:
+                                              format['value'] as String,
+                                    },
                                   ),
                                   _filterDropdown(
                                     ctx: ctx,
@@ -614,49 +722,35 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                             )
                                             .toList(),
                                   ),
-                                  _filterDropdown(
-                                    ctx: ctx,
+                                  _singleChoiceChipFilter(
                                     provider: provider,
                                     setModalState: setModalState,
                                     filterKey: 'language',
                                     label: l10n.language,
                                     value: _selectedLanguage,
                                     assign: (v) => _selectedLanguage = v,
-                                    withEmpty: true,
-                                    extras:
-                                        _languageList
-                                            .where((i) => i['value'] != null)
-                                            .map(
-                                              (i) => DropdownMenuItem<String>(
-                                                value: i['value'] as String,
-                                                child: Text(
-                                                  i['value'] as String,
-                                                ),
-                                              ),
-                                            )
-                                            .toList(),
+                                    options: {
+                                      '__EMPTY__': l10n.empty,
+                                      for (final language in _languageList)
+                                        if (language['name'] != null)
+                                          language['name'] as String:
+                                              language['name'] as String,
+                                    },
                                   ),
-                                  _filterDropdown(
-                                    ctx: ctx,
+                                  _singleChoiceChipFilter(
                                     provider: provider,
                                     setModalState: setModalState,
                                     filterKey: 'place',
                                     label: l10n.place,
                                     value: _selectedPlace,
                                     assign: (v) => _selectedPlace = v,
-                                    withEmpty: true,
-                                    extras:
-                                        _placeList
-                                            .where((i) => i['value'] != null)
-                                            .map(
-                                              (i) => DropdownMenuItem<String>(
-                                                value: i['value'] as String,
-                                                child: Text(
-                                                  i['value'] as String,
-                                                ),
-                                              ),
-                                            )
-                                            .toList(),
+                                    options: {
+                                      '__EMPTY__': l10n.empty,
+                                      for (final place in _placeList)
+                                        if (place['name'] != null)
+                                          place['name'] as String:
+                                              place['name'] as String,
+                                    },
                                   ),
                                   _filterDropdown(
                                     ctx: ctx,
@@ -749,56 +843,22 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                             )
                                             .toList(),
                                   ),
-                                  _filterDropdown(
-                                    ctx: ctx,
+                                  _singleChoiceChipFilter(
                                     provider: provider,
                                     setModalState: setModalState,
                                     filterKey: 'pages_empty',
                                     label: l10n.pages,
                                     value: _selectedPagesEmpty,
                                     assign: (v) => _selectedPagesEmpty = v,
-                                    withEmpty: true,
                                     adminOnly: true,
-                                    extras: [
-                                      DropdownMenuItem(
-                                        value: '<100',
-                                        child: Text(l10n.pages_range_under_100),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: '100-300',
-                                        child: Text(l10n.pages_range_100_300),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: '300-500',
-                                        child: Text(l10n.pages_range_300_500),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: '500-700',
-                                        child: Text(l10n.pages_range_500_700),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: '700+',
-                                        child: Text(l10n.pages_range_700_plus),
-                                      ),
-                                    ],
-                                  ),
-                                  _yesNoDropdown(
-                                    ctx: ctx,
-                                    provider: provider,
-                                    setModalState: setModalState,
-                                    filterKey: 'is_bundle',
-                                    label: l10n.bundle,
-                                    value: _selectedIsBundle,
-                                    assign: (v) => _selectedIsBundle = v,
-                                  ),
-                                  _yesNoDropdown(
-                                    ctx: ctx,
-                                    provider: provider,
-                                    setModalState: setModalState,
-                                    filterKey: 'is_tandem',
-                                    label: l10n.tandem,
-                                    value: _selectedIsTandem,
-                                    assign: (v) => _selectedIsTandem = v,
+                                    options: {
+                                      '__EMPTY__': l10n.empty,
+                                      '<100': l10n.pages_range_under_100,
+                                      '100-300': l10n.pages_range_100_300,
+                                      '300-500': l10n.pages_range_300_500,
+                                      '500-700': l10n.pages_range_500_700,
+                                      '700+': l10n.pages_range_700_plus,
+                                    },
                                   ),
                                   _yesNoDropdown(
                                     ctx: ctx,
@@ -838,36 +898,20 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                     adminOnly: true,
                                     extras: [],
                                   ),
-                                  _filterDropdown(
-                                    ctx: ctx,
+                                  _singleChoiceChipFilter(
                                     provider: provider,
                                     setModalState: setModalState,
                                     filterKey: 'rating',
                                     label: l10n.rating_filter,
                                     value: _selectedRating,
                                     assign: (v) => _selectedRating = v,
-                                    extras: const [
-                                      DropdownMenuItem(
-                                        value: '0-1',
-                                        child: Text('0–1 ⭐'),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: '1-2',
-                                        child: Text('1–2 ⭐'),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: '2-3',
-                                        child: Text('2–3 ⭐'),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: '3-4',
-                                        child: Text('3–4 ⭐'),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: '4-5',
-                                        child: Text('4–5 ⭐'),
-                                      ),
-                                    ],
+                                    options: const {
+                                      '0-1': '0–1 ⭐',
+                                      '1-2': '1–2 ⭐',
+                                      '2-3': '2–3 ⭐',
+                                      '3-4': '3–4 ⭐',
+                                      '4-5': '4–5 ⭐',
+                                    },
                                   ),
                                   _yesNoDropdown(
                                     ctx: ctx,
@@ -881,37 +925,21 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                             _selectedSagaWithoutFormatSaga = v,
                                     adminOnly: true,
                                   ),
-                                  _filterDropdown(
-                                    ctx: ctx,
+                                  _singleChoiceChipFilter(
                                     provider: provider,
                                     setModalState: setModalState,
                                     filterKey: 'price',
                                     label: l10n.filter_price,
                                     value: _selectedPrice,
                                     assign: (v) => _selectedPrice = v,
-                                    withEmpty: true,
-                                    extras: [
-                                      DropdownMenuItem(
-                                        value: 'free',
-                                        child: Text(l10n.price_free),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: '<5',
-                                        child: Text(l10n.price_range_under_5),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: '5-15',
-                                        child: Text(l10n.price_range_5_15),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: '15-30',
-                                        child: Text(l10n.price_range_15_30),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: '30+',
-                                        child: Text(l10n.price_range_30_plus),
-                                      ),
-                                    ],
+                                    options: {
+                                      '__EMPTY__': l10n.empty,
+                                      'free': l10n.price_free,
+                                      '<5': l10n.price_range_under_5,
+                                      '5-15': l10n.price_range_5_15,
+                                      '15-30': l10n.price_range_15_30,
+                                      '30+': l10n.price_range_30_plus,
+                                    },
                                   ),
                                 ],
                               ),

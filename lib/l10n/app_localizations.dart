@@ -1322,6 +1322,18 @@ abstract class AppLocalizations {
   /// **'Customize Home Filters'**
   String get customize_home_filters;
 
+  /// No description provided for @normal_filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal filters'**
+  String get normal_filters;
+
+  /// No description provided for @advanced_filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced filters'**
+  String get advanced_filters;
+
   /// No description provided for @select_all.
   ///
   /// In en, this message translates to:
@@ -6571,6 +6583,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} {count, plural, =1{day} other{days}} remaining'**
   String publication_days_remaining(int count);
+
+  /// No description provided for @release_countdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Time until release'**
+  String get release_countdown;
+
+  /// No description provided for @release_countdown_days.
+  ///
+  /// In en, this message translates to:
+  /// **'Days'**
+  String get release_countdown_days;
+
+  /// No description provided for @release_countdown_hours.
+  ///
+  /// In en, this message translates to:
+  /// **'Hours'**
+  String get release_countdown_hours;
+
+  /// No description provided for @release_countdown_minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes'**
+  String get release_countdown_minutes;
+
+  /// No description provided for @release_countdown_seconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Seconds'**
+  String get release_countdown_seconds;
 
   /// No description provided for @read_count_field_label.
   ///

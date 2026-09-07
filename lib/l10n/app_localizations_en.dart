@@ -683,6 +683,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get customize_home_filters => 'Customize Home Filters';
 
   @override
+  String get normal_filters => 'Normal filters';
+
+  @override
+  String get advanced_filters => 'Advanced filters';
+
+  @override
   String get select_all => 'Select All';
 
   @override
@@ -3650,6 +3656,21 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$count $_temp0 remaining';
   }
+
+  @override
+  String get release_countdown => 'Time until release';
+
+  @override
+  String get release_countdown_days => 'Days';
+
+  @override
+  String get release_countdown_hours => 'Hours';
+
+  @override
+  String get release_countdown_minutes => 'Minutes';
+
+  @override
+  String get release_countdown_seconds => 'Seconds';
 
   @override
   String read_count_field_label(Object value) {
