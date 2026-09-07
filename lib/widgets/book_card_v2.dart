@@ -62,7 +62,7 @@ class BookCardV2 extends StatelessWidget {
       meta.add(
         _MetaItem(
           icon: Icons.auto_stories_outlined,
-          text: l10n.saga_with_colon(label),
+          text: label,
           fullWidth: true,
         ),
       );
@@ -73,7 +73,7 @@ class BookCardV2 extends StatelessWidget {
       meta.add(
         _MetaItem(
           icon: Icons.public_outlined,
-          text: '${l10n.saga_universe}: ${book.sagaUniverse}',
+          text: book.sagaUniverse!,
           fullWidth: true,
         ),
       );
@@ -84,7 +84,7 @@ class BookCardV2 extends StatelessWidget {
       meta.add(
         _MetaItem(
           icon: Icons.import_contacts_outlined,
-          text: l10n.format_with_colon(book.formatValue!.toUpperCase()),
+          text: book.formatValue!.toUpperCase(),
         ),
       );
     }
@@ -94,59 +94,41 @@ class BookCardV2 extends StatelessWidget {
       meta.add(
         _MetaItem(
           icon: Icons.translate_outlined,
-          text: l10n.language_with_colon(book.languageValue!.toUpperCase()),
+          text: book.languageValue!.toUpperCase(),
         ),
       );
     }
     if (enabledCardFields.contains('pages') && book.pages != null) {
       meta.add(
-        _MetaItem(
-          icon: Icons.menu_book_outlined,
-          text: l10n.pages_field_label('${book.pages}'),
-        ),
+        _MetaItem(icon: Icons.menu_book_outlined, text: '${book.pages}'),
       );
     }
     if (enabledCardFields.contains('genre') &&
         book.genre != null &&
         book.genre!.isNotEmpty) {
-      meta.add(
-        _MetaItem(
-          icon: Icons.category_outlined,
-          text: l10n.genre_field_label(book.genre!),
-        ),
-      );
+      meta.add(_MetaItem(icon: Icons.category_outlined, text: book.genre!));
     }
     if (enabledCardFields.contains('editorial') &&
         book.editorialValue != null &&
         book.editorialValue!.isNotEmpty) {
       meta.add(
-        _MetaItem(
-          icon: Icons.apartment_outlined,
-          text: l10n.editorial_field_label(book.editorialValue!),
-        ),
+        _MetaItem(icon: Icons.apartment_outlined, text: book.editorialValue!),
       );
     }
     if (enabledCardFields.contains('isbn') &&
         (book.isbn != null || book.asin != null)) {
-      meta.add(
-        _MetaItem(
-          icon: Icons.tag,
-          text: l10n.isbn_with_colon((book.isbn ?? book.asin)!),
-        ),
-      );
+      meta.add(_MetaItem(icon: Icons.tag, text: (book.isbn ?? book.asin)!));
     }
     if (enabledCardFields.contains('publication_year') &&
         book.originalPublicationYear != null) {
       meta.add(
         _MetaItem(
           icon: Icons.calendar_today_outlined,
-          text: l10n.published_field_label(
-            book.statusValue?.toLowerCase() == 'tbreleased' &&
-                    book.originalPublicationYear! >= 10000000
-                ? '${book.originalPublicationYear}'.substring(0, 4)
-                : '${book.originalPublicationYear}',
-          ),
-          fullWidth: true,
+          text:
+              book.statusValue?.toLowerCase() == 'tbreleased' &&
+                      book.originalPublicationYear! >= 10000000
+                  ? '${book.originalPublicationYear}'.substring(0, 4)
+                  : '${book.originalPublicationYear}',
         ),
       );
     }
@@ -156,10 +138,7 @@ class BookCardV2 extends StatelessWidget {
       meta.add(
         _MetaItem(
           icon: Icons.notifications_none_outlined,
-          text: l10n.publication_date_field_label(
-            book.notificationDatetime!.split('T')[0],
-          ),
-          fullWidth: true,
+          text: book.notificationDatetime!.split('T')[0],
         ),
       );
       if (book.statusValue?.toLowerCase() == 'tbreleased' &&
@@ -184,21 +163,13 @@ class BookCardV2 extends StatelessWidget {
       }
     }
     if (enabledCardFields.contains('rating') && book.myRating != null) {
-      meta.add(
-        _MetaItem(
-          icon: Icons.star_outline,
-          text: '${l10n.my_rating_label}: ${book.myRating}/5',
-        ),
-      );
+      meta.add(_MetaItem(icon: Icons.star_outline, text: '${book.myRating}/5'));
     }
     if (enabledCardFields.contains('read_count') &&
         book.readCount != null &&
         book.readCount! > 0) {
       meta.add(
-        _MetaItem(
-          icon: Icons.repeat_outlined,
-          text: l10n.read_count_field_label('${book.readCount}'),
-        ),
+        _MetaItem(icon: Icons.repeat_outlined, text: '${book.readCount}'),
       );
     }
     if (enabledCardFields.contains('status') &&
@@ -207,9 +178,7 @@ class BookCardV2 extends StatelessWidget {
       meta.add(
         _MetaItem(
           icon: Icons.info_outline,
-          text: l10n.status_field_label(
-            StatusHelper.getLocalizedLabel(book.statusValue!, l10n),
-          ),
+          text: StatusHelper.getLocalizedLabel(book.statusValue!, l10n),
         ),
       );
     }
@@ -222,18 +191,13 @@ class BookCardV2 extends StatelessWidget {
           book.progressType == 'pages' && book.pages != null && book.pages! > 0
               ? '${(book.readingProgress! * 100 / book.pages!).round()}%'
               : '${book.readingProgress}%';
-      meta.add(
-        _MetaItem(
-          icon: Icons.trending_up,
-          text: '${l10n.progress_percentage}: $pct',
-        ),
-      );
+      meta.add(_MetaItem(icon: Icons.trending_up, text: pct));
     }
     if (enabledCardFields.contains('price') && book.price != null) {
       meta.add(
         _MetaItem(
           icon: Icons.attach_money_outlined,
-          text: '${l10n.price_label}: ${book.price!.toStringAsFixed(2)}',
+          text: book.price!.toStringAsFixed(2),
         ),
       );
     }
@@ -243,8 +207,7 @@ class BookCardV2 extends StatelessWidget {
       meta.add(
         _MetaItem(
           icon: Icons.calendar_today_outlined,
-          text:
-              '${l10n.acquired_date}: ${book.acquiredDate!.split('-').reversed.join('/')}',
+          text: book.acquiredDate!.split('-').reversed.join('/'),
         ),
       );
     }
@@ -253,7 +216,7 @@ class BookCardV2 extends StatelessWidget {
       meta.add(
         _MetaItem(
           icon: Icons.repeat_outlined,
-          text: l10n.original_book.toUpperCase(),
+          text: l10n.status_label_repeated,
         ),
       );
     }
@@ -263,8 +226,7 @@ class BookCardV2 extends StatelessWidget {
       meta.add(
         _MetaItem(
           icon: Icons.format_shapes,
-          text:
-              '${l10n.format_saga}: ${FormatSagaHelper.getLocalizedLabel(book.formatSagaValue!, l10n)}',
+          text: FormatSagaHelper.getLocalizedLabel(book.formatSagaValue!, l10n),
         ),
       );
     }

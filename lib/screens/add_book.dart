@@ -348,154 +348,161 @@ class _AddBookScreenState extends State<AddBookScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext dialogContext) => Dialog(
-        backgroundColor: kBg,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-        ),
-        elevation: 10,
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Icon
-              Container(
-                width: 128,
-                height: 128,
-                decoration: const BoxDecoration(
-                  color: kIconBgOuter,
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Container(
-                    width: 80,
-                    height: 80,
+      builder:
+          (BuildContext dialogContext) => Dialog(
+            backgroundColor: kBg,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            elevation: 10,
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Icon
+                  Container(
+                    width: 128,
+                    height: 128,
                     decoration: const BoxDecoration(
-                      color: kPrimary,
+                      color: kIconBgOuter,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
-                      Icons.check,
-                      color: Colors.white,
-                      size: 36,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              // Title
-              Text(
-                AppLocalizations.of(context)!.book_added_successfully,
-                style: const TextStyle(
-                  fontFamily: 'Manrope',
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: kText,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-              // Subtitle
-              Text(
-                AppLocalizations.of(context)!.what_would_you_like_next,
-                style: const TextStyle(
-                  fontFamily: 'Manrope',
-                  fontSize: 16,
-                  fontWeight: FontWeight.normal,
-                  color: kSub,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 32),
-              // Buttons
-              // Add Another (secondary)
-              SizedBox(
-                width: double.infinity,
-                child: TextButton(
-                  onPressed: () async {
-                    debugPrint(
-                      '📚 Add Another clicked - reloading dropdown data...',
-                    );
-                    Navigator.of(dialogContext).pop();
-                    // Reload dropdown data to include newly added authors, sagas, etc.
-                    await _loadDropdownData();
-                    debugPrint('✅ Dropdown data reloaded successfully');
-                  },
-                  style: TextButton.styleFrom(
-                    foregroundColor: kPrimary,
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        '+',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w900,
+                    child: Center(
+                      child: Container(
+                        width: 80,
+                        height: 80,
+                        decoration: const BoxDecoration(
                           color: kPrimary,
+                          shape: BoxShape.circle,
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        AppLocalizations.of(context)!.add_another,
-                        style: const TextStyle(
-                          fontFamily: 'Manrope',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: kPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              // Go to Home (primary)
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(dialogContext).pop();
-                    // Go back to previous screen (home)
-                    Navigator.of(context).pop();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: kPrimary,
-                    foregroundColor: Colors.white,
-                    elevation: 4,
-                    shadowColor: const Color(0x1A000000),
-                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.home, size: 18, color: Colors.white),
-                      const SizedBox(width: 8),
-                      Text(
-                        AppLocalizations.of(context)!.go_to_home,
-                        style: const TextStyle(
-                          fontFamily: 'Manrope',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                        child: const Icon(
+                          Icons.check,
                           color: Colors.white,
+                          size: 36,
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 24),
+                  // Title
+                  Text(
+                    AppLocalizations.of(context)!.book_added_successfully,
+                    style: const TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: kText,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 12),
+                  // Subtitle
+                  Text(
+                    AppLocalizations.of(context)!.what_would_you_like_next,
+                    style: const TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal,
+                      color: kSub,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 32),
+                  // Buttons
+                  // Add Another (secondary)
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextButton(
+                      onPressed: () async {
+                        debugPrint(
+                          '📚 Add Another clicked - reloading dropdown data...',
+                        );
+                        Navigator.of(dialogContext).pop();
+                        // Reload dropdown data to include newly added authors, sagas, etc.
+                        await _loadDropdownData();
+                        debugPrint('✅ Dropdown data reloaded successfully');
+                      },
+                      style: TextButton.styleFrom(
+                        foregroundColor: kPrimary,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 24,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            '+',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w900,
+                              color: kPrimary,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            AppLocalizations.of(context)!.add_another,
+                            style: const TextStyle(
+                              fontFamily: 'Manrope',
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: kPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Go to Home (primary)
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(dialogContext).pop();
+                        // Go back to previous screen (home)
+                        Navigator.of(context).pop();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: kPrimary,
+                        foregroundColor: Colors.white,
+                        elevation: 4,
+                        shadowColor: const Color(0x1A000000),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 16,
+                          horizontal: 32,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.home, size: 18, color: Colors.white),
+                          const SizedBox(width: 8),
+                          Text(
+                            AppLocalizations.of(context)!.go_to_home,
+                            style: const TextStyle(
+                              fontFamily: 'Manrope',
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
     );
   }
 
@@ -2634,28 +2641,26 @@ class _AddBookScreenState extends State<AddBookScreen> {
     return Scaffold(
       backgroundColor: _kBg,
       appBar: AppBar(
-        backgroundColor: _kPrimary,
-        foregroundColor: Colors.white,
+        backgroundColor: _kBg,
+        foregroundColor: _kPrimary,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Text(
           l10n.add_book,
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 20,
-            color: Colors.white,
+            color: _kPrimary,
             fontFamily: 'Manrope',
           ),
         ),
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new_outlined,
-            color: Colors.white,
-          ),
+          icon: const Icon(Icons.arrow_back_ios_new_outlined, color: _kPrimary),
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.check, color: Colors.white),
+            icon: const Icon(Icons.check, color: _kPrimary),
             onPressed: _saveBook,
           ),
         ],
@@ -3259,12 +3264,13 @@ class _AddBookScreenState extends State<AddBookScreen> {
   List<Widget> _v2Classification(BuildContext context, AppLocalizations l10n) {
     return [
       _v2SectionHeading('Classification'),
-      Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
+      Material(
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: _kInputBorder),
+          side: const BorderSide(color: _kInputBorder),
         ),
+        clipBehavior: Clip.antiAlias,
         child: ExpansionTile(
           leading: const Icon(Icons.star_rate, color: _kPrimary),
           title: Text(l10n.rating, style: const TextStyle(color: _kPrimary)),
