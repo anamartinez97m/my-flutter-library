@@ -11,6 +11,18 @@ const _kText = Color(0xFF5F5E5C);
 const _kBorder = Color(0xFFCEC5BE);
 const _kDivider = Color(0xFFE6E2DF);
 
+DateTime? _parsePublicationDate(String? value) {
+  if (value == null || value.isEmpty) return null;
+  if (value.length == 8 && int.tryParse(value) != null) {
+    return DateTime(
+      int.parse(value.substring(0, 4)),
+      int.parse(value.substring(4, 6)),
+      int.parse(value.substring(6, 8)),
+    );
+  }
+  return DateTime.tryParse(value);
+}
+
 class _MetaItem {
   final IconData icon;
   final String text;
@@ -39,6 +51,7 @@ class BookCardV2 extends StatelessWidget {
     final isRead =
         book.statusValue?.toLowerCase() == 'yes' ||
         book.statusValue?.toLowerCase() == 'repeated';
+    final publicationDate = _parsePublicationDate(book.notificationDatetime);
 
     final meta = <_MetaItem>[];
     if (enabledCardFields.contains('saga') &&
@@ -127,7 +140,13 @@ class BookCardV2 extends StatelessWidget {
       meta.add(
         _MetaItem(
           icon: Icons.calendar_today_outlined,
-          text: l10n.published_field_label('${book.originalPublicationYear}'),
+          text: l10n.published_field_label(
+            book.statusValue?.toLowerCase() == 'tbreleased' &&
+                    book.originalPublicationYear! >= 10000000
+                ? '${book.originalPublicationYear}'.substring(0, 4)
+                : '${book.originalPublicationYear}',
+          ),
+          fullWidth: true,
         ),
       );
     }
@@ -140,8 +159,29 @@ class BookCardV2 extends StatelessWidget {
           text: l10n.publication_date_field_label(
             book.notificationDatetime!.split('T')[0],
           ),
+          fullWidth: true,
         ),
       );
+      if (book.statusValue?.toLowerCase() == 'tbreleased' &&
+          publicationDate != null) {
+        final now = DateTime.now();
+        final today = DateTime(now.year, now.month, now.day);
+        final releaseDate = DateTime(
+          publicationDate.year,
+          publicationDate.month,
+          publicationDate.day,
+        );
+        final daysRemaining = releaseDate.difference(today).inDays;
+        if (daysRemaining >= 0) {
+          meta.add(
+            _MetaItem(
+              icon: Icons.hourglass_empty,
+              text: l10n.publication_days_remaining(daysRemaining),
+              fullWidth: true,
+            ),
+          );
+        }
+      }
     }
     if (enabledCardFields.contains('rating') && book.myRating != null) {
       meta.add(
@@ -179,9 +219,7 @@ class BookCardV2 extends StatelessWidget {
         (book.statusValue?.toLowerCase() == 'started' ||
             book.statusValue?.toLowerCase() == 'standby')) {
       final pct =
-          book.progressType == 'pages' &&
-                  book.pages != null &&
-                  book.pages! > 0
+          book.progressType == 'pages' && book.pages != null && book.pages! > 0
               ? '${(book.readingProgress! * 100 / book.pages!).round()}%'
               : '${book.readingProgress}%';
       meta.add(
@@ -240,9 +278,7 @@ class BookCardV2 extends StatelessWidget {
     double progressFraction = 0;
     if (hasProgress) {
       progressFraction =
-          book.progressType == 'pages' &&
-                  book.pages != null &&
-                  book.pages! > 0
+          book.progressType == 'pages' && book.pages != null && book.pages! > 0
               ? (book.readingProgress! / book.pages!).clamp(0.0, 1.0)
               : (book.readingProgress! / 100.0).clamp(0.0, 1.0);
     }
@@ -330,44 +366,46 @@ class BookCardV2 extends StatelessWidget {
                   // Metadata grid
                   if (meta.isNotEmpty) ...[
                     const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 6,
-                      children:
-                          meta
-                              .map(
-                                (m) => SizedBox(
-                                  width:
-                                      m.fullWidth
-                                          ? MediaQuery.of(context).size.width -
-                                              40 -
-                                              34
-                                          : (MediaQuery.of(context).size.width -
-                                                  40 -
-                                                  34 -
-                                                  8) /
-                                              2,
-                                  child: Row(
-                                    children: [
-                                      Icon(m.icon, size: 12, color: _kText),
-                                      const SizedBox(width: 5),
-                                      Expanded(
-                                        child: Text(
-                                          m.text,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                            fontSize: 11,
-                                            color: _kText,
-                                            fontWeight: FontWeight.w500,
-                                            letterSpacing: 0.5,
-                                          ),
+                    LayoutBuilder(
+                      builder:
+                          (context, constraints) => Wrap(
+                            spacing: 8,
+                            runSpacing: 6,
+                            children:
+                                meta
+                                    .map(
+                                      (m) => SizedBox(
+                                        width:
+                                            m.fullWidth
+                                                ? constraints.maxWidth
+                                                : (constraints.maxWidth - 8) /
+                                                    2,
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              m.icon,
+                                              size: 12,
+                                              color: _kText,
+                                            ),
+                                            const SizedBox(width: 5),
+                                            Expanded(
+                                              child: Text(
+                                                m.text,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(
+                                                  fontSize: 11,
+                                                  color: _kText,
+                                                  fontWeight: FontWeight.w500,
+                                                  letterSpacing: 0.5,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                ),
-                              )
-                              .toList(),
+                                    )
+                                    .toList(),
+                          ),
                     ),
                   ],
                 ],

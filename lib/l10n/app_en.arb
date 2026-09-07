@@ -1627,6 +1627,10 @@
   "@publication_date_field_label": {
     "placeholders": { "value": {} }
   },
+  "publication_days_remaining": "{count} {count, plural, =1{day} other{days}} remaining",
+  "@publication_days_remaining": {
+    "placeholders": { "count": { "type": "int" } }
+  },
   "read_count_field_label": "Read count: {value}",
   "@read_count_field_label": {
     "placeholders": { "value": {} }

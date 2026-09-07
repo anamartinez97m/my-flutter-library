@@ -1633,6 +1633,10 @@
   "@publication_date_field_label": {
     "placeholders": { "value": {} }
   },
+  "publication_days_remaining": "{count} {count, plural, =1{día restante} other{días restantes}}",
+  "@publication_days_remaining": {
+    "placeholders": { "count": { "type": "int" } }
+  },
   "read_count_field_label": "Veces leído: {value}",
   "@read_count_field_label": {
     "placeholders": { "value": {} }

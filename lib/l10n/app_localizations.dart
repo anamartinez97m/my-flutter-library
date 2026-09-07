@@ -6566,6 +6566,12 @@ abstract class AppLocalizations {
   /// **'Publication Date: {value}'**
   String publication_date_field_label(Object value);
 
+  /// No description provided for @publication_days_remaining.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} {count, plural, =1{day} other{days}} remaining'**
+  String publication_days_remaining(int count);
+
   /// No description provided for @read_count_field_label.
   ///
   /// In en, this message translates to:

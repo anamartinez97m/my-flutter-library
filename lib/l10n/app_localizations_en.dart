@@ -3641,6 +3641,17 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String publication_days_remaining(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'days',
+      one: 'day',
+    );
+    return '$count $_temp0 remaining';
+  }
+
+  @override
   String read_count_field_label(Object value) {
     return 'Read count: $value';
   }
