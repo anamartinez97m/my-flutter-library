@@ -6,6 +6,14 @@ import 'package:myrandomlibrary/model/year_challenge.dart';
 import 'package:myrandomlibrary/model/custom_challenge.dart';
 import 'package:myrandomlibrary/repositories/year_challenge_repository.dart';
 
+const _kBg = Color(0xFFFDF8F6);
+const _kPrimary = Color(0xFF43102B);
+const _kSecondary = Color(0xFF894B67);
+const _kText = Color(0xFF1C1B1A);
+const _kSub = Color(0xFF514348);
+const _kBorder = Color(0xFFD5C2C7);
+const _kSoft = Color(0xFFF2EDEB);
+
 class YearChallengesScreen extends StatefulWidget {
   const YearChallengesScreen({super.key});
 
@@ -650,7 +658,6 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
     final pagesProgress = progress?['pagesProgress'] ?? 0.0;
 
     final isCurrentYear = challenge.year == DateTime.now().year;
-    final isPastYear = challenge.year < DateTime.now().year;
     final booksComplete = booksRead >= challenge.targetBooks;
     final pagesComplete =
         challenge.targetPages != null && pagesRead >= challenge.targetPages!;
@@ -658,34 +665,27 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
         booksComplete && (challenge.targetPages == null || pagesComplete);
 
     return Card(
-      elevation: isCurrentYear ? 4 : 2,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      color:
-          isFinished || (isPastYear && !isFinished)
-              ? Theme.of(context).colorScheme.surfaceContainerHighest
-              : null,
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      color: Colors.white,
+      shadowColor: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side:
-            isCurrentYear
-                ? BorderSide(
-                  color: Theme.of(context).colorScheme.primary,
-                  width: 2,
-                )
-                : isFinished
-                ? BorderSide(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: 0.3),
-                  width: 2,
-                )
-                : BorderSide.none,
+        side: BorderSide(
+          color:
+              isCurrentYear
+                  ? _kPrimary
+                  : isFinished
+                  ? _kSecondary
+                  : _kBorder,
+          width: isCurrentYear ? 1.5 : 1,
+        ),
       ),
       child: InkWell(
         onTap: () => _showEditChallengeDialog(challenge),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -696,121 +696,124 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                     children: [
                       Text(
                         challenge.year.toString(),
-                        style: Theme.of(
-                          context,
-                        ).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
+                        style: const TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 21,
+                          fontWeight: FontWeight.w700,
+                          color: _kPrimary,
                         ),
                       ),
-                      if (isCurrentYear) ...[
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primary,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            AppLocalizations.of(context)!.current_label,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onPrimary,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                    ],
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, size: 20),
+                    onPressed: () => _deleteChallenge(challenge),
+                    color: _kSecondary,
+                    tooltip: AppLocalizations.of(context)!.delete_challenge,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+
+              // Books progress
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                AppLocalizations.of(context)!.books,
+                                style: const TextStyle(
+                                  fontFamily: 'Manrope',
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: _kSub,
+                                ),
+                              ),
+                            ),
+                            Text(
+                              '$booksRead / ${challenge.targetBooks}',
+                              style: TextStyle(
+                                fontFamily: 'Manrope',
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: booksComplete ? _kPrimary : _kText,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: LinearProgressIndicator(
+                            value: booksProgress.clamp(0.0, 1.0),
+                            minHeight: 8,
+                            backgroundColor: _kSoft,
+                            valueColor: const AlwaysStoppedAnimation<Color>(
+                              _kPrimary,
                             ),
                           ),
                         ),
                       ],
-                    ],
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete_outline),
-                    onPressed: () => _deleteChallenge(challenge),
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              // Books progress
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '${AppLocalizations.of(context)!.books}:',
-                    style: const TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                  Text(
-                    '$booksRead / ${challenge.targetBooks}',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color:
-                          booksComplete
-                              ? Theme.of(context).colorScheme.primary
-                              : null,
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: LinearProgressIndicator(
-                  value: booksProgress.clamp(0.0, 1.0),
-                  minHeight: 12,
-                  backgroundColor:
-                      Theme.of(context).colorScheme.surfaceContainerHighest,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              ),
-
-              if (challenge.targetPages != null) ...[
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '${AppLocalizations.of(context)!.pages_label}:',
-                      style: const TextStyle(fontWeight: FontWeight.w500),
-                    ),
-                    Text(
-                      '$pagesRead / ${challenge.targetPages}',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color:
-                            pagesComplete
-                                ? Theme.of(context).colorScheme.primary
-                                : null,
+                  if (challenge.targetPages != null) ...[
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  AppLocalizations.of(context)!.pages_label,
+                                  style: const TextStyle(
+                                    fontFamily: 'Manrope',
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: _kSub,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                '$pagesRead / ${challenge.targetPages}',
+                                style: TextStyle(
+                                  fontFamily: 'Manrope',
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: pagesComplete ? _kPrimary : _kText,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: LinearProgressIndicator(
+                              value: pagesProgress.clamp(0.0, 1.0),
+                              minHeight: 8,
+                              backgroundColor: _kSoft,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                pagesComplete ? _kPrimary : _kSecondary,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
-                ),
-                const SizedBox(height: 8),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: LinearProgressIndicator(
-                    value: pagesProgress.clamp(0.0, 1.0),
-                    minHeight: 12,
-                    backgroundColor:
-                        Theme.of(context).colorScheme.surfaceContainerHighest,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      pagesComplete
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.secondary,
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
 
               if (challenge.customChallenges != null &&
                   challenge.customChallenges!.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                const Divider(),
+                const SizedBox(height: 12),
+                const Divider(height: 1),
                 const SizedBox(height: 8),
                 Text(
                   AppLocalizations.of(context)!.custom_challenges,
@@ -818,14 +821,14 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                     context,
                   ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 ...challenge.customChallenges!.asMap().entries.map((entry) {
                   final index = entry.key;
                   final customChallenge = entry.value;
                   final isComplete =
                       customChallenge.current >= customChallenge.target;
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.only(bottom: 8),
                     child: InkWell(
                       onTap:
                           () => _showUpdateCustomChallengeDialog(
@@ -856,7 +859,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                             width: 1,
                           ),
                         ),
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(10),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -889,7 +892,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                                   ),
                               ],
                             ),
-                            const SizedBox(height: 10),
+                            const SizedBox(height: 6),
                             // Progress bar row
                             ClipRRect(
                               borderRadius: BorderRadius.circular(4),
@@ -900,7 +903,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                                                 customChallenge.target)
                                             .clamp(0.0, 1.0)
                                         : 0.0,
-                                minHeight: 8,
+                                minHeight: 6,
                                 backgroundColor:
                                     Theme.of(
                                       context,
@@ -910,7 +913,7 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 10),
+                            const SizedBox(height: 6),
                             // Progress text row
                             Text(
                               '${customChallenge.current} / ${customChallenge.target} ${customChallenge.unit}',
@@ -960,53 +963,101 @@ class _YearChallengesScreenState extends State<YearChallengesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
+      backgroundColor: _kBg,
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.year_challenges),
+        backgroundColor: _kBg,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: _kPrimary),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          l10n.year_challenges,
+          style: const TextStyle(
+            fontFamily: 'Manrope',
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: _kPrimary,
+            letterSpacing: -0.5,
+          ),
+        ),
+        centerTitle: true,
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Divider(height: 1, color: _kBorder),
+        ),
       ),
       body:
           _isLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? const Center(child: CircularProgressIndicator(color: _kPrimary))
               : _challenges.isEmpty
               ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.flag_outlined,
-                      size: 64,
-                      color: Theme.of(context).colorScheme.outlineVariant,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      AppLocalizations.of(context)!.no_challenges_yet,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                child: Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 88,
+                        height: 88,
+                        decoration: const BoxDecoration(
+                          color: _kSoft,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.flag_outlined,
+                          size: 40,
+                          color: _kPrimary,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      AppLocalizations.of(context)!.create_first_challenge,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      const SizedBox(height: 24),
+                      Text(
+                        l10n.no_challenges_yet,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: _kPrimary,
+                        ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.create_first_challenge,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 14,
+                          color: _kSub,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               )
-              : ListView.builder(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 16,
-                ).copyWith(bottom: 56),
+              : ListView.separated(
+                padding: EdgeInsets.fromLTRB(
+                  20,
+                  20,
+                  20,
+                  96 + MediaQuery.of(context).viewPadding.bottom,
+                ),
                 itemCount: _challenges.length,
-                itemBuilder: (context, index) {
-                  return _buildChallengeCard(_challenges[index]);
-                },
+                separatorBuilder: (_, _) => const SizedBox(height: 12),
+                itemBuilder:
+                    (context, index) => _buildChallengeCard(_challenges[index]),
               ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton(
         onPressed: _showAddChallengeDialog,
-        icon: const Icon(Icons.add),
-        label: Text(AppLocalizations.of(context)!.new_challenge),
+        backgroundColor: _kPrimary,
+        foregroundColor: Colors.white,
+        elevation: 4,
+        shape: const CircleBorder(),
+        tooltip: l10n.new_challenge,
+        child: const Icon(Icons.add),
       ),
     );
   }

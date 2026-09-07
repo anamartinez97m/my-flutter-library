@@ -25,14 +25,22 @@ import 'package:myrandomlibrary/services/book_metadata_service.dart';
 
 class EditBookScreen extends StatefulWidget {
   final Book book;
+  final bool useNewUi;
 
-  const EditBookScreen({super.key, required this.book});
+  const EditBookScreen({super.key, required this.book, this.useNewUi = false});
 
   @override
   State<EditBookScreen> createState() => _EditBookScreenState();
 }
 
 class _EditBookScreenState extends State<EditBookScreen> {
+  static const _kBg = Color(0xFFFDF8F6);
+  static const _kPrimary = Color(0xFF43102B);
+  static const _kSub = Color(0xFF514348);
+  static const _kLabel = Color(0xCC43102B);
+  static const _kInputBorder = Color(0xFF6B7280);
+  static const _kNotesBorder = Color(0xFFD5C2C7);
+
   final _formKey = GlobalKey<FormState>();
 
   // Text controllers
@@ -1327,525 +1335,566 @@ class _EditBookScreenState extends State<EditBookScreen> {
     }
   }
 
+  Widget _v2SectionHeading(String title) => Padding(
+    padding: const EdgeInsets.only(bottom: 10),
+    child: Text(
+      title,
+      style: const TextStyle(
+        fontFamily: 'Manrope',
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+        color: _kPrimary,
+      ),
+    ),
+  );
+
+  Widget _v2Divider() => const Padding(
+    padding: EdgeInsets.symmetric(vertical: 17),
+    child: Divider(color: Color(0x4DD5C2C7), height: 1),
+  );
+
+  Widget _v2Footer(AppLocalizations l10n) => SafeArea(
+    top: false,
+    child: Container(
+      padding: const EdgeInsets.fromLTRB(16, 17, 16, 16),
+      decoration: const BoxDecoration(
+        color: Color(0xE6FDF8F6),
+        border: Border(top: BorderSide(color: Color(0x33D5C2C7))),
+      ),
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: _updateBook,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: _kPrimary,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            shape: const StadiumBorder(),
+          ),
+          child: Text(
+            l10n.update_book,
+            style: const TextStyle(
+              fontFamily: 'Manrope',
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+
+  ThemeData _v2Theme(BuildContext context) {
+    final theme = Theme.of(context);
+    return theme.copyWith(
+      colorScheme: theme.colorScheme.copyWith(
+        primary: _kPrimary,
+        onPrimary: Colors.white,
+        primaryContainer: const Color(0xFFF2EDEB),
+        onPrimaryContainer: _kPrimary,
+        onSurfaceVariant: _kLabel,
+      ),
+      chipTheme: const ChipThemeData(
+        backgroundColor: Color(0xFFF2EDEB),
+        labelStyle: TextStyle(color: _kPrimary, fontSize: 12),
+        deleteIconColor: _kSub,
+        side: BorderSide(color: _kNotesBorder),
+        shape: StadiumBorder(),
+        padding: EdgeInsets.symmetric(horizontal: 4),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: Colors.white,
+        labelStyle: const TextStyle(color: _kLabel, fontSize: 14),
+        hintStyle: const TextStyle(color: _kLabel, fontSize: 14),
+        floatingLabelStyle: const TextStyle(color: _kPrimary, fontSize: 12),
+        prefixIconColor: _kPrimary,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: _kInputBorder),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: _kInputBorder),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: _kPrimary, width: 1.5),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return Scaffold(
+        backgroundColor: widget.useNewUi ? _kBg : null,
+        body: Center(
+          child: CircularProgressIndicator(
+            color: widget.useNewUi ? _kPrimary : null,
+          ),
+        ),
+      );
     }
 
+    final l10n = AppLocalizations.of(context)!;
     return PopScope(
       canPop: true, // Allow normal back navigation to details
       child: Scaffold(
+        backgroundColor: widget.useNewUi ? _kBg : null,
         appBar: AppBar(
-          title: Text(AppLocalizations.of(context)!.edit_book),
+          backgroundColor: widget.useNewUi ? _kBg : null,
+          foregroundColor: widget.useNewUi ? _kPrimary : null,
+          surfaceTintColor: widget.useNewUi ? Colors.transparent : null,
+          elevation: widget.useNewUi ? 0 : null,
+          title: Text(
+            l10n.edit_book,
+            style:
+                widget.useNewUi
+                    ? const TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: _kPrimary,
+                    )
+                    : null,
+          ),
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_outlined),
-            onPressed: () {
-              Navigator.pop(context);
-            },
+            icon: Icon(
+              Icons.arrow_back_ios_new_outlined,
+              color: widget.useNewUi ? _kPrimary : null,
+            ),
+            onPressed: () => Navigator.pop(context),
           ),
           actions: [
-            IconButton(icon: const Icon(Icons.check), onPressed: _updateBook),
+            IconButton(
+              icon: Icon(
+                Icons.check,
+                color: widget.useNewUi ? _kPrimary : null,
+              ),
+              onPressed: _updateBook,
+            ),
           ],
         ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(20.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 16),
+        bottomNavigationBar: widget.useNewUi ? _v2Footer(l10n) : null,
+        body: Theme(
+          data: widget.useNewUi ? _v2Theme(context) : Theme.of(context),
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              20,
+              widget.useNewUi ? 20 : 36,
+              20,
+              widget.useNewUi ? 20 : 50,
+            ),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (widget.useNewUi) _v2SectionHeading('Primary Info'),
 
-                // Status dropdown (required) - MOVED TO TOP
-                DropdownButtonFormField<int>(
-                  value: _selectedStatusId,
-                  decoration: InputDecoration(
-                    labelText:
-                        '${AppLocalizations.of(context)!.reading_status} *',
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.check_circle),
-                  ),
-                  style: const TextStyle(
-                    fontFamily: 'Manrope',
-                    color: Color(0xFF43102B),
-                  ),
-                  items:
-                      _statusList.map((status) {
-                        return DropdownMenuItem<int>(
-                          value: status['status_id'] as int,
-                          child: Text(
-                            StatusHelper.getLocalizedLabel(
-                              status['value'] as String,
-                              AppLocalizations.of(context)!,
+                  // Status dropdown (required) - MOVED TO TOP
+                  DropdownButtonFormField<int>(
+                    value: _selectedStatusId,
+                    decoration: InputDecoration(
+                      labelText:
+                          '${AppLocalizations.of(context)!.reading_status} *',
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.check_circle),
+                    ),
+                    style: const TextStyle(
+                      fontFamily: 'Manrope',
+                      color: Color(0xFF43102B),
+                    ),
+                    items:
+                        _statusList.map((status) {
+                          return DropdownMenuItem<int>(
+                            value: status['status_id'] as int,
+                            child: Text(
+                              StatusHelper.getLocalizedLabel(
+                                status['value'] as String,
+                                AppLocalizations.of(context)!,
+                              ),
                             ),
-                          ),
-                        );
-                      }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedStatusId = value;
-                      // Find the status value
-                      final status = _statusList.firstWhere(
-                        (s) => s['status_id'] == value,
-                        orElse: () => {},
-                      );
-                      _selectedStatusValue = status['value'] as String?;
-                      // Clear original book if status is not Repeated
-                      if (_selectedStatusValue != 'Repeated') {
-                        _selectedOriginalBookId = null;
-                      }
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null) {
-                      return AppLocalizations.of(context)!.status_is_required;
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // Original Book Selection (shown only for Repeated status)
-                if (_selectedStatusValue == 'Repeated')
-                  FutureBuilder<List<Book>>(
-                    future: _loadAllBooksForSelection(),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return const SizedBox(
-                          height: 50,
-                          child: Center(child: CircularProgressIndicator()),
-                        );
-                      }
-
-                      final books = snapshot.data!;
-                      Book? selectedBook;
-                      if (_selectedOriginalBookId != null) {
-                        try {
-                          selectedBook = books.firstWhere(
-                            (b) => b.bookId == _selectedOriginalBookId,
                           );
-                        } catch (e) {
-                          selectedBook = null;
+                        }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedStatusId = value;
+                        // Find the status value
+                        final status = _statusList.firstWhere(
+                          (s) => s['status_id'] == value,
+                          orElse: () => {},
+                        );
+                        _selectedStatusValue = status['value'] as String?;
+                        // Clear original book if status is not Repeated
+                        if (_selectedStatusValue != 'Repeated') {
+                          _selectedOriginalBookId = null;
                         }
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null) {
+                        return AppLocalizations.of(context)!.status_is_required;
                       }
-
-                      return Autocomplete<Book>(
-                        initialValue:
-                            _selectedOriginalBookId != null &&
-                                    selectedBook != null
-                                ? TextEditingValue(
-                                  text:
-                                      '${selectedBook.name}${selectedBook.author != null ? " - ${selectedBook.author}" : ""}',
-                                )
-                                : const TextEditingValue(),
-                        optionsBuilder: (TextEditingValue textEditingValue) {
-                          if (textEditingValue.text.isEmpty) {
-                            return books;
-                          }
-                          return books.where((book) {
-                            final searchText =
-                                textEditingValue.text.toLowerCase();
-                            final bookText =
-                                '${book.name} ${book.author ?? ""}'
-                                    .toLowerCase();
-                            return bookText.contains(searchText);
-                          });
-                        },
-                        displayStringForOption:
-                            (Book book) =>
-                                '${book.name}${book.author != null ? " - ${book.author}" : ""}',
-                        onSelected: (Book book) {
-                          setState(() {
-                            _selectedOriginalBookId = book.bookId;
-                          });
-                        },
-                        fieldViewBuilder: (
-                          context,
-                          controller,
-                          focusNode,
-                          onFieldSubmitted,
-                        ) {
-                          return TextFormField(
-                            controller: controller,
-                            focusNode: focusNode,
-                            decoration: InputDecoration(
-                              labelText:
-                                  '${AppLocalizations.of(context)!.original_book} *',
-                              border: const OutlineInputBorder(),
-                              prefixIcon: const Icon(Icons.book),
-                              hintText:
-                                  AppLocalizations.of(
-                                    context,
-                                  )!.search_original_book,
-                            ),
-                            validator: (value) {
-                              if (_selectedStatusValue == 'Repeated' &&
-                                  _selectedOriginalBookId == null) {
-                                return AppLocalizations.of(
-                                  context,
-                                )!.original_book_is_required;
-                              }
-                              return null;
-                            },
-                          );
-                        },
-                      );
+                      return null;
                     },
                   ),
-                if (_selectedStatusValue == 'Repeated')
                   const SizedBox(height: 16),
 
-                // Name field
-                TextFormField(
-                  controller: _nameController,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.book_name,
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.book),
-                  ),
-                  textCapitalization: TextCapitalization.sentences,
-                ),
-                const SizedBox(height: 16),
-
-                // ISBN field
-                TextFormField(
-                  controller: _isbnController,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.isbn,
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.numbers),
-                    suffixIcon: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _isFetchingMetadata
-                            ? const Padding(
-                              padding: EdgeInsets.all(12.0),
-                              child: SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              ),
-                            )
-                            : IconButton(
-                              icon: const Icon(Icons.search),
-                              onPressed: _fetchMetadataByIsbn,
-                              tooltip:
-                                  AppLocalizations.of(context)!.fetch_book_info,
-                            ),
-                        IconButton(
-                          icon: const Icon(Icons.qr_code_scanner_outlined),
-                          onPressed: () => _scanISBN(),
-                          tooltip: AppLocalizations.of(context)!.scan_isbn,
-                        ),
-                      ],
-                    ),
-                  ),
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: 16),
-
-                // ASIN field
-                TextFormField(
-                  controller: _asinController,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.asin,
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.qr_code),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Author field
-                ChipAutocompleteField(
-                  labelText: AppLocalizations.of(context)!.authors,
-                  prefixIcon: Icons.person,
-                  suggestions: _authorSuggestions,
-                  initialValues: _selectedAuthors,
-                  hintText: AppLocalizations.of(context)!.search_or_add_author,
-                  onChanged: (values) {
-                    setState(() {
-                      _selectedAuthors = values;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // Editorial field (single selection displayed as chip)
-                ChipAutocompleteField(
-                  labelText: AppLocalizations.of(context)!.editorial,
-                  prefixIcon: Icons.business,
-                  suggestions: _editorialSuggestions,
-                  initialValues: _selectedEditorial,
-                  maxSelections: 1, // Only allow one editorial
-                  hintText: AppLocalizations.of(context)!.select_publisher,
-                  onChanged: (values) {
-                    setState(() {
-                      _selectedEditorial = values;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // Genre field
-                ChipAutocompleteField(
-                  labelText: AppLocalizations.of(context)!.genres,
-                  prefixIcon: Icons.category,
-                  suggestions: _genreSuggestions,
-                  initialValues: _selectedGenres,
-                  hintText: AppLocalizations.of(context)!.search_or_add_genre,
-                  onChanged: (values) {
-                    setState(() {
-                      _selectedGenres = values;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // Saga field
-                AutocompleteTextField(
-                  controller: _sagaController,
-                  labelText: AppLocalizations.of(context)!.saga,
-                  prefixIcon: Icons.collections_bookmark,
-                  suggestions: _sagaSuggestions,
-                  textCapitalization: TextCapitalization.words,
-                  onSelected: (selectedSaga) async {
-                    // Auto-fill format saga from existing books with this saga
-                    try {
-                      final db = await DatabaseHelper.instance.database;
-                      final repository = BookRepository(db);
-                      final formatSagaId = await repository
-                          .getFormatSagaIdForSaga(selectedSaga);
-
-                      if (formatSagaId != null && mounted) {
-                        setState(() {
-                          _selectedFormatSagaId = formatSagaId;
-                        });
-                      }
-                    } catch (e) {
-                      debugPrint('Error auto-filling format saga: $e');
-                    }
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // N Saga field
-                TextFormField(
-                  controller: _nSagaController,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.saga_number,
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.format_list_numbered),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Saga Universe field
-                AutocompleteTextField(
-                  controller: _sagaUniverseController,
-                  labelText: AppLocalizations.of(context)!.saga_universe,
-                  prefixIcon: Icons.public,
-                  suggestions: _sagaUniverseSuggestions,
-                  textCapitalization: TextCapitalization.words,
-                ),
-                const SizedBox(height: 16),
-
-                // Pages field
-                TextFormField(
-                  controller: _pagesController,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.pages,
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.description),
-                  ),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                ),
-                if (_pagesFetchedFromApi)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4, left: 12),
-                    child: Text(
-                      AppLocalizations.of(context)!.review_pages_warning,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(context).colorScheme.error,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ),
-                const SizedBox(height: 16),
-
-                // Publication Year field
-                TextFormField(
-                  controller: _publicationYearController,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.publication_year,
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.calendar_today),
-                  ),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                ),
-                const SizedBox(height: 16),
-
-                // Release date picker (only for TBReleased books)
-                if (_statusList.isNotEmpty &&
-                    _selectedStatusId != null &&
-                    _statusList.any(
-                      (s) =>
-                          s['status_id'] == _selectedStatusId &&
-                          (s['value'] as String).toLowerCase() == 'tbreleased',
-                    ))
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        AppLocalizations.of(context)!.original_publication_date,
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      InkWell(
-                        onTap: () async {
-                          final pickedDate = await showDatePicker(
-                            context: context,
-                            initialDate: _releaseDate ?? DateTime.now(),
-                            firstDate: DateTime(1900),
-                            lastDate: DateTime(2100),
+                  // Original Book Selection (shown only for Repeated status)
+                  if (_selectedStatusValue == 'Repeated')
+                    FutureBuilder<List<Book>>(
+                      future: _loadAllBooksForSelection(),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
+                          return const SizedBox(
+                            height: 50,
+                            child: Center(child: CircularProgressIndicator()),
                           );
-                          if (pickedDate != null) {
-                            setState(() {
-                              _releaseDate = pickedDate;
-                              // Update publication year to match
-                              _publicationYearController.text =
-                                  pickedDate.year.toString();
-                            });
+                        }
+
+                        final books = snapshot.data!;
+                        Book? selectedBook;
+                        if (_selectedOriginalBookId != null) {
+                          try {
+                            selectedBook = books.firstWhere(
+                              (b) => b.bookId == _selectedOriginalBookId,
+                            );
+                          } catch (e) {
+                            selectedBook = null;
                           }
-                        },
-                        child: InputDecorator(
-                          decoration: InputDecoration(
-                            labelText:
-                                AppLocalizations.of(context)!.release_date,
-                            border: const OutlineInputBorder(),
-                            prefixIcon: const Icon(Icons.calendar_today),
-                          ),
-                          child: Text(
-                            _releaseDate != null
-                                ? '${_releaseDate!.day}/${_releaseDate!.month}/${_releaseDate!.year}'
-                                : AppLocalizations.of(
-                                  context,
-                                )!.select_release_date,
-                            style: TextStyle(
-                              color:
-                                  _releaseDate != null
-                                      ? null
-                                      : Theme.of(
-                                        context,
-                                      ).colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
+                        }
 
-                      // Notification checkbox
-                      CheckboxListTile(
-                        title: Text(
-                          AppLocalizations.of(
-                            context,
-                          )!.enable_release_notification,
-                        ),
-                        subtitle: Text(
-                          AppLocalizations.of(
-                            context,
-                          )!.get_notified_when_released,
-                        ),
-                        value: _notificationEnabled,
-                        onChanged: (value) {
-                          setState(() {
-                            _notificationEnabled = value ?? false;
-                            if (_notificationEnabled &&
-                                _notificationDateTime == null) {
-                              // Set default notification time to release date at 9 AM
-                              _notificationDateTime =
-                                  _releaseDate != null
-                                      ? DateTime(
-                                        _releaseDate!.year,
-                                        _releaseDate!.month,
-                                        _releaseDate!.day,
-                                        9,
-                                        0,
-                                      )
-                                      : DateTime.now().add(
-                                        const Duration(days: 1),
-                                      );
-                              _notificationTime = const TimeOfDay(
-                                hour: 9,
-                                minute: 0,
-                              );
+                        return Autocomplete<Book>(
+                          initialValue:
+                              _selectedOriginalBookId != null &&
+                                      selectedBook != null
+                                  ? TextEditingValue(
+                                    text:
+                                        '${selectedBook.name}${selectedBook.author != null ? " - ${selectedBook.author}" : ""}',
+                                  )
+                                  : const TextEditingValue(),
+                          optionsBuilder: (TextEditingValue textEditingValue) {
+                            if (textEditingValue.text.isEmpty) {
+                              return books;
                             }
-                          });
-                        },
-                        controlAffinity: ListTileControlAffinity.leading,
-                      ),
+                            return books.where((book) {
+                              final searchText =
+                                  textEditingValue.text.toLowerCase();
+                              final bookText =
+                                  '${book.name} ${book.author ?? ""}'
+                                      .toLowerCase();
+                              return bookText.contains(searchText);
+                            });
+                          },
+                          displayStringForOption:
+                              (Book book) =>
+                                  '${book.name}${book.author != null ? " - ${book.author}" : ""}',
+                          onSelected: (Book book) {
+                            setState(() {
+                              _selectedOriginalBookId = book.bookId;
+                            });
+                          },
+                          fieldViewBuilder: (
+                            context,
+                            controller,
+                            focusNode,
+                            onFieldSubmitted,
+                          ) {
+                            return TextFormField(
+                              controller: controller,
+                              focusNode: focusNode,
+                              decoration: InputDecoration(
+                                labelText:
+                                    '${AppLocalizations.of(context)!.original_book} *',
+                                border: const OutlineInputBorder(),
+                                prefixIcon: const Icon(Icons.book),
+                                hintText:
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.search_original_book,
+                              ),
+                              validator: (value) {
+                                if (_selectedStatusValue == 'Repeated' &&
+                                    _selectedOriginalBookId == null) {
+                                  return AppLocalizations.of(
+                                    context,
+                                  )!.original_book_is_required;
+                                }
+                                return null;
+                              },
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  if (_selectedStatusValue == 'Repeated')
+                    const SizedBox(height: 16),
 
-                      // Notification datetime picker
-                      if (_notificationEnabled) ...[
+                  // Name field
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.book_name,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.book),
+                    ),
+                    textCapitalization: TextCapitalization.sentences,
+                  ),
+                  if (widget.useNewUi) ...[
+                    _v2Divider(),
+                    _v2SectionHeading('Identification'),
+                  ] else
+                    const SizedBox(height: 16),
+
+                  // ISBN field
+                  TextFormField(
+                    controller: _isbnController,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.isbn,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.numbers),
+                      suffixIcon: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _isFetchingMetadata
+                              ? const Padding(
+                                padding: EdgeInsets.all(12.0),
+                                child: SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              )
+                              : IconButton(
+                                icon: const Icon(Icons.search),
+                                onPressed: _fetchMetadataByIsbn,
+                                tooltip:
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.fetch_book_info,
+                              ),
+                          IconButton(
+                            icon: const Icon(Icons.qr_code_scanner_outlined),
+                            onPressed: () => _scanISBN(),
+                            tooltip: AppLocalizations.of(context)!.scan_isbn,
+                          ),
+                        ],
+                      ),
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // ASIN field
+                  TextFormField(
+                    controller: _asinController,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.asin,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.qr_code),
+                    ),
+                  ),
+                  if (widget.useNewUi) ...[
+                    _v2Divider(),
+                    _v2SectionHeading('Book Details'),
+                  ] else
+                    const SizedBox(height: 16),
+
+                  // Author field
+                  ChipAutocompleteField(
+                    labelText: AppLocalizations.of(context)!.authors,
+                    prefixIcon: Icons.person,
+                    suggestions: _authorSuggestions,
+                    initialValues: _selectedAuthors,
+                    hintText:
+                        AppLocalizations.of(context)!.search_or_add_author,
+                    onChanged: (values) {
+                      setState(() {
+                        _selectedAuthors = values;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Editorial field (single selection displayed as chip)
+                  ChipAutocompleteField(
+                    labelText: AppLocalizations.of(context)!.editorial,
+                    prefixIcon: Icons.business,
+                    suggestions: _editorialSuggestions,
+                    initialValues: _selectedEditorial,
+                    maxSelections: 1, // Only allow one editorial
+                    hintText: AppLocalizations.of(context)!.select_publisher,
+                    onChanged: (values) {
+                      setState(() {
+                        _selectedEditorial = values;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Genre field
+                  ChipAutocompleteField(
+                    labelText: AppLocalizations.of(context)!.genres,
+                    prefixIcon: Icons.category,
+                    suggestions: _genreSuggestions,
+                    initialValues: _selectedGenres,
+                    hintText: AppLocalizations.of(context)!.search_or_add_genre,
+                    onChanged: (values) {
+                      setState(() {
+                        _selectedGenres = values;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Saga field
+                  AutocompleteTextField(
+                    controller: _sagaController,
+                    labelText: AppLocalizations.of(context)!.saga,
+                    prefixIcon: Icons.collections_bookmark,
+                    suggestions: _sagaSuggestions,
+                    textCapitalization: TextCapitalization.words,
+                    onSelected: (selectedSaga) async {
+                      // Auto-fill format saga from existing books with this saga
+                      try {
+                        final db = await DatabaseHelper.instance.database;
+                        final repository = BookRepository(db);
+                        final formatSagaId = await repository
+                            .getFormatSagaIdForSaga(selectedSaga);
+
+                        if (formatSagaId != null && mounted) {
+                          setState(() {
+                            _selectedFormatSagaId = formatSagaId;
+                          });
+                        }
+                      } catch (e) {
+                        debugPrint('Error auto-filling format saga: $e');
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // N Saga field
+                  TextFormField(
+                    controller: _nSagaController,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.saga_number,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.format_list_numbered),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Saga Universe field
+                  AutocompleteTextField(
+                    controller: _sagaUniverseController,
+                    labelText: AppLocalizations.of(context)!.saga_universe,
+                    prefixIcon: Icons.public,
+                    suggestions: _sagaUniverseSuggestions,
+                    textCapitalization: TextCapitalization.words,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Pages field
+                  TextFormField(
+                    controller: _pagesController,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.pages,
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.description),
+                    ),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  ),
+                  if (_pagesFetchedFromApi)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, left: 12),
+                      child: Text(
+                        AppLocalizations.of(context)!.review_pages_warning,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.error,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: 16),
+
+                  // Publication Year field
+                  TextFormField(
+                    controller: _publicationYearController,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.publication_year,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.calendar_today),
+                    ),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Release date picker (only for TBReleased books)
+                  if (_statusList.isNotEmpty &&
+                      _selectedStatusId != null &&
+                      _statusList.any(
+                        (s) =>
+                            s['status_id'] == _selectedStatusId &&
+                            (s['value'] as String).toLowerCase() ==
+                                'tbreleased',
+                      ))
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          AppLocalizations.of(
+                            context,
+                          )!.original_publication_date,
+                          style: Theme.of(context).textTheme.titleSmall
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
                         const SizedBox(height: 8),
                         InkWell(
                           onTap: () async {
                             final pickedDate = await showDatePicker(
                               context: context,
-                              initialDate:
-                                  _notificationDateTime ?? DateTime.now(),
-                              firstDate: DateTime.now(),
+                              initialDate: _releaseDate ?? DateTime.now(),
+                              firstDate: DateTime(1900),
                               lastDate: DateTime(2100),
                             );
                             if (pickedDate != null) {
-                              if (!context.mounted) return;
-                              final pickedTime = await showTimePicker(
-                                context: context,
-                                initialTime:
-                                    _notificationTime ??
-                                    const TimeOfDay(hour: 9, minute: 0),
-                              );
-                              if (pickedTime != null) {
-                                setState(() {
-                                  _notificationDateTime = DateTime(
-                                    pickedDate.year,
-                                    pickedDate.month,
-                                    pickedDate.day,
-                                    pickedTime.hour,
-                                    pickedTime.minute,
-                                  );
-                                  _notificationTime = pickedTime;
-                                });
-                              }
+                              setState(() {
+                                _releaseDate = pickedDate;
+                                // Update publication year to match
+                                _publicationYearController.text =
+                                    pickedDate.year.toString();
+                              });
                             }
                           },
                           child: InputDecorator(
                             decoration: InputDecoration(
                               labelText:
-                                  AppLocalizations.of(
-                                    context,
-                                  )!.notification_date_time,
+                                  AppLocalizations.of(context)!.release_date,
                               border: const OutlineInputBorder(),
-                              prefixIcon: const Icon(
-                                Icons.notifications_active,
-                              ),
+                              prefixIcon: const Icon(Icons.calendar_today),
                             ),
                             child: Text(
-                              _notificationDateTime != null
-                                  ? '${_notificationDateTime!.day}/${_notificationDateTime!.month}/${_notificationDateTime!.year} at ${_notificationTime!.format(context)}'
+                              _releaseDate != null
+                                  ? '${_releaseDate!.day}/${_releaseDate!.month}/${_releaseDate!.year}'
                                   : AppLocalizations.of(
                                     context,
-                                  )!.select_notification_date,
+                                  )!.select_release_date,
                               style: TextStyle(
                                 color:
-                                    _notificationDateTime != null
+                                    _releaseDate != null
                                         ? null
                                         : Theme.of(
                                           context,
@@ -1854,653 +1903,336 @@ class _EditBookScreenState extends State<EditBookScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 8),
-                      ],
-                    ],
-                  ),
+                        const SizedBox(height: 16),
 
-                // Format Saga dropdown
-                DropdownButtonFormField<int>(
-                  value: _selectedFormatSagaId,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.format_saga,
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.format_shapes),
-                  ),
-                  style: const TextStyle(
-                    fontFamily: 'Manrope',
-                    color: Color(0xFF43102B),
-                  ),
-                  items:
-                      _formatSagaList.map((format) {
-                        return DropdownMenuItem<int>(
-                          value: format['format_id'] as int,
-                          child: Text(
-                            FormatSagaHelper.getLocalizedLabel(
-                              format['value'] as String,
-                              AppLocalizations.of(context)!,
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedFormatSagaId = value;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // Language dropdown
-                DropdownButtonFormField<int>(
-                  value: _selectedLanguageId,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.language,
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.language),
-                  ),
-                  style: const TextStyle(
-                    fontFamily: 'Manrope',
-                    color: Color(0xFF43102B),
-                  ),
-                  items:
-                      _languageList.map((lang) {
-                        return DropdownMenuItem<int>(
-                          value: lang['language_id'] as int,
-                          child: Text(lang['name'] as String),
-                        );
-                      }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedLanguageId = value;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // Place dropdown
-                DropdownButtonFormField<int>(
-                  value: _selectedPlaceId,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.place,
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.place),
-                  ),
-                  style: const TextStyle(
-                    fontFamily: 'Manrope',
-                    color: Color(0xFF43102B),
-                  ),
-                  items:
-                      _placeList.map((place) {
-                        return DropdownMenuItem<int>(
-                          value: place['place_id'] as int,
-                          child: Text(place['name'] as String),
-                        );
-                      }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedPlaceId = value;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // Format dropdown
-                DropdownButtonFormField<int>(
-                  value: _selectedFormatId,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.format,
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.import_contacts),
-                  ),
-                  style: const TextStyle(
-                    fontFamily: 'Manrope',
-                    color: Color(0xFF43102B),
-                  ),
-                  items:
-                      _formatList.map((format) {
-                        return DropdownMenuItem<int>(
-                          value: format['format_id'] as int,
-                          child: Text(format['value'] as String),
-                        );
-                      }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedFormatId = value;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // Price field
-                TextFormField(
-                  controller: _priceController,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.price,
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.attach_money),
-                    hintText: AppLocalizations.of(context)!.enter_book_price,
-                  ),
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(
-                      RegExp(r'^\d+\.?\d{0,2}'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // Acquired Date field
-                InkWell(
-                  onTap: _showAcquiredDatePicker,
-                  child: InputDecorator(
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.acquired_date,
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.calendar_today),
-                    ),
-                    child: Text(
-                      _acquiredYearController.text.isNotEmpty
-                          ? _acquiredYearController.text
-                          : AppLocalizations.of(context)!.select_acquired_date,
-                      style: TextStyle(
-                        color:
-                            _acquiredYearController.text.isNotEmpty
-                                ? null
-                                : Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Loaned dropdown
-                DropdownButtonFormField<String>(
-                  value: _selectedLoaned,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.loaned,
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.swap_horiz),
-                  ),
-                  style: const TextStyle(
-                    fontFamily: 'Manrope',
-                    color: Color(0xFF43102B),
-                  ),
-                  items: [
-                    DropdownMenuItem(
-                      value: 'yes',
-                      child: Text(AppLocalizations.of(context)!.yes),
-                    ),
-                    DropdownMenuItem(
-                      value: 'no',
-                      child: Text(AppLocalizations.of(context)!.no),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedLoaned = value;
-                    });
-                  },
-                ),
-                const SizedBox(height: 32),
-
-                // Bundle section
-                BundleInputWidgetV2(
-                  initialIsBundle: _isBundle,
-                  initialBundleCount: _bundleCount,
-                  initialBundleBooks: _bundleBooks,
-                  statusOptions: _statusList,
-                  editMode:
-                      widget.book.bookId !=
-                      null, // Edit mode when editing existing book
-                  onChanged: (isBundle, count, bundleBooks) {
-                    setState(() {
-                      _isBundle = isBundle;
-                      _bundleCount = count;
-                      _bundleBooks = bundleBooks;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // TBR and Tandem section
-                Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!.book_lists,
-                          style: Theme.of(
-                            context,
-                          ).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
+                        // Notification checkbox
                         CheckboxListTile(
-                          title: Text(AppLocalizations.of(context)!.add_to_tbr),
-                          subtitle: Text(
-                            AppLocalizations.of(context)!.mark_for_reading_list,
+                          title: Text(
+                            AppLocalizations.of(
+                              context,
+                            )!.enable_release_notification,
                           ),
-                          value: _tbr,
-                          onChanged: (value) async {
-                            if (value == true && !_tbr) {
-                              // Check TBR limit only when checking (not unchecking)
-                              final db = await DatabaseHelper.instance.database;
-                              final repository = BookRepository(db);
-                              final currentCount =
-                                  await repository.getTBRCount();
-                              final limit = await getTBRLimit();
-
-                              if (currentCount >= limit) {
-                                if (context.mounted) {
-                                  showDialog(
-                                    context: context,
-                                    builder:
-                                        (context) => AlertDialog(
-                                          title: Row(
-                                            children: [
-                                              Icon(
-                                                Icons.warning_amber,
-                                                color:
-                                                    Theme.of(
-                                                      context,
-                                                    ).colorScheme.secondary,
-                                              ),
-                                              const SizedBox(width: 8),
-                                              Text(
-                                                AppLocalizations.of(
-                                                  context,
-                                                )!.tbr_limit_reached,
-                                              ),
-                                            ],
-                                          ),
-                                          content: Text(
-                                            AppLocalizations.of(
-                                              context,
-                                            )!.tbr_limit_message(limit),
-                                          ),
-                                          actions: [
-                                            TextButton(
-                                              onPressed:
-                                                  () => Navigator.pop(context),
-                                              child: Text(
-                                                AppLocalizations.of(
-                                                  context,
-                                                )!.ok,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                  );
-                                }
-                                return;
-                              }
-                            }
+                          subtitle: Text(
+                            AppLocalizations.of(
+                              context,
+                            )!.get_notified_when_released,
+                          ),
+                          value: _notificationEnabled,
+                          onChanged: (value) {
                             setState(() {
-                              _tbr = value ?? false;
+                              _notificationEnabled = value ?? false;
+                              if (_notificationEnabled &&
+                                  _notificationDateTime == null) {
+                                // Set default notification time to release date at 9 AM
+                                _notificationDateTime =
+                                    _releaseDate != null
+                                        ? DateTime(
+                                          _releaseDate!.year,
+                                          _releaseDate!.month,
+                                          _releaseDate!.day,
+                                          9,
+                                          0,
+                                        )
+                                        : DateTime.now().add(
+                                          const Duration(days: 1),
+                                        );
+                                _notificationTime = const TimeOfDay(
+                                  hour: 9,
+                                  minute: 0,
+                                );
+                              }
                             });
                           },
-                          secondary: const Icon(Icons.bookmark_add),
+                          controlAffinity: ListTileControlAffinity.leading,
                         ),
-                        if (_sagaController.text.isNotEmpty ||
-                            _sagaUniverseController.text.isNotEmpty)
-                          CheckboxListTile(
-                            title: Text(
-                              AppLocalizations.of(context)!.mark_as_tandem,
-                            ),
-                            subtitle: Text(
-                              AppLocalizations.of(context)!.tandem_description,
-                            ),
-                            value: _isTandem,
-                            onChanged: (value) {
-                              setState(() {
-                                _isTandem = value ?? false;
-                              });
-                            },
-                            secondary: const Icon(
-                              Icons.swap_horizontal_circle_outlined,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 32),
 
-                // New fields section
-                Text(
-                  AppLocalizations.of(context)!.reading_information_optional,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Custom Rating Fields Section
-                Card(
-                  elevation: 2,
-                  child: ExpansionTile(
-                    leading: const Icon(Icons.star_rate),
-                    title: Text(AppLocalizations.of(context)!.rating),
-                    subtitle: Text(
-                      _ratingFields.isEmpty
-                          ? AppLocalizations.of(context)!.no_ratings_yet
-                          : '${AppLocalizations.of(context)!.average}: ${_calculateDisplayRating().toStringAsFixed(1)}',
-                    ),
-                    initiallyExpanded: false,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // List of rating fields
-                            ..._ratingFields.asMap().entries.map((entry) {
-                              final index = entry.key;
-                              final field = entry.value;
-
-                              return Card(
-                                margin: const EdgeInsets.only(bottom: 12.0),
-                                elevation: 1,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: DropdownButtonFormField<
-                                              String
-                                            >(
-                                              value: field.fieldName,
-                                              decoration: InputDecoration(
-                                                labelText:
-                                                    AppLocalizations.of(
-                                                      context,
-                                                    )!.criterion,
-                                                border:
-                                                    const OutlineInputBorder(),
-                                              ),
-                                              style: const TextStyle(
-                                                fontFamily: 'Manrope',
-                                                color: Color(0xFF43102B),
-                                              ),
-                                              items: () {
-                                                // Combine suggestions with existing field names to avoid missing values
-                                                final allNames =
-                                                    <String>{
-                                                        ..._ratingFieldSuggestions,
-                                                        ..._ratingFields.map(
-                                                          (f) => f.fieldName,
-                                                        ),
-                                                      }.toList()
-                                                      ..sort();
-
-                                                return allNames.map((name) {
-                                                  return DropdownMenuItem(
-                                                    value: name,
-                                                    child: Text(name),
-                                                  );
-                                                }).toList();
-                                              }(),
-                                              onChanged: (value) {
-                                                if (value != null) {
-                                                  setState(() {
-                                                    _ratingFields[index] =
-                                                        BookRatingField(
-                                                          ratingFieldId:
-                                                              field
-                                                                  .ratingFieldId,
-                                                          bookId: field.bookId,
-                                                          fieldName: value,
-                                                          ratingValue:
-                                                              field.ratingValue,
-                                                        );
-                                                  });
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                          IconButton(
-                                            icon: Icon(
-                                              Icons.delete,
-                                              color:
-                                                  Theme.of(
-                                                    context,
-                                                  ).colorScheme.error,
-                                            ),
-                                            onPressed:
-                                                () => _removeRatingField(index),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 12),
-                                      HeartRatingInput(
-                                        initialRating: field.ratingValue,
-                                        onRatingChanged: (rating) {
-                                          setState(() {
-                                            _ratingFields[index] =
-                                                BookRatingField(
-                                                  ratingFieldId:
-                                                      field.ratingFieldId,
-                                                  bookId: field.bookId,
-                                                  fieldName: field.fieldName,
-                                                  ratingValue: rating,
-                                                );
-                                            if (!_ratingOverride) {
-                                              _myRating =
-                                                  _calculateAverageRating();
-                                            }
-                                          });
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                        // Notification datetime picker
+                        if (_notificationEnabled) ...[
+                          const SizedBox(height: 8),
+                          InkWell(
+                            onTap: () async {
+                              final pickedDate = await showDatePicker(
+                                context: context,
+                                initialDate:
+                                    _notificationDateTime ?? DateTime.now(),
+                                firstDate: DateTime.now(),
+                                lastDate: DateTime(2100),
                               );
-                            }),
-
-                            TextButton.icon(
-                              onPressed: _addRatingField,
-                              icon: const Icon(Icons.add),
-                              label: Text(
-                                AppLocalizations.of(
-                                  context,
-                                )!.add_rating_criterion,
-                              ),
-                            ),
-
-                            const Divider(),
-
-                            Row(
-                              children: [
-                                Text(
-                                  '${AppLocalizations.of(context)!.general_rating}:',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                              if (pickedDate != null) {
+                                if (!context.mounted) return;
+                                final pickedTime = await showTimePicker(
+                                  context: context,
+                                  initialTime:
+                                      _notificationTime ??
+                                      const TimeOfDay(hour: 9, minute: 0),
+                                );
+                                if (pickedTime != null) {
+                                  setState(() {
+                                    _notificationDateTime = DateTime(
+                                      pickedDate.year,
+                                      pickedDate.month,
+                                      pickedDate.day,
+                                      pickedTime.hour,
+                                      pickedTime.minute,
+                                    );
+                                    _notificationTime = pickedTime;
+                                  });
+                                }
+                              }
+                            },
+                            child: InputDecorator(
+                              decoration: InputDecoration(
+                                labelText:
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.notification_date_time,
+                                border: const OutlineInputBorder(),
+                                prefixIcon: const Icon(
+                                  Icons.notifications_active,
                                 ),
-                                const SizedBox(width: 12),
-                                if (!_ratingOverride)
-                                  Text(
-                                    '${_calculateAverageRating().toStringAsFixed(1)} (${AppLocalizations.of(context)!.auto_calculated})',
-                                    style: TextStyle(
-                                      color:
-                                          Theme.of(
+                              ),
+                              child: Text(
+                                _notificationDateTime != null
+                                    ? '${_notificationDateTime!.day}/${_notificationDateTime!.month}/${_notificationDateTime!.year} at ${_notificationTime!.format(context)}'
+                                    : AppLocalizations.of(
+                                      context,
+                                    )!.select_notification_date,
+                                style: TextStyle(
+                                  color:
+                                      _notificationDateTime != null
+                                          ? null
+                                          : Theme.of(
                                             context,
                                           ).colorScheme.onSurfaceVariant,
-                                    ),
-                                  )
-                                else
-                                  Text(
-                                    '${_myRating.toStringAsFixed(1)} (${AppLocalizations.of(context)!.manual})',
-                                    style: TextStyle(
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-
-                            SwitchListTile(
-                              title: Text(
-                                AppLocalizations.of(
-                                  context,
-                                )!.override_auto_calculation,
+                                ),
                               ),
-                              subtitle: Text(
-                                AppLocalizations.of(
-                                  context,
-                                )!.manually_set_rating,
-                              ),
-                              value: _ratingOverride,
-                              onChanged: (value) {
-                                setState(() {
-                                  _ratingOverride = value;
-                                  if (!value) {
-                                    _myRating = _calculateAverageRating();
-                                  }
-                                });
-                              },
                             ),
-
-                            if (_ratingOverride)
-                              HeartRatingInput(
-                                initialRating: _myRating,
-                                onRatingChanged: (rating) {
-                                  setState(() {
-                                    _myRating = rating;
-                                  });
-                                },
-                              ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Read Count with - and + buttons
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      AppLocalizations.of(context)!.times_read,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        // Minus button
-                        IconButton(
-                          onPressed:
-                              _readCount > 0
-                                  ? () {
-                                    setState(() {
-                                      _readCount--;
-                                    });
-                                  }
-                                  : null,
-                          icon: const Icon(Icons.remove),
-                          style: IconButton.styleFrom(
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.primary.withValues(alpha: 0.1),
-                            foregroundColor:
-                                Theme.of(context).colorScheme.primary,
-                            disabledBackgroundColor:
-                                Theme.of(
-                                  context,
-                                ).colorScheme.surfaceContainerHighest,
-                            disabledForegroundColor:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 12,
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color:
-                                  Theme.of(context).colorScheme.outlineVariant,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            '$_readCount',
-                            style: Theme.of(context).textTheme.titleLarge
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        // Plus button
-                        IconButton(
-                          onPressed: () {
-                            setState(() {
-                              _readCount++;
-                            });
-                          },
-                          icon: const Icon(Icons.add),
-                          style: IconButton.styleFrom(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.primary,
-                            foregroundColor:
-                                Theme.of(context).colorScheme.onPrimary,
-                          ),
-                        ),
+                          const SizedBox(height: 8),
+                        ],
                       ],
                     ),
-                  ],
-                ),
-                const SizedBox(height: 16),
 
-                // Reading Sessions (hidden for bundles)
-                if (!_isBundle)
-                  ReadDatesWidget(
-                    bookId: widget.book.bookId!,
-                    initialReadDates: _readDates,
-                    onChanged: (readDates) {
+                  if (widget.useNewUi) ...[
+                    _v2Divider(),
+                    _v2SectionHeading('Format'),
+                  ],
+
+                  // Format Saga dropdown
+                  DropdownButtonFormField<int>(
+                    value: _selectedFormatSagaId,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.format_saga,
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.format_shapes),
+                    ),
+                    style: const TextStyle(
+                      fontFamily: 'Manrope',
+                      color: Color(0xFF43102B),
+                    ),
+                    items:
+                        _formatSagaList.map((format) {
+                          return DropdownMenuItem<int>(
+                            value: format['format_id'] as int,
+                            child: Text(
+                              FormatSagaHelper.getLocalizedLabel(
+                                format['value'] as String,
+                                AppLocalizations.of(context)!,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                    onChanged: (value) {
                       setState(() {
-                        _readDates = readDates;
-                        // Update read count based on finished sessions
-                        _readCount =
-                            readDates
-                                .where(
-                                  (rd) =>
-                                      rd.dateFinished != null &&
-                                      rd.dateFinished!.isNotEmpty,
-                                )
-                                .length;
+                        _selectedFormatSagaId = value;
                       });
                     },
                   ),
-                if (!_isBundle) const SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
-                // Chronometer Sessions (hidden for bundles)
-                if (!_isBundle && _chronometerSessions.isNotEmpty)
+                  // Language dropdown
+                  DropdownButtonFormField<int>(
+                    value: _selectedLanguageId,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.language,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.language),
+                    ),
+                    style: const TextStyle(
+                      fontFamily: 'Manrope',
+                      color: Color(0xFF43102B),
+                    ),
+                    items:
+                        _languageList.map((lang) {
+                          return DropdownMenuItem<int>(
+                            value: lang['language_id'] as int,
+                            child: Text(lang['name'] as String),
+                          );
+                        }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedLanguageId = value;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Place dropdown
+                  DropdownButtonFormField<int>(
+                    value: _selectedPlaceId,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.place,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.place),
+                    ),
+                    style: const TextStyle(
+                      fontFamily: 'Manrope',
+                      color: Color(0xFF43102B),
+                    ),
+                    items:
+                        _placeList.map((place) {
+                          return DropdownMenuItem<int>(
+                            value: place['place_id'] as int,
+                            child: Text(place['name'] as String),
+                          );
+                        }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedPlaceId = value;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Format dropdown
+                  DropdownButtonFormField<int>(
+                    value: _selectedFormatId,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.format,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.import_contacts),
+                    ),
+                    style: const TextStyle(
+                      fontFamily: 'Manrope',
+                      color: Color(0xFF43102B),
+                    ),
+                    items:
+                        _formatList.map((format) {
+                          return DropdownMenuItem<int>(
+                            value: format['format_id'] as int,
+                            child: Text(format['value'] as String),
+                          );
+                        }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedFormatId = value;
+                      });
+                    },
+                  ),
+                  if (widget.useNewUi) ...[
+                    _v2Divider(),
+                    _v2SectionHeading('Acquisition'),
+                  ] else
+                    const SizedBox(height: 16),
+
+                  // Price field
+                  TextFormField(
+                    controller: _priceController,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.price,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.attach_money),
+                      hintText: AppLocalizations.of(context)!.enter_book_price,
+                    ),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                        RegExp(r'^\d+\.?\d{0,2}'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Acquired Date field
+                  InkWell(
+                    onTap: _showAcquiredDatePicker,
+                    child: InputDecorator(
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.acquired_date,
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.calendar_today),
+                      ),
+                      child: Text(
+                        _acquiredYearController.text.isNotEmpty
+                            ? _acquiredYearController.text
+                            : AppLocalizations.of(
+                              context,
+                            )!.select_acquired_date,
+                        style: TextStyle(
+                          color:
+                              _acquiredYearController.text.isNotEmpty
+                                  ? null
+                                  : Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Loaned dropdown
+                  DropdownButtonFormField<String>(
+                    value: _selectedLoaned,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.loaned,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.swap_horiz),
+                    ),
+                    style: const TextStyle(
+                      fontFamily: 'Manrope',
+                      color: Color(0xFF43102B),
+                    ),
+                    items: [
+                      DropdownMenuItem(
+                        value: 'yes',
+                        child: Text(AppLocalizations.of(context)!.yes),
+                      ),
+                      DropdownMenuItem(
+                        value: 'no',
+                        child: Text(AppLocalizations.of(context)!.no),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedLoaned = value;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Bundle section
+                  BundleInputWidgetV2(
+                    initialIsBundle: _isBundle,
+                    initialBundleCount: _bundleCount,
+                    initialBundleBooks: _bundleBooks,
+                    statusOptions: _statusList,
+                    editMode:
+                        widget.book.bookId !=
+                        null, // Edit mode when editing existing book
+                    onChanged: (isBundle, count, bundleBooks) {
+                      setState(() {
+                        _isBundle = isBundle;
+                        _bundleCount = count;
+                        _bundleBooks = bundleBooks;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // TBR and Tandem section
                   Card(
                     elevation: 2,
                     shape: RoundedRectangleBorder(
@@ -2511,141 +2243,611 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.timer,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                AppLocalizations.of(
-                                  context,
-                                )!.timed_reading_sessions,
-                                style: Theme.of(context).textTheme.titleMedium
-                                    ?.copyWith(fontWeight: FontWeight.bold),
-                              ),
-                            ],
+                          Text(
+                            AppLocalizations.of(context)!.book_lists,
+                            style: Theme.of(
+                              context,
+                            ).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
                           ),
                           const SizedBox(height: 12),
-                          ..._chronometerSessions.asMap().entries.map((entry) {
-                            final index = entry.key;
-                            final session = entry.value;
-                            final duration = session.durationSeconds ?? 0;
-                            final hours = duration ~/ 3600;
-                            final minutes = (duration % 3600) ~/ 60;
-                            final seconds = duration % 60;
-                            String durationStr;
-                            if (hours > 0) {
-                              durationStr = '${hours}h ${minutes}m ${seconds}s';
-                            } else if (minutes > 0) {
-                              durationStr = '${minutes}m ${seconds}s';
-                            } else {
-                              durationStr = '${seconds}s';
-                            }
+                          CheckboxListTile(
+                            title: Text(
+                              AppLocalizations.of(context)!.add_to_tbr,
+                            ),
+                            subtitle: Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.mark_for_reading_list,
+                            ),
+                            value: _tbr,
+                            onChanged: (value) async {
+                              if (value == true && !_tbr) {
+                                // Check TBR limit only when checking (not unchecking)
+                                final db =
+                                    await DatabaseHelper.instance.database;
+                                final repository = BookRepository(db);
+                                final currentCount =
+                                    await repository.getTBRCount();
+                                final limit = await getTBRLimit();
 
-                            // Format clicked_at time if available
-                            String clickedAtStr = '';
-                            if (session.clickedAt != null) {
-                              final clickedTime = session.clickedAt!;
-                              clickedAtStr =
-                                  '\nStarted: ${clickedTime.hour.toString().padLeft(2, '0')}:${clickedTime.minute.toString().padLeft(2, '0')}';
-                            }
-
-                            return Card(
-                              margin: const EdgeInsets.only(bottom: 8),
-                              child: ListTile(
-                                leading: CircleAvatar(
-                                  backgroundColor:
-                                      Theme.of(
-                                        context,
-                                      ).colorScheme.primaryContainer,
-                                  child: Text('${index + 1}'),
-                                ),
-                                title: Text(
-                                  session.startTime?.toIso8601String().split(
-                                        'T',
-                                      )[0] ??
-                                      'No date',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                subtitle: Text(
-                                  'Duration: $durationStr$clickedAtStr',
-                                ),
-                                trailing: IconButton(
-                                  icon: Icon(
-                                    Icons.delete,
-                                    color: Theme.of(context).colorScheme.error,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      _chronometerSessions.removeAt(index);
-                                    });
-                                  },
-                                ),
+                                if (currentCount >= limit) {
+                                  if (context.mounted) {
+                                    showDialog(
+                                      context: context,
+                                      builder:
+                                          (context) => AlertDialog(
+                                            title: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.warning_amber,
+                                                  color:
+                                                      Theme.of(
+                                                        context,
+                                                      ).colorScheme.secondary,
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Text(
+                                                  AppLocalizations.of(
+                                                    context,
+                                                  )!.tbr_limit_reached,
+                                                ),
+                                              ],
+                                            ),
+                                            content: Text(
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.tbr_limit_message(limit),
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed:
+                                                    () =>
+                                                        Navigator.pop(context),
+                                                child: Text(
+                                                  AppLocalizations.of(
+                                                    context,
+                                                  )!.ok,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                    );
+                                  }
+                                  return;
+                                }
+                              }
+                              setState(() {
+                                _tbr = value ?? false;
+                              });
+                            },
+                            secondary: const Icon(Icons.bookmark_add),
+                          ),
+                          if (_sagaController.text.isNotEmpty ||
+                              _sagaUniverseController.text.isNotEmpty)
+                            CheckboxListTile(
+                              title: Text(
+                                AppLocalizations.of(context)!.mark_as_tandem,
                               ),
-                            );
-                          }),
+                              subtitle: Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.tandem_description,
+                              ),
+                              value: _isTandem,
+                              onChanged: (value) {
+                                setState(() {
+                                  _isTandem = value ?? false;
+                                });
+                              },
+                              secondary: const Icon(
+                                Icons.swap_horizontal_circle_outlined,
+                              ),
+                            ),
                         ],
                       ),
                     ),
                   ),
-                if (!_isBundle && _chronometerSessions.isNotEmpty)
+                  const SizedBox(height: 32),
+
+                  // New fields section
+                  Text(
+                    AppLocalizations.of(context)!.reading_information_optional,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  if (widget.useNewUi) ...[
+                    _v2Divider(),
+                    _v2SectionHeading('Classification'),
+                  ] else
+                    const SizedBox(height: 16),
+
+                  // Custom Rating Fields Section
+                  Card(
+                    elevation: 2,
+                    child: ExpansionTile(
+                      leading: const Icon(Icons.star_rate),
+                      title: Text(AppLocalizations.of(context)!.rating),
+                      subtitle: Text(
+                        _ratingFields.isEmpty
+                            ? AppLocalizations.of(context)!.no_ratings_yet
+                            : '${AppLocalizations.of(context)!.average}: ${_calculateDisplayRating().toStringAsFixed(1)}',
+                      ),
+                      initiallyExpanded: false,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // List of rating fields
+                              ..._ratingFields.asMap().entries.map((entry) {
+                                final index = entry.key;
+                                final field = entry.value;
+
+                                return Card(
+                                  margin: const EdgeInsets.only(bottom: 12.0),
+                                  elevation: 1,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(12.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: DropdownButtonFormField<
+                                                String
+                                              >(
+                                                value: field.fieldName,
+                                                decoration: InputDecoration(
+                                                  labelText:
+                                                      AppLocalizations.of(
+                                                        context,
+                                                      )!.criterion,
+                                                  border:
+                                                      const OutlineInputBorder(),
+                                                ),
+                                                style: const TextStyle(
+                                                  fontFamily: 'Manrope',
+                                                  color: Color(0xFF43102B),
+                                                ),
+                                                items: () {
+                                                  // Combine suggestions with existing field names to avoid missing values
+                                                  final allNames =
+                                                      <String>{
+                                                          ..._ratingFieldSuggestions,
+                                                          ..._ratingFields.map(
+                                                            (f) => f.fieldName,
+                                                          ),
+                                                        }.toList()
+                                                        ..sort();
+
+                                                  return allNames.map((name) {
+                                                    return DropdownMenuItem(
+                                                      value: name,
+                                                      child: Text(name),
+                                                    );
+                                                  }).toList();
+                                                }(),
+                                                onChanged: (value) {
+                                                  if (value != null) {
+                                                    setState(() {
+                                                      _ratingFields[index] =
+                                                          BookRatingField(
+                                                            ratingFieldId:
+                                                                field
+                                                                    .ratingFieldId,
+                                                            bookId:
+                                                                field.bookId,
+                                                            fieldName: value,
+                                                            ratingValue:
+                                                                field
+                                                                    .ratingValue,
+                                                          );
+                                                    });
+                                                  }
+                                                },
+                                              ),
+                                            ),
+                                            IconButton(
+                                              icon: Icon(
+                                                Icons.delete,
+                                                color:
+                                                    Theme.of(
+                                                      context,
+                                                    ).colorScheme.error,
+                                              ),
+                                              onPressed:
+                                                  () =>
+                                                      _removeRatingField(index),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 12),
+                                        HeartRatingInput(
+                                          initialRating: field.ratingValue,
+                                          onRatingChanged: (rating) {
+                                            setState(() {
+                                              _ratingFields[index] =
+                                                  BookRatingField(
+                                                    ratingFieldId:
+                                                        field.ratingFieldId,
+                                                    bookId: field.bookId,
+                                                    fieldName: field.fieldName,
+                                                    ratingValue: rating,
+                                                  );
+                                              if (!_ratingOverride) {
+                                                _myRating =
+                                                    _calculateAverageRating();
+                                              }
+                                            });
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }),
+
+                              TextButton.icon(
+                                onPressed: _addRatingField,
+                                icon: const Icon(Icons.add),
+                                label: Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.add_rating_criterion,
+                                ),
+                              ),
+
+                              const Divider(),
+
+                              Row(
+                                children: [
+                                  Text(
+                                    '${AppLocalizations.of(context)!.general_rating}:',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  if (!_ratingOverride)
+                                    Text(
+                                      '${_calculateAverageRating().toStringAsFixed(1)} (${AppLocalizations.of(context)!.auto_calculated})',
+                                      style: TextStyle(
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                      ),
+                                    )
+                                  else
+                                    Text(
+                                      '${_myRating.toStringAsFixed(1)} (${AppLocalizations.of(context)!.manual})',
+                                      style: TextStyle(
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.primary,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+
+                              SwitchListTile(
+                                title: Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.override_auto_calculation,
+                                ),
+                                subtitle: Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.manually_set_rating,
+                                ),
+                                value: _ratingOverride,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _ratingOverride = value;
+                                    if (!value) {
+                                      _myRating = _calculateAverageRating();
+                                    }
+                                  });
+                                },
+                              ),
+
+                              if (_ratingOverride)
+                                HeartRatingInput(
+                                  initialRating: _myRating,
+                                  onRatingChanged: (rating) {
+                                    setState(() {
+                                      _myRating = rating;
+                                    });
+                                  },
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (widget.useNewUi) ...[
+                    _v2Divider(),
+                    _v2SectionHeading('Reading'),
+                  ] else
+                    const SizedBox(height: 16),
+
+                  // Read Count with - and + buttons
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.times_read,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          // Minus button
+                          IconButton(
+                            onPressed:
+                                _readCount > 0
+                                    ? () {
+                                      setState(() {
+                                        _readCount--;
+                                      });
+                                    }
+                                    : null,
+                            icon: const Icon(Icons.remove),
+                            style: IconButton.styleFrom(
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.primary.withValues(alpha: 0.1),
+                              foregroundColor:
+                                  Theme.of(context).colorScheme.primary,
+                              disabledBackgroundColor:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainerHighest,
+                              disabledForegroundColor:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.outlineVariant,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              '$_readCount',
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          // Plus button
+                          IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _readCount++;
+                              });
+                            },
+                            icon: const Icon(Icons.add),
+                            style: IconButton.styleFrom(
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.primary,
+                              foregroundColor:
+                                  Theme.of(context).colorScheme.onPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 16),
 
-                // My Review field
-                TextFormField(
-                  controller: _myReviewController,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.my_review,
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.rate_review),
-                    hintText: AppLocalizations.of(context)!.write_your_thoughts,
-                  ),
-                  maxLines: 5,
-                  keyboardType: TextInputType.multiline,
-                  textCapitalization: TextCapitalization.sentences,
-                ),
-                const SizedBox(height: 16),
-
-                // Notes field
-                TextFormField(
-                  controller: _notesController,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.notes,
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.notes),
-                    hintText: AppLocalizations.of(context)!.add_notes_hint,
-                  ),
-                  maxLines: 5,
-                  keyboardType: TextInputType.multiline,
-                  textCapitalization: TextCapitalization.sentences,
-                ),
-                const SizedBox(height: 32),
-
-                // Update button
-                ElevatedButton(
-                  onPressed: _updateBook,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                  // Reading Sessions (hidden for bundles)
+                  if (!_isBundle)
+                    ReadDatesWidget(
+                      bookId: widget.book.bookId!,
+                      initialReadDates: _readDates,
+                      onChanged: (readDates) {
+                        setState(() {
+                          _readDates = readDates;
+                          // Update read count based on finished sessions
+                          _readCount =
+                              readDates
+                                  .where(
+                                    (rd) =>
+                                        rd.dateFinished != null &&
+                                        rd.dateFinished!.isNotEmpty,
+                                  )
+                                  .length;
+                        });
+                      },
                     ),
-                  ),
-                  child: Text(
-                    AppLocalizations.of(context)!.update_book,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                  if (!_isBundle) const SizedBox(height: 16),
+
+                  // Chronometer Sessions (hidden for bundles)
+                  if (!_isBundle && _chronometerSessions.isNotEmpty)
+                    Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.timer,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.timed_reading_sessions,
+                                  style: Theme.of(context).textTheme.titleMedium
+                                      ?.copyWith(fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            ..._chronometerSessions.asMap().entries.map((
+                              entry,
+                            ) {
+                              final index = entry.key;
+                              final session = entry.value;
+                              final duration = session.durationSeconds ?? 0;
+                              final hours = duration ~/ 3600;
+                              final minutes = (duration % 3600) ~/ 60;
+                              final seconds = duration % 60;
+                              String durationStr;
+                              if (hours > 0) {
+                                durationStr =
+                                    '${hours}h ${minutes}m ${seconds}s';
+                              } else if (minutes > 0) {
+                                durationStr = '${minutes}m ${seconds}s';
+                              } else {
+                                durationStr = '${seconds}s';
+                              }
+
+                              // Format clicked_at time if available
+                              String clickedAtStr = '';
+                              if (session.clickedAt != null) {
+                                final clickedTime = session.clickedAt!;
+                                clickedAtStr =
+                                    '\nStarted: ${clickedTime.hour.toString().padLeft(2, '0')}:${clickedTime.minute.toString().padLeft(2, '0')}';
+                              }
+
+                              return Card(
+                                margin: const EdgeInsets.only(bottom: 8),
+                                child: ListTile(
+                                  leading: CircleAvatar(
+                                    backgroundColor:
+                                        Theme.of(
+                                          context,
+                                        ).colorScheme.primaryContainer,
+                                    child: Text('${index + 1}'),
+                                  ),
+                                  title: Text(
+                                    session.startTime?.toIso8601String().split(
+                                          'T',
+                                        )[0] ??
+                                        'No date',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    'Duration: $durationStr$clickedAtStr',
+                                  ),
+                                  trailing: IconButton(
+                                    icon: Icon(
+                                      Icons.delete,
+                                      color:
+                                          Theme.of(context).colorScheme.error,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _chronometerSessions.removeAt(index);
+                                      });
+                                    },
+                                  ),
+                                ),
+                              );
+                            }),
+                          ],
+                        ),
+                      ),
                     ),
+                  if (!_isBundle && _chronometerSessions.isNotEmpty)
+                    const SizedBox(height: 16),
+                  if (widget.useNewUi) ...[
+                    _v2Divider(),
+                    _v2SectionHeading(l10n.notes),
+                  ],
+
+                  // My Review field
+                  TextFormField(
+                    controller: _myReviewController,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.my_review,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.rate_review),
+                      hintText:
+                          AppLocalizations.of(context)!.write_your_thoughts,
+                    ),
+                    maxLines: 5,
+                    keyboardType: TextInputType.multiline,
+                    textCapitalization: TextCapitalization.sentences,
                   ),
-                ),
-                const SizedBox(height: 50), // Bottom margin
-              ],
+                  const SizedBox(height: 16),
+
+                  // Notes field
+                  TextFormField(
+                    controller: _notesController,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.notes,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.notes),
+                      hintText: AppLocalizations.of(context)!.add_notes_hint,
+                    ),
+                    maxLines: 5,
+                    keyboardType: TextInputType.multiline,
+                    textCapitalization: TextCapitalization.sentences,
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Update button
+                  if (!widget.useNewUi)
+                    ElevatedButton(
+                      onPressed: _updateBook,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onPrimary,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        AppLocalizations.of(context)!.update_book,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  SizedBox(height: widget.useNewUi ? 16 : 50), // Bottom margin
+                ],
+              ),
             ),
           ),
         ),

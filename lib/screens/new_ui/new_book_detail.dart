@@ -2481,7 +2481,9 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                 final updatedBook = await Navigator.push<Book>(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => EditBookScreen(book: _currentBook),
+                    builder:
+                        (context) =>
+                            EditBookScreen(book: _currentBook, useNewUi: true),
                   ),
                 );
                 if (updatedBook != null && context.mounted) {
