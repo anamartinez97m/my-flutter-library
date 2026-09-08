@@ -25,6 +25,10 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
   List<Map<String, dynamic>> _values = [];
   bool _isLoading = false;
 
+  // Search state
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
   static const List<String> _tableKeys = [
     'status',
     'format_saga',
@@ -108,6 +112,12 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     _loadValues();
   }
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadValues() async {
     setState(() {
       _isLoading = true;
@@ -120,6 +130,8 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
 
       setState(() {
         _values = values;
+        _searchQuery = '';
+        _searchController.clear();
         _isLoading = false;
       });
     } catch (e) {
@@ -1880,42 +1892,436 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
   }
 
   Widget _buildV2(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: _kBg,
-      appBar: AppBar(
-        backgroundColor: _kBg,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: _kPrimary),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          l10n.manage_dropdown_values,
-          style: const TextStyle(
-            fontFamily: 'Manrope',
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            color: _kPrimary,
-            letterSpacing: -0.5,
-          ),
-        ),
-        centerTitle: true,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: _kBorder.withValues(alpha: 0.5)),
-        ),
+      appBar: _buildV2AppBar(context),
+      body: Material(
+        type: MaterialType.transparency,
+        child: _buildV2Body(context),
       ),
-      body: _buildBody(context, isV2: true),
       floatingActionButton: FloatingActionButton(
         onPressed: _addValue,
         backgroundColor: _kPrimary,
         foregroundColor: Colors.white,
         elevation: 4,
+        shape: const CircleBorder(),
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  PreferredSizeWidget _buildV2AppBar(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return AppBar(
+      backgroundColor: _kBg,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      automaticallyImplyLeading: false,
+      titleSpacing: 0,
+      toolbarHeight: 72,
+      title: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.arrow_back, color: _kPrimary, size: 20),
+              style: IconButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shape: const CircleBorder(),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text(
+                l10n.manage_dropdown_values,
+                style: const TextStyle(
+                  fontFamily: 'Manrope',
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF4A1E34),
+                  letterSpacing: -0.5,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(1),
+        child: Container(height: 1, color: const Color(0xFFF3E9E6)),
+      ),
+    );
+  }
+
+  List<Map<String, dynamic>> get _displayValues {
+    if (_searchQuery.trim().isEmpty) return _values;
+    final query = _searchQuery.toLowerCase();
+    return _values.where((item) {
+      final value = _extractValue(item).toLowerCase();
+      return value.contains(query);
+    }).toList();
+  }
+
+  String _extractValue(Map<String, dynamic> item) {
+    final valueColumn =
+        _selectedTable == 'status' ||
+                _selectedTable == 'format' ||
+                _selectedTable == 'format_saga'
+            ? 'value'
+            : 'name';
+    return item[valueColumn] as String? ?? '';
+  }
+
+  Widget _buildV2Body(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Column(
+      children: [
+        const SizedBox(height: 16),
+        SizedBox(
+          height: 38,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: _buildCategoryChips(context),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              _getEntityDescription(context, _selectedTable),
+              textAlign: TextAlign.left,
+              style: const TextStyle(
+                fontFamily: 'Manrope',
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF80717B),
+                height: 1.5,
+              ),
+            ),
+          ),
+        ),
+        if (_isLoading)
+          const Expanded(
+            child: Center(child: CircularProgressIndicator(color: _kPrimary)),
+          )
+        else
+          Expanded(
+            child: CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+                    child: _buildConfiguredValuesHeader(context, l10n),
+                  ),
+                ),
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 80),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final item = _displayValues[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: _buildValueCardV2(context, item),
+                      );
+                    }, childCount: _displayValues.length),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildCategoryChips(BuildContext context) {
+    return ListView.builder(
+      scrollDirection: Axis.horizontal,
+      itemCount: _tableKeys.length,
+      padding: EdgeInsets.zero,
+      itemBuilder: (context, index) {
+        final key = _tableKeys[index];
+        final isSelected = _selectedTable == key;
+        return Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: ChoiceChip(
+            label: Text(_getTableLabel(context, key)),
+            selected: isSelected,
+            onSelected: (_) {
+              setState(() => _selectedTable = key);
+              _loadValues();
+            },
+            labelStyle: TextStyle(
+              fontFamily: 'Manrope',
+              fontSize: 12,
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+              color: isSelected ? Colors.white : const Color(0xFF57534E),
+            ),
+            selectedColor: const Color(0xFF5D2641),
+            backgroundColor: Colors.white,
+            side: BorderSide(
+              color:
+                  isSelected
+                      ? const Color(0xFF5D2641)
+                      : const Color(0xFFE8DEDA),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(9999),
+            ),
+            showCheckmark: false,
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildConfiguredValuesHeader(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Text(
+              'Configured Values',
+              style: TextStyle(
+                fontFamily: 'Manrope',
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF4A1E34),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF2E7EB),
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Text(
+                  '${_displayValues.length}',
+                  style: TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF5D2641),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _searchController,
+          onChanged: (value) => setState(() => _searchQuery = value),
+          style: const TextStyle(
+            fontFamily: 'Manrope',
+            fontSize: 16,
+            color: _kText,
+          ),
+          decoration: InputDecoration(
+            hintText: l10n.search,
+            hintStyle: const TextStyle(
+              fontFamily: 'Manrope',
+              fontSize: 14,
+              color: _kSub,
+            ),
+            prefixIcon: const Icon(Icons.search, color: _kSub, size: 20),
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding: const EdgeInsets.symmetric(vertical: 12),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildValueCardV2(BuildContext context, Map<String, dynamic> item) {
+    final idColumn =
+        _selectedTable == 'format_saga' ? 'format_id' : '${_selectedTable}_id';
+    final id = item[idColumn] as int;
+    final value = _extractValue(item);
+    final isCore = _isCoreValue(value);
+    final color = _getValueColor(value);
+    final subtitle = _getValueSubtitle(value);
+
+    return Container(
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFF1E8E6)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0x0A5D2641),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: color.withValues(alpha: 0.25),
+                  blurRadius: 0,
+                  spreadRadius: 4,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF2B1B24),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  textAlign: TextAlign.left,
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF80717B),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          _buildIconButton(
+            icon: Icons.edit_outlined,
+            color: isCore ? const Color(0xFF80717B) : _kPrimary,
+            onPressed: isCore ? null : () => _editValue(id, value),
+          ),
+          const SizedBox(width: 4),
+          _buildIconButton(
+            icon: Icons.delete_outline,
+            color: isCore ? const Color(0xFF80717B) : const Color(0xFFB3261E),
+            onPressed: isCore ? null : () => _deleteValue(id, value),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIconButton({
+    required IconData icon,
+    required Color color,
+    required VoidCallback? onPressed,
+  }) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(6),
+      clipBehavior: Clip.antiAlias,
+      child: IconButton(
+        icon: Icon(icon, size: 18, color: color),
+        onPressed: onPressed,
+      ),
+    );
+  }
+
+  String _getEntityDescription(BuildContext context, String table) {
+    switch (table) {
+      case 'status':
+        return 'Categorizes reading progress across your books, shelves, and reading targets.';
+      case 'format':
+        return 'Tracks the physical or digital format of each book in your library.';
+      case 'format_saga':
+        return 'Defines saga length categories for series completion tracking.';
+      case 'language':
+        return 'Lists languages used for the books in your collection.';
+      case 'place':
+        return 'Keeps track of where each book is stored or located.';
+      case 'author':
+        return 'Manages the authors linked to your books.';
+      case 'genre':
+        return 'Organizes books by literary genre and topic.';
+      case 'editorial':
+        return 'Stores publishers and editorial imprints for your editions.';
+      case 'saga':
+        return 'Holds the names of series or sagas in your library.';
+      case 'saga_universe':
+        return 'Groups related sagas into shared fictional universes.';
+      default:
+        return '';
+    }
+  }
+
+  Color _getValueColor(String value) {
+    if (_selectedTable == 'status') {
+      switch (value.toLowerCase()) {
+        case 'abandoned':
+        case 'dnf':
+          return const Color(0xFFF43F5E);
+        case 'no':
+          return const Color(0xFF94A3B8);
+        case 'repeated':
+          return const Color(0xFFF59E0B);
+        case 'standby':
+          return const Color(0xFF6366F1);
+        case 'started':
+          return const Color(0xFF0D9488);
+        case 'tbreleased':
+          return const Color(0xFFA855F7);
+        case 'yes':
+          return const Color(0xFF10B981);
+      }
+    }
+    return _kPrimary;
+  }
+
+  String _getValueSubtitle(String value) {
+    if (_selectedTable == 'status') {
+      switch (value.toLowerCase()) {
+        case 'abandoned':
+        case 'dnf':
+          return 'Abandoned / DNF status';
+        case 'no':
+          return 'Used for unread flags';
+        case 'repeated':
+          return 'Re-read queue';
+        case 'standby':
+          return 'Paused reading';
+        case 'started':
+          return 'Currently reading';
+        case 'tbreleased':
+          return 'Anticipated pre-orders';
+        case 'yes':
+          return 'Completed status';
+      }
+    }
+    if (_selectedTable == 'format_saga') {
+      return 'Saga format category';
+    }
+    return 'Configured value';
   }
 
   Widget _buildBody(BuildContext context, {required bool isV2}) {

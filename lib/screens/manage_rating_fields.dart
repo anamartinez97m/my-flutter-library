@@ -1136,13 +1136,14 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                   ),
                 ],
               ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton(
         backgroundColor: _kPrimary,
         foregroundColor: Colors.white,
         elevation: 4,
+        shape: const CircleBorder(),
+        tooltip: l10n.add_field_name,
         onPressed: _addFieldName,
-        icon: const Icon(Icons.add),
-        label: Text(l10n.add_field_name),
+        child: const Icon(Icons.add),
       ),
     );
   }
