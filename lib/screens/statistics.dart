@@ -37,6 +37,7 @@ import 'package:myrandomlibrary/widgets/statistics/statistics_shimmer.dart';
 import 'package:myrandomlibrary/model/book_competition.dart';
 import 'package:myrandomlibrary/repositories/book_competition_repository.dart';
 import 'package:myrandomlibrary/screens/book_competition_screen.dart';
+import 'package:myrandomlibrary/screens/new_ui/new_book_competition_screen.dart';
 import 'package:myrandomlibrary/model/reading_session.dart';
 import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
 import 'package:myrandomlibrary/model/read_date.dart';
@@ -1050,7 +1051,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => BookCompetitionScreen(year: currentYear),
+                      builder:
+                          (_) =>
+                              widget.useNewUi
+                                  ? NewBookCompetitionScreen(year: currentYear)
+                                  : BookCompetitionScreen(year: currentYear),
                     ),
                   );
                   _loadCompetitionData();

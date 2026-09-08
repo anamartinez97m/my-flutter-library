@@ -2,21 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book_competition.dart';
 import 'package:myrandomlibrary/screens/past_years_competition_screen.dart';
+import 'package:myrandomlibrary/screens/new_ui/new_past_years_competition_screen.dart';
 
 class PastYearsCompetitionCard extends StatelessWidget {
   final List<BookCompetition> pastWinners;
+  final bool useNewUi;
 
-  const PastYearsCompetitionCard({super.key, required this.pastWinners});
+  const PastYearsCompetitionCard({
+    super.key,
+    required this.pastWinners,
+    this.useNewUi = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        // Navigate to past years selection screen
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const PastYearsCompetitionScreen(),
+            builder:
+                (context) =>
+                    useNewUi
+                        ? const NewPastYearsCompetitionScreen()
+                        : const PastYearsCompetitionScreen(),
           ),
         );
       },
