@@ -1382,6 +1382,11 @@
   "books_read_per_year": "Libros Leídos por Año",
   "pages_read_per_year": "Páginas Leídas por Año",
   "reading_efficiency": "Eficiencia de Lectura",
+  "reading_efficiency_1": "Eficiencia de Lectura 1",
+  "reading_efficiency_2": "Eficiencia de Lectura 2",
+  "reading_efficiency_3": "Eficiencia de Lectura 3",
+  "reading_efficiency_4": "Eficiencia de Lectura 4",
+  "reading_efficiency_5": "Eficiencia de Lectura 5",
   "reading_velocity": "Velocidad de Lectura",
   "avg_days_to_finish": "Media de Días para Terminar",
   "avg_books_per_year": "Media de Libros por Año",
@@ -1666,6 +1671,26 @@
   "based_on_years_of_data": "Basado en {count} años de datos de lectura",
   "@based_on_years_of_data": {
     "placeholders": { "count": {} }
+  },
+  "n_books_faster_than_average": "{count} libros más rápido que tu ritmo promedio",
+  "@n_books_faster_than_average": {
+    "placeholders": { "count": {} }
+  },
+  "n_books_slower_than_average": "{count} libros más lento que tu ritmo promedio",
+  "@n_books_slower_than_average": {
+    "placeholders": { "count": {} }
+  },
+  "pace_profile_summary": "{faster} más rápido · {slower} más lento · {total} total",
+  "@pace_profile_summary": {
+    "placeholders": { "faster": {}, "slower": {}, "total": {} }
+  },
+  "projected_books_this_year": "En ritmo para unos {count} libros este año",
+  "@projected_books_this_year": {
+    "placeholders": { "count": {} }
+  },
+  "finish_book_every_n_days": "Terminas un libro cada {days} días de media",
+  "@finish_book_every_n_days": {
+    "placeholders": { "days": {} }
   },
 
   "season_winter": "Invierno",

@@ -9,7 +9,13 @@ import 'package:myrandomlibrary/screens/books_by_decade.dart';
 import 'package:myrandomlibrary/screens/books_by_year.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_past_years_competition_screen.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_past_years_competition_screen_2.dart';
+import 'package:myrandomlibrary/screens/new_ui/new_year_challenges_screen_2.dart';
 import 'package:myrandomlibrary/screens/year_challenges.dart';
+import 'package:myrandomlibrary/widgets/statistics/reading_efficiency_1_card.dart';
+import 'package:myrandomlibrary/widgets/statistics/reading_efficiency_2_card.dart';
+import 'package:myrandomlibrary/widgets/statistics/reading_efficiency_3_card.dart';
+import 'package:myrandomlibrary/widgets/statistics/reading_efficiency_4_card.dart';
+import 'package:myrandomlibrary/widgets/statistics/reading_efficiency_5_card.dart';
 
 /// New "Reading Activity" statistics screen matching the redesigned UI.
 ///
@@ -27,6 +33,10 @@ class ReadingActivityScreen extends StatefulWidget {
   final double averageBooksPerYear;
   final int booksUsedInAverageDays;
   final int yearsWithBooks;
+  final double readingEfficiencyPercentage;
+  final int booksUsedInEfficiency;
+  final int booksFasterThanAverage;
+  final int booksSlowerThanAverage;
   final List<Book> books;
 
   static const kBg = Color(0xFFFDF8F6);
@@ -51,6 +61,10 @@ class ReadingActivityScreen extends StatefulWidget {
     required this.averageBooksPerYear,
     required this.booksUsedInAverageDays,
     required this.yearsWithBooks,
+    required this.readingEfficiencyPercentage,
+    required this.booksUsedInEfficiency,
+    required this.booksFasterThanAverage,
+    required this.booksSlowerThanAverage,
     required this.books,
   });
 
@@ -498,11 +512,76 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
               child: _buildReadingGoalsContent(context, l10n),
             ),
             const SizedBox(height: 16),
+            // Year Challenges 2
+            _buildYearChallenges2Card(context, l10n),
+            const SizedBox(height: 16),
             // Reading Efficiency
             _buildCollapsibleCard(
               sectionKey: 'reading_efficiency',
               title: l10n.reading_efficiency,
               child: _buildReadingEfficiencyContent(context, l10n),
+            ),
+            const SizedBox(height: 16),
+            // Reading Efficiency 1 — Hero score ring
+            _buildCollapsibleCard(
+              sectionKey: 'reading_efficiency_1',
+              title: l10n.reading_efficiency_1,
+              child: ReadingEfficiency1Card(
+                efficiencyPercentage: widget.readingEfficiencyPercentage,
+                booksFasterThanAverage: widget.booksFasterThanAverage,
+                booksSlowerThanAverage: widget.booksSlowerThanAverage,
+                totalBooksWithData: widget.booksUsedInEfficiency,
+                readingVelocity: widget.readingVelocity,
+                averageDaysToFinish: widget.averageDaysToFinish,
+                averageBooksPerYear: widget.averageBooksPerYear,
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Reading Efficiency 2 — Compact 3-column metric row
+            _buildCollapsibleCard(
+              sectionKey: 'reading_efficiency_2',
+              title: l10n.reading_efficiency_2,
+              child: ReadingEfficiency2Card(
+                readingVelocity: widget.readingVelocity,
+                averageDaysToFinish: widget.averageDaysToFinish,
+                averageBooksPerYear: widget.averageBooksPerYear,
+                booksUsedInAverageDays: widget.booksUsedInAverageDays,
+                yearsWithBooks: widget.yearsWithBooks,
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Reading Efficiency 3 — Pace profile mini-chart
+            _buildCollapsibleCard(
+              sectionKey: 'reading_efficiency_3',
+              title: l10n.reading_efficiency_3,
+              child: ReadingEfficiency3Card(
+                efficiencyPercentage: widget.readingEfficiencyPercentage,
+                booksFasterThanAverage: widget.booksFasterThanAverage,
+                booksSlowerThanAverage: widget.booksSlowerThanAverage,
+                totalBooksWithData: widget.booksUsedInEfficiency,
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Reading Efficiency 4 — Speedometer gauge
+            _buildCollapsibleCard(
+              sectionKey: 'reading_efficiency_4',
+              title: l10n.reading_efficiency_4,
+              child: ReadingEfficiency4Card(
+                readingVelocity: widget.readingVelocity,
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Reading Efficiency 5 — Insight-first card
+            _buildCollapsibleCard(
+              sectionKey: 'reading_efficiency_5',
+              title: l10n.reading_efficiency_5,
+              child: ReadingEfficiency5Card(
+                readingVelocity: widget.readingVelocity,
+                averageDaysToFinish: widget.averageDaysToFinish,
+                averageBooksPerYear: widget.averageBooksPerYear,
+                booksUsedInAverageDays: widget.booksUsedInAverageDays,
+                yearsWithBooks: widget.yearsWithBooks,
+              ),
             ),
             const SizedBox(height: 16),
             // Books by Decade
@@ -1190,6 +1269,74 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
             ),
           ],
         ],
+      ),
+    );
+  }
+
+  // ─── Year Challenges 2 card ─────────────────────────────────────────
+
+  Widget _buildYearChallenges2Card(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const NewYearChallengesScreen2(),
+          ),
+        );
+      },
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(17),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: _kBorder),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x0A000000),
+              blurRadius: 6,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.flag, color: _kSecondary, size: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Reading Goals 2',
+                    style: const TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: _kPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    l10n.reading_goals,
+                    style: const TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: _kSub,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: _kPrimary, size: 22),
+          ],
+        ),
       ),
     );
   }

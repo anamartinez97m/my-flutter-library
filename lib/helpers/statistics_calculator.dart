@@ -64,6 +64,10 @@ class StatisticsData {
   final int booksUsedInAverageDays;
   final double averageBooksPerYear;
   final int yearsWithBooks;
+  final double readingEfficiencyPercentage;
+  final int booksUsedInEfficiency;
+  final int booksFasterThanAverage;
+  final int booksSlowerThanAverage;
   final int totalBooksRead;
   final int booksReadThisYear;
   final Map<int, Map<String, int>>
@@ -132,6 +136,10 @@ class StatisticsData {
     required this.booksUsedInAverageDays,
     required this.averageBooksPerYear,
     required this.yearsWithBooks,
+    required this.readingEfficiencyPercentage,
+    required this.booksUsedInEfficiency,
+    required this.booksFasterThanAverage,
+    required this.booksSlowerThanAverage,
     required this.totalBooksRead,
     required this.booksReadThisYear,
     required this.dailyHeatmap,
@@ -279,6 +287,7 @@ class StatisticsCalculator {
     double readingVelocity = _calculateReadingVelocity();
     double averageDaysToFinish = _calculateAverageDaysToFinish();
     int booksUsedInAverageDays = _getBooksUsedInAverageDaysCalculation();
+    final efficiencyResult = _calculateReadingEfficiency(readingVelocity);
 
     double averageBooksPerYear = 0.0;
     int yearsWithBooks = 0;
@@ -400,6 +409,10 @@ class StatisticsCalculator {
       booksUsedInAverageDays: booksUsedInAverageDays,
       averageBooksPerYear: averageBooksPerYear,
       yearsWithBooks: yearsWithBooks,
+      readingEfficiencyPercentage: efficiencyResult['percentage'] as double,
+      booksUsedInEfficiency: efficiencyResult['totalBooks'] as int,
+      booksFasterThanAverage: efficiencyResult['fasterBooks'] as int,
+      booksSlowerThanAverage: efficiencyResult['slowerBooks'] as int,
       totalBooksRead: totalBooksRead,
       booksReadThisYear: booksReadThisYear,
       dailyHeatmap:
@@ -520,6 +533,45 @@ class StatisticsCalculator {
     );
   }
 
+  int _getReadingDaysForBook(Book book) {
+    if (book.readCount == null ||
+        book.readCount! <= 0 ||
+        book.pages == null ||
+        book.pages! <= 0) {
+      return 0;
+    }
+    final sessions = bookSessions[book.bookId] ?? [];
+    final dailyData = _mapSessionsToDailyReadings(sessions);
+    if (dailyData.hasTimeReadData || dailyData.hasDidReadData) {
+      return dailyData.totalReadingDays;
+    }
+    if (book.bookId != null) {
+      final readDates = bookReadDates[book.bookId!] ?? [];
+      if (readDates.isNotEmpty) {
+        final lastReadDate = readDates.last;
+        if (lastReadDate.dateStarted != null &&
+            lastReadDate.dateStarted!.isNotEmpty &&
+            lastReadDate.dateFinished != null &&
+            lastReadDate.dateFinished!.isNotEmpty) {
+          final startDate = _tryParseDate(
+            lastReadDate.dateStarted!,
+            bookName: book.name,
+          );
+          final endDate = _tryParseDate(
+            lastReadDate.dateFinished!,
+            bookName: book.name,
+          );
+          if (startDate != null &&
+              endDate != null &&
+              endDate.isAfter(startDate)) {
+            return endDate.difference(startDate).inDays + 1;
+          }
+        }
+      }
+    }
+    return 0;
+  }
+
   double _calculateReadingVelocity() {
     int totalPages = 0;
     int totalReadingDays = 0;
@@ -530,37 +582,7 @@ class StatisticsCalculator {
           book.pages! <= 0) {
         continue;
       }
-      final sessions = bookSessions[book.bookId] ?? [];
-      final dailyData = _mapSessionsToDailyReadings(sessions);
-      if (dailyData.hasTimeReadData) {
-        totalReadingDays += dailyData.totalReadingDays;
-      } else if (dailyData.hasDidReadData) {
-        totalReadingDays += dailyData.totalReadingDays;
-      } else {
-        if (book.bookId != null) {
-          final readDates = bookReadDates[book.bookId!] ?? [];
-          for (var readDate in readDates) {
-            if (readDate.dateStarted != null &&
-                readDate.dateStarted!.isNotEmpty &&
-                readDate.dateFinished != null &&
-                readDate.dateFinished!.isNotEmpty) {
-              final startDate = _tryParseDate(
-                readDate.dateStarted!,
-                bookName: book.name,
-              );
-              final endDate = _tryParseDate(
-                readDate.dateFinished!,
-                bookName: book.name,
-              );
-              if (startDate != null &&
-                  endDate != null &&
-                  endDate.isAfter(startDate)) {
-                totalReadingDays += endDate.difference(startDate).inDays + 1;
-              }
-            }
-          }
-        }
-      }
+      totalReadingDays += _getReadingDaysForBook(book);
       totalPages += book.pages!;
     }
     return (totalReadingDays > 0 && totalPages > 0)
@@ -568,44 +590,33 @@ class StatisticsCalculator {
         : 0.0;
   }
 
+  Map<String, dynamic> _calculateReadingEfficiency(double averageVelocity) {
+    int totalBooks = 0;
+    int fasterBooks = 0;
+    for (var book in books) {
+      final days = _getReadingDaysForBook(book);
+      if (days <= 0) continue;
+      totalBooks++;
+      final pace = book.pages! / days;
+      if (pace >= averageVelocity) {
+        fasterBooks++;
+      }
+    }
+    final slowerBooks = totalBooks - fasterBooks;
+    final percentage = totalBooks > 0 ? (fasterBooks / totalBooks) * 100 : 0.0;
+    return {
+      'percentage': percentage,
+      'totalBooks': totalBooks,
+      'fasterBooks': fasterBooks,
+      'slowerBooks': slowerBooks,
+    };
+  }
+
   double _calculateAverageDaysToFinish() {
     double totalDays = 0.0;
     int booksWithValidData = 0;
     for (var book in books) {
-      if (book.readCount == null || book.readCount! <= 0) continue;
-      final sessions = bookSessions[book.bookId] ?? [];
-      final dailyData = _mapSessionsToDailyReadings(sessions);
-      int readingDays = 0;
-      if (dailyData.hasTimeReadData) {
-        readingDays = dailyData.totalReadingDays;
-      } else if (dailyData.hasDidReadData) {
-        readingDays = dailyData.totalReadingDays;
-      } else {
-        if (book.bookId != null) {
-          final readDates = bookReadDates[book.bookId!] ?? [];
-          if (readDates.isNotEmpty) {
-            final lastReadDate = readDates.last;
-            if (lastReadDate.dateStarted != null &&
-                lastReadDate.dateStarted!.isNotEmpty &&
-                lastReadDate.dateFinished != null &&
-                lastReadDate.dateFinished!.isNotEmpty) {
-              final startDate = _tryParseDate(
-                lastReadDate.dateStarted!,
-                bookName: book.name,
-              );
-              final endDate = _tryParseDate(
-                lastReadDate.dateFinished!,
-                bookName: book.name,
-              );
-              if (startDate != null &&
-                  endDate != null &&
-                  endDate.isAfter(startDate)) {
-                readingDays = endDate.difference(startDate).inDays + 1;
-              }
-            }
-          }
-        }
-      }
+      final readingDays = _getReadingDaysForBook(book);
       if (readingDays > 0) {
         totalDays += readingDays;
         booksWithValidData++;
@@ -617,40 +628,7 @@ class StatisticsCalculator {
   int _getBooksUsedInAverageDaysCalculation() {
     int count = 0;
     for (var book in books) {
-      if (book.readCount == null || book.readCount! <= 0) continue;
-      final sessions = bookSessions[book.bookId] ?? [];
-      final dailyData = _mapSessionsToDailyReadings(sessions);
-      int readingDays = 0;
-      if (dailyData.hasTimeReadData) {
-        readingDays = dailyData.totalReadingDays;
-      } else if (dailyData.hasDidReadData) {
-        readingDays = dailyData.totalReadingDays;
-      } else {
-        if (book.bookId != null) {
-          final readDates = bookReadDates[book.bookId!] ?? [];
-          if (readDates.isNotEmpty) {
-            final lastReadDate = readDates.last;
-            if (lastReadDate.dateStarted != null &&
-                lastReadDate.dateStarted!.isNotEmpty &&
-                lastReadDate.dateFinished != null &&
-                lastReadDate.dateFinished!.isNotEmpty) {
-              final startDate = _tryParseDate(
-                lastReadDate.dateStarted!,
-                bookName: book.name,
-              );
-              final endDate = _tryParseDate(
-                lastReadDate.dateFinished!,
-                bookName: book.name,
-              );
-              if (startDate != null &&
-                  endDate != null &&
-                  endDate.isAfter(startDate)) {
-                readingDays = endDate.difference(startDate).inDays + 1;
-              }
-            }
-          }
-        }
-      }
+      final readingDays = _getReadingDaysForBook(book);
       if (readingDays > 0) count++;
     }
     return count;

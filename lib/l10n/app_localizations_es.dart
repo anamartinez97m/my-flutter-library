@@ -3160,6 +3160,21 @@ class AppLocalizationsEs extends AppLocalizations {
   String get reading_efficiency => 'Eficiencia de Lectura';
 
   @override
+  String get reading_efficiency_1 => 'Eficiencia de Lectura 1';
+
+  @override
+  String get reading_efficiency_2 => 'Eficiencia de Lectura 2';
+
+  @override
+  String get reading_efficiency_3 => 'Eficiencia de Lectura 3';
+
+  @override
+  String get reading_efficiency_4 => 'Eficiencia de Lectura 4';
+
+  @override
+  String get reading_efficiency_5 => 'Eficiencia de Lectura 5';
+
+  @override
   String get reading_velocity => 'Velocidad de Lectura';
 
   @override
@@ -3749,6 +3764,31 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String based_on_years_of_data(Object count) {
     return 'Basado en $count años de datos de lectura';
+  }
+
+  @override
+  String n_books_faster_than_average(Object count) {
+    return '$count libros más rápido que tu ritmo promedio';
+  }
+
+  @override
+  String n_books_slower_than_average(Object count) {
+    return '$count libros más lento que tu ritmo promedio';
+  }
+
+  @override
+  String pace_profile_summary(Object faster, Object slower, Object total) {
+    return '$faster más rápido · $slower más lento · $total total';
+  }
+
+  @override
+  String projected_books_this_year(Object count) {
+    return 'En ritmo para unos $count libros este año';
+  }
+
+  @override
+  String finish_book_every_n_days(Object days) {
+    return 'Terminas un libro cada $days días de media';
   }
 
   @override

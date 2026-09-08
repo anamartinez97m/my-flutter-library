@@ -211,7 +211,12 @@ class _NewPastYearsCompetitionScreen2State
                     ),
                   if (_filteredPastWinners.isNotEmpty)
                     SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                      padding: EdgeInsets.fromLTRB(
+                        20,
+                        12,
+                        20,
+                        _filteredUnresolvedYears.isEmpty ? 60 : 0,
+                      ),
                       sliver: SliverGrid(
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(

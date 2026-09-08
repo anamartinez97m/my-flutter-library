@@ -5624,6 +5624,36 @@ abstract class AppLocalizations {
   /// **'Reading Efficiency'**
   String get reading_efficiency;
 
+  /// No description provided for @reading_efficiency_1.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading Efficiency 1'**
+  String get reading_efficiency_1;
+
+  /// No description provided for @reading_efficiency_2.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading Efficiency 2'**
+  String get reading_efficiency_2;
+
+  /// No description provided for @reading_efficiency_3.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading Efficiency 3'**
+  String get reading_efficiency_3;
+
+  /// No description provided for @reading_efficiency_4.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading Efficiency 4'**
+  String get reading_efficiency_4;
+
+  /// No description provided for @reading_efficiency_5.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading Efficiency 5'**
+  String get reading_efficiency_5;
+
   /// No description provided for @reading_velocity.
   ///
   /// In en, this message translates to:
@@ -6667,6 +6697,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Based on {count} years of reading data'**
   String based_on_years_of_data(Object count);
+
+  /// No description provided for @n_books_faster_than_average.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} books faster than your average pace'**
+  String n_books_faster_than_average(Object count);
+
+  /// No description provided for @n_books_slower_than_average.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} books slower than your average pace'**
+  String n_books_slower_than_average(Object count);
+
+  /// No description provided for @pace_profile_summary.
+  ///
+  /// In en, this message translates to:
+  /// **'{faster} faster · {slower} slower · {total} total'**
+  String pace_profile_summary(Object faster, Object slower, Object total);
+
+  /// No description provided for @projected_books_this_year.
+  ///
+  /// In en, this message translates to:
+  /// **'On track for about {count} books this year'**
+  String projected_books_this_year(Object count);
+
+  /// No description provided for @finish_book_every_n_days.
+  ///
+  /// In en, this message translates to:
+  /// **'You finish a book every {days} days on average'**
+  String finish_book_every_n_days(Object days);
 
   /// No description provided for @season_winter.
   ///

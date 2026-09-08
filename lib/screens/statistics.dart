@@ -577,6 +577,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       booksUsedInAverageDays:
                           currentStats.booksUsedInAverageDays,
                       yearsWithBooks: currentStats.yearsWithBooks,
+                      readingEfficiencyPercentage:
+                          currentStats.readingEfficiencyPercentage,
+                      booksUsedInEfficiency: currentStats.booksUsedInEfficiency,
+                      booksFasterThanAverage:
+                          currentStats.booksFasterThanAverage,
+                      booksSlowerThanAverage:
+                          currentStats.booksSlowerThanAverage,
                       books: books,
                     ),
               ),

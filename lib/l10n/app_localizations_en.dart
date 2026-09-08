@@ -3118,6 +3118,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reading_efficiency => 'Reading Efficiency';
 
   @override
+  String get reading_efficiency_1 => 'Reading Efficiency 1';
+
+  @override
+  String get reading_efficiency_2 => 'Reading Efficiency 2';
+
+  @override
+  String get reading_efficiency_3 => 'Reading Efficiency 3';
+
+  @override
+  String get reading_efficiency_4 => 'Reading Efficiency 4';
+
+  @override
+  String get reading_efficiency_5 => 'Reading Efficiency 5';
+
+  @override
   String get reading_velocity => 'Reading Velocity';
 
   @override
@@ -3705,6 +3720,31 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String based_on_years_of_data(Object count) {
     return 'Based on $count years of reading data';
+  }
+
+  @override
+  String n_books_faster_than_average(Object count) {
+    return '$count books faster than your average pace';
+  }
+
+  @override
+  String n_books_slower_than_average(Object count) {
+    return '$count books slower than your average pace';
+  }
+
+  @override
+  String pace_profile_summary(Object faster, Object slower, Object total) {
+    return '$faster faster · $slower slower · $total total';
+  }
+
+  @override
+  String projected_books_this_year(Object count) {
+    return 'On track for about $count books this year';
+  }
+
+  @override
+  String finish_book_every_n_days(Object days) {
+    return 'You finish a book every $days days on average';
   }
 
   @override
