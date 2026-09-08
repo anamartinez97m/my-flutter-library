@@ -2496,6 +2496,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get best_past_books => 'Mejores Libros Pasados';
 
   @override
+  String get best_past_books_2 => 'Mejores Libros Pasados 2';
+
+  @override
   String get reading_goals_progress_title => 'Progreso de Metas de Lectura';
 
   @override

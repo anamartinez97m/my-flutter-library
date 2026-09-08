@@ -8,6 +8,7 @@ import 'package:myrandomlibrary/repositories/year_challenge_repository.dart';
 import 'package:myrandomlibrary/screens/books_by_decade.dart';
 import 'package:myrandomlibrary/screens/books_by_year.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_past_years_competition_screen.dart';
+import 'package:myrandomlibrary/screens/new_ui/new_past_years_competition_screen_2.dart';
 import 'package:myrandomlibrary/screens/year_challenges.dart';
 
 /// New "Reading Activity" statistics screen matching the redesigned UI.
@@ -280,6 +281,117 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                           Expanded(
                             child: Text(
                               l10n.best_past_books,
+                              style: const TextStyle(
+                                fontFamily: 'Manrope',
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: _kPrimary,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const Icon(
+                            Icons.arrow_forward_ios,
+                            size: 12,
+                            color: _kSub,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      ..._pastWinners
+                          .take(3)
+                          .map(
+                            (winner) => Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFF2EDEB),
+                                      borderRadius: BorderRadius.circular(6),
+                                      border: Border.all(
+                                        color: const Color(0xFFD5C2C7),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      '${winner.year}',
+                                      style: const TextStyle(
+                                        fontFamily: 'Manrope',
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        color: _kPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      winner.bookName,
+                                      style: const TextStyle(
+                                        fontFamily: 'Manrope',
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: _kPrimary,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+            // Best Past Books 2
+            if (!_isLoadingPastWinners && _pastWinners.isNotEmpty) ...[
+              GestureDetector(
+                onTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const NewPastYearsCompetitionScreen2(),
+                    ),
+                  );
+                  _loadPastWinners();
+                },
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0x1A27231E)),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x0A000000),
+                        blurRadius: 6,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.emoji_events,
+                            color: _kPrimary,
+                            size: 22,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              l10n.best_past_books_2,
                               style: const TextStyle(
                                 fontFamily: 'Manrope',
                                 fontSize: 18,

@@ -1108,6 +1108,7 @@
   "binge_reading_series": "Lectura Maratón (Series)",
   "binge_reading_description": "de libros terminados en 14 días del anterior",
   "best_past_books": "Mejores Libros Pasados",
+  "best_past_books_2": "Mejores Libros Pasados 2",
   "reading_goals_progress_title": "Progreso de Metas de Lectura",
   "no_challenge_set_for_year": "Sin desafío establecido para {year}",
   "@no_challenge_set_for_year": {

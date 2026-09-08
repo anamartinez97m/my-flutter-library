@@ -1102,6 +1102,7 @@
   "binge_reading_series": "Binge Reading (Series)",
   "binge_reading_description": "of books finished within 14 days of previous",
   "best_past_books": "Best Past Books",
+  "best_past_books_2": "Best Past Books 2",
   "reading_goals_progress_title": "Reading Goals Progress",
   "no_challenge_set_for_year": "No challenge set for {year}",
   "@no_challenge_set_for_year": {

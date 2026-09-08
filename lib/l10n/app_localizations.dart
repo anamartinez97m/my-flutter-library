@@ -4436,6 +4436,12 @@ abstract class AppLocalizations {
   /// **'Best Past Books'**
   String get best_past_books;
 
+  /// No description provided for @best_past_books_2.
+  ///
+  /// In en, this message translates to:
+  /// **'Best Past Books 2'**
+  String get best_past_books_2;
+
   /// No description provided for @reading_goals_progress_title.
   ///
   /// In en, this message translates to:
