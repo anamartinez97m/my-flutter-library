@@ -13,8 +13,17 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
+// ── v2 design tokens ─────────────────────────────────────────────────────────
+const _kV2Bg = Color(0xFFFDF8F6);
+const _kV2Primary = Color(0xFF43102B);
+const _kV2Sub = Color(0xFF514348);
+const _kV2Text = Color(0xFF1C1B1A);
+const _kV2Border = Color(0xFFD5C2C7);
+
 class AdminCsvImportScreen extends StatefulWidget {
-  const AdminCsvImportScreen({super.key});
+  final bool useNewUi;
+
+  const AdminCsvImportScreen({super.key, this.useNewUi = false});
 
   @override
   State<AdminCsvImportScreen> createState() => _AdminCsvImportScreenState();
@@ -224,27 +233,61 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
           final resume = await showDialog<bool>(
             context: context,
             builder:
-                (context) => AlertDialog(
-                  title: Text(AppLocalizations.of(context)!.resume_import),
-                  content: Text(
-                    'Found a previous import session for:\n${savedPath.split('/').last}\n\nWould you like to resume from where you left off?',
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () async {
-                        // Clear checkpoint (reviewed books will be cleared after file is loaded)
-                        await _clearCheckpoint();
-                        if (!context.mounted) return;
-                        Navigator.pop(context, false);
-                      },
-                      child: Text(AppLocalizations.of(context)!.start_fresh),
-                    ),
-                    ElevatedButton(
-                      onPressed: () => Navigator.pop(context, true),
-                      child: Text(AppLocalizations.of(context)!.resume),
-                    ),
-                  ],
-                ),
+                (context) =>
+                    widget.useNewUi
+                        ? _v2Dialog(
+                          title: _v2DialogTitle(
+                            Icons.play_circle_outline,
+                            AppLocalizations.of(context)!.resume_import,
+                          ),
+                          content: _v2DialogContent(
+                            'Found a previous import session for:\n${savedPath.split('/').last}\n\nWould you like to resume from where you left off?',
+                          ),
+                          actions: [
+                            Row(
+                              children: [
+                                _v2SecondaryButton(
+                                  label:
+                                      AppLocalizations.of(context)!.start_fresh,
+                                  onPressed: () async {
+                                    await _clearCheckpoint();
+                                    if (!context.mounted) return;
+                                    Navigator.pop(context, false);
+                                  },
+                                ),
+                                const SizedBox(width: 12),
+                                _v2PrimaryButton(
+                                  label: AppLocalizations.of(context)!.resume,
+                                  onPressed: () => Navigator.pop(context, true),
+                                ),
+                              ],
+                            ),
+                          ],
+                        )
+                        : AlertDialog(
+                          title: Text(
+                            AppLocalizations.of(context)!.resume_import,
+                          ),
+                          content: Text(
+                            'Found a previous import session for:\n${savedPath.split('/').last}\n\nWould you like to resume from where you left off?',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () async {
+                                await _clearCheckpoint();
+                                if (!context.mounted) return;
+                                Navigator.pop(context, false);
+                              },
+                              child: Text(
+                                AppLocalizations.of(context)!.start_fresh,
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: () => Navigator.pop(context, true),
+                              child: Text(AppLocalizations.of(context)!.resume),
+                            ),
+                          ],
+                        ),
           );
 
           if (resume == true) {
@@ -1054,24 +1097,65 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         // ignore: use_build_context_synchronously
         context: context,
         builder:
-            (context) => AlertDialog(
-              title: Text(AppLocalizations.of(context)!.import_completed_title),
-              content: Text(
-                'Imported: $imported\nUpdated: $updated\nSkipped: $skipped',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context); // Close dialog
-                    Navigator.pop(
-                      context,
-                      true,
-                    ); // Go back to settings with result
-                  },
-                  child: Text(AppLocalizations.of(context)!.ok),
-                ),
-              ],
-            ),
+            (context) =>
+                widget.useNewUi
+                    ? _v2Dialog(
+                      title: _v2DialogTitle(
+                        Icons.check_circle_outline,
+                        AppLocalizations.of(context)!.import_completed_title,
+                      ),
+                      content: _v2DialogContent(
+                        'Imported: $imported\nUpdated: $updated\nSkipped: $skipped',
+                      ),
+                      actions: [
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              Navigator.pop(context, true);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _kV2Primary,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: Text(
+                              AppLocalizations.of(context)!.ok,
+                              style: const TextStyle(
+                                fontFamily: 'Manrope',
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                    : AlertDialog(
+                      title: Text(
+                        AppLocalizations.of(context)!.import_completed_title,
+                      ),
+                      content: Text(
+                        'Imported: $imported\nUpdated: $updated\nSkipped: $skipped',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context); // Close dialog
+                            Navigator.pop(
+                              context,
+                              true,
+                            ); // Go back to settings with result
+                          },
+                          child: Text(AppLocalizations.of(context)!.ok),
+                        ),
+                      ],
+                    ),
       );
     } catch (e) {
       setState(() {
@@ -1273,335 +1357,858 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
     }
   }
 
+  // ─── v2 dialog helpers ─────────────────────────────────────────────────────
+
+  Widget _v2Dialog({
+    required Widget title,
+    required Widget content,
+    required List<Widget> actions,
+  }) {
+    return AlertDialog(
+      backgroundColor: _kV2Bg,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+      contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      actionsPadding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+      title: title,
+      content: content,
+      actions: actions,
+    );
+  }
+
+  Widget _v2DialogTitle(IconData icon, String title) {
+    return Row(
+      children: [
+        Icon(icon, color: _kV2Primary, size: 24),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            title,
+            style: const TextStyle(
+              fontFamily: 'Manrope',
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: _kV2Primary,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _v2DialogContent(String text) {
+    return Text(
+      text,
+      style: const TextStyle(
+        fontFamily: 'Manrope',
+        fontSize: 14,
+        color: _kV2Sub,
+      ),
+    );
+  }
+
+  Widget _v2PrimaryButton({
+    required String label,
+    required VoidCallback? onPressed,
+    Color? backgroundColor,
+  }) {
+    return Expanded(
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: backgroundColor ?? _kV2Primary,
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: _kV2Primary.withValues(alpha: 0.3),
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 0,
+        ),
+        child: Text(
+          label,
+          style: const TextStyle(
+            fontFamily: 'Manrope',
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _v2SecondaryButton({
+    required String label,
+    required VoidCallback? onPressed,
+  }) {
+    return Expanded(
+      child: TextButton(
+        onPressed: onPressed,
+        style: TextButton.styleFrom(
+          foregroundColor: _kV2Primary,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+        ),
+        child: Text(
+          label,
+          style: const TextStyle(
+            fontFamily: 'Manrope',
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
+      backgroundColor: widget.useNewUi ? _kV2Bg : null,
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.admin_csv_import),
+        backgroundColor: widget.useNewUi ? _kV2Bg : null,
+        surfaceTintColor: widget.useNewUi ? Colors.transparent : null,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: widget.useNewUi ? _kV2Primary : null,
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          l10n.admin_csv_import,
+          style:
+              widget.useNewUi
+                  ? const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: _kV2Primary,
+                    letterSpacing: -0.5,
+                  )
+                  : null,
+        ),
+        centerTitle: widget.useNewUi,
         actions: [
           if (_importItems.isNotEmpty && !_isLoading)
-            TextButton.icon(
-              onPressed: _processImports,
-              icon: const Icon(Icons.check),
-              label: Text(AppLocalizations.of(context)!.import_all),
-            ),
+            widget.useNewUi
+                ? TextButton(
+                  onPressed: _processImports,
+                  child: Row(
+                    children: [
+                      const Icon(Icons.check, color: _kV2Primary, size: 20),
+                      const SizedBox(width: 6),
+                      Text(
+                        l10n.import_all,
+                        style: const TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: _kV2Primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+                : TextButton.icon(
+                  onPressed: _processImports,
+                  icon: const Icon(Icons.check),
+                  label: Text(l10n.import_all),
+                ),
         ],
+        bottom:
+            widget.useNewUi
+                ? PreferredSize(
+                  preferredSize: const Size.fromHeight(1),
+                  child: Container(height: 1, color: _kV2Border),
+                )
+                : null,
       ),
       body:
           _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _importItems.isEmpty
               ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.upload_file,
-                      size: 64,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                child: CircularProgressIndicator(
+                  color: widget.useNewUi ? _kV2Primary : null,
+                ),
+              )
+              : _importItems.isEmpty
+              ? _buildEmptyState(context, l10n)
+              : _buildReviewBody(context, l10n),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context, AppLocalizations l10n) {
+    if (!widget.useNewUi) {
+      return _buildV1EmptyState(context, l10n);
+    }
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: _kV2Primary.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: _kV2Primary.withValues(alpha: 0.1)),
+              ),
+              child: const Icon(
+                Icons.upload_file,
+                size: 40,
+                color: _kV2Primary,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              l10n.no_csv_file_selected,
+              style: const TextStyle(
+                fontFamily: 'Manrope',
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: _kV2Text,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Select a CSV file to begin importing books into your library.',
+              style: const TextStyle(
+                fontFamily: 'Manrope',
+                fontSize: 14,
+                color: _kV2Sub,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _selectAndParseCsv,
+                icon: const Icon(Icons.file_open, size: 20),
+                label: Text(
+                  l10n.select_csv_file,
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _kV2Primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 0,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton.icon(
+                onPressed: () async {
+                  final confirmed = await showDialog<bool>(
+                    context: context,
+                    builder:
+                        (context) => _v2Dialog(
+                          title: _v2DialogTitle(
+                            Icons.delete_sweep,
+                            l10n.clear_reviewed_books,
+                          ),
+                          content: _v2DialogContent(
+                            l10n.clear_reviewed_books_description,
+                          ),
+                          actions: [
+                            Row(
+                              children: [
+                                _v2SecondaryButton(
+                                  label: l10n.cancel,
+                                  onPressed:
+                                      () => Navigator.pop(context, false),
+                                ),
+                                const SizedBox(width: 12),
+                                _v2PrimaryButton(
+                                  label: l10n.clear_all,
+                                  onPressed: () => Navigator.pop(context, true),
+                                  backgroundColor: Colors.red.shade600,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                  );
+
+                  if (confirmed == true) {
+                    await _clearAllReviewedBooks();
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(l10n.cleared_reviewed_books),
+                          backgroundColor: _kV2Primary,
+                        ),
+                      );
+                    }
+                  }
+                },
+                icon: const Icon(Icons.delete_sweep, size: 20),
+                label: Text(
+                  l10n.clear_reviewed_books_cache,
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                style: TextButton.styleFrom(
+                  foregroundColor: _kV2Sub,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildV1EmptyState(BuildContext context, AppLocalizations l10n) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.upload_file,
+            size: 64,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(height: 16),
+          Text(l10n.no_csv_file_selected),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: _selectAndParseCsv,
+            icon: const Icon(Icons.file_open),
+            label: Text(l10n.select_csv_file),
+          ),
+          const SizedBox(height: 16),
+          TextButton.icon(
+            onPressed: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder:
+                    (context) => AlertDialog(
+                      title: Text(l10n.clear_reviewed_books),
+                      content: Text(l10n.clear_reviewed_books_description),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: Text(l10n.cancel),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                Theme.of(context).colorScheme.error,
+                            foregroundColor:
+                                Theme.of(context).colorScheme.onError,
+                          ),
+                          child: Text(l10n.clear_all),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 16),
-                    Text(AppLocalizations.of(context)!.no_csv_file_selected),
-                    const SizedBox(height: 24),
-                    ElevatedButton.icon(
-                      onPressed: _selectAndParseCsv,
-                      icon: const Icon(Icons.file_open),
-                      label: Text(
-                        AppLocalizations.of(context)!.select_csv_file,
-                      ),
+              );
+
+              if (confirmed == true) {
+                await _clearAllReviewedBooks();
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(l10n.cleared_reviewed_books),
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                     ),
-                    const SizedBox(height: 16),
-                    TextButton.icon(
+                  );
+                }
+              }
+            },
+            icon: const Icon(Icons.delete_sweep, size: 18),
+            label: Text(l10n.clear_reviewed_books_cache),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReviewBody(BuildContext context, AppLocalizations l10n) {
+    if (!widget.useNewUi) {
+      return _buildV1ReviewBody(context, l10n);
+    }
+
+    return Column(
+      children: [
+        // Progress indicator
+        Container(
+          margin: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0x1A27231E)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                l10n.book_x_of_y(
+                  (_currentIndex + 1).toString(),
+                  _importItems.length.toString(),
+                ),
+                style: const TextStyle(
+                  fontFamily: 'Manrope',
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: _kV2Text,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: _kV2Primary.withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: _kV2Primary.withValues(alpha: 0.1)),
+                ),
+                child: Text(
+                  l10n.n_to_import(
+                    _importItems.where((i) => i.shouldImport).length.toString(),
+                  ),
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: _kV2Primary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        // Book preview
+        Expanded(
+          child: _BookImportPreview(
+            item: _importItems[_currentIndex],
+            onChanged: (updated) {
+              setState(() {
+                _importItems[_currentIndex] = updated;
+              });
+            },
+          ),
+        ),
+        // Navigation
+        Container(
+          padding: EdgeInsets.fromLTRB(
+            16,
+            16,
+            16,
+            16 + MediaQuery.of(context).viewPadding.bottom,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border(
+              top: BorderSide(color: _kV2Border.withValues(alpha: 0.5)),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Import up to here button
+              if (_currentIndex < _importItems.length - 1)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
                       onPressed: () async {
-                        final confirmed = await showDialog<bool>(
+                        final toImportCount =
+                            _importItems
+                                .take(_currentIndex + 1)
+                                .where((item) => item.shouldImport)
+                                .length;
+                        final confirm = await showDialog<bool>(
                           context: context,
                           builder:
-                              (context) => AlertDialog(
-                                title: Text(
-                                  AppLocalizations.of(
-                                    context,
-                                  )!.clear_reviewed_books,
+                              (context) => _v2Dialog(
+                                title: _v2DialogTitle(
+                                  Icons.download,
+                                  l10n.import_up_to_here,
                                 ),
-                                content: Text(
-                                  AppLocalizations.of(
-                                    context,
-                                  )!.clear_reviewed_books_description,
+                                content: _v2DialogContent(
+                                  'Import $toImportCount books from the first ${_currentIndex + 1}?\n\n(Only books marked for import will be imported)',
                                 ),
                                 actions: [
-                                  TextButton(
-                                    onPressed:
-                                        () => Navigator.pop(context, false),
-                                    child: Text(
-                                      AppLocalizations.of(context)!.cancel,
-                                    ),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed:
-                                        () => Navigator.pop(context, true),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          Theme.of(context).colorScheme.error,
-                                      foregroundColor:
-                                          Theme.of(context).colorScheme.onError,
-                                    ),
-                                    child: Text(
-                                      AppLocalizations.of(context)!.clear_all,
-                                    ),
+                                  Row(
+                                    children: [
+                                      _v2SecondaryButton(
+                                        label: l10n.cancel,
+                                        onPressed:
+                                            () => Navigator.pop(context, false),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      _v2PrimaryButton(
+                                        label: l10n.import_label,
+                                        onPressed:
+                                            () => Navigator.pop(context, true),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
                         );
-
-                        if (confirmed == true) {
-                          await _clearAllReviewedBooks();
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  AppLocalizations.of(
-                                    context,
-                                  )!.cleared_reviewed_books,
-                                ),
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.primary,
-                              ),
-                            );
-                          }
+                        if (confirm == true) {
+                          await _processPartialImport(_currentIndex + 1);
                         }
                       },
-                      icon: const Icon(Icons.delete_sweep, size: 18),
+                      icon: const Icon(Icons.download, size: 18),
                       label: Text(
-                        AppLocalizations.of(
-                          context,
-                        )!.clear_reviewed_books_cache,
+                        'Import Up To Here (${_importItems.take(_currentIndex + 1).where((item) => item.shouldImport).length} books)',
+                        style: const TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 13,
+                        ),
                       ),
-                      style: TextButton.styleFrom(
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onSurfaceVariant,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: _kV2Primary,
+                        side: BorderSide(
+                          color: _kV2Primary.withValues(alpha: 0.3),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              )
-              : Column(
+              Row(
                 children: [
-                  // Progress indicator
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    color:
-                        Theme.of(context).colorScheme.surfaceContainerHighest,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!.book_x_of_y(
-                            (_currentIndex + 1).toString(),
-                            _importItems.length.toString(),
-                          ),
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        Text(
-                          AppLocalizations.of(context)!.n_to_import(
-                            _importItems
-                                .where((i) => i.shouldImport)
-                                .length
-                                .toString(),
-                          ),
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Book preview
                   Expanded(
-                    child: _BookImportPreview(
-                      item: _importItems[_currentIndex],
-                      onChanged: (updated) {
-                        setState(() {
-                          _importItems[_currentIndex] = updated;
-                        });
-                      },
+                    child: OutlinedButton(
+                      onPressed:
+                          _currentIndex > 0
+                              ? () {
+                                setState(() {
+                                  _currentIndex--;
+                                });
+                                _saveCheckpoint();
+                              }
+                              : null,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: _kV2Primary,
+                        side: BorderSide(
+                          color: _kV2Primary.withValues(alpha: 0.3),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        l10n.previous,
+                        style: const TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ),
-                  // Navigation
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.shadow.withValues(alpha: 0.1),
-                          blurRadius: 4,
-                          offset: const Offset(0, -2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Import up to here button
-                        if (_currentIndex < _importItems.length - 1)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: OutlinedButton.icon(
-                              onPressed: () async {
-                                final toImportCount =
-                                    _importItems
-                                        .take(_currentIndex + 1)
-                                        .where((item) => item.shouldImport)
-                                        .length;
-                                final confirm = await showDialog<bool>(
-                                  context: context,
-                                  builder:
-                                      (context) => AlertDialog(
-                                        title: Text(
-                                          AppLocalizations.of(
-                                            context,
-                                          )!.import_up_to_here,
-                                        ),
-                                        content: Text(
-                                          'Import $toImportCount books from the first ${_currentIndex + 1}?\n\n(Only books marked for import will be imported)',
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            onPressed:
-                                                () => Navigator.pop(
-                                                  context,
-                                                  false,
-                                                ),
-                                            child: Text(
-                                              AppLocalizations.of(
-                                                context,
-                                              )!.cancel,
-                                            ),
-                                          ),
-                                          ElevatedButton(
-                                            onPressed:
-                                                () => Navigator.pop(
-                                                  context,
-                                                  true,
-                                                ),
-                                            child: Text(
-                                              AppLocalizations.of(
-                                                context,
-                                              )!.import_label,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed:
+                          _currentIndex < _importItems.length - 1
+                              ? () async {
+                                final currentItem = _importItems[_currentIndex];
+                                final currentHash = _generateBookHash(
+                                  currentItem,
                                 );
-                                if (confirm == true) {
-                                  await _processPartialImport(
-                                    _currentIndex + 1,
-                                  );
-                                }
-                              },
-                              icon: const Icon(Icons.download, size: 18),
-                              label: Text(
-                                'Import Up To Here (${_importItems.take(_currentIndex + 1).where((item) => item.shouldImport).length} books)',
-                                style: const TextStyle(fontSize: 13),
-                              ),
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor:
-                                    Theme.of(context).colorScheme.secondary,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8,
-                                ),
-                              ),
-                            ),
-                          ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed:
-                                    _currentIndex > 0
-                                        ? () {
-                                          setState(() {
-                                            _currentIndex--;
-                                          });
-                                          _saveCheckpoint();
-                                        }
-                                        : null,
-                                child: Text(
-                                  AppLocalizations.of(context)!.previous,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed:
-                                    _currentIndex < _importItems.length - 1
-                                        ? () async {
-                                          // Mark current book as ignored, don't import, and move to next
-                                          final currentItem =
-                                              _importItems[_currentIndex];
-                                          final currentHash = _generateBookHash(
-                                            currentItem,
-                                          );
-                                          debugPrint(
-                                            '🚫 Ignoring book: ${currentItem.book.name} (hash: $currentHash)',
-                                          );
-                                          await _markBookAsIgnored(currentHash);
+                                debugPrint(
+                                  '🚫 Ignoring book: ${currentItem.book.name} (hash: $currentHash)',
+                                );
+                                await _markBookAsIgnored(currentHash);
 
-                                          setState(() {
-                                            // Mark as not to import
-                                            _importItems[_currentIndex] =
-                                                _importItems[_currentIndex]
-                                                    .copyWith(
-                                                      shouldImport: false,
-                                                    );
-                                            _currentIndex++;
-                                          });
-                                          await _saveCheckpoint();
-                                        }
-                                        : null,
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor:
-                                      Theme.of(context).colorScheme.secondary,
-                                ),
-                                child: Text(
-                                  AppLocalizations.of(context)!.ignore,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed:
-                                    _currentIndex < _importItems.length - 1
-                                        ? () async {
-                                          // Mark current book as reviewed before moving to next
-                                          final currentHash = _generateBookHash(
-                                            _importItems[_currentIndex],
-                                          );
-                                          await _markBookAsReviewed(
-                                            currentHash,
-                                          );
-
-                                          setState(() {
-                                            _currentIndex++;
-                                          });
-                                          await _saveCheckpoint();
-                                        }
-                                        : null,
-                                child: Text(
-                                  AppLocalizations.of(context)!.next_label,
-                                ),
-                              ),
-                            ),
-                          ],
+                                setState(() {
+                                  _importItems[_currentIndex] =
+                                      _importItems[_currentIndex].copyWith(
+                                        shouldImport: false,
+                                      );
+                                  _currentIndex++;
+                                });
+                                await _saveCheckpoint();
+                              }
+                              : null,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: _kV2Sub,
+                        side: BorderSide(
+                          color: _kV2Border.withValues(alpha: 0.5),
                         ),
-                        const SizedBox(height: 40),
-                      ],
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        l10n.ignore,
+                        style: const TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed:
+                          _currentIndex < _importItems.length - 1
+                              ? () async {
+                                final currentHash = _generateBookHash(
+                                  _importItems[_currentIndex],
+                                );
+                                await _markBookAsReviewed(currentHash);
+
+                                setState(() {
+                                  _currentIndex++;
+                                });
+                                await _saveCheckpoint();
+                              }
+                              : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _kV2Primary,
+                        foregroundColor: Colors.white,
+                        disabledBackgroundColor: _kV2Primary.withValues(
+                          alpha: 0.3,
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        l10n.next_label,
+                        style: const TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ),
                 ],
               ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildV1ReviewBody(BuildContext context, AppLocalizations l10n) {
+    return Column(
+      children: [
+        // Progress indicator
+        Container(
+          padding: const EdgeInsets.all(16),
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                l10n.book_x_of_y(
+                  (_currentIndex + 1).toString(),
+                  _importItems.length.toString(),
+                ),
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              Text(
+                l10n.n_to_import(
+                  _importItems.where((i) => i.shouldImport).length.toString(),
+                ),
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ],
+          ),
+        ),
+        // Book preview
+        Expanded(
+          child: _BookImportPreview(
+            item: _importItems[_currentIndex],
+            onChanged: (updated) {
+              setState(() {
+                _importItems[_currentIndex] = updated;
+              });
+            },
+          ),
+        ),
+        // Navigation
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(
+                  context,
+                ).colorScheme.shadow.withValues(alpha: 0.1),
+                blurRadius: 4,
+                offset: const Offset(0, -2),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Import up to here button
+              if (_currentIndex < _importItems.length - 1)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      final toImportCount =
+                          _importItems
+                              .take(_currentIndex + 1)
+                              .where((item) => item.shouldImport)
+                              .length;
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder:
+                            (context) => AlertDialog(
+                              title: Text(l10n.import_up_to_here),
+                              content: Text(
+                                'Import $toImportCount books from the first ${_currentIndex + 1}?\n\n(Only books marked for import will be imported)',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed:
+                                      () => Navigator.pop(context, false),
+                                  child: Text(l10n.cancel),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  child: Text(l10n.import_label),
+                                ),
+                              ],
+                            ),
+                      );
+                      if (confirm == true) {
+                        await _processPartialImport(_currentIndex + 1);
+                      }
+                    },
+                    icon: const Icon(Icons.download, size: 18),
+                    label: Text(
+                      'Import Up To Here (${_importItems.take(_currentIndex + 1).where((item) => item.shouldImport).length} books)',
+                      style: const TextStyle(fontSize: 13),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Theme.of(context).colorScheme.secondary,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                    ),
+                  ),
+                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed:
+                          _currentIndex > 0
+                              ? () {
+                                setState(() {
+                                  _currentIndex--;
+                                });
+                                _saveCheckpoint();
+                              }
+                              : null,
+                      child: Text(l10n.previous),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed:
+                          _currentIndex < _importItems.length - 1
+                              ? () async {
+                                final currentItem = _importItems[_currentIndex];
+                                final currentHash = _generateBookHash(
+                                  currentItem,
+                                );
+                                debugPrint(
+                                  '🚫 Ignoring book: ${currentItem.book.name} (hash: $currentHash)',
+                                );
+                                await _markBookAsIgnored(currentHash);
+
+                                setState(() {
+                                  _importItems[_currentIndex] =
+                                      _importItems[_currentIndex].copyWith(
+                                        shouldImport: false,
+                                      );
+                                  _currentIndex++;
+                                });
+                                await _saveCheckpoint();
+                              }
+                              : null,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor:
+                            Theme.of(context).colorScheme.secondary,
+                      ),
+                      child: Text(l10n.ignore),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed:
+                          _currentIndex < _importItems.length - 1
+                              ? () async {
+                                final currentHash = _generateBookHash(
+                                  _importItems[_currentIndex],
+                                );
+                                await _markBookAsReviewed(currentHash);
+
+                                setState(() {
+                                  _currentIndex++;
+                                });
+                                await _saveCheckpoint();
+                              }
+                              : null,
+                      child: Text(l10n.next_label),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 40),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

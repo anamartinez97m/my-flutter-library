@@ -3093,7 +3093,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const TutorialScreen()),
+                    MaterialPageRoute(
+                      builder: (_) => TutorialScreen(useNewUi: widget.useNewUi),
+                    ),
                   );
                 },
               ),
@@ -3386,7 +3388,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         // TBR Limit Setting
-                        const TBRLimitSetting(),
+                        TBRLimitSetting(useNewUi: widget.useNewUi),
                         const SizedBox(height: 16),
 
                         // Home Filters Configuration
@@ -4930,8 +4932,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 context,
                                 MaterialPageRoute(
                                   builder:
-                                      (context) =>
-                                          const ManageRatingFieldsScreen(),
+                                      (context) => ManageRatingFieldsScreen(
+                                        useNewUi: widget.useNewUi,
+                                      ),
                                 ),
                               );
                             },
@@ -4991,8 +4994,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 context,
                                 MaterialPageRoute(
                                   builder:
-                                      (context) =>
-                                          const ManageClubNamesScreen(),
+                                      (context) => ManageClubNamesScreen(
+                                        useNewUi: widget.useNewUi,
+                                      ),
                                 ),
                               );
                             },
@@ -5048,16 +5052,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           child: InkWell(
                             onTap: () {
-                              final useNewUi =
-                                  context
-                                      .read<FeatureFlagProvider>()
-                                      .newUiEnabled;
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder:
                                       (context) => ManageDropdownsScreen(
-                                        useNewUi: useNewUi,
+                                        useNewUi: widget.useNewUi,
                                       ),
                                 ),
                               );
@@ -5723,7 +5723,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     final result = await Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const AdminCsvImportScreen(),
+                        builder:
+                            (context) =>
+                                AdminCsvImportScreen(useNewUi: widget.useNewUi),
                       ),
                     );
                     // If books were imported, reload the provider
@@ -5854,7 +5856,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const TutorialScreen(),
+                          builder:
+                              (_) => TutorialScreen(useNewUi: widget.useNewUi),
                         ),
                       );
                     },
@@ -5977,7 +5980,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const AdminCsvImportScreen(),
+                            builder:
+                                (_) => AdminCsvImportScreen(
+                                  useNewUi: widget.useNewUi,
+                                ),
                           ),
                         );
                       },
@@ -6516,7 +6522,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         const SizedBox(height: 24),
         // TBR Limit
-        const TBRLimitSetting(),
+        const TBRLimitSetting(useNewUi: true),
       ],
     );
   }
@@ -6749,7 +6755,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildV2LibraryCustomizationContent(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final useNewUi = context.read<FeatureFlagProvider>().newUiEnabled;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -6760,7 +6765,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => const ManageRatingFieldsScreen(),
+                builder:
+                    (_) => ManageRatingFieldsScreen(useNewUi: widget.useNewUi),
               ),
             );
           },
@@ -6772,7 +6778,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const ManageClubNamesScreen()),
+              MaterialPageRoute(
+                builder:
+                    (_) => ManageClubNamesScreen(useNewUi: widget.useNewUi),
+              ),
             );
           },
         ),
@@ -6784,7 +6793,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => ManageDropdownsScreen(useNewUi: useNewUi),
+                builder:
+                    (_) => ManageDropdownsScreen(useNewUi: widget.useNewUi),
               ),
             );
           },

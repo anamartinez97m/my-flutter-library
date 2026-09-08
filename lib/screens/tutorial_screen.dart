@@ -2,8 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
+// ── v2 design tokens ─────────────────────────────────────────────────────────
+const _kBg = Color(0xFFFDF8F6);
+const _kPrimary = Color(0xFF43102B);
+const _kSub = Color(0xFF514348);
+const _kText = Color(0xFF1C1B1A);
+const _kBorder = Color(0xFFD5C2C7);
+
 class TutorialScreen extends StatefulWidget {
-  const TutorialScreen({super.key});
+  final bool useNewUi;
+  const TutorialScreen({super.key, this.useNewUi = false});
 
   @override
   State<TutorialScreen> createState() => _TutorialScreenState();
@@ -126,6 +134,13 @@ class _TutorialScreenState extends State<TutorialScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.useNewUi) {
+      return _buildV2(context);
+    }
+    return _buildV1(context);
+  }
+
+  Widget _buildV1(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
@@ -139,6 +154,65 @@ class _TutorialScreenState extends State<TutorialScreen> {
           final images =
               _imagesLoaded ? (_sectionImages[section.key] ?? []) : [];
           return _TutorialSectionCard(
+            section: section,
+            images: images,
+            l10n: l10n,
+            controller: _controllers[index],
+            onExpansionChanged: (expanded) {
+              if (expanded) {
+                for (int i = 0; i < _controllers.length; i++) {
+                  if (i != index) {
+                    try {
+                      _controllers[i].collapse();
+                    } catch (_) {}
+                  }
+                }
+              }
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildV2(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Scaffold(
+      backgroundColor: _kBg,
+      appBar: AppBar(
+        backgroundColor: _kBg,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: _kPrimary),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          l10n.tutorial_title,
+          style: const TextStyle(
+            fontFamily: 'Manrope',
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: _kPrimary,
+            letterSpacing: -0.5,
+          ),
+        ),
+        centerTitle: true,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(height: 1, color: _kBorder.withValues(alpha: 0.5)),
+        ),
+      ),
+      body: ListView.separated(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 50),
+        itemCount: _sections.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        itemBuilder: (context, index) {
+          final section = _sections[index];
+          final images =
+              _imagesLoaded ? (_sectionImages[section.key] ?? []) : [];
+          return _TutorialSectionCardV2(
             section: section,
             images: images,
             l10n: l10n,
@@ -326,6 +400,116 @@ class _TutorialSectionCard extends StatelessWidget {
               images: images.cast<String>(),
               initialIndex: initialIndex,
             ),
+      ),
+    );
+  }
+}
+
+class _TutorialSectionCardV2 extends _TutorialSectionCard {
+  const _TutorialSectionCardV2({
+    required super.section,
+    required super.images,
+    required super.l10n,
+    super.controller,
+    super.onExpansionChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final title = _getTitle(l10n);
+    final description = _getDescription(l10n);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0x1A27231E)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 6,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: ExpansionTile(
+          controller: controller,
+          onExpansionChanged: onExpansionChanged,
+          collapsedBackgroundColor: Colors.white,
+          backgroundColor: Colors.white,
+          iconColor: _kPrimary,
+          collapsedIconColor: _kSub,
+          leading: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: _kPrimary.withValues(alpha: 0.06),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(section.icon, color: _kPrimary, size: 20),
+          ),
+          title: Text(
+            title,
+            style: const TextStyle(
+              fontFamily: 'Manrope',
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: _kText,
+            ),
+          ),
+          childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                description,
+                style: const TextStyle(
+                  fontFamily: 'Manrope',
+                  fontSize: 14,
+                  color: _kSub,
+                  height: 1.4,
+                ),
+              ),
+            ),
+            if (images.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 180,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: images.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  itemBuilder: (context, index) {
+                    final path = images[index] as String;
+                    return GestureDetector(
+                      onTap: () => _openFullScreen(context, images, index),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: AspectRatio(
+                          aspectRatio: 9 / 16,
+                          child: Image.asset(
+                            path,
+                            fit: BoxFit.cover,
+                            errorBuilder:
+                                (_, __, ___) => Container(
+                                  color: const Color(0xFFF2EDEB),
+                                  child: const Icon(
+                                    Icons.image_not_supported_outlined,
+                                    color: _kSub,
+                                  ),
+                                ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }

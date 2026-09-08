@@ -2067,26 +2067,60 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
     );
   }
 
-  /// Show detailed reading time information in a dialog
+  /// Show detailed reading time information in a v2-styled dialog.
   void _showReadingTimeDetails(Map<String, dynamic> readingTimeData) {
     final days = readingTimeData['days'] as int;
     final method = readingTimeData['method'] as String;
     final details = readingTimeData['details'] as Map<String, dynamic>;
+    final l10n = AppLocalizations.of(context)!;
+
+    Widget _detailRow(IconData icon, String text) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, size: 18, color: _kPrimary),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                text,
+                style: const TextStyle(
+                  fontFamily: 'Manrope',
+                  fontSize: 14,
+                  color: _kSub,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     showDialog(
       context: context,
       builder:
           (context) => AlertDialog(
+            backgroundColor: _kBg,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+            contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+            actionsPadding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
             title: Row(
               children: [
-                Icon(
-                  Icons.timer_outlined,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(width: 8),
+                const Icon(Icons.timer_outlined, color: _kPrimary, size: 24),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    AppLocalizations.of(context)!.reading_time_details,
+                    l10n.reading_time_details,
+                    style: const TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: _kPrimary,
+                    ),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 2,
                   ),
@@ -2097,84 +2131,121 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  AppLocalizations.of(context)!.book_took_days(
-                    days,
-                    days == 1
-                        ? AppLocalizations.of(context)!.day_word
-                        : AppLocalizations.of(context)!.days_word,
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: _kPrimary.withValues(alpha: 0.06),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: _kPrimary.withValues(alpha: 0.1)),
                   ),
-                  style: Theme.of(context).textTheme.bodyLarge,
+                  child: Text(
+                    l10n.book_took_days(
+                      days,
+                      days == 1 ? l10n.day_word : l10n.days_word,
+                    ),
+                    style: const TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: _kPrimary,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
-                Text(
-                  AppLocalizations.of(context)!.calculation_method(method),
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                _detailRow(
+                  Icons.lightbulb_outline,
+                  l10n.calculation_method(method),
                 ),
                 const SizedBox(height: 12),
-                if (method == 'Time-based' &&
-                    details.containsKey('total_hours')) ...[
-                  Text(
-                    'Total reading time: ${(details['total_hours'] as double).toStringAsFixed(1)} hours',
-                    style: Theme.of(context).textTheme.bodySmall,
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0x1A27231E)),
                   ),
-                  if (details['days_with_time'] > 0)
-                    Text(
-                      AppLocalizations.of(
-                        context,
-                      )!.days_with_time_tracking(details['days_with_time']),
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  if (details['days_with_didread_only'] > 0)
-                    Text(
-                      AppLocalizations.of(context)!.days_with_reading_flag(
-                        details['days_with_didread_only'],
-                      ),
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                ] else if (method == 'DidRead-based' &&
-                    details.containsKey('days_with_didread_only')) ...[
-                  Text(
-                    AppLocalizations.of(
-                      context,
-                    )!.days_marked_as_read(details['days_with_didread_only']),
-                    style: Theme.of(context).textTheme.bodySmall,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (method == 'Time-based' &&
+                          details.containsKey('total_hours')) ...[
+                        _detailRow(
+                          Icons.schedule,
+                          'Total reading time: ${(details['total_hours'] as double).toStringAsFixed(1)} hours',
+                        ),
+                        if (details['days_with_time'] > 0)
+                          _detailRow(
+                            Icons.timer,
+                            l10n.days_with_time_tracking(
+                              details['days_with_time'],
+                            ),
+                          ),
+                        if (details['days_with_didread_only'] > 0)
+                          _detailRow(
+                            Icons.bookmark_added,
+                            l10n.days_with_reading_flag(
+                              details['days_with_didread_only'],
+                            ),
+                          ),
+                      ] else if (method == 'DidRead-based' &&
+                          details.containsKey('days_with_didread_only')) ...[
+                        _detailRow(
+                          Icons.bookmark_added,
+                          l10n.days_marked_as_read(
+                            details['days_with_didread_only'],
+                          ),
+                        ),
+                      ] else if (method == 'Date-based' &&
+                          details.containsKey('start_date')) ...[
+                        _detailRow(
+                          Icons.calendar_today_outlined,
+                          l10n.start_date_label(details['start_date']),
+                        ),
+                        _detailRow(
+                          Icons.event_outlined,
+                          l10n.end_date_label(details['end_date']),
+                        ),
+                      ],
+                      if (_currentBook.isBundle == true &&
+                          details.containsKey('books_calculated')) ...[
+                        const SizedBox(height: 4),
+                        _detailRow(
+                          Icons.collections_bookmark_outlined,
+                          l10n.bundle_books_calculated(
+                            details['books_calculated'],
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
-                ] else if (method == 'Date-based' &&
-                    details.containsKey('start_date')) ...[
-                  Text(
-                    AppLocalizations.of(
-                      context,
-                    )!.start_date_label(details['start_date']),
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  Text(
-                    AppLocalizations.of(
-                      context,
-                    )!.end_date_label(details['end_date']),
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-                if (_currentBook.isBundle == true &&
-                    details.containsKey('books_calculated')) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    AppLocalizations.of(
-                      context,
-                    )!.bundle_books_calculated(details['books_calculated']),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ],
+                ),
               ],
             ),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(AppLocalizations.of(context)!.close),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _kPrimary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    l10n.close,
+                    style: const TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
