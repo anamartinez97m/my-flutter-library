@@ -172,9 +172,7 @@ class _NewQuarterlyWinnerSelectionScreenState
       ),
       body:
           isLoading
-              ? const Center(
-                child: CircularProgressIndicator(color: _kPrimary),
-              )
+              ? const Center(child: CircularProgressIndicator(color: _kPrimary))
               : monthlyWinnerBooks.isEmpty
               ? Center(
                 child: Column(
@@ -211,7 +209,9 @@ class _NewQuarterlyWinnerSelectionScreenState
                     ),
                   ),
                   if (selectedBookId != null) _buildConfirmButton(l10n),
-                  const SizedBox(height: 40),
+                  SizedBox(
+                    height: 40 + MediaQuery.of(context).viewPadding.bottom,
+                  ),
                 ],
               ),
     );
@@ -231,7 +231,8 @@ class _NewQuarterlyWinnerSelectionScreenState
           padding: const EdgeInsets.all(20),
           constraints: const BoxConstraints(minHeight: 100),
           decoration: BoxDecoration(
-            color: isSelected ? _kPrimary.withValues(alpha: 0.06) : Colors.white,
+            color:
+                isSelected ? _kPrimary.withValues(alpha: 0.06) : Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color:

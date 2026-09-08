@@ -23,7 +23,8 @@ class NewPastYearsCompetitionScreen extends StatefulWidget {
 }
 
 class _NewPastYearsCompetitionScreenState
-    extends State<NewPastYearsCompetitionScreen> {
+    extends State<NewPastYearsCompetitionScreen>
+    with WidgetsBindingObserver {
   List<BookCompetition> pastWinners = [];
   List<int> availableYears = [];
   bool isLoading = true;
@@ -31,7 +32,21 @@ class _NewPastYearsCompetitionScreenState
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadPastYearsData();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _loadPastYearsData();
+    }
   }
 
   Future<void> _loadPastYearsData() async {
@@ -143,8 +158,8 @@ class _NewPastYearsCompetitionScreenState
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
+                      onTap: () async {
+                        await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder:
@@ -152,6 +167,7 @@ class _NewPastYearsCompetitionScreenState
                                     NewBookCompetitionScreen(year: year),
                           ),
                         );
+                        _loadPastYearsData();
                       },
                       child: Container(
                         padding: const EdgeInsets.all(20),

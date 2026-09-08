@@ -144,9 +144,7 @@ class _NewYearlyWinnerSelectionScreenState
       ),
       body:
           isLoading
-              ? const Center(
-                child: CircularProgressIndicator(color: _kPrimary),
-              )
+              ? const Center(child: CircularProgressIndicator(color: _kPrimary))
               : semifinalWinnerBooks.isEmpty
               ? Center(
                 child: Column(
@@ -169,11 +167,7 @@ class _NewYearlyWinnerSelectionScreenState
                 children: [
                   const SizedBox(height: 24),
                   // Trophy icon header
-                  const Icon(
-                    Icons.emoji_events,
-                    color: _kGold,
-                    size: 48,
-                  ),
+                  const Icon(Icons.emoji_events, color: _kGold, size: 48),
                   const SizedBox(height: 8),
                   Text(
                     l10n.select_yearly_winner(widget.year.toString()),
@@ -202,7 +196,9 @@ class _NewYearlyWinnerSelectionScreenState
                     ),
                   ),
                   if (selectedBookId != null) _buildConfirmButton(l10n),
-                  const SizedBox(height: 40),
+                  SizedBox(
+                    height: 40 + MediaQuery.of(context).viewPadding.bottom,
+                  ),
                 ],
               ),
     );
@@ -222,7 +218,8 @@ class _NewYearlyWinnerSelectionScreenState
           padding: const EdgeInsets.all(20),
           constraints: const BoxConstraints(minHeight: 100),
           decoration: BoxDecoration(
-            color: isSelected ? _kPrimary.withValues(alpha: 0.06) : Colors.white,
+            color:
+                isSelected ? _kPrimary.withValues(alpha: 0.06) : Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color:

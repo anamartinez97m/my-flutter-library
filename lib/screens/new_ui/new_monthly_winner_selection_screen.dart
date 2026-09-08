@@ -198,7 +198,9 @@ class _NewMonthlyWinnerSelectionScreenState
                     ),
                   ),
                   if (selectedBookId != null) _buildConfirmButton(l10n),
-                  const SizedBox(height: 40),
+                  SizedBox(
+                    height: 40 + MediaQuery.of(context).viewPadding.bottom,
+                  ),
                 ],
               ),
     );

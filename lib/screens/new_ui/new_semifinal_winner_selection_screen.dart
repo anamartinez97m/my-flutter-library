@@ -160,9 +160,7 @@ class _NewSemifinalWinnerSelectionScreenState
       ),
       body:
           isLoading
-              ? const Center(
-                child: CircularProgressIndicator(color: _kPrimary),
-              )
+              ? const Center(child: CircularProgressIndicator(color: _kPrimary))
               : quarterlyWinnerBooks.isEmpty
               ? Center(
                 child: Column(
@@ -199,7 +197,9 @@ class _NewSemifinalWinnerSelectionScreenState
                     ),
                   ),
                   if (selectedBookId != null) _buildConfirmButton(l10n),
-                  const SizedBox(height: 40),
+                  SizedBox(
+                    height: 40 + MediaQuery.of(context).viewPadding.bottom,
+                  ),
                 ],
               ),
     );
@@ -219,7 +219,8 @@ class _NewSemifinalWinnerSelectionScreenState
           padding: const EdgeInsets.all(20),
           constraints: const BoxConstraints(minHeight: 100),
           decoration: BoxDecoration(
-            color: isSelected ? _kPrimary.withValues(alpha: 0.06) : Colors.white,
+            color:
+                isSelected ? _kPrimary.withValues(alpha: 0.06) : Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color:
