@@ -11,11 +11,7 @@ import 'package:myrandomlibrary/screens/new_ui/new_past_years_competition_screen
 import 'package:myrandomlibrary/screens/new_ui/new_past_years_competition_screen_2.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_year_challenges_screen_2.dart';
 import 'package:myrandomlibrary/screens/year_challenges.dart';
-import 'package:myrandomlibrary/widgets/statistics/reading_efficiency_1_card.dart';
-import 'package:myrandomlibrary/widgets/statistics/reading_efficiency_2_card.dart';
-import 'package:myrandomlibrary/widgets/statistics/reading_efficiency_3_card.dart';
-import 'package:myrandomlibrary/widgets/statistics/reading_efficiency_4_card.dart';
-import 'package:myrandomlibrary/widgets/statistics/reading_efficiency_5_card.dart';
+import 'package:myrandomlibrary/widgets/statistics/reading_efficiency_card.dart';
 
 /// New "Reading Activity" statistics screen matching the redesigned UI.
 ///
@@ -81,7 +77,6 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
   static const _kText = ReadingActivityScreen.kText;
   static const _kSub = ReadingActivityScreen.kSub;
   static const _kBorder = ReadingActivityScreen.kBorder;
-  static const _kDivider = ReadingActivityScreen.kDivider;
   static const _kBarBg = ReadingActivityScreen.kBarBg;
 
   final Set<String> _collapsedSections = {};
@@ -515,67 +510,11 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
             // Year Challenges 2
             _buildYearChallenges2Card(context, l10n),
             const SizedBox(height: 16),
-            // Reading Efficiency
+            // Reading Efficiency — Insight-first card
             _buildCollapsibleCard(
               sectionKey: 'reading_efficiency',
               title: l10n.reading_efficiency,
-              child: _buildReadingEfficiencyContent(context, l10n),
-            ),
-            const SizedBox(height: 16),
-            // Reading Efficiency 1 — Hero score ring
-            _buildCollapsibleCard(
-              sectionKey: 'reading_efficiency_1',
-              title: l10n.reading_efficiency_1,
-              child: ReadingEfficiency1Card(
-                efficiencyPercentage: widget.readingEfficiencyPercentage,
-                booksFasterThanAverage: widget.booksFasterThanAverage,
-                booksSlowerThanAverage: widget.booksSlowerThanAverage,
-                totalBooksWithData: widget.booksUsedInEfficiency,
-                readingVelocity: widget.readingVelocity,
-                averageDaysToFinish: widget.averageDaysToFinish,
-                averageBooksPerYear: widget.averageBooksPerYear,
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Reading Efficiency 2 — Compact 3-column metric row
-            _buildCollapsibleCard(
-              sectionKey: 'reading_efficiency_2',
-              title: l10n.reading_efficiency_2,
-              child: ReadingEfficiency2Card(
-                readingVelocity: widget.readingVelocity,
-                averageDaysToFinish: widget.averageDaysToFinish,
-                averageBooksPerYear: widget.averageBooksPerYear,
-                booksUsedInAverageDays: widget.booksUsedInAverageDays,
-                yearsWithBooks: widget.yearsWithBooks,
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Reading Efficiency 3 — Pace profile mini-chart
-            _buildCollapsibleCard(
-              sectionKey: 'reading_efficiency_3',
-              title: l10n.reading_efficiency_3,
-              child: ReadingEfficiency3Card(
-                efficiencyPercentage: widget.readingEfficiencyPercentage,
-                booksFasterThanAverage: widget.booksFasterThanAverage,
-                booksSlowerThanAverage: widget.booksSlowerThanAverage,
-                totalBooksWithData: widget.booksUsedInEfficiency,
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Reading Efficiency 4 — Speedometer gauge
-            _buildCollapsibleCard(
-              sectionKey: 'reading_efficiency_4',
-              title: l10n.reading_efficiency_4,
-              child: ReadingEfficiency4Card(
-                readingVelocity: widget.readingVelocity,
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Reading Efficiency 5 — Insight-first card
-            _buildCollapsibleCard(
-              sectionKey: 'reading_efficiency_5',
-              title: l10n.reading_efficiency_5,
-              child: ReadingEfficiency5Card(
+              child: ReadingEfficiencyCard(
                 readingVelocity: widget.readingVelocity,
                 averageDaysToFinish: widget.averageDaysToFinish,
                 averageBooksPerYear: widget.averageBooksPerYear,
@@ -1338,114 +1277,6 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
           ],
         ),
       ),
-    );
-  }
-
-  // ─── Reading Efficiency ───────────────────────────────────────────
-
-  Widget _buildReadingEfficiencyContent(
-    BuildContext context,
-    AppLocalizations l10n,
-  ) {
-    final hasVelocity = widget.readingVelocity > 0;
-    final hasAvgDays = widget.averageDaysToFinish > 0;
-    final hasAvgBooks = widget.averageBooksPerYear > 0;
-
-    if (!hasVelocity && !hasAvgDays && !hasAvgBooks) {
-      return _buildNoData(l10n);
-    }
-
-    return Column(
-      children: [
-        if (hasVelocity)
-          _buildEfficiencyStat(
-            icon: Icons.speed,
-            color: _kTertiary,
-            value: widget.readingVelocity.toStringAsFixed(1),
-            unit: l10n.pages_per_day,
-            subtitle: l10n.based_on_books_with_data(
-              widget.booksUsedInAverageDays,
-            ),
-          ),
-        if (hasVelocity && hasAvgDays) ...[
-          const SizedBox(height: 16),
-          const Divider(height: 1, thickness: 1, color: _kDivider),
-          const SizedBox(height: 16),
-        ],
-        if (hasAvgDays)
-          _buildEfficiencyStat(
-            icon: Icons.timer,
-            color: _kTertiary,
-            value: widget.averageDaysToFinish.toStringAsFixed(1),
-            unit: l10n.days,
-            subtitle: l10n.avg_time_to_finish,
-          ),
-        if (hasAvgDays && hasAvgBooks) ...[
-          const SizedBox(height: 16),
-          const Divider(height: 1, thickness: 1, color: _kDivider),
-          const SizedBox(height: 16),
-        ],
-        if (hasAvgBooks)
-          _buildEfficiencyStat(
-            icon: Icons.trending_up,
-            color: _kTertiary,
-            value: widget.averageBooksPerYear.toStringAsFixed(1),
-            unit: l10n.books_per_year,
-            subtitle: l10n.based_on_years_of_data(widget.yearsWithBooks),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildEfficiencyStat({
-    required IconData icon,
-    required Color color,
-    required String value,
-    required String unit,
-    required String subtitle,
-  }) {
-    return Column(
-      children: [
-        Icon(icon, color: color, size: 28),
-        const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          children: [
-            Flexible(
-              child: Text(
-                value,
-                style: TextStyle(
-                  fontFamily: 'Manrope',
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Flexible(
-              child: Text(
-                unit,
-                style: const TextStyle(
-                  fontFamily: 'Manrope',
-                  fontSize: 14,
-                  color: _kSub,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-          subtitle,
-          style: const TextStyle(fontSize: 12, color: _kSub),
-          textAlign: TextAlign.center,
-        ),
-      ],
     );
   }
 

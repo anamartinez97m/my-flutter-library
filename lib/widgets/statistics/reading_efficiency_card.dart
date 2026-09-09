@@ -1,129 +1,199 @@
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
-/// Displays reading efficiency score
+const _kPrimary = Color(0xFF43102B);
+const _kSecondary = Color(0xFF894B67);
+const _kTertiary = Color(0xFFBC92A6);
+const _kSub = Color(0xFF514348);
+const _kDivider = Color(0xFFE6E2DF);
+
+/// Reading Efficiency — Insight-first card.
 ///
-/// **How Reading Efficiency is Calculated:**
-/// 1. Calculate your average reading velocity (pages/day) across all books
-/// 2. For each book, calculate its actual reading pace (pages/day)
-/// 3. If a book's pace >= average velocity, it's considered "efficient"
-/// 4. Efficiency % = (efficient books / total books with data) * 100
-///
-/// Example:
-/// - Your average velocity: 50 pages/day
-/// - Book A: 300 pages in 5 days = 60 pages/day → Efficient ✓
-/// - Book B: 200 pages in 5 days = 40 pages/day → Not efficient ✗
-/// - Efficiency: 50% (1 out of 2 books)
+/// Turns the raw efficiency metrics into plain-language takeaways and
+/// projections, keeping the supporting numbers as secondary context.
 class ReadingEfficiencyCard extends StatelessWidget {
-  final double efficiencyPercentage;
-  final int totalReadingsWithData;
+  final double readingVelocity;
+  final double averageDaysToFinish;
+  final double averageBooksPerYear;
+  final int booksUsedInAverageDays;
+  final int yearsWithBooks;
 
   const ReadingEfficiencyCard({
     super.key,
-    required this.efficiencyPercentage,
-    required this.totalReadingsWithData,
+    required this.readingVelocity,
+    required this.averageDaysToFinish,
+    required this.averageBooksPerYear,
+    required this.booksUsedInAverageDays,
+    required this.yearsWithBooks,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
+    final l10n = AppLocalizations.of(context)!;
+    final projectedThisYear = _projectedBooksThisYear();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Primary insight
+        _InsightRow(
+          icon: Icons.timer,
+          color: _kSecondary,
+          headline:
+              averageDaysToFinish > 0
+                  ? l10n.finish_book_every_n_days(
+                    averageDaysToFinish.toStringAsFixed(1),
+                  )
+                  : l10n.no_data_available,
+          caption: l10n.based_on_books_with_data(booksUsedInAverageDays),
+        ),
+        const SizedBox(height: 16),
+        const Divider(height: 1, thickness: 1, color: _kDivider),
+        const SizedBox(height: 16),
+        // Secondary insight
+        _InsightRow(
+          icon: Icons.calendar_today,
+          color: _kTertiary,
+          headline:
+              projectedThisYear > 0
+                  ? l10n.projected_books_this_year(
+                    projectedThisYear.toStringAsFixed(0),
+                  )
+                  : l10n.no_data_available,
+          caption: l10n.based_on_years_of_data(yearsWithBooks),
+        ),
+        const SizedBox(height: 16),
+        const Divider(height: 1, thickness: 1, color: _kDivider),
+        const SizedBox(height: 16),
+        // Supporting metrics row
+        Row(
           children: [
-            Text(
-              AppLocalizations.of(context)!.reading_efficiency_score,
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+            _SupportStat(
+              icon: Icons.speed,
+              value: readingVelocity.toStringAsFixed(1),
+              label: l10n.pages_per_day,
+              color: _kPrimary,
             ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              children: [
-                Text(
-                  '${efficiencyPercentage.toStringAsFixed(1)}%',
-                  style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              AppLocalizations.of(context)!.books_faster_than_average,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.primaryContainer.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: 0.3),
-                  width: 1,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.info_outline,
-                        size: 16,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(width: 6),
-                      Flexible(
-                        child: Text(
-                          AppLocalizations.of(context)!.what_does_this_mean,
-                          style: Theme.of(
-                            context,
-                          ).textTheme.bodySmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    AppLocalizations.of(context)!.efficiency_explanation,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      height: 1.4,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              AppLocalizations.of(
-                context,
-              )!.based_on_n_books(totalReadingsWithData.toString()),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+            const SizedBox(width: 16),
+            _SupportStat(
+              icon: Icons.trending_up,
+              value: averageBooksPerYear.toStringAsFixed(1),
+              label: l10n.books_per_year,
+              color: _kPrimary,
             ),
           ],
         ),
+      ],
+    );
+  }
+
+  double _projectedBooksThisYear() {
+    if (averageDaysToFinish <= 0) return 0;
+    return 365 / averageDaysToFinish;
+  }
+}
+
+class _InsightRow extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String headline;
+  final String caption;
+
+  const _InsightRow({
+    required this.icon,
+    required this.color,
+    required this.headline,
+    required this.caption,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.12),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: color, size: 22),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                headline,
+                style: const TextStyle(
+                  fontFamily: 'Manrope',
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: _kPrimary,
+                  height: 1.35,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                caption,
+                style: const TextStyle(
+                  fontFamily: 'Manrope',
+                  fontSize: 11,
+                  color: _kSub,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SupportStat extends StatelessWidget {
+  final IconData icon;
+  final String value;
+  final String label;
+  final Color color;
+
+  const _SupportStat({
+    required this.icon,
+    required this.value,
+    required this.label,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Row(
+        children: [
+          Icon(icon, color: color, size: 18),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                value,
+                style: TextStyle(
+                  fontFamily: 'Manrope',
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+              ),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontFamily: 'Manrope',
+                  fontSize: 10,
+                  color: _kSub,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
