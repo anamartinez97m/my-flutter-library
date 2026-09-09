@@ -149,6 +149,63 @@ class _NewPastYearsCompetitionScreen2State
     _loadData();
   }
 
+  Future<Map<String, dynamic>> _loadYearRecap(int year) async {
+    final db = await DatabaseHelper.instance.database;
+    final competitionRepository = BookCompetitionRepository(db);
+    final bookRepository = BookRepository(db);
+    final result = await competitionRepository.getCompetitionResults(year);
+    final books = await bookRepository.getBooksReadInYear(year);
+    final ratings =
+        books
+            .map((book) => book['my_rating'])
+            .whereType<num>()
+            .map((rating) => rating.toDouble())
+            .where((rating) => rating > 0)
+            .toList();
+    final averageRating =
+        ratings.isEmpty
+            ? null
+            : ratings.reduce((a, b) => a + b) / ratings.length;
+
+    final runnerUps = <String>[];
+    final finalWinner = result?.yearlyWinner;
+    if (finalWinner?.opponentBookName case final String opponent) {
+      runnerUps.add(opponent);
+    }
+    for (final semifinal in result?.semifinalWinners ?? <SemifinalWinner>[]) {
+      final name = semifinal.winner.bookName;
+      if (name != finalWinner?.bookName && !runnerUps.contains(name)) {
+        runnerUps.add(name);
+      }
+    }
+
+    return {
+      'result': result,
+      'totalBooks': books.length,
+      'averageRating': averageRating,
+      'ratedBooks': ratings.length,
+      'runnerUps': runnerUps,
+    };
+  }
+
+  void _showYearRecap(int year, BookCompetition winner) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder:
+          (context) => _YearRecapSheet(
+            year: year,
+            winner: winner,
+            recap: _loadYearRecap(year),
+            onOpenCompetition: () {
+              Navigator.pop(context);
+              _navigateToCompetition(year);
+            },
+          ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -708,158 +765,165 @@ class _NewPastYearsCompetitionScreen2State
   }
 
   Widget _buildLaureateCard(int year, BookCompetition winner) {
-    return GestureDetector(
-      onTap: () => _navigateToCompetition(year),
-      child: Container(
-        padding: const EdgeInsets.all(15),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFF0E7E4)),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x0D5D2641),
-              blurRadius: 8,
-              offset: Offset(0, 2),
-            ),
-            BoxShadow(
-              color: Color(0x08000000),
-              blurRadius: 3,
-              offset: Offset(0, 1),
-            ),
-          ],
-        ),
-        child: Stack(
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF7EDF2),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            '$year',
-                            style: const TextStyle(
-                              fontFamily: 'Manrope',
-                              fontSize: 11,
-                              fontWeight: FontWeight.w800,
-                              color: _kPrimary,
-                            ),
-                          ),
+    return Container(
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFF0E7E4)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0D5D2641),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+          BoxShadow(
+            color: Color(0x08000000),
+            blurRadius: 3,
+            offset: Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
                         ),
-                        const SizedBox(width: 6),
-                        const Text(
-                          '1st Place',
-                          style: TextStyle(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF7EDF2),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          '$year',
+                          style: const TextStyle(
                             fontFamily: 'Manrope',
                             fontSize: 11,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w800,
+                            color: _kPrimary,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      const Text(
+                        '1st Place',
+                        style: TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: _kGold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    winner.bookName,
+                    style: const TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: _kText,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  const Text(
+                    'Awarded Winner',
+                    style: TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 11,
+                      fontStyle: FontStyle.italic,
+                      color: _kSub,
+                    ),
+                  ),
+                ],
+              ),
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => _showYearRecap(year, winner),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.only(top: 9, bottom: 6),
+                    decoration: const BoxDecoration(
+                      border: Border(top: BorderSide(color: Color(0x99F0E7E4))),
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.emoji_events,
+                              size: 12,
+                              color: Color(0xFFB45309),
+                            ),
+                            SizedBox(width: 4),
+                            Text(
+                              'MORE INFO',
+                              style: TextStyle(
+                                fontFamily: 'Manrope',
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFFB45309),
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 6),
+                          child: Icon(
+                            Icons.arrow_forward_ios,
+                            size: 12,
                             color: _kGold,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      winner.bookName,
-                      style: const TextStyle(
-                        fontFamily: 'Manrope',
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: _kText,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 2),
-                    const Text(
-                      'Awarded Winner',
-                      style: TextStyle(
-                        fontFamily: 'Manrope',
-                        fontSize: 11,
-                        fontStyle: FontStyle.italic,
-                        color: _kSub,
-                      ),
-                    ),
-                  ],
-                ),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.only(top: 9),
-                  decoration: const BoxDecoration(
-                    border: Border(top: BorderSide(color: Color(0x99F0E7E4))),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.emoji_events,
-                            size: 12,
-                            color: Color(0xFFB45309),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            'LAUREATE',
-                            style: TextStyle(
-                              fontFamily: 'Manrope',
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: const Color(0xFFB45309),
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Icon(
-                        Icons.arrow_forward_ios,
-                        size: 12,
-                        color: _kGold,
-                      ),
-                    ],
                   ),
                 ),
-              ],
-            ),
-            Positioned(
-              right: -15,
-              top: -15,
-              child: Container(
-                width: 48,
-                height: 48,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFFFBE9),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(24),
-                  ),
+              ),
+            ],
+          ),
+          Positioned(
+            right: -15,
+            top: -15,
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: const BoxDecoration(
+                color: Color(0xFFFFFBE9),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(24),
                 ),
-                child: const Center(
-                  child: Text(
-                    '✦',
-                    style: TextStyle(
-                      fontFamily: 'Manrope',
-                      fontSize: 12,
-                      color: _kGold,
-                    ),
+              ),
+              child: const Center(
+                child: Text(
+                  '✦',
+                  style: TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 12,
+                    color: _kGold,
                   ),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -978,6 +1042,363 @@ class _NewPastYearsCompetitionScreen2State
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _YearRecapSheet extends StatelessWidget {
+  final int year;
+  final BookCompetition winner;
+  final Future<Map<String, dynamic>> recap;
+  final VoidCallback onOpenCompetition;
+
+  const _YearRecapSheet({
+    required this.year,
+    required this.winner,
+    required this.recap,
+    required this.onOpenCompetition,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.sizeOf(context).height * 0.86,
+      ),
+      decoration: const BoxDecoration(
+        color: _kBg,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      child: FutureBuilder<Map<String, dynamic>>(
+        future: recap,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const SizedBox(
+              height: 280,
+              child: Center(child: CircularProgressIndicator(color: _kPrimary)),
+            );
+          }
+          if (snapshot.hasError) {
+            return SizedBox(
+              height: 280,
+              child: Center(
+                child: Text(
+                  'Could not load the $year recap.',
+                  style: const TextStyle(fontFamily: 'Manrope', color: _kSub),
+                ),
+              ),
+            );
+          }
+
+          final data = snapshot.data!;
+          final result = data['result'] as CompetitionResult?;
+          final runnerUps = data['runnerUps'] as List<String>;
+          final averageRating = data['averageRating'] as double?;
+          final ratedBooks = data['ratedBooks'] as int;
+          final totalBooks = data['totalBooks'] as int;
+
+          return SafeArea(
+            top: false,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: _kBorder,
+                        borderRadius: BorderRadius.circular(99),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    '$year Laureate Highlight',
+                    style: const TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: _kPrimary,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'A look back at the books that defined the year.',
+                    style: TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 13,
+                      color: _kSub,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [_kHeroGradientStart, _kHeroGradientMid],
+                      ),
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 46,
+                          height: 46,
+                          decoration: const BoxDecoration(
+                            color: _kGoldLight,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.emoji_events,
+                            color: _kGold,
+                            size: 25,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'BOOK OF THE YEAR',
+                                style: TextStyle(
+                                  fontFamily: 'Manrope',
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800,
+                                  color: _kGold,
+                                  letterSpacing: 1,
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                winner.bookName,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontFamily: 'Manrope',
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _RecapStat(
+                          icon: Icons.auto_stories_outlined,
+                          value: '$totalBooks',
+                          label: 'Books read',
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _RecapStat(
+                          icon: Icons.star_outline,
+                          value: averageRating?.toStringAsFixed(1) ?? '—',
+                          label:
+                              averageRating == null
+                                  ? 'No ratings'
+                                  : 'Avg. rating ($ratedBooks)',
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (result?.quarterlyWinners.isNotEmpty ?? false) ...[
+                    const SizedBox(height: 24),
+                    const _RecapSectionTitle('Quarter winners'),
+                    const SizedBox(height: 10),
+                    ...result!.quarterlyWinners.map(
+                      (quarter) => _RecapBookRow(
+                        badge: 'Q${quarter.quarter}',
+                        title: quarter.winner.bookName,
+                      ),
+                    ),
+                  ],
+                  if (runnerUps.isNotEmpty) ...[
+                    const SizedBox(height: 20),
+                    const _RecapSectionTitle('Runner-ups'),
+                    const SizedBox(height: 10),
+                    ...runnerUps.map(
+                      (title) => _RecapBookRow(
+                        badge: '2nd',
+                        title: title,
+                        muted: true,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 22),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      onPressed: onOpenCompetition,
+                      icon: const Icon(Icons.open_in_new, size: 17),
+                      label: const Text('Open full competition'),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: _kPrimary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 13),
+                        textStyle: const TextStyle(
+                          fontFamily: 'Manrope',
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _RecapStat extends StatelessWidget {
+  final IconData icon;
+  final String value;
+  final String label;
+
+  const _RecapStat({
+    required this.icon,
+    required this.value,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFF0E7E4)),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: _kPrimary),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: _kText,
+                  ),
+                ),
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 10,
+                    color: _kSub,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RecapSectionTitle extends StatelessWidget {
+  final String title;
+
+  const _RecapSectionTitle(this.title);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      title.toUpperCase(),
+      style: const TextStyle(
+        fontFamily: 'Manrope',
+        fontSize: 12,
+        fontWeight: FontWeight.w800,
+        color: _kSub,
+        letterSpacing: 0.8,
+      ),
+    );
+  }
+}
+
+class _RecapBookRow extends StatelessWidget {
+  final String badge;
+  final String title;
+  final bool muted;
+
+  const _RecapBookRow({
+    required this.badge,
+    required this.title,
+    this.muted = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFF0E7E4)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 34,
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            decoration: BoxDecoration(
+              color: muted ? const Color(0xFFF2EDEB) : _kGoldLight,
+              borderRadius: BorderRadius.circular(7),
+            ),
+            child: Text(
+              badge,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'Manrope',
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+                color: muted ? _kSub : _kGold,
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontFamily: 'Manrope',
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: _kText,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
