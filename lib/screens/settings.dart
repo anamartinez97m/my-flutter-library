@@ -156,7 +156,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   // Available card field keys
   static const List<String> _availableCardFieldKeys = [
-    'title',
     'author',
     'saga',
     'format',
@@ -181,8 +180,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String _getCardFieldLabel(BuildContext context, String key) {
     final l10n = AppLocalizations.of(context)!;
     switch (key) {
-      case 'title':
-        return l10n.card_field_title;
       case 'author':
         return l10n.card_field_author;
       case 'saga':
@@ -747,10 +744,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final savedCardFields = prefs.getStringList('enabled_card_fields');
     setState(() {
       if (savedCardFields != null) {
-        _enabledCardFields = savedCardFields.toSet();
+        _enabledCardFields = savedCardFields.toSet()..remove('title');
       } else {
-        // Default: show essential fields
-        _enabledCardFields = {'title', 'author', 'saga', 'format', 'language'};
+        // Default: show essential optional fields (title is always visible)
+        _enabledCardFields = {'author', 'saga', 'format', 'language'};
       }
     });
   }
