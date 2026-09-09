@@ -1063,8 +1063,29 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
           (context) => StatefulBuilder(
             builder:
                 (context, setDialogState) => AlertDialog(
-                  title: Text(
-                    AppLocalizations.of(context)!.update_reading_progress,
+                  backgroundColor: _kBg,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                  contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                  actionsPadding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                  title: Row(
+                    children: [
+                      const Icon(Icons.trending_up, color: _kPrimary, size: 24),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          AppLocalizations.of(context)!.update_reading_progress,
+                          style: const TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: _kPrimary,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   content: SingleChildScrollView(
                     child: Column(
@@ -1147,7 +1168,14 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: Text(AppLocalizations.of(context)!.cancel),
+                      child: Text(
+                        AppLocalizations.of(context)!.cancel,
+                        style: const TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                     ElevatedButton(
                       onPressed: () {
@@ -1204,7 +1232,26 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                           'type': usePercentage ? 'percentage' : 'pages',
                         });
                       },
-                      child: Text(AppLocalizations.of(context)!.save),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _kPrimary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        AppLocalizations.of(context)!.save,
+                        style: const TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -1301,8 +1348,29 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
           (context) => StatefulBuilder(
             builder:
                 (context, setDialogState) => AlertDialog(
-                  title: Text(
-                    AppLocalizations.of(context)!.edit_reading_sessions,
+                  backgroundColor: _kBg,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                  contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                  actionsPadding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                  title: Row(
+                    children: [
+                      const Icon(Icons.timer, color: _kPrimary, size: 24),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          AppLocalizations.of(context)!.edit_reading_sessions,
+                          style: const TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: _kPrimary,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   content: SizedBox(
                     width: double.maxFinite,
@@ -1338,6 +1406,14 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
 
                             return Card(
                               margin: const EdgeInsets.only(bottom: 8),
+                              elevation: 0,
+                              color: _kPrimary.withValues(alpha: 0.05),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                side: BorderSide(
+                                  color: _kPrimary.withValues(alpha: 0.1),
+                                ),
+                              ),
                               child: Padding(
                                 padding: const EdgeInsets.all(8),
                                 child: Column(
@@ -1347,10 +1423,12 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                       AppLocalizations.of(
                                         context,
                                       )!.session_label(index + 1),
-                                      style:
-                                          Theme.of(
-                                            context,
-                                          ).textTheme.titleSmall,
+                                      style: const TextStyle(
+                                        fontFamily: 'Manrope',
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                        color: _kPrimary,
+                                      ),
                                     ),
                                     const SizedBox(height: 8),
                                     TextField(
@@ -1468,11 +1546,37 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context, false),
-                      child: Text(AppLocalizations.of(context)!.cancel),
+                      child: Text(
+                        AppLocalizations.of(context)!.cancel,
+                        style: const TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                     ElevatedButton(
                       onPressed: () => Navigator.pop(context, true),
-                      child: Text(AppLocalizations.of(context)!.save),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _kPrimary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        AppLocalizations.of(context)!.save,
+                        style: const TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -1526,7 +1630,34 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: Text(AppLocalizations.of(context)!.add_reading_session),
+            backgroundColor: _kBg,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+            contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+            actionsPadding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+            title: Row(
+              children: [
+                const Icon(
+                  Icons.add_circle_outline,
+                  color: _kPrimary,
+                  size: 24,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    AppLocalizations.of(context)!.add_reading_session,
+                    style: const TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: _kPrimary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -1562,11 +1693,37 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: Text(AppLocalizations.of(context)!.cancel),
+                child: Text(
+                  AppLocalizations.of(context)!.cancel,
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, true),
-                child: Text(AppLocalizations.of(context)!.add),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _kPrimary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 0,
+                ),
+                child: Text(
+                  AppLocalizations.of(context)!.add,
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ],
           ),

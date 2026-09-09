@@ -20,6 +20,9 @@ class ReadingClubDialog extends StatefulWidget {
 }
 
 class _ReadingClubDialogState extends State<ReadingClubDialog> {
+  static const _kPrimary = Color(0xFF43102B);
+  static const _kBg = Color(0xFFFDF8F6);
+
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _clubNameController;
   late TextEditingController _progressController;
@@ -82,10 +85,33 @@ class _ReadingClubDialogState extends State<ReadingClubDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(
-        _isEditing
-            ? AppLocalizations.of(context)!.edit_club_membership
-            : AppLocalizations.of(context)!.add_to_reading_club,
+      backgroundColor: _kBg,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+      contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      actionsPadding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+      title: Row(
+        children: [
+          Icon(
+            _isEditing ? Icons.edit : Icons.group_add,
+            color: _kPrimary,
+            size: 24,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              _isEditing
+                  ? AppLocalizations.of(context)!.edit_club_membership
+                  : AppLocalizations.of(context)!.add_to_reading_club,
+              style: const TextStyle(
+                fontFamily: 'Manrope',
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: _kPrimary,
+              ),
+            ),
+          ),
+        ],
       ),
       content: SingleChildScrollView(
         child: Form(
@@ -231,14 +257,35 @@ class _ReadingClubDialogState extends State<ReadingClubDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(AppLocalizations.of(context)!.cancel),
+          child: Text(
+            AppLocalizations.of(context)!.cancel,
+            style: const TextStyle(
+              fontFamily: 'Manrope',
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
         ElevatedButton(
           onPressed: _save,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: _kPrimary,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            elevation: 0,
+          ),
           child: Text(
             _isEditing
                 ? AppLocalizations.of(context)!.update
                 : AppLocalizations.of(context)!.add,
+            style: const TextStyle(
+              fontFamily: 'Manrope',
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ],
