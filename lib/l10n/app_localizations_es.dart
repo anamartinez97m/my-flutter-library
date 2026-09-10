@@ -2179,6 +2179,56 @@ class AppLocalizationsEs extends AppLocalizations {
   String get reading_session_saved => 'Sesión de lectura guardada';
 
   @override
+  String get reading_sessions_title => 'Sesiones de Lectura';
+
+  @override
+  String reading_sessions_subtitle(Object count, Object total) {
+    return '$count registradas • Total: $total';
+  }
+
+  @override
+  String get avg_session => 'Media sesión';
+
+  @override
+  String get longest_session => 'Más larga';
+
+  @override
+  String get this_week => 'Esta semana';
+
+  @override
+  String get recent_sessions => 'Sesiones recientes';
+
+  @override
+  String get editing_session => 'EDITANDO SESIÓN';
+
+  @override
+  String session_number(Object number) {
+    return 'Sesión #$number';
+  }
+
+  @override
+  String get start_time => 'Hora de inicio';
+
+  @override
+  String get revert => 'Revertir';
+
+  @override
+  String get done_editing => 'Terminar edición';
+
+  @override
+  String get hhmmss_hint => 'HH:MM:SS';
+
+  @override
+  String get confirm_delete_session =>
+      '¿Estás seguro de que quieres eliminar esta sesión de lectura?';
+
+  @override
+  String get view_more => 'Ver más';
+
+  @override
+  String get view_less => 'Ver menos';
+
+  @override
   String get stop_timer_confirm =>
       '¿Quieres detener el temporizador de lectura?';
 

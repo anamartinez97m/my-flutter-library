@@ -20,6 +20,7 @@ import 'package:myrandomlibrary/utils/status_helper.dart';
 import 'package:myrandomlibrary/utils/date_formatter.dart';
 import 'package:myrandomlibrary/widgets/chronometer_widget.dart';
 import 'package:myrandomlibrary/widgets/log_reading_session_sheet.dart';
+import 'package:myrandomlibrary/screens/new_ui/reading_sessions_screen.dart';
 import 'package:myrandomlibrary/model/reading_session.dart';
 import 'package:myrandomlibrary/model/reading_club.dart';
 import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
@@ -4405,13 +4406,19 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                           if (_chronometerSessions.length > 3)
                             Center(
                               child: TextButton(
-                                onPressed:
-                                    () => setState(
-                                      () =>
-                                          _showAllSessions = !_showAllSessions,
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (_) => ReadingSessionsScreen(
+                                            book: _currentBook,
+                                          ),
                                     ),
+                                  );
+                                },
                                 child: Text(
-                                  _showAllSessions ? 'View less' : 'View more',
+                                  AppLocalizations.of(context)!.view_more,
                                 ),
                               ),
                             ),

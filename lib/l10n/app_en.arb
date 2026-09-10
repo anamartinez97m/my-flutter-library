@@ -981,6 +981,27 @@
   "update_book": "Update Book",
 
   "reading_session_saved": "Reading session saved",
+  "reading_sessions_title": "Reading Sessions",
+  "reading_sessions_subtitle": "{count} logged • Total: {total}",
+  "@reading_sessions_subtitle": {
+    "placeholders": { "count": {}, "total": {} }
+  },
+  "avg_session": "Avg session",
+  "longest_session": "Longest",
+  "this_week": "This week",
+  "recent_sessions": "Recent Sessions",
+  "editing_session": "EDITING SESSION",
+  "session_number": "Session #{number}",
+  "@session_number": {
+    "placeholders": { "number": {} }
+  },
+  "start_time": "Start time",
+  "revert": "Revert",
+  "done_editing": "Done Editing",
+  "hhmmss_hint": "HH:MM:SS",
+  "confirm_delete_session": "Are you sure you want to delete this reading session?",
+  "view_more": "View more",
+  "view_less": "View less",
   "stop_timer_confirm": "Do you want to stop the reading timer?",
   "reading_timer": "Reading Timer",
   "timer_exit_confirm": "The timer is still counting. Are you sure you want to exit without stopping it?",

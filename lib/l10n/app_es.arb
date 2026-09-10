@@ -987,6 +987,27 @@
   "update_book": "Actualizar Libro",
 
   "reading_session_saved": "Sesión de lectura guardada",
+  "reading_sessions_title": "Sesiones de Lectura",
+  "reading_sessions_subtitle": "{count} registradas • Total: {total}",
+  "@reading_sessions_subtitle": {
+    "placeholders": { "count": {}, "total": {} }
+  },
+  "avg_session": "Media sesión",
+  "longest_session": "Más larga",
+  "this_week": "Esta semana",
+  "recent_sessions": "Sesiones recientes",
+  "editing_session": "EDITANDO SESIÓN",
+  "session_number": "Sesión #{number}",
+  "@session_number": {
+    "placeholders": { "number": {} }
+  },
+  "start_time": "Hora de inicio",
+  "revert": "Revertir",
+  "done_editing": "Terminar edición",
+  "hhmmss_hint": "HH:MM:SS",
+  "confirm_delete_session": "¿Estás seguro de que quieres eliminar esta sesión de lectura?",
+  "view_more": "Ver más",
+  "view_less": "Ver menos",
   "stop_timer_confirm": "¿Quieres detener el temporizador de lectura?",
   "reading_timer": "Temporizador de Lectura",
   "timer_exit_confirm": "El temporizador sigue contando. ¿Estás seguro de que quieres salir sin detenerlo?",

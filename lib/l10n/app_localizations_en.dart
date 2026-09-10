@@ -2153,6 +2153,56 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reading_session_saved => 'Reading session saved';
 
   @override
+  String get reading_sessions_title => 'Reading Sessions';
+
+  @override
+  String reading_sessions_subtitle(Object count, Object total) {
+    return '$count logged • Total: $total';
+  }
+
+  @override
+  String get avg_session => 'Avg session';
+
+  @override
+  String get longest_session => 'Longest';
+
+  @override
+  String get this_week => 'This week';
+
+  @override
+  String get recent_sessions => 'Recent Sessions';
+
+  @override
+  String get editing_session => 'EDITING SESSION';
+
+  @override
+  String session_number(Object number) {
+    return 'Session #$number';
+  }
+
+  @override
+  String get start_time => 'Start time';
+
+  @override
+  String get revert => 'Revert';
+
+  @override
+  String get done_editing => 'Done Editing';
+
+  @override
+  String get hhmmss_hint => 'HH:MM:SS';
+
+  @override
+  String get confirm_delete_session =>
+      'Are you sure you want to delete this reading session?';
+
+  @override
+  String get view_more => 'View more';
+
+  @override
+  String get view_less => 'View less';
+
+  @override
   String get stop_timer_confirm => 'Do you want to stop the reading timer?';
 
   @override

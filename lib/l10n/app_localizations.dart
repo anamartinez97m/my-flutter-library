@@ -3866,6 +3866,96 @@ abstract class AppLocalizations {
   /// **'Reading session saved'**
   String get reading_session_saved;
 
+  /// No description provided for @reading_sessions_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading Sessions'**
+  String get reading_sessions_title;
+
+  /// No description provided for @reading_sessions_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} logged • Total: {total}'**
+  String reading_sessions_subtitle(Object count, Object total);
+
+  /// No description provided for @avg_session.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg session'**
+  String get avg_session;
+
+  /// No description provided for @longest_session.
+  ///
+  /// In en, this message translates to:
+  /// **'Longest'**
+  String get longest_session;
+
+  /// No description provided for @this_week.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get this_week;
+
+  /// No description provided for @recent_sessions.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Sessions'**
+  String get recent_sessions;
+
+  /// No description provided for @editing_session.
+  ///
+  /// In en, this message translates to:
+  /// **'EDITING SESSION'**
+  String get editing_session;
+
+  /// No description provided for @session_number.
+  ///
+  /// In en, this message translates to:
+  /// **'Session #{number}'**
+  String session_number(Object number);
+
+  /// No description provided for @start_time.
+  ///
+  /// In en, this message translates to:
+  /// **'Start time'**
+  String get start_time;
+
+  /// No description provided for @revert.
+  ///
+  /// In en, this message translates to:
+  /// **'Revert'**
+  String get revert;
+
+  /// No description provided for @done_editing.
+  ///
+  /// In en, this message translates to:
+  /// **'Done Editing'**
+  String get done_editing;
+
+  /// No description provided for @hhmmss_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'HH:MM:SS'**
+  String get hhmmss_hint;
+
+  /// No description provided for @confirm_delete_session.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this reading session?'**
+  String get confirm_delete_session;
+
+  /// No description provided for @view_more.
+  ///
+  /// In en, this message translates to:
+  /// **'View more'**
+  String get view_more;
+
+  /// No description provided for @view_less.
+  ///
+  /// In en, this message translates to:
+  /// **'View less'**
+  String get view_less;
+
   /// No description provided for @stop_timer_confirm.
   ///
   /// In en, this message translates to:
