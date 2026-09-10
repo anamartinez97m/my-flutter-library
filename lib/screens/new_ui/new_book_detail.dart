@@ -2209,6 +2209,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
           elevation: 0,
           scrolledUnderElevation: 0,
           surfaceTintColor: Colors.transparent,
+          centerTitle: false,
           title: Text(
             AppLocalizations.of(context)!.book_details,
             style: const TextStyle(
