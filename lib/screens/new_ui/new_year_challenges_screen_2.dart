@@ -552,20 +552,6 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
     }
   }
 
-  Future<void> _logFinishedBook() async {
-    // Reuse the existing book logging flow by delegating to the standard screen.
-    // For now, show a hint so the user can use the existing + button elsewhere.
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Mark a book as read to update your challenge progress.',
-          style: TextStyle(fontFamily: 'Manrope'),
-        ),
-        backgroundColor: _kPrimary,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -590,26 +576,27 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
           ),
         ),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.info_outline, color: _kPrimary, size: 22),
-            onPressed: () {
-              // Challenge info / rules – can be wired later.
-            },
-          ),
-        ],
+
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
           child: Container(height: 1, color: _kBorder.withValues(alpha: 0.6)),
         ),
       ),
-      body:
-          _isLoading
-              ? const Center(child: CircularProgressIndicator(color: _kPrimary))
-              : _challenges.isEmpty && _currentYearChallenge == null
-              ? _buildEmptyState(l10n)
-              : _buildBody(l10n),
-      bottomNavigationBar: _buildBottomBar(l10n),
+      body: Column(
+        children: [
+          Expanded(
+            child:
+                _isLoading
+                    ? const Center(
+                      child: CircularProgressIndicator(color: _kPrimary),
+                    )
+                    : _challenges.isEmpty && _currentYearChallenge == null
+                    ? _buildEmptyState(l10n)
+                    : _buildBody(l10n),
+          ),
+          _buildBottomBar(l10n),
+        ],
+      ),
     );
   }
 
@@ -661,97 +648,102 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
   }
 
   Widget _buildBody(AppLocalizations l10n) {
-    return CustomScrollView(
-      slivers: [
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
-          sliver: SliverToBoxAdapter(
-            child:
-                _currentYearChallenge != null
-                    ? _buildHeroCard(_currentYearChallenge!)
-                    : _buildNoCurrentYearCard(l10n),
-          ),
-        ),
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(20, 28, 20, 0),
-          sliver: SliverToBoxAdapter(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    const Text(
-                      'PREVIOUS YEARS',
-                      style: TextStyle(
-                        fontFamily: 'Manrope',
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: _kSub,
-                        letterSpacing: 0.7,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xB3EDE6E1),
-                        borderRadius: BorderRadius.circular(9999),
-                      ),
-                      child: Text(
-                        '${_previousChallenges.length} Years',
-                        style: const TextStyle(
+    return SingleChildScrollView(
+      padding: const EdgeInsets.only(bottom: 110),
+      child: SafeArea(
+        top: false,
+        bottom: false,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+              child:
+                  _currentYearChallenge != null
+                      ? _buildHeroCard(_currentYearChallenge!)
+                      : _buildNoCurrentYearCard(l10n),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 28, 20, 0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      const Text(
+                        'PREVIOUS YEARS',
+                        style: TextStyle(
                           fontFamily: 'Manrope',
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: _kPrimary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: _kSub,
+                          letterSpacing: 0.7,
                         ),
                       ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xB3EDE6E1),
+                          borderRadius: BorderRadius.circular(9999),
+                        ),
+                        child: Text(
+                          '${_previousChallenges.length} Years',
+                          style: const TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: _kPrimary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Text(
+                    'Sorted by year',
+                    style: TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: _kSub,
                     ),
-                  ],
+                  ),
+                ],
+              ),
+            ),
+            if (_previousChallenges.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                child: Column(
+                  children:
+                      _previousChallenges
+                          .map(
+                            (challenge) => Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: _buildHistoryCard(challenge),
+                            ),
+                          )
+                          .toList(),
                 ),
-                const Text(
-                  'Sorted by year',
+              )
+            else
+              const Padding(
+                padding: EdgeInsets.fromLTRB(20, 24, 20, 0),
+                child: Text(
+                  'No previous challenges yet.',
                   style: TextStyle(
                     fontFamily: 'Manrope',
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
                     color: _kSub,
                   ),
                 ),
-              ],
-            ),
-          ),
-        ),
-        if (_previousChallenges.isNotEmpty)
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 110),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate((context, index) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: _buildHistoryCard(_previousChallenges[index]),
-                );
-              }, childCount: _previousChallenges.length),
-            ),
-          )
-        else
-          const SliverPadding(
-            padding: EdgeInsets.fromLTRB(20, 24, 20, 110),
-            sliver: SliverToBoxAdapter(
-              child: Text(
-                'No previous challenges yet.',
-                style: TextStyle(
-                  fontFamily: 'Manrope',
-                  fontSize: 14,
-                  color: _kSub,
-                ),
               ),
-            ),
-          ),
-      ],
+          ],
+        ),
+      ),
     );
   }
 
@@ -775,7 +767,6 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
         (challenge.targetPages == null || pagesRead >= targetPages);
 
     return Container(
-      height: 276,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
@@ -800,6 +791,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
         ],
       ),
       child: Stack(
+        clipBehavior: Clip.none,
         children: [
           // Decorative watermarked year
           Positioned(
@@ -911,7 +903,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                       child: Container(
                         padding: const EdgeInsets.all(6),
                         child: const Icon(
-                          Icons.settings_outlined,
+                          Icons.edit_outlined,
                           size: 20,
                           color: _kSub,
                         ),
@@ -1028,24 +1020,6 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                           ),
                       ],
                     ),
-                  ),
-                ],
-              ),
-              const Spacer(),
-              // Action buttons
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildPrimaryButton(
-                      icon: Icons.add,
-                      label: 'Log Finished Book',
-                      onTap: _logFinishedBook,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  _buildSecondaryButton(
-                    label: 'Adjust Goal',
-                    onTap: () => _showEditChallengeDialog(challenge),
                   ),
                 ],
               ),
@@ -1169,36 +1143,6 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSecondaryButton({
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 11),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: _kBorder),
-          ),
-          child: Text(
-            label,
-            style: const TextStyle(
-              fontFamily: 'Manrope',
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: _kText,
-            ),
           ),
         ),
       ),
@@ -1383,7 +1327,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                       ? const Color(0xFFD1FAE5).withValues(alpha: 0.8)
                       : _kTrack,
               valueColor: AlwaysStoppedAnimation<Color>(
-                isComplete ? _kSuccess : _kPrimary,
+                isComplete ? _kSuccess : _kPrimary.withValues(alpha: 0.6),
               ),
             ),
           ),
