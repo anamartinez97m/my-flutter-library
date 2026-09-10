@@ -2169,6 +2169,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stop_and_save => 'Stop & Save';
 
   @override
+  String get reading_log => 'READING LOG';
+
+  @override
+  String get log_reading_session => 'Log Reading Session';
+
+  @override
+  String get reading_duration => 'READING DURATION';
+
+  @override
+  String get discard => 'Discard';
+
+  @override
+  String get log_session => 'Log Session';
+
+  @override
+  String get select_date => 'Select date';
+
+  @override
+  String get select_time => 'Select time';
+
+  @override
+  String get enter_duration => 'Enter duration in minutes';
+
+  @override
+  String get duration_must_be_positive => 'Duration must be greater than 0';
+
+  @override
+  String get today => 'Today';
+
+  @override
+  String get minutes_short => 'min';
+
+  @override
   String get backup_created => 'Backup created successfully';
 
   @override
@@ -2252,9 +2285,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get target_date_optional => 'Target Date (Optional)';
-
-  @override
-  String get select_date => 'Select date';
 
   @override
   String get reading_progress_percent => 'Reading Progress (%)';

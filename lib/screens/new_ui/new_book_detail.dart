@@ -19,6 +19,7 @@ import 'package:myrandomlibrary/utils/format_saga_helper.dart';
 import 'package:myrandomlibrary/utils/status_helper.dart';
 import 'package:myrandomlibrary/utils/date_formatter.dart';
 import 'package:myrandomlibrary/widgets/chronometer_widget.dart';
+import 'package:myrandomlibrary/widgets/log_reading_session_sheet.dart';
 import 'package:myrandomlibrary/model/reading_session.dart';
 import 'package:myrandomlibrary/model/reading_club.dart';
 import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
@@ -1616,179 +1617,19 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
     }
   }
 
-  Future<void> _showAddSessionModal() async {
-    final dateController = TextEditingController(
-      text: DateTime.now().toIso8601String().split('T')[0],
-    );
-    final timeController = TextEditingController(
-      text:
-          '${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}',
-    );
-    final durationController = TextEditingController();
-
-    final result = await showDialog<bool>(
+  Future<void> _showLogReadingSessionSheet() async {
+    await showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder:
-          (context) => AlertDialog(
-            backgroundColor: _kBg,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-            contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-            actionsPadding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-            title: Row(
-              children: [
-                const Icon(
-                  Icons.add_circle_outline,
-                  color: _kPrimary,
-                  size: 24,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    AppLocalizations.of(context)!.add_reading_session,
-                    style: const TextStyle(
-                      fontFamily: 'Manrope',
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: _kPrimary,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: dateController,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.date_label,
-                    border: const OutlineInputBorder(),
-                    hintText: 'YYYY-MM-DD',
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: timeController,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.time_hhmmss,
-                    border: const OutlineInputBorder(),
-                    hintText: '14:30',
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: durationController,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.duration_label,
-                    border: const OutlineInputBorder(),
-                    hintText: 'e.g., 1h 30m 5s or 90m or 3600',
-                    helperText: AppLocalizations.of(context)!.duration_hint,
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: Text(
-                  AppLocalizations.of(context)!.cancel,
-                  style: const TextStyle(
-                    fontFamily: 'Manrope',
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context, true),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _kPrimary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 0,
-                ),
-                child: Text(
-                  AppLocalizations.of(context)!.add,
-                  style: const TextStyle(
-                    fontFamily: 'Manrope',
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
+          (context) => LogReadingSessionSheet(
+            bookId: _currentBook.bookId!,
+            onSessionComplete: () {
+              _loadReadDates();
+            },
           ),
     );
-
-    if (result == true) {
-      try {
-        final dateStr = dateController.text;
-        final timeStr = timeController.text;
-        final durationStr = durationController.text.trim();
-
-        final dateParts = dateStr.split('-');
-        final timeParts = timeStr.split(':');
-
-        if (dateParts.length == 3 && timeParts.length == 2) {
-          final dateTime = DateTime(
-            int.parse(dateParts[0]),
-            int.parse(dateParts[1]),
-            int.parse(dateParts[2]),
-            int.parse(timeParts[0]),
-            int.parse(timeParts[1]),
-          );
-
-          int? parsedDuration;
-          if (durationStr.isNotEmpty) {
-            try {
-              parsedDuration = _parseDurationToSeconds(durationStr);
-            } catch (_) {
-              parsedDuration = int.tryParse(durationStr);
-            }
-          }
-
-          final db = await DatabaseHelper.instance.database;
-          final sessionRepository = ReadingSessionRepository(db);
-
-          await sessionRepository.createCustomSession(
-            _currentBook.bookId!,
-            dateTime,
-            didRead: true,
-            durationSeconds: parsedDuration,
-          );
-
-          await _loadReadDates();
-
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(AppLocalizations.of(context)!.session_added),
-                backgroundColor: Theme.of(context).colorScheme.primary,
-              ),
-            );
-          }
-        }
-      } catch (e) {
-        debugPrint('Error adding session: $e');
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error: $e'),
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-          );
-        }
-      }
-    }
   }
 
   String _formatDateTime(String isoString) {
@@ -4464,8 +4305,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                       ),
 
                     // Chronometer Sessions Card
-                    if (!(_currentBook.isBundle == true) &&
-                        _chronometerSessions.isNotEmpty)
+                    if (!(_currentBook.isBundle == true))
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -4488,7 +4328,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                       )!.edit_reading_sessions,
                                 ),
                               IconButton(
-                                onPressed: _showAddSessionModal,
+                                onPressed: () => _showLogReadingSessionSheet(),
                                 icon: const Icon(
                                   Icons.add,
                                   color: _kPrimary,

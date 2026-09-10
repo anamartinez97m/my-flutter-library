@@ -2196,6 +2196,39 @@ class AppLocalizationsEs extends AppLocalizations {
   String get stop_and_save => 'Detener y Guardar';
 
   @override
+  String get reading_log => 'REGISTRO DE LECTURA';
+
+  @override
+  String get log_reading_session => 'Registrar Sesión de Lectura';
+
+  @override
+  String get reading_duration => 'DURACIÓN DE LECTURA';
+
+  @override
+  String get discard => 'Descartar';
+
+  @override
+  String get log_session => 'Registrar Sesión';
+
+  @override
+  String get select_date => 'Seleccionar fecha';
+
+  @override
+  String get select_time => 'Seleccionar hora';
+
+  @override
+  String get enter_duration => 'Introduce la duración en minutos';
+
+  @override
+  String get duration_must_be_positive => 'La duración debe ser mayor que 0';
+
+  @override
+  String get today => 'Hoy';
+
+  @override
+  String get minutes_short => 'min';
+
+  @override
   String get backup_created => 'Copia de seguridad creada correctamente';
 
   @override
@@ -2281,9 +2314,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get target_date_optional => 'Fecha Objetivo (Opcional)';
-
-  @override
-  String get select_date => 'Seleccionar fecha';
 
   @override
   String get reading_progress_percent => 'Progreso de Lectura (%)';

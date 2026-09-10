@@ -3896,6 +3896,72 @@ abstract class AppLocalizations {
   /// **'Stop & Save'**
   String get stop_and_save;
 
+  /// No description provided for @reading_log.
+  ///
+  /// In en, this message translates to:
+  /// **'READING LOG'**
+  String get reading_log;
+
+  /// No description provided for @log_reading_session.
+  ///
+  /// In en, this message translates to:
+  /// **'Log Reading Session'**
+  String get log_reading_session;
+
+  /// No description provided for @reading_duration.
+  ///
+  /// In en, this message translates to:
+  /// **'READING DURATION'**
+  String get reading_duration;
+
+  /// No description provided for @discard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get discard;
+
+  /// No description provided for @log_session.
+  ///
+  /// In en, this message translates to:
+  /// **'Log Session'**
+  String get log_session;
+
+  /// No description provided for @select_date.
+  ///
+  /// In en, this message translates to:
+  /// **'Select date'**
+  String get select_date;
+
+  /// No description provided for @select_time.
+  ///
+  /// In en, this message translates to:
+  /// **'Select time'**
+  String get select_time;
+
+  /// No description provided for @enter_duration.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter duration in minutes'**
+  String get enter_duration;
+
+  /// No description provided for @duration_must_be_positive.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration must be greater than 0'**
+  String get duration_must_be_positive;
+
+  /// No description provided for @today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get today;
+
+  /// No description provided for @minutes_short.
+  ///
+  /// In en, this message translates to:
+  /// **'min'**
+  String get minutes_short;
+
   /// No description provided for @backup_created.
   ///
   /// In en, this message translates to:
@@ -4051,12 +4117,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Target Date (Optional)'**
   String get target_date_optional;
-
-  /// No description provided for @select_date.
-  ///
-  /// In en, this message translates to:
-  /// **'Select date'**
-  String get select_date;
 
   /// No description provided for @reading_progress_percent.
   ///
