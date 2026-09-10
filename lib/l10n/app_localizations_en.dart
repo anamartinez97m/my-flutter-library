@@ -3974,4 +3974,16 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get tutorial_desc_dialogs =>
       'Several important dialogs and flows are available throughout the app. Quick Add: a minimal form accessible from Home for rapid book entry. Reading Club: log and track reading club sessions for a book. CSV Import: import books from a Goodreads export or a custom CSV file, with column mapping and status translation. Delete All Data: found in Settings, this permanently removes your entire library — a confirmation dialog is always shown before proceeding.';
+
+  @override
+  String get new_session => 'New Session';
+
+  @override
+  String get export_log => 'Export Log';
+
+  @override
+  String get personal_best => 'PERSONAL BEST';
+
+  @override
+  String get done => 'Done';
 }

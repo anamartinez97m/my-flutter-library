@@ -2530,6 +2530,8 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
           iconTheme: const IconThemeData(color: _kPrimary),
           actionsIconTheme: const IconThemeData(color: _kPrimary),
           elevation: 0,
+          scrolledUnderElevation: 0,
+          surfaceTintColor: Colors.transparent,
           title: Text(
             AppLocalizations.of(context)!.book_details,
             style: const TextStyle(

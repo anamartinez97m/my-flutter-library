@@ -7141,6 +7141,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Several important dialogs and flows are available throughout the app. Quick Add: a minimal form accessible from Home for rapid book entry. Reading Club: log and track reading club sessions for a book. CSV Import: import books from a Goodreads export or a custom CSV file, with column mapping and status translation. Delete All Data: found in Settings, this permanently removes your entire library — a confirmation dialog is always shown before proceeding.'**
   String get tutorial_desc_dialogs;
+
+  /// No description provided for @new_session.
+  ///
+  /// In en, this message translates to:
+  /// **'New Session'**
+  String get new_session;
+
+  /// No description provided for @export_log.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Log'**
+  String get export_log;
+
+  /// No description provided for @personal_best.
+  ///
+  /// In en, this message translates to:
+  /// **'PERSONAL BEST'**
+  String get personal_best;
+
+  /// No description provided for @done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
 }
 
 class _AppLocalizationsDelegate

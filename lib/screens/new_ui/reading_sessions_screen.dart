@@ -10,6 +10,7 @@ import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
 const _kText = Color(0xFF1C1B1A);
 const _kSub = Color(0xFF514348);
 const _kBg = Color(0xFFFDF8F6);
+const _kPrimary = Color(0xFF5D2641);
 
 /// v2 full-screen list of all reading sessions for a single book.
 ///
@@ -34,6 +35,9 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
   late TimeOfDay _editTime;
   late TextEditingController _editDurationController;
 
+  final ScrollController _scrollController = ScrollController();
+  int? _hoveredIndex;
+
   @override
   void initState() {
     super.initState();
@@ -46,8 +50,8 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
       final repository = ReadingSessionRepository(db);
       final sessions = await repository.getSessionsForBook(widget.book.bookId!);
       sessions.sort((a, b) {
-        final aTime = a.startTime ?? a.clickedAt;
-        final bTime = b.startTime ?? b.clickedAt;
+        final aTime = a.clickedAt ?? a.startTime;
+        final bTime = b.clickedAt ?? b.startTime;
         if (aTime == null || bTime == null) return 0;
         return bTime.compareTo(aTime);
       });
@@ -105,6 +109,12 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
         .fold<int>(0, (sum, s) => sum + (s.durationSeconds ?? 0));
   }
 
+  bool _isPersonalBest(ReadingSession session) {
+    final longest = _longestSeconds;
+    if (longest == null || longest == 0) return false;
+    return (session.durationSeconds ?? 0) == longest;
+  }
+
   void _startEditing(ReadingSession session) {
     final startTime = session.startTime ?? DateTime.now();
     final clickedAt = session.clickedAt ?? startTime;
@@ -124,6 +134,42 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
     setState(() {
       _editingSessionId = null;
       _draftSession = null;
+    });
+  }
+
+  bool get _hasEditChanges {
+    if (_editingSessionId == null || _draftSession == null) return false;
+    final original = _sessions.firstWhere(
+      (s) => s.sessionId == _editingSessionId,
+      orElse: () => _draftSession!,
+    );
+    final origStart = original.startTime ?? DateTime.now();
+    final origClicked = original.clickedAt ?? origStart;
+    final origDate = DateTime(origStart.year, origStart.month, origStart.day);
+    final origTime = TimeOfDay.fromDateTime(origClicked);
+    final origDuration = _formatDurationHms(original.durationSeconds ?? 0);
+    if (_editDate != origDate) return true;
+    if (_editTime != origTime) return true;
+    if (_editDurationController.text.trim() != origDuration) return true;
+    return false;
+  }
+
+  void _revertEditing() {
+    if (_draftSession == null) return;
+    // Find the original session from the list
+    final original = _sessions.firstWhere(
+      (s) => s.sessionId == _editingSessionId,
+      orElse: () => _draftSession!,
+    );
+    final startTime = original.startTime ?? DateTime.now();
+    final clickedAt = original.clickedAt ?? startTime;
+    setState(() {
+      _editDate = DateTime(startTime.year, startTime.month, startTime.day);
+      _editTime = TimeOfDay.fromDateTime(clickedAt);
+      _editDurationController.text = _formatDurationHms(
+        original.durationSeconds ?? 0,
+      );
+      _draftSession = original.copyWith();
     });
   }
 
@@ -229,6 +275,15 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
     return '${secs}s';
   }
 
+  String _formatDurationShort(int seconds) {
+    final hours = seconds ~/ 3600;
+    final minutes = (seconds % 3600) ~/ 60;
+    if (hours > 0) {
+      return '${hours}h ${minutes.toString().padLeft(2, '0')}m';
+    }
+    return '${minutes}m';
+  }
+
   String _formatDurationHms(int seconds) {
     final hours = seconds ~/ 3600;
     final minutes = (seconds % 3600) ~/ 60;
@@ -295,6 +350,7 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
 
   @override
   void dispose() {
+    _scrollController.dispose();
     if (_editingSessionId != null) {
       _editDurationController.dispose();
     }
@@ -310,9 +366,11 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
       appBar: AppBar(
         backgroundColor: _kBg,
         elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back, color: _kText),
+          icon: const Icon(Icons.arrow_back, color: _kPrimary),
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -323,7 +381,7 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
                 fontFamily: 'Manrope',
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: _kText,
+                color: _kPrimary,
               ),
             ),
             Text(
@@ -335,7 +393,7 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
                 fontFamily: 'Manrope',
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: _kSub,
+                color: _kPrimary,
               ),
             ),
           ],
@@ -345,180 +403,266 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
           _isLoading
               ? const Center(child: CircularProgressIndicator())
               : SafeArea(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 8),
-                      // Stats row
-                      Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: _StatCard(
-                              label: l10n.avg_session,
-                              value: _formatDuration(_avgSeconds ?? 0),
+                          const SizedBox(height: 8),
+                          // Stats row – single container with dividers
+                          Container(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF7F3F0),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: const Color(0x22D5C2C7),
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _StatCard(
-                              label: l10n.longest_session,
-                              value: _formatDuration(_longestSeconds ?? 0),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _StatCard(
-                              label: l10n.this_week,
-                              value: _formatDuration(_thisWeekSeconds),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-                      // Recent sessions header
-                      Text(
-                        l10n.recent_sessions.toUpperCase(),
-                        style: const TextStyle(
-                          fontFamily: 'Manrope',
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.8,
-                          color: _kSub,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      // Timeline
-                      if (_sessions.isEmpty)
-                        Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(32),
-                            child: Text(
-                              l10n.no_reading_sessions,
-                              style: const TextStyle(
-                                fontFamily: 'Manrope',
-                                fontSize: 14,
-                                color: _kSub,
+                            child: IntrinsicHeight(
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: _StatCell(
+                                      label: l10n.avg_session,
+                                      value: _formatDurationShort(
+                                        _avgSeconds ?? 0,
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 1,
+                                    color: const Color(0x33D5C2C7),
+                                  ),
+                                  Expanded(
+                                    child: _StatCell(
+                                      label: l10n.longest_session,
+                                      value: _formatDurationShort(
+                                        _longestSeconds ?? 0,
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 1,
+                                    color: const Color(0x33D5C2C7),
+                                  ),
+                                  Expanded(
+                                    child: _StatCell(
+                                      label: l10n.this_week,
+                                      value: _formatDurationShort(
+                                        _thisWeekSeconds,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
-                        )
-                      else
-                        ...List.generate(_sessions.length, (index) {
-                          final session = _sessions[index];
-                          final isEditing =
-                              session.sessionId == _editingSessionId;
-                          final isLast = index == _sessions.length - 1;
-                          return _TimelineItem(
-                            isLast: isLast,
-                            child:
-                                isEditing
-                                    ? _EditingSessionCard(
-                                      sessionNumber: _sessions.length - index,
-                                      editDate: _editDate,
-                                      editTime: _editTime,
-                                      durationController:
-                                          _editDurationController,
-                                      onDateTap: _pickEditDate,
-                                      onTimeTap: _pickEditTime,
-                                      onDurationChanged: (value) {},
-                                      onRevert: _cancelEditing,
-                                      onDone: _saveEditing,
-                                    )
-                                    : _SessionCard(
-                                      session: session,
-                                      onEdit: () => _startEditing(session),
-                                      onDelete: () => _deleteSession(session),
-                                      formatDuration: _formatDuration,
-                                      formatDate: _formatDate,
-                                      formatTime: _formatTime,
+                          const SizedBox(height: 24),
+                          // Recent sessions header with divider
+                          Row(
+                            children: [
+                              Text(
+                                l10n.recent_sessions.toUpperCase(),
+                                style: const TextStyle(
+                                  fontFamily: 'Manrope',
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.8,
+                                  color: _kSub,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Container(
+                                  height: 1,
+                                  color: const Color(0x33D5C2C7),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                      ),
+                    ),
+                    // Scrollable timeline
+                    Expanded(
+                      child:
+                          _sessions.isEmpty
+                              ? Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(32),
+                                  child: Text(
+                                    l10n.no_reading_sessions,
+                                    style: const TextStyle(
+                                      fontFamily: 'Manrope',
+                                      fontSize: 14,
+                                      color: _kSub,
                                     ),
-                          );
-                        }),
-                      const SizedBox(height: 24),
-                    ],
-                  ),
+                                  ),
+                                ),
+                              )
+                              : ListView.builder(
+                                controller: _scrollController,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                ),
+                                itemCount: _sessions.length,
+                                itemBuilder: (context, index) {
+                                  final session = _sessions[index];
+                                  final isEditing =
+                                      session.sessionId == _editingSessionId;
+                                  final isLast = index == _sessions.length - 1;
+                                  final isHovered = _hoveredIndex == index;
+                                  return MouseRegion(
+                                    onEnter:
+                                        (_) => setState(
+                                          () => _hoveredIndex = index,
+                                        ),
+                                    onExit:
+                                        (_) => setState(
+                                          () => _hoveredIndex = null,
+                                        ),
+                                    child: _TimelineItem(
+                                      isLast: isLast,
+                                      isHovered: isHovered,
+                                      child:
+                                          isEditing
+                                              ? _EditingSessionCard(
+                                                sessionNumber:
+                                                    _sessions.length - index,
+                                                editDate: _editDate,
+                                                editTime: _editTime,
+                                                durationController:
+                                                    _editDurationController,
+                                                onDateTap: _pickEditDate,
+                                                onTimeTap: _pickEditTime,
+                                                onDurationChanged:
+                                                    (value) => setState(() {}),
+                                                canRevert: _hasEditChanges,
+                                                onRevert: _revertEditing,
+                                                onDone: _saveEditing,
+                                              )
+                                              : _SessionCard(
+                                                session: session,
+                                                isPersonalBest: _isPersonalBest(
+                                                  session,
+                                                ),
+                                                onEdit:
+                                                    () =>
+                                                        _startEditing(session),
+                                                onDelete:
+                                                    () =>
+                                                        _deleteSession(session),
+                                                formatDuration: _formatDuration,
+                                                formatDate: _formatDate,
+                                                formatTime: _formatTime,
+                                              ),
+                                    ),
+                                  );
+                                },
+                              ),
+                    ),
+                  ],
                 ),
               ),
     );
   }
 }
 
-class _StatCard extends StatelessWidget {
+/// A single stat cell inside the unified stats row.
+class _StatCell extends StatelessWidget {
   final String label;
   final String value;
 
-  const _StatCard({required this.label, required this.value});
+  const _StatCell({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF7F3F0),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0x33D5C2C7)),
-      ),
-      child: Column(
-        children: [
-          Text(
-            label.toUpperCase(),
-            style: const TextStyle(
-              fontFamily: 'Manrope',
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.6,
-              color: _kSub,
-            ),
-            textAlign: TextAlign.center,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label.toUpperCase(),
+          style: const TextStyle(
+            fontFamily: 'Manrope',
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.6,
+            color: _kSub,
           ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(
-              fontFamily: 'Manrope',
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF1C1B1A),
-            ),
-            textAlign: TextAlign.center,
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 6),
+        Text(
+          value,
+          style: const TextStyle(
+            fontFamily: 'Manrope',
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: _kPrimary,
           ),
-        ],
-      ),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 }
 
 class _TimelineItem extends StatelessWidget {
   final bool isLast;
+  final bool isHovered;
   final Widget child;
 
-  const _TimelineItem({required this.isLast, required this.child});
+  const _TimelineItem({
+    required this.isLast,
+    required this.child,
+    this.isHovered = false,
+  });
 
   @override
   Widget build(BuildContext context) {
+    const dotColor = Color(0xFF5D2641);
+
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Column(
-            children: [
-              Container(
-                width: 12,
-                height: 12,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF5D2641),
-                  shape: BoxShape.circle,
+          SizedBox(
+            width: 20,
+            child: Column(
+              children: [
+                const SizedBox(height: 4),
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: isHovered ? 16 : 10,
+                  height: isHovered ? 16 : 10,
+                  decoration: BoxDecoration(
+                    color: dotColor,
+                    shape: BoxShape.circle,
+                    border:
+                        isHovered
+                            ? Border.all(
+                              color: dotColor.withValues(alpha: 0.3),
+                              width: 3,
+                            )
+                            : null,
+                  ),
                 ),
-              ),
-              if (!isLast)
-                Expanded(
-                  child: Container(width: 2, color: const Color(0xFF5D2641)),
-                ),
-            ],
+                if (!isLast)
+                  Expanded(
+                    child: Container(
+                      width: 2,
+                      color: dotColor.withValues(alpha: 0.4),
+                    ),
+                  ),
+              ],
+            ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
           Expanded(child: child),
         ],
       ),
@@ -528,6 +672,7 @@ class _TimelineItem extends StatelessWidget {
 
 class _SessionCard extends StatelessWidget {
   final ReadingSession session;
+  final bool isPersonalBest;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
   final String Function(int) formatDuration;
@@ -536,6 +681,7 @@ class _SessionCard extends StatelessWidget {
 
   const _SessionCard({
     required this.session,
+    this.isPersonalBest = false,
     required this.onEdit,
     required this.onDelete,
     required this.formatDuration,
@@ -548,7 +694,6 @@ class _SessionCard extends StatelessWidget {
     final date = session.startTime ?? session.clickedAt;
     final time = session.clickedAt ?? session.startTime;
     final duration = session.durationSeconds ?? 0;
-
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -560,81 +705,107 @@ class _SessionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // First row: duration badge + edit/delete
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Duration badge with clock icon
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 10,
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF7F3F0),
+                  color:
+                      isPersonalBest
+                          ? Theme.of(
+                            context,
+                          ).colorScheme.secondary.withValues(alpha: 0.15)
+                          : const Color(0xFFF7F3F0),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFD5C2C7)),
-                ),
-                child: Text(
-                  formatDuration(duration),
-                  style: const TextStyle(
-                    fontFamily: 'Manrope',
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF5D2641),
+                  border: Border.all(
+                    color:
+                        isPersonalBest
+                            ? Theme.of(context).colorScheme.secondary
+                            : const Color(0xFFD5C2C7),
                   ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.timer_outlined,
+                      size: 14,
+                      color: Color(0xFF5D2641),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      formatDuration(duration),
+                      style: const TextStyle(
+                        fontFamily: 'Manrope',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF5D2641),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const Spacer(),
-              IconButton(
-                onPressed: onEdit,
-                icon: const Icon(
-                  Icons.edit,
+              GestureDetector(
+                onTap: onEdit,
+                child: const Icon(
+                  Icons.edit_outlined,
                   size: 18,
-                  color: Color(0xFF514348),
+                  color: _kPrimary,
                 ),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
               ),
-              const SizedBox(width: 12),
-              IconButton(
-                onPressed: onDelete,
-                icon: const Icon(
+              const SizedBox(width: 14),
+              GestureDetector(
+                onTap: onDelete,
+                child: const Icon(
                   Icons.delete_outline,
                   size: 18,
-                  color: Color(0xFF514348),
+                  color: _kPrimary,
                 ),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
               ),
             ],
           ),
           const SizedBox(height: 10),
+          // Second row: date · time
           Row(
             children: [
-              const Icon(
-                Icons.calendar_today_outlined,
-                size: 14,
-                color: Color(0xFF514348),
-              ),
-              const SizedBox(width: 6),
+              const Icon(Icons.calendar_today_outlined, size: 13, color: _kSub),
+              const SizedBox(width: 5),
               Text(
                 formatDate(date),
                 style: const TextStyle(
                   fontFamily: 'Manrope',
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: Color(0xFF514348),
+                  color: _kSub,
                 ),
               ),
-              const SizedBox(width: 12),
-              const Icon(Icons.access_time, size: 14, color: Color(0xFF514348)),
-              const SizedBox(width: 6),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: Text(
+                  '·',
+                  style: TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: _kSub.withValues(alpha: 0.5),
+                  ),
+                ),
+              ),
+              const Icon(Icons.access_time, size: 13, color: _kSub),
+              const SizedBox(width: 5),
               Text(
                 formatTime(time),
                 style: const TextStyle(
                   fontFamily: 'Manrope',
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: Color(0xFF514348),
+                  color: _kSub,
                 ),
               ),
             ],
@@ -650,9 +821,11 @@ class _EditingSessionCard extends StatelessWidget {
   final DateTime editDate;
   final TimeOfDay editTime;
   final TextEditingController durationController;
+
   final VoidCallback onDateTap;
   final VoidCallback onTimeTap;
   final ValueChanged<String> onDurationChanged;
+  final bool canRevert;
   final VoidCallback onRevert;
   final VoidCallback onDone;
 
@@ -661,9 +834,11 @@ class _EditingSessionCard extends StatelessWidget {
     required this.editDate,
     required this.editTime,
     required this.durationController,
+
     required this.onDateTap,
     required this.onTimeTap,
     required this.onDurationChanged,
+    this.canRevert = false,
     required this.onRevert,
     required this.onDone,
   });
@@ -676,20 +851,21 @@ class _EditingSessionCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFFDF8F6),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF5D2641), width: 1.5),
+        border: Border.all(color: _kPrimary, width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header: dot + "EDITING SESSION" + revert/done icons
           Row(
             children: [
               Container(
                 width: 8,
                 height: 8,
                 decoration: const BoxDecoration(
-                  color: Color(0xFF5D2641),
+                  color: _kPrimary,
                   shape: BoxShape.circle,
                 ),
               ),
@@ -701,188 +877,192 @@ class _EditingSessionCard extends StatelessWidget {
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 0.6,
-                  color: Color(0xFF5D2641),
+                  color: _kPrimary,
                 ),
               ),
               const Spacer(),
-              Text(
-                l10n.session_number(sessionNumber.toString()),
-                style: const TextStyle(
-                  fontFamily: 'Manrope',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF514348),
+              GestureDetector(
+                onTap: canRevert ? onRevert : null,
+                child: Icon(
+                  Icons.undo,
+                  size: 18,
+                  color:
+                      canRevert ? _kPrimary : _kPrimary.withValues(alpha: 0.3),
                 ),
+              ),
+              const SizedBox(width: 14),
+              GestureDetector(
+                onTap: onDone,
+                child: const Icon(Icons.check, size: 18, color: _kPrimary),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          _EditRow(
-            label: l10n.date_label.toUpperCase(),
-            value: DateFormat('yyyy-MM-dd').format(editDate),
-            icon: Icons.calendar_today_outlined,
-            onTap: onDateTap,
-          ),
-          const SizedBox(height: 12),
-          _EditRow(
-            label: l10n.start_time.toUpperCase(),
-            value: editTime.format(context),
-            icon: Icons.access_time,
-            onTap: onTimeTap,
-          ),
-          const SizedBox(height: 12),
+          // Date and Start Time side by side
           Row(
             children: [
-              Text(
-                l10n.duration_label.toUpperCase(),
-                style: const TextStyle(
-                  fontFamily: 'Manrope',
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.6,
-                  color: Color(0xFF514348),
-                ),
-              ),
-              const Spacer(),
-              Container(
-                height: 40,
-                width: 120,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFD5C2C7)),
-                ),
-                child: TextField(
-                  controller: durationController,
-                  textAlign: TextAlign.center,
-                  keyboardType: TextInputType.datetime,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[0-9:]')),
-                  ],
-                  onChanged: onDurationChanged,
-                  decoration: InputDecoration(
-                    hintText: l10n.hhmmss_hint,
-                    border: InputBorder.none,
-                    isDense: true,
-                    contentPadding: EdgeInsets.zero,
-                    hintStyle: TextStyle(
-                      color: const Color(0xFF5D2641).withValues(alpha: 0.5),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.date_label.toUpperCase(),
+                      style: const TextStyle(
+                        fontFamily: 'Manrope',
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.6,
+                        color: _kSub,
+                      ),
                     ),
-                  ),
-                  style: const TextStyle(
-                    fontFamily: 'Manrope',
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF5D2641),
-                  ),
+                    const SizedBox(height: 8),
+                    GestureDetector(
+                      onTap: onDateTap,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF7F3F0),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0x33D5C2C7)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.calendar_today_outlined,
+                              size: 15,
+                              color: _kPrimary,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              DateFormat('yyyy-MM-dd').format(editDate),
+                              style: const TextStyle(
+                                fontFamily: 'Manrope',
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: _kText,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.start_time.toUpperCase(),
+                      style: const TextStyle(
+                        fontFamily: 'Manrope',
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.6,
+                        color: _kSub,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    GestureDetector(
+                      onTap: onTimeTap,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF7F3F0),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0x33D5C2C7)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.access_time,
+                              size: 15,
+                              color: _kPrimary,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              editTime.format(context),
+                              style: const TextStyle(
+                                fontFamily: 'Manrope',
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: _kText,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              TextButton(
-                onPressed: onRevert,
-                child: Text(
-                  l10n.revert,
-                  style: const TextStyle(
-                    fontFamily: 'Manrope',
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF514348),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              FilledButton.icon(
-                onPressed: onDone,
-                icon: const Icon(Icons.check, size: 16),
-                label: Text(l10n.done_editing),
-                style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFF5D2641),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  textStyle: const TextStyle(
-                    fontFamily: 'Manrope',
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
+          // Duration
+          Text(
+            l10n.duration_label.toUpperCase(),
+            style: const TextStyle(
+              fontFamily: 'Manrope',
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.6,
+              color: _kSub,
+            ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _EditRow extends StatelessWidget {
-  final String label;
-  final String value;
-  final IconData icon;
-  final VoidCallback onTap;
-
-  const _EditRow({
-    required this.label,
-    required this.value,
-    required this.icon,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontFamily: 'Manrope',
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.6,
-            color: Color(0xFF514348),
-          ),
-        ),
-        const Spacer(),
-        GestureDetector(
-          onTap: onTap,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          const SizedBox(height: 8),
+          Container(
+            height: 40,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            alignment: Alignment.center,
             decoration: BoxDecoration(
               color: const Color(0xFFF7F3F0),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0x33D5C2C7)),
+              border: Border.all(color: const Color(0xFFD5C2C7)),
             ),
             child: Row(
-              mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(icon, size: 16, color: const Color(0xFF5D2641)),
+                const Icon(Icons.timer_outlined, size: 16, color: _kPrimary),
                 const SizedBox(width: 8),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontFamily: 'Manrope',
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF1C1B1A),
+                Expanded(
+                  child: TextField(
+                    controller: durationController,
+                    textAlign: TextAlign.left,
+                    keyboardType: TextInputType.datetime,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9:]')),
+                    ],
+                    onChanged: onDurationChanged,
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      isDense: true,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                    style: const TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: _kText,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

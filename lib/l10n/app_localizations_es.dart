@@ -4018,4 +4018,16 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get tutorial_desc_dialogs =>
       'Hay varios diálogos y flujos importantes disponibles en toda la aplicación. Añadir Rápido: un formulario mínimo accesible desde Inicio para entrada rápida de libros. Club de Lectura: registra y haz seguimiento de sesiones de club de lectura para un libro. Importación CSV: importa libros desde una exportación de Goodreads o un archivo CSV personalizado, con mapeo de columnas y traducción de estados. Eliminar Todos los Datos: en Ajustes, esto elimina permanentemente toda tu biblioteca — siempre se muestra un diálogo de confirmación antes de continuar.';
+
+  @override
+  String get new_session => 'Nueva Sesión';
+
+  @override
+  String get export_log => 'Exportar Registro';
+
+  @override
+  String get personal_best => 'RÉCORD PERSONAL';
+
+  @override
+  String get done => 'Listo';
 }
