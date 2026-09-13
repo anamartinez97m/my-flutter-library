@@ -2259,13 +2259,6 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                   // Reload read dates after edit
                   await _loadReadDates();
 
-                  if (!context.mounted) return;
-                  // If this is an individual book in a bundle, notify parent to refresh
-                  if (_currentBook.bundleParentId != null) {
-                    // Pop with result to notify parent bundle detail screen
-                    Navigator.pop(context, updatedBook);
-                  }
-
                   // Removed auto-fetch - only manual refresh button will fetch metadata
                 }
               },
@@ -3484,23 +3477,20 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                                 ),
                                                 onTap: () async {
                                                   // Navigate to individual book details
-                                                  final result =
-                                                      await Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                          builder:
-                                                              (context) =>
-                                                                  NewBookDetailScreen(
-                                                                    book: book,
-                                                                  ),
-                                                        ),
-                                                      );
+                                                  await Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder:
+                                                          (context) =>
+                                                              NewBookDetailScreen(
+                                                                book: book,
+                                                              ),
+                                                    ),
+                                                  );
                                                   // Always reload bundle books when returning from individual book detail
                                                   // (status may have changed via Start Reading, edit, etc.)
                                                   if (mounted) {
-                                                    if (result != null) {
-                                                      await _loadReadDates();
-                                                    }
+                                                    await _loadReadDates();
                                                     if (mounted) {
                                                       setState(() {
                                                         _bundleBooksKey++;

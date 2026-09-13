@@ -16,8 +16,6 @@ import 'package:myrandomlibrary/widgets/chip_autocomplete_field.dart';
 import 'package:myrandomlibrary/widgets/heart_rating_input.dart';
 import 'package:myrandomlibrary/widgets/read_dates_widget.dart';
 import 'package:myrandomlibrary/widgets/tbr_limit_setting.dart';
-import 'package:myrandomlibrary/model/reading_session.dart';
-import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
 import 'package:myrandomlibrary/services/notification_service.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -78,9 +76,6 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
   // Read dates (new multi-session system)
   List<ReadDate> _readDates = [];
-
-  // Chronometer sessions
-  List<ReadingSession> _chronometerSessions = [];
 
   // Bundle fields
   late bool _isBundle = false;
@@ -204,19 +199,14 @@ class _EditBookScreenState extends State<EditBookScreen> {
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
-      final sessionRepository = ReadingSessionRepository(db);
       final readDates = await repository.getReadDatesForBook(
         widget.book.bookId!,
       );
-      final sessions = await sessionRepository.getSessionsForBook(
-        widget.book.bookId!,
-      );
       debugPrint(
-        'EditBook: Loaded ${readDates.length} read dates and ${sessions.length} sessions for book ${widget.book.bookId} (${widget.book.name})',
+        'EditBook: Loaded ${readDates.length} read dates for book ${widget.book.bookId} (${widget.book.name})',
       );
       setState(() {
         _readDates = readDates;
-        _chronometerSessions = sessions;
       });
     } catch (e) {
       debugPrint('Error loading read dates: $e');
@@ -945,18 +935,6 @@ class _EditBookScreenState extends State<EditBookScreen> {
       // Update read dates in the new table
       // First, delete all existing read dates for this book
       await repository.deleteAllReadDatesForBook(widget.book.bookId!);
-
-      // Update chronometer sessions (delete all and re-add remaining ones)
-      final sessionRepository = ReadingSessionRepository(db);
-      await sessionRepository.deleteSessionsForBook(widget.book.bookId!);
-      for (final session in _chronometerSessions) {
-        await sessionRepository.createSession(
-          session.copyWith(
-            sessionId: null, // Let database assign new ID
-            bookId: widget.book.bookId!,
-          ),
-        );
-      }
 
       // Save read dates for non-bundle books only
       if (!_isBundle) {
@@ -2689,105 +2667,6 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     ),
                   if (!_isBundle) const SizedBox(height: 16),
 
-                  // Chronometer Sessions (hidden for bundles)
-                  if (!_isBundle && _chronometerSessions.isNotEmpty)
-                    Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.timer,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  AppLocalizations.of(
-                                    context,
-                                  )!.timed_reading_sessions,
-                                  style: Theme.of(context).textTheme.titleMedium
-                                      ?.copyWith(fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            ..._chronometerSessions.asMap().entries.map((
-                              entry,
-                            ) {
-                              final index = entry.key;
-                              final session = entry.value;
-                              final duration = session.durationSeconds ?? 0;
-                              final hours = duration ~/ 3600;
-                              final minutes = (duration % 3600) ~/ 60;
-                              final seconds = duration % 60;
-                              String durationStr;
-                              if (hours > 0) {
-                                durationStr =
-                                    '${hours}h ${minutes}m ${seconds}s';
-                              } else if (minutes > 0) {
-                                durationStr = '${minutes}m ${seconds}s';
-                              } else {
-                                durationStr = '${seconds}s';
-                              }
-
-                              // Format clicked_at time if available
-                              String clickedAtStr = '';
-                              if (session.clickedAt != null) {
-                                final clickedTime = session.clickedAt!;
-                                clickedAtStr =
-                                    '\nStarted: ${clickedTime.hour.toString().padLeft(2, '0')}:${clickedTime.minute.toString().padLeft(2, '0')}';
-                              }
-
-                              return Card(
-                                margin: const EdgeInsets.only(bottom: 8),
-                                child: ListTile(
-                                  leading: CircleAvatar(
-                                    backgroundColor:
-                                        Theme.of(
-                                          context,
-                                        ).colorScheme.primaryContainer,
-                                    child: Text('${index + 1}'),
-                                  ),
-                                  title: Text(
-                                    session.startTime?.toIso8601String().split(
-                                          'T',
-                                        )[0] ??
-                                        'No date',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  subtitle: Text(
-                                    'Duration: $durationStr$clickedAtStr',
-                                  ),
-                                  trailing: IconButton(
-                                    icon: Icon(
-                                      Icons.delete,
-                                      color:
-                                          Theme.of(context).colorScheme.error,
-                                    ),
-                                    onPressed: () {
-                                      setState(() {
-                                        _chronometerSessions.removeAt(index);
-                                      });
-                                    },
-                                  ),
-                                ),
-                              );
-                            }),
-                          ],
-                        ),
-                      ),
-                    ),
-                  if (!_isBundle && _chronometerSessions.isNotEmpty)
-                    const SizedBox(height: 16),
                   if (widget.useNewUi) ...[
                     _v2Divider(),
                     _v2SectionHeading(l10n.notes),
