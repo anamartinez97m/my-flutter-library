@@ -7,6 +7,7 @@ class ReadDatesWidget extends StatefulWidget {
   final List<ReadDate> initialReadDates;
   final Function(List<ReadDate>) onChanged;
   final Color? titleColor;
+  final bool useNewUi;
 
   const ReadDatesWidget({
     super.key,
@@ -14,6 +15,7 @@ class ReadDatesWidget extends StatefulWidget {
     required this.initialReadDates,
     required this.onChanged,
     this.titleColor,
+    this.useNewUi = false,
   });
 
   @override
@@ -125,32 +127,76 @@ class _ReadDatesWidgetState extends State<ReadDatesWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              AppLocalizations.of(context)!.reading_sessions,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: widget.titleColor,
+        Container(
+          padding: const EdgeInsets.only(bottom: 9),
+          decoration:
+              widget.useNewUi
+                  ? BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: const Color(0xFF27231E).withValues(alpha: 0.2),
+                      ),
+                    ),
+                  )
+                  : null,
+          child: Row(
+            children: [
+              if (widget.useNewUi) ...[
+                const Icon(Icons.history, color: Color(0xFF43102B), size: 20),
+                const SizedBox(width: 8),
+              ],
+              Expanded(
+                child: Text(
+                  AppLocalizations.of(context)!.reading_sessions,
+                  style:
+                      widget.useNewUi
+                          ? const TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF43102B),
+                          )
+                          : Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: widget.titleColor,
+                          ),
+                ),
               ),
-            ),
-            TextButton.icon(
-              onPressed: _addReadDate,
-              icon: const Icon(Icons.add, size: 18),
-              label: Text(AppLocalizations.of(context)!.add_session),
-            ),
-          ],
+              TextButton.icon(
+                onPressed: _addReadDate,
+                style:
+                    widget.useNewUi
+                        ? TextButton.styleFrom(
+                          foregroundColor: const Color(0xFF43102B),
+                        )
+                        : null,
+                icon: const Icon(Icons.add, size: 18),
+                label: Text(AppLocalizations.of(context)!.add_session),
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: widget.useNewUi ? 16 : 8),
         if (_readDates.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 13),
+            decoration:
+                widget.useNewUi
+                    ? BoxDecoration(
+                      color: const Color(0xFF43102B).withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: const Color(0xFF43102B).withValues(alpha: 0.1),
+                      ),
+                    )
+                    : null,
             child: Center(
               child: Text(
                 AppLocalizations.of(context)!.no_reading_sessions,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontFamily: widget.useNewUi ? 'Manrope' : null,
                   fontSize: 14,
                 ),
               ),
@@ -159,125 +205,141 @@ class _ReadDatesWidgetState extends State<ReadDatesWidget> {
         else
           ...List.generate(_readDates.length, (index) {
             final readDate = _readDates[index];
-            return Card(
+            return Container(
               margin: const EdgeInsets.only(bottom: 8),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          '${AppLocalizations.of(context)!.session} ${index + 1}',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
+              padding: const EdgeInsets.all(13),
+              decoration:
+                  widget.useNewUi
+                      ? BoxDecoration(
+                        color: const Color(0xFF43102B).withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: const Color(0xFF43102B).withValues(alpha: 0.1),
+                        ),
+                      )
+                      : BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.08),
+                            blurRadius: 2,
+                            offset: const Offset(0, 1),
                           ),
+                        ],
+                      ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${AppLocalizations.of(context)!.session} ${index + 1}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.delete, size: 20),
-                          onPressed: () => _removeReadDate(index),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: InkWell(
-                            onTap: () async {
-                              final dateStr = await _showDateOrYearPicker(
-                                context,
-                                readDate.dateStarted,
-                                AppLocalizations.of(context)!.start_date,
-                              );
-                              if (dateStr != null) {
-                                _updateReadDate(
-                                  index,
-                                  dateStr,
-                                  readDate.dateFinished,
-                                );
-                              }
-                            },
-                            child: InputDecorator(
-                              decoration: InputDecoration(
-                                labelText:
-                                    AppLocalizations.of(context)!.started,
-                                border: const OutlineInputBorder(),
-                                isDense: true,
-                                contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 8,
-                                ),
-                              ),
-                              child: Text(
-                                readDate.dateStarted ??
-                                    AppLocalizations.of(context)!.not_set,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color:
-                                      readDate.dateStarted != null
-                                          ? null
-                                          : Theme.of(
-                                            context,
-                                          ).colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: InkWell(
-                            onTap: () async {
-                              final dateStr = await _showDateOrYearPicker(
-                                context,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete, size: 20),
+                        onPressed: () => _removeReadDate(index),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: InkWell(
+                          onTap: () async {
+                            final dateStr = await _showDateOrYearPicker(
+                              context,
+                              readDate.dateStarted,
+                              AppLocalizations.of(context)!.start_date,
+                            );
+                            if (dateStr != null) {
+                              _updateReadDate(
+                                index,
+                                dateStr,
                                 readDate.dateFinished,
-                                AppLocalizations.of(context)!.end_date,
                               );
-                              if (dateStr != null) {
-                                _updateReadDate(
-                                  index,
-                                  readDate.dateStarted,
-                                  dateStr,
-                                );
-                              }
-                            },
-                            child: InputDecorator(
-                              decoration: InputDecoration(
-                                labelText:
-                                    AppLocalizations.of(context)!.finished,
-                                border: const OutlineInputBorder(),
-                                isDense: true,
-                                contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 8,
-                                ),
+                            }
+                          },
+                          child: InputDecorator(
+                            decoration: InputDecoration(
+                              labelText: AppLocalizations.of(context)!.started,
+                              border: const OutlineInputBorder(),
+                              isDense: true,
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 8,
                               ),
-                              child: Text(
-                                readDate.dateFinished ??
-                                    AppLocalizations.of(context)!.not_set,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color:
-                                      readDate.dateFinished != null
-                                          ? null
-                                          : Theme.of(
-                                            context,
-                                          ).colorScheme.onSurfaceVariant,
-                                ),
+                            ),
+                            child: Text(
+                              readDate.dateStarted ??
+                                  AppLocalizations.of(context)!.not_set,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color:
+                                    readDate.dateStarted != null
+                                        ? null
+                                        : Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ),
                         ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () async {
+                            final dateStr = await _showDateOrYearPicker(
+                              context,
+                              readDate.dateFinished,
+                              AppLocalizations.of(context)!.end_date,
+                            );
+                            if (dateStr != null) {
+                              _updateReadDate(
+                                index,
+                                readDate.dateStarted,
+                                dateStr,
+                              );
+                            }
+                          },
+                          child: InputDecorator(
+                            decoration: InputDecoration(
+                              labelText: AppLocalizations.of(context)!.finished,
+                              border: const OutlineInputBorder(),
+                              isDense: true,
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 8,
+                              ),
+                            ),
+                            child: Text(
+                              readDate.dateFinished ??
+                                  AppLocalizations.of(context)!.not_set,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color:
+                                    readDate.dateFinished != null
+                                        ? null
+                                        : Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             );
           }),

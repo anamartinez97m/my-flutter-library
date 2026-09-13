@@ -3520,266 +3520,200 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
 
                     // Bundle Reading Sessions (only show for bundles)
                     if (_bundleReadDates.isNotEmpty)
-                      Card(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        elevation: 1,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.history,
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    size: 24,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionHeader(
+                            icon: Icons.history,
+                            title:
+                                AppLocalizations.of(
+                                  context,
+                                )!.bundle_reading_sessions,
+                          ),
+                          const SizedBox(height: 16),
+                          ...List.generate(_currentBook.bundleCount ?? 0, (
+                            bundleIndex,
+                          ) {
+                            final readDates =
+                                _bundleReadDates[bundleIndex] ?? [];
+                            if (readDates.isEmpty) {
+                              return const SizedBox.shrink();
+                            }
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                    left: 4,
+                                    bottom: 8,
                                   ),
-                                  const SizedBox(width: 16),
-                                  Text(
-                                    AppLocalizations.of(
-                                      context,
-                                    )!.bundle_reading_sessions,
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.titleSmall?.copyWith(
-                                      color:
-                                          Theme.of(
-                                            context,
-                                          ).colorScheme.onSurfaceVariant,
+                                  child: Text(
+                                    _bundleBookTitles[bundleIndex] ??
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.book_n(bundleIndex + 1),
+                                    style: const TextStyle(
+                                      fontFamily: 'Manrope',
+                                      fontSize: 14,
                                       fontWeight: FontWeight.w600,
+                                      color: _kPrimary,
                                     ),
                                   ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              ...List.generate(_currentBook.bundleCount ?? 0, (
-                                bundleIndex,
-                              ) {
-                                final readDates =
-                                    _bundleReadDates[bundleIndex] ?? [];
-                                if (readDates.isEmpty) {
-                                  return const SizedBox.shrink();
-                                }
-
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 12),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        _bundleBookTitles[bundleIndex] ??
-                                            AppLocalizations.of(
-                                              context,
-                                            )!.book_n(bundleIndex + 1),
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.bodyMedium?.copyWith(
-                                          fontWeight: FontWeight.w600,
+                                ),
+                                ...List.generate(readDates.length, (index) {
+                                  final readDate = readDates[index];
+                                  return _buildSectionItem(
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          '${index + 1}.',
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodySmall?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      ...List.generate(readDates.length, (
-                                        index,
-                                      ) {
-                                        final readDate = readDates[index];
-                                        return Padding(
-                                          padding: const EdgeInsets.only(
-                                            bottom: 4,
-                                            left: 16,
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              Text(
-                                                '${index + 1}.',
-                                                style: Theme.of(
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            readDate.dateStarted != null
+                                                ? formatDateForDisplay(
+                                                  readDate.dateStarted,
+                                                )
+                                                : AppLocalizations.of(
                                                   context,
-                                                ).textTheme.bodySmall?.copyWith(
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                              const SizedBox(width: 8),
-                                              Expanded(
-                                                child: Text(
-                                                  readDate.dateStarted != null
-                                                      ? formatDateForDisplay(
-                                                        readDate.dateStarted,
-                                                      )
-                                                      : AppLocalizations.of(
-                                                        context,
-                                                      )!.not_set,
-                                                  style:
-                                                      Theme.of(
-                                                        context,
-                                                      ).textTheme.bodySmall,
-                                                ),
-                                              ),
-                                              const Text(' → '),
-                                              Expanded(
-                                                child: Text(
-                                                  readDate.dateFinished != null
-                                                      ? formatDateForDisplay(
-                                                        readDate.dateFinished,
-                                                      )
-                                                      : AppLocalizations.of(
-                                                        context,
-                                                      )!.not_set,
-                                                  style:
-                                                      Theme.of(
-                                                        context,
-                                                      ).textTheme.bodySmall,
-                                                ),
-                                              ),
-                                            ],
+                                                )!.not_set,
+                                            style:
+                                                Theme.of(
+                                                  context,
+                                                ).textTheme.bodySmall,
                                           ),
-                                        );
-                                      }),
-                                    ],
-                                  ),
-                                );
-                              }),
-                            ],
-                          ),
-                        ),
+                                        ),
+                                        const Text(' → '),
+                                        Expanded(
+                                          child: Text(
+                                            readDate.dateFinished != null
+                                                ? formatDateForDisplay(
+                                                  readDate.dateFinished,
+                                                )
+                                                : AppLocalizations.of(
+                                                  context,
+                                                )!.not_set,
+                                            style:
+                                                Theme.of(
+                                                  context,
+                                                ).textTheme.bodySmall,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }),
+                                const SizedBox(height: 8),
+                              ],
+                            );
+                          }),
+                        ],
                       ),
 
                     // Bundle Chronometer Sessions
                     if (_bundleChronometerSessions.isNotEmpty)
-                      Card(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        elevation: 1,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.timer,
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    size: 24,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionHeader(
+                            icon: Icons.timer,
+                            title:
+                                AppLocalizations.of(
+                                  context,
+                                )!.bundle_timed_reading_sessions,
+                          ),
+                          const SizedBox(height: 16),
+                          ...List.generate(_currentBook.bundleCount ?? 0, (
+                            bundleIndex,
+                          ) {
+                            final sessions =
+                                _bundleChronometerSessions[bundleIndex] ?? [];
+                            if (sessions.isEmpty) {
+                              return const SizedBox.shrink();
+                            }
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                    left: 4,
+                                    bottom: 8,
                                   ),
-                                  const SizedBox(width: 16),
-                                  Text(
-                                    AppLocalizations.of(
-                                      context,
-                                    )!.bundle_timed_reading_sessions,
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.titleSmall?.copyWith(
-                                      color:
-                                          Theme.of(
-                                            context,
-                                          ).colorScheme.onSurfaceVariant,
+                                  child: Text(
+                                    _bundleBookTitles[bundleIndex] ??
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.book_n(bundleIndex + 1),
+                                    style: const TextStyle(
+                                      fontFamily: 'Manrope',
+                                      fontSize: 14,
                                       fontWeight: FontWeight.w600,
+                                      color: _kPrimary,
                                     ),
                                   ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              ...List.generate(_currentBook.bundleCount ?? 0, (
-                                bundleIndex,
-                              ) {
-                                final sessions =
-                                    _bundleChronometerSessions[bundleIndex] ??
-                                    [];
-                                if (sessions.isEmpty) {
-                                  return const SizedBox.shrink();
-                                }
+                                ),
+                                ...List.generate(sessions.length, (index) {
+                                  final session = sessions[index];
+                                  final duration = session.durationSeconds ?? 0;
+                                  final hours = duration ~/ 3600;
+                                  final minutes = (duration % 3600) ~/ 60;
+                                  final seconds = duration % 60;
+                                  String durationStr;
+                                  if (hours > 0) {
+                                    durationStr =
+                                        '${hours}h ${minutes}m ${seconds}s';
+                                  } else if (minutes > 0) {
+                                    durationStr = '${minutes}m ${seconds}s';
+                                  } else {
+                                    durationStr = '${seconds}s';
+                                  }
 
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 12),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        _bundleBookTitles[bundleIndex] ??
-                                            AppLocalizations.of(
-                                              context,
-                                            )!.book_n(bundleIndex + 1),
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.bodyMedium?.copyWith(
-                                          fontWeight: FontWeight.w600,
+                                  // Format clicked_at time if available
+                                  String clickedAtStr = '';
+                                  if (session.clickedAt != null) {
+                                    final clickedTime = session.clickedAt!;
+                                    clickedAtStr =
+                                        ' (Started: ${clickedTime.hour.toString().padLeft(2, '0')}:${clickedTime.minute.toString().padLeft(2, '0')})';
+                                  }
+
+                                  return _buildSectionItem(
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          '${index + 1}.',
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodySmall?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      ...List.generate(sessions.length, (
-                                        index,
-                                      ) {
-                                        final session = sessions[index];
-                                        final duration =
-                                            session.durationSeconds ?? 0;
-                                        final hours = duration ~/ 3600;
-                                        final minutes = (duration % 3600) ~/ 60;
-                                        final seconds = duration % 60;
-                                        String durationStr;
-                                        if (hours > 0) {
-                                          durationStr =
-                                              '${hours}h ${minutes}m ${seconds}s';
-                                        } else if (minutes > 0) {
-                                          durationStr =
-                                              '${minutes}m ${seconds}s';
-                                        } else {
-                                          durationStr = '${seconds}s';
-                                        }
-
-                                        // Format clicked_at time if available
-                                        String clickedAtStr = '';
-                                        if (session.clickedAt != null) {
-                                          final clickedTime =
-                                              session.clickedAt!;
-                                          clickedAtStr =
-                                              ' (Started: ${clickedTime.hour.toString().padLeft(2, '0')}:${clickedTime.minute.toString().padLeft(2, '0')})';
-                                        }
-
-                                        return Padding(
-                                          padding: const EdgeInsets.only(
-                                            bottom: 4,
-                                            left: 16,
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              Text(
-                                                '${index + 1}.',
-                                                style: Theme.of(
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            '${formatDateForDisplay(session.startTime?.toIso8601String().split('T')[0] ?? 'Unknown')} - $durationStr$clickedAtStr',
+                                            style:
+                                                Theme.of(
                                                   context,
-                                                ).textTheme.bodySmall?.copyWith(
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                              const SizedBox(width: 8),
-                                              Expanded(
-                                                child: Text(
-                                                  '${formatDateForDisplay(session.startTime?.toIso8601String().split('T')[0] ?? 'Unknown')} - $durationStr$clickedAtStr',
-                                                  style:
-                                                      Theme.of(
-                                                        context,
-                                                      ).textTheme.bodySmall,
-                                                ),
-                                              ),
-                                            ],
+                                                ).textTheme.bodySmall,
                                           ),
-                                        );
-                                      }),
-                                    ],
-                                  ),
-                                );
-                              }),
-                            ],
-                          ),
-                        ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }),
+                                const SizedBox(height: 8),
+                              ],
+                            );
+                          }),
+                        ],
                       ),
 
                     // Notification Badge
