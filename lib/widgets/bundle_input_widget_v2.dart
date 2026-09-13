@@ -52,6 +52,7 @@ class BundleInputWidgetV2 extends StatefulWidget {
   onChanged;
   final bool editMode; // If true, only show title and nsaga fields
   final Color? titleColor;
+  final bool showDetailsTitle;
 
   const BundleInputWidgetV2({
     super.key,
@@ -62,6 +63,7 @@ class BundleInputWidgetV2 extends StatefulWidget {
     required this.onChanged,
     this.editMode = false, // Default to false (show all fields)
     this.titleColor,
+    this.showDetailsTitle = true,
   });
 
   @override
@@ -160,13 +162,15 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
           ),
           const SizedBox(height: 16),
           if (_bundleBooks.isNotEmpty) ...[
-            Text(
-              AppLocalizations.of(context)!.bundle_book_details,
-              style: Theme.of(
-                context,
-              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
+            if (widget.showDetailsTitle) ...[
+              Text(
+                AppLocalizations.of(context)!.bundle_book_details,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+            ],
             ...List.generate(_bundleBooks.length, (index) {
               final bookData = _bundleBooks[index];
               final bookTitle =

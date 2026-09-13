@@ -315,7 +315,7 @@ class ThemeProvider with ChangeNotifier {
           foregroundColor: colorScheme.onPrimary,
           elevation: 2,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          shape: const StadiumBorder(),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
@@ -370,7 +370,7 @@ class ThemeProvider with ChangeNotifier {
           foregroundColor: colorScheme.onPrimary,
           elevation: 2,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          shape: const StadiumBorder(),
         ),
       ),
       textButtonTheme: TextButtonThemeData(

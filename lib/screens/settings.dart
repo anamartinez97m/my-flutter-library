@@ -1123,9 +1123,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         horizontal: 16,
                                         vertical: 8,
                                       ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
+                                      shape: const StadiumBorder(),
                                     ),
                                     child: Text(l10n.ok),
                                   ),

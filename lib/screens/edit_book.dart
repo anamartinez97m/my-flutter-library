@@ -2189,7 +2189,13 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       });
                     },
                   ),
-                  const SizedBox(height: 32),
+                  if (widget.useNewUi) ...[
+                    _v2Divider(),
+                    _v2SectionHeading(
+                      AppLocalizations.of(context)!.bundle_book_details,
+                    ),
+                  ] else
+                    const SizedBox(height: 32),
 
                   // Bundle section
                   BundleInputWidgetV2(
@@ -2200,6 +2206,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     editMode:
                         widget.book.bookId !=
                         null, // Edit mode when editing existing book
+                    showDetailsTitle: !widget.useNewUi,
                     onChanged: (isBundle, count, bundleBooks) {
                       setState(() {
                         _isBundle = isBundle;
@@ -2208,7 +2215,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       });
                     },
                   ),
-                  const SizedBox(height: 16),
+                  if (widget.useNewUi) ...[
+                    _v2Divider(),
+                    _v2SectionHeading(AppLocalizations.of(context)!.book_lists),
+                  ] else
+                    const SizedBox(height: 16),
 
                   // TBR and Tandem section
                   Card(
@@ -2221,16 +2232,18 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            AppLocalizations.of(context)!.book_lists,
-                            style: Theme.of(
-                              context,
-                            ).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.primary,
+                          if (!widget.useNewUi) ...[
+                            Text(
+                              AppLocalizations.of(context)!.book_lists,
+                              style: Theme.of(
+                                context,
+                              ).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 12),
+                            const SizedBox(height: 12),
+                          ],
                           CheckboxListTile(
                             title: Text(
                               AppLocalizations.of(context)!.add_to_tbr,

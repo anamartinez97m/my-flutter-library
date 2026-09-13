@@ -755,7 +755,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
           icon: Icons.play_arrow,
           label: l10n.start,
           bgColor: kPrimary,
-          textColor: kButtonText,
+          textColor: Colors.white,
         ),
       ];
     }
@@ -768,7 +768,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
           icon: Icons.pause,
           label: l10n.pause,
           bgColor: kPrimary,
-          textColor: kButtonText,
+          textColor: Colors.white,
         ),
         const SizedBox(width: 12),
         _buildV2Button(
@@ -776,7 +776,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
           icon: Icons.stop,
           label: l10n.stop_and_save,
           bgColor: const Color(0xFF8B1A1A),
-          textColor: const Color(0xFFFFCDD2),
+          textColor: Colors.white,
         ),
       ];
     }
@@ -788,7 +788,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
         icon: Icons.play_arrow,
         label: l10n.resume,
         bgColor: kPrimary,
-        textColor: kButtonText,
+        textColor: Colors.white,
       ),
       const SizedBox(width: 12),
       _buildV2Button(
@@ -796,7 +796,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
         icon: Icons.stop,
         label: l10n.stop_and_save,
         bgColor: const Color(0xFF8B1A1A),
-        textColor: const Color(0xFFFFCDD2),
+        textColor: Colors.white,
       ),
     ];
   }
@@ -809,10 +809,10 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
     required Color textColor,
   }) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: ShapeDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
+        shape: const StadiumBorder(),
+        shadows: [
           BoxShadow(
             color: bgColor.withValues(alpha: 0.2),
             blurRadius: 6,
@@ -822,9 +822,11 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
       ),
       child: Material(
         color: Colors.transparent,
+        shape: const StadiumBorder(),
+        clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onPressed,
-          borderRadius: BorderRadius.circular(12),
+          customBorder: const StadiumBorder(),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
             child: Row(

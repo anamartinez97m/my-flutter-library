@@ -3682,9 +3682,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
               backgroundColor: _kPrimary,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+              shape: const StadiumBorder(),
               elevation: 0,
             ),
             child: Text(
