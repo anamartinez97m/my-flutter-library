@@ -4049,4 +4049,84 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get done => 'Listo';
+
+  @override
+  String get view_universe_reading_order => 'Ver orden de lectura del universo';
+
+  @override
+  String get universe_reading_order => 'Orden de Lectura del Universo';
+
+  @override
+  String get edit_reading_order => 'Editar orden de lectura';
+
+  @override
+  String get finish_editing => 'Terminar edición';
+
+  @override
+  String get reorder_books => 'Reordenar libros';
+
+  @override
+  String get add_relation => 'Añadir relación';
+
+  @override
+  String get delete_relation => 'Eliminar relación';
+
+  @override
+  String get select_first_book => 'Selecciona el primer libro';
+
+  @override
+  String get select_second_book => 'Selecciona un segundo libro';
+
+  @override
+  String get relation_type => 'Tipo de relación';
+
+  @override
+  String get relation_next => 'Siguiente';
+
+  @override
+  String get relation_related => 'Relacionada';
+
+  @override
+  String get relation_optional => 'Opcional';
+
+  @override
+  String get reading_order_saved => 'Orden de lectura guardado';
+
+  @override
+  String get relation_added => 'Relación añadida';
+
+  @override
+  String get relation_deleted => 'Relación eliminada';
+
+  @override
+  String get confirm_delete_relation => '¿Eliminar esta relación?';
+
+  @override
+  String get unordered => 'Sin ordenar';
+
+  @override
+  String get standalone_books => 'Libros independientes';
+
+  @override
+  String get no_books_in_universe =>
+      'No se encontraron libros en este universo';
+
+  @override
+  String get error_loading_reading_order =>
+      'No se pudo cargar el orden de lectura';
+
+  @override
+  String get drag_to_reorder =>
+      'Arrastra los libros para establecer su orden de lectura';
+
+  @override
+  String get retry => 'Reintentar';
+
+  @override
+  String get universe_reading_position =>
+      'Posición de lectura del universo (opcional)';
+
+  @override
+  String get universe_reading_position_hint =>
+      'Posición en el orden de lectura del universo';
 }

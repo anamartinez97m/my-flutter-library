@@ -4005,4 +4005,81 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get done => 'Done';
+
+  @override
+  String get view_universe_reading_order => 'View universe reading order';
+
+  @override
+  String get universe_reading_order => 'Universe Reading Order';
+
+  @override
+  String get edit_reading_order => 'Edit reading order';
+
+  @override
+  String get finish_editing => 'Finish editing';
+
+  @override
+  String get reorder_books => 'Reorder books';
+
+  @override
+  String get add_relation => 'Add relation';
+
+  @override
+  String get delete_relation => 'Delete relation';
+
+  @override
+  String get select_first_book => 'Select the first book';
+
+  @override
+  String get select_second_book => 'Select a second book';
+
+  @override
+  String get relation_type => 'Relation type';
+
+  @override
+  String get relation_next => 'Next';
+
+  @override
+  String get relation_related => 'Related';
+
+  @override
+  String get relation_optional => 'Optional';
+
+  @override
+  String get reading_order_saved => 'Reading order saved';
+
+  @override
+  String get relation_added => 'Relation added';
+
+  @override
+  String get relation_deleted => 'Relation deleted';
+
+  @override
+  String get confirm_delete_relation => 'Delete this relation?';
+
+  @override
+  String get unordered => 'Unordered';
+
+  @override
+  String get standalone_books => 'Standalone books';
+
+  @override
+  String get no_books_in_universe => 'No books found in this universe';
+
+  @override
+  String get error_loading_reading_order => 'Could not load the reading order';
+
+  @override
+  String get drag_to_reorder => 'Drag books to set their reading order';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get universe_reading_position =>
+      'Universe reading position (optional)';
+
+  @override
+  String get universe_reading_position_hint =>
+      'Position in the universe reading order';
 }

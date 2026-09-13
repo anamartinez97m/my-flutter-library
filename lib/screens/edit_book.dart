@@ -49,6 +49,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   late TextEditingController _sagaController;
   late TextEditingController _nSagaController;
   late TextEditingController _sagaUniverseController;
+  late TextEditingController _universeReadingPositionController;
   late TextEditingController _pagesController;
   late TextEditingController _publicationYearController;
   DateTime? _releaseDate;
@@ -313,6 +314,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
     _nSagaController = TextEditingController(text: widget.book.nSaga);
     _sagaUniverseController = TextEditingController(
       text: widget.book.sagaUniverse,
+    );
+    _universeReadingPositionController = TextEditingController(
+      text: widget.book.orderWithinUniverse?.toString() ?? '',
     );
     _pagesController = TextEditingController(
       text: widget.book.pages?.toString() ?? '',
@@ -693,7 +697,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 ? DateTime.now().toIso8601String()
                 : widget.book.metadataFetchedAt,
         acquiredDate: _getAcquiredDate(),
-        orderWithinUniverse: widget.book.orderWithinUniverse,
+        orderWithinUniverse:
+            _sagaUniverseController.text.trim().isEmpty
+                ? null
+                : int.tryParse(_universeReadingPositionController.text.trim()),
       );
 
       // Update the book using direct update instead of delete+add
@@ -1198,6 +1205,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
     _authorController.dispose();
     _sagaController.dispose();
     _nSagaController.dispose();
+    _sagaUniverseController.dispose();
+    _universeReadingPositionController.dispose();
     _pagesController.dispose();
     _publicationYearController.dispose();
     _genreController.dispose();
@@ -1877,7 +1886,36 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     prefixIcon: Icons.public,
                     suggestions: _sagaUniverseSuggestions,
                     textCapitalization: TextCapitalization.words,
+                    onChanged: (_) => setState(() {}),
+                    onSelected: (_) => setState(() {}),
                   ),
+                  if (_sagaUniverseController.text.trim().isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _universeReadingPositionController,
+                      decoration: InputDecoration(
+                        labelText:
+                            AppLocalizations.of(
+                              context,
+                            )!.universe_reading_position,
+                        helperText:
+                            AppLocalizations.of(
+                              context,
+                            )!.universe_reading_position_hint,
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.format_list_numbered),
+                      ),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) return null;
+                        final position = int.tryParse(value);
+                        return position == null || position < 1
+                            ? AppLocalizations.of(context)!.enter_valid_number
+                            : null;
+                      },
+                    ),
+                  ],
                   const SizedBox(height: 16),
 
                   // Pages field

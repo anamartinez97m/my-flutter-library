@@ -7195,6 +7195,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Done'**
   String get done;
+
+  /// No description provided for @view_universe_reading_order.
+  ///
+  /// In en, this message translates to:
+  /// **'View universe reading order'**
+  String get view_universe_reading_order;
+
+  /// No description provided for @universe_reading_order.
+  ///
+  /// In en, this message translates to:
+  /// **'Universe Reading Order'**
+  String get universe_reading_order;
+
+  /// No description provided for @edit_reading_order.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit reading order'**
+  String get edit_reading_order;
+
+  /// No description provided for @finish_editing.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish editing'**
+  String get finish_editing;
+
+  /// No description provided for @reorder_books.
+  ///
+  /// In en, this message translates to:
+  /// **'Reorder books'**
+  String get reorder_books;
+
+  /// No description provided for @add_relation.
+  ///
+  /// In en, this message translates to:
+  /// **'Add relation'**
+  String get add_relation;
+
+  /// No description provided for @delete_relation.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete relation'**
+  String get delete_relation;
+
+  /// No description provided for @select_first_book.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the first book'**
+  String get select_first_book;
+
+  /// No description provided for @select_second_book.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a second book'**
+  String get select_second_book;
+
+  /// No description provided for @relation_type.
+  ///
+  /// In en, this message translates to:
+  /// **'Relation type'**
+  String get relation_type;
+
+  /// No description provided for @relation_next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get relation_next;
+
+  /// No description provided for @relation_related.
+  ///
+  /// In en, this message translates to:
+  /// **'Related'**
+  String get relation_related;
+
+  /// No description provided for @relation_optional.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get relation_optional;
+
+  /// No description provided for @reading_order_saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading order saved'**
+  String get reading_order_saved;
+
+  /// No description provided for @relation_added.
+  ///
+  /// In en, this message translates to:
+  /// **'Relation added'**
+  String get relation_added;
+
+  /// No description provided for @relation_deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Relation deleted'**
+  String get relation_deleted;
+
+  /// No description provided for @confirm_delete_relation.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this relation?'**
+  String get confirm_delete_relation;
+
+  /// No description provided for @unordered.
+  ///
+  /// In en, this message translates to:
+  /// **'Unordered'**
+  String get unordered;
+
+  /// No description provided for @standalone_books.
+  ///
+  /// In en, this message translates to:
+  /// **'Standalone books'**
+  String get standalone_books;
+
+  /// No description provided for @no_books_in_universe.
+  ///
+  /// In en, this message translates to:
+  /// **'No books found in this universe'**
+  String get no_books_in_universe;
+
+  /// No description provided for @error_loading_reading_order.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the reading order'**
+  String get error_loading_reading_order;
+
+  /// No description provided for @drag_to_reorder.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag books to set their reading order'**
+  String get drag_to_reorder;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @universe_reading_position.
+  ///
+  /// In en, this message translates to:
+  /// **'Universe reading position (optional)'**
+  String get universe_reading_position;
+
+  /// No description provided for @universe_reading_position_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Position in the universe reading order'**
+  String get universe_reading_position_hint;
 }
 
 class _AppLocalizationsDelegate

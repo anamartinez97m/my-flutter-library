@@ -7,6 +7,7 @@ class AutocompleteTextField extends StatelessWidget {
   final List<String> suggestions;
   final TextCapitalization? textCapitalization;
   final void Function(String)? onSelected;
+  final void Function(String)? onChanged;
 
   const AutocompleteTextField({
     super.key,
@@ -16,6 +17,7 @@ class AutocompleteTextField extends StatelessWidget {
     required this.suggestions,
     this.textCapitalization,
     this.onSelected,
+    this.onChanged,
   });
 
   @override
@@ -26,9 +28,9 @@ class AutocompleteTextField extends StatelessWidget {
           return const Iterable<String>.empty();
         }
         return suggestions.where((String option) {
-          return option
-              .toLowerCase()
-              .contains(textEditingValue.text.toLowerCase());
+          return option.toLowerCase().contains(
+            textEditingValue.text.toLowerCase(),
+          );
         });
       },
       onSelected: (String selection) {
@@ -44,7 +46,7 @@ class AutocompleteTextField extends StatelessWidget {
         // Sync the autocomplete controller with our controller
         fieldTextEditingController.text = controller.text;
         fieldTextEditingController.selection = controller.selection;
-        
+
         fieldTextEditingController.addListener(() {
           controller.text = fieldTextEditingController.text;
           controller.selection = fieldTextEditingController.selection;
@@ -59,6 +61,7 @@ class AutocompleteTextField extends StatelessWidget {
             prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
           ),
           textCapitalization: textCapitalization ?? TextCapitalization.none,
+          onChanged: onChanged,
         );
       },
       optionsViewBuilder: (

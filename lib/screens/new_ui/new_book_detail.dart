@@ -21,6 +21,7 @@ import 'package:myrandomlibrary/utils/date_formatter.dart';
 import 'package:myrandomlibrary/widgets/chronometer_widget.dart';
 import 'package:myrandomlibrary/widgets/log_reading_session_sheet.dart';
 import 'package:myrandomlibrary/screens/new_ui/reading_sessions_screen.dart';
+import 'package:myrandomlibrary/screens/new_ui/universe_reading_order_screen.dart';
 import 'package:myrandomlibrary/model/reading_session.dart';
 import 'package:myrandomlibrary/model/reading_club.dart';
 import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
@@ -3047,6 +3048,38 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                         context,
                                       )!.saga_universe,
                                   value: _currentBook.sagaUniverse!,
+                                  link: true,
+                                ),
+                              ),
+                              fullWidth: true,
+                            );
+                            addCell(
+                              InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) =>
+                                              UniverseReadingOrderScreen(
+                                                universe:
+                                                    _currentBook.sagaUniverse!,
+                                                selectedBookId:
+                                                    _currentBook.bookId,
+                                              ),
+                                    ),
+                                  );
+                                },
+                                child: _DetailCard(
+                                  icon: Icons.account_tree_outlined,
+                                  label:
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.universe_reading_order,
+                                  value:
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.view_universe_reading_order,
                                   link: true,
                                 ),
                               ),

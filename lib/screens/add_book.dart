@@ -40,6 +40,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   final _sagaController = TextEditingController();
   final _nSagaController = TextEditingController();
   final _sagaUniverseController = TextEditingController();
+  final _universeReadingPositionController = TextEditingController();
   final _pagesController = TextEditingController();
   final _publicationYearController = TextEditingController();
   DateTime? _releaseDate;
@@ -733,6 +734,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 ? DateTime.now().toIso8601String()
                 : null,
         acquiredDate: _getAcquiredDate(),
+        orderWithinUniverse:
+            _sagaUniverseController.text.trim().isEmpty
+                ? null
+                : int.tryParse(_universeReadingPositionController.text.trim()),
       );
 
       final bookId = await repository.addBook(book);
@@ -900,6 +905,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       _sagaController.clear();
       _nSagaController.clear();
       _sagaUniverseController.clear();
+      _universeReadingPositionController.clear();
       _pagesController.clear();
       _publicationYearController.clear();
       _releaseDate = null;
@@ -1127,6 +1133,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
     _sagaController.dispose();
     _nSagaController.dispose();
     _sagaUniverseController.dispose();
+    _universeReadingPositionController.dispose();
     _pagesController.dispose();
     _publicationYearController.dispose();
     _genreController.dispose();
@@ -1626,7 +1633,34 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 prefixIcon: Icons.public,
                 suggestions: _sagaUniverseSuggestions,
                 textCapitalization: TextCapitalization.words,
+                onChanged: (_) => setState(() {}),
+                onSelected: (_) => setState(() {}),
               ),
+              if (_sagaUniverseController.text.trim().isNotEmpty) ...[
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _universeReadingPositionController,
+                  decoration: InputDecoration(
+                    labelText:
+                        AppLocalizations.of(context)!.universe_reading_position,
+                    helperText:
+                        AppLocalizations.of(
+                          context,
+                        )!.universe_reading_position_hint,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.format_list_numbered),
+                  ),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) return null;
+                    final position = int.tryParse(value);
+                    return position == null || position < 1
+                        ? AppLocalizations.of(context)!.enter_valid_number
+                        : null;
+                  },
+                ),
+              ],
               const SizedBox(height: 16),
 
               // Pages field
@@ -2912,7 +2946,28 @@ class _AddBookScreenState extends State<AddBookScreen> {
         prefixIcon: Icons.public,
         suggestions: _sagaUniverseSuggestions,
         textCapitalization: TextCapitalization.words,
+        onChanged: (_) => setState(() {}),
+        onSelected: (_) => setState(() {}),
       ),
+      if (_sagaUniverseController.text.trim().isNotEmpty) ...[
+        const SizedBox(height: 10),
+        TextFormField(
+          controller: _universeReadingPositionController,
+          decoration: _v2Deco(
+            l10n.universe_reading_position,
+            Icons.format_list_numbered,
+          ).copyWith(helperText: l10n.universe_reading_position_hint),
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) return null;
+            final position = int.tryParse(value);
+            return position == null || position < 1
+                ? l10n.enter_valid_number
+                : null;
+          },
+        ),
+      ],
     ];
   }
 
