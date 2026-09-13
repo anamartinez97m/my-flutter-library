@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:myrandomlibrary/model/book.dart';
+import 'package:myrandomlibrary/model/book_relation.dart';
 import 'package:myrandomlibrary/model/read_date.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -52,6 +53,7 @@ class BookRepository {
         b.reading_progress, b.progress_type,
         b.notes, b.price, b.rating_override,
         b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
+        b.order_within_universe,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -114,6 +116,7 @@ class BookRepository {
         b.reading_progress, b.progress_type,
         b.notes, b.price, b.rating_override,
         b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
+        b.order_within_universe,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -200,6 +203,7 @@ class BookRepository {
         b.reading_progress, b.progress_type,
         b.notes, b.price, b.rating_override,
         b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
+        b.order_within_universe,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -239,6 +243,7 @@ class BookRepository {
         b.reading_progress, b.progress_type,
         b.notes, b.price, b.rating_override,
         b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
+        b.order_within_universe,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -294,6 +299,7 @@ class BookRepository {
         b.reading_progress, b.progress_type,
         b.notes, b.price, b.rating_override,
         b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
+        b.order_within_universe,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -637,6 +643,42 @@ class BookRepository {
       debugPrint('reading_sessions table does not exist: $e');
     }
 
+    // Delete book relations (PRAGMA foreign_keys is OFF, so CASCADE won't fire)
+    try {
+      await db.delete(
+        'book_relations',
+        where: 'from_book_id = ? OR to_book_id = ?',
+        whereArgs: [bookId, bookId],
+      );
+    } catch (e) {
+      debugPrint('book_relations table does not exist: $e');
+    }
+
+    // Delete tandem chapters for tandems involving this book
+    try {
+      await db.rawDelete(
+        '''
+        DELETE FROM tandem_chapters WHERE tandem_id IN (
+          SELECT tandem_id FROM tandem_readings WHERE book_a_id = ? OR book_b_id = ?
+        )
+      ''',
+        [bookId, bookId],
+      );
+    } catch (e) {
+      debugPrint('tandem_chapters table does not exist: $e');
+    }
+
+    // Delete tandem readings involving this book
+    try {
+      await db.delete(
+        'tandem_readings',
+        where: 'book_a_id = ? OR book_b_id = ?',
+        whereArgs: [bookId, bookId],
+      );
+    } catch (e) {
+      debugPrint('tandem_readings table does not exist: $e');
+    }
+
     // Delete the book
     await db.delete('book', where: 'book_id = ?', whereArgs: [bookId]);
   }
@@ -969,6 +1011,7 @@ class BookRepository {
       'metadata_source': book.metadataSource,
       'metadata_fetched_at': book.metadataFetchedAt,
       'acquired_date': book.acquiredDate,
+      'order_within_universe': book.orderWithinUniverse,
     };
 
     // If book has an ID, preserve it (for updates)
@@ -1289,6 +1332,7 @@ class BookRepository {
         COALESCE(orig.tbr, b.tbr) as tbr,
         COALESCE(orig.is_tandem, b.is_tandem) as is_tandem,
         COALESCE(orig.original_book_id, b.original_book_id) as original_book_id,
+        COALESCE(orig.order_within_universe, b.order_within_universe) as order_within_universe,
         COALESCE(orig_authors.author, authors.author) as author,
         COALESCE(orig_genres.genre, genres.genre) as genre,
         MAX(rd.date_finished) as latest_read_date,
@@ -1387,6 +1431,7 @@ class BookRepository {
         b.reading_progress, b.progress_type,
         b.notes, b.price, b.rating_override,
         b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
+        b.order_within_universe,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -1441,6 +1486,7 @@ class BookRepository {
         b.reading_progress, b.progress_type,
         b.notes, b.price, b.rating_override,
         b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
+        b.order_within_universe,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       from book b 
@@ -1702,6 +1748,7 @@ class BookRepository {
         b.reading_progress, b.progress_type,
         b.notes, b.price, b.rating_override,
         b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
+        b.order_within_universe,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       FROM book b 
@@ -1744,6 +1791,7 @@ class BookRepository {
         b.reading_progress, b.progress_type,
         b.notes, b.price, b.rating_override,
         b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
+        b.order_within_universe,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       FROM book b 
@@ -1841,6 +1889,7 @@ class BookRepository {
         b.reading_progress, b.progress_type,
         b.notes, b.price, b.rating_override,
         b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
+        b.order_within_universe,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       FROM book b 
@@ -1861,5 +1910,107 @@ class BookRepository {
     ''', params);
 
     return result.map((row) => Book.fromMap(row)).toList();
+  }
+
+  // ==================== Universe Reading Order Methods ====================
+
+  /// Get all books in a specific universe, sorted by order_within_universe
+  Future<List<Book>> getBooksByUniverse(String universe) async {
+    final result = await db.rawQuery(
+      '''
+      SELECT b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
+        b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
+        p.name as placeValue, f.value as formatValue,
+        fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
+        b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
+        b.read_count,
+        (SELECT AVG(brf.rating_value) FROM book_rating_fields brf WHERE brf.book_id = b.book_id AND brf.rating_value > 0) as my_rating,
+        b.my_review,
+        b.is_bundle, b.bundle_count, b.bundle_numbers, b.bundle_start_dates, b.bundle_end_dates, b.bundle_pages, b.bundle_publication_years, b.bundle_titles, b.bundle_authors,
+        b.tbr, b.is_tandem, b.original_book_id,
+        b.notification_enabled, b.notification_datetime, b.release_date, b.bundle_parent_id,
+        b.reading_progress, b.progress_type,
+        b.notes, b.price, b.rating_override,
+        b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
+        b.order_within_universe,
+        GROUP_CONCAT(DISTINCT a.name) as author,
+        GROUP_CONCAT(DISTINCT g.name) as genre
+      FROM book b 
+      LEFT JOIN books_by_author bba ON b.book_id = bba.book_id 
+      LEFT JOIN author a ON bba.author_id = a.author_id
+      LEFT JOIN books_by_genre bbg ON b.book_id = bbg.book_id 
+      LEFT JOIN genre g ON bbg.genre_id = g.genre_id
+      LEFT JOIN status s ON b.status_id = s.status_id 
+      LEFT JOIN editorial e ON b.editorial_id = e.editorial_id
+      LEFT JOIN language l ON b.language_id = l.language_id 
+      LEFT JOIN place p ON b.place_id = p.place_id  
+      LEFT JOIN format f ON b.format_id = f.format_id
+      LEFT JOIN format_saga fs ON b.format_saga_id = fs.format_id
+      WHERE b.saga_universe = ?
+      GROUP BY b.book_id
+      ORDER BY b.order_within_universe IS NULL, b.order_within_universe, b.n_saga, b.name
+    ''',
+      [universe],
+    );
+
+    return result.map((row) => Book.fromMap(row)).toList();
+  }
+
+  /// Get all book relations for books in a specific universe
+  Future<List<BookRelation>> getBookRelationsForUniverse(
+    String universe,
+  ) async {
+    final result = await db.rawQuery(
+      '''
+      SELECT br.relation_id, br.from_book_id, br.to_book_id, br.type
+      FROM book_relations br
+      INNER JOIN book b1 ON br.from_book_id = b1.book_id
+      INNER JOIN book b2 ON br.to_book_id = b2.book_id
+      WHERE b1.saga_universe = ? OR b2.saga_universe = ?
+    ''',
+      [universe, universe],
+    );
+
+    return result.map((row) => BookRelation.fromMap(row)).toList();
+  }
+
+  /// Insert a new book relation
+  Future<int> insertBookRelation(BookRelation relation) async {
+    final data = relation.toMap();
+    data.remove('relation_id');
+    return await db.insert('book_relations', data);
+  }
+
+  /// Update an existing book relation
+  Future<int> updateBookRelation(BookRelation relation) async {
+    return await db.update(
+      'book_relations',
+      {
+        'from_book_id': relation.fromBookId,
+        'to_book_id': relation.toBookId,
+        'type': relation.type,
+      },
+      where: 'relation_id = ?',
+      whereArgs: [relation.relationId],
+    );
+  }
+
+  /// Delete a book relation
+  Future<int> deleteBookRelation(int relationId) async {
+    return await db.delete(
+      'book_relations',
+      where: 'relation_id = ?',
+      whereArgs: [relationId],
+    );
+  }
+
+  /// Update order_within_universe for a book
+  Future<int> updateBookUniverseOrder(int bookId, int? order) async {
+    return await db.update(
+      'book',
+      {'order_within_universe': order},
+      where: 'book_id = ?',
+      whereArgs: [bookId],
+    );
   }
 }

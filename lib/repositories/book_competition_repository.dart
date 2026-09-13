@@ -30,7 +30,8 @@ class BookCompetitionRepository {
         b.notification_enabled, b.notification_datetime, b.bundle_parent_id,
         b.reading_progress, b.progress_type,
         b.notes, b.price, b.rating_override,
-        b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at,
+        b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
+        b.order_within_universe,
         GROUP_CONCAT(DISTINCT a.name) as author,
         GROUP_CONCAT(DISTINCT g.name) as genre
       FROM book b

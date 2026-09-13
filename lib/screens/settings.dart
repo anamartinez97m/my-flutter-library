@@ -1585,6 +1585,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             description: book.description,
             metadataSource: book.metadataSource,
             metadataFetchedAt: book.metadataFetchedAt,
+            orderWithinUniverse: book.orderWithinUniverse,
           );
 
           // Check for duplicates

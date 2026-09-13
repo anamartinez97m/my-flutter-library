@@ -112,6 +112,7 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
           bundleTitles: book.bundleTitles,
           tbr: book.tbr,
           isTandem: book.isTandem,
+          orderWithinUniverse: book.orderWithinUniverse,
         );
 
         await repository.deleteBook(book.bookId!);

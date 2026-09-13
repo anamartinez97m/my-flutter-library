@@ -23,7 +23,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 40,
+      version: 41,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -137,6 +137,7 @@ class DatabaseHelper {
         metadata_source TEXT,
         metadata_fetched_at TEXT,
         acquired_date TEXT,
+        order_within_universe INTEGER,
         FOREIGN KEY (status_id) REFERENCES status (status_id),
         FOREIGN KEY (original_book_id) REFERENCES book (book_id) ON DELETE SET NULL,
         FOREIGN KEY (bundle_parent_id) REFERENCES book (book_id) ON DELETE CASCADE,
@@ -154,6 +155,66 @@ class DatabaseHelper {
 
     await db.execute('''
       CREATE INDEX IF NOT EXISTS idx_book_asin ON book (asin)
+    ''');
+
+    // Universe Reading Order: book_relations table
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS book_relations (
+        relation_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        from_book_id INTEGER NOT NULL,
+        to_book_id INTEGER NOT NULL,
+        type TEXT NOT NULL,
+        FOREIGN KEY (from_book_id) REFERENCES book (book_id) ON DELETE CASCADE,
+        FOREIGN KEY (to_book_id) REFERENCES book (book_id) ON DELETE CASCADE
+      )
+    ''');
+
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_book_relations_from ON book_relations (from_book_id)
+    ''');
+
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_book_relations_to ON book_relations (to_book_id)
+    ''');
+
+    // Tandem Readings: tandem_readings table
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS tandem_readings (
+        tandem_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        book_a_id INTEGER NOT NULL,
+        book_b_id INTEGER NOT NULL,
+        title TEXT,
+        created_at TEXT DEFAULT (datetime('now')),
+        FOREIGN KEY (book_a_id) REFERENCES book (book_id) ON DELETE CASCADE,
+        FOREIGN KEY (book_b_id) REFERENCES book (book_id) ON DELETE CASCADE
+      )
+    ''');
+
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_tandem_readings_book_a ON tandem_readings (book_a_id)
+    ''');
+
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_tandem_readings_book_b ON tandem_readings (book_b_id)
+    ''');
+
+    // Tandem Readings: tandem_chapters table
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS tandem_chapters (
+        tandem_chapter_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        tandem_id INTEGER NOT NULL,
+        book_id INTEGER NOT NULL,
+        start_chapter INTEGER NOT NULL,
+        end_chapter INTEGER NOT NULL,
+        order_index INTEGER NOT NULL,
+        is_read INTEGER NOT NULL DEFAULT 0,
+        FOREIGN KEY (tandem_id) REFERENCES tandem_readings (tandem_id) ON DELETE CASCADE,
+        FOREIGN KEY (book_id) REFERENCES book (book_id) ON DELETE CASCADE
+      )
+    ''');
+
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_tandem_chapters_tandem_id ON tandem_chapters (tandem_id)
     ''');
 
     await db.execute('''
@@ -1231,6 +1292,67 @@ class DatabaseHelper {
       ''');
       await db.execute('''
         CREATE INDEX IF NOT EXISTS idx_year_challenges_year ON year_challenges(year)
+      ''');
+    }
+    if (oldVersion < 41) {
+      // Universe Reading Order: add order_within_universe to book
+      await db.execute(
+        'ALTER TABLE book ADD COLUMN order_within_universe INTEGER',
+      );
+
+      // Universe Reading Order: create book_relations table
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS book_relations (
+          relation_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          from_book_id INTEGER NOT NULL,
+          to_book_id INTEGER NOT NULL,
+          type TEXT NOT NULL,
+          FOREIGN KEY (from_book_id) REFERENCES book (book_id) ON DELETE CASCADE,
+          FOREIGN KEY (to_book_id) REFERENCES book (book_id) ON DELETE CASCADE
+        )
+      ''');
+      await db.execute('''
+        CREATE INDEX IF NOT EXISTS idx_book_relations_from ON book_relations (from_book_id)
+      ''');
+      await db.execute('''
+        CREATE INDEX IF NOT EXISTS idx_book_relations_to ON book_relations (to_book_id)
+      ''');
+
+      // Tandem Readings: create tandem_readings table
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS tandem_readings (
+          tandem_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          book_a_id INTEGER NOT NULL,
+          book_b_id INTEGER NOT NULL,
+          title TEXT,
+          created_at TEXT DEFAULT (datetime('now')),
+          FOREIGN KEY (book_a_id) REFERENCES book (book_id) ON DELETE CASCADE,
+          FOREIGN KEY (book_b_id) REFERENCES book (book_id) ON DELETE CASCADE
+        )
+      ''');
+      await db.execute('''
+        CREATE INDEX IF NOT EXISTS idx_tandem_readings_book_a ON tandem_readings (book_a_id)
+      ''');
+      await db.execute('''
+        CREATE INDEX IF NOT EXISTS idx_tandem_readings_book_b ON tandem_readings (book_b_id)
+      ''');
+
+      // Tandem Readings: create tandem_chapters table
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS tandem_chapters (
+          tandem_chapter_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          tandem_id INTEGER NOT NULL,
+          book_id INTEGER NOT NULL,
+          start_chapter INTEGER NOT NULL,
+          end_chapter INTEGER NOT NULL,
+          order_index INTEGER NOT NULL,
+          is_read INTEGER NOT NULL DEFAULT 0,
+          FOREIGN KEY (tandem_id) REFERENCES tandem_readings (tandem_id) ON DELETE CASCADE,
+          FOREIGN KEY (book_id) REFERENCES book (book_id) ON DELETE CASCADE
+        )
+      ''');
+      await db.execute('''
+        CREATE INDEX IF NOT EXISTS idx_tandem_chapters_tandem_id ON tandem_chapters (tandem_id)
       ''');
     }
   }

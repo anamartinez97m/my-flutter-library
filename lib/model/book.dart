@@ -61,6 +61,8 @@ class Book {
   final String? metadataFetchedAt; // Timestamp when metadata was fetched
   final String?
   acquiredDate; // Date acquired: 'YYYY' for year-only or 'YYYY-MM-DD' for full date
+  final int?
+  orderWithinUniverse; // Position within a universe reading order (nullable = unordered)
 
   Book({
     required this.bookId,
@@ -113,6 +115,7 @@ class Book {
     this.metadataSource,
     this.metadataFetchedAt,
     this.acquiredDate,
+    this.orderWithinUniverse,
   });
 
   factory Book.fromMap(Map<String, dynamic> map) {
@@ -191,6 +194,10 @@ class Book {
       metadataSource: map['metadata_source'] as String?,
       metadataFetchedAt: map['metadata_fetched_at'] as String?,
       acquiredDate: map['acquired_date'] as String?,
+      orderWithinUniverse:
+          map['order_within_universe'] is int
+              ? map['order_within_universe'] as int
+              : int.tryParse(map['order_within_universe']?.toString() ?? ''),
     );
   }
 
@@ -245,11 +252,12 @@ class Book {
       'metadataSource': metadataSource,
       'metadataFetchedAt': metadataFetchedAt,
       'acquiredDate': acquiredDate,
+      'orderWithinUniverse': orderWithinUniverse,
     };
   }
 
   @override
   String toString() {
-    return 'Book(bookId: $bookId, name: $name, author: $author, genre: $genre, saga: $saga, nSaga: $nSaga, sagaUniverse: $sagaUniverse, formatSagaValue: $formatSagaValue, isbn: $isbn, asin: $asin, pages: $pages, originalPublicationYear: $originalPublicationYear, loaned: $loaned, statusValue: $statusValue, editorialValue: $editorialValue, languageValue: $languageValue, placeValue: $placeValue, formatValue: $formatValue, createdAt: $createdAt, dateReadInitial: $dateReadInitial, dateReadFinal: $dateReadFinal, readCount: $readCount, myRating: $myRating, myReview: $myReview, isBundle: $isBundle, bundleCount: $bundleCount, bundleNumbers: $bundleNumbers, bundleStartDates: $bundleStartDates, bundleEndDates: $bundleEndDates, bundlePages: $bundlePages)';
+    return 'Book(bookId: $bookId, name: $name, author: $author, genre: $genre, saga: $saga, nSaga: $nSaga, sagaUniverse: $sagaUniverse, formatSagaValue: $formatSagaValue, isbn: $isbn, asin: $asin, pages: $pages, originalPublicationYear: $originalPublicationYear, loaned: $loaned, statusValue: $statusValue, editorialValue: $editorialValue, languageValue: $languageValue, placeValue: $placeValue, formatValue: $formatValue, createdAt: $createdAt, dateReadInitial: $dateReadInitial, dateReadFinal: $dateReadFinal, readCount: $readCount, myRating: $myRating, myReview: $myReview, isBundle: $isBundle, bundleCount: $bundleCount, bundleNumbers: $bundleNumbers, bundleStartDates: $bundleStartDates, bundleEndDates: $bundleEndDates, bundlePages: $bundlePages, orderWithinUniverse: $orderWithinUniverse)';
   }
 }

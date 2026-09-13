@@ -621,6 +621,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
             description: book.description,
             metadataSource: book.metadataSource,
             metadataFetchedAt: book.metadataFetchedAt,
+            orderWithinUniverse: book.orderWithinUniverse,
           );
 
           // Check for duplicates
@@ -750,6 +751,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                     description: existingBook.description,
                     metadataSource: existingBook.metadataSource,
                     metadataFetchedAt: existingBook.metadataFetchedAt,
+                    orderWithinUniverse: existingBook.orderWithinUniverse,
                   );
                 }
               }
@@ -926,6 +928,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                     bookWithMappedStatus.metadataFetchedAt?.isNotEmpty == true
                         ? bookWithMappedStatus.metadataFetchedAt
                         : existingBook.metadataFetchedAt,
+                orderWithinUniverse: existingBook.orderWithinUniverse,
               );
 
               // Check if merged book is actually different from existing
@@ -1148,6 +1151,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               description: item.book.description,
               metadataSource: item.book.metadataSource,
               metadataFetchedAt: item.book.metadataFetchedAt,
+              orderWithinUniverse: item.book.orderWithinUniverse,
             );
             await repository.addBook(bookToAdd);
 
@@ -1366,6 +1370,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               description: item.book.description,
               metadataSource: item.book.metadataSource,
               metadataFetchedAt: item.book.metadataFetchedAt,
+              orderWithinUniverse: item.book.orderWithinUniverse,
             );
             await repository.addBook(bookToAdd);
 
@@ -2568,6 +2573,7 @@ class _BookImportPreview extends StatelessWidget {
       description: book.description,
       metadataSource: book.metadataSource,
       metadataFetchedAt: book.metadataFetchedAt,
+      orderWithinUniverse: book.orderWithinUniverse,
     );
   }
 

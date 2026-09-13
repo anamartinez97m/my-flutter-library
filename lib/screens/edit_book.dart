@@ -693,6 +693,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 ? DateTime.now().toIso8601String()
                 : widget.book.metadataFetchedAt,
         acquiredDate: _getAcquiredDate(),
+        orderWithinUniverse: widget.book.orderWithinUniverse,
       );
 
       // Update the book using direct update instead of delete+add
@@ -751,6 +752,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
         metadataSource: updatedBook.metadataSource,
         metadataFetchedAt: updatedBook.metadataFetchedAt,
         acquiredDate: updatedBook.acquiredDate,
+        orderWithinUniverse: updatedBook.orderWithinUniverse,
       );
 
       // Use repository.addBook with the book ID to update in place
@@ -839,6 +841,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 metadataSource: existingBook.metadataSource,
                 metadataFetchedAt: existingBook.metadataFetchedAt,
                 releaseDate: existingBook.releaseDate,
+                orderWithinUniverse: existingBook.orderWithinUniverse,
               );
 
               await repository.addBook(updatedIndividualBook);
