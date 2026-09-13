@@ -2234,11 +2234,6 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
           ),
           actions: [
             IconButton(
-              icon: const Icon(Icons.refresh),
-              tooltip: AppLocalizations.of(context)!.refresh_metadata,
-              onPressed: _refetchMetadata,
-            ),
-            IconButton(
               icon: const Icon(Icons.edit),
               onPressed: () async {
                 final updatedBook = await Navigator.push<Book>(
@@ -2266,176 +2261,175 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
             ),
           ],
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Book cover image with glassmorphism effect
-              Container(
-                height: 250,
-                decoration: const BoxDecoration(color: Color(0xFFFDF8F6)),
-                child:
-                    _currentBook.coverUrl != null &&
-                            _currentBook.coverUrl!.isNotEmpty
-                        ? Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            // Blurred background image
-                            Image.network(
-                              _currentBook.coverUrl!,
-                              fit: BoxFit.cover,
-                              errorBuilder:
-                                  (context, error, stackTrace) => Container(),
-                            ),
-                            // Blur effect
-                            BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                              child: Container(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.shadow.withValues(alpha: 0.1),
+        body: RefreshIndicator(
+          onRefresh: _refetchMetadata,
+          color: _kPrimary,
+          backgroundColor: _kBg,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Book cover image with glassmorphism effect
+                Container(
+                  height: 250,
+                  decoration: const BoxDecoration(color: Color(0xFFFDF8F6)),
+                  child:
+                      _currentBook.coverUrl != null &&
+                              _currentBook.coverUrl!.isNotEmpty
+                          ? Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              // Blurred background image
+                              Image.network(
+                                _currentBook.coverUrl!,
+                                fit: BoxFit.cover,
+                                errorBuilder:
+                                    (context, error, stackTrace) => Container(),
                               ),
-                            ),
-                            // Centered cover with glassmorphism
-                            Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: BackdropFilter(
-                                    filter: ImageFilter.blur(
-                                      sigmaX: 10,
-                                      sigmaY: 10,
-                                    ),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .surface
-                                            .withValues(alpha: 0.15),
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
+                              // Blur effect
+                              BackdropFilter(
+                                filter: ImageFilter.blur(
+                                  sigmaX: 20,
+                                  sigmaY: 20,
+                                ),
+                                child: Container(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.shadow.withValues(alpha: 0.1),
+                                ),
+                              ),
+                              // Centered cover with glassmorphism
+                              Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: BackdropFilter(
+                                      filter: ImageFilter.blur(
+                                        sigmaX: 10,
+                                        sigmaY: 10,
+                                      ),
+                                      child: Container(
+                                        decoration: BoxDecoration(
                                           color: Theme.of(context)
                                               .colorScheme
                                               .surface
-                                              .withValues(alpha: 0.2),
-                                          width: 1.5,
-                                        ),
-                                        boxShadow: [
-                                          BoxShadow(
+                                              .withValues(alpha: 0.15),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          border: Border.all(
                                             color: Theme.of(context)
                                                 .colorScheme
-                                                .shadow
-                                                .withValues(alpha: 0.1),
-                                            blurRadius: 20,
-                                            spreadRadius: 5,
+                                                .surface
+                                                .withValues(alpha: 0.2),
+                                            width: 1.5,
                                           ),
-                                        ],
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Image.network(
-                                          _currentBook.coverUrl!,
-                                          fit: BoxFit.contain,
-                                          height: 210,
-                                          loadingBuilder: (
-                                            context,
-                                            child,
-                                            loadingProgress,
-                                          ) {
-                                            if (loadingProgress == null) {
-                                              return child;
-                                            }
-                                            return SizedBox(
-                                              height: 210,
-                                              child: Center(
-                                                child: CircularProgressIndicator(
-                                                  value:
-                                                      loadingProgress
-                                                                  .expectedTotalBytes !=
-                                                              null
-                                                          ? loadingProgress
-                                                                  .cumulativeBytesLoaded /
-                                                              loadingProgress
-                                                                  .expectedTotalBytes!
-                                                          : null,
-                                                  color:
-                                                      Theme.of(
-                                                        context,
-                                                      ).colorScheme.surface,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .shadow
+                                                  .withValues(alpha: 0.1),
+                                              blurRadius: 20,
+                                              spreadRadius: 5,
+                                            ),
+                                          ],
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Image.network(
+                                            _currentBook.coverUrl!,
+                                            fit: BoxFit.contain,
+                                            height: 210,
+                                            loadingBuilder: (
+                                              context,
+                                              child,
+                                              loadingProgress,
+                                            ) {
+                                              if (loadingProgress == null) {
+                                                return child;
+                                              }
+                                              return SizedBox(
+                                                height: 210,
+                                                child: Center(
+                                                  child: CircularProgressIndicator(
+                                                    value:
+                                                        loadingProgress
+                                                                    .expectedTotalBytes !=
+                                                                null
+                                                            ? loadingProgress
+                                                                    .cumulativeBytesLoaded /
+                                                                loadingProgress
+                                                                    .expectedTotalBytes!
+                                                            : null,
+                                                    color:
+                                                        Theme.of(
+                                                          context,
+                                                        ).colorScheme.surface,
+                                                  ),
                                                 ),
-                                              ),
-                                            );
-                                          },
-                                          errorBuilder: (
-                                            context,
-                                            error,
-                                            stackTrace,
-                                          ) {
-                                            return SizedBox(
-                                              height: 210,
-                                              child: Center(
-                                                child: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Icon(
-                                                      Icons.broken_image,
-                                                      size: 60,
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .surface
-                                                          .withValues(
-                                                            alpha: 0.7,
-                                                          ),
-                                                    ),
-                                                    const SizedBox(height: 6),
-                                                    Text(
-                                                      AppLocalizations.of(
-                                                        context,
-                                                      )!.failed_to_load_image,
-                                                      style: TextStyle(
+                                              );
+                                            },
+                                            errorBuilder: (
+                                              context,
+                                              error,
+                                              stackTrace,
+                                            ) {
+                                              return SizedBox(
+                                                height: 210,
+                                                child: Center(
+                                                  child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Icon(
+                                                        Icons.broken_image,
+                                                        size: 60,
                                                         color: Theme.of(context)
                                                             .colorScheme
                                                             .surface
                                                             .withValues(
                                                               alpha: 0.7,
                                                             ),
-                                                        fontSize: 13,
                                                       ),
-                                                    ),
-                                                  ],
+                                                      const SizedBox(height: 6),
+                                                      Text(
+                                                        AppLocalizations.of(
+                                                          context,
+                                                        )!.failed_to_load_image,
+                                                        style: TextStyle(
+                                                          color: Theme.of(
+                                                                context,
+                                                              )
+                                                              .colorScheme
+                                                              .surface
+                                                              .withValues(
+                                                                alpha: 0.7,
+                                                              ),
+                                                          fontSize: 13,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
-                                              ),
-                                            );
-                                          },
+                                              );
+                                            },
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                        )
-                        : Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              if (_isFetchingMetadata) ...[
-                                const CircularProgressIndicator(),
-                                const SizedBox(height: 12),
-                                Text(
-                                  AppLocalizations.of(context)!.fetching_cover,
-                                  style: TextStyle(
-                                    color:
-                                        Theme.of(
-                                          context,
-                                        ).colorScheme.onSurfaceVariant,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ] else ...[
+                            ],
+                          )
+                          : Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
                                 const Icon(
                                   Icons.book,
                                   size: 60,
@@ -2453,1661 +2447,1689 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                   ),
                                 ),
                               ],
-                            ],
-                          ),
-                        ),
-              ),
-              const SizedBox(height: 24), // Spacing between cover and content
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Title (centered) + author below, with the TBR toggle
-                    // kept alongside the title so the title stays balanced.
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Row(
-                          children: [
-                            const SizedBox(width: 48),
-                            Expanded(
-                              child: Text(
-                                _currentBook.name ?? 'Unknown Title',
-                                textAlign: TextAlign.center,
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.headlineMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                              ),
                             ),
-                            IconButton(
-                              icon: Icon(
-                                _currentBook.tbr == true
-                                    ? Icons.bookmark
-                                    : Icons.bookmark_border,
-                                color:
-                                    _currentBook.tbr == true
-                                        ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(
-                                          context,
-                                        ).colorScheme.onSurfaceVariant,
-                              ),
-                              onPressed: () async {
-                                try {
-                                  final db =
-                                      await DatabaseHelper.instance.database;
-
-                                  // Toggle TBR status
-                                  final newTbr = !(_currentBook.tbr == true);
-                                  await db.update(
-                                    'book',
-                                    {'tbr': newTbr ? 1 : 0},
-                                    where: 'book_id = ?',
-                                    whereArgs: [_currentBook.bookId],
-                                  );
-
-                                  // Reload provider
-                                  if (!context.mounted) return;
-                                  final provider = Provider.of<BookProvider?>(
+                          ),
+                ),
+                const SizedBox(height: 24), // Spacing between cover and content
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Title (centered) + author below, with the TBR toggle
+                      // kept alongside the title so the title stays balanced.
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Row(
+                            children: [
+                              const SizedBox(width: 48),
+                              Expanded(
+                                child: Text(
+                                  _currentBook.name ?? 'Unknown Title',
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(
                                     context,
-                                    listen: false,
-                                  );
-                                  await provider?.loadBooks();
-
-                                  if (!context.mounted) return;
-                                  // Update local state from provider
-                                  final updatedBooks = provider?.allBooks ?? [];
-                                  final updatedBook = updatedBooks.firstWhere(
-                                    (b) => b.bookId == _currentBook.bookId,
-                                    orElse: () => _currentBook,
-                                  );
-                                  setState(() {
-                                    _currentBook = updatedBook;
-                                  });
-
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        newTbr
-                                            ? AppLocalizations.of(
-                                              context,
-                                            )!.added_to_tbr
-                                            : AppLocalizations.of(
-                                              context,
-                                            )!.removed_from_tbr,
-                                      ),
-                                    ),
-                                  );
-                                } catch (e) {
-                                  debugPrint('Error toggling TBR: $e');
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text('Error: $e')),
-                                    );
-                                  }
-                                }
-                              },
-                              tooltip:
-                                  _currentBook.tbr == true
-                                      ? AppLocalizations.of(
-                                        context,
-                                      )!.remove_from_tbr
-                                      : AppLocalizations.of(
-                                        context,
-                                      )!.add_to_tbr_short,
-                            ),
-                          ],
-                        ),
-                        if (_currentBook.author != null &&
-                            _currentBook.author!.isNotEmpty) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            _currentBook.author!
-                                .split(',')
-                                .map((a) => a.trim())
-                                .firstWhere(
-                                  (a) => a.isNotEmpty,
-                                  orElse: () => _currentBook.author!.trim(),
-                                ),
-                            textAlign: TextAlign.center,
-                            style: Theme.of(
-                              context,
-                            ).textTheme.bodyLarge?.copyWith(
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Primary action buttons - stacked full-width outlined buttons
-                    if (_currentBook.isBundle != true) ...[
-                      if (_currentBook.statusValue?.toLowerCase() ==
-                          'tbreleased')
-                        _buildReleaseCountdown()
-                      else ...[
-                        if (_currentBook.statusValue?.toLowerCase() !=
-                            'started')
-                          _FullWidthActionButton(
-                            icon:
-                                _currentBook.statusValue?.toLowerCase() ==
-                                        'standby'
-                                    ? Icons.replay
-                                    : Icons.play_arrow,
-                            label:
-                                _currentBook.statusValue?.toLowerCase() ==
-                                        'standby'
-                                    ? AppLocalizations.of(
-                                      context,
-                                    )!.move_back_to_reading
-                                    : AppLocalizations.of(
-                                      context,
-                                    )!.start_reading,
-                            color: Theme.of(context).colorScheme.primary,
-                            onTap:
-                                _currentBook.statusValue?.toLowerCase() ==
-                                        'standby'
-                                    ? _moveBackToReading
-                                    : _quickStartReading,
-                          ),
-                        if (_currentBook.statusValue?.toLowerCase() ==
-                            'started')
-                          _FullWidthActionButton(
-                            icon: Icons.check_circle,
-                            label:
-                                AppLocalizations.of(context)!.mark_as_finished,
-                            color: Theme.of(context).colorScheme.primary,
-                            onTap: _quickFinishReading,
-                          ),
-
-                        // Mark as Read button (full width) - hidden when Started or Standby
-                        if (_currentBook.statusValue?.toLowerCase() !=
-                                'started' &&
-                            _currentBook.statusValue?.toLowerCase() !=
-                                'standby')
-                          _FullWidthActionButton(
-                            icon: Icons.done_all,
-                            label: AppLocalizations.of(context)!.mark_as_read,
-                            color: Theme.of(context).colorScheme.primary,
-                            onTap: _markAsRead,
-                          ),
-                      ],
-                    ],
-
-                    // Did you read today? button (only for Started or Standby status, not for bundles)
-                    if ((_currentBook.statusValue?.toLowerCase() == 'started' ||
-                            _currentBook.statusValue?.toLowerCase() ==
-                                'standby') &&
-                        _currentBook.isBundle != true)
-                      Builder(
-                        builder: (context) {
-                          final alreadyRead = _hasReadToday;
-                          final contentColor =
-                              alreadyRead
-                                  ? Theme.of(
-                                    context,
-                                  ).colorScheme.onSurfaceVariant
-                                  : Theme.of(context).colorScheme.secondary;
-                          return _FullWidthActionButton(
-                            icon:
-                                alreadyRead
-                                    ? Icons.check_circle
-                                    : Icons.check_circle_outline,
-                            label:
-                                alreadyRead
-                                    ? AppLocalizations.of(
-                                      context,
-                                    )!.marked_read_today
-                                    : AppLocalizations.of(
-                                      context,
-                                    )!.did_you_read_today,
-                            color: contentColor,
-                            onTap: alreadyRead ? null : _markAsReadToday,
-                          );
-                        },
-                      ),
-                    if (_currentBook.isBundle != true ||
-                        _currentBook.statusValue?.toLowerCase() == 'started' ||
-                        _currentBook.statusValue?.toLowerCase() == 'standby')
-                      AppTheme.verticalSpaceSmall,
-
-                    // Progress bar (only show for Started or Standby status)
-                    if (_currentBook.statusValue?.toLowerCase() == 'started' ||
-                        _currentBook.statusValue?.toLowerCase() ==
-                            'standby') ...[
-                      Builder(
-                        builder: (context) {
-                          final progress = _currentBook.readingProgress ?? 0;
-                          final pages = _currentBook.pages;
-                          final String percentage;
-                          final double progressValue;
-                          if (_currentBook.progressType == 'pages' &&
-                              pages != null &&
-                              pages > 0) {
-                            percentage = '${(progress * 100 / pages).round()}%';
-                            progressValue = (progress / pages).clamp(0.0, 1.0);
-                          } else {
-                            percentage = '$progress%';
-                            progressValue = (progress / 100).clamp(0.0, 1.0);
-                          }
-                          return GestureDetector(
-                            onTap: _showProgressModal,
-                            behavior: HitTestBehavior.opaque,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildSectionHeader(
-                                  title:
-                                      AppLocalizations.of(
-                                        context,
-                                      )!.reading_progress,
-                                  trailing: [
-                                    Text(
-                                      percentage,
-                                      style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w600,
-                                        color: _kPrimary,
-                                        fontFamily: 'Manrope',
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 16),
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(9999),
-                                  child: LinearProgressIndicator(
-                                    value: progressValue,
-                                    minHeight: 6,
-                                    backgroundColor: const Color(0xFFE6E2DF),
-                                    valueColor: const AlwaysStoppedAnimation(
-                                      _kPrimary,
-                                    ),
+                                  ).textTheme.headlineMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                   ),
                                 ),
-                                const SizedBox(height: 8),
-                                Text(
+                              ),
+                              IconButton(
+                                icon: Icon(
+                                  _currentBook.tbr == true
+                                      ? Icons.bookmark
+                                      : Icons.bookmark_border,
+                                  color:
+                                      _currentBook.tbr == true
+                                          ? Theme.of(
+                                            context,
+                                          ).colorScheme.primary
+                                          : Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                ),
+                                onPressed: () async {
+                                  try {
+                                    final db =
+                                        await DatabaseHelper.instance.database;
+
+                                    // Toggle TBR status
+                                    final newTbr = !(_currentBook.tbr == true);
+                                    await db.update(
+                                      'book',
+                                      {'tbr': newTbr ? 1 : 0},
+                                      where: 'book_id = ?',
+                                      whereArgs: [_currentBook.bookId],
+                                    );
+
+                                    // Reload provider
+                                    if (!context.mounted) return;
+                                    final provider = Provider.of<BookProvider?>(
+                                      context,
+                                      listen: false,
+                                    );
+                                    await provider?.loadBooks();
+
+                                    if (!context.mounted) return;
+                                    // Update local state from provider
+                                    final updatedBooks =
+                                        provider?.allBooks ?? [];
+                                    final updatedBook = updatedBooks.firstWhere(
+                                      (b) => b.bookId == _currentBook.bookId,
+                                      orElse: () => _currentBook,
+                                    );
+                                    setState(() {
+                                      _currentBook = updatedBook;
+                                    });
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          newTbr
+                                              ? AppLocalizations.of(
+                                                context,
+                                              )!.added_to_tbr
+                                              : AppLocalizations.of(
+                                                context,
+                                              )!.removed_from_tbr,
+                                        ),
+                                      ),
+                                    );
+                                  } catch (e) {
+                                    debugPrint('Error toggling TBR: $e');
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(content: Text('Error: $e')),
+                                      );
+                                    }
+                                  }
+                                },
+                                tooltip:
+                                    _currentBook.tbr == true
+                                        ? AppLocalizations.of(
+                                          context,
+                                        )!.remove_from_tbr
+                                        : AppLocalizations.of(
+                                          context,
+                                        )!.add_to_tbr_short,
+                              ),
+                            ],
+                          ),
+                          if (_currentBook.author != null &&
+                              _currentBook.author!.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              _currentBook.author!
+                                  .split(',')
+                                  .map((a) => a.trim())
+                                  .firstWhere(
+                                    (a) => a.isNotEmpty,
+                                    orElse: () => _currentBook.author!.trim(),
+                                  ),
+                              textAlign: TextAlign.center,
+                              style: Theme.of(
+                                context,
+                              ).textTheme.bodyLarge?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Primary action buttons - stacked full-width outlined buttons
+                      if (_currentBook.isBundle != true) ...[
+                        if (_currentBook.statusValue?.toLowerCase() ==
+                            'tbreleased')
+                          _buildReleaseCountdown()
+                        else ...[
+                          if (_currentBook.statusValue?.toLowerCase() !=
+                              'started')
+                            _FullWidthActionButton(
+                              icon:
+                                  _currentBook.statusValue?.toLowerCase() ==
+                                          'standby'
+                                      ? Icons.replay
+                                      : Icons.play_arrow,
+                              label:
+                                  _currentBook.statusValue?.toLowerCase() ==
+                                          'standby'
+                                      ? AppLocalizations.of(
+                                        context,
+                                      )!.move_back_to_reading
+                                      : AppLocalizations.of(
+                                        context,
+                                      )!.start_reading,
+                              color: Theme.of(context).colorScheme.primary,
+                              onTap:
+                                  _currentBook.statusValue?.toLowerCase() ==
+                                          'standby'
+                                      ? _moveBackToReading
+                                      : _quickStartReading,
+                            ),
+                          if (_currentBook.statusValue?.toLowerCase() ==
+                              'started')
+                            _FullWidthActionButton(
+                              icon: Icons.check_circle,
+                              label:
                                   AppLocalizations.of(
                                     context,
-                                  )!.tap_to_update_progress,
-                                  style: const TextStyle(
-                                    color: _kSub,
-                                    fontSize: 13,
-                                    fontFamily: 'Manrope',
+                                  )!.mark_as_finished,
+                              color: Theme.of(context).colorScheme.primary,
+                              onTap: _quickFinishReading,
+                            ),
+
+                          // Mark as Read button (full width) - hidden when Started or Standby
+                          if (_currentBook.statusValue?.toLowerCase() !=
+                                  'started' &&
+                              _currentBook.statusValue?.toLowerCase() !=
+                                  'standby')
+                            _FullWidthActionButton(
+                              icon: Icons.done_all,
+                              label: AppLocalizations.of(context)!.mark_as_read,
+                              color: Theme.of(context).colorScheme.primary,
+                              onTap: _markAsRead,
+                            ),
+                        ],
+                      ],
+
+                      // Did you read today? button (only for Started or Standby status, not for bundles)
+                      if ((_currentBook.statusValue?.toLowerCase() ==
+                                  'started' ||
+                              _currentBook.statusValue?.toLowerCase() ==
+                                  'standby') &&
+                          _currentBook.isBundle != true)
+                        Builder(
+                          builder: (context) {
+                            final alreadyRead = _hasReadToday;
+                            final contentColor =
+                                alreadyRead
+                                    ? Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant
+                                    : Theme.of(context).colorScheme.secondary;
+                            return _FullWidthActionButton(
+                              icon:
+                                  alreadyRead
+                                      ? Icons.check_circle
+                                      : Icons.check_circle_outline,
+                              label:
+                                  alreadyRead
+                                      ? AppLocalizations.of(
+                                        context,
+                                      )!.marked_read_today
+                                      : AppLocalizations.of(
+                                        context,
+                                      )!.did_you_read_today,
+                              color: contentColor,
+                              onTap: alreadyRead ? null : _markAsReadToday,
+                            );
+                          },
+                        ),
+                      if (_currentBook.isBundle != true ||
+                          _currentBook.statusValue?.toLowerCase() ==
+                              'started' ||
+                          _currentBook.statusValue?.toLowerCase() == 'standby')
+                        AppTheme.verticalSpaceSmall,
+
+                      // Progress bar (only show for Started or Standby status)
+                      if (_currentBook.statusValue?.toLowerCase() ==
+                              'started' ||
+                          _currentBook.statusValue?.toLowerCase() ==
+                              'standby') ...[
+                        Builder(
+                          builder: (context) {
+                            final progress = _currentBook.readingProgress ?? 0;
+                            final pages = _currentBook.pages;
+                            final String percentage;
+                            final double progressValue;
+                            if (_currentBook.progressType == 'pages' &&
+                                pages != null &&
+                                pages > 0) {
+                              percentage =
+                                  '${(progress * 100 / pages).round()}%';
+                              progressValue = (progress / pages).clamp(
+                                0.0,
+                                1.0,
+                              );
+                            } else {
+                              percentage = '$progress%';
+                              progressValue = (progress / 100).clamp(0.0, 1.0);
+                            }
+                            return GestureDetector(
+                              onTap: _showProgressModal,
+                              behavior: HitTestBehavior.opaque,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildSectionHeader(
+                                    title:
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.reading_progress,
+                                    trailing: [
+                                      Text(
+                                        percentage,
+                                        style: const TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w600,
+                                          color: _kPrimary,
+                                          fontFamily: 'Manrope',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(9999),
+                                    child: LinearProgressIndicator(
+                                      value: progressValue,
+                                      minHeight: 6,
+                                      backgroundColor: const Color(0xFFE6E2DF),
+                                      valueColor: const AlwaysStoppedAnimation(
+                                        _kPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.tap_to_update_progress,
+                                    style: const TextStyle(
+                                      color: _kSub,
+                                      fontSize: 13,
+                                      fontFamily: 'Manrope',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 24),
+                      ],
+
+                      // Description - Collapsible (always shown)
+                      Column(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _isDescriptionExpanded =
+                                    !_isDescriptionExpanded;
+                              });
+                            },
+                            child: _buildSectionHeader(
+                              title: AppLocalizations.of(context)!.description,
+                              trailing: [
+                                Icon(
+                                  _isDescriptionExpanded
+                                      ? Icons.expand_less
+                                      : Icons.expand_more,
+                                  color: _kPrimary,
+                                  size: 20,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          _buildSectionItem(
+                            onTap: () {
+                              setState(() {
+                                _isDescriptionExpanded =
+                                    !_isDescriptionExpanded;
+                              });
+                            },
+                            child: Column(
+                              children: [
+                                if (_currentBook.description != null &&
+                                    _currentBook.description!.isNotEmpty)
+                                  Text(
+                                    _currentBook.description!.replaceAll(
+                                      '. ',
+                                      '.\n',
+                                    ),
+                                    style: const TextStyle(
+                                      color: _kSub,
+                                      fontSize: 13,
+                                      fontFamily: 'Manrope',
+                                    ),
+                                    maxLines: _isDescriptionExpanded ? null : 1,
+                                    overflow:
+                                        _isDescriptionExpanded
+                                            ? null
+                                            : TextOverflow.ellipsis,
+                                  )
+                                else
+                                  Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.no_description_available,
+                                    style: const TextStyle(
+                                      color: _kSub,
+                                      fontSize: 13,
+                                      fontStyle: FontStyle.italic,
+                                      fontFamily: 'Manrope',
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                        ],
+                      ),
+
+                      // Details grid (bento style) - Status, Author, ISBN, ASIN,
+                      // Editorial, Genre, Saga, Pages, Publication info, etc.
+                      Builder(
+                        builder: (context) {
+                          final entries = <_BentoEntry>[];
+
+                          void addCell(Widget? cell, {bool fullWidth = false}) {
+                            if (cell != null) {
+                              entries.add(
+                                _BentoEntry(cell, fullWidth: fullWidth),
+                              );
+                            }
+                          }
+
+                          // Status - MOVED TO TOP
+                          if (_currentBook.statusValue != null &&
+                              _currentBook.statusValue!.isNotEmpty) {
+                            addCell(
+                              _DetailCard(
+                                icon: Icons.check_circle,
+                                label: AppLocalizations.of(context)!.status,
+                                value: _getStatusDisplayValue(
+                                  _currentBook.statusValue!,
+                                  AppLocalizations.of(context)!,
+                                ),
+                              ),
+                            );
+                          }
+
+                          // TBR
+                          addCell(
+                            _DetailCard(
+                              icon: Icons.bookmark_add,
+                              label: 'TBR',
+                              value:
+                                  _currentBook.tbr == true
+                                      ? AppLocalizations.of(context)!.yes
+                                      : AppLocalizations.of(context)!.no,
+                            ),
+                          );
+
+                          // Original Book (for repeated books)
+                          if (_currentBook.statusValue?.toLowerCase() ==
+                                  'repeated' &&
+                              _currentBook.originalBookId != null) {
+                            addCell(
+                              FutureBuilder<Book?>(
+                                future: _loadOriginalBook(
+                                  _currentBook.originalBookId!,
+                                ),
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData &&
+                                      snapshot.data != null) {
+                                    final originalBook = snapshot.data!;
+                                    return InkWell(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (context) =>
+                                                    NewBookDetailScreen(
+                                                      book: originalBook,
+                                                    ),
+                                          ),
+                                        );
+                                      },
+                                      child: _DetailCard(
+                                        icon: Icons.repeat,
+                                        label:
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.original_book,
+                                        value:
+                                            '${originalBook.name}${originalBook.author != null ? " - ${originalBook.author}" : ""}',
+                                        trailingIcon: Icons.open_in_new,
+                                      ),
+                                    );
+                                  }
+                                  return const SizedBox.shrink();
+                                },
+                              ),
+                              fullWidth: true,
+                            );
+                          }
+
+                          // Author
+                          if (_currentBook.author != null &&
+                              _currentBook.author!.isNotEmpty) {
+                            addCell(
+                              InkWell(
+                                onTap: () {
+                                  final authors =
+                                      _currentBook.author!
+                                          .split(',')
+                                          .map((a) => a.trim())
+                                          .where((a) => a.isNotEmpty)
+                                          .toList();
+
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => BooksByAuthorScreen(
+                                            authors: authors,
+                                            useNewUi: true,
+                                          ),
+                                    ),
+                                  );
+                                },
+                                child: _DetailCard(
+                                  icon: Icons.person,
+                                  label: AppLocalizations.of(context)!.author,
+                                  value: _currentBook.author!
+                                      .split(',')
+                                      .map((a) => a.trim())
+                                      .where((a) => a.isNotEmpty)
+                                      .join('\n'),
+                                  trailingIcon: Icons.open_in_new,
+                                ),
+                              ),
+                              fullWidth: true,
+                            );
+                          }
+
+                          // ISBN
+                          if (_currentBook.isbn != null &&
+                              _currentBook.isbn!.isNotEmpty) {
+                            addCell(
+                              _DetailCard(
+                                icon: Icons.numbers,
+                                label: 'ISBN',
+                                value: _currentBook.isbn!,
+                              ),
+                            );
+                          }
+
+                          // ASIN
+                          if (_currentBook.asin != null &&
+                              _currentBook.asin!.isNotEmpty) {
+                            addCell(
+                              _DetailCard(
+                                icon: Icons.qr_code,
+                                label: 'ASIN',
+                                value: _currentBook.asin!,
+                              ),
+                            );
+                          }
+
+                          // Genre
+                          if (_currentBook.genre != null &&
+                              _currentBook.genre!.isNotEmpty) {
+                            addCell(
+                              _DetailCard(
+                                icon: Icons.category,
+                                label: AppLocalizations.of(context)!.genre,
+                                value: _currentBook.genre!
+                                    .split(',')
+                                    .map((g) => g.trim())
+                                    .where((g) => g.isNotEmpty)
+                                    .join('\n'),
+                              ),
+                              fullWidth: true,
+                            );
+                          }
+
+                          // Saga
+                          if (_currentBook.saga != null &&
+                              _currentBook.saga!.isNotEmpty) {
+                            addCell(
+                              InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => BooksBySagaScreen(
+                                            sagaName: _currentBook.saga!,
+                                            sagaUniverse:
+                                                _currentBook.sagaUniverse,
+                                          ),
+                                    ),
+                                  );
+                                },
+                                child: _DetailCard(
+                                  icon: Icons.collections_bookmark,
+                                  label: AppLocalizations.of(context)!.saga,
+                                  value:
+                                      '${_currentBook.saga}${_currentBook.nSaga != null ? ' #${_currentBook.nSaga}' : ''}',
+                                  trailingIcon: Icons.open_in_new,
+                                ),
+                              ),
+                              fullWidth: true,
+                            );
+                          }
+
+                          // Saga Universe
+                          if (_currentBook.sagaUniverse != null &&
+                              _currentBook.sagaUniverse!.isNotEmpty) {
+                            addCell(
+                              InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => BooksBySagaScreen(
+                                            sagaName:
+                                                _currentBook.sagaUniverse!,
+                                            isSagaUniverse: true,
+                                          ),
+                                    ),
+                                  );
+                                },
+                                child: _DetailCard(
+                                  icon: Icons.public,
+                                  label:
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.saga_universe,
+                                  value: _currentBook.sagaUniverse!,
+                                  trailingIcon: Icons.open_in_new,
+                                ),
+                              ),
+                              fullWidth: true,
+                            );
+                          }
+
+                          // Format Saga
+                          if (_currentBook.formatSagaValue != null &&
+                              _currentBook.formatSagaValue!.isNotEmpty) {
+                            addCell(
+                              _DetailCard(
+                                icon: Icons.format_shapes,
+                                label:
+                                    AppLocalizations.of(context)!.format_saga,
+                                value: FormatSagaHelper.getLocalizedLabel(
+                                  _currentBook.formatSagaValue!,
+                                  AppLocalizations.of(context)!,
+                                ),
+                              ),
+                            );
+                          }
+
+                          // Editorial
+                          if (_currentBook.editorialValue != null &&
+                              _currentBook.editorialValue!.isNotEmpty) {
+                            addCell(
+                              _DetailCard(
+                                icon: Icons.business,
+                                label: AppLocalizations.of(context)!.editorial,
+                                value: _currentBook.editorialValue!,
+                              ),
+                            );
+                          }
+
+                          // Original publication year/date
+                          if (_currentBook.originalPublicationYear != null) {
+                            for (final w in _buildPublicationInfo(
+                              _currentBook.originalPublicationYear!,
+                            )) {
+                              addCell(w);
+                            }
+                          }
+
+                          // Pages
+                          if (_currentBook.pages != null) {
+                            addCell(
+                              _DetailCard(
+                                icon: Icons.description,
+                                label: AppLocalizations.of(context)!.pages,
+                                value: _currentBook.pages.toString(),
+                              ),
+                            );
+                          }
+
+                          // Language
+                          if (_currentBook.languageValue != null &&
+                              _currentBook.languageValue!.isNotEmpty) {
+                            addCell(
+                              _DetailCard(
+                                icon: Icons.language,
+                                label: AppLocalizations.of(context)!.language,
+                                value: _currentBook.languageValue!,
+                              ),
+                            );
+                          }
+
+                          // Format
+                          if (_currentBook.formatValue != null &&
+                              _currentBook.formatValue!.isNotEmpty) {
+                            addCell(
+                              _DetailCard(
+                                icon: Icons.import_contacts,
+                                label: AppLocalizations.of(context)!.format,
+                                value: _currentBook.formatValue!,
+                              ),
+                            );
+                          }
+
+                          // Price
+                          if (_currentBook.price != null &&
+                              _currentBook.price! >= 0) {
+                            addCell(
+                              _DetailCard(
+                                icon: Icons.attach_money,
+                                label:
+                                    AppLocalizations.of(context)!.price_label,
+                                value:
+                                    '$_currencySymbol${_currentBook.price!.toStringAsFixed(2)}',
+                              ),
+                            );
+                          }
+
+                          // Acquired Date
+                          if (_currentBook.acquiredDate != null &&
+                              _currentBook.acquiredDate!.isNotEmpty) {
+                            addCell(
+                              _DetailCard(
+                                icon: Icons.calendar_today,
+                                label:
+                                    AppLocalizations.of(context)!.acquired_date,
+                                value: () {
+                                  final a = _currentBook.acquiredDate!;
+                                  final parts = a.split('-');
+                                  if (parts.length == 3) {
+                                    return '${parts[2]}/${parts[1]}/${parts[0]}';
+                                  }
+                                  return a;
+                                }(),
+                              ),
+                            );
+                          }
+
+                          // Place
+                          if (_currentBook.placeValue != null &&
+                              _currentBook.placeValue!.isNotEmpty) {
+                            addCell(
+                              _DetailCard(
+                                icon: Icons.place,
+                                label: AppLocalizations.of(context)!.place,
+                                value: _currentBook.placeValue!,
+                              ),
+                            );
+                          }
+
+                          // Loaned
+                          if (_currentBook.loaned != null &&
+                              _currentBook.loaned!.isNotEmpty) {
+                            addCell(
+                              _DetailCard(
+                                icon: Icons.swap_horiz,
+                                label: AppLocalizations.of(context)!.loaned,
+                                value: _currentBook.loaned!,
+                              ),
+                            );
+                          }
+
+                          // Times read
+                          if (_currentBook.readCount != null &&
+                              _currentBook.readCount! > 0) {
+                            addCell(
+                              _DetailCard(
+                                icon: Icons.add_circle_outline,
+                                label: AppLocalizations.of(context)!.times_read,
+                                value: '${_currentBook.readCount}',
+                              ),
+                            );
+                          }
+
+                          // Created At
+                          if (_currentBook.createdAt != null &&
+                              _currentBook.createdAt!.isNotEmpty) {
+                            addCell(
+                              _DetailCard(
+                                icon: Icons.access_time,
+                                label:
+                                    AppLocalizations.of(context)!.created_label,
+                                value: _formatDateTime(_currentBook.createdAt!),
+                              ),
+                            );
+                          }
+
+                          return _buildBentoGrid(entries);
+                        },
+                      ),
+                      AppTheme.verticalSpaceLarge,
+
+                      // Bundle Books - Show after the details grid for bundles
+                      if (_currentBook.isBundle == true) ...[
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildSectionHeader(
+                              icon: Icons.menu_book_outlined,
+                              title:
+                                  AppLocalizations.of(context)!.books_in_bundle,
+                              trailing: [
+                                Container(
+                                  constraints: const BoxConstraints(
+                                    minWidth: 32,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: _kPrimary.withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    '${_currentBook.bundleCount ?? 0}',
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      color: _kPrimary,
+                                      fontFamily: 'Manrope',
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 24),
-                    ],
-
-                    // Description - Collapsible (always shown)
-                    Column(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _isDescriptionExpanded = !_isDescriptionExpanded;
-                            });
-                          },
-                          child: _buildSectionHeader(
-                            title: AppLocalizations.of(context)!.description,
-                            trailing: [
-                              Icon(
-                                _isDescriptionExpanded
-                                    ? Icons.expand_less
-                                    : Icons.expand_more,
-                                color: _kPrimary,
-                                size: 20,
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        _buildSectionItem(
-                          onTap: () {
-                            setState(() {
-                              _isDescriptionExpanded = !_isDescriptionExpanded;
-                            });
-                          },
-                          child: Column(
-                            children: [
-                              if (_isFetchingMetadata)
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const SizedBox(
-                                      width: 16,
-                                      height: 16,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      AppLocalizations.of(
-                                        context,
-                                      )!.fetching_description,
-                                      style: const TextStyle(
-                                        color: _kSub,
-                                        fontSize: 13,
-                                        fontStyle: FontStyle.italic,
-                                        fontFamily: 'Manrope',
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              else if (_currentBook.description != null &&
-                                  _currentBook.description!.isNotEmpty)
-                                Text(
-                                  _currentBook.description!.replaceAll(
-                                    '. ',
-                                    '.\n',
-                                  ),
-                                  style: const TextStyle(
-                                    color: _kSub,
-                                    fontSize: 13,
-                                    fontFamily: 'Manrope',
-                                  ),
-                                  maxLines: _isDescriptionExpanded ? null : 1,
-                                  overflow:
-                                      _isDescriptionExpanded
-                                          ? null
-                                          : TextOverflow.ellipsis,
-                                )
-                              else
-                                Text(
-                                  AppLocalizations.of(
-                                    context,
-                                  )!.no_description_available,
-                                  style: const TextStyle(
-                                    color: _kSub,
-                                    fontSize: 13,
-                                    fontStyle: FontStyle.italic,
-                                    fontFamily: 'Manrope',
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                      ],
-                    ),
-
-                    // Details grid (bento style) - Status, Author, ISBN, ASIN,
-                    // Editorial, Genre, Saga, Pages, Publication info, etc.
-                    Builder(
-                      builder: (context) {
-                        final entries = <_BentoEntry>[];
-
-                        void addCell(Widget? cell, {bool fullWidth = false}) {
-                          if (cell != null) {
-                            entries.add(
-                              _BentoEntry(cell, fullWidth: fullWidth),
-                            );
-                          }
-                        }
-
-                        // Status - MOVED TO TOP
-                        if (_currentBook.statusValue != null &&
-                            _currentBook.statusValue!.isNotEmpty) {
-                          addCell(
-                            _DetailCard(
-                              icon: Icons.check_circle,
-                              label: AppLocalizations.of(context)!.status,
-                              value: _getStatusDisplayValue(
-                                _currentBook.statusValue!,
-                                AppLocalizations.of(context)!,
-                              ),
-                            ),
-                          );
-                        }
-
-                        // TBR
-                        addCell(
-                          _DetailCard(
-                            icon: Icons.bookmark_add,
-                            label: 'TBR',
-                            value:
-                                _currentBook.tbr == true
-                                    ? AppLocalizations.of(context)!.yes
-                                    : AppLocalizations.of(context)!.no,
-                          ),
-                        );
-
-                        // Original Book (for repeated books)
-                        if (_currentBook.statusValue?.toLowerCase() ==
-                                'repeated' &&
-                            _currentBook.originalBookId != null) {
-                          addCell(
-                            FutureBuilder<Book?>(
-                              future: _loadOriginalBook(
-                                _currentBook.originalBookId!,
-                              ),
+                            const SizedBox(height: 16),
+                            FutureBuilder<List<Book>>(
+                              key: ValueKey(_bundleBooksKey),
+                              future: _loadBundleBooks(),
                               builder: (context, snapshot) {
-                                if (snapshot.hasData && snapshot.data != null) {
-                                  final originalBook = snapshot.data!;
-                                  return InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder:
-                                              (context) => NewBookDetailScreen(
-                                                book: originalBook,
-                                              ),
-                                        ),
-                                      );
-                                    },
-                                    child: _DetailCard(
-                                      icon: Icons.repeat,
-                                      label:
-                                          AppLocalizations.of(
-                                            context,
-                                          )!.original_book,
-                                      value:
-                                          '${originalBook.name}${originalBook.author != null ? " - ${originalBook.author}" : ""}',
-                                      trailingIcon: Icons.open_in_new,
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.all(16.0),
+                                      child: CircularProgressIndicator(),
                                     ),
                                   );
                                 }
-                                return const SizedBox.shrink();
-                              },
-                            ),
-                            fullWidth: true,
-                          );
-                        }
 
-                        // Author
-                        if (_currentBook.author != null &&
-                            _currentBook.author!.isNotEmpty) {
-                          addCell(
-                            InkWell(
-                              onTap: () {
-                                final authors =
-                                    _currentBook.author!
-                                        .split(',')
-                                        .map((a) => a.trim())
-                                        .where((a) => a.isNotEmpty)
-                                        .toList();
-
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) => BooksByAuthorScreen(
-                                          authors: authors,
-                                          useNewUi: true,
-                                        ),
-                                  ),
-                                );
-                              },
-                              child: _DetailCard(
-                                icon: Icons.person,
-                                label: AppLocalizations.of(context)!.author,
-                                value: _currentBook.author!
-                                    .split(',')
-                                    .map((a) => a.trim())
-                                    .where((a) => a.isNotEmpty)
-                                    .join('\n'),
-                                trailingIcon: Icons.open_in_new,
-                              ),
-                            ),
-                            fullWidth: true,
-                          );
-                        }
-
-                        // ISBN
-                        if (_currentBook.isbn != null &&
-                            _currentBook.isbn!.isNotEmpty) {
-                          addCell(
-                            _DetailCard(
-                              icon: Icons.numbers,
-                              label: 'ISBN',
-                              value: _currentBook.isbn!,
-                            ),
-                          );
-                        }
-
-                        // ASIN
-                        if (_currentBook.asin != null &&
-                            _currentBook.asin!.isNotEmpty) {
-                          addCell(
-                            _DetailCard(
-                              icon: Icons.qr_code,
-                              label: 'ASIN',
-                              value: _currentBook.asin!,
-                            ),
-                          );
-                        }
-
-                        // Genre
-                        if (_currentBook.genre != null &&
-                            _currentBook.genre!.isNotEmpty) {
-                          addCell(
-                            _DetailCard(
-                              icon: Icons.category,
-                              label: AppLocalizations.of(context)!.genre,
-                              value: _currentBook.genre!
-                                  .split(',')
-                                  .map((g) => g.trim())
-                                  .where((g) => g.isNotEmpty)
-                                  .join('\n'),
-                            ),
-                            fullWidth: true,
-                          );
-                        }
-
-                        // Saga
-                        if (_currentBook.saga != null &&
-                            _currentBook.saga!.isNotEmpty) {
-                          addCell(
-                            InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) => BooksBySagaScreen(
-                                          sagaName: _currentBook.saga!,
-                                          sagaUniverse:
-                                              _currentBook.sagaUniverse,
-                                        ),
-                                  ),
-                                );
-                              },
-                              child: _DetailCard(
-                                icon: Icons.collections_bookmark,
-                                label: AppLocalizations.of(context)!.saga,
-                                value:
-                                    '${_currentBook.saga}${_currentBook.nSaga != null ? ' #${_currentBook.nSaga}' : ''}',
-                                trailingIcon: Icons.open_in_new,
-                              ),
-                            ),
-                            fullWidth: true,
-                          );
-                        }
-
-                        // Saga Universe
-                        if (_currentBook.sagaUniverse != null &&
-                            _currentBook.sagaUniverse!.isNotEmpty) {
-                          addCell(
-                            InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) => BooksBySagaScreen(
-                                          sagaName: _currentBook.sagaUniverse!,
-                                          isSagaUniverse: true,
-                                        ),
-                                  ),
-                                );
-                              },
-                              child: _DetailCard(
-                                icon: Icons.public,
-                                label:
-                                    AppLocalizations.of(context)!.saga_universe,
-                                value: _currentBook.sagaUniverse!,
-                                trailingIcon: Icons.open_in_new,
-                              ),
-                            ),
-                            fullWidth: true,
-                          );
-                        }
-
-                        // Format Saga
-                        if (_currentBook.formatSagaValue != null &&
-                            _currentBook.formatSagaValue!.isNotEmpty) {
-                          addCell(
-                            _DetailCard(
-                              icon: Icons.format_shapes,
-                              label: AppLocalizations.of(context)!.format_saga,
-                              value: FormatSagaHelper.getLocalizedLabel(
-                                _currentBook.formatSagaValue!,
-                                AppLocalizations.of(context)!,
-                              ),
-                            ),
-                          );
-                        }
-
-                        // Editorial
-                        if (_currentBook.editorialValue != null &&
-                            _currentBook.editorialValue!.isNotEmpty) {
-                          addCell(
-                            _DetailCard(
-                              icon: Icons.business,
-                              label: AppLocalizations.of(context)!.editorial,
-                              value: _currentBook.editorialValue!,
-                            ),
-                          );
-                        }
-
-                        // Original publication year/date
-                        if (_currentBook.originalPublicationYear != null) {
-                          for (final w in _buildPublicationInfo(
-                            _currentBook.originalPublicationYear!,
-                          )) {
-                            addCell(w);
-                          }
-                        }
-
-                        // Pages
-                        if (_currentBook.pages != null) {
-                          addCell(
-                            _DetailCard(
-                              icon: Icons.description,
-                              label: AppLocalizations.of(context)!.pages,
-                              value: _currentBook.pages.toString(),
-                            ),
-                          );
-                        }
-
-                        // Language
-                        if (_currentBook.languageValue != null &&
-                            _currentBook.languageValue!.isNotEmpty) {
-                          addCell(
-                            _DetailCard(
-                              icon: Icons.language,
-                              label: AppLocalizations.of(context)!.language,
-                              value: _currentBook.languageValue!,
-                            ),
-                          );
-                        }
-
-                        // Format
-                        if (_currentBook.formatValue != null &&
-                            _currentBook.formatValue!.isNotEmpty) {
-                          addCell(
-                            _DetailCard(
-                              icon: Icons.import_contacts,
-                              label: AppLocalizations.of(context)!.format,
-                              value: _currentBook.formatValue!,
-                            ),
-                          );
-                        }
-
-                        // Price
-                        if (_currentBook.price != null &&
-                            _currentBook.price! >= 0) {
-                          addCell(
-                            _DetailCard(
-                              icon: Icons.attach_money,
-                              label: AppLocalizations.of(context)!.price_label,
-                              value:
-                                  '$_currencySymbol${_currentBook.price!.toStringAsFixed(2)}',
-                            ),
-                          );
-                        }
-
-                        // Acquired Date
-                        if (_currentBook.acquiredDate != null &&
-                            _currentBook.acquiredDate!.isNotEmpty) {
-                          addCell(
-                            _DetailCard(
-                              icon: Icons.calendar_today,
-                              label:
-                                  AppLocalizations.of(context)!.acquired_date,
-                              value: () {
-                                final a = _currentBook.acquiredDate!;
-                                final parts = a.split('-');
-                                if (parts.length == 3) {
-                                  return '${parts[2]}/${parts[1]}/${parts[0]}';
-                                }
-                                return a;
-                              }(),
-                            ),
-                          );
-                        }
-
-                        // Place
-                        if (_currentBook.placeValue != null &&
-                            _currentBook.placeValue!.isNotEmpty) {
-                          addCell(
-                            _DetailCard(
-                              icon: Icons.place,
-                              label: AppLocalizations.of(context)!.place,
-                              value: _currentBook.placeValue!,
-                            ),
-                          );
-                        }
-
-                        // Loaned
-                        if (_currentBook.loaned != null &&
-                            _currentBook.loaned!.isNotEmpty) {
-                          addCell(
-                            _DetailCard(
-                              icon: Icons.swap_horiz,
-                              label: AppLocalizations.of(context)!.loaned,
-                              value: _currentBook.loaned!,
-                            ),
-                          );
-                        }
-
-                        // Times read
-                        if (_currentBook.readCount != null &&
-                            _currentBook.readCount! > 0) {
-                          addCell(
-                            _DetailCard(
-                              icon: Icons.add_circle_outline,
-                              label: AppLocalizations.of(context)!.times_read,
-                              value: '${_currentBook.readCount}',
-                            ),
-                          );
-                        }
-
-                        // Created At
-                        if (_currentBook.createdAt != null &&
-                            _currentBook.createdAt!.isNotEmpty) {
-                          addCell(
-                            _DetailCard(
-                              icon: Icons.access_time,
-                              label:
-                                  AppLocalizations.of(context)!.created_label,
-                              value: _formatDateTime(_currentBook.createdAt!),
-                            ),
-                          );
-                        }
-
-                        return _buildBentoGrid(entries);
-                      },
-                    ),
-                    AppTheme.verticalSpaceLarge,
-
-                    // Bundle Books - Show after the details grid for bundles
-                    if (_currentBook.isBundle == true) ...[
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildSectionHeader(
-                            icon: Icons.menu_book_outlined,
-                            title:
-                                AppLocalizations.of(context)!.books_in_bundle,
-                            trailing: [
-                              Container(
-                                constraints: const BoxConstraints(minWidth: 32),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: _kPrimary.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  '${_currentBook.bundleCount ?? 0}',
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: _kPrimary,
-                                    fontFamily: 'Manrope',
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          FutureBuilder<List<Book>>(
-                            key: ValueKey(_bundleBooksKey),
-                            future: _loadBundleBooks(),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const Center(
-                                  child: Padding(
-                                    padding: EdgeInsets.all(16.0),
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                );
-                              }
-
-                              if (snapshot.hasError) {
-                                return Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    AppLocalizations.of(
-                                      context,
-                                    )!.error_loading_bundle_books,
-                                    style: TextStyle(
-                                      color:
-                                          Theme.of(context).colorScheme.error,
+                                if (snapshot.hasError) {
+                                  return Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.error_loading_bundle_books,
+                                      style: TextStyle(
+                                        color:
+                                            Theme.of(context).colorScheme.error,
+                                      ),
                                     ),
-                                  ),
-                                );
-                              }
+                                  );
+                                }
 
-                              if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                                return Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Text(
-                                    AppLocalizations.of(
-                                      context,
-                                    )!.no_books_in_bundle,
-                                  ),
-                                );
-                              }
+                                if (!snapshot.hasData ||
+                                    snapshot.data!.isEmpty) {
+                                  return Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.no_books_in_bundle,
+                                    ),
+                                  );
+                                }
 
-                              final bundleBooks = snapshot.data!;
-                              return Column(
-                                children: [
-                                  ...bundleBooks.take(5).map((book) {
-                                    // Determine icon and color based on status
-                                    IconData statusIcon;
-                                    Color statusColor;
-                                    if (book.statusValue == 'Yes') {
-                                      statusIcon = Icons.check_circle;
-                                      statusColor =
-                                          Theme.of(context).colorScheme.primary;
-                                    } else if (book.statusValue == 'Started') {
-                                      statusIcon = Icons.play_circle;
-                                      statusColor =
-                                          Theme.of(
-                                            context,
-                                          ).colorScheme.secondary;
-                                    } else {
-                                      statusIcon = Icons.circle_outlined;
-                                      statusColor =
-                                          Theme.of(
-                                            context,
-                                          ).colorScheme.onSurfaceVariant;
-                                    }
+                                final bundleBooks = snapshot.data!;
+                                return Column(
+                                  children: [
+                                    ...bundleBooks.take(5).map((book) {
+                                      // Determine icon and color based on status
+                                      IconData statusIcon;
+                                      Color statusColor;
+                                      if (book.statusValue == 'Yes') {
+                                        statusIcon = Icons.check_circle;
+                                        statusColor =
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.primary;
+                                      } else if (book.statusValue ==
+                                          'Started') {
+                                        statusIcon = Icons.play_circle;
+                                        statusColor =
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.secondary;
+                                      } else {
+                                        statusIcon = Icons.circle_outlined;
+                                        statusColor =
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant;
+                                      }
 
-                                    return _buildSectionItem(
-                                      child: ListTile(
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                              horizontal: 0,
-                                              vertical: 2,
-                                            ),
-                                        leading: Icon(
-                                          statusIcon,
-                                          color: statusColor,
-                                          size: 28,
-                                        ),
-                                        title: Text(
-                                          book.name ??
-                                              AppLocalizations.of(
-                                                context,
-                                              )!.unknown_title,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                        subtitle: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            if (book.author != null &&
-                                                book.author!.isNotEmpty)
-                                              Text(
-                                                book.author!,
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color:
-                                                      Theme.of(context)
-                                                          .colorScheme
-                                                          .onSurfaceVariant,
-                                                ),
+                                      return _buildSectionItem(
+                                        child: ListTile(
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                horizontal: 0,
+                                                vertical: 2,
                                               ),
-                                            Wrap(
-                                              runSpacing: 2,
-                                              children: [
+                                          leading: Icon(
+                                            statusIcon,
+                                            color: statusColor,
+                                            size: 28,
+                                          ),
+                                          title: Text(
+                                            book.name ??
+                                                AppLocalizations.of(
+                                                  context,
+                                                )!.unknown_title,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          subtitle: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              if (book.author != null &&
+                                                  book.author!.isNotEmpty)
                                                 Text(
-                                                  book.statusValue != null
-                                                      ? StatusHelper.getLocalizedLabel(
-                                                        book.statusValue!,
-                                                        AppLocalizations.of(
-                                                          context,
-                                                        )!,
-                                                      )
-                                                      : AppLocalizations.of(
-                                                        context,
-                                                      )!.no_status,
+                                                  book.author!,
                                                   style: TextStyle(
                                                     fontSize: 12,
-                                                    color: statusColor,
-                                                    fontWeight: FontWeight.w500,
+                                                    color:
+                                                        Theme.of(context)
+                                                            .colorScheme
+                                                            .onSurfaceVariant,
                                                   ),
                                                 ),
-                                                if (book.pages != null) ...[
+                                              Wrap(
+                                                runSpacing: 2,
+                                                children: [
                                                   Text(
-                                                    ' • ${AppLocalizations.of(context)!.pages_count(book.pages!)}',
+                                                    book.statusValue != null
+                                                        ? StatusHelper.getLocalizedLabel(
+                                                          book.statusValue!,
+                                                          AppLocalizations.of(
+                                                            context,
+                                                          )!,
+                                                        )
+                                                        : AppLocalizations.of(
+                                                          context,
+                                                        )!.no_status,
                                                     style: TextStyle(
                                                       fontSize: 12,
-                                                      color: Colors.grey[600],
+                                                      color: statusColor,
+                                                      fontWeight:
+                                                          FontWeight.w500,
                                                     ),
                                                   ),
-                                                ],
-                                                if (book.nSaga != null &&
-                                                    book.nSaga!.isNotEmpty) ...[
-                                                  Text(
-                                                    ' • #${book.nSaga}',
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.grey[600],
-                                                    ),
-                                                  ),
-                                                ],
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                        trailing: const Icon(
-                                          Icons.arrow_forward_ios,
-                                          size: 16,
-                                        ),
-                                        onTap: () async {
-                                          // Navigate to individual book details
-                                          await Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (context) =>
-                                                      NewBookDetailScreen(
-                                                        book: book,
+                                                  if (book.pages != null) ...[
+                                                    Text(
+                                                      ' • ${AppLocalizations.of(context)!.pages_count(book.pages!)}',
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.grey[600],
                                                       ),
-                                            ),
-                                          );
-                                          // Always reload bundle books when returning from individual book detail
-                                          // (status may have changed via Start Reading, edit, etc.)
-                                          if (mounted) {
-                                            await _loadReadDates();
+                                                    ),
+                                                  ],
+                                                  if (book.nSaga != null &&
+                                                      book
+                                                          .nSaga!
+                                                          .isNotEmpty) ...[
+                                                    Text(
+                                                      ' • #${book.nSaga}',
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.grey[600],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                          trailing: const Icon(
+                                            Icons.arrow_forward_ios,
+                                            size: 16,
+                                          ),
+                                          onTap: () async {
+                                            // Navigate to individual book details
+                                            await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder:
+                                                    (context) =>
+                                                        NewBookDetailScreen(
+                                                          book: book,
+                                                        ),
+                                              ),
+                                            );
+                                            // Always reload bundle books when returning from individual book detail
+                                            // (status may have changed via Start Reading, edit, etc.)
+                                            if (mounted) {
+                                              await _loadReadDates();
+                                              if (mounted) {
+                                                setState(() {
+                                                  _bundleBooksKey++;
+                                                });
+                                              }
+                                            }
+                                          },
+                                        ),
+                                      );
+                                    }),
+                                    if (bundleBooks.length > 5)
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: TextButton.icon(
+                                          onPressed: () async {
+                                            await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder:
+                                                    (context) =>
+                                                        _BundleBooksScreen(
+                                                          books: bundleBooks,
+                                                        ),
+                                              ),
+                                            );
                                             if (mounted) {
                                               setState(() {
                                                 _bundleBooksKey++;
                                               });
                                             }
-                                          }
-                                        },
+                                          },
+                                          icon: const Icon(
+                                            Icons.menu_book_outlined,
+                                          ),
+                                          label: Text(
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.view_all_bundle_books,
+                                          ),
+                                          style: TextButton.styleFrom(
+                                            foregroundColor: _kPrimary,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 12,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                      ],
+
+                      // Reading Time - only show for read books with data
+                      if (_currentBook.statusValue?.toLowerCase() == 'yes' &&
+                          (_chronometerSessions.isNotEmpty ||
+                              _readDates.isNotEmpty ||
+                              _bundleChronometerSessions.isNotEmpty))
+                        _buildReadingTimeCard(),
+
+                      // Bundle Reading Sessions (only show for bundles)
+                      if (_bundleReadDates.isNotEmpty)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildSectionHeader(
+                              icon: Icons.history,
+                              title:
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.bundle_reading_sessions,
+                            ),
+                            const SizedBox(height: 16),
+                            ...List.generate(_currentBook.bundleCount ?? 0, (
+                              bundleIndex,
+                            ) {
+                              final readDates =
+                                  _bundleReadDates[bundleIndex] ?? [];
+                              if (readDates.isEmpty) {
+                                return const SizedBox.shrink();
+                              }
+
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: 4,
+                                      bottom: 8,
+                                    ),
+                                    child: Text(
+                                      _bundleBookTitles[bundleIndex] ??
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.book_n(bundleIndex + 1),
+                                      style: const TextStyle(
+                                        fontFamily: 'Manrope',
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: _kPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                  ...List.generate(readDates.length, (index) {
+                                    final readDate = readDates[index];
+                                    return _buildSectionItem(
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            '${index + 1}.',
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.bodySmall?.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              readDate.dateStarted != null
+                                                  ? formatDateForDisplay(
+                                                    readDate.dateStarted,
+                                                  )
+                                                  : AppLocalizations.of(
+                                                    context,
+                                                  )!.not_set,
+                                              style:
+                                                  Theme.of(
+                                                    context,
+                                                  ).textTheme.bodySmall,
+                                            ),
+                                          ),
+                                          const Text(' → '),
+                                          Expanded(
+                                            child: Text(
+                                              readDate.dateFinished != null
+                                                  ? formatDateForDisplay(
+                                                    readDate.dateFinished,
+                                                  )
+                                                  : AppLocalizations.of(
+                                                    context,
+                                                  )!.not_set,
+                                              style:
+                                                  Theme.of(
+                                                    context,
+                                                  ).textTheme.bodySmall,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     );
                                   }),
-                                  if (bundleBooks.length > 5)
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: TextButton.icon(
-                                        onPressed: () async {
-                                          await Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (context) =>
-                                                      _BundleBooksScreen(
-                                                        books: bundleBooks,
-                                                      ),
-                                            ),
-                                          );
-                                          if (mounted) {
-                                            setState(() {
-                                              _bundleBooksKey++;
-                                            });
-                                          }
-                                        },
-                                        icon: const Icon(
-                                          Icons.menu_book_outlined,
-                                        ),
-                                        label: Text(
-                                          AppLocalizations.of(
-                                            context,
-                                          )!.view_all_bundle_books,
-                                        ),
-                                        style: TextButton.styleFrom(
-                                          foregroundColor: _kPrimary,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              8,
-                                            ),
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 12,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
+                                  const SizedBox(height: 8),
                                 ],
                               );
-                            },
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-                    ],
-
-                    // Reading Time - only show for read books with data
-                    if (_currentBook.statusValue?.toLowerCase() == 'yes' &&
-                        (_chronometerSessions.isNotEmpty ||
-                            _readDates.isNotEmpty ||
-                            _bundleChronometerSessions.isNotEmpty))
-                      _buildReadingTimeCard(),
-
-                    // Bundle Reading Sessions (only show for bundles)
-                    if (_bundleReadDates.isNotEmpty)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildSectionHeader(
-                            icon: Icons.history,
-                            title:
-                                AppLocalizations.of(
-                                  context,
-                                )!.bundle_reading_sessions,
-                          ),
-                          const SizedBox(height: 16),
-                          ...List.generate(_currentBook.bundleCount ?? 0, (
-                            bundleIndex,
-                          ) {
-                            final readDates =
-                                _bundleReadDates[bundleIndex] ?? [];
-                            if (readDates.isEmpty) {
-                              return const SizedBox.shrink();
-                            }
-
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: 4,
-                                    bottom: 8,
-                                  ),
-                                  child: Text(
-                                    _bundleBookTitles[bundleIndex] ??
-                                        AppLocalizations.of(
-                                          context,
-                                        )!.book_n(bundleIndex + 1),
-                                    style: const TextStyle(
-                                      fontFamily: 'Manrope',
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: _kPrimary,
-                                    ),
-                                  ),
-                                ),
-                                ...List.generate(readDates.length, (index) {
-                                  final readDate = readDates[index];
-                                  return _buildSectionItem(
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          '${index + 1}.',
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.bodySmall?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            readDate.dateStarted != null
-                                                ? formatDateForDisplay(
-                                                  readDate.dateStarted,
-                                                )
-                                                : AppLocalizations.of(
-                                                  context,
-                                                )!.not_set,
-                                            style:
-                                                Theme.of(
-                                                  context,
-                                                ).textTheme.bodySmall,
-                                          ),
-                                        ),
-                                        const Text(' → '),
-                                        Expanded(
-                                          child: Text(
-                                            readDate.dateFinished != null
-                                                ? formatDateForDisplay(
-                                                  readDate.dateFinished,
-                                                )
-                                                : AppLocalizations.of(
-                                                  context,
-                                                )!.not_set,
-                                            style:
-                                                Theme.of(
-                                                  context,
-                                                ).textTheme.bodySmall,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }),
-                                const SizedBox(height: 8),
-                              ],
-                            );
-                          }),
-                        ],
-                      ),
-
-                    // Bundle Chronometer Sessions
-                    if (_bundleChronometerSessions.isNotEmpty)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildSectionHeader(
-                            icon: Icons.timer,
-                            title:
-                                AppLocalizations.of(
-                                  context,
-                                )!.bundle_timed_reading_sessions,
-                          ),
-                          const SizedBox(height: 16),
-                          ...List.generate(_currentBook.bundleCount ?? 0, (
-                            bundleIndex,
-                          ) {
-                            final sessions =
-                                _bundleChronometerSessions[bundleIndex] ?? [];
-                            if (sessions.isEmpty) {
-                              return const SizedBox.shrink();
-                            }
-
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: 4,
-                                    bottom: 8,
-                                  ),
-                                  child: Text(
-                                    _bundleBookTitles[bundleIndex] ??
-                                        AppLocalizations.of(
-                                          context,
-                                        )!.book_n(bundleIndex + 1),
-                                    style: const TextStyle(
-                                      fontFamily: 'Manrope',
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: _kPrimary,
-                                    ),
-                                  ),
-                                ),
-                                ...List.generate(sessions.length, (index) {
-                                  final session = sessions[index];
-                                  final duration = session.durationSeconds ?? 0;
-                                  final hours = duration ~/ 3600;
-                                  final minutes = (duration % 3600) ~/ 60;
-                                  final seconds = duration % 60;
-                                  String durationStr;
-                                  if (hours > 0) {
-                                    durationStr =
-                                        '${hours}h ${minutes}m ${seconds}s';
-                                  } else if (minutes > 0) {
-                                    durationStr = '${minutes}m ${seconds}s';
-                                  } else {
-                                    durationStr = '${seconds}s';
-                                  }
-
-                                  // Format clicked_at time if available
-                                  String clickedAtStr = '';
-                                  if (session.clickedAt != null) {
-                                    final clickedTime = session.clickedAt!;
-                                    clickedAtStr =
-                                        ' (Started: ${clickedTime.hour.toString().padLeft(2, '0')}:${clickedTime.minute.toString().padLeft(2, '0')})';
-                                  }
-
-                                  return _buildSectionItem(
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          '${index + 1}.',
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.bodySmall?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            '${formatDateForDisplay(session.startTime?.toIso8601String().split('T')[0] ?? 'Unknown')} - $durationStr$clickedAtStr',
-                                            style:
-                                                Theme.of(
-                                                  context,
-                                                ).textTheme.bodySmall,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }),
-                                const SizedBox(height: 8),
-                              ],
-                            );
-                          }),
-                        ],
-                      ),
-
-                    // Notification Badge
-                    if (_currentBook.notificationEnabled == true &&
-                        _currentBook.notificationDatetime != null)
-                      Card(
-                        elevation: 1,
-                        margin: const EdgeInsets.only(bottom: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                            }),
+                          ],
                         ),
-                        child: ListTile(
-                          leading: Icon(
-                            Icons.notifications_active,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          title: Text(
-                            AppLocalizations.of(context)!.release_notification,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Text(
-                            AppLocalizations.of(context)!.scheduled_for(
-                              formatDateForDisplay(
-                                _currentBook.notificationDatetime!.split(
-                                  'T',
-                                )[0],
-                              ),
+
+                      // Bundle Chronometer Sessions
+                      if (_bundleChronometerSessions.isNotEmpty)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildSectionHeader(
+                              icon: Icons.timer,
+                              title:
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.bundle_timed_reading_sessions,
                             ),
-                          ),
-                        ),
-                      ),
-
-                    // Tandem Books
-                    if (_currentBook.isTandem == true)
-                      _TandemBooksCard(
-                        saga: _currentBook.saga,
-                        sagaUniverse: _currentBook.sagaUniverse,
-                        currentBookId: _currentBook.bookId,
-                      ),
-
-                    // New fields
-                    if (_currentBook.myRating != null &&
-                        _currentBook.myRating! > 0)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildSectionHeader(
-                            icon: Icons.favorite,
-                            title:
-                                AppLocalizations.of(context)!.my_rating_label,
-                          ),
-                          const SizedBox(height: 16),
-                          _buildSectionItem(
-                            child: Row(
-                              children: List.generate(5, (index) {
-                                return Padding(
-                                  padding: const EdgeInsets.only(right: 4),
-                                  child: _buildRatingHeart(
-                                    _currentBook.myRating!,
-                                    index,
-                                  ),
-                                );
-                              }),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                    // Rating Breakdown
-                    if (_currentBook.myRating != null &&
-                        _currentBook.myRating! > 0)
-                      FutureBuilder<List<BookRatingField>>(
-                        future: _loadRatingFieldsForBook(_currentBook.bookId!),
-                        builder: (context, snapshot) {
-                          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                            return const SizedBox.shrink();
-                          }
-
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildSectionHeader(
-                                icon: Icons.analytics,
-                                title:
-                                    AppLocalizations.of(
-                                      context,
-                                    )!.rating_breakdown,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                _currentBook.ratingOverride == true
-                                    ? AppLocalizations.of(
-                                      context,
-                                    )!.manual_rating
-                                    : AppLocalizations.of(
-                                      context,
-                                    )!.auto_calculated,
-                                style: const TextStyle(
-                                  color: _kSub,
-                                  fontSize: 14,
-                                  fontFamily: 'Manrope',
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              ...snapshot.data!.map((field) {
-                                return _buildSectionItem(
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          field.fieldName,
-                                          style:
-                                              Theme.of(
-                                                context,
-                                              ).textTheme.bodyMedium,
-                                        ),
-                                      ),
-                                      Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: List.generate(5, (i) {
-                                          final isFilled =
-                                              i < field.ratingValue.round();
-                                          return Padding(
-                                            padding: const EdgeInsets.only(
-                                              left: 2,
-                                            ),
-                                            child: Icon(
-                                              isFilled
-                                                  ? Icons.favorite
-                                                  : Icons.favorite_border,
-                                              color:
-                                                  isFilled
-                                                      ? Theme.of(
-                                                        context,
-                                                      ).colorScheme.error
-                                                      : Theme.of(context)
-                                                          .colorScheme
-                                                          .onSurfaceVariant,
-                                              size: 20,
-                                            ),
-                                          );
-                                        }),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }),
-                            ],
-                          );
-                        },
-                      ),
-
-                    // Old date fields removed - now using Reading Sessions
-
-                    // Reading Sessions Card
-                    if (!(_currentBook.isBundle == true) &&
-                        _readDates.isNotEmpty)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildSectionHeader(
-                            icon: Icons.history,
-                            title:
-                                '${AppLocalizations.of(context)!.reading_history} (${_readDates.length})',
-                          ),
-                          const SizedBox(height: 16),
-                          ...List.generate(_readDates.length, (index) {
-                            final readDate = _readDates[index];
-                            return _buildSectionItem(
-                              child: Row(
-                                children: [
-                                  Text(
-                                    '${index + 1}.',
-                                    style: Theme.of(context).textTheme.bodySmall
-                                        ?.copyWith(fontWeight: FontWeight.w600),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      readDate.dateStarted != null
-                                          ? formatDateForDisplay(
-                                            readDate.dateStarted,
-                                          )
-                                          : AppLocalizations.of(
-                                            context,
-                                          )!.not_set,
-                                      style:
-                                          Theme.of(context).textTheme.bodySmall,
-                                    ),
-                                  ),
-                                  const Text(' → '),
-                                  Expanded(
-                                    child: Text(
-                                      readDate.dateFinished != null
-                                          ? formatDateForDisplay(
-                                            readDate.dateFinished,
-                                          )
-                                          : AppLocalizations.of(
-                                            context,
-                                          )!.not_set,
-                                      style:
-                                          Theme.of(context).textTheme.bodySmall,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }),
-                        ],
-                      ),
-
-                    // Chronometer Sessions Card
-                    if (!(_currentBook.isBundle == true))
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildSectionHeader(
-                            icon: Icons.timer,
-                            title:
-                                '${AppLocalizations.of(context)!.reading_sessions} (${_chronometerSessions.length})',
-                            trailing: [
-                              IconButton(
-                                onPressed: () => _showLogReadingSessionSheet(),
-                                icon: const Icon(
-                                  Icons.add,
-                                  color: _kPrimary,
-                                  size: 20,
-                                ),
-                                tooltip:
-                                    AppLocalizations.of(
-                                      context,
-                                    )!.add_reading_session,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          ...List.generate(_visibleChronometerSessions.length, (
-                            index,
-                          ) {
-                            final session = _visibleChronometerSessions[index];
-                            String displayText;
-
-                            // Check if there's duration data first
-                            if (session.durationSeconds != null &&
-                                session.durationSeconds! > 0) {
-                              // Has duration - show it (regardless of didRead flag)
-                              final duration = session.durationSeconds!;
-                              final hours = duration ~/ 3600;
-                              final minutes = (duration % 3600) ~/ 60;
-                              final seconds = duration % 60;
-                              String durationStr;
-                              if (hours > 0) {
-                                durationStr =
-                                    '${hours}h ${minutes}m ${seconds}s';
-                              } else if (minutes > 0) {
-                                durationStr = '${minutes}m ${seconds}s';
-                              } else {
-                                durationStr = '${seconds}s';
+                            const SizedBox(height: 16),
+                            ...List.generate(_currentBook.bundleCount ?? 0, (
+                              bundleIndex,
+                            ) {
+                              final sessions =
+                                  _bundleChronometerSessions[bundleIndex] ?? [];
+                              if (sessions.isEmpty) {
+                                return const SizedBox.shrink();
                               }
 
-                              displayText =
-                                  '${formatDateForDisplay(session.startTime?.toIso8601String().split('T')[0] ?? 'Unknown')} - $durationStr';
-                            } else if (session.didRead) {
-                              // No duration but didRead - show "Read today"
-                              displayText =
-                                  '${formatDateForDisplay(session.startTime?.toIso8601String().split('T')[0] ?? 'Unknown')} - ${AppLocalizations.of(context)!.read_today_check}';
-                            } else {
-                              // No duration and not didRead - show date only
-                              displayText = formatDateForDisplay(
-                                session.startTime?.toIso8601String().split(
-                                      'T',
-                                    )[0] ??
-                                    'Unknown',
-                              );
-                            }
-
-                            return _buildSectionItem(
-                              child: Row(
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    '${_chronometerSessions.length - index}.',
-                                    style: Theme.of(context).textTheme.bodySmall
-                                        ?.copyWith(fontWeight: FontWeight.w600),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: 4,
+                                      bottom: 8,
+                                    ),
                                     child: Text(
-                                      displayText,
-                                      style:
-                                          Theme.of(context).textTheme.bodySmall,
+                                      _bundleBookTitles[bundleIndex] ??
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.book_n(bundleIndex + 1),
+                                      style: const TextStyle(
+                                        fontFamily: 'Manrope',
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: _kPrimary,
+                                      ),
                                     ),
                                   ),
-                                ],
-                              ),
-                            );
-                          }),
-                          if (_chronometerSessions.isNotEmpty)
-                            Center(
-                              child: TextButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (_) => ReadingSessionsScreen(
-                                            book: _currentBook,
+                                  ...List.generate(sessions.length, (index) {
+                                    final session = sessions[index];
+                                    final duration =
+                                        session.durationSeconds ?? 0;
+                                    final hours = duration ~/ 3600;
+                                    final minutes = (duration % 3600) ~/ 60;
+                                    final seconds = duration % 60;
+                                    String durationStr;
+                                    if (hours > 0) {
+                                      durationStr =
+                                          '${hours}h ${minutes}m ${seconds}s';
+                                    } else if (minutes > 0) {
+                                      durationStr = '${minutes}m ${seconds}s';
+                                    } else {
+                                      durationStr = '${seconds}s';
+                                    }
+
+                                    // Format clicked_at time if available
+                                    String clickedAtStr = '';
+                                    if (session.clickedAt != null) {
+                                      final clickedTime = session.clickedAt!;
+                                      clickedAtStr =
+                                          ' (Started: ${clickedTime.hour.toString().padLeft(2, '0')}:${clickedTime.minute.toString().padLeft(2, '0')})';
+                                    }
+
+                                    return _buildSectionItem(
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            '${index + 1}.',
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.bodySmall?.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                           ),
-                                    ),
-                                  );
-                                },
-                                child: Text(
-                                  AppLocalizations.of(context)!.view_more,
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              '${formatDateForDisplay(session.startTime?.toIso8601String().split('T')[0] ?? 'Unknown')} - $durationStr$clickedAtStr',
+                                              style:
+                                                  Theme.of(
+                                                    context,
+                                                  ).textTheme.bodySmall,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }),
+                                  const SizedBox(height: 8),
+                                ],
+                              );
+                            }),
+                          ],
+                        ),
+
+                      // Notification Badge
+                      if (_currentBook.notificationEnabled == true &&
+                          _currentBook.notificationDatetime != null)
+                        Card(
+                          elevation: 1,
+                          margin: const EdgeInsets.only(bottom: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: ListTile(
+                            leading: Icon(
+                              Icons.notifications_active,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            title: Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.release_notification,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            subtitle: Text(
+                              AppLocalizations.of(context)!.scheduled_for(
+                                formatDateForDisplay(
+                                  _currentBook.notificationDatetime!.split(
+                                    'T',
+                                  )[0],
                                 ),
                               ),
                             ),
-                        ],
-                      ),
-
-                    if (_currentBook.myReview != null &&
-                        _currentBook.myReview!.isNotEmpty)
-                      Card(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        elevation: 1,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Padding(
-                          padding: AppTheme.cardPadding,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.rate_review,
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    size: 24,
-                                  ),
-                                  AppTheme.horizontalSpaceLarge,
-                                  Text(
-                                    AppLocalizations.of(context)!.my_review,
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.titleMedium?.copyWith(
-                                      color:
-                                          Theme.of(
-                                            context,
-                                          ).colorScheme.onSurfaceVariant,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              AppTheme.verticalSpaceMedium,
-                              Text(
-                                _currentBook.myReview!,
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                            ],
                           ),
                         ),
-                      ),
 
-                    // Notes
-                    if (_currentBook.notes != null &&
-                        _currentBook.notes!.isNotEmpty)
-                      Card(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        elevation: 1,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                      // Tandem Books
+                      if (_currentBook.isTandem == true)
+                        _TandemBooksCard(
+                          saga: _currentBook.saga,
+                          sagaUniverse: _currentBook.sagaUniverse,
+                          currentBookId: _currentBook.bookId,
                         ),
-                        child: Padding(
-                          padding: AppTheme.cardPadding,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.notes,
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    size: 24,
-                                  ),
-                                  AppTheme.horizontalSpaceLarge,
-                                  Text(
-                                    AppLocalizations.of(context)!.notes,
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.titleMedium?.copyWith(
-                                      color:
-                                          Theme.of(
-                                            context,
-                                          ).colorScheme.onSurfaceVariant,
-                                      fontWeight: FontWeight.w500,
+
+                      // New fields
+                      if (_currentBook.myRating != null &&
+                          _currentBook.myRating! > 0)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildSectionHeader(
+                              icon: Icons.favorite,
+                              title:
+                                  AppLocalizations.of(context)!.my_rating_label,
+                            ),
+                            const SizedBox(height: 16),
+                            _buildSectionItem(
+                              child: Row(
+                                children: List.generate(5, (index) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(right: 4),
+                                    child: _buildRatingHeart(
+                                      _currentBook.myRating!,
+                                      index,
                                     ),
+                                  );
+                                }),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                      // Rating Breakdown
+                      if (_currentBook.myRating != null &&
+                          _currentBook.myRating! > 0)
+                        FutureBuilder<List<BookRatingField>>(
+                          future: _loadRatingFieldsForBook(
+                            _currentBook.bookId!,
+                          ),
+                          builder: (context, snapshot) {
+                            if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                              return const SizedBox.shrink();
+                            }
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildSectionHeader(
+                                  icon: Icons.analytics,
+                                  title:
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.rating_breakdown,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  _currentBook.ratingOverride == true
+                                      ? AppLocalizations.of(
+                                        context,
+                                      )!.manual_rating
+                                      : AppLocalizations.of(
+                                        context,
+                                      )!.auto_calculated,
+                                  style: const TextStyle(
+                                    color: _kSub,
+                                    fontSize: 14,
+                                    fontFamily: 'Manrope',
                                   ),
-                                ],
+                                ),
+                                const SizedBox(height: 16),
+                                ...snapshot.data!.map((field) {
+                                  return _buildSectionItem(
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            field.fieldName,
+                                            style:
+                                                Theme.of(
+                                                  context,
+                                                ).textTheme.bodyMedium,
+                                          ),
+                                        ),
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: List.generate(5, (i) {
+                                            final isFilled =
+                                                i < field.ratingValue.round();
+                                            return Padding(
+                                              padding: const EdgeInsets.only(
+                                                left: 2,
+                                              ),
+                                              child: Icon(
+                                                isFilled
+                                                    ? Icons.favorite
+                                                    : Icons.favorite_border,
+                                                color:
+                                                    isFilled
+                                                        ? Theme.of(
+                                                          context,
+                                                        ).colorScheme.error
+                                                        : Theme.of(context)
+                                                            .colorScheme
+                                                            .onSurfaceVariant,
+                                                size: 20,
+                                              ),
+                                            );
+                                          }),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }),
+                              ],
+                            );
+                          },
+                        ),
+
+                      // Old date fields removed - now using Reading Sessions
+
+                      // Reading Sessions Card
+                      if (!(_currentBook.isBundle == true) &&
+                          _readDates.isNotEmpty)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildSectionHeader(
+                              icon: Icons.history,
+                              title:
+                                  '${AppLocalizations.of(context)!.reading_history} (${_readDates.length})',
+                            ),
+                            const SizedBox(height: 16),
+                            ...List.generate(_readDates.length, (index) {
+                              final readDate = _readDates[index];
+                              return _buildSectionItem(
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      '${index + 1}.',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodySmall?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        readDate.dateStarted != null
+                                            ? formatDateForDisplay(
+                                              readDate.dateStarted,
+                                            )
+                                            : AppLocalizations.of(
+                                              context,
+                                            )!.not_set,
+                                        style:
+                                            Theme.of(
+                                              context,
+                                            ).textTheme.bodySmall,
+                                      ),
+                                    ),
+                                    const Text(' → '),
+                                    Expanded(
+                                      child: Text(
+                                        readDate.dateFinished != null
+                                            ? formatDateForDisplay(
+                                              readDate.dateFinished,
+                                            )
+                                            : AppLocalizations.of(
+                                              context,
+                                            )!.not_set,
+                                        style:
+                                            Theme.of(
+                                              context,
+                                            ).textTheme.bodySmall,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }),
+                          ],
+                        ),
+
+                      // Chronometer Sessions Card
+                      if (!(_currentBook.isBundle == true))
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildSectionHeader(
+                              icon: Icons.timer,
+                              title:
+                                  '${AppLocalizations.of(context)!.reading_sessions} (${_chronometerSessions.length})',
+                              trailing: [
+                                IconButton(
+                                  onPressed:
+                                      () => _showLogReadingSessionSheet(),
+                                  icon: const Icon(
+                                    Icons.add,
+                                    color: _kPrimary,
+                                    size: 20,
+                                  ),
+                                  tooltip:
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.add_reading_session,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            ...List.generate(_visibleChronometerSessions.length, (
+                              index,
+                            ) {
+                              final session =
+                                  _visibleChronometerSessions[index];
+                              String displayText;
+
+                              // Check if there's duration data first
+                              if (session.durationSeconds != null &&
+                                  session.durationSeconds! > 0) {
+                                // Has duration - show it (regardless of didRead flag)
+                                final duration = session.durationSeconds!;
+                                final hours = duration ~/ 3600;
+                                final minutes = (duration % 3600) ~/ 60;
+                                final seconds = duration % 60;
+                                String durationStr;
+                                if (hours > 0) {
+                                  durationStr =
+                                      '${hours}h ${minutes}m ${seconds}s';
+                                } else if (minutes > 0) {
+                                  durationStr = '${minutes}m ${seconds}s';
+                                } else {
+                                  durationStr = '${seconds}s';
+                                }
+
+                                displayText =
+                                    '${formatDateForDisplay(session.startTime?.toIso8601String().split('T')[0] ?? 'Unknown')} - $durationStr';
+                              } else if (session.didRead) {
+                                // No duration but didRead - show "Read today"
+                                displayText =
+                                    '${formatDateForDisplay(session.startTime?.toIso8601String().split('T')[0] ?? 'Unknown')} - ${AppLocalizations.of(context)!.read_today_check}';
+                              } else {
+                                // No duration and not didRead - show date only
+                                displayText = formatDateForDisplay(
+                                  session.startTime?.toIso8601String().split(
+                                        'T',
+                                      )[0] ??
+                                      'Unknown',
+                                );
+                              }
+
+                              return _buildSectionItem(
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      '${_chronometerSessions.length - index}.',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodySmall?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        displayText,
+                                        style:
+                                            Theme.of(
+                                              context,
+                                            ).textTheme.bodySmall,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }),
+                            if (_chronometerSessions.isNotEmpty)
+                              Center(
+                                child: TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (_) => ReadingSessionsScreen(
+                                              book: _currentBook,
+                                            ),
+                                      ),
+                                    );
+                                  },
+                                  child: Text(
+                                    AppLocalizations.of(context)!.view_more,
+                                  ),
+                                ),
                               ),
-                              AppTheme.verticalSpaceMedium,
-                              Text(
-                                _currentBook.notes!,
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                            ],
+                          ],
+                        ),
+
+                      if (_currentBook.myReview != null &&
+                          _currentBook.myReview!.isNotEmpty)
+                        Card(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Padding(
+                            padding: AppTheme.cardPadding,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.rate_review,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                      size: 24,
+                                    ),
+                                    AppTheme.horizontalSpaceLarge,
+                                    Text(
+                                      AppLocalizations.of(context)!.my_review,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleMedium?.copyWith(
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                AppTheme.verticalSpaceMedium,
+                                Text(
+                                  _currentBook.myReview!,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
 
-                    // Reading Clubs
-                    _NewBookClubsCard(
-                      bookId: _currentBook.bookId!,
-                      onClubsChanged: () {
-                        // Optionally reload book data if needed
-                      },
-                    ),
-                  ],
+                      // Notes
+                      if (_currentBook.notes != null &&
+                          _currentBook.notes!.isNotEmpty)
+                        Card(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Padding(
+                            padding: AppTheme.cardPadding,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.notes,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                      size: 24,
+                                    ),
+                                    AppTheme.horizontalSpaceLarge,
+                                    Text(
+                                      AppLocalizations.of(context)!.notes,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleMedium?.copyWith(
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                AppTheme.verticalSpaceMedium,
+                                Text(
+                                  _currentBook.notes!,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                      // Reading Clubs
+                      _NewBookClubsCard(
+                        bookId: _currentBook.bookId!,
+                        onClubsChanged: () {
+                          // Optionally reload book data if needed
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              AppTheme.verticalSpaceXXLarge, // Bottom margin
-            ],
+                AppTheme.verticalSpaceXXLarge, // Bottom margin
+              ],
+            ),
           ),
         ),
         floatingActionButton: FloatingActionButton(
