@@ -795,17 +795,17 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 saga: existingBook.saga,
                 nSaga: bundleBookData.sagaNumber ?? existingBook.nSaga,
                 sagaUniverse: existingBook.sagaUniverse,
-                pages: existingBook.pages,
-                originalPublicationYear: existingBook.originalPublicationYear,
+                pages: bundleBookData.pages,
+                originalPublicationYear: bundleBookData.publicationYear,
                 loaned: existingBook.loaned,
-                statusValue: existingBook.statusValue,
+                statusValue: bundleBookData.status ?? existingBook.statusValue,
                 editorialValue: existingBook.editorialValue,
                 languageValue: existingBook.languageValue,
                 placeValue: existingBook.placeValue,
                 formatValue: existingBook.formatValue,
                 formatSagaValue: existingBook.formatSagaValue,
                 createdAt: existingBook.createdAt,
-                author: existingBook.author,
+                author: bundleBookData.author,
                 genre: existingBook.genre,
                 dateReadInitial: existingBook.dateReadInitial,
                 dateReadFinal: existingBook.dateReadFinal,
@@ -879,10 +879,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     _sagaUniverseController.text.trim().isEmpty
                         ? null
                         : _sagaUniverseController.text.trim(),
-                pages: null,
-                originalPublicationYear: null,
+                pages: bundleBookData.pages,
+                originalPublicationYear: bundleBookData.publicationYear,
                 loaned: _selectedLoaned,
-                statusValue: 'No',
+                statusValue: bundleBookData.status ?? 'No',
                 editorialValue:
                     _selectedEditorial.isEmpty
                         ? null
@@ -893,9 +893,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 formatSagaValue: formatSagaValue,
                 createdAt: DateTime.now().toIso8601String(),
                 author:
-                    _selectedAuthors.isEmpty
+                    bundleBookData.author ??
+                    (_selectedAuthors.isEmpty
                         ? null
-                        : _selectedAuthors.join(', '),
+                        : _selectedAuthors.join(', ')),
                 genre:
                     _selectedGenres.isEmpty ? null : _selectedGenres.join(', '),
                 dateReadInitial: null,
@@ -1330,6 +1331,100 @@ class _EditBookScreenState extends State<EditBookScreen> {
     padding: EdgeInsets.symmetric(vertical: 17),
     child: Divider(color: Color(0x4DD5C2C7), height: 1),
   );
+
+  Widget _v2BookListsSection(BuildContext context, AppLocalizations l10n) =>
+      Material(
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: const BorderSide(color: _kNotesBorder),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          children: [
+            CheckboxListTile(
+              title: Text(
+                l10n.add_to_tbr,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: _kPrimary,
+                ),
+              ),
+              subtitle: Text(
+                l10n.mark_for_reading_list,
+                style: const TextStyle(fontSize: 11, color: _kLabel),
+              ),
+              value: _tbr,
+              secondary: const Icon(Icons.bookmark_add, color: _kPrimary),
+              onChanged: (value) async {
+                if (value == true && !_tbr) {
+                  final db = await DatabaseHelper.instance.database;
+                  final repository = BookRepository(db);
+                  final currentCount = await repository.getTBRCount();
+                  final limit = await getTBRLimit();
+                  if (currentCount >= limit) {
+                    if (context.mounted) {
+                      showDialog(
+                        context: context,
+                        builder:
+                            (ctx) => AlertDialog(
+                              title: Row(
+                                children: [
+                                  Icon(
+                                    Icons.warning_amber,
+                                    color: Theme.of(ctx).colorScheme.secondary,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(l10n.tbr_limit_reached),
+                                ],
+                              ),
+                              content: Text(l10n.tbr_limit_message(limit)),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(ctx),
+                                  child: Text(l10n.ok),
+                                ),
+                              ],
+                            ),
+                      );
+                    }
+                    return;
+                  }
+                }
+                setState(() {
+                  _tbr = value ?? false;
+                });
+              },
+            ),
+            const Divider(height: 1, color: Color(0x4DD5C2C7)),
+            CheckboxListTile(
+              title: Text(
+                l10n.mark_as_tandem,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: _kPrimary,
+                ),
+              ),
+              subtitle: Text(
+                l10n.tandem_description,
+                style: const TextStyle(fontSize: 11, color: _kLabel),
+              ),
+              value: _isTandem,
+              secondary: const Icon(
+                Icons.swap_horizontal_circle_outlined,
+                color: _kPrimary,
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _isTandem = value ?? false;
+                });
+              },
+            ),
+          ],
+        ),
+      );
 
   Widget _v2Footer(AppLocalizations l10n) => SafeArea(
     top: false,
@@ -2207,6 +2302,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                         widget.book.bookId !=
                         null, // Edit mode when editing existing book
                     showDetailsTitle: !widget.useNewUi,
+                    useNewUi: widget.useNewUi,
                     onChanged: (isBundle, count, bundleBooks) {
                       setState(() {
                         _isBundle = isBundle;
@@ -2222,125 +2318,129 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     const SizedBox(height: 16),
 
                   // TBR and Tandem section
-                  Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (!widget.useNewUi) ...[
-                            Text(
-                              AppLocalizations.of(context)!.book_lists,
-                              style: Theme.of(
-                                context,
-                              ).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primary,
+                  if (widget.useNewUi)
+                    _v2BookListsSection(context, AppLocalizations.of(context)!)
+                  else
+                    Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (!widget.useNewUi) ...[
+                              Text(
+                                AppLocalizations.of(context)!.book_lists,
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 12),
-                          ],
-                          CheckboxListTile(
-                            title: Text(
-                              AppLocalizations.of(context)!.add_to_tbr,
-                            ),
-                            subtitle: Text(
-                              AppLocalizations.of(
-                                context,
-                              )!.mark_for_reading_list,
-                            ),
-                            value: _tbr,
-                            onChanged: (value) async {
-                              if (value == true && !_tbr) {
-                                // Check TBR limit only when checking (not unchecking)
-                                final db =
-                                    await DatabaseHelper.instance.database;
-                                final repository = BookRepository(db);
-                                final currentCount =
-                                    await repository.getTBRCount();
-                                final limit = await getTBRLimit();
-
-                                if (currentCount >= limit) {
-                                  if (context.mounted) {
-                                    showDialog(
-                                      context: context,
-                                      builder:
-                                          (context) => AlertDialog(
-                                            title: Row(
-                                              children: [
-                                                Icon(
-                                                  Icons.warning_amber,
-                                                  color:
-                                                      Theme.of(
-                                                        context,
-                                                      ).colorScheme.secondary,
-                                                ),
-                                                const SizedBox(width: 8),
-                                                Text(
-                                                  AppLocalizations.of(
-                                                    context,
-                                                  )!.tbr_limit_reached,
-                                                ),
-                                              ],
-                                            ),
-                                            content: Text(
-                                              AppLocalizations.of(
-                                                context,
-                                              )!.tbr_limit_message(limit),
-                                            ),
-                                            actions: [
-                                              TextButton(
-                                                onPressed:
-                                                    () =>
-                                                        Navigator.pop(context),
-                                                child: Text(
-                                                  AppLocalizations.of(
-                                                    context,
-                                                  )!.ok,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                    );
-                                  }
-                                  return;
-                                }
-                              }
-                              setState(() {
-                                _tbr = value ?? false;
-                              });
-                            },
-                            secondary: const Icon(Icons.bookmark_add),
-                          ),
-                          if (_sagaController.text.isNotEmpty ||
-                              _sagaUniverseController.text.isNotEmpty)
+                              const SizedBox(height: 12),
+                            ],
                             CheckboxListTile(
                               title: Text(
-                                AppLocalizations.of(context)!.mark_as_tandem,
+                                AppLocalizations.of(context)!.add_to_tbr,
                               ),
                               subtitle: Text(
                                 AppLocalizations.of(
                                   context,
-                                )!.tandem_description,
+                                )!.mark_for_reading_list,
                               ),
-                              value: _isTandem,
-                              onChanged: (value) {
+                              value: _tbr,
+                              onChanged: (value) async {
+                                if (value == true && !_tbr) {
+                                  // Check TBR limit only when checking (not unchecking)
+                                  final db =
+                                      await DatabaseHelper.instance.database;
+                                  final repository = BookRepository(db);
+                                  final currentCount =
+                                      await repository.getTBRCount();
+                                  final limit = await getTBRLimit();
+
+                                  if (currentCount >= limit) {
+                                    if (context.mounted) {
+                                      showDialog(
+                                        context: context,
+                                        builder:
+                                            (context) => AlertDialog(
+                                              title: Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.warning_amber,
+                                                    color:
+                                                        Theme.of(
+                                                          context,
+                                                        ).colorScheme.secondary,
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  Text(
+                                                    AppLocalizations.of(
+                                                      context,
+                                                    )!.tbr_limit_reached,
+                                                  ),
+                                                ],
+                                              ),
+                                              content: Text(
+                                                AppLocalizations.of(
+                                                  context,
+                                                )!.tbr_limit_message(limit),
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed:
+                                                      () => Navigator.pop(
+                                                        context,
+                                                      ),
+                                                  child: Text(
+                                                    AppLocalizations.of(
+                                                      context,
+                                                    )!.ok,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                      );
+                                    }
+                                    return;
+                                  }
+                                }
                                 setState(() {
-                                  _isTandem = value ?? false;
+                                  _tbr = value ?? false;
                                 });
                               },
-                              secondary: const Icon(
-                                Icons.swap_horizontal_circle_outlined,
-                              ),
+                              secondary: const Icon(Icons.bookmark_add),
                             ),
-                        ],
+                            if (_sagaController.text.isNotEmpty ||
+                                _sagaUniverseController.text.isNotEmpty)
+                              CheckboxListTile(
+                                title: Text(
+                                  AppLocalizations.of(context)!.mark_as_tandem,
+                                ),
+                                subtitle: Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.tandem_description,
+                                ),
+                                value: _isTandem,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _isTandem = value ?? false;
+                                  });
+                                },
+                                secondary: const Icon(
+                                  Icons.swap_horizontal_circle_outlined,
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
                   const SizedBox(height: 32),
 
                   // New fields section

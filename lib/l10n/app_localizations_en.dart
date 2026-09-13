@@ -509,6 +509,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get number_of_books_in_bundle => 'Number of Books in Bundle';
 
   @override
+  String get bundle_count_input_hint =>
+      'Use the buttons or tap the number to enter a custom amount.';
+
+  @override
+  String get view_all_bundle_books => 'View all books';
+
+  @override
+  String show_more_bundle_volumes(int count) {
+    return 'Show more volumes ($count remaining)';
+  }
+
+  @override
   String get saga_numbers_optional => 'Saga Numbers (optional)';
 
   @override

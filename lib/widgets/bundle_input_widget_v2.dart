@@ -53,6 +53,7 @@ class BundleInputWidgetV2 extends StatefulWidget {
   final bool editMode; // If true, only show title and nsaga fields
   final Color? titleColor;
   final bool showDetailsTitle;
+  final bool useNewUi;
 
   const BundleInputWidgetV2({
     super.key,
@@ -64,6 +65,7 @@ class BundleInputWidgetV2 extends StatefulWidget {
     this.editMode = false, // Default to false (show all fields)
     this.titleColor,
     this.showDetailsTitle = true,
+    this.useNewUi = false,
   });
 
   @override
@@ -74,19 +76,32 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
   late bool _isBundle;
   late TextEditingController _bundleCountController;
   List<BundleBookData> _bundleBooks = [];
+  int _visibleBookCount = 10;
 
   @override
   void initState() {
     super.initState();
     _isBundle = widget.initialIsBundle;
+    final initialCount =
+        widget.initialBundleCount ??
+        (widget.initialBundleBooks?.isNotEmpty == true
+            ? widget.initialBundleBooks!.length
+            : widget.useNewUi
+            ? 1
+            : null);
     _bundleCountController = TextEditingController(
-      text: widget.initialBundleCount?.toString() ?? '',
+      text: initialCount?.toString() ?? '',
     );
 
     // Initialize bundle books
     if (widget.initialBundleBooks != null &&
         widget.initialBundleBooks!.isNotEmpty) {
       _bundleBooks = List.from(widget.initialBundleBooks!);
+    }
+    if (widget.useNewUi && initialCount != null) {
+      while (_bundleBooks.length < initialCount) {
+        _bundleBooks.add(BundleBookData(status: 'No'));
+      }
     }
 
     _bundleCountController.addListener(_onCountChanged);
@@ -123,8 +138,495 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
     );
   }
 
+  void _changeCount(int delta) {
+    final current = int.tryParse(_bundleCountController.text) ?? 0;
+    final next = current + delta;
+    _bundleCountController.text = (next < 1 ? 1 : next).toString();
+    _bundleCountController.selection = TextSelection.collapsed(
+      offset: _bundleCountController.text.length,
+    );
+  }
+
+  InputDecoration _v2InputDecoration(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(color: Color(0xFF7A6A71), fontSize: 14),
+      filled: true,
+      fillColor: const Color(0x66FDF8F6),
+      isDense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFFE8E2DE)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFF5D2641), width: 1.5),
+      ),
+    );
+  }
+
+  Widget _v2Field({
+    required String label,
+    required String initialValue,
+    required String hint,
+    required ValueChanged<String> onChanged,
+    TextInputType? keyboardType,
+    List<TextInputFormatter>? inputFormatters,
+    required Key fieldKey,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label.toUpperCase(),
+          style: const TextStyle(
+            color: Color(0xFF7A6A71),
+            fontFamily: 'Manrope',
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            letterSpacing: .5,
+          ),
+        ),
+        const SizedBox(height: 4),
+        TextFormField(
+          key: fieldKey,
+          initialValue: initialValue,
+          decoration: _v2InputDecoration(hint),
+          keyboardType: keyboardType,
+          inputFormatters: inputFormatters,
+          style: const TextStyle(
+            color: Color(0xFF270008),
+            fontFamily: 'Manrope',
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+          onChanged: onChanged,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildV2(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    const primary = Color(0xFF5D2641);
+    const text = Color(0xFF270008);
+    const secondary = Color(0xFF7A6A71);
+    const border = Color(0xFFE8E2DE);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () {
+            setState(() => _isBundle = !_isBundle);
+            _notifyChange();
+          },
+          child: Container(
+            padding: const EdgeInsets.all(17),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(color: border),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x0A5D2641),
+                  blurRadius: 10,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: Checkbox(
+                    value: _isBundle,
+                    activeColor: primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    onChanged: (value) {
+                      setState(() => _isBundle = value ?? false);
+                      _notifyChange();
+                    },
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.this_is_a_bundle,
+                        style: const TextStyle(
+                          color: text,
+                          fontFamily: 'Manrope',
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        l10n.bundle_description,
+                        style: const TextStyle(
+                          color: secondary,
+                          fontFamily: 'Manrope',
+                          fontSize: 12,
+                          height: 1.6,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (_isBundle) ...[
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(17),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(color: border),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: primary.withValues(alpha: .08),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.library_books_outlined,
+                        color: primary,
+                        size: 14,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.number_of_books_in_bundle.toUpperCase(),
+                            style: const TextStyle(
+                              color: secondary,
+                              fontFamily: 'Manrope',
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: .55,
+                            ),
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            l10n.bundle_count_input_hint,
+                            style: const TextStyle(
+                              color: secondary,
+                              fontFamily: 'Manrope',
+                              fontSize: 11,
+                              height: 1.35,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(7),
+                  decoration: BoxDecoration(
+                    color: const Color(0x99FDF8F6),
+                    border: Border.all(color: border.withValues(alpha: .7)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _v2CountButton(
+                        Icons.remove,
+                        () => _changeCount(-1),
+                        false,
+                      ),
+                      SizedBox(
+                        width: 110,
+                        child: TextField(
+                          controller: _bundleCountController,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: text,
+                            fontFamily: 'Manrope',
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                          ),
+                          decoration: const InputDecoration(
+                            isDense: true,
+                            filled: true,
+                            fillColor: Colors.transparent,
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: primary),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(vertical: 8),
+                            suffixText: ' BOOKS',
+                            suffixStyle: TextStyle(
+                              color: secondary,
+                              fontFamily: 'Manrope',
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: .6,
+                            ),
+                          ),
+                        ),
+                      ),
+                      _v2CountButton(Icons.add, () => _changeCount(1), true),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (_bundleBooks.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                'VOLUMES IN THIS BUNDLE',
+                style: TextStyle(
+                  color: text,
+                  fontFamily: 'Manrope',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: .7,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            ...List.generate(
+              _bundleBooks.length < _visibleBookCount
+                  ? _bundleBooks.length
+                  : _visibleBookCount,
+              (index) => _buildV2BookCard(context, index),
+            ),
+            if (_visibleBookCount < _bundleBooks.length)
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      final next = _visibleBookCount + 10;
+                      _visibleBookCount =
+                          next < _bundleBooks.length
+                              ? next
+                              : _bundleBooks.length;
+                    });
+                  },
+                  icon: const Icon(Icons.expand_more),
+                  label: Text(
+                    l10n.show_more_bundle_volumes(
+                      _bundleBooks.length - _visibleBookCount,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: primary,
+                    side: const BorderSide(color: border),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+          ],
+        ],
+      ],
+    );
+  }
+
+  Widget _v2CountButton(IconData icon, VoidCallback onPressed, bool filled) {
+    return SizedBox(
+      width: 44,
+      height: 44,
+      child: IconButton(
+        onPressed: onPressed,
+        icon: Icon(icon, size: 20),
+        style: IconButton.styleFrom(
+          backgroundColor: filled ? const Color(0xFF5D2641) : Colors.white,
+          foregroundColor: filled ? Colors.white : const Color(0xFF270008),
+          side:
+              filled
+                  ? BorderSide.none
+                  : const BorderSide(color: Color(0xFFE8E2DE)),
+          shape: const CircleBorder(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildV2BookCard(BuildContext context, int index) {
+    final l10n = AppLocalizations.of(context)!;
+    final book = _bundleBooks[index];
+    final isRead = book.status == 'Yes';
+
+    void update(VoidCallback change) {
+      setState(change);
+      _notifyChange();
+    }
+
+    return Container(
+      key: ValueKey('bundle_card_$index'),
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(17),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: const Color(0xFFE8E2DE)),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A5D2641),
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 3,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF5D2641),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  'Vol. ${index + 1}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontFamily: 'Manrope',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              const Spacer(),
+              FilterChip(
+                selected: isRead,
+                showCheckmark: false,
+                avatar: Icon(
+                  isRead ? Icons.check_circle : Icons.circle_outlined,
+                  color:
+                      isRead
+                          ? const Color(0xFF5D2641)
+                          : const Color(0xFF7A6A71),
+                  size: 18,
+                ),
+                label: Text(l10n.read_label),
+                onSelected:
+                    (selected) =>
+                        update(() => book.status = selected ? 'Yes' : 'No'),
+                selectedColor: const Color(0x66FDF8F6),
+                backgroundColor: const Color(0x66FDF8F6),
+                side: const BorderSide(color: Color(0xFFE8E2DE)),
+                labelStyle: const TextStyle(
+                  color: Color(0xFF7A6A71),
+                  fontFamily: 'Manrope',
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          const Divider(height: 25, color: Color(0x80E8E2DE)),
+          _v2Field(
+            fieldKey: ValueKey('title_$index'),
+            label: l10n.book_title,
+            initialValue: book.title ?? '',
+            hint: l10n.enter_book_title,
+            onChanged:
+                (value) =>
+                    update(() => book.title = value.isEmpty ? null : value),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: _v2Field(
+                  fieldKey: ValueKey('saga_$index'),
+                  label: l10n.saga_number,
+                  initialValue: book.sagaNumber ?? '',
+                  hint: l10n.eg_1_or_1_5,
+                  onChanged:
+                      (value) => update(
+                        () => book.sagaNumber = value.isEmpty ? null : value,
+                      ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _v2Field(
+                  fieldKey: ValueKey('pages_$index'),
+                  label: l10n.pages,
+                  initialValue: book.pages?.toString() ?? '',
+                  hint: '250',
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  onChanged:
+                      (value) => update(() => book.pages = int.tryParse(value)),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          _v2Field(
+            fieldKey: ValueKey('author_$index'),
+            label: l10n.authors,
+            initialValue: book.author ?? '',
+            hint: l10n.enter_author_names,
+            onChanged:
+                (value) =>
+                    update(() => book.author = value.isEmpty ? null : value),
+          ),
+          const SizedBox(height: 10),
+          _v2Field(
+            fieldKey: ValueKey('year_$index'),
+            label: l10n.original_publication_year,
+            initialValue: book.publicationYear?.toString() ?? '',
+            hint: l10n.eg_2020,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            onChanged:
+                (value) =>
+                    update(() => book.publicationYear = int.tryParse(value)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (widget.useNewUi) return _buildV2(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

@@ -3261,254 +3261,262 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
 
                     // Bundle Books - Show after the details grid for bundles
                     if (_currentBook.isBundle == true) ...[
-                      Card(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        elevation: 1,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.menu_book,
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    size: 24,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionHeader(
+                            icon: Icons.menu_book_outlined,
+                            title:
+                                AppLocalizations.of(context)!.books_in_bundle,
+                            trailing: [
+                              Container(
+                                constraints: const BoxConstraints(minWidth: 32),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: _kPrimary.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  '${_currentBook.bundleCount ?? 0}',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: _kPrimary,
+                                    fontFamily: 'Manrope',
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
                                   ),
-                                  const SizedBox(width: 16),
-                                  Text(
-                                    AppLocalizations.of(
-                                      context,
-                                    )!.books_in_bundle,
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.titleSmall?.copyWith(
-                                      color:
-                                          Theme.of(
-                                            context,
-                                          ).colorScheme.onSurfaceVariant,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              FutureBuilder<List<Book>>(
-                                key: ValueKey(_bundleBooksKey),
-                                future: _loadBundleBooks(),
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return const Center(
-                                      child: Padding(
-                                        padding: EdgeInsets.all(16.0),
-                                        child: CircularProgressIndicator(),
-                                      ),
-                                    );
-                                  }
-
-                                  if (snapshot.hasError) {
-                                    return Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                        AppLocalizations.of(
-                                          context,
-                                        )!.error_loading_bundle_books,
-                                        style: TextStyle(
-                                          color:
-                                              Theme.of(
-                                                context,
-                                              ).colorScheme.error,
-                                        ),
-                                      ),
-                                    );
-                                  }
-
-                                  if (!snapshot.hasData ||
-                                      snapshot.data!.isEmpty) {
-                                    return Padding(
-                                      padding: EdgeInsets.all(8.0),
-                                      child: Text(
-                                        AppLocalizations.of(
-                                          context,
-                                        )!.no_books_in_bundle,
-                                      ),
-                                    );
-                                  }
-
-                                  final bundleBooks = snapshot.data!;
-                                  return Column(
-                                    children:
-                                        bundleBooks.asMap().entries.map((
-                                          entry,
-                                        ) {
-                                          final index = entry.key;
-                                          final book = entry.value;
-
-                                          // Determine icon and color based on status
-                                          IconData statusIcon;
-                                          Color statusColor;
-                                          if (book.statusValue == 'Yes') {
-                                            statusIcon = Icons.check_circle;
-                                            statusColor =
-                                                Theme.of(
-                                                  context,
-                                                ).colorScheme.primary;
-                                          } else if (book.statusValue ==
-                                              'Started') {
-                                            statusIcon = Icons.play_circle;
-                                            statusColor =
-                                                Theme.of(
-                                                  context,
-                                                ).colorScheme.secondary;
-                                          } else {
-                                            statusIcon = Icons.circle_outlined;
-                                            statusColor =
-                                                Theme.of(
-                                                  context,
-                                                ).colorScheme.onSurfaceVariant;
-                                          }
-
-                                          return Column(
-                                            children: [
-                                              if (index > 0)
-                                                Divider(
-                                                  height: 1,
-                                                  color: _kBorder.withValues(
-                                                    alpha: 0.2,
-                                                  ),
-                                                ),
-                                              ListTile(
-                                                contentPadding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 0,
-                                                      vertical: 4,
-                                                    ),
-                                                leading: Icon(
-                                                  statusIcon,
-                                                  color: statusColor,
-                                                  size: 28,
-                                                ),
-                                                title: Text(
-                                                  book.name ??
-                                                      AppLocalizations.of(
-                                                        context,
-                                                      )!.unknown_title,
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                ),
-                                                subtitle: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    if (book.author != null &&
-                                                        book.author!.isNotEmpty)
-                                                      Text(
-                                                        book.author!,
-                                                        style: TextStyle(
-                                                          fontSize: 12,
-                                                          color:
-                                                              Theme.of(context)
-                                                                  .colorScheme
-                                                                  .onSurfaceVariant,
-                                                        ),
-                                                      ),
-                                                    Row(
-                                                      children: [
-                                                        Text(
-                                                          book.statusValue !=
-                                                                  null
-                                                              ? StatusHelper.getLocalizedLabel(
-                                                                book.statusValue!,
-                                                                AppLocalizations.of(
-                                                                  context,
-                                                                )!,
-                                                              )
-                                                              : AppLocalizations.of(
-                                                                context,
-                                                              )!.no_status,
-                                                          style: TextStyle(
-                                                            fontSize: 12,
-                                                            color: statusColor,
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                          ),
-                                                        ),
-                                                        if (book.pages !=
-                                                            null) ...[
-                                                          Text(
-                                                            ' • ${AppLocalizations.of(context)!.pages_count(book.pages!)}',
-                                                            style: TextStyle(
-                                                              fontSize: 12,
-                                                              color:
-                                                                  Colors
-                                                                      .grey[600],
-                                                            ),
-                                                          ),
-                                                        ],
-                                                        if (book.nSaga !=
-                                                                null &&
-                                                            book
-                                                                .nSaga!
-                                                                .isNotEmpty) ...[
-                                                          Text(
-                                                            ' • #${book.nSaga}',
-                                                            style: TextStyle(
-                                                              fontSize: 12,
-                                                              color:
-                                                                  Colors
-                                                                      .grey[600],
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                                trailing: const Icon(
-                                                  Icons.arrow_forward_ios,
-                                                  size: 16,
-                                                ),
-                                                onTap: () async {
-                                                  // Navigate to individual book details
-                                                  await Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder:
-                                                          (context) =>
-                                                              NewBookDetailScreen(
-                                                                book: book,
-                                                              ),
-                                                    ),
-                                                  );
-                                                  // Always reload bundle books when returning from individual book detail
-                                                  // (status may have changed via Start Reading, edit, etc.)
-                                                  if (mounted) {
-                                                    await _loadReadDates();
-                                                    if (mounted) {
-                                                      setState(() {
-                                                        _bundleBooksKey++;
-                                                      });
-                                                    }
-                                                  }
-                                                },
-                                              ),
-                                            ],
-                                          );
-                                        }).toList(),
-                                  );
-                                },
+                                ),
                               ),
                             ],
                           ),
-                        ),
+                          const SizedBox(height: 16),
+                          FutureBuilder<List<Book>>(
+                            key: ValueKey(_bundleBooksKey),
+                            future: _loadBundleBooks(),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.all(16.0),
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                );
+                              }
+
+                              if (snapshot.hasError) {
+                                return Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.error_loading_bundle_books,
+                                    style: TextStyle(
+                                      color:
+                                          Theme.of(context).colorScheme.error,
+                                    ),
+                                  ),
+                                );
+                              }
+
+                              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                                return Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.no_books_in_bundle,
+                                  ),
+                                );
+                              }
+
+                              final bundleBooks = snapshot.data!;
+                              return Column(
+                                children: [
+                                  ...bundleBooks.take(5).map((book) {
+                                    // Determine icon and color based on status
+                                    IconData statusIcon;
+                                    Color statusColor;
+                                    if (book.statusValue == 'Yes') {
+                                      statusIcon = Icons.check_circle;
+                                      statusColor =
+                                          Theme.of(context).colorScheme.primary;
+                                    } else if (book.statusValue == 'Started') {
+                                      statusIcon = Icons.play_circle;
+                                      statusColor =
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.secondary;
+                                    } else {
+                                      statusIcon = Icons.circle_outlined;
+                                      statusColor =
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant;
+                                    }
+
+                                    return _buildSectionItem(
+                                      child: ListTile(
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 0,
+                                              vertical: 2,
+                                            ),
+                                        leading: Icon(
+                                          statusIcon,
+                                          color: statusColor,
+                                          size: 28,
+                                        ),
+                                        title: Text(
+                                          book.name ??
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.unknown_title,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        subtitle: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            if (book.author != null &&
+                                                book.author!.isNotEmpty)
+                                              Text(
+                                                book.author!,
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color:
+                                                      Theme.of(context)
+                                                          .colorScheme
+                                                          .onSurfaceVariant,
+                                                ),
+                                              ),
+                                            Wrap(
+                                              runSpacing: 2,
+                                              children: [
+                                                Text(
+                                                  book.statusValue != null
+                                                      ? StatusHelper.getLocalizedLabel(
+                                                        book.statusValue!,
+                                                        AppLocalizations.of(
+                                                          context,
+                                                        )!,
+                                                      )
+                                                      : AppLocalizations.of(
+                                                        context,
+                                                      )!.no_status,
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: statusColor,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                                if (book.pages != null) ...[
+                                                  Text(
+                                                    ' • ${AppLocalizations.of(context)!.pages_count(book.pages!)}',
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.grey[600],
+                                                    ),
+                                                  ),
+                                                ],
+                                                if (book.nSaga != null &&
+                                                    book.nSaga!.isNotEmpty) ...[
+                                                  Text(
+                                                    ' • #${book.nSaga}',
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.grey[600],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        trailing: const Icon(
+                                          Icons.arrow_forward_ios,
+                                          size: 16,
+                                        ),
+                                        onTap: () async {
+                                          // Navigate to individual book details
+                                          await Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) =>
+                                                      NewBookDetailScreen(
+                                                        book: book,
+                                                      ),
+                                            ),
+                                          );
+                                          // Always reload bundle books when returning from individual book detail
+                                          // (status may have changed via Start Reading, edit, etc.)
+                                          if (mounted) {
+                                            await _loadReadDates();
+                                            if (mounted) {
+                                              setState(() {
+                                                _bundleBooksKey++;
+                                              });
+                                            }
+                                          }
+                                        },
+                                      ),
+                                    );
+                                  }),
+                                  if (bundleBooks.length > 5)
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: TextButton.icon(
+                                        onPressed: () async {
+                                          await Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) =>
+                                                      _BundleBooksScreen(
+                                                        books: bundleBooks,
+                                                      ),
+                                            ),
+                                          );
+                                          if (mounted) {
+                                            setState(() {
+                                              _bundleBooksKey++;
+                                            });
+                                          }
+                                        },
+                                        icon: const Icon(
+                                          Icons.menu_book_outlined,
+                                        ),
+                                        label: Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.view_all_bundle_books,
+                                        ),
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: _kPrimary,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 12,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              );
+                            },
+                          ),
+                        ],
                       ),
+                      const SizedBox(height: 24),
                     ],
 
                     // Reading Time - only show for read books with data
@@ -5041,6 +5049,167 @@ class _FinishBookDialogState extends State<_FinishBookDialog> {
           child: Text(AppLocalizations.of(context)!.finish_book),
         ),
       ],
+    );
+  }
+}
+
+class _BundleBooksScreen extends StatelessWidget {
+  const _BundleBooksScreen({required this.books});
+
+  final List<Book> books;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    const primary = Color(0xFF43102B);
+    const sub = Color(0xFF514348);
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFFDF8F6),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFFDF8F6),
+        foregroundColor: primary,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        title: Text(
+          l10n.books_in_bundle,
+          style: const TextStyle(
+            color: primary,
+            fontFamily: 'Manrope',
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        actions: [
+          Center(
+            child: Container(
+              constraints: const BoxConstraints(minWidth: 32),
+              margin: const EdgeInsets.only(right: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                '${books.length}',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: primary,
+                  fontFamily: 'Manrope',
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        top: false,
+        child: ListView.builder(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          itemCount: books.length,
+          itemBuilder: (context, index) {
+            final book = books[index];
+            final isRead = book.statusValue == 'Yes';
+            final isStarted = book.statusValue == 'Started';
+            final statusColor =
+                isRead
+                    ? primary
+                    : isStarted
+                    ? Theme.of(context).colorScheme.secondary
+                    : Theme.of(context).colorScheme.onSurfaceVariant;
+            final statusIcon =
+                isRead
+                    ? Icons.check_circle
+                    : isStarted
+                    ? Icons.play_circle
+                    : Icons.circle_outlined;
+
+            return Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.all(13),
+              decoration: BoxDecoration(
+                color: primary.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: primary.withValues(alpha: 0.1)),
+              ),
+              child: ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(statusIcon, color: statusColor, size: 28),
+                title: Text(
+                  book.name ?? l10n.unknown_title,
+                  style: const TextStyle(
+                    color: primary,
+                    fontFamily: 'Manrope',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (book.author != null && book.author!.isNotEmpty)
+                      Text(
+                        book.author!,
+                        style: const TextStyle(
+                          color: sub,
+                          fontFamily: 'Manrope',
+                          fontSize: 12,
+                        ),
+                      ),
+                    Wrap(
+                      runSpacing: 2,
+                      children: [
+                        Text(
+                          book.statusValue != null
+                              ? StatusHelper.getLocalizedLabel(
+                                book.statusValue!,
+                                l10n,
+                              )
+                              : l10n.no_status,
+                          style: TextStyle(
+                            color: statusColor,
+                            fontFamily: 'Manrope',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        if (book.pages != null)
+                          Text(
+                            ' • ${l10n.pages_count(book.pages!)}',
+                            style: const TextStyle(
+                              color: sub,
+                              fontFamily: 'Manrope',
+                              fontSize: 12,
+                            ),
+                          ),
+                        if (book.nSaga != null && book.nSaga!.isNotEmpty)
+                          Text(
+                            ' • #${book.nSaga}',
+                            style: const TextStyle(
+                              color: sub,
+                              fontFamily: 'Manrope',
+                              fontSize: 12,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => NewBookDetailScreen(book: book),
+                    ),
+                  );
+                },
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }

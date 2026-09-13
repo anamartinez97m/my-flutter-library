@@ -289,6 +289,14 @@
   "this_is_a_bundle": "Esto es un paquete",
   "check_if_this_book_contains_multiple_books": "Marca si este libro contiene múltiples libros en un volumen",
   "number_of_books_in_bundle": "Número de libros en el paquete",
+  "bundle_count_input_hint": "Usa los botones o toca el número para introducir una cantidad personalizada.",
+  "view_all_bundle_books": "Ver todos los libros",
+  "show_more_bundle_volumes": "Mostrar más volúmenes ({count} restantes)",
+  "@show_more_bundle_volumes": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
   "saga_numbers_optional": "Números de saga (opcional)",
   "saga_number_n_saga": "Número de saga (N_Saga)",
   "book_title": "Título del libro",

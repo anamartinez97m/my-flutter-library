@@ -283,6 +283,14 @@
   "this_is_a_bundle": "This is a bundle",
   "check_if_this_book_contains_multiple_books": "Check if this book contains multiple books in one volume",
   "number_of_books_in_bundle": "Number of Books in Bundle",
+  "bundle_count_input_hint": "Use the buttons or tap the number to enter a custom amount.",
+  "view_all_bundle_books": "View all books",
+  "show_more_bundle_volumes": "Show more volumes ({count} remaining)",
+  "@show_more_bundle_volumes": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
   "saga_numbers_optional": "Saga Numbers (optional)",
   "saga_number_n_saga": "Saga Number (N_Saga)",
   "book_title": "Book Title",

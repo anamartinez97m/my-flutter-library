@@ -513,6 +513,18 @@ class AppLocalizationsEs extends AppLocalizations {
   String get number_of_books_in_bundle => 'Número de libros en el paquete';
 
   @override
+  String get bundle_count_input_hint =>
+      'Usa los botones o toca el número para introducir una cantidad personalizada.';
+
+  @override
+  String get view_all_bundle_books => 'Ver todos los libros';
+
+  @override
+  String show_more_bundle_volumes(int count) {
+    return 'Mostrar más volúmenes ($count restantes)';
+  }
+
+  @override
   String get saga_numbers_optional => 'Números de saga (opcional)';
 
   @override

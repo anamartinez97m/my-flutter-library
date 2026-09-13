@@ -986,6 +986,24 @@ abstract class AppLocalizations {
   /// **'Number of Books in Bundle'**
   String get number_of_books_in_bundle;
 
+  /// No description provided for @bundle_count_input_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the buttons or tap the number to enter a custom amount.'**
+  String get bundle_count_input_hint;
+
+  /// No description provided for @view_all_bundle_books.
+  ///
+  /// In en, this message translates to:
+  /// **'View all books'**
+  String get view_all_bundle_books;
+
+  /// No description provided for @show_more_bundle_volumes.
+  ///
+  /// In en, this message translates to:
+  /// **'Show more volumes ({count} remaining)'**
+  String show_more_bundle_volumes(int count);
+
   /// No description provided for @saga_numbers_optional.
   ///
   /// In en, this message translates to:

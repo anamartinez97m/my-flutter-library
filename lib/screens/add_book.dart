@@ -3495,13 +3495,16 @@ class _AddBookScreenState extends State<AddBookScreen> {
           ),
         ],
       ),
-      const SizedBox(height: 10),
+      _v2Divider(),
+      _v2SectionHeading(l10n.bundle_book_details),
       BundleInputWidgetV2(
         initialIsBundle: _isBundle,
         initialBundleCount: _bundleCount,
         initialBundleBooks: _bundleBooks,
         statusOptions: _statusList,
         titleColor: _kPrimary,
+        showDetailsTitle: false,
+        useNewUi: true,
         onChanged: (isBundle, count, books) {
           setState(() {
             _isBundle = isBundle;
@@ -3519,12 +3522,13 @@ class _AddBookScreenState extends State<AddBookScreen> {
   ) {
     return [
       _v2SectionHeading(l10n.book_lists),
-      Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
+      Material(
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: _kNotesBorder),
+          side: const BorderSide(color: _kNotesBorder),
         ),
+        clipBehavior: Clip.antiAlias,
         child: Column(
           children: [
             CheckboxListTile(
