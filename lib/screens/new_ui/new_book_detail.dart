@@ -2901,7 +2901,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                             )!.original_book,
                                         value:
                                             '${originalBook.name}${originalBook.author != null ? " - ${originalBook.author}" : ""}',
-                                        trailingIcon: Icons.open_in_new,
+                                        link: true,
                                       ),
                                     );
                                   }
@@ -2944,7 +2944,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                       .map((a) => a.trim())
                                       .where((a) => a.isNotEmpty)
                                       .join('\n'),
-                                  trailingIcon: Icons.open_in_new,
+                                  link: true,
                                 ),
                               ),
                               fullWidth: true,
@@ -3015,7 +3015,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                   label: AppLocalizations.of(context)!.saga,
                                   value:
                                       '${_currentBook.saga}${_currentBook.nSaga != null ? ' #${_currentBook.nSaga}' : ''}',
-                                  trailingIcon: Icons.open_in_new,
+                                  link: true,
                                 ),
                               ),
                               fullWidth: true,
@@ -3047,7 +3047,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                         context,
                                       )!.saga_universe,
                                   value: _currentBook.sagaUniverse!,
-                                  trailingIcon: Icons.open_in_new,
+                                  link: true,
                                 ),
                               ),
                               fullWidth: true,
@@ -4235,23 +4235,25 @@ class _FullWidthActionButton extends StatelessWidget {
 }
 
 /// Compact "bento grid" cell showing an icon + label header and a value line
-/// below, with an optional trailing icon (used for navigable fields) and
-/// long-press-to-copy support.
+/// below. When [link] is true the value is rendered in the primary colour with
+/// a small inline chevron, giving a clear tap affordance without a separate
+/// trailing icon. It also supports long-press-to-copy.
 class _DetailCard extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
-  final IconData? trailingIcon;
+  final bool link;
 
   const _DetailCard({
     required this.icon,
     required this.label,
     required this.value,
-    this.trailingIcon,
+    this.link = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).colorScheme.primary;
     return GestureDetector(
       onLongPress: () {
         Clipboard.setData(ClipboardData(text: value));
@@ -4270,17 +4272,13 @@ class _DetailCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(
-                icon,
-                size: 15,
-                color: Theme.of(context).colorScheme.primary,
-              ),
+              Icon(icon, size: 15, color: primaryColor),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   label,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
+                    color: primaryColor,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.2,
                   ),
@@ -4294,21 +4292,26 @@ class _DetailCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: Text(
-                  value,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
+                child: Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text(
+                      value,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color:
+                            link
+                                ? primaryColor
+                                : Theme.of(context).colorScheme.onSurface,
+                        fontWeight: link ? FontWeight.w500 : null,
+                      ),
+                    ),
+                    if (link) ...[
+                      const SizedBox(width: 2),
+                      Icon(Icons.chevron_right, size: 16, color: primaryColor),
+                    ],
+                  ],
                 ),
               ),
-              if (trailingIcon != null) ...[
-                const SizedBox(width: 8),
-                Icon(
-                  trailingIcon,
-                  size: 16,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ],
             ],
           ),
         ],
