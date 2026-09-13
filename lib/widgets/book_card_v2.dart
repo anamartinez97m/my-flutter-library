@@ -38,11 +38,15 @@ class _MetaItem {
 class BookCardV2 extends StatelessWidget {
   final Book book;
   final Set<String> enabledCardFields;
+  final int? bundleBooksRead;
+  final int? bundleBooksTotal;
 
   const BookCardV2({
     super.key,
     required this.book,
     required this.enabledCardFields,
+    this.bundleBooksRead,
+    this.bundleBooksTotal,
   });
 
   @override
@@ -231,14 +235,21 @@ class BookCardV2 extends StatelessWidget {
       );
     }
 
-    final bool hasProgress =
+    final bundleTotal = bundleBooksTotal ?? 0;
+    final bundleRead = (bundleBooksRead ?? 0).clamp(0, bundleTotal);
+    final hasBundleProgress =
+        book.isBundle == true && bundleTotal > 0 && bundleRead < bundleTotal;
+    final hasReadingProgress =
         (book.statusValue?.toLowerCase() == 'started' ||
             book.statusValue?.toLowerCase() == 'standby') &&
         book.readingProgress != null &&
         book.readingProgress! > 0;
+    final hasProgress = hasBundleProgress || hasReadingProgress;
 
     double progressFraction = 0;
-    if (hasProgress) {
+    if (hasBundleProgress) {
+      progressFraction = bundleRead / bundleTotal;
+    } else if (hasReadingProgress) {
       progressFraction =
           book.progressType == 'pages' && book.pages != null && book.pages! > 0
               ? (book.readingProgress! / book.pages!).clamp(0.0, 1.0)

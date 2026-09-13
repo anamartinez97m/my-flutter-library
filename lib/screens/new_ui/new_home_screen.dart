@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
+import 'package:myrandomlibrary/model/book.dart';
 
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
@@ -1197,14 +1198,39 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                 if (p.books.isEmpty) {
                   return Center(child: Text(l10n.no_books_found));
                 }
+                final bundleBooks = <int, List<Book>>{};
+                for (final book in p.allBooks) {
+                  final parentId = book.bundleParentId;
+                  if (parentId != null) {
+                    bundleBooks.putIfAbsent(parentId, () => []).add(book);
+                  }
+                }
                 return ListView.builder(
                   padding: const EdgeInsets.fromLTRB(20, 4, 20, 100),
                   itemCount: p.books.length,
-                  itemBuilder:
-                      (ctx, i) => BookCardV2(
-                        book: p.books[i],
-                        enabledCardFields: _enabledCardFields,
-                      ),
+                  itemBuilder: (ctx, i) {
+                    final book = p.books[i];
+                    final children = bundleBooks[book.bookId] ?? const <Book>[];
+                    final total =
+                        children.isNotEmpty
+                            ? children.length
+                            : book.bundleCount;
+                    final read =
+                        children
+                            .where(
+                              (child) =>
+                                  child.statusValue?.toLowerCase() == 'yes' ||
+                                  child.statusValue?.toLowerCase() ==
+                                      'repeated',
+                            )
+                            .length;
+                    return BookCardV2(
+                      book: book,
+                      enabledCardFields: _enabledCardFields,
+                      bundleBooksRead: read,
+                      bundleBooksTotal: total,
+                    );
+                  },
                 );
               },
             ),
