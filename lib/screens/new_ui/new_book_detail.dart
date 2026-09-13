@@ -1657,15 +1657,25 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
     IconData timeIcon;
     Color timeColor;
 
-    // Build time text with hours if available
+    // Build time text with hours or minutes if available
     if (method == 'Time-based' && details.containsKey('total_hours')) {
       final totalHours = details['total_hours'] as double;
-      final hoursText = totalHours.toStringAsFixed(1);
 
-      if (days == 1) {
-        timeText = '$days day ($hoursText hours)';
+      if (totalHours < 1.0) {
+        final totalMinutes = (totalHours * 60).round();
+        final minuteLabel = totalMinutes == 1 ? 'minute' : 'minutes';
+        if (days == 1) {
+          timeText = '$days day ($totalMinutes $minuteLabel)';
+        } else {
+          timeText = '$days days ($totalMinutes $minuteLabel)';
+        }
       } else {
-        timeText = '$days days ($hoursText hours)';
+        final hoursText = totalHours.toStringAsFixed(1);
+        if (days == 1) {
+          timeText = '$days day ($hoursText hours)';
+        } else {
+          timeText = '$days days ($hoursText hours)';
+        }
       }
     } else {
       // No hours data, show only days
@@ -1847,10 +1857,16 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                     children: [
                       if (method == 'Time-based' &&
                           details.containsKey('total_hours')) ...[
-                        _detailRow(
-                          Icons.schedule,
-                          'Total reading time: ${(details['total_hours'] as double).toStringAsFixed(1)} hours',
-                        ),
+                        _detailRow(Icons.schedule, () {
+                          final totalHours = details['total_hours'] as double;
+                          if (totalHours < 1.0) {
+                            final totalMinutes = (totalHours * 60).round();
+                            final minuteLabel =
+                                totalMinutes == 1 ? 'minute' : 'minutes';
+                            return 'Total reading time: $totalMinutes $minuteLabel';
+                          }
+                          return 'Total reading time: ${totalHours.toStringAsFixed(1)} hours';
+                        }()),
                         if (details['days_with_time'] > 0)
                           _detailRow(
                             Icons.timer,
@@ -4070,7 +4086,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                               ),
                             );
                           }),
-                          if (_chronometerSessions.length > 3)
+                          if (_chronometerSessions.isNotEmpty)
                             Center(
                               child: TextButton(
                                 onPressed: () {
