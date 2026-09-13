@@ -862,6 +862,13 @@ class AppLocalizationsEs extends AppLocalizations {
       'Revisar y editar cada libro antes de importar';
 
   @override
+  String get admin_bundle_csv_import => 'Importación CSV de Paquetes Admin';
+
+  @override
+  String get admin_bundle_csv_import_subtitle =>
+      'Importar y revisar libros individuales dentro de paquetes';
+
+  @override
   String get default_values => 'Valores Predeterminados';
 
   @override

@@ -1610,6 +1610,18 @@ abstract class AppLocalizations {
   /// **'Review and edit each book before importing'**
   String get admin_csv_import_subtitle;
 
+  /// No description provided for @admin_bundle_csv_import.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Bundle CSV Import'**
+  String get admin_bundle_csv_import;
+
+  /// No description provided for @admin_bundle_csv_import_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Import and review individual books within bundles'**
+  String get admin_bundle_csv_import_subtitle;
+
   /// No description provided for @default_values.
   ///
   /// In en, this message translates to:

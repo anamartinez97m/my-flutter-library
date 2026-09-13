@@ -22,8 +22,13 @@ const _kV2Border = Color(0xFFD5C2C7);
 
 class AdminCsvImportScreen extends StatefulWidget {
   final bool useNewUi;
+  final bool bundleImport;
 
-  const AdminCsvImportScreen({super.key, this.useNewUi = false});
+  const AdminCsvImportScreen({
+    super.key,
+    this.useNewUi = false,
+    this.bundleImport = false,
+  });
 
   @override
   State<AdminCsvImportScreen> createState() => _AdminCsvImportScreenState();
@@ -454,9 +459,29 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
 
       // Detect format
       final headers = rows[0];
+      final normalizedHeaders =
+          headers
+              .map((header) => header.toString().toLowerCase().trim())
+              .toSet();
+      final requiredBundleHeaders = {
+        'read',
+        'title',
+        'author',
+        'pages',
+        'saga number',
+        'original publication year',
+        'parent',
+      };
       final csvFormat = CsvImportHelper.detectCsvFormat(headers);
 
-      if (csvFormat == CsvFormat.unknown) {
+      if (widget.bundleImport) {
+        final missingHeaders = requiredBundleHeaders.difference(
+          normalizedHeaders,
+        );
+        if (missingHeaders.isNotEmpty) {
+          throw Exception('Missing columns: ${missingHeaders.join(', ')}');
+        }
+      } else if (csvFormat == CsvFormat.unknown) {
         throw Exception('Unknown CSV format');
       }
 
@@ -464,6 +489,16 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
       final List<_BookImportItem> items = [];
+      final bundleRows =
+          widget.bundleImport
+              ? await db.query(
+                'book',
+                columns: ['book_id', 'name'],
+                where: 'is_bundle = ?',
+                whereArgs: [1],
+                orderBy: 'name COLLATE NOCASE',
+              )
+              : <Map<String, Object?>>[];
 
       // Start from the specified index (for resume functionality)
       for (int i = 1 + startFromIndex; i < rows.length; i++) {
@@ -476,11 +511,53 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         }
 
         try {
-          final book = CsvImportHelper.parseBookFromCsv(
-            row,
-            csvFormat,
-            headers,
-          );
+          Book? book;
+          if (widget.bundleImport) {
+            final parentTitle = CsvImportHelper.getBundleParentTitle(
+              row,
+              headers,
+            );
+            final matchingParents =
+                bundleRows
+                    .where(
+                      (bundle) =>
+                          bundle['name'].toString().trim().toLowerCase() ==
+                          parentTitle?.trim().toLowerCase(),
+                    )
+                    .toList();
+            Map<String, Object?>? parent;
+            if (matchingParents.length == 1) {
+              parent = matchingParents.single;
+            } else {
+              if (!mounted) return;
+              parent = await showDialog<Map<String, Object?>>(
+                context: context,
+                builder:
+                    (context) => SimpleDialog(
+                      title: Text(
+                        parentTitle == null
+                            ? 'Select bundle parent'
+                            : 'Select bundle parent for "$parentTitle"',
+                      ),
+                      children: [
+                        for (final bundle in bundleRows)
+                          SimpleDialogOption(
+                            onPressed: () => Navigator.pop(context, bundle),
+                            child: Text(bundle['name']?.toString() ?? ''),
+                          ),
+                      ],
+                    ),
+              );
+            }
+            if (parent == null) continue;
+            book = CsvImportHelper.parseBundleBookFromCsv(
+              row,
+              headers,
+              parent['book_id'] as int,
+            );
+          } else {
+            book = CsvImportHelper.parseBookFromCsv(row, csvFormat, headers);
+          }
           if (book == null) continue;
 
           // Map status
@@ -547,9 +624,24 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
           );
 
           // Check for duplicates
-          final duplicateIds = await repository.findDuplicateBooks(
+          var duplicateIds = await repository.findDuplicateBooks(
             bookWithMappedStatus,
           );
+          if (widget.bundleImport && duplicateIds.isNotEmpty) {
+            final placeholders = List.filled(
+              duplicateIds.length,
+              '?',
+            ).join(',');
+            final matchingBundleBooks = await db.rawQuery(
+              'SELECT book_id FROM book WHERE book_id IN ($placeholders) '
+              'AND bundle_parent_id = ?',
+              [...duplicateIds, bookWithMappedStatus.bundleParentId],
+            );
+            duplicateIds =
+                matchingBundleBooks
+                    .map((row) => row['book_id'] as int)
+                    .toList();
+          }
 
           String importType;
           Book? existingBook;
@@ -1478,7 +1570,9 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          l10n.admin_csv_import,
+          widget.bundleImport
+              ? l10n.admin_bundle_csv_import
+              : l10n.admin_csv_import,
           style:
               widget.useNewUi
                   ? const TextStyle(

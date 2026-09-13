@@ -5770,6 +5770,50 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               const SizedBox(height: 16),
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.all(16),
+                  leading: Icon(
+                    Icons.library_add,
+                    size: 36,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  title: Text(
+                    AppLocalizations.of(context)!.admin_bundle_csv_import,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  subtitle: Text(
+                    AppLocalizations.of(
+                      context,
+                    )!.admin_bundle_csv_import_subtitle,
+                  ),
+                  onTap: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (_) => AdminCsvImportScreen(
+                              useNewUi: widget.useNewUi,
+                              bundleImport: true,
+                            ),
+                      ),
+                    );
+                    if (result == true && context.mounted) {
+                      await Provider.of<BookProvider?>(
+                        context,
+                        listen: false,
+                      )?.loadBooks();
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(height: 16),
             ],
 
             // ===== NEW UI DEV PREVIEW (only visible to dev account) =====
@@ -5983,6 +6027,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ),
                           ),
                         );
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    _buildV2ActionCard(
+                      icon: Icons.library_add,
+                      iconColor: _kV2Primary,
+                      title: l10n.admin_bundle_csv_import,
+                      subtitle: l10n.admin_bundle_csv_import_subtitle,
+                      onTap: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (_) => AdminCsvImportScreen(
+                                  useNewUi: widget.useNewUi,
+                                  bundleImport: true,
+                                ),
+                          ),
+                        );
+                        if (result == true && context.mounted) {
+                          await Provider.of<BookProvider?>(
+                            context,
+                            listen: false,
+                          )?.loadBooks();
+                        }
                       },
                     ),
                     const SizedBox(height: 16),

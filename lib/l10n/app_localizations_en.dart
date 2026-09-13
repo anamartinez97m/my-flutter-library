@@ -856,6 +856,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Review and edit each book before importing';
 
   @override
+  String get admin_bundle_csv_import => 'Admin Bundle CSV Import';
+
+  @override
+  String get admin_bundle_csv_import_subtitle =>
+      'Import and review individual books within bundles';
+
+  @override
   String get default_values => 'Default Values';
 
   @override

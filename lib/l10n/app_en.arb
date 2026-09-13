@@ -398,6 +398,8 @@
   "admin_mode_subtitle": "Enable advanced features like admin CSV import",
   "admin_csv_import": "Admin CSV Import",
   "admin_csv_import_subtitle": "Review and edit each book before importing",
+  "admin_bundle_csv_import": "Admin Bundle CSV Import",
+  "admin_bundle_csv_import_subtitle": "Import and review individual books within bundles",
   "default_values": "Default Values",
   "default_values_subtitle": "TBR Limit, Sort Order, Home Filters, Card Fields",
   "import_export": "Import/Export",

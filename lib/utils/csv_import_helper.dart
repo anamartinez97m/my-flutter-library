@@ -165,6 +165,68 @@ class CsvImportHelper {
     return CsvFormat.unknown;
   }
 
+  static String? getBundleParentTitle(
+    List<dynamic> row,
+    List<dynamic> headers,
+  ) {
+    final headerMap = <String, int>{};
+    for (int i = 0; i < headers.length; i++) {
+      headerMap[headers[i].toString().toLowerCase().trim()] = i;
+    }
+    final index = headerMap['parent'];
+    if (index == null || index >= row.length) return null;
+    final value = row[index]?.toString().trim();
+    return value?.isEmpty ?? true ? null : value;
+  }
+
+  static Book? parseBundleBookFromCsv(
+    List<dynamic> row,
+    List<dynamic> headers,
+    int bundleParentId,
+  ) {
+    final headerMap = <String, int>{};
+    for (int i = 0; i < headers.length; i++) {
+      final raw = headers[i].toString().toLowerCase().trim();
+      headerMap[raw] = i;
+      headerMap[raw.replaceAll('_', ' ')] = i;
+    }
+
+    String? value(String key) {
+      final index = headerMap[key];
+      if (index == null || index >= row.length) return null;
+      final result = row[index]?.toString().trim();
+      return result?.isEmpty ?? true ? null : result;
+    }
+
+    final title = value('title');
+    if (title == null) return null;
+    final pages = value('pages');
+    final publicationYear = value('original publication year');
+    return Book(
+      bookId: null,
+      name: title,
+      author: value('author'),
+      saga: null,
+      nSaga: value('saga number'),
+      formatSagaValue: null,
+      isbn: null,
+      asin: null,
+      pages: pages == null ? null : int.tryParse(pages),
+      originalPublicationYear:
+          publicationYear == null ? null : int.tryParse(publicationYear),
+      loaned: 'no',
+      statusValue: value('read'),
+      editorialValue: null,
+      languageValue: null,
+      placeValue: null,
+      formatValue: null,
+      createdAt: DateTime.now().toIso8601String(),
+      readCount: 0,
+      isBundle: false,
+      bundleParentId: bundleParentId,
+    );
+  }
+
   /// Parse a book from CSV row based on format
   static Book? parseBookFromCsv(
     List<dynamic> row,

@@ -404,6 +404,8 @@
   "admin_mode_subtitle": "Habilitar funciones avanzadas como importación CSV de administrador",
   "admin_csv_import": "Importación CSV Admin",
   "admin_csv_import_subtitle": "Revisar y editar cada libro antes de importar",
+  "admin_bundle_csv_import": "Importación CSV de Paquetes Admin",
+  "admin_bundle_csv_import_subtitle": "Importar y revisar libros individuales dentro de paquetes",
   "default_values": "Valores Predeterminados",
   "default_values_subtitle": "Límite TBR, Orden, Filtros de Inicio, Campos de Tarjeta",
   "import_export": "Importar/Exportar",
