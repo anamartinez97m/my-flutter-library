@@ -122,8 +122,213 @@ class _ReadDatesWidgetState extends State<ReadDatesWidget> {
     return null;
   }
 
+  Widget _buildV2(BuildContext context) {
+    const primary = Color(0xFF43102B);
+    const border = Color(0xFFD5C2C7);
+    const label = Color(0xFF76656B);
+    final l10n = AppLocalizations.of(context)!;
+
+    Widget dateField({
+      required String title,
+      required String? value,
+      required VoidCallback onTap,
+    }) {
+      return Expanded(
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: border),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: label,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.calendar_today_outlined,
+                      size: 15,
+                      color: primary,
+                    ),
+                    const SizedBox(width: 7),
+                    Expanded(
+                      child: Text(
+                        value ?? l10n.not_set,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: value == null ? label : primary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                '${l10n.reading_sessions} (${_readDates.length})',
+                style: const TextStyle(
+                  fontFamily: 'Manrope',
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: primary,
+                ),
+              ),
+            ),
+            IconButton(
+              onPressed: _addReadDate,
+              icon: const Icon(Icons.add, color: primary, size: 20),
+              tooltip: l10n.add_session,
+              visualDensity: VisualDensity.compact,
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        if (_readDates.isEmpty)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: border),
+            ),
+            child: Column(
+              children: [
+                const Icon(Icons.event_note_outlined, color: label, size: 24),
+                const SizedBox(height: 8),
+                Text(
+                  l10n.no_reading_sessions,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 13,
+                    color: label,
+                  ),
+                ),
+              ],
+            ),
+          )
+        else
+          ...List.generate(_readDates.length, (index) {
+            final readDate = _readDates[index];
+            return Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 28,
+                        height: 28,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: border),
+                        ),
+                        child: Text(
+                          '${index + 1}',
+                          style: const TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: primary,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          '${l10n.session} ${index + 1}',
+                          style: const TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: primary,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => _removeReadDate(index),
+                        icon: const Icon(Icons.delete_outline, size: 19),
+                        color: label,
+                        tooltip: l10n.delete,
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      dateField(
+                        title: l10n.started,
+                        value: readDate.dateStarted,
+                        onTap: () async {
+                          final date = await _showDateOrYearPicker(
+                            context,
+                            readDate.dateStarted,
+                            l10n.start_date,
+                          );
+                          if (date != null) {
+                            _updateReadDate(index, date, readDate.dateFinished);
+                          }
+                        },
+                      ),
+                      const SizedBox(width: 10),
+                      dateField(
+                        title: l10n.finished,
+                        value: readDate.dateFinished,
+                        onTap: () async {
+                          final date = await _showDateOrYearPicker(
+                            context,
+                            readDate.dateFinished,
+                            l10n.end_date,
+                          );
+                          if (date != null) {
+                            _updateReadDate(index, readDate.dateStarted, date);
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          }),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (widget.useNewUi) return _buildV2(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

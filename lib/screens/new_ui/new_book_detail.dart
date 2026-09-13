@@ -65,8 +65,6 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
       _showAllSessions
           ? _chronometerSessions
           : _chronometerSessions.take(3).toList();
-  bool _isAdmin = false;
-
   // Shared v2 section helpers used by the detail cards.
   Widget _buildSectionHeader({
     IconData? icon,
@@ -281,7 +279,6 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
     if (mounted) {
       setState(() {
         _currencySymbol = prefs.getString('currency_symbol') ?? '€';
-        _isAdmin = prefs.getBool('is_admin') ?? false;
       });
     }
   }
@@ -2763,40 +2760,6 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                           child: _buildSectionHeader(
                             title: AppLocalizations.of(context)!.description,
                             trailing: [
-                              if (_isAdmin &&
-                                  _currentBook.metadataSource != null) ...[
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.primary
-                                        .withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Text(
-                                    _currentBook.metadataSource ==
-                                            'google_books'
-                                        ? AppLocalizations.of(
-                                          context,
-                                        )!.google_books
-                                        : _currentBook.metadataSource ==
-                                            'open_library'
-                                        ? AppLocalizations.of(
-                                          context,
-                                        )!.open_library
-                                        : 'API',
-                                    style: TextStyle(
-                                      fontSize: 9,
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                              ],
                               Icon(
                                 _isDescriptionExpanded
                                     ? Icons.expand_less
