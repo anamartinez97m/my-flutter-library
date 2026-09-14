@@ -2869,9 +2869,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                           );
 
                           // Original Book (for repeated books)
-                          if (_currentBook.statusValue?.toLowerCase() ==
-                                  'repeated' &&
-                              _currentBook.originalBookId != null) {
+                          if (_currentBook.originalBookId != null) {
                             addCell(
                               FutureBuilder<Book?>(
                                 future: _loadOriginalBook(

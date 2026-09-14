@@ -1632,8 +1632,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Original Book Selection (shown only for Repeated status)
-                  if (_selectedStatusValue == 'Repeated')
+                  // Original Book Selection (shown for Repeated status or when a link already exists)
+                  if (_selectedStatusValue == 'Repeated' ||
+                      _selectedOriginalBookId != null)
                     FutureBuilder<List<Book>>(
                       future: _loadAllBooksForSelection(),
                       builder: (context, snapshot) {
@@ -1697,7 +1698,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                               focusNode: focusNode,
                               decoration: InputDecoration(
                                 labelText:
-                                    '${AppLocalizations.of(context)!.original_book} *',
+                                    '${AppLocalizations.of(context)!.original_book}${_selectedStatusValue == 'Repeated' ? ' *' : ''}',
                                 border: const OutlineInputBorder(),
                                 prefixIcon: const Icon(Icons.book),
                                 hintText:
@@ -1719,7 +1720,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
                         );
                       },
                     ),
-                  if (_selectedStatusValue == 'Repeated')
+                  if (_selectedStatusValue == 'Repeated' ||
+                      _selectedOriginalBookId != null)
                     const SizedBox(height: 16),
 
                   // Name field

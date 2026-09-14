@@ -3325,8 +3325,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                             _bundleChronometerSessions.isNotEmpty))
                       _buildReadingTimeCard(),
                     // Original Book (for repeated books)
-                    if (_currentBook.statusValue?.toLowerCase() == 'repeated' &&
-                        _currentBook.originalBookId != null)
+                    if (_currentBook.originalBookId != null)
                       FutureBuilder<Book?>(
                         future: _loadOriginalBook(_currentBook.originalBookId!),
                         builder: (context, snapshot) {

@@ -75,9 +75,22 @@ class _UniverseReadingOrderScreenState
         repository.getBooksByUniverse(widget.universe),
         repository.getBookRelationsForUniverse(widget.universe),
       ]);
+      final loadedBooks = results[0] as List<Book>;
+      final bookIdsInUniverse =
+          loadedBooks.map((b) => b.bookId).whereType<int>().toSet();
+      final books =
+          loadedBooks.where((book) {
+            if (book.isBundle == true) return false;
+            if (book.statusValue?.toLowerCase() == 'repeated') return false;
+            if (book.originalBookId != null &&
+                bookIdsInUniverse.contains(book.originalBookId)) {
+              return false;
+            }
+            return true;
+          }).toList();
       if (!mounted) return;
       setState(() {
-        _books = results[0] as List<Book>;
+        _books = books;
         _relations = results[1] as List<BookRelation>;
         _loading = false;
       });
