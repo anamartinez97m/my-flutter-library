@@ -87,7 +87,12 @@ class BooksBySagaScreen extends StatelessWidget {
                     child: _buildSummaryCard(context, filteredBooks.length),
                   ),
                   SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 100),
+                    padding: EdgeInsets.fromLTRB(
+                      20,
+                      4,
+                      20,
+                      MediaQuery.of(context).padding.bottom + 16,
+                    ),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
                         (context, index) => BookCardV2(

@@ -362,7 +362,11 @@ class _UniverseReadingOrderScreenState
                       ),
                       Expanded(
                         child: ReorderableListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          padding: EdgeInsets.only(
+                            left: 12,
+                            right: 12,
+                            bottom: MediaQuery.of(context).padding.bottom + 16,
+                          ),
                           itemCount: reordered.length,
                           onReorderItem: (oldIndex, newIndex) {
                             setSheetState(() {
