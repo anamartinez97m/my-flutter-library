@@ -819,30 +819,23 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                             )
                                             .toList(),
                                   ),
-                                  _filterDropdown(
-                                    ctx: ctx,
+                                  _singleChoiceChipFilter(
                                     provider: provider,
                                     setModalState: setModalState,
                                     filterKey: 'format_saga',
                                     label: l10n.format_saga,
                                     value: _selectedFormatSaga,
                                     assign: (v) => _selectedFormatSaga = v,
-                                    withEmpty: true,
-                                    extras:
-                                        _formatSagaList
-                                            .where((i) => i['value'] != null)
-                                            .map(
-                                              (i) => DropdownMenuItem<String>(
-                                                value: i['value'] as String,
-                                                child: Text(
-                                                  FormatSagaHelper.getLocalizedLabel(
-                                                    i['value'] as String,
-                                                    l10n,
-                                                  ),
-                                                ),
+                                    options: {
+                                      '__EMPTY__': l10n.empty,
+                                      for (final i in _formatSagaList)
+                                        if (i['value'] != null)
+                                          i['value'] as String:
+                                              FormatSagaHelper.getLocalizedLabel(
+                                                i['value'] as String,
+                                                l10n,
                                               ),
-                                            )
-                                            .toList(),
+                                    },
                                   ),
                                   _singleChoiceChipFilter(
                                     provider: provider,
@@ -1061,6 +1054,8 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
       l10n.search_by_isbn,
       l10n.search_by_author,
       l10n.saga,
+      l10n.search_by_genre,
+      l10n.search_by_editorial,
     ];
 
     return Scaffold(
