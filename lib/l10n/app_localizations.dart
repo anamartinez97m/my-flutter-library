@@ -1406,36 +1406,6 @@ abstract class AppLocalizations {
   /// **'{decade} ({totalCount} books)'**
   String decade_book_count(Object decade, Object totalCount);
 
-  /// No description provided for @migrate_bundle_books.
-  ///
-  /// In en, this message translates to:
-  /// **'Migrate Bundle Books?'**
-  String get migrate_bundle_books;
-
-  /// No description provided for @migrate.
-  ///
-  /// In en, this message translates to:
-  /// **'Migrate'**
-  String get migrate;
-
-  /// No description provided for @successful_migrations.
-  ///
-  /// In en, this message translates to:
-  /// **'✅ Successful: {count}'**
-  String successful_migrations(Object count);
-
-  /// No description provided for @skipped_migrations.
-  ///
-  /// In en, this message translates to:
-  /// **'⏭️  Skipped: {count}'**
-  String skipped_migrations(Object count);
-
-  /// No description provided for @failed_migrations.
-  ///
-  /// In en, this message translates to:
-  /// **'❌ Failed: {count}'**
-  String failed_migrations(Object count);
-
   /// No description provided for @import_from_goodreads.
   ///
   /// In en, this message translates to:
@@ -1892,120 +1862,6 @@ abstract class AppLocalizations {
   /// **'Rename or delete reading clubs'**
   String get manage_club_names_subtitle;
 
-  /// No description provided for @migrate_bundle_books_title.
-  ///
-  /// In en, this message translates to:
-  /// **'Migrate Bundle Books'**
-  String get migrate_bundle_books_title;
-
-  /// No description provided for @migrate_bundle_books_subtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Convert old bundles to new system'**
-  String get migrate_bundle_books_subtitle;
-
-  /// No description provided for @available.
-  ///
-  /// In en, this message translates to:
-  /// **'Available'**
-  String get available;
-
-  /// No description provided for @migrate_reading_sessions.
-  ///
-  /// In en, this message translates to:
-  /// **'Migrate Reading Sessions'**
-  String get migrate_reading_sessions;
-
-  /// No description provided for @migrate_reading_sessions_subtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Move reading sessions to individual books'**
-  String get migrate_reading_sessions_subtitle;
-
-  /// No description provided for @migrate_reading_sessions_question.
-  ///
-  /// In en, this message translates to:
-  /// **'Migrate Reading Sessions?'**
-  String get migrate_reading_sessions_question;
-
-  /// No description provided for @no_sessions_to_migrate.
-  ///
-  /// In en, this message translates to:
-  /// **'No reading sessions to migrate. All sessions are already on individual books!'**
-  String get no_sessions_to_migrate;
-
-  /// No description provided for @migrating_reading_sessions.
-  ///
-  /// In en, this message translates to:
-  /// **'Migrating reading sessions...'**
-  String get migrating_reading_sessions;
-
-  /// No description provided for @migration_successful.
-  ///
-  /// In en, this message translates to:
-  /// **'Migration Successful!'**
-  String get migration_successful;
-
-  /// No description provided for @migration_completed_with_errors.
-  ///
-  /// In en, this message translates to:
-  /// **'Migration Completed with Errors'**
-  String get migration_completed_with_errors;
-
-  /// No description provided for @what_will_happen.
-  ///
-  /// In en, this message translates to:
-  /// **'What will happen:'**
-  String get what_will_happen;
-
-  /// No description provided for @migration_description.
-  ///
-  /// In en, this message translates to:
-  /// **'• Reading sessions will be copied to individual books\n• Old bundle reading sessions will be deleted\n• This fixes inconsistencies in bundle reading history'**
-  String get migration_description;
-
-  /// No description provided for @migration_safe_info.
-  ///
-  /// In en, this message translates to:
-  /// **'ℹ️ This is safe and can be run multiple times'**
-  String get migration_safe_info;
-
-  /// No description provided for @successful_bundles.
-  ///
-  /// In en, this message translates to:
-  /// **'✅ Successful: {count} bundles'**
-  String successful_bundles(Object count);
-
-  /// No description provided for @skipped_bundles.
-  ///
-  /// In en, this message translates to:
-  /// **'⏭️  Skipped: {count} bundles'**
-  String skipped_bundles(Object count);
-
-  /// No description provided for @failed_bundles.
-  ///
-  /// In en, this message translates to:
-  /// **'❌ Failed: {count} bundles'**
-  String failed_bundles(Object count);
-
-  /// No description provided for @total_sessions_migrated.
-  ///
-  /// In en, this message translates to:
-  /// **'📚 Total sessions migrated: {count}'**
-  String total_sessions_migrated(Object count);
-
-  /// No description provided for @errors_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Errors:'**
-  String get errors_label;
-
-  /// No description provided for @error_migrating_reading_sessions.
-  ///
-  /// In en, this message translates to:
-  /// **'Error migrating reading sessions: {error}'**
-  String error_migrating_reading_sessions(Object error);
-
   /// No description provided for @warm_earth.
   ///
   /// In en, this message translates to:
@@ -2149,12 +2005,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Books by Saga'**
   String get books_by_saga;
-
-  /// No description provided for @bundle_migration.
-  ///
-  /// In en, this message translates to:
-  /// **'Bundle Migration'**
-  String get bundle_migration;
 
   /// No description provided for @books_by_year.
   ///
@@ -2947,18 +2797,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No past winners yet'**
   String get no_past_winners;
-
-  /// No description provided for @migrate_sessions_description.
-  ///
-  /// In en, this message translates to:
-  /// **'This will migrate {sessions} reading session(s) from {bundles} bundle(s) to individual books.'**
-  String migrate_sessions_description(Object sessions, Object bundles);
-
-  /// No description provided for @migrate_bundles_description.
-  ///
-  /// In en, this message translates to:
-  /// **'This will convert {count} old-style bundles to the new system.\n\nIndividual book records will be created for each book in the bundle.\n\nThis cannot be undone.'**
-  String migrate_bundles_description(Object count);
 
   /// No description provided for @import_from_tag.
   ///
@@ -5204,66 +5042,6 @@ abstract class AppLocalizations {
   /// **'Anywhere'**
   String get anywhere_label;
 
-  /// No description provided for @migration_completed_errors.
-  ///
-  /// In en, this message translates to:
-  /// **'Migration Completed with Errors'**
-  String get migration_completed_errors;
-
-  /// No description provided for @about_bundle_migration.
-  ///
-  /// In en, this message translates to:
-  /// **'About Bundle Migration'**
-  String get about_bundle_migration;
-
-  /// No description provided for @current_status.
-  ///
-  /// In en, this message translates to:
-  /// **'Current Status'**
-  String get current_status;
-
-  /// No description provided for @old_style_bundles.
-  ///
-  /// In en, this message translates to:
-  /// **'Old-style bundles'**
-  String get old_style_bundles;
-
-  /// No description provided for @new_style_bundles.
-  ///
-  /// In en, this message translates to:
-  /// **'New-style bundles'**
-  String get new_style_bundles;
-
-  /// No description provided for @individual_bundle_books.
-  ///
-  /// In en, this message translates to:
-  /// **'Individual bundle books'**
-  String get individual_bundle_books;
-
-  /// No description provided for @migrating.
-  ///
-  /// In en, this message translates to:
-  /// **'Migrating...'**
-  String get migrating;
-
-  /// No description provided for @migrate_n_bundles.
-  ///
-  /// In en, this message translates to:
-  /// **'Migrate {count} Bundles'**
-  String migrate_n_bundles(Object count);
-
-  /// No description provided for @no_migration_needed.
-  ///
-  /// In en, this message translates to:
-  /// **'All bundles are using the new system!\nNo migration needed.'**
-  String get no_migration_needed;
-
-  /// No description provided for @last_migration_result.
-  ///
-  /// In en, this message translates to:
-  /// **'Last Migration Result'**
-  String get last_migration_result;
-
   /// No description provided for @resume_import.
   ///
   /// In en, this message translates to:
@@ -6151,18 +5929,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Rating fields, clubs, dropdowns, price & currency'**
   String get library_customization_subtitle;
-
-  /// No description provided for @migrations_section.
-  ///
-  /// In en, this message translates to:
-  /// **'Migrations'**
-  String get migrations_section;
-
-  /// No description provided for @migrations_section_subtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Data migration tools'**
-  String get migrations_section_subtitle;
 
   /// No description provided for @library_tools.
   ///

@@ -360,11 +360,6 @@
   "tbr_books_count": "{count}",
   "no_books_from_decade": "No books read from this decade",
   "decade_book_count": "{decade} ({totalCount} books)",
-  "migrate_bundle_books": "Migrate Bundle Books?",
-  "migrate": "Migrate",
-  "successful_migrations": "✅ Successful: {count}",
-  "skipped_migrations": "⏭️  Skipped: {count}",
-  "failed_migrations": "❌ Failed: {count}",
   "import_from_goodreads": "Import from Goodreads",
   "import_all_books": "Import all books",
   "import_books_from_tag": "Import books from a specific tag",
@@ -462,40 +457,6 @@
   "manage_rating_field_names_subtitle": "Add, edit, or remove rating criterion names",
   "manage_club_names": "Manage Club Names",
   "manage_club_names_subtitle": "Rename or delete reading clubs",
-  "migrate_bundle_books_title": "Migrate Bundle Books",
-  "migrate_bundle_books_subtitle": "Convert old bundles to new system",
-  "available": "Available",
-  "migrate_reading_sessions": "Migrate Reading Sessions",
-  "migrate_reading_sessions_subtitle": "Move reading sessions to individual books",
-  "migrate_reading_sessions_question": "Migrate Reading Sessions?",
-  "no_sessions_to_migrate": "No reading sessions to migrate. All sessions are already on individual books!",
-  "migrating_reading_sessions": "Migrating reading sessions...",
-  "migration_successful": "Migration Successful!",
-  "migration_completed_with_errors": "Migration Completed with Errors",
-  "what_will_happen": "What will happen:",
-  "migration_description": "• Reading sessions will be copied to individual books\n• Old bundle reading sessions will be deleted\n• This fixes inconsistencies in bundle reading history",
-  "migration_safe_info": "ℹ️ This is safe and can be run multiple times",
-  "successful_bundles": "✅ Successful: {count} bundles",
-  "@successful_bundles": {
-    "placeholders": { "count": {} }
-  },
-  "skipped_bundles": "⏭️  Skipped: {count} bundles",
-  "@skipped_bundles": {
-    "placeholders": { "count": {} }
-  },
-  "failed_bundles": "❌ Failed: {count} bundles",
-  "@failed_bundles": {
-    "placeholders": { "count": {} }
-  },
-  "total_sessions_migrated": "📚 Total sessions migrated: {count}",
-  "@total_sessions_migrated": {
-    "placeholders": { "count": {} }
-  },
-  "errors_label": "Errors:",
-  "error_migrating_reading_sessions": "Error migrating reading sessions: {error}",
-  "@error_migrating_reading_sessions": {
-    "placeholders": { "error": {} }
-  },
   "warm_earth": "Warm Earth",
   "vibrant_sunset": "Vibrant Sunset",
   "soft_pastel": "Soft Pastel",
@@ -521,7 +482,6 @@
   "authors_title": "Authors",
   "saga_completion": "Saga Completion",
   "books_by_saga": "Books by Saga",
-  "bundle_migration": "Bundle Migration",
   "books_by_year": "Books by Year",
 
   "reading_status_required": "Reading Status *",
@@ -751,15 +711,6 @@
 
   "past_years_winners": "Past Years Winners",
   "no_past_winners": "No past winners yet",
-
-  "migrate_sessions_description": "This will migrate {sessions} reading session(s) from {bundles} bundle(s) to individual books.",
-  "@migrate_sessions_description": {
-    "placeholders": { "sessions": {}, "bundles": {} }
-  },
-  "migrate_bundles_description": "This will convert {count} old-style bundles to the new system.\n\nIndividual book records will be created for each book in the bundle.\n\nThis cannot be undone.",
-  "@migrate_bundles_description": {
-    "placeholders": { "count": {} }
-  },
 
   "import_from_tag": "Import from Tag",
   "import_options": "Import Options ({format})",
@@ -1287,19 +1238,6 @@
   },
   "clear_filters": "Clear Filters",
   "anywhere_label": "Anywhere",
-  "migration_completed_errors": "Migration Completed with Errors",
-  "about_bundle_migration": "About Bundle Migration",
-  "current_status": "Current Status",
-  "old_style_bundles": "Old-style bundles",
-  "new_style_bundles": "New-style bundles",
-  "individual_bundle_books": "Individual bundle books",
-  "migrating": "Migrating...",
-  "migrate_n_bundles": "Migrate {count} Bundles",
-  "@migrate_n_bundles": {
-    "placeholders": { "count": {} }
-  },
-  "no_migration_needed": "All bundles are using the new system!\nNo migration needed.",
-  "last_migration_result": "Last Migration Result",
   "resume_import": "Resume Import?",
   "start_fresh": "Start Fresh",
   "import_all": "Import All",
@@ -1488,8 +1426,6 @@
   "library_display_subtitle": "Home Filters, Card Fields, Sort Order, TBR Limit",
   "library_customization": "Library Customization",
   "library_customization_subtitle": "Rating fields, clubs, dropdowns, price & currency",
-  "migrations_section": "Migrations",
-  "migrations_section_subtitle": "Data migration tools",
 
   "library_tools": "Library Tools",
   "library_tools_subtitle": "Bulk edit, fill empty fields, smart suggestions",

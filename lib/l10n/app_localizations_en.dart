@@ -736,27 +736,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get migrate_bundle_books => 'Migrate Bundle Books?';
-
-  @override
-  String get migrate => 'Migrate';
-
-  @override
-  String successful_migrations(Object count) {
-    return '✅ Successful: $count';
-  }
-
-  @override
-  String skipped_migrations(Object count) {
-    return '⏭️  Skipped: $count';
-  }
-
-  @override
-  String failed_migrations(Object count) {
-    return '❌ Failed: $count';
-  }
-
-  @override
   String get import_from_goodreads => 'Import from Goodreads';
 
   @override
@@ -1021,79 +1000,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manage_club_names_subtitle => 'Rename or delete reading clubs';
 
   @override
-  String get migrate_bundle_books_title => 'Migrate Bundle Books';
-
-  @override
-  String get migrate_bundle_books_subtitle =>
-      'Convert old bundles to new system';
-
-  @override
-  String get available => 'Available';
-
-  @override
-  String get migrate_reading_sessions => 'Migrate Reading Sessions';
-
-  @override
-  String get migrate_reading_sessions_subtitle =>
-      'Move reading sessions to individual books';
-
-  @override
-  String get migrate_reading_sessions_question => 'Migrate Reading Sessions?';
-
-  @override
-  String get no_sessions_to_migrate =>
-      'No reading sessions to migrate. All sessions are already on individual books!';
-
-  @override
-  String get migrating_reading_sessions => 'Migrating reading sessions...';
-
-  @override
-  String get migration_successful => 'Migration Successful!';
-
-  @override
-  String get migration_completed_with_errors =>
-      'Migration Completed with Errors';
-
-  @override
-  String get what_will_happen => 'What will happen:';
-
-  @override
-  String get migration_description =>
-      '• Reading sessions will be copied to individual books\n• Old bundle reading sessions will be deleted\n• This fixes inconsistencies in bundle reading history';
-
-  @override
-  String get migration_safe_info =>
-      'ℹ️ This is safe and can be run multiple times';
-
-  @override
-  String successful_bundles(Object count) {
-    return '✅ Successful: $count bundles';
-  }
-
-  @override
-  String skipped_bundles(Object count) {
-    return '⏭️  Skipped: $count bundles';
-  }
-
-  @override
-  String failed_bundles(Object count) {
-    return '❌ Failed: $count bundles';
-  }
-
-  @override
-  String total_sessions_migrated(Object count) {
-    return '📚 Total sessions migrated: $count';
-  }
-
-  @override
-  String get errors_label => 'Errors:';
-
-  @override
-  String error_migrating_reading_sessions(Object error) {
-    return 'Error migrating reading sessions: $error';
-  }
-
-  @override
   String get warm_earth => 'Warm Earth';
 
   @override
@@ -1165,9 +1071,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get books_by_saga => 'Books by Saga';
-
-  @override
-  String get bundle_migration => 'Bundle Migration';
 
   @override
   String get books_by_year => 'Books by Year';
@@ -1626,16 +1529,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get no_past_winners => 'No past winners yet';
-
-  @override
-  String migrate_sessions_description(Object sessions, Object bundles) {
-    return 'This will migrate $sessions reading session(s) from $bundles bundle(s) to individual books.';
-  }
-
-  @override
-  String migrate_bundles_description(Object count) {
-    return 'This will convert $count old-style bundles to the new system.\n\nIndividual book records will be created for each book in the bundle.\n\nThis cannot be undone.';
-  }
 
   @override
   String get import_from_tag => 'Import from Tag';
@@ -2890,39 +2783,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get anywhere_label => 'Anywhere';
 
   @override
-  String get migration_completed_errors => 'Migration Completed with Errors';
-
-  @override
-  String get about_bundle_migration => 'About Bundle Migration';
-
-  @override
-  String get current_status => 'Current Status';
-
-  @override
-  String get old_style_bundles => 'Old-style bundles';
-
-  @override
-  String get new_style_bundles => 'New-style bundles';
-
-  @override
-  String get individual_bundle_books => 'Individual bundle books';
-
-  @override
-  String get migrating => 'Migrating...';
-
-  @override
-  String migrate_n_bundles(Object count) {
-    return 'Migrate $count Bundles';
-  }
-
-  @override
-  String get no_migration_needed =>
-      'All bundles are using the new system!\nNo migration needed.';
-
-  @override
-  String get last_migration_result => 'Last Migration Result';
-
-  @override
   String get resume_import => 'Resume Import?';
 
   @override
@@ -3401,12 +3261,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get library_customization_subtitle =>
       'Rating fields, clubs, dropdowns, price & currency';
-
-  @override
-  String get migrations_section => 'Migrations';
-
-  @override
-  String get migrations_section_subtitle => 'Data migration tools';
 
   @override
   String get library_tools => 'Library Tools';

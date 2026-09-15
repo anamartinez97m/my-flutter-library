@@ -658,7 +658,6 @@ lib/
 │   ├── books_by_decade.dart
 │   ├── books_by_saga.dart
 │   ├── books_by_year.dart
-│   ├── bundle_migration_screen.dart
 │   ├── edit_book.dart
 │   ├── fill_empty_wizard_screen.dart   # Herramienta: rellenar campos vacíos
 │   ├── home.dart
@@ -682,11 +681,9 @@ lib/
 │   └── open_library_service.dart
 │
 ├── utils/
-│   ├── bundle_migration.dart
 │   ├── csv_import_helper.dart
 │   ├── date_formatter.dart
 │   ├── format_saga_helper.dart         # Localización de valores format_saga
-│   ├── reading_session_migration.dart
 │   └── status_helper.dart
 │
 ├── widgets/

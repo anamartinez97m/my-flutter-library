@@ -366,11 +366,6 @@
   "tbr_books_count": "{count}",
   "no_books_from_decade": "No hay libros leídos de esta década",
   "decade_book_count": "{decade} ({totalCount} libros)",
-  "migrate_bundle_books": "¿Migrar libros del paquete?",
-  "migrate": "Migrar",
-  "successful_migrations": "✅ Exitosos: {count}",
-  "skipped_migrations": "⏭️  Omitidos: {count}",
-  "failed_migrations": "❌ Fallidos: {count}",
   "import_from_goodreads": "Importar desde Goodreads",
   "import_all_books": "Importar todos los libros",
   "import_books_from_tag": "Importar libros de una etiqueta específica",
@@ -468,40 +463,6 @@
   "manage_rating_field_names_subtitle": "Añadir, editar o eliminar nombres de criterios de valoración",
   "manage_club_names": "Gestionar Nombres de Clubes",
   "manage_club_names_subtitle": "Renombrar o eliminar clubes de lectura",
-  "migrate_bundle_books_title": "Migrar Libros de Paquete",
-  "migrate_bundle_books_subtitle": "Convertir paquetes antiguos al nuevo sistema",
-  "available": "Disponible",
-  "migrate_reading_sessions": "Migrar Sesiones de Lectura",
-  "migrate_reading_sessions_subtitle": "Mover sesiones de lectura a libros individuales",
-  "migrate_reading_sessions_question": "¿Migrar Sesiones de Lectura?",
-  "no_sessions_to_migrate": "No hay sesiones de lectura para migrar. ¡Todas las sesiones ya están en libros individuales!",
-  "migrating_reading_sessions": "Migrando sesiones de lectura...",
-  "migration_successful": "¡Migración Exitosa!",
-  "migration_completed_with_errors": "Migración Completada con Errores",
-  "what_will_happen": "Qué sucederá:",
-  "migration_description": "• Las sesiones de lectura se copiarán a libros individuales\n• Las sesiones antiguas de paquetes se eliminarán\n• Esto corrige inconsistencias en el historial de lectura de paquetes",
-  "migration_safe_info": "ℹ️ Esto es seguro y se puede ejecutar varias veces",
-  "successful_bundles": "✅ Exitosos: {count} paquetes",
-  "@successful_bundles": {
-    "placeholders": { "count": {} }
-  },
-  "skipped_bundles": "⏭️  Omitidos: {count} paquetes",
-  "@skipped_bundles": {
-    "placeholders": { "count": {} }
-  },
-  "failed_bundles": "❌ Fallidos: {count} paquetes",
-  "@failed_bundles": {
-    "placeholders": { "count": {} }
-  },
-  "total_sessions_migrated": "📚 Total de sesiones migradas: {count}",
-  "@total_sessions_migrated": {
-    "placeholders": { "count": {} }
-  },
-  "errors_label": "Errores:",
-  "error_migrating_reading_sessions": "Error al migrar sesiones de lectura: {error}",
-  "@error_migrating_reading_sessions": {
-    "placeholders": { "error": {} }
-  },
   "warm_earth": "Tierra Cálida",
   "vibrant_sunset": "Atardecer Vibrante",
   "soft_pastel": "Pastel Suave",
@@ -527,7 +488,6 @@
   "authors_title": "Autores",
   "saga_completion": "Completitud de Sagas",
   "books_by_saga": "Libros por Saga",
-  "bundle_migration": "Migración de Paquetes",
   "books_by_year": "Libros por Año",
 
   "reading_status_required": "Estado de Lectura *",
@@ -757,15 +717,6 @@
 
   "past_years_winners": "Ganadores de Años Anteriores",
   "no_past_winners": "Aún no hay ganadores anteriores",
-
-  "migrate_sessions_description": "Esto migrará {sessions} sesión(es) de lectura de {bundles} paquete(s) a libros individuales.",
-  "@migrate_sessions_description": {
-    "placeholders": { "sessions": {}, "bundles": {} }
-  },
-  "migrate_bundles_description": "Esto convertirá {count} paquetes antiguos al nuevo sistema.\n\nSe crearán registros individuales para cada libro del paquete.\n\nEsto no se puede deshacer.",
-  "@migrate_bundles_description": {
-    "placeholders": { "count": {} }
-  },
 
   "import_from_tag": "Importar desde Etiqueta",
   "import_options": "Opciones de Importación ({format})",
@@ -1293,19 +1244,6 @@
   },
   "clear_filters": "Borrar Filtros",
   "anywhere_label": "Cualquier lugar",
-  "migration_completed_errors": "Migración Completada con Errores",
-  "about_bundle_migration": "Sobre la Migración de Bundles",
-  "current_status": "Estado Actual",
-  "old_style_bundles": "Bundles estilo antiguo",
-  "new_style_bundles": "Bundles estilo nuevo",
-  "individual_bundle_books": "Libros individuales de bundles",
-  "migrating": "Migrando...",
-  "migrate_n_bundles": "Migrar {count} Bundles",
-  "@migrate_n_bundles": {
-    "placeholders": { "count": {} }
-  },
-  "no_migration_needed": "¡Todos los bundles usan el nuevo sistema!\nNo se necesita migración.",
-  "last_migration_result": "Último Resultado de Migración",
   "resume_import": "¿Reanudar Importación?",
   "start_fresh": "Empezar de Nuevo",
   "import_all": "Importar Todo",
@@ -1494,8 +1432,6 @@
   "library_display_subtitle": "Filtros de Inicio, Campos de Tarjeta, Orden, Límite TBR",
   "library_customization": "Personalización de Biblioteca",
   "library_customization_subtitle": "Campos de valoración, clubes, desplegables, precio y moneda",
-  "migrations_section": "Migraciones",
-  "migrations_section_subtitle": "Herramientas de migración de datos",
 
   "library_tools": "Herramientas de Biblioteca",
   "library_tools_subtitle": "Edición masiva, completar campos, sugerencias inteligentes",
