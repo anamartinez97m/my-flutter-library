@@ -1551,7 +1551,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
           ),
           leading: IconButton(
             icon: Icon(
-              Icons.arrow_back_ios_new_outlined,
+              Icons.arrow_back,
               color: widget.useNewUi ? _kPrimary : null,
             ),
             onPressed: () => Navigator.pop(context),

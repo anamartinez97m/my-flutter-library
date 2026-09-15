@@ -1332,7 +1332,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.add_book),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_outlined),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: [
@@ -2689,7 +2689,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_outlined, color: _kPrimary),
+          icon: const Icon(Icons.arrow_back, color: _kPrimary),
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: [
