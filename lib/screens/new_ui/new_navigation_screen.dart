@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
-import 'package:myrandomlibrary/providers/feature_flag_provider.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_home_screen.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_my_books_screen.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_random_screen.dart';
 import 'package:myrandomlibrary/screens/settings.dart';
 import 'package:myrandomlibrary/screens/statistics.dart';
 import 'package:myrandomlibrary/services/app_update_service.dart';
-import 'package:provider/provider.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // NEW UI — Navigation Shell
@@ -20,8 +18,6 @@ import 'package:provider/provider.dart';
 //   2. Replace the matching import above with the new_ui version
 //   3. Update widgetOptions below
 //
-// The "New UI" AppBar action lets dev users switch back to the old UI at any
-// time without needing to navigate to the old settings screen.
 // ─────────────────────────────────────────────────────────────────────────────
 
 class NewNavigationScreen extends StatefulWidget {
@@ -137,21 +133,6 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
                 letterSpacing: -0.5,
               ),
             ),
-          ),
-          Consumer<FeatureFlagProvider>(
-            builder: (context, flags, _) {
-              if (!flags.isDevUser) return const SizedBox.shrink();
-              return IconButton(
-                icon: const Icon(
-                  Icons.undo_rounded,
-                  color: Color(0xFF514348),
-                  size: 20,
-                ),
-                tooltip: 'Switch to old UI',
-                onPressed: () => flags.setToggle(false),
-                visualDensity: VisualDensity.compact,
-              );
-            },
           ),
         ],
       ),

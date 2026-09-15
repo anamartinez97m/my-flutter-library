@@ -6,11 +6,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
-import 'package:myrandomlibrary/providers/feature_flag_provider.dart';
 import 'package:myrandomlibrary/providers/locale_provider.dart';
 import 'package:myrandomlibrary/providers/theme_provider.dart';
 import 'package:myrandomlibrary/screens/get_started_screen.dart';
-import 'package:myrandomlibrary/screens/navigation.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_navigation_screen.dart';
 import 'package:myrandomlibrary/services/backup_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -53,7 +51,6 @@ void main() async {
           ChangeNotifierProvider<BookProvider>.value(value: bookProvider),
           ChangeNotifierProvider(create: (_) => ThemeProvider()),
           ChangeNotifierProvider(create: (_) => LocaleProvider()),
-          ChangeNotifierProvider(create: (_) => FeatureFlagProvider()),
         ],
         child: const MyApp(),
       ),
@@ -67,7 +64,6 @@ void main() async {
         providers: [
           ChangeNotifierProvider(create: (_) => ThemeProvider()),
           ChangeNotifierProvider(create: (_) => LocaleProvider()),
-          ChangeNotifierProvider(create: (_) => FeatureFlagProvider()),
         ],
         child: const MyApp(),
       ),
@@ -82,8 +78,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final localeProvider = Provider.of<LocaleProvider>(context);
-    final flags = Provider.of<FeatureFlagProvider>(context);
-    final isV2 = flags.newUiEnabled;
 
     const v2Overlay = SystemUiOverlayStyle(
       statusBarColor: Color(0xFFFDF8F6),
@@ -93,24 +87,16 @@ class MyApp extends StatelessWidget {
 
     final lightBase = themeProvider.lightTheme;
     final darkBase = themeProvider.darkTheme;
-    final lightTheme =
-        isV2
-            ? lightBase.copyWith(
-              appBarTheme: lightBase.appBarTheme.copyWith(
-                systemOverlayStyle: v2Overlay,
-              ),
-            )
-            : lightBase;
-    final darkTheme =
-        isV2
-            ? darkBase.copyWith(
-              appBarTheme: darkBase.appBarTheme.copyWith(
-                systemOverlayStyle: v2Overlay,
-              ),
-            )
-            : darkBase;
+    final lightTheme = lightBase.copyWith(
+      appBarTheme: lightBase.appBarTheme.copyWith(
+        systemOverlayStyle: v2Overlay,
+      ),
+    );
+    final darkTheme = darkBase.copyWith(
+      appBarTheme: darkBase.appBarTheme.copyWith(systemOverlayStyle: v2Overlay),
+    );
 
-    Widget app = MaterialApp(
+    final app = MaterialApp(
       navigatorKey: NotificationService.navigatorKey,
       title: 'My Book Vault',
       localizationsDelegates: const [
@@ -168,18 +154,12 @@ class MyApp extends StatelessWidget {
       home: const _AutoBackupRunner(),
     );
 
-    if (isV2) {
-      return AnnotatedRegion<SystemUiOverlayStyle>(
-        value: v2Overlay,
-        child: app,
-      );
-    }
-    return app;
+    return AnnotatedRegion<SystemUiOverlayStyle>(value: v2Overlay, child: app);
   }
 }
 
 /// Wrapper widget that triggers auto backup in the background after the
-/// first frame, then displays the regular NavigationScreen.
+/// first frame, then displays the NewNavigationScreen.
 class _AutoBackupRunner extends StatefulWidget {
   const _AutoBackupRunner();
 
@@ -234,10 +214,6 @@ class _AutoBackupRunnerState extends State<_AutoBackupRunner> {
     if (!_hasSeenOnboarding!) {
       return const GetStartedScreen();
     }
-    final flags = Provider.of<FeatureFlagProvider>(context);
-    if (flags.newUiEnabled) {
-      return const NewNavigationScreen();
-    }
-    return const NavigationScreen();
+    return const NewNavigationScreen();
   }
 }
