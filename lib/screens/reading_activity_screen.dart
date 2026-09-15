@@ -4,12 +4,10 @@ import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/model/book_competition.dart';
 import 'package:myrandomlibrary/repositories/book_competition_repository.dart';
-import 'package:myrandomlibrary/repositories/year_challenge_repository.dart';
 import 'package:myrandomlibrary/screens/books_by_decade.dart';
 import 'package:myrandomlibrary/screens/books_by_year.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_past_years_competition_screen.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_year_challenges_screen_2.dart';
-import 'package:myrandomlibrary/screens/year_challenges.dart';
 import 'package:myrandomlibrary/widgets/statistics/reading_efficiency_card.dart';
 
 /// New "Reading Activity" statistics screen matching the redesigned UI.
@@ -89,10 +87,6 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
   // Books by decade toggle
   bool _showReadBooks = false;
 
-  // Reading goals data
-  Map<String, dynamic>? _currentYearProgress;
-  bool _isLoadingGoals = true;
-
   // Past book competition winners
   List<BookCompetition> _pastWinners = [];
   bool _isLoadingPastWinners = true;
@@ -103,7 +97,6 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
     WidgetsBinding.instance.addObserver(this);
     _initializeMonthlyYear();
     _initializeDailyYear();
-    _loadCurrentYearProgress();
     _loadPastWinners();
   }
 
@@ -116,7 +109,6 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _loadCurrentYearProgress();
       _loadPastWinners();
     }
   }
@@ -158,43 +150,6 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
       _dailySelectedYear = sortedYears.first;
     } else {
       _dailySelectedYear = DateTime.now().year;
-    }
-  }
-
-  Future<void> _loadCurrentYearProgress() async {
-    try {
-      final db = await DatabaseHelper.instance.database;
-      final repository = YearChallengeRepository(db);
-      final currentYear = DateTime.now().year;
-
-      final challenges = await repository.getAllChallenges();
-      final currentChallenge =
-          challenges.where((c) => c.year == currentYear).firstOrNull;
-
-      if (currentChallenge != null) {
-        final progress = await repository.getChallengeProgress(currentYear);
-        if (mounted) {
-          setState(() {
-            _currentYearProgress = progress;
-            _isLoadingGoals = false;
-          });
-        }
-      } else {
-        if (mounted) {
-          setState(() {
-            _currentYearProgress = null;
-            _isLoadingGoals = false;
-          });
-        }
-      }
-    } catch (e) {
-      debugPrint('Error loading current year progress: $e');
-      if (mounted) {
-        setState(() {
-          _currentYearProgress = null;
-          _isLoadingGoals = false;
-        });
-      }
     }
   }
 
@@ -389,13 +344,6 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
               ),
             if (widget.dailyHeatmap.isNotEmpty) const SizedBox(height: 16),
             // Reading Goals
-            _buildCollapsibleCard(
-              sectionKey: 'reading_goals',
-              title: l10n.reading_goals,
-              child: _buildReadingGoalsContent(context, l10n),
-            ),
-            const SizedBox(height: 16),
-            // Year Challenges 2
             _buildYearChallenges2Card(context, l10n),
             const SizedBox(height: 16),
             // Reading Efficiency — Insight-first card
@@ -915,192 +863,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
     );
   }
 
-  // ─── Reading Goals ────────────────────────────────────────────────
-
-  Widget _buildReadingGoalsContent(
-    BuildContext context,
-    AppLocalizations l10n,
-  ) {
-    if (_isLoadingGoals) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(16),
-          child: CircularProgressIndicator(color: _kPrimary),
-        ),
-      );
-    }
-
-    if (_currentYearProgress == null) {
-      // No challenge set — show placeholder
-      return GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const YearChallengesScreen(),
-            ),
-          );
-        },
-        behavior: HitTestBehavior.opaque,
-        child: Column(
-          children: [
-            Icon(
-              Icons.flag,
-              size: 40,
-              color: _kSecondary.withValues(alpha: 0.5),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              l10n.no_challenge_set_for_year(DateTime.now().year.toString()),
-              style: const TextStyle(fontSize: 14, color: _kSub),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: _kPrimary,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                l10n.create_challenge,
-                style: const TextStyle(
-                  fontFamily: 'Manrope',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    // Show current year progress
-    final booksRead = _currentYearProgress!['booksRead'] ?? 0;
-    final targetBooks = _currentYearProgress!['targetBooks'] ?? 0;
-    final pagesRead = _currentYearProgress!['pagesRead'] ?? 0;
-    final targetPages = _currentYearProgress!['targetPages'];
-    final booksProgress =
-        (_currentYearProgress!['booksProgress'] ?? 0.0) as double;
-    final pagesProgress =
-        (_currentYearProgress!['pagesProgress'] ?? 0.0) as double;
-
-    final booksComplete = booksRead >= targetBooks;
-    final pagesComplete = targetPages != null && pagesRead >= targetPages;
-
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const YearChallengesScreen()),
-        );
-      },
-      behavior: HitTestBehavior.opaque,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.flag, color: _kSecondary, size: 20),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  '${DateTime.now().year} ${l10n.reading_goals}',
-                  style: const TextStyle(
-                    fontFamily: 'Manrope',
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: _kText,
-                  ),
-                ),
-              ),
-              const Icon(Icons.chevron_right, color: _kPrimary, size: 20),
-            ],
-          ),
-          const SizedBox(height: 16),
-          // Books progress
-          if (targetBooks > 0) ...[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  l10n.books_label,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: _kSub,
-                  ),
-                ),
-                Text(
-                  '$booksRead / $targetBooks',
-                  style: TextStyle(
-                    fontFamily: 'Manrope',
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: booksComplete ? _kPrimary : _kText,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(6),
-              child: LinearProgressIndicator(
-                value: booksProgress.clamp(0.0, 1.0),
-                minHeight: 10,
-                backgroundColor: _kBarBg,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  booksComplete ? _kPrimary : _kSecondary,
-                ),
-              ),
-            ),
-          ],
-          // Pages progress
-          if (targetPages != null && targetPages > 0) ...[
-            if (targetBooks > 0) const SizedBox(height: 14),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  l10n.pages_label,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: _kSub,
-                  ),
-                ),
-                Text(
-                  '$pagesRead / $targetPages',
-                  style: TextStyle(
-                    fontFamily: 'Manrope',
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: pagesComplete ? _kPrimary : _kText,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(6),
-              child: LinearProgressIndicator(
-                value: pagesProgress.clamp(0.0, 1.0),
-                minHeight: 10,
-                backgroundColor: _kBarBg,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  pagesComplete ? _kPrimary : _kTertiary,
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  // ─── Year Challenges 2 card ─────────────────────────────────────────
+  // ─── Reading Goals card ─────────────────────────────────────────
 
   Widget _buildYearChallenges2Card(
     BuildContext context,
@@ -1136,29 +899,14 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
             const Icon(Icons.flag, color: _kSecondary, size: 20),
             const SizedBox(width: 12),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Reading Goals 2',
-                    style: const TextStyle(
-                      fontFamily: 'Manrope',
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: _kPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    l10n.reading_goals,
-                    style: const TextStyle(
-                      fontFamily: 'Manrope',
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: _kSub,
-                    ),
-                  ),
-                ],
+              child: Text(
+                l10n.reading_goals,
+                style: const TextStyle(
+                  fontFamily: 'Manrope',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: _kPrimary,
+                ),
               ),
             ),
             const Icon(Icons.chevron_right, color: _kPrimary, size: 22),
