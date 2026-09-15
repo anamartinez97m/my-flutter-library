@@ -1107,10 +1107,10 @@ class _CatalogViewState extends State<_CatalogView> {
 
 const _kV2Bg = Color(0xFFFDF8F6);
 const _kV2AppBar = Color(0xFF43102B);
+const _kV2Text = Color(0xFF5F5E5C);
 const _kV2Sub = Color(0xFF5F5E5C);
-const _kV2YearBg = Color(0xFFF2EDEB);
-const _kV2YearText = Color(0xFF3D3833);
-const _kV2Border = Color(0x1A27231E);
+const _kV2Border = Color(0xFFCEC5BE);
+const _kV2Divider = Color(0xFFE6E2DF);
 
 class _SingleAuthorScreenV2 extends StatelessWidget {
   final String author;
@@ -1137,73 +1137,82 @@ class _MultiAuthorScreenV2 extends StatefulWidget {
   State<_MultiAuthorScreenV2> createState() => _MultiAuthorScreenV2State();
 }
 
-class _MultiAuthorScreenV2State extends State<_MultiAuthorScreenV2>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: widget.authors.length, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
+class _MultiAuthorScreenV2State extends State<_MultiAuthorScreenV2> {
+  int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _kV2Bg,
-      appBar: AppBar(
-        backgroundColor: _kV2Bg,
-        foregroundColor: _kV2AppBar,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        title: Text(
-          AppLocalizations.of(context)!.authors,
-          style: const TextStyle(
-            fontFamily: 'Manrope',
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            color: _kV2AppBar,
-            letterSpacing: -0.5,
-          ),
-        ),
-        centerTitle: true,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TabBar(
-                controller: _tabController,
-                isScrollable: true,
-                labelColor: _kV2AppBar,
-                unselectedLabelColor: _kV2AppBar.withValues(alpha: 0.6),
-                indicatorColor: _kV2AppBar,
-                labelStyle: const TextStyle(
-                  fontFamily: 'Manrope',
-                  fontWeight: FontWeight.w600,
-                ),
-                tabs: widget.authors.map((a) => Tab(text: a)).toList(),
+      body: Column(
+        children: [
+          AppBar(
+            backgroundColor: _kV2Bg,
+            foregroundColor: _kV2AppBar,
+            surfaceTintColor: Colors.transparent,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: _kV2AppBar),
+              onPressed: () => Navigator.pop(context),
+            ),
+            title: Text(
+              AppLocalizations.of(context)!.authors,
+              style: const TextStyle(
+                fontFamily: 'Manrope',
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: _kV2AppBar,
+                letterSpacing: -0.5,
               ),
-              Container(height: 1, color: const Color(0xFFD5C2C7)),
-            ],
+            ),
+            centerTitle: true,
           ),
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children:
-            widget.authors.map((author) {
-              return _AuthorContentV2(
-                author: author,
-                provider: widget.provider,
-              );
-            }).toList(),
+          const Divider(height: 1, color: Color(0xFFD5C2C7)),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 52,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              itemCount: widget.authors.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              itemBuilder: (ctx, i) {
+                final sel = i == _selectedIndex;
+                return GestureDetector(
+                  onTap: () => setState(() => _selectedIndex = i),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 17,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: sel ? _kV2AppBar : Colors.white,
+                      border: Border.all(color: sel ? _kV2AppBar : _kV2Border),
+                      borderRadius: BorderRadius.circular(9999),
+                    ),
+                    child: Text(
+                      widget.authors[i],
+                      style: TextStyle(
+                        fontFamily: 'Manrope',
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: sel ? Colors.white : _kV2Sub,
+                        letterSpacing: 0.26,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          Expanded(
+            child: _AuthorContentV2(
+              key: ValueKey(widget.authors[_selectedIndex]),
+              author: widget.authors[_selectedIndex],
+              provider: widget.provider,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1213,7 +1222,11 @@ class _AuthorContentV2 extends StatefulWidget {
   final String author;
   final BookProvider provider;
 
-  const _AuthorContentV2({required this.author, required this.provider});
+  const _AuthorContentV2({
+    super.key,
+    required this.author,
+    required this.provider,
+  });
 
   @override
   State<_AuthorContentV2> createState() => _AuthorContentV2State();
@@ -1294,110 +1307,47 @@ class _AuthorContentV2State extends State<_AuthorContentV2> {
       );
     }
 
+    final l10n = AppLocalizations.of(context)!;
     return CustomScrollView(
       slivers: [
         _buildV2AppBar(context),
-        // Stats card
+        // Stats row
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.only(top: 24),
-            child: Center(
-              child: Container(
-                width: 350,
-                padding: const EdgeInsets.symmetric(vertical: 25),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: _kV2Border),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x0A000000),
-                      blurRadius: 6,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+            child: Row(
+              children: [
+                _v2StatChip(
+                  icon: Icons.menu_book_outlined,
+                  value: '${filteredBooks.length}',
+                  label: l10n.total_books,
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    // Total books
-                    Column(
-                      children: [
-                        Text(
-                          '${filteredBooks.length}',
-                          style: const TextStyle(
-                            fontFamily: 'Manrope',
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: _kV2AppBar,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          AppLocalizations.of(
-                            context,
-                          )!.total_books.toUpperCase(),
-                          style: const TextStyle(
-                            fontFamily: 'Manrope',
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                            color: _kV2Sub,
-                            letterSpacing: 0.55,
-                          ),
-                        ),
-                      ],
-                    ),
-                    // Average rating
-                    if (averageRating != null)
-                      Column(
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                averageRating.toStringAsFixed(1),
-                                style: const TextStyle(
-                                  fontFamily: 'Manrope',
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: _kV2AppBar,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              const Icon(
-                                Icons.star,
-                                size: 17,
-                                color: _kV2AppBar,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            AppLocalizations.of(
-                              context,
-                            )!.average_rating.toUpperCase(),
-                            style: const TextStyle(
-                              fontFamily: 'Manrope',
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                              color: _kV2Sub,
-                              letterSpacing: 0.55,
-                            ),
-                          ),
-                        ],
-                      ),
-                  ],
-                ),
-              ),
+                if (averageRating != null) ...[
+                  const SizedBox(width: 10),
+                  _v2StatChip(
+                    icon: Icons.star_outline,
+                    value: averageRating.toStringAsFixed(1),
+                    label: l10n.average_rating,
+                  ),
+                ],
+              ],
             ),
           ),
         ),
         // Book list
         SliverPadding(
-          padding: const EdgeInsets.only(top: 32),
+          padding: EdgeInsets.only(
+            top: 16,
+            left: 20,
+            right: 20,
+            bottom: MediaQuery.of(context).padding.bottom + 16,
+          ),
           sliver: SliverList(
             delegate: SliverChildBuilderDelegate((context, index) {
               final book = filteredBooks[index];
-              final isRead = book.statusValue?.toLowerCase() == 'yes';
+              final isRead =
+                  book.statusValue?.toLowerCase() == 'yes' ||
+                  book.statusValue?.toLowerCase() == 'repeated';
               final sagaText =
                   (book.saga != null && book.saga!.isNotEmpty)
                       ? (book.nSaga != null && book.nSaga!.isNotEmpty
@@ -1405,99 +1355,12 @@ class _AuthorContentV2State extends State<_AuthorContentV2> {
                           : book.saga!)
                       : null;
 
-              return InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => NewBookDetailScreen(book: book),
-                    ),
-                  );
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 20,
-                  ),
-                  decoration: const BoxDecoration(
-                    color: _kV2Bg,
-                    border: Border(bottom: BorderSide(color: _kV2Border)),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Opacity(
-                          opacity: isRead ? 0.6 : 1.0,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                book.name ??
-                                    AppLocalizations.of(context)!.unknown,
-                                style: const TextStyle(
-                                  fontFamily: 'Manrope',
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w600,
-                                  color: _kV2AppBar,
-                                ),
-                              ),
-                              if (sagaText != null)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 4),
-                                  child: Opacity(
-                                    opacity: 0.8,
-                                    child: Text(
-                                      sagaText,
-                                      style: const TextStyle(
-                                        fontFamily: 'Manrope',
-                                        fontSize: 14,
-                                        color: _kV2Sub,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (isRead)
-                            const Padding(
-                              padding: EdgeInsets.only(right: 4),
-                              child: Icon(
-                                Icons.check_circle,
-                                size: 15,
-                                color: _kV2AppBar,
-                              ),
-                            ),
-                          if (book.originalPublicationYear != null)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: _kV2YearBg,
-                                borderRadius: BorderRadius.circular(9999),
-                              ),
-                              child: Text(
-                                '${book.originalPublicationYear}',
-                                style: const TextStyle(
-                                  fontFamily: 'Manrope',
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w500,
-                                  color: _kV2YearText,
-                                  letterSpacing: 0.55,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+              return _v2BookCard(
+                context: context,
+                book: book,
+                isRead: isRead,
+                subtitle: sagaText,
+                year: book.originalPublicationYear,
               );
             }, childCount: filteredBooks.length),
           ),
@@ -1514,6 +1377,10 @@ class _AuthorContentV2State extends State<_AuthorContentV2> {
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       pinned: true,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back, color: _kV2AppBar),
+        onPressed: () => Navigator.pop(context),
+      ),
       title: Text(
         author,
         style: const TextStyle(
@@ -1545,4 +1412,161 @@ class _AuthorContentV2State extends State<_AuthorContentV2> {
       ),
     );
   }
+}
+
+// ── V2 shared helpers ────────────────────────────────────────────────────────
+
+Widget _v2StatChip({
+  required IconData icon,
+  required String value,
+  required String label,
+}) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(8),
+      border: Border.all(color: _kV2Border),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.04),
+          blurRadius: 6,
+          offset: const Offset(0, 3),
+        ),
+      ],
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: _kV2Text),
+        const SizedBox(width: 6),
+        Text(
+          value,
+          style: const TextStyle(
+            fontFamily: 'Manrope',
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: _kV2AppBar,
+          ),
+        ),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: const TextStyle(
+            fontFamily: 'Manrope',
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+            color: _kV2Text,
+            letterSpacing: 0.3,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _v2BookCard({
+  required BuildContext context,
+  required dynamic book,
+  required bool isRead,
+  String? subtitle,
+  int? year,
+}) {
+  return GestureDetector(
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => NewBookDetailScreen(book: book),
+        ),
+      );
+    },
+    child: Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: isRead ? const Color(0xFFF5F3F2) : Colors.white,
+        border: Border.all(color: _kV2Border),
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(17, 15, 17, 15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              book.name ?? AppLocalizations.of(context)!.unknown,
+              style: const TextStyle(
+                fontSize: 19,
+                fontWeight: FontWeight.w600,
+                color: _kV2AppBar,
+                height: 1.25,
+              ),
+            ),
+            if (subtitle != null) ...[
+              const SizedBox(height: 5),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: _kV2Text,
+                  height: 1.43,
+                ),
+              ),
+            ],
+            if (year != null || isRead) ...[
+              if (subtitle != null)
+                const Padding(
+                  padding: EdgeInsets.only(top: 10, bottom: 10),
+                  child: Divider(height: 1, thickness: 1, color: _kV2Divider),
+                )
+              else
+                const SizedBox(height: 10),
+              Row(
+                children: [
+                  if (year != null) ...[
+                    Icon(
+                      Icons.calendar_today_outlined,
+                      size: 12,
+                      color: _kV2Text,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      '$year',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: _kV2Text,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                  if (isRead) ...[
+                    if (year != null) const SizedBox(width: 16),
+                    Icon(Icons.check_circle_outline, size: 12, color: _kV2Text),
+                    const SizedBox(width: 5),
+                    Text(
+                      AppLocalizations.of(context)!.read_label,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: _kV2Text,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    ),
+  );
 }
