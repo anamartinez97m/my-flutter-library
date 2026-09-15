@@ -146,6 +146,18 @@ abstract class AppLocalizations {
   /// **'Author'**
   String get search_by_author;
 
+  /// No description provided for @search_by_genre.
+  ///
+  /// In en, this message translates to:
+  /// **'Genre'**
+  String get search_by_genre;
+
+  /// No description provided for @search_by_editorial.
+  ///
+  /// In en, this message translates to:
+  /// **'Editorial'**
+  String get search_by_editorial;
+
   /// No description provided for @search_label.
   ///
   /// In en, this message translates to:
@@ -4820,6 +4832,30 @@ abstract class AppLocalizations {
   /// **'No books found for this author'**
   String get no_books_for_author;
 
+  /// No description provided for @no_books_for_genre.
+  ///
+  /// In en, this message translates to:
+  /// **'No books found for this genre'**
+  String get no_books_for_genre;
+
+  /// No description provided for @no_books_for_editorial.
+  ///
+  /// In en, this message translates to:
+  /// **'No books found for this editorial'**
+  String get no_books_for_editorial;
+
+  /// No description provided for @books_by_genre.
+  ///
+  /// In en, this message translates to:
+  /// **'Genre'**
+  String get books_by_genre;
+
+  /// No description provided for @books_by_editorial.
+  ///
+  /// In en, this message translates to:
+  /// **'Editorial'**
+  String get books_by_editorial;
+
   /// No description provided for @added_books_to_saga.
   ///
   /// In en, this message translates to:
@@ -6397,18 +6433,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Library Overview'**
   String get library_overview;
-
-  /// No description provided for @books_by_genre.
-  ///
-  /// In en, this message translates to:
-  /// **'Genre'**
-  String get books_by_genre;
-
-  /// No description provided for @books_by_editorial.
-  ///
-  /// In en, this message translates to:
-  /// **'Editorial'**
-  String get books_by_editorial;
 
   /// No description provided for @books_by_author.
   ///

@@ -14,6 +14,8 @@
   "search_by_title": "Title",
   "search_by_isbn": "ISBN/ASIN",
   "search_by_author": "Author",
+  "search_by_genre": "Genre",
+  "search_by_editorial": "Editorial",
   "search_label": "Search",
   "search_hint": "Search for books...",
   
@@ -1193,6 +1195,10 @@
   "no_past_competitions_found": "No past competitions found",
   "no_winner_set": "No winner set",
   "no_books_for_author": "No books found for this author",
+  "no_books_for_genre": "No books found for this genre",
+  "no_books_for_editorial": "No books found for this editorial",
+  "books_by_genre": "Books by Genre",
+  "books_by_editorial": "Books by Editorial",
   "added_books_to_saga": "Added {count} book(s) to {type}",
   "@added_books_to_saga": {
     "placeholders": { "count": {}, "type": {} }

@@ -33,6 +33,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get search_by_author => 'Author';
 
   @override
+  String get search_by_genre => 'Genre';
+
+  @override
+  String get search_by_editorial => 'Editorial';
+
+  @override
   String get search_label => 'Search';
 
   @override
@@ -2673,6 +2679,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get no_books_for_author => 'No books found for this author';
 
   @override
+  String get no_books_for_genre => 'No books found for this genre';
+
+  @override
+  String get no_books_for_editorial => 'No books found for this editorial';
+
+  @override
+  String get books_by_genre => 'Genre';
+
+  @override
+  String get books_by_editorial => 'Editorial';
+
+  @override
   String added_books_to_saga(Object count, Object type) {
     return 'Added $count book(s) to $type';
   }
@@ -3552,12 +3570,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get library_overview => 'Library Overview';
-
-  @override
-  String get books_by_genre => 'Genre';
-
-  @override
-  String get books_by_editorial => 'Editorial';
 
   @override
   String get books_by_author => 'Author';

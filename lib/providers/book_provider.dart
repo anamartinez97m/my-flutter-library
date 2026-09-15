@@ -361,6 +361,14 @@ class BookProvider extends ChangeNotifier {
         );
         return normalizedSaga.contains(normalizedQuery) ||
             normalizedSagaUniverse.contains(normalizedQuery);
+      case 4: // Search by Genre
+        final normalizedGenre = _normalizeForSearch(book.genre ?? '');
+        return normalizedGenre.contains(normalizedQuery);
+      case 5: // Search by Editorial
+        final normalizedEditorial = _normalizeForSearch(
+          book.editorialValue ?? '',
+        );
+        return normalizedEditorial.contains(normalizedQuery);
       default:
         return false;
     }
