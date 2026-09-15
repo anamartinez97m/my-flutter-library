@@ -13,6 +13,8 @@ import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/repositories/book_rating_field_repository.dart';
 import 'package:myrandomlibrary/screens/books_by_author.dart';
+import 'package:myrandomlibrary/screens/books_by_editorial.dart';
+import 'package:myrandomlibrary/screens/books_by_genre.dart';
 import 'package:myrandomlibrary/screens/books_by_saga.dart';
 import 'package:myrandomlibrary/screens/edit_book.dart';
 import 'package:myrandomlibrary/utils/format_saga_helper.dart';
@@ -2977,15 +2979,31 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                           // Genre
                           if (_currentBook.genre != null &&
                               _currentBook.genre!.isNotEmpty) {
-                            addCell(
-                              _DetailCard(
-                                icon: Icons.category,
-                                label: AppLocalizations.of(context)!.genre,
-                                value: _currentBook.genre!
+                            final genres =
+                                _currentBook.genre!
                                     .split(',')
                                     .map((g) => g.trim())
                                     .where((g) => g.isNotEmpty)
-                                    .join('\n'),
+                                    .toList();
+                            addCell(
+                              InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => BooksByGenreScreen(
+                                            genres: genres,
+                                          ),
+                                    ),
+                                  );
+                                },
+                                child: _DetailCard(
+                                  icon: Icons.category,
+                                  label: AppLocalizations.of(context)!.genre,
+                                  value: genres.join('\n'),
+                                  link: true,
+                                ),
                               ),
                               fullWidth: true,
                             );
@@ -3105,10 +3123,26 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                           if (_currentBook.editorialValue != null &&
                               _currentBook.editorialValue!.isNotEmpty) {
                             addCell(
-                              _DetailCard(
-                                icon: Icons.business,
-                                label: AppLocalizations.of(context)!.editorial,
-                                value: _currentBook.editorialValue!,
+                              InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => BooksByEditorialScreen(
+                                            editorialName:
+                                                _currentBook.editorialValue!,
+                                          ),
+                                    ),
+                                  );
+                                },
+                                child: _DetailCard(
+                                  icon: Icons.business,
+                                  label:
+                                      AppLocalizations.of(context)!.editorial,
+                                  value: _currentBook.editorialValue!,
+                                  link: true,
+                                ),
                               ),
                             );
                           }
