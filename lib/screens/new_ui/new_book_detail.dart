@@ -10,6 +10,7 @@ import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/model/read_date.dart';
 import 'package:myrandomlibrary/model/book_rating_field.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
+import 'package:myrandomlibrary/providers/role_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/repositories/book_rating_field_repository.dart';
 import 'package:myrandomlibrary/screens/books_by_author.dart';
@@ -3069,38 +3070,41 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                               ),
                               fullWidth: true,
                             );
-                            addCell(
-                              InkWell(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (context) =>
-                                              UniverseReadingOrderScreen(
-                                                universe:
-                                                    _currentBook.sagaUniverse!,
-                                                selectedBookId:
-                                                    _currentBook.bookId,
-                                              ),
-                                    ),
-                                  );
-                                },
-                                child: _DetailCard(
-                                  icon: Icons.account_tree_outlined,
-                                  label:
-                                      AppLocalizations.of(
-                                        context,
-                                      )!.universe_reading_order,
-                                  value:
-                                      AppLocalizations.of(
-                                        context,
-                                      )!.view_universe_reading_order,
-                                  link: true,
+                            if (context.watch<RoleProvider>().isAdmin) {
+                              addCell(
+                                InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) =>
+                                                UniverseReadingOrderScreen(
+                                                  universe:
+                                                      _currentBook
+                                                          .sagaUniverse!,
+                                                  selectedBookId:
+                                                      _currentBook.bookId,
+                                                ),
+                                      ),
+                                    );
+                                  },
+                                  child: _DetailCard(
+                                    icon: Icons.account_tree_outlined,
+                                    label:
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.universe_reading_order,
+                                    value:
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.view_universe_reading_order,
+                                    link: true,
+                                  ),
                                 ),
-                              ),
-                              fullWidth: true,
-                            );
+                                fullWidth: true,
+                              );
+                            }
                           }
 
                           // Format Saga

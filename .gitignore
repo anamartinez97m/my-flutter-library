@@ -51,3 +51,5 @@ app.*.map.json
 android/app/google-services.json
 ios/GoogleService-Info.plist
 dart_defines.json
+*firebase-adminsdk*.json
+functions/scripts/service-account*.json

@@ -4,6 +4,7 @@ import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/helpers/suggestion_engine.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
+import 'package:myrandomlibrary/providers/role_provider.dart';
 import 'package:provider/provider.dart';
 
 class SmartSuggestionsScreen extends StatefulWidget {
@@ -151,6 +152,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (!context.watch<RoleProvider>().isAdmin) return const Scaffold();
     final l10n = AppLocalizations.of(context)!;
 
     final pendingCount =

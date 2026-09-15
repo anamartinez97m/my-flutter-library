@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
+import 'package:myrandomlibrary/providers/role_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/screens/add_book.dart';
 import 'package:myrandomlibrary/utils/format_saga_helper.dart';
@@ -58,8 +59,21 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _selectedRating;
   String? _selectedPrice;
 
+  static const Set<String> _advancedFilterKeys = {
+    'title',
+    'isbn',
+    'author',
+    'genre',
+    'editorial',
+    'saga',
+    'saga_universe',
+    'saga_format_without_saga',
+    'saga_format_without_nsaga',
+    'saga_without_format_saga',
+    'publication_year_empty',
+  };
+
   Set<String> _enabledFilters = {};
-  bool _isAdmin = false;
 
   void clearSearch() {
     if (_searchController.text.isNotEmpty) {
@@ -121,9 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadEnabledFilters() async {
     final prefs = await SharedPreferences.getInstance();
     final savedFilters = prefs.getStringList('enabled_filters');
-    final isAdmin = prefs.getBool('is_admin') ?? false;
     setState(() {
-      _isAdmin = isAdmin;
       if (savedFilters != null) {
         _enabledFilters = savedFilters.toSet();
       } else {
@@ -153,7 +165,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   bool _isFilterEnabled(String filterKey) {
-    return _enabledFilters.contains(filterKey);
+    return _enabledFilters.contains(filterKey) &&
+        (!_advancedFilterKeys.contains(filterKey) ||
+            context.read<RoleProvider>().isAdmin);
   }
 
   Future<void> _loadFilterOptions() async {
@@ -843,7 +857,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               const SizedBox(height: 8),
                             ],
                             // Pages Empty filter
-                            if (_isAdmin &&
+                            if (context.watch<RoleProvider>().isAdmin &&
                                 _isFilterEnabled('pages_empty')) ...[
                               DropdownButtonFormField<String>(
                                 value: _selectedPagesEmpty,
@@ -1022,7 +1036,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               const SizedBox(height: 8),
                             ],
                             // Saga Format Without Saga filter
-                            if (_isAdmin &&
+                            if (context.watch<RoleProvider>().isAdmin &&
                                 _isFilterEnabled(
                                   'saga_format_without_saga',
                                 )) ...[
@@ -1081,7 +1095,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               const SizedBox(height: 8),
                             ],
                             // Saga Format Without N_Saga filter
-                            if (_isAdmin &&
+                            if (context.watch<RoleProvider>().isAdmin &&
                                 _isFilterEnabled(
                                   'saga_format_without_nsaga',
                                 )) ...[
@@ -1140,7 +1154,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               const SizedBox(height: 8),
                             ],
                             // Publication Year Empty filter
-                            if (_isAdmin &&
+                            if (context.watch<RoleProvider>().isAdmin &&
                                 _isFilterEnabled('publication_year_empty')) ...[
                               DropdownButtonFormField<String>(
                                 value: _selectedPublicationYearEmpty,
@@ -1248,7 +1262,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               const SizedBox(height: 8),
                             ],
                             // Saga Without Format Saga filter
-                            if (_isAdmin &&
+                            if (context.watch<RoleProvider>().isAdmin &&
                                 _isFilterEnabled(
                                   'saga_without_format_saga',
                                 )) ...[
@@ -1463,6 +1477,14 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final BookProvider? provider = Provider.of<BookProvider?>(context);
+    final isAdmin = context.watch<RoleProvider>().isAdmin;
+    if (!isAdmin &&
+        provider != null &&
+        provider.currentFilters.keys.any(_advancedFilterKeys.contains)) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => provider.clearFilters(_advancedFilterKeys),
+      );
+    }
 
     if (provider == null || provider.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));

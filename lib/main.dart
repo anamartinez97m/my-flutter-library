@@ -7,6 +7,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/providers/locale_provider.dart';
+import 'package:myrandomlibrary/providers/role_provider.dart';
 import 'package:myrandomlibrary/providers/theme_provider.dart';
 import 'package:myrandomlibrary/screens/get_started_screen.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_navigation_screen.dart';
@@ -51,6 +52,7 @@ void main() async {
           ChangeNotifierProvider<BookProvider>.value(value: bookProvider),
           ChangeNotifierProvider(create: (_) => ThemeProvider()),
           ChangeNotifierProvider(create: (_) => LocaleProvider()),
+          ChangeNotifierProvider(create: (_) => RoleProvider()),
         ],
         child: const MyApp(),
       ),
@@ -64,6 +66,7 @@ void main() async {
         providers: [
           ChangeNotifierProvider(create: (_) => ThemeProvider()),
           ChangeNotifierProvider(create: (_) => LocaleProvider()),
+          ChangeNotifierProvider(create: (_) => RoleProvider()),
         ],
         child: const MyApp(),
       ),

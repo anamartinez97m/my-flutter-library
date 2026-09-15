@@ -5,8 +5,10 @@ import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/model/book_relation.dart';
+import 'package:myrandomlibrary/providers/role_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
+import 'package:provider/provider.dart';
 
 class UniverseReadingOrderScreen extends StatefulWidget {
   final String universe;
@@ -532,6 +534,9 @@ class _UniverseReadingOrderScreenState
 
   @override
   Widget build(BuildContext context) {
+    if (!context.watch<RoleProvider>().isAdmin) {
+      return const Scaffold(backgroundColor: _kBg);
+    }
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: _kBg,

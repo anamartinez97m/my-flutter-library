@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
+import 'package:myrandomlibrary/providers/role_provider.dart';
 import 'package:myrandomlibrary/utils/bundle_migration.dart';
+import 'package:provider/provider.dart';
 
 class BundleMigrationScreen extends StatefulWidget {
   const BundleMigrationScreen({super.key});
@@ -141,6 +143,7 @@ class _BundleMigrationScreenState extends State<BundleMigrationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (!context.watch<RoleProvider>().isAdmin) return const Scaffold();
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.bundle_migration),

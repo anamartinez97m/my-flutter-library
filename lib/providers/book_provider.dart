@@ -503,6 +503,14 @@ class BookProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void clearFilters(Iterable<String> filterTypes) {
+    if (!filterTypes.any(_currentFilters.containsKey)) return;
+    _currentFilters.removeWhere((key, _) => filterTypes.contains(key));
+    _applyAllFilters();
+    _applySearch();
+    notifyListeners();
+  }
+
   void clearAllFilters() {
     _currentFilters.clear();
     _applyAllFilters();

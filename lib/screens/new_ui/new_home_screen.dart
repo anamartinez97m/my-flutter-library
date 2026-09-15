@@ -4,6 +4,7 @@ import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 
 import 'package:myrandomlibrary/providers/book_provider.dart';
+import 'package:myrandomlibrary/providers/role_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/screens/add_book.dart';
 import 'package:myrandomlibrary/utils/format_saga_helper.dart';
@@ -72,6 +73,20 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
       _selectedRating,
       _selectedPrice;
 
+  static const Set<String> _advancedFilterKeys = {
+    'title',
+    'isbn',
+    'author',
+    'genre',
+    'editorial',
+    'saga',
+    'saga_universe',
+    'saga_format_without_saga',
+    'saga_format_without_nsaga',
+    'saga_without_format_saga',
+    'publication_year_empty',
+  };
+
   Set<String> _enabledFilters = {};
   Set<String> _enabledCardFields = {
     'title',
@@ -80,7 +95,6 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     'format',
     'language',
   };
-  bool _isAdmin = false;
 
   void clearSearch() {
     if (_searchController.text.isNotEmpty) {
@@ -138,9 +152,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
   Future<void> _loadEnabledFilters() async {
     final prefs = await SharedPreferences.getInstance();
     final saved = prefs.getStringList('enabled_filters');
-    final isAdmin = prefs.getBool('is_admin') ?? false;
     setState(() {
-      _isAdmin = isAdmin;
       _enabledFilters =
           saved?.toSet() ??
           {
@@ -166,7 +178,10 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     });
   }
 
-  bool _isFilterEnabled(String key) => _enabledFilters.contains(key);
+  bool _isFilterEnabled(String key) =>
+      _enabledFilters.contains(key) &&
+      (!_advancedFilterKeys.contains(key) ||
+          context.read<RoleProvider>().isAdmin);
 
   Future<void> _loadEnabledCardFields() async {
     final prefs = await SharedPreferences.getInstance();
@@ -290,7 +305,9 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     required Map<String, String> options,
     bool adminOnly = false,
   }) {
-    if (adminOnly && !_isAdmin) return const SizedBox.shrink();
+    if (adminOnly && !context.watch<RoleProvider>().isAdmin) {
+      return const SizedBox.shrink();
+    }
     if (!_isFilterEnabled(filterKey)) return const SizedBox.shrink();
 
     void select(String? next) {
@@ -347,7 +364,9 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     bool adminOnly = false,
     bool withEmpty = false,
   }) {
-    if (adminOnly && !_isAdmin) return const SizedBox.shrink();
+    if (adminOnly && !context.watch<RoleProvider>().isAdmin) {
+      return const SizedBox.shrink();
+    }
     if (!_isFilterEnabled(filterKey)) return const SizedBox.shrink();
     final l10n = AppLocalizations.of(ctx)!;
     return Padding(
@@ -384,7 +403,9 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     required void Function(String?) assign,
     bool adminOnly = false,
   }) {
-    if (adminOnly && !_isAdmin) return const SizedBox.shrink();
+    if (adminOnly && !context.watch<RoleProvider>().isAdmin) {
+      return const SizedBox.shrink();
+    }
     if (!_isFilterEnabled(filterKey)) return const SizedBox.shrink();
     final l10n = AppLocalizations.of(ctx)!;
     return Padding(
@@ -1044,6 +1065,14 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<BookProvider?>(context);
+    final isAdmin = context.watch<RoleProvider>().isAdmin;
+    if (!isAdmin &&
+        provider != null &&
+        provider.currentFilters.keys.any(_advancedFilterKeys.contains)) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => provider.clearFilters(_advancedFilterKeys),
+      );
+    }
     if (provider == null || provider.isLoading) {
       return Scaffold(backgroundColor: _kBg, body: ShimmerLoading());
     }

@@ -8,6 +8,7 @@ import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/model/read_date.dart';
 import 'package:myrandomlibrary/model/book_rating_field.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
+import 'package:myrandomlibrary/providers/role_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/repositories/book_rating_field_repository.dart';
 import 'package:myrandomlibrary/screens/books_by_author.dart';
@@ -46,7 +47,6 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   bool _isDescriptionExpanded = false; // Track description expansion state
   bool _isFetchingMetadata = false; // Track if metadata is being fetched
   String _currencySymbol = '€';
-  bool _isAdmin = false;
 
   bool get _hasReadToday {
     final now = DateTime.now();
@@ -161,7 +161,6 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     if (mounted) {
       setState(() {
         _currencySymbol = prefs.getString('currency_symbol') ?? '€';
-        _isAdmin = prefs.getBool('is_admin') ?? false;
       });
     }
   }
@@ -2192,6 +2191,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isAdmin = context.watch<RoleProvider>().isAdmin;
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (bool didPop, dynamic result) {
@@ -2943,7 +2943,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                                if (_isAdmin &&
+                                if (isAdmin &&
                                     _currentBook.metadataSource != null) ...[
                                   const SizedBox(width: 4),
                                   Container(
