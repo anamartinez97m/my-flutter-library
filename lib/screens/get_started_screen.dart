@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
-import 'package:myrandomlibrary/screens/navigation.dart';
+import 'package:myrandomlibrary/screens/new_ui/new_navigation_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GetStartedScreen extends StatefulWidget {
@@ -61,7 +61,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
     await prefs.setBool(_onboardingKey, true);
     if (mounted) {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const NavigationScreen()),
+        MaterialPageRoute(builder: (_) => const NewNavigationScreen()),
       );
     }
   }

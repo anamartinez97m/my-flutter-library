@@ -10,8 +10,8 @@ import 'package:myrandomlibrary/services/app_update_service.dart';
 // ─────────────────────────────────────────────────────────────────────────────
 // NEW UI — Navigation Shell
 //
-// This is the entry point for the redesigned UI. It mirrors NavigationScreen
-// but imports screens from lib/screens/new_ui/ as they are created.
+// This is the entry point for the redesigned UI. It imports screens from
+// lib/screens/new_ui/ as they are created.
 //
 // To swap in a redesigned screen:
 //   1. Create lib/screens/new_ui/<name>_screen.dart

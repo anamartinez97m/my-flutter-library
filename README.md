@@ -653,16 +653,13 @@ lib/
 ├── screens/
 │   ├── add_book.dart
 │   ├── admin_csv_import.dart
-│   ├── book_detail.dart
 │   ├── books_by_author.dart
 │   ├── books_by_decade.dart
 │   ├── books_by_saga.dart
 │   ├── books_by_year.dart
 │   ├── edit_book.dart
 │   ├── fill_empty_wizard_screen.dart   # Herramienta: rellenar campos vacíos
-│   ├── home.dart
 │   ├── manage_dropdowns.dart
-│   ├── navigation.dart
 │   ├── random.dart
 │   ├── reverse_assign_screen.dart      # Herramienta: asignación masiva
 │   ├── saga_completion_detail.dart
@@ -688,7 +685,6 @@ lib/
 │
 ├── widgets/
 │   ├── autocomplete_text_field.dart
-│   ├── booklist.dart
 │   ├── bundle_input_widget_v2.dart
 │   ├── bundle_read_dates_widget.dart
 │   ├── chip_autocomplete_field.dart
