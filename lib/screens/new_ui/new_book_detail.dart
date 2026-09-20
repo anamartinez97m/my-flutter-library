@@ -2933,7 +2933,6 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                       builder:
                                           (context) => BooksByAuthorScreen(
                                             authors: authors,
-                                            useNewUi: true,
                                           ),
                                     ),
                                   );
@@ -3104,6 +3103,21 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                 ),
                                 fullWidth: true,
                               );
+                              if (_currentBook.orderWithinUniverse != null) {
+                                addCell(
+                                  _DetailCard(
+                                    icon: Icons.format_list_numbered,
+                                    label:
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.saga_universe_order,
+                                    value:
+                                        _currentBook.orderWithinUniverse
+                                            .toString(),
+                                  ),
+                                  fullWidth: true,
+                                );
+                              }
                             }
                           }
 

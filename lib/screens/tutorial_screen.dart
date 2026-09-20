@@ -10,8 +10,7 @@ const _kText = Color(0xFF1C1B1A);
 const _kBorder = Color(0xFFD5C2C7);
 
 class TutorialScreen extends StatefulWidget {
-  final bool useNewUi;
-  const TutorialScreen({super.key, this.useNewUi = false});
+  const TutorialScreen({super.key});
 
   @override
   State<TutorialScreen> createState() => _TutorialScreenState();
@@ -134,45 +133,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.useNewUi) {
-      return _buildV2(context);
-    }
-    return _buildV1(context);
-  }
-
-  Widget _buildV1(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.tutorial_title)),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: _sections.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          final section = _sections[index];
-          final images =
-              _imagesLoaded ? (_sectionImages[section.key] ?? []) : [];
-          return _TutorialSectionCard(
-            section: section,
-            images: images,
-            l10n: l10n,
-            controller: _controllers[index],
-            onExpansionChanged: (expanded) {
-              if (expanded) {
-                for (int i = 0; i < _controllers.length; i++) {
-                  if (i != index) {
-                    try {
-                      _controllers[i].collapse();
-                    } catch (_) {}
-                  }
-                }
-              }
-            },
-          );
-        },
-      ),
-    );
+    return _buildV2(context);
   }
 
   Widget _buildV2(BuildContext context) {
@@ -212,7 +173,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
           final section = _sections[index];
           final images =
               _imagesLoaded ? (_sectionImages[section.key] ?? []) : [];
-          return _TutorialSectionCardV2(
+          return _TutorialSectionCard(
             section: section,
             images: images,
             l10n: l10n,
@@ -322,100 +283,6 @@ class _TutorialSectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final title = _getTitle(l10n);
-    final description = _getDescription(l10n);
-
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ExpansionTile(
-        controller: controller,
-        onExpansionChanged: onExpansionChanged,
-        leading: Icon(section.icon, color: colorScheme.primary),
-        title: Text(
-          title,
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-        ),
-        childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              description,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-          ),
-          if (images.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            SizedBox(
-              height: 180,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: images.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
-                itemBuilder: (context, index) {
-                  final path = images[index] as String;
-                  return GestureDetector(
-                    onTap: () => _openFullScreen(context, images, index),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: AspectRatio(
-                        aspectRatio: 9 / 16,
-                        child: Image.asset(
-                          path,
-                          fit: BoxFit.cover,
-                          errorBuilder:
-                              (_, __, ___) => Container(
-                                color: colorScheme.surfaceContainerHighest,
-                                child: Icon(
-                                  Icons.image_not_supported_outlined,
-                                  color: colorScheme.outlineVariant,
-                                ),
-                              ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  void _openFullScreen(
-    BuildContext context,
-    List<dynamic> images,
-    int initialIndex,
-  ) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder:
-            (_) => _FullScreenImageViewer(
-              images: images.cast<String>(),
-              initialIndex: initialIndex,
-            ),
-      ),
-    );
-  }
-}
-
-class _TutorialSectionCardV2 extends _TutorialSectionCard {
-  const _TutorialSectionCardV2({
-    required super.section,
-    required super.images,
-    required super.l10n,
-    super.controller,
-    super.onExpansionChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
     final title = _getTitle(l10n);
     final description = _getDescription(l10n);
 
@@ -510,6 +377,22 @@ class _TutorialSectionCardV2 extends _TutorialSectionCard {
             ],
           ],
         ),
+      ),
+    );
+  }
+
+  void _openFullScreen(
+    BuildContext context,
+    List<dynamic> images,
+    int initialIndex,
+  ) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder:
+            (_) => _FullScreenImageViewer(
+              images: images.cast<String>(),
+              initialIndex: initialIndex,
+            ),
       ),
     );
   }

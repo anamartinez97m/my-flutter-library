@@ -22,14 +22,9 @@ const _kV2Text = Color(0xFF1C1B1A);
 const _kV2Border = Color(0xFFD5C2C7);
 
 class AdminCsvImportScreen extends StatefulWidget {
-  final bool useNewUi;
   final bool bundleImport;
 
-  const AdminCsvImportScreen({
-    super.key,
-    this.useNewUi = false,
-    this.bundleImport = false,
-  });
+  const AdminCsvImportScreen({super.key, this.bundleImport = false});
 
   @override
   State<AdminCsvImportScreen> createState() => _AdminCsvImportScreenState();
@@ -239,61 +234,34 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
           final resume = await showDialog<bool>(
             context: context,
             builder:
-                (context) =>
-                    widget.useNewUi
-                        ? _v2Dialog(
-                          title: _v2DialogTitle(
-                            Icons.play_circle_outline,
-                            AppLocalizations.of(context)!.resume_import,
-                          ),
-                          content: _v2DialogContent(
-                            'Found a previous import session for:\n${savedPath.split('/').last}\n\nWould you like to resume from where you left off?',
-                          ),
-                          actions: [
-                            Row(
-                              children: [
-                                _v2SecondaryButton(
-                                  label:
-                                      AppLocalizations.of(context)!.start_fresh,
-                                  onPressed: () async {
-                                    await _clearCheckpoint();
-                                    if (!context.mounted) return;
-                                    Navigator.pop(context, false);
-                                  },
-                                ),
-                                const SizedBox(width: 12),
-                                _v2PrimaryButton(
-                                  label: AppLocalizations.of(context)!.resume,
-                                  onPressed: () => Navigator.pop(context, true),
-                                ),
-                              ],
-                            ),
-                          ],
-                        )
-                        : AlertDialog(
-                          title: Text(
-                            AppLocalizations.of(context)!.resume_import,
-                          ),
-                          content: Text(
-                            'Found a previous import session for:\n${savedPath.split('/').last}\n\nWould you like to resume from where you left off?',
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () async {
-                                await _clearCheckpoint();
-                                if (!context.mounted) return;
-                                Navigator.pop(context, false);
-                              },
-                              child: Text(
-                                AppLocalizations.of(context)!.start_fresh,
-                              ),
-                            ),
-                            ElevatedButton(
-                              onPressed: () => Navigator.pop(context, true),
-                              child: Text(AppLocalizations.of(context)!.resume),
-                            ),
-                          ],
+                (context) => _v2Dialog(
+                  title: _v2DialogTitle(
+                    Icons.play_circle_outline,
+                    AppLocalizations.of(context)!.resume_import,
+                  ),
+                  content: _v2DialogContent(
+                    'Found a previous import session for:\n${savedPath.split('/').last}\n\nWould you like to resume from where you left off?',
+                  ),
+                  actions: [
+                    Row(
+                      children: [
+                        _v2SecondaryButton(
+                          label: AppLocalizations.of(context)!.start_fresh,
+                          onPressed: () async {
+                            await _clearCheckpoint();
+                            if (!context.mounted) return;
+                            Navigator.pop(context, false);
+                          },
                         ),
+                        const SizedBox(width: 12),
+                        _v2PrimaryButton(
+                          label: AppLocalizations.of(context)!.resume,
+                          onPressed: () => Navigator.pop(context, true),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
           );
 
           if (resume == true) {
@@ -513,6 +481,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
 
         try {
           Book? book;
+          Map<String, Object?>? parent;
           if (widget.bundleImport) {
             final parentTitle = CsvImportHelper.getBundleParentTitle(
               row,
@@ -526,7 +495,6 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                           parentTitle?.trim().toLowerCase(),
                     )
                     .toList();
-            Map<String, Object?>? parent;
             if (matchingParents.length == 1) {
               parent = matchingParents.single;
             } else {
@@ -948,6 +916,10 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               duplicateIds: duplicateIds,
               shouldImport: true,
               existingBook: existingBook,
+              bundleParentTitle:
+                  widget.bundleImport && parent != null
+                      ? parent['name']?.toString()
+                      : null,
             ),
           );
         } catch (e) {
@@ -1194,65 +1166,43 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         // ignore: use_build_context_synchronously
         context: context,
         builder:
-            (context) =>
-                widget.useNewUi
-                    ? _v2Dialog(
-                      title: _v2DialogTitle(
-                        Icons.check_circle_outline,
-                        AppLocalizations.of(context)!.import_completed_title,
+            (context) => _v2Dialog(
+              title: _v2DialogTitle(
+                Icons.check_circle_outline,
+                AppLocalizations.of(context)!.import_completed_title,
+              ),
+              content: _v2DialogContent(
+                'Imported: $imported\nUpdated: $updated\nSkipped: $skipped',
+              ),
+              actions: [
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.pop(context, true);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _kV2Primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      content: _v2DialogContent(
-                        'Imported: $imported\nUpdated: $updated\nSkipped: $skipped',
-                      ),
-                      actions: [
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                              Navigator.pop(context, true);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: _kV2Primary,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              elevation: 0,
-                            ),
-                            child: Text(
-                              AppLocalizations.of(context)!.ok,
-                              style: const TextStyle(
-                                fontFamily: 'Manrope',
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
-                    : AlertDialog(
-                      title: Text(
-                        AppLocalizations.of(context)!.import_completed_title,
-                      ),
-                      content: Text(
-                        'Imported: $imported\nUpdated: $updated\nSkipped: $skipped',
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context); // Close dialog
-                            Navigator.pop(
-                              context,
-                              true,
-                            ); // Go back to settings with result
-                          },
-                          child: Text(AppLocalizations.of(context)!.ok),
-                        ),
-                      ],
+                      elevation: 0,
                     ),
+                    child: Text(
+                      AppLocalizations.of(context)!.ok,
+                      style: const TextStyle(
+                        fontFamily: 'Manrope',
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
       );
     } catch (e) {
       setState(() {
@@ -1566,75 +1516,58 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: widget.useNewUi ? _kV2Bg : null,
+      backgroundColor: _kV2Bg,
       appBar: AppBar(
-        backgroundColor: widget.useNewUi ? _kV2Bg : null,
-        surfaceTintColor: widget.useNewUi ? Colors.transparent : null,
+        backgroundColor: _kV2Bg,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: widget.useNewUi ? _kV2Primary : null,
-          ),
+          icon: const Icon(Icons.arrow_back, color: _kV2Primary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           widget.bundleImport
               ? l10n.admin_bundle_csv_import
               : l10n.admin_csv_import,
-          style:
-              widget.useNewUi
-                  ? const TextStyle(
-                    fontFamily: 'Manrope',
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: _kV2Primary,
-                    letterSpacing: -0.5,
-                  )
-                  : null,
+          style: const TextStyle(
+            fontFamily: 'Manrope',
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: _kV2Primary,
+            letterSpacing: -0.5,
+          ),
         ),
-        centerTitle: widget.useNewUi,
+        centerTitle: true,
         actions: [
           if (_importItems.isNotEmpty && !_isLoading)
-            widget.useNewUi
-                ? TextButton(
-                  onPressed: _processImports,
-                  child: Row(
-                    children: [
-                      const Icon(Icons.check, color: _kV2Primary, size: 20),
-                      const SizedBox(width: 6),
-                      Text(
-                        l10n.import_all,
-                        style: const TextStyle(
-                          fontFamily: 'Manrope',
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: _kV2Primary,
-                        ),
-                      ),
-                    ],
+            TextButton(
+              onPressed: _processImports,
+              child: Row(
+                children: [
+                  const Icon(Icons.check, color: _kV2Primary, size: 20),
+                  const SizedBox(width: 6),
+                  Text(
+                    l10n.import_all,
+                    style: const TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: _kV2Primary,
+                    ),
                   ),
-                )
-                : TextButton.icon(
-                  onPressed: _processImports,
-                  icon: const Icon(Icons.check),
-                  label: Text(l10n.import_all),
-                ),
+                ],
+              ),
+            ),
         ],
-        bottom:
-            widget.useNewUi
-                ? PreferredSize(
-                  preferredSize: const Size.fromHeight(1),
-                  child: Container(height: 1, color: _kV2Border),
-                )
-                : null,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(height: 1, color: _kV2Border),
+        ),
       ),
       body:
           _isLoading
-              ? Center(
-                child: CircularProgressIndicator(
-                  color: widget.useNewUi ? _kV2Primary : null,
-                ),
+              ? const Center(
+                child: CircularProgressIndicator(color: _kV2Primary),
               )
               : _importItems.isEmpty
               ? _buildEmptyState(context, l10n)
@@ -1643,10 +1576,6 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
   }
 
   Widget _buildEmptyState(BuildContext context, AppLocalizations l10n) {
-    if (!widget.useNewUi) {
-      return _buildV1EmptyState(context, l10n);
-    }
-
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -1785,80 +1714,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
     );
   }
 
-  Widget _buildV1EmptyState(BuildContext context, AppLocalizations l10n) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.upload_file,
-            size: 64,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-          const SizedBox(height: 16),
-          Text(l10n.no_csv_file_selected),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: _selectAndParseCsv,
-            icon: const Icon(Icons.file_open),
-            label: Text(l10n.select_csv_file),
-          ),
-          const SizedBox(height: 16),
-          TextButton.icon(
-            onPressed: () async {
-              final confirmed = await showDialog<bool>(
-                context: context,
-                builder:
-                    (context) => AlertDialog(
-                      title: Text(l10n.clear_reviewed_books),
-                      content: Text(l10n.clear_reviewed_books_description),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child: Text(l10n.cancel),
-                        ),
-                        ElevatedButton(
-                          onPressed: () => Navigator.pop(context, true),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.error,
-                            foregroundColor:
-                                Theme.of(context).colorScheme.onError,
-                          ),
-                          child: Text(l10n.clear_all),
-                        ),
-                      ],
-                    ),
-              );
-
-              if (confirmed == true) {
-                await _clearAllReviewedBooks();
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(l10n.cleared_reviewed_books),
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                    ),
-                  );
-                }
-              }
-            },
-            icon: const Icon(Icons.delete_sweep, size: 18),
-            label: Text(l10n.clear_reviewed_books_cache),
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildReviewBody(BuildContext context, AppLocalizations l10n) {
-    if (!widget.useNewUi) {
-      return _buildV1ReviewBody(context, l10n);
-    }
-
     return Column(
       children: [
         // Progress indicator
@@ -2132,189 +1988,6 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
     );
   }
 
-  Widget _buildV1ReviewBody(BuildContext context, AppLocalizations l10n) {
-    return Column(
-      children: [
-        // Progress indicator
-        Container(
-          padding: const EdgeInsets.all(16),
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                l10n.book_x_of_y(
-                  (_currentIndex + 1).toString(),
-                  _importItems.length.toString(),
-                ),
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              Text(
-                l10n.n_to_import(
-                  _importItems.where((i) => i.shouldImport).length.toString(),
-                ),
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ],
-          ),
-        ),
-        // Book preview
-        Expanded(
-          child: _BookImportPreview(
-            item: _importItems[_currentIndex],
-            onChanged: (updated) {
-              setState(() {
-                _importItems[_currentIndex] = updated;
-              });
-            },
-          ),
-        ),
-        // Navigation
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            boxShadow: [
-              BoxShadow(
-                color: Theme.of(
-                  context,
-                ).colorScheme.shadow.withValues(alpha: 0.1),
-                blurRadius: 4,
-                offset: const Offset(0, -2),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Import up to here button
-              if (_currentIndex < _importItems.length - 1)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: OutlinedButton.icon(
-                    onPressed: () async {
-                      final toImportCount =
-                          _importItems
-                              .take(_currentIndex + 1)
-                              .where((item) => item.shouldImport)
-                              .length;
-                      final confirm = await showDialog<bool>(
-                        context: context,
-                        builder:
-                            (context) => AlertDialog(
-                              title: Text(l10n.import_up_to_here),
-                              content: Text(
-                                'Import $toImportCount books from the first ${_currentIndex + 1}?\n\n(Only books marked for import will be imported)',
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed:
-                                      () => Navigator.pop(context, false),
-                                  child: Text(l10n.cancel),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () => Navigator.pop(context, true),
-                                  child: Text(l10n.import_label),
-                                ),
-                              ],
-                            ),
-                      );
-                      if (confirm == true) {
-                        await _processPartialImport(_currentIndex + 1);
-                      }
-                    },
-                    icon: const Icon(Icons.download, size: 18),
-                    label: Text(
-                      'Import Up To Here (${_importItems.take(_currentIndex + 1).where((item) => item.shouldImport).length} books)',
-                      style: const TextStyle(fontSize: 13),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Theme.of(context).colorScheme.secondary,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                    ),
-                  ),
-                ),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed:
-                          _currentIndex > 0
-                              ? () {
-                                setState(() {
-                                  _currentIndex--;
-                                });
-                                _saveCheckpoint();
-                              }
-                              : null,
-                      child: Text(l10n.previous),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed:
-                          _currentIndex < _importItems.length - 1
-                              ? () async {
-                                final currentItem = _importItems[_currentIndex];
-                                final currentHash = _generateBookHash(
-                                  currentItem,
-                                );
-                                debugPrint(
-                                  '🚫 Ignoring book: ${currentItem.book.name} (hash: $currentHash)',
-                                );
-                                await _markBookAsIgnored(currentHash);
-
-                                setState(() {
-                                  _importItems[_currentIndex] =
-                                      _importItems[_currentIndex].copyWith(
-                                        shouldImport: false,
-                                      );
-                                  _currentIndex++;
-                                });
-                                await _saveCheckpoint();
-                              }
-                              : null,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor:
-                            Theme.of(context).colorScheme.secondary,
-                      ),
-                      child: Text(l10n.ignore),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed:
-                          _currentIndex < _importItems.length - 1
-                              ? () async {
-                                final currentHash = _generateBookHash(
-                                  _importItems[_currentIndex],
-                                );
-                                await _markBookAsReviewed(currentHash);
-
-                                setState(() {
-                                  _currentIndex++;
-                                });
-                                await _saveCheckpoint();
-                              }
-                              : null,
-                      child: Text(l10n.next_label),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 40),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
   bool _booksAreIdentical(Book book1, Book book2) {
     // Compare all relevant fields to determine if books are identical
     return book1.name == book2.name &&
@@ -2356,6 +2029,8 @@ class _BookImportItem {
   final List<int> duplicateIds;
   final bool shouldImport;
   final Book? existingBook; // For comparison when updating
+  final String?
+  bundleParentTitle; // For bundle imports, the matched parent name
 
   _BookImportItem({
     required this.book,
@@ -2363,6 +2038,7 @@ class _BookImportItem {
     required this.duplicateIds,
     required this.shouldImport,
     this.existingBook,
+    this.bundleParentTitle,
   });
 
   _BookImportItem copyWith({
@@ -2371,6 +2047,7 @@ class _BookImportItem {
     List<int>? duplicateIds,
     bool? shouldImport,
     Book? existingBook,
+    String? bundleParentTitle,
   }) {
     return _BookImportItem(
       book: book ?? this.book,
@@ -2378,6 +2055,7 @@ class _BookImportItem {
       duplicateIds: duplicateIds ?? this.duplicateIds,
       shouldImport: shouldImport ?? this.shouldImport,
       existingBook: existingBook ?? this.existingBook,
+      bundleParentTitle: bundleParentTitle ?? this.bundleParentTitle,
     );
   }
 }
@@ -2971,6 +2649,13 @@ class _BookImportPreview extends StatelessWidget {
             onChanged: (value) => _updateField('name', value),
             oldValue: _getOldValue('name'),
           ),
+          if (item.bundleParentTitle != null &&
+              item.bundleParentTitle!.isNotEmpty)
+            _EditableDetailRow(
+              label: 'Parent',
+              value: item.bundleParentTitle!,
+              readOnly: true,
+            ),
           _EditableDetailRow(
             label: 'Author',
             value: item.book.author ?? '',
@@ -3149,19 +2834,21 @@ class _EditableDetailRow extends StatefulWidget {
   final String label;
   final String value;
   final bool isHighlighted;
-  final Function(String) onChanged;
+  final Function(String)? onChanged;
   final TextInputType? keyboardType;
   final String? oldValue; // For showing previous value in updates
   final int? maxLines;
+  final bool readOnly;
 
   const _EditableDetailRow({
     required this.label,
     required this.value,
-    required this.onChanged,
+    this.onChanged,
     this.isHighlighted = false,
     this.keyboardType,
     this.oldValue,
     this.maxLines = 1,
+    this.readOnly = false,
   });
 
   @override
@@ -3193,6 +2880,7 @@ class _EditableDetailRowState extends State<_EditableDetailRow> {
   }
 
   void _startEditing() {
+    if (widget.readOnly) return;
     setState(() {
       _isEditing = true;
     });
@@ -3232,7 +2920,7 @@ class _EditableDetailRowState extends State<_EditableDetailRow> {
                 _isEditing
                     ? TextFormField(
                       controller: _controller,
-                      onChanged: widget.onChanged,
+                      onChanged: widget.readOnly ? null : widget.onChanged,
                       keyboardType: widget.keyboardType,
                       maxLines: widget.maxLines,
                       autofocus: true,
@@ -3257,7 +2945,7 @@ class _EditableDetailRowState extends State<_EditableDetailRow> {
                               IconButton(
                                 icon: const Icon(Icons.close, size: 16),
                                 onPressed: () {
-                                  widget.onChanged(widget.oldValue!);
+                                  widget.onChanged?.call(widget.oldValue!);
                                   _controller.text = widget.oldValue!;
                                   _stopEditing();
                                 },

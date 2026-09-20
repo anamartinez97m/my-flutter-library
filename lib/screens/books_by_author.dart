@@ -9,13 +9,8 @@ import 'package:provider/provider.dart';
 
 class BooksByAuthorScreen extends StatefulWidget {
   final List<String> authors;
-  final bool useNewUi;
 
-  const BooksByAuthorScreen({
-    super.key,
-    required this.authors,
-    this.useNewUi = false,
-  });
+  const BooksByAuthorScreen({super.key, required this.authors});
 
   @override
   State<BooksByAuthorScreen> createState() => _BooksByAuthorScreenState();
@@ -35,12 +30,6 @@ class _BooksByAuthorScreenState extends State<BooksByAuthorScreen> {
 
     // If single author, show simple screen
     if (widget.authors.length == 1) {
-      if (widget.useNewUi) {
-        return _SingleAuthorScreenV2(
-          author: widget.authors.first,
-          provider: provider,
-        );
-      }
       return _SingleAuthorScreen(
         author: widget.authors.first,
         provider: provider,
@@ -48,467 +37,7 @@ class _BooksByAuthorScreenState extends State<BooksByAuthorScreen> {
     }
 
     // If multiple authors, show tabs
-    if (widget.useNewUi) {
-      return _MultiAuthorScreenV2(authors: widget.authors, provider: provider);
-    }
-    return DefaultTabController(
-      length: widget.authors.length,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(AppLocalizations.of(context)!.authors),
-          bottom: TabBar(
-            isScrollable: true,
-            labelColor: Theme.of(context).colorScheme.onPrimary,
-            unselectedLabelColor: Theme.of(
-              context,
-            ).colorScheme.onPrimary.withValues(alpha: 0.7),
-            indicatorColor: Theme.of(context).colorScheme.onPrimary,
-            tabs: widget.authors.map((author) => Tab(text: author)).toList(),
-          ),
-        ),
-        body: TabBarView(
-          children:
-              widget.authors.map((author) {
-                return _AuthorContentView(author: author, provider: provider);
-              }).toList(),
-        ),
-      ),
-    );
-  }
-}
-
-/// Single author screen wrapper with AppBar toggle button
-class _SingleAuthorScreen extends StatefulWidget {
-  final String author;
-  final BookProvider provider;
-
-  const _SingleAuthorScreen({required this.author, required this.provider});
-
-  @override
-  State<_SingleAuthorScreen> createState() => _SingleAuthorScreenState();
-}
-
-class _SingleAuthorScreenState extends State<_SingleAuthorScreen> {
-  bool _showFullCatalog = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.author),
-        actions: [
-          IconButton(
-            icon: Icon(
-              _showFullCatalog ? Icons.library_books : Icons.travel_explore,
-            ),
-            tooltip:
-                _showFullCatalog ? l10n.my_library_view : l10n.full_catalog,
-            onPressed: () {
-              setState(() {
-                _showFullCatalog = !_showFullCatalog;
-              });
-            },
-          ),
-        ],
-      ),
-      body:
-          _showFullCatalog
-              ? _CatalogView(author: widget.author, provider: widget.provider)
-              : _LocalAuthorContent(
-                author: widget.author,
-                provider: widget.provider,
-              ),
-    );
-  }
-}
-
-/// Wraps the content view with its own toggle state (for tabs)
-class _AuthorContentView extends StatefulWidget {
-  final String author;
-  final BookProvider provider;
-
-  const _AuthorContentView({required this.author, required this.provider});
-
-  @override
-  State<_AuthorContentView> createState() => _AuthorContentViewState();
-}
-
-class _AuthorContentViewState extends State<_AuthorContentView> {
-  bool _showFullCatalog = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return Column(
-      children: [
-        // Toggle bar
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              TextButton.icon(
-                icon: Icon(
-                  _showFullCatalog ? Icons.library_books : Icons.travel_explore,
-                  size: 18,
-                ),
-                label: Text(
-                  _showFullCatalog ? l10n.my_library_view : l10n.full_catalog,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _showFullCatalog = !_showFullCatalog;
-                  });
-                },
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child:
-              _showFullCatalog
-                  ? _CatalogView(
-                    author: widget.author,
-                    provider: widget.provider,
-                  )
-                  : _LocalAuthorContent(
-                    author: widget.author,
-                    provider: widget.provider,
-                  ),
-        ),
-      ],
-    );
-  }
-}
-
-/// Original local-only author content (unchanged logic)
-class _LocalAuthorContent extends StatelessWidget {
-  final String author;
-  final BookProvider provider;
-
-  const _LocalAuthorContent({required this.author, required this.provider});
-
-  @override
-  Widget build(BuildContext context) {
-    // Filter books by author (case-insensitive, handles comma-separated authors)
-    final filteredBooks =
-        provider.allBooks.where((book) {
-          if (book.author == null) return false;
-          final bookAuthors =
-              book.author!
-                  .split(',')
-                  .map((a) => a.trim().toLowerCase())
-                  .toList();
-          return bookAuthors.contains(author.toLowerCase());
-        }).toList();
-
-    // Calculate average rating for read books with ratings
-    final readBooksWithRating =
-        filteredBooks.where((book) {
-          return book.statusValue?.toLowerCase() == 'yes' &&
-              book.myRating != null &&
-              book.myRating! > 0;
-        }).toList();
-
-    double? averageRating;
-    if (readBooksWithRating.isNotEmpty) {
-      final totalRating = readBooksWithRating.fold<double>(
-        0.0,
-        (sum, book) => sum + (book.myRating ?? 0),
-      );
-      averageRating = totalRating / readBooksWithRating.length;
-    }
-
-    // Sort books by publication year (if available) or alphabetically
-    filteredBooks.sort((a, b) {
-      final aYear = a.originalPublicationYear;
-      final bYear = b.originalPublicationYear;
-
-      if (aYear != null && bYear != null) {
-        return aYear.compareTo(bYear);
-      } else if (aYear != null) {
-        return -1;
-      } else if (bYear != null) {
-        return 1;
-      }
-
-      // Fallback to alphabetical sorting
-      return (a.name ?? '').compareTo(b.name ?? '');
-    });
-
-    return filteredBooks.isEmpty
-        ? Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.person_outline,
-                size: 64,
-                color: Theme.of(context).colorScheme.outlineVariant,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                AppLocalizations.of(context)!.no_books_for_author,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-        )
-        : Column(
-          children: [
-            // Header card with stats
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Card(
-                elevation: 2,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Column(
-                        children: [
-                          Text(
-                            '${filteredBooks.length}',
-                            style: Theme.of(
-                              context,
-                            ).textTheme.headlineMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.primary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            AppLocalizations.of(context)!.total_books,
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ],
-                      ),
-                      if (averageRating != null)
-                        Column(
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  averageRating.toStringAsFixed(1),
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.headlineMedium?.copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.tertiary,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                Icon(
-                                  Icons.star,
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                  size: 28,
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              AppLocalizations.of(context)!.average_rating,
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ],
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            // Books list
-            Expanded(
-              child: ListView.builder(
-                itemCount: filteredBooks.length,
-                itemBuilder: (context, index) {
-                  final book = filteredBooks[index];
-                  final isRead = book.statusValue?.toLowerCase() == 'yes';
-
-                  return InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => NewBookDetailScreen(book: book),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color:
-                            isRead
-                                ? Theme.of(context)
-                                    .colorScheme
-                                    .surfaceContainerHighest
-                                    .withValues(alpha: 0.5)
-                                : null,
-                        border: Border(
-                          bottom: BorderSide(
-                            color: Theme.of(context).colorScheme.outlineVariant,
-                            width: 1,
-                          ),
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0,
-                          vertical: 12.0,
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    book.name ??
-                                        AppLocalizations.of(context)!.unknown,
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.bodyLarge?.copyWith(
-                                      fontWeight:
-                                          isRead
-                                              ? FontWeight.normal
-                                              : FontWeight.w500,
-                                      color:
-                                          isRead
-                                              ? Theme.of(
-                                                context,
-                                              ).colorScheme.onSurfaceVariant
-                                              : null,
-                                    ),
-                                  ),
-                                  if (book.saga != null &&
-                                      book.saga!.isNotEmpty)
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 4.0),
-                                      child: Text(
-                                        book.nSaga != null &&
-                                                book.nSaga!.isNotEmpty
-                                            ? '${book.saga} #${book.nSaga}'
-                                            : book.saga!,
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.bodySmall?.copyWith(
-                                          color:
-                                              Theme.of(
-                                                context,
-                                              ).colorScheme.onSurfaceVariant,
-                                          fontStyle: FontStyle.italic,
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                            // Show release date for TBReleased books, publication year for others
-                            Builder(
-                              builder: (context) {
-                                // Priority: TBReleased notification date > publication year
-                                if (book.statusValue?.toLowerCase() ==
-                                        'tbreleased' &&
-                                    book.notificationDatetime != null &&
-                                    book.notificationDatetime!.isNotEmpty) {
-                                  try {
-                                    final dateStr = book.notificationDatetime!;
-                                    DateTime releaseDate;
-
-                                    // Parse YYYYMMDD format (e.g., "20260210")
-                                    if (dateStr.length == 8 &&
-                                        int.tryParse(dateStr) != null) {
-                                      final year = int.parse(
-                                        dateStr.substring(0, 4),
-                                      );
-                                      final month = int.parse(
-                                        dateStr.substring(4, 6),
-                                      );
-                                      final day = int.parse(
-                                        dateStr.substring(6, 8),
-                                      );
-                                      releaseDate = DateTime(year, month, day);
-                                    } else {
-                                      // Try ISO format as fallback
-                                      releaseDate = DateTime.parse(dateStr);
-                                    }
-
-                                    final now = DateTime.now();
-                                    final today = DateTime(
-                                      now.year,
-                                      now.month,
-                                      now.day,
-                                    );
-                                    final releaseDateOnly = DateTime(
-                                      releaseDate.year,
-                                      releaseDate.month,
-                                      releaseDate.day,
-                                    );
-
-                                    String displayText;
-                                    if (releaseDateOnly.isBefore(today)) {
-                                      // Past date: show DD/MM/YYYY
-                                      displayText =
-                                          '${releaseDate.day.toString().padLeft(2, '0')}/${releaseDate.month.toString().padLeft(2, '0')}/${releaseDate.year}';
-                                    } else {
-                                      // Future date: show only year
-                                      displayText = '${releaseDate.year}';
-                                    }
-
-                                    return Padding(
-                                      padding: const EdgeInsets.only(left: 8.0),
-                                      child: Text(
-                                        displayText,
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.bodySmall?.copyWith(
-                                          color:
-                                              Theme.of(
-                                                context,
-                                              ).colorScheme.onSurfaceVariant,
-                                        ),
-                                      ),
-                                    );
-                                  } catch (e) {
-                                    // If parsing fails, fall through to publication year
-                                  }
-                                }
-
-                                // Show publication year for non-TBReleased or if date parsing failed
-                                if (book.originalPublicationYear != null) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(left: 8.0),
-                                    child: Text(
-                                      '${book.originalPublicationYear}',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodySmall?.copyWith(
-                                        color:
-                                            Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant,
-                                      ),
-                                    ),
-                                  );
-                                }
-
-                                return const SizedBox.shrink();
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        );
+    return _MultiAuthorScreen(authors: widget.authors, provider: provider);
   }
 }
 
@@ -1112,32 +641,32 @@ const _kV2Sub = Color(0xFF5F5E5C);
 const _kV2Border = Color(0xFFCEC5BE);
 const _kV2Divider = Color(0xFFE6E2DF);
 
-class _SingleAuthorScreenV2 extends StatelessWidget {
+class _SingleAuthorScreen extends StatelessWidget {
   final String author;
   final BookProvider provider;
 
-  const _SingleAuthorScreenV2({required this.author, required this.provider});
+  const _SingleAuthorScreen({required this.author, required this.provider});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _kV2Bg,
-      body: _AuthorContentV2(author: author, provider: provider),
+      body: _AuthorContentView(author: author, provider: provider),
     );
   }
 }
 
-class _MultiAuthorScreenV2 extends StatefulWidget {
+class _MultiAuthorScreen extends StatefulWidget {
   final List<String> authors;
   final BookProvider provider;
 
-  const _MultiAuthorScreenV2({required this.authors, required this.provider});
+  const _MultiAuthorScreen({required this.authors, required this.provider});
 
   @override
-  State<_MultiAuthorScreenV2> createState() => _MultiAuthorScreenV2State();
+  State<_MultiAuthorScreen> createState() => _MultiAuthorScreenState();
 }
 
-class _MultiAuthorScreenV2State extends State<_MultiAuthorScreenV2> {
+class _MultiAuthorScreenState extends State<_MultiAuthorScreen> {
   int _selectedIndex = 0;
 
   @override
@@ -1206,7 +735,7 @@ class _MultiAuthorScreenV2State extends State<_MultiAuthorScreenV2> {
             ),
           ),
           Expanded(
-            child: _AuthorContentV2(
+            child: _AuthorContentView(
               key: ValueKey(widget.authors[_selectedIndex]),
               author: widget.authors[_selectedIndex],
               provider: widget.provider,
@@ -1218,21 +747,21 @@ class _MultiAuthorScreenV2State extends State<_MultiAuthorScreenV2> {
   }
 }
 
-class _AuthorContentV2 extends StatefulWidget {
+class _AuthorContentView extends StatefulWidget {
   final String author;
   final BookProvider provider;
 
-  const _AuthorContentV2({
+  const _AuthorContentView({
     super.key,
     required this.author,
     required this.provider,
   });
 
   @override
-  State<_AuthorContentV2> createState() => _AuthorContentV2State();
+  State<_AuthorContentView> createState() => _AuthorContentViewState();
 }
 
-class _AuthorContentV2State extends State<_AuthorContentV2> {
+class _AuthorContentViewState extends State<_AuthorContentView> {
   bool _showFullCatalog = false;
 
   String get author => widget.author;

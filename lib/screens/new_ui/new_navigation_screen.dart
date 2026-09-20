@@ -95,10 +95,10 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
 
   List<Widget> get widgetOptions => [
     NewHomeScreen(onRegisterClearSearch: _registerClearSearch),
-    const StatisticsScreen(useNewUi: true),
+    const StatisticsScreen(),
     const NewMyBooksScreen(),
     const NewRandomScreen(),
-    const SettingsScreen(useNewUi: true),
+    const SettingsScreen(),
   ];
 
   @override

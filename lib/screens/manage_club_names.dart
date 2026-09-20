@@ -11,8 +11,7 @@ const _kBorder = Color(0xFFD5C2C7);
 const _kSecondary = Color(0xFF5D2641);
 
 class ManageClubNamesScreen extends StatefulWidget {
-  final bool useNewUi;
-  const ManageClubNamesScreen({super.key, this.useNewUi = false});
+  const ManageClubNamesScreen({super.key});
 
   @override
   State<ManageClubNamesScreen> createState() => _ManageClubNamesScreenState();
@@ -60,10 +59,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
   }
 
   Future<void> _showRenameDialog(String oldName) async {
-    final newName =
-        widget.useNewUi
-            ? await _showV2RenameDialog(oldName)
-            : await _showV1RenameDialog(oldName);
+    final newName = await _showV2RenameDialog(oldName);
 
     if (newName != null && newName != oldName) {
       try {
@@ -84,10 +80,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                 content: Text(
                   AppLocalizations.of(context)!.club_already_exists(newName),
                 ),
-                backgroundColor:
-                    widget.useNewUi
-                        ? const Color(0xFFB3261E)
-                        : Theme.of(context).colorScheme.secondary,
+                backgroundColor: const Color(0xFFB3261E),
               ),
             );
           }
@@ -110,10 +103,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
               content: Text(
                 AppLocalizations.of(context)!.renamed_club(oldName, newName),
               ),
-              backgroundColor:
-                  widget.useNewUi
-                      ? _kPrimary
-                      : Theme.of(context).colorScheme.primary,
+              backgroundColor: _kPrimary,
             ),
           );
         }
@@ -122,50 +112,12 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('${AppLocalizations.of(context)!.error}: $e'),
-              backgroundColor:
-                  widget.useNewUi
-                      ? const Color(0xFFB3261E)
-                      : Theme.of(context).colorScheme.error,
+              backgroundColor: const Color(0xFFB3261E),
             ),
           );
         }
       }
     }
-  }
-
-  Future<String?> _showV1RenameDialog(String oldName) async {
-    final controller = TextEditingController(text: oldName);
-
-    return showDialog<String>(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(AppLocalizations.of(context)!.rename_club),
-            content: TextField(
-              controller: controller,
-              decoration: InputDecoration(
-                labelText: AppLocalizations.of(context)!.club_name,
-                border: const OutlineInputBorder(),
-              ),
-              autofocus: true,
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(AppLocalizations.of(context)!.cancel),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  final name = controller.text.trim();
-                  if (name.isNotEmpty && name != oldName) {
-                    Navigator.of(context).pop(name);
-                  }
-                },
-                child: Text(AppLocalizations.of(context)!.rename),
-              ),
-            ],
-          ),
-    );
   }
 
   Future<String?> _showV2RenameDialog(String oldName) async {
@@ -323,10 +275,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
   }
 
   Future<void> _deleteClub(String clubName, int bookCount) async {
-    final confirmed =
-        widget.useNewUi
-            ? await _showV2DeleteDialog(clubName, bookCount)
-            : await _showV1DeleteDialog(clubName, bookCount);
+    final confirmed = await _showV2DeleteDialog(clubName, bookCount);
 
     if (confirmed == true) {
       try {
@@ -347,10 +296,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
               content: Text(
                 AppLocalizations.of(context)!.deleted_value(clubName),
               ),
-              backgroundColor:
-                  widget.useNewUi
-                      ? _kPrimary
-                      : Theme.of(context).colorScheme.primary,
+              backgroundColor: _kPrimary,
             ),
           );
         }
@@ -359,43 +305,12 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('${AppLocalizations.of(context)!.error}: $e'),
-              backgroundColor:
-                  widget.useNewUi
-                      ? const Color(0xFFB3261E)
-                      : Theme.of(context).colorScheme.error,
+              backgroundColor: const Color(0xFFB3261E),
             ),
           );
         }
       }
     }
-  }
-
-  Future<bool?> _showV1DeleteDialog(String clubName, int bookCount) async {
-    return showDialog<bool>(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(AppLocalizations.of(context)!.delete_club),
-            content: Text(
-              AppLocalizations.of(
-                context,
-              )!.confirm_delete_club(clubName, bookCount),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text(AppLocalizations.of(context)!.cancel),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.error,
-                ),
-                child: Text(AppLocalizations.of(context)!.delete),
-              ),
-            ],
-          ),
-    );
   }
 
   Future<bool?> _showV2DeleteDialog(String clubName, int bookCount) async {
@@ -524,22 +439,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.useNewUi) {
-      return _buildV2(context);
-    }
-    return _buildV1(context);
-  }
-
-  Widget _buildV1(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.manage_club_names),
-      ),
-      body:
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _buildBody(context, isV2: false),
-    );
+    return _buildV2(context);
   }
 
   Widget _buildV2(BuildContext context) {
@@ -573,11 +473,11 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
       body:
           _isLoading
               ? const Center(child: CircularProgressIndicator(color: _kPrimary))
-              : _buildBody(context, isV2: true),
+              : _buildBody(context),
     );
   }
 
-  Widget _buildBody(BuildContext context, {required bool isV2}) {
+  Widget _buildBody(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
     if (_clubs.isEmpty) {
@@ -585,37 +485,24 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.groups_outlined,
-              size: 64,
-              color:
-                  isV2
-                      ? _kBorder
-                      : Theme.of(context).colorScheme.outlineVariant,
-            ),
+            Icon(Icons.groups_outlined, size: 64, color: _kBorder),
             const SizedBox(height: 16),
             Text(
               l10n.no_clubs_yet,
-              style: TextStyle(
-                fontFamily: isV2 ? 'Manrope' : null,
+              style: const TextStyle(
+                fontFamily: 'Manrope',
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
-                color:
-                    isV2
-                        ? _kSub
-                        : Theme.of(context).colorScheme.onSurfaceVariant,
+                color: _kSub,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               l10n.add_books_to_clubs_hint,
-              style: TextStyle(
-                fontFamily: isV2 ? 'Manrope' : null,
+              style: const TextStyle(
+                fontFamily: 'Manrope',
                 fontSize: 14,
-                color:
-                    isV2
-                        ? _kSub
-                        : Theme.of(context).colorScheme.onSurfaceVariant,
+                color: _kSub,
                 fontStyle: FontStyle.italic,
               ),
             ),
@@ -625,10 +512,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
     }
 
     return ListView.builder(
-      padding:
-          isV2
-              ? const EdgeInsets.fromLTRB(20, 20, 20, 50)
-              : const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 50),
       itemCount: _clubs.length,
       itemBuilder: (context, index) {
         final club = _clubs[index];
@@ -636,205 +520,114 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
         final bookCount = club['book_count'] as int;
         final avgProgress = club['avg_progress'] as double?;
 
-        if (isV2) {
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0x1A27231E)),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x0A000000),
-                  blurRadius: 6,
-                  offset: Offset(0, 4),
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0x1A27231E)),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x0A000000),
+                blurRadius: 6,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: _kSecondary.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: _kSecondary.withValues(alpha: 0.12),
+                  ),
                 ),
-              ],
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: _kSecondary.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: _kSecondary.withValues(alpha: 0.12),
+                child: const Icon(
+                  Icons.group_outlined,
+                  color: _kSecondary,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      clubName,
+                      style: const TextStyle(
+                        fontFamily: 'Manrope',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: _kText,
+                      ),
                     ),
-                  ),
-                  child: const Icon(
-                    Icons.group_outlined,
-                    color: _kSecondary,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        clubName,
-                        style: const TextStyle(
-                          fontFamily: 'Manrope',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: _kText,
-                        ),
+                    const SizedBox(height: 6),
+                    Text(
+                      l10n.book_count_label(bookCount),
+                      style: const TextStyle(
+                        fontFamily: 'Manrope',
+                        fontSize: 13,
+                        color: _kSub,
                       ),
-                      const SizedBox(height: 6),
-                      Text(
-                        l10n.book_count_label(bookCount),
-                        style: const TextStyle(
-                          fontFamily: 'Manrope',
-                          fontSize: 13,
-                          color: _kSub,
-                        ),
-                      ),
-                      if (avgProgress != null) ...[
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(4),
-                                child: LinearProgressIndicator(
-                                  value: avgProgress / 100,
-                                  minHeight: 6,
-                                  backgroundColor: const Color(0xFFF2EDEB),
-                                  valueColor:
-                                      const AlwaysStoppedAnimation<Color>(
-                                        _kSecondary,
-                                      ),
+                    ),
+                    if (avgProgress != null) ...[
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: LinearProgressIndicator(
+                                value: avgProgress / 100,
+                                minHeight: 6,
+                                backgroundColor: const Color(0xFFF2EDEB),
+                                valueColor: const AlwaysStoppedAnimation<Color>(
+                                  _kSecondary,
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '${avgProgress.toStringAsFixed(0)}%',
-                              style: const TextStyle(
-                                fontFamily: 'Manrope',
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: _kSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit_outlined),
-                      color: _kSub,
-                      onPressed: () => _showRenameDialog(clubName),
-                      tooltip: l10n.rename,
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline),
-                      color: const Color(0xFFB3261E),
-                      onPressed: () => _deleteClub(clubName, bookCount),
-                      tooltip: l10n.delete,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          );
-        }
-
-        return Card(
-          margin: const EdgeInsets.only(bottom: 12),
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 8,
-            ),
-            leading: CircleAvatar(
-              backgroundColor: Theme.of(
-                context,
-              ).colorScheme.secondaryContainer.withValues(alpha: 0.3),
-              child: Icon(
-                Icons.group,
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-            ),
-            title: Text(
-              clubName,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 4),
-                Text(
-                  l10n.book_count_label(bookCount),
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                if (avgProgress != null) ...[
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: LinearProgressIndicator(
-                            value: avgProgress / 100,
-                            minHeight: 6,
-                            backgroundColor:
-                                Theme.of(
-                                  context,
-                                ).colorScheme.surfaceContainerHighest,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Theme.of(context).colorScheme.secondary,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '${avgProgress.toStringAsFixed(0)}%',
+                            style: const TextStyle(
+                              fontFamily: 'Manrope',
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: _kSecondary,
                             ),
                           ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '${avgProgress.toStringAsFixed(0)}%',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.secondary,
-                        ),
+                        ],
                       ),
                     ],
+                  ],
+                ),
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.edit_outlined),
+                    color: _kSub,
+                    onPressed: () => _showRenameDialog(clubName),
+                    tooltip: l10n.rename,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline),
+                    color: const Color(0xFFB3261E),
+                    onPressed: () => _deleteClub(clubName, bookCount),
+                    tooltip: l10n.delete,
                   ),
                 ],
-              ],
-            ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.edit),
-                  color: Theme.of(context).colorScheme.secondary,
-                  onPressed: () => _showRenameDialog(clubName),
-                  tooltip: l10n.rename,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete),
-                  color: Theme.of(context).colorScheme.error,
-                  onPressed: () => _deleteClub(clubName, bookCount),
-                  tooltip: l10n.delete,
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },

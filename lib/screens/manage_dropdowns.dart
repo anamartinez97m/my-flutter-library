@@ -13,8 +13,7 @@ const _kText = Color(0xFF1C1B1A);
 const _kBorder = Color(0xFFD5C2C7);
 
 class ManageDropdownsScreen extends StatefulWidget {
-  final bool useNewUi;
-  const ManageDropdownsScreen({super.key, this.useNewUi = false});
+  const ManageDropdownsScreen({super.key});
 
   @override
   State<ManageDropdownsScreen> createState() => _ManageDropdownsScreenState();
@@ -144,210 +143,6 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
 
   /// Shows a dialog to ask for expected books count for format_saga values
   Future<int?> _showFormatSagaHelper(String formatSagaName) async {
-    if (widget.useNewUi) {
-      return _showFormatSagaHelperV2(formatSagaName);
-    }
-    return _showFormatSagaHelperV1(formatSagaName);
-  }
-
-  Future<int?> _showFormatSagaHelperV1(String formatSagaName) async {
-    final controller = TextEditingController();
-    String? selectedOption = 'number'; // 'number' or 'unknown'
-
-    return await showDialog<int?>(
-      context: context,
-      builder:
-          (context) => StatefulBuilder(
-            builder:
-                (context, setState) => AlertDialog(
-                  title: Row(
-                    children: [
-                      Icon(
-                        Icons.info_outline,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          AppLocalizations.of(context)!.saga_completion_setup,
-                        ),
-                      ),
-                    ],
-                  ),
-                  content: SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          AppLocalizations.of(
-                            context,
-                          )!.you_are_adding(formatSagaName),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .primaryContainer
-                                .withValues(alpha: 0.3),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.primary.withValues(alpha: 0.3),
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                AppLocalizations.of(
-                                  context,
-                                )!.how_many_books_saga,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color:
-                                      Theme.of(context).colorScheme.onSurface,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                AppLocalizations.of(
-                                  context,
-                                )!.saga_completion_explanation,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color:
-                                      Theme.of(context).colorScheme.onSurface,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        RadioListTile<String>(
-                          title: Text(
-                            AppLocalizations.of(
-                              context,
-                            )!.specific_number_of_books,
-                          ),
-                          value: 'number',
-                          groupValue: selectedOption,
-                          onChanged: (value) {
-                            setState(() {
-                              selectedOption = value;
-                            });
-                          },
-                          dense: true,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                        if (selectedOption == 'number')
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              left: 32,
-                              right: 16,
-                              bottom: 8,
-                            ),
-                            child: TextField(
-                              controller: controller,
-                              decoration: InputDecoration(
-                                labelText:
-                                    AppLocalizations.of(
-                                      context,
-                                    )!.number_of_books,
-                                hintText: 'e.g., 7',
-                                border: const OutlineInputBorder(),
-                                isDense: true,
-                              ),
-                              keyboardType: TextInputType.number,
-                              autofocus: true,
-                            ),
-                          ),
-                        RadioListTile<String>(
-                          title: Text(
-                            AppLocalizations.of(
-                              context,
-                            )!.unknown_show_as_question,
-                          ),
-                          subtitle: Text(
-                            AppLocalizations.of(
-                              context,
-                            )!.for_sagas_unknown_length,
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                          value: 'unknown',
-                          groupValue: selectedOption,
-                          onChanged: (value) {
-                            setState(() {
-                              selectedOption = value;
-                            });
-                          },
-                          dense: true,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          AppLocalizations.of(context)!.examples,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        _buildFormatExample('Trilogy', '3 books'),
-                        _buildFormatExample('Heptalogy', '7 books'),
-                        _buildFormatExample('Saga', '? (unknown)'),
-                      ],
-                    ),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, null),
-                      child: Text(AppLocalizations.of(context)!.cancel),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        if (selectedOption == 'unknown') {
-                          Navigator.pop(context, -1); // -1 means unknown
-                        } else {
-                          final value = int.tryParse(controller.text.trim());
-                          if (value == null || value < 1) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  AppLocalizations.of(
-                                    context,
-                                  )!.enter_valid_number,
-                                ),
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.secondary,
-                              ),
-                            );
-                            return;
-                          }
-                          Navigator.pop(context, value);
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onPrimary,
-                      ),
-                      child: Text(AppLocalizations.of(context)!.continue_label),
-                    ),
-                  ],
-                ),
-          ),
-    );
-  }
-
-  Future<int?> _showFormatSagaHelperV2(String formatSagaName) async {
     final controller = TextEditingController();
     String? selectedOption = 'number';
 
@@ -764,43 +559,13 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     );
   }
 
-  Widget _buildFormatExample(String format, String total) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 16, bottom: 4),
-      child: Row(
-        children: [
-          Icon(
-            Icons.circle,
-            size: 6,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-          const SizedBox(width: 8),
-          Text(
-            '$format: ',
-            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
-          ),
-          Text(
-            total,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              fontSize: 12,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Future<void> _addValue() async {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
     final provider = Provider.of<BookProvider?>(context, listen: false);
-    final colorScheme = Theme.of(context).colorScheme;
 
     final result =
-        widget.useNewUi
-            ? await _showV2AddValueDialog()
-            : await _showV1AddValueDialog();
+        await _showV2AddValueDialog();
 
     if (result != null && result.isNotEmpty) {
       int? expectedBooks;
@@ -830,7 +595,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.value_added_successfully),
-            backgroundColor: widget.useNewUi ? _kPrimary : colorScheme.primary,
+            backgroundColor: _kPrimary,
           ),
         );
 
@@ -844,47 +609,11 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
           SnackBar(
             content: Text('${l10n.error}: $e'),
             backgroundColor:
-                widget.useNewUi ? const Color(0xFFB3261E) : colorScheme.error,
+                const Color(0xFFB3261E),
           ),
         );
       }
     }
-  }
-
-  Future<String?> _showV1AddValueDialog() async {
-    final controller = TextEditingController();
-
-    return showDialog<String>(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(
-              '${AppLocalizations.of(context)!.add} ${_getTableLabel(context, _selectedTable)}',
-            ),
-            content: TextField(
-              controller: controller,
-              decoration: InputDecoration(
-                labelText: AppLocalizations.of(context)!.value_label,
-                border: const OutlineInputBorder(),
-              ),
-              autofocus: true,
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(AppLocalizations.of(context)!.cancel),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context, controller.text.trim()),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                ),
-                child: Text(AppLocalizations.of(context)!.add),
-              ),
-            ],
-          ),
-    );
   }
 
   Future<String?> _showV2AddValueDialog() async {
@@ -1045,17 +774,9 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
     final provider = Provider.of<BookProvider?>(context, listen: false);
-    final colorScheme = Theme.of(context).colorScheme;
 
     final result =
-        widget.useNewUi
-            ? await _showV2EditValueDialog(
-              id,
-              currentValue,
-              isCoreValue,
-              isCoreStatus,
-            )
-            : await _showV1EditValueDialog(
+        await _showV2EditValueDialog(
               id,
               currentValue,
               isCoreValue,
@@ -1072,7 +793,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.value_updated_successfully),
-            backgroundColor: widget.useNewUi ? _kPrimary : colorScheme.primary,
+            backgroundColor: _kPrimary,
           ),
         );
 
@@ -1086,98 +807,11 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
           SnackBar(
             content: Text('${l10n.error}: $e'),
             backgroundColor:
-                widget.useNewUi ? const Color(0xFFB3261E) : colorScheme.error,
+                const Color(0xFFB3261E),
           ),
         );
       }
     }
-  }
-
-  Future<String?> _showV1EditValueDialog(
-    int id,
-    String currentValue,
-    bool isCoreValue,
-    bool isCoreStatus,
-  ) async {
-    final controller = TextEditingController(text: currentValue);
-
-    return showDialog<String>(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(
-              '${AppLocalizations.of(context)!.edit} ${_getTableLabel(context, _selectedTable)}',
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (isCoreValue)
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    margin: const EdgeInsets.only(bottom: 16),
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.secondaryContainer.withValues(alpha: 0.3),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.secondary.withValues(alpha: 0.5),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.warning_amber,
-                          color: Theme.of(context).colorScheme.secondary,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            isCoreStatus
-                                ? AppLocalizations.of(
-                                  context,
-                                )!.core_status_warning
-                                : AppLocalizations.of(
-                                  context,
-                                )!.core_format_saga_warning,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                TextField(
-                  controller: controller,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.value_label,
-                    border: const OutlineInputBorder(),
-                  ),
-                  autofocus: true,
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(AppLocalizations.of(context)!.cancel),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context, controller.text.trim()),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                ),
-                child: Text(AppLocalizations.of(context)!.save),
-              ),
-            ],
-          ),
-    );
   }
 
   Future<String?> _showV2EditValueDialog(
@@ -1378,7 +1012,6 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
     final provider = Provider.of<BookProvider?>(context, listen: false);
-    final colorScheme = Theme.of(context).colorScheme;
 
     // Prevent deletion of core values
     if (_isCoreValue(value)) {
@@ -1388,11 +1021,9 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       } else {
         message = l10n.core_format_saga_cannot_delete;
       }
-      if (widget.useNewUi) {
+      
         _showV2CoreDeleteWarning(message);
-      } else {
-        _showV1CoreDeleteWarning(message);
-      }
+      
       return;
     }
 
@@ -1460,7 +1091,6 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                 tableName: _selectedTable,
                 currentId: id,
                 allValues: _values,
-                useNewUi: widget.useNewUi,
               ),
         );
 
@@ -1578,9 +1208,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       } else {
         // Value not in use, simple confirmation
         final confirmed =
-            widget.useNewUi
-                ? await _showV2ConfirmDeleteDialog(value)
-                : await _showV1ConfirmDeleteDialog(value);
+            await _showV2ConfirmDeleteDialog(value);
 
         if (confirmed == true) {
           await repository.deleteLookupValue(_selectedTable, id);
@@ -1593,7 +1221,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.value_deleted_successfully),
-          backgroundColor: widget.useNewUi ? _kPrimary : colorScheme.primary,
+          backgroundColor: _kPrimary,
         ),
       );
 
@@ -1607,29 +1235,12 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         SnackBar(
           content: Text('${l10n.error}: $e'),
           backgroundColor:
-              widget.useNewUi ? const Color(0xFFB3261E) : colorScheme.error,
+              const Color(0xFFB3261E),
         ),
       );
     }
   }
 
-  void _showV1CoreDeleteWarning(String message) {
-    final l10n = AppLocalizations.of(context)!;
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(l10n.cannot_delete),
-            content: Text(message),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(l10n.ok),
-              ),
-            ],
-          ),
-    );
-  }
 
   void _showV2CoreDeleteWarning(String message) {
     final l10n = AppLocalizations.of(context)!;
@@ -1715,32 +1326,6 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     );
   }
 
-  Future<bool?> _showV1ConfirmDeleteDialog(String value) async {
-    return showDialog<bool>(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(AppLocalizations.of(context)!.confirm_delete_title),
-            content: Text(
-              AppLocalizations.of(context)!.confirm_delete_value(value),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: Text(AppLocalizations.of(context)!.cancel),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context, true),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.error,
-                  foregroundColor: Theme.of(context).colorScheme.onError,
-                ),
-                child: Text(AppLocalizations.of(context)!.delete),
-              ),
-            ],
-          ),
-    );
-  }
 
   Future<bool?> _showV2ConfirmDeleteDialog(String value) async {
     final l10n = AppLocalizations.of(context)!;
@@ -1865,31 +1450,11 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       },
     );
   }
-
   @override
   Widget build(BuildContext context) {
-    if (widget.useNewUi) {
-      return _buildV2(context);
-    }
-    return _buildV1(context);
+    return _buildV2(context);
   }
 
-  Widget _buildV1(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.manage_dropdown_values),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
-      ),
-      body: _buildBody(context, isV2: false),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _addValue,
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
-        child: const Icon(Icons.add),
-      ),
-    );
-  }
 
   Widget _buildV2(BuildContext context) {
     return Scaffold(
@@ -2324,222 +1889,6 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     return 'Configured value';
   }
 
-  Widget _buildBody(BuildContext context, {required bool isV2}) {
-    final l10n = AppLocalizations.of(context)!;
-
-    return Column(
-      children: [
-        Padding(
-          padding:
-              isV2
-                  ? const EdgeInsets.fromLTRB(20, 20, 20, 0)
-                  : const EdgeInsets.all(16.0),
-          child:
-              isV2
-                  ? Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0x1A27231E)),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Color(0x0A000000),
-                          blurRadius: 6,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButtonFormField<String>(
-                        initialValue: _selectedTable,
-                        isExpanded: true,
-                        decoration: InputDecoration(
-                          labelText: l10n.select_category,
-                          labelStyle: const TextStyle(
-                            fontFamily: 'Manrope',
-                            fontSize: 12,
-                            color: _kPrimary,
-                          ),
-                          border: InputBorder.none,
-                        ),
-                        style: const TextStyle(
-                          fontFamily: 'Manrope',
-                          fontSize: 16,
-                          color: _kText,
-                        ),
-                        icon: const Icon(Icons.expand_more, color: _kPrimary),
-                        items: _buildDropdownItems(context, isV2: true),
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() => _selectedTable = value);
-                            _loadValues();
-                          }
-                        },
-                      ),
-                    ),
-                  )
-                  : DropdownButtonFormField<String>(
-                    initialValue: _selectedTable,
-                    decoration: InputDecoration(
-                      labelText: l10n.select_category,
-                      border: const OutlineInputBorder(),
-                    ),
-                    items: _buildDropdownItems(context, isV2: false),
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() => _selectedTable = value);
-                        _loadValues();
-                      }
-                    },
-                  ),
-        ),
-        if (_isLoading)
-          const Expanded(
-            child: Center(child: CircularProgressIndicator(color: _kPrimary)),
-          )
-        else
-          Expanded(child: _buildValuesList(context, isV2: isV2)),
-      ],
-    );
-  }
-
-  List<DropdownMenuItem<String>> _buildDropdownItems(
-    BuildContext context, {
-    required bool isV2,
-  }) {
-    return _tableKeys.map((key) {
-      return DropdownMenuItem(
-        value: key,
-        child: Text(
-          _getTableLabel(context, key),
-          style: TextStyle(
-            fontFamily: isV2 ? 'Manrope' : null,
-            fontSize: isV2 ? 16 : null,
-            color: isV2 ? _kText : null,
-          ),
-        ),
-      );
-    }).toList();
-  }
-
-  Widget _buildValuesList(BuildContext context, {required bool isV2}) {
-    final l10n = AppLocalizations.of(context)!;
-
-    return ListView.builder(
-      padding:
-          isV2
-              ? const EdgeInsets.fromLTRB(20, 16, 20, 80)
-              : const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: _values.length,
-      itemBuilder: (context, index) {
-        final item = _values[index];
-        final idColumn =
-            _selectedTable == 'format_saga'
-                ? 'format_id'
-                : '${_selectedTable}_id';
-        final valueColumn =
-            _selectedTable == 'status' ||
-                    _selectedTable == 'format' ||
-                    _selectedTable == 'format_saga'
-                ? 'value'
-                : 'name';
-
-        final id = item[idColumn] as int;
-        final value = item[valueColumn] as String;
-        final isCore = _isCoreValue(value);
-
-        if (isV2) {
-          return Container(
-            margin: const EdgeInsets.only(bottom: 10),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0x1A27231E)),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x0A000000),
-                  blurRadius: 6,
-                  offset: Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    value,
-                    style: const TextStyle(
-                      fontFamily: 'Manrope',
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                      color: _kText,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(
-                    Icons.edit_outlined,
-                    color: isCore ? _kSub : _kPrimary,
-                  ),
-                  onPressed: isCore ? null : () => _editValue(id, value),
-                  tooltip: isCore ? l10n.core_value_cannot_delete : l10n.edit,
-                ),
-                IconButton(
-                  icon: Icon(
-                    Icons.delete_outline,
-                    color: isCore ? _kSub : const Color(0xFFB3261E),
-                  ),
-                  onPressed: isCore ? null : () => _deleteValue(id, value),
-                  tooltip: isCore ? l10n.core_value_cannot_delete : l10n.delete,
-                ),
-              ],
-            ),
-          );
-        }
-
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          child: ListTile(
-            title: Text(value),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.edit,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  onPressed: () => _editValue(id, value),
-                ),
-                IconButton(
-                  icon: Icon(
-                    Icons.delete,
-                    color:
-                        _isCoreValue(value)
-                            ? Theme.of(context).colorScheme.onSurfaceVariant
-                            : Theme.of(context).colorScheme.error,
-                  ),
-                  onPressed:
-                      _isCoreValue(value)
-                          ? null
-                          : () => _deleteValue(id, value),
-                  tooltip:
-                      _isCoreValue(value)
-                          ? l10n.core_value_cannot_delete
-                          : l10n.delete,
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 }
 
 class _DeleteOptionsDialog extends StatefulWidget {
@@ -2548,16 +1897,12 @@ class _DeleteOptionsDialog extends StatefulWidget {
   final String tableName;
   final int currentId;
   final List<Map<String, dynamic>> allValues;
-  final bool useNewUi;
-
   const _DeleteOptionsDialog({
     required this.value,
     required this.usageCount,
     required this.tableName,
     required this.currentId,
-    required this.allValues,
-    this.useNewUi = false,
-  });
+    required this.allValues});
 
   @override
   State<_DeleteOptionsDialog> createState() => _DeleteOptionsDialogState();
@@ -2591,143 +1936,10 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
     final otherValues =
         widget.allValues.where((v) => v[idColumn] != widget.currentId).toList();
 
-    if (widget.useNewUi) {
+    
       return _buildV2(context, valueColumn, idColumn, otherValues);
-    }
-    return _buildV1(context, valueColumn, idColumn, otherValues);
   }
 
-  Widget _buildV1(
-    BuildContext context,
-    String valueColumn,
-    String idColumn,
-    List<Map<String, dynamic>> otherValues,
-  ) {
-    return AlertDialog(
-      title: Text(AppLocalizations.of(context)!.delete_value),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              AppLocalizations.of(
-                context,
-              )!.value_in_use(widget.value, widget.usageCount),
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            Text(AppLocalizations.of(context)!.what_would_you_like_to_do),
-            const SizedBox(height: 12),
-
-            // Option 1: Replace with existing
-            if (otherValues.isNotEmpty)
-              RadioListTile<String>(
-                title: Text(
-                  AppLocalizations.of(context)!.replace_with_existing,
-                ),
-                value: 'replace',
-                groupValue: _selectedOption,
-                onChanged: (value) {
-                  setState(() {
-                    _selectedOption = value!;
-                  });
-                },
-              ),
-            if (_selectedOption == 'replace' && otherValues.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(left: 32, right: 16),
-                child: DropdownButtonFormField<int>(
-                  value: _selectedReplacement,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.select_replacement,
-                    border: const OutlineInputBorder(),
-                    isDense: true,
-                  ),
-                  isExpanded: true,
-                  items:
-                      otherValues.map((v) {
-                        return DropdownMenuItem<int>(
-                          value: v[idColumn] as int,
-                          child: Text(
-                            v[valueColumn] as String,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                        );
-                      }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedReplacement = value;
-                    });
-                  },
-                ),
-              ),
-            const SizedBox(height: 12),
-
-            // Option 2: Create new
-            RadioListTile<String>(
-              title: Text(AppLocalizations.of(context)!.create_new_value),
-              value: 'create',
-              groupValue: _selectedOption,
-              onChanged: (value) {
-                setState(() {
-                  _selectedOption = value!;
-                });
-              },
-            ),
-            if (_selectedOption == 'create')
-              Padding(
-                padding: const EdgeInsets.only(left: 32, right: 16),
-                child: TextField(
-                  controller: _newValueController,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.new_value,
-                    border: const OutlineInputBorder(),
-                    isDense: true,
-                  ),
-                  textCapitalization: TextCapitalization.words,
-                ),
-              ),
-            const SizedBox(height: 12),
-
-            // Option 3: Delete completely
-            RadioListTile<String>(
-              title: Text(AppLocalizations.of(context)!.delete_completely),
-              subtitle: Text(
-                AppLocalizations.of(context)!.delete_may_fail,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-              value: 'delete',
-              groupValue: _selectedOption,
-              onChanged: (value) {
-                setState(() {
-                  _selectedOption = value!;
-                });
-              },
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(AppLocalizations.of(context)!.cancel),
-        ),
-        ElevatedButton(
-          onPressed: () => _onProceed(context),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).colorScheme.error,
-            foregroundColor: Theme.of(context).colorScheme.onError,
-          ),
-          child: Text(AppLocalizations.of(context)!.proceed),
-        ),
-      ],
-    );
-  }
 
   Widget _buildV2(
     BuildContext context,
@@ -3052,16 +2264,13 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
 
   void _onProceed(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final colorScheme = Theme.of(context).colorScheme;
     if (_selectedOption == 'replace') {
       if (_selectedReplacement == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.please_select_replacement),
             backgroundColor:
-                widget.useNewUi
-                    ? const Color(0xFFB3261E)
-                    : colorScheme.secondary,
+                const Color(0xFFB3261E),
           ),
         );
         return;
@@ -3074,9 +2283,7 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
           SnackBar(
             content: Text(l10n.please_enter_new_value),
             backgroundColor:
-                widget.useNewUi
-                    ? const Color(0xFFB3261E)
-                    : colorScheme.secondary,
+                const Color(0xFFB3261E),
           ),
         );
         return;

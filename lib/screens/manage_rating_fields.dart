@@ -11,8 +11,7 @@ const _kText = Color(0xFF1C1B1A);
 const _kBorder = Color(0xFFD5C2C7);
 
 class ManageRatingFieldsScreen extends StatefulWidget {
-  final bool useNewUi;
-  const ManageRatingFieldsScreen({super.key, this.useNewUi = false});
+  const ManageRatingFieldsScreen({super.key});
 
   @override
   State<ManageRatingFieldsScreen> createState() =>
@@ -66,14 +65,11 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
 
   Future<void> _editFieldWeight(String name) async {
     final l10n = AppLocalizations.of(context)!;
-    final colorScheme = Theme.of(context).colorScheme;
     final messenger = ScaffoldMessenger.of(context);
     final currentWeight = _fieldWeights[name] ?? 0;
 
     final result =
-        widget.useNewUi
-            ? await _showV2WeightDialog(name, currentWeight)
-            : await _showV1WeightDialog(name, currentWeight);
+        await _showV2WeightDialog(name, currentWeight);
 
     if (result != null) {
       try {
@@ -85,66 +81,13 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.weight_saved),
-            backgroundColor: widget.useNewUi ? _kPrimary : colorScheme.primary,
+            backgroundColor: _kPrimary,
           ),
         );
       } catch (e) {
         debugPrint('Error updating weight: $e');
       }
     }
-  }
-
-  Future<int?> _showV1WeightDialog(String name, int currentWeight) async {
-    final l10n = AppLocalizations.of(context)!;
-    final controller = TextEditingController(text: currentWeight.toString());
-
-    return showDialog<int>(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(l10n.edit_weight),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: controller,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: l10n.rating_field_weight,
-                    suffixText: '%',
-                    border: const OutlineInputBorder(),
-                    helperText: l10n.weight_range_hint,
-                  ),
-                  autofocus: true,
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(l10n.cancel),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  final value = int.tryParse(controller.text.trim());
-                  if (value != null && value >= 0 && value <= 100) {
-                    Navigator.pop(context, value);
-                  }
-                },
-                child: Text(l10n.save),
-              ),
-            ],
-          ),
-    );
   }
 
   Future<int?> _showV2WeightDialog(String name, int currentWeight) async {
@@ -313,12 +256,9 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
   Future<void> _addFieldName() async {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
-    final colorScheme = Theme.of(context).colorScheme;
 
     final result =
-        widget.useNewUi
-            ? await _showV2AddFieldDialog()
-            : await _showV1AddFieldDialog();
+        await _showV2AddFieldDialog();
 
     if (result != null && result.isNotEmpty) {
       if (_fieldNames.contains(result)) {
@@ -326,7 +266,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
           SnackBar(
             content: Text(l10n.field_name_already_exists(result)),
             backgroundColor:
-                widget.useNewUi ? const Color(0xFFB3261E) : colorScheme.error,
+                const Color(0xFFB3261E),
           ),
         );
         return;
@@ -343,7 +283,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.added_value(result)),
-            backgroundColor: widget.useNewUi ? _kPrimary : colorScheme.primary,
+            backgroundColor: _kPrimary,
           ),
         );
       } catch (e) {
@@ -352,48 +292,11 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
           SnackBar(
             content: Text('${l10n.error}: $e'),
             backgroundColor:
-                widget.useNewUi ? const Color(0xFFB3261E) : colorScheme.error,
+                const Color(0xFFB3261E),
           ),
         );
       }
     }
-  }
-
-  Future<String?> _showV1AddFieldDialog() async {
-    final controller = TextEditingController();
-
-    return showDialog<String>(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(AppLocalizations.of(context)!.add_rating_field_name),
-            content: TextField(
-              controller: controller,
-              decoration: InputDecoration(
-                labelText: AppLocalizations.of(context)!.field_name,
-                hintText: AppLocalizations.of(context)!.field_name_hint,
-                border: const OutlineInputBorder(),
-              ),
-              textCapitalization: TextCapitalization.words,
-              autofocus: true,
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(AppLocalizations.of(context)!.cancel),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  final name = controller.text.trim();
-                  if (name.isNotEmpty) {
-                    Navigator.pop(context, name);
-                  }
-                },
-                child: Text(AppLocalizations.of(context)!.add),
-              ),
-            ],
-          ),
-    );
   }
 
   Future<String?> _showV2AddFieldDialog() async {
@@ -555,12 +458,9 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
   Future<void> _editFieldName(String oldName) async {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
-    final colorScheme = Theme.of(context).colorScheme;
 
     final result =
-        widget.useNewUi
-            ? await _showV2EditFieldDialog(oldName)
-            : await _showV1EditFieldDialog(oldName);
+        await _showV2EditFieldDialog(oldName);
 
     if (result != null && result.isNotEmpty && result != oldName) {
       if (_fieldNames.contains(result)) {
@@ -568,7 +468,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
           SnackBar(
             content: Text(l10n.field_name_already_exists(result)),
             backgroundColor:
-                widget.useNewUi ? const Color(0xFFB3261E) : colorScheme.error,
+                const Color(0xFFB3261E),
           ),
         );
         return;
@@ -585,7 +485,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.updated_field_name(oldName, result)),
-            backgroundColor: widget.useNewUi ? _kPrimary : colorScheme.primary,
+            backgroundColor: _kPrimary,
           ),
         );
       } catch (e) {
@@ -594,47 +494,11 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
           SnackBar(
             content: Text('${l10n.error}: $e'),
             backgroundColor:
-                widget.useNewUi ? const Color(0xFFB3261E) : colorScheme.error,
+                const Color(0xFFB3261E),
           ),
         );
       }
     }
-  }
-
-  Future<String?> _showV1EditFieldDialog(String oldName) async {
-    final controller = TextEditingController(text: oldName);
-
-    return showDialog<String>(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(AppLocalizations.of(context)!.edit_rating_field_name),
-            content: TextField(
-              controller: controller,
-              decoration: InputDecoration(
-                labelText: AppLocalizations.of(context)!.field_name,
-                border: const OutlineInputBorder(),
-              ),
-              textCapitalization: TextCapitalization.words,
-              autofocus: true,
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(AppLocalizations.of(context)!.cancel),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  final name = controller.text.trim();
-                  if (name.isNotEmpty) {
-                    Navigator.pop(context, name);
-                  }
-                },
-                child: Text(AppLocalizations.of(context)!.save),
-              ),
-            ],
-          ),
-    );
   }
 
   Future<String?> _showV2EditFieldDialog(String oldName) async {
@@ -795,7 +659,6 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
   Future<void> _deleteFieldName(String name) async {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
-    final colorScheme = Theme.of(context).colorScheme;
 
     // Check if this field name is used in any books
     final db = await DatabaseHelper.instance.database;
@@ -807,9 +670,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
 
     if (!context.mounted) return;
     final confirmed =
-        widget.useNewUi
-            ? await _showV2DeleteFieldDialog(name, count)
-            : await _showV1DeleteFieldDialog(name, count);
+        await _showV2DeleteFieldDialog(name, count);
 
     if (confirmed == true) {
       try {
@@ -823,7 +684,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
           SnackBar(
             content: Text(l10n.deleted_value(name)),
             backgroundColor:
-                widget.useNewUi ? const Color(0xFFB3261E) : colorScheme.error,
+                const Color(0xFFB3261E),
           ),
         );
       } catch (e) {
@@ -832,77 +693,13 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
           SnackBar(
             content: Text('${l10n.error}: $e'),
             backgroundColor:
-                widget.useNewUi ? const Color(0xFFB3261E) : colorScheme.error,
+                const Color(0xFFB3261E),
           ),
         );
       }
     }
   }
 
-  Future<bool?> _showV1DeleteFieldDialog(String name, int count) async {
-    return showDialog<bool>(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(AppLocalizations.of(context)!.delete_rating_field_name),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(AppLocalizations.of(context)!.confirm_delete_value(name)),
-                if (count > 0) ...[
-                  const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.secondaryContainer.withValues(alpha: 0.3),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.warning,
-                          color: Theme.of(context).colorScheme.secondary,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            AppLocalizations.of(
-                              context,
-                            )!.field_used_in_ratings(count),
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: Text(AppLocalizations.of(context)!.cancel),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context, true),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.error,
-                  foregroundColor: Theme.of(context).colorScheme.onError,
-                ),
-                child: Text(AppLocalizations.of(context)!.delete),
-              ),
-            ],
-          ),
-    );
-  }
 
   Future<bool?> _showV2DeleteFieldDialog(String name, int count) async {
     final l10n = AppLocalizations.of(context)!;
@@ -1062,34 +859,9 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.useNewUi) {
-      return _buildV2(context);
-    }
-    return _buildV1(context);
+    return _buildV2(context);
   }
 
-  Widget _buildV1(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.manage_rating_field_names),
-        centerTitle: true,
-      ),
-      body:
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : Column(
-                children: [
-                  _buildInfoCard(context),
-                  _buildFieldList(context, isV2: false),
-                ],
-              ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _addFieldName,
-        icon: const Icon(Icons.add),
-        label: Text(AppLocalizations.of(context)!.add_field_name),
-      ),
-    );
-  }
 
   Widget _buildV2(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
