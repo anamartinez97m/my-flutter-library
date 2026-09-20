@@ -853,6 +853,7 @@
   "number_of_books": "Number of books",
   "examples": "Examples:",
   "value_label": "Value",
+  "subtitle_label": "Subtitle",
   "value_added_successfully": "Value added successfully",
   "value_updated_successfully": "Value updated successfully",
   "value_deleted_successfully": "Value deleted successfully",
@@ -865,6 +866,10 @@
   "value_in_use": "The value \"{value}\" is used by {count} book(s).",
   "@value_in_use": {
     "placeholders": { "value": {}, "count": {} }
+  },
+  "dropdown_usage_subtitle": "Used by {count} book(s)",
+  "@dropdown_usage_subtitle": {
+    "placeholders": { "count": {} }
   },
   "what_would_you_like_to_do": "What would you like to do?",
   "replace_with_existing": "Replace with existing value",

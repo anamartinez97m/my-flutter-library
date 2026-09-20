@@ -127,6 +127,54 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       final repository = BookRepository(db);
       final values = await repository.getLookupValues(_selectedTable);
 
+      // Compute how many books use each dropdown option
+      final idColumn =
+          _selectedTable == 'format_saga'
+              ? 'format_id'
+              : '${_selectedTable}_id';
+      final bookColumnName =
+          _selectedTable == 'format_saga' ? 'format_saga_id' : idColumn;
+
+      for (final item in values) {
+        final id = item[idColumn] as int;
+        final value = _extractValue(item);
+        int usageCount;
+
+        if (_selectedTable == 'author') {
+          final result = await db.rawQuery(
+            'SELECT COUNT(*) as count FROM books_by_author WHERE author_id = ?',
+            [id],
+          );
+          usageCount = result.first['count'] as int;
+        } else if (_selectedTable == 'genre') {
+          final result = await db.rawQuery(
+            'SELECT COUNT(*) as count FROM books_by_genre WHERE genre_id = ?',
+            [id],
+          );
+          usageCount = result.first['count'] as int;
+        } else if (_selectedTable == 'saga_universe') {
+          final result = await db.rawQuery(
+            'SELECT COUNT(*) as count FROM book WHERE saga_universe = ?',
+            [value],
+          );
+          usageCount = result.first['count'] as int;
+        } else if (_selectedTable == 'saga') {
+          final result = await db.rawQuery(
+            'SELECT COUNT(*) as count FROM book WHERE saga = ?',
+            [value],
+          );
+          usageCount = result.first['count'] as int;
+        } else {
+          final result = await db.rawQuery(
+            'SELECT COUNT(*) as count FROM book WHERE $bookColumnName = ?',
+            [id],
+          );
+          usageCount = result.first['count'] as int;
+        }
+
+        item['_usageCount'] = usageCount;
+      }
+
       setState(() {
         _values = values;
         _searchQuery = '';
@@ -136,6 +184,9 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     } catch (e) {
       debugPrint('Error loading values: $e');
       setState(() {
+        // Clear stale values from a different category so the UI doesn't try
+        // to render them with the wrong column keys.
+        _values = [];
         _isLoading = false;
       });
     }
@@ -564,15 +615,14 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     final l10n = AppLocalizations.of(context)!;
     final provider = Provider.of<BookProvider?>(context, listen: false);
 
-    final result =
-        await _showV2AddValueDialog();
+    final result = await _showV2AddValueDialog();
 
-    if (result != null && result.isNotEmpty) {
+    if (result != null && result.value.isNotEmpty) {
       int? expectedBooks;
 
       // For format_saga, show helper modal to get expected books count
       if (_selectedTable == 'format_saga') {
-        expectedBooks = await _showFormatSagaHelper(result);
+        expectedBooks = await _showFormatSagaHelper(result.value);
         if (expectedBooks == null) {
           return; // User cancelled
         }
@@ -587,8 +637,9 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         final repository = BookRepository(db);
         await repository.addLookupValue(
           _selectedTable,
-          result,
+          result.value,
           expectedBooks: expectedBooks,
+          subtitle: result.subtitle,
         );
 
         if (!context.mounted) return;
@@ -608,19 +659,19 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text('${l10n.error}: $e'),
-            backgroundColor:
-                const Color(0xFFB3261E),
+            backgroundColor: const Color(0xFFB3261E),
           ),
         );
       }
     }
   }
 
-  Future<String?> _showV2AddValueDialog() async {
+  Future<({String value, String? subtitle})?> _showV2AddValueDialog() async {
     final l10n = AppLocalizations.of(context)!;
-    final controller = TextEditingController();
+    final valueController = TextEditingController();
+    final subtitleController = TextEditingController();
 
-    return showDialog<String>(
+    return showDialog<({String value, String? subtitle})>(
       context: context,
       builder: (context) {
         return Dialog(
@@ -661,7 +712,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                       ),
                       const SizedBox(height: 24),
                       TextField(
-                        controller: controller,
+                        controller: valueController,
                         autofocus: true,
                         style: const TextStyle(
                           fontFamily: 'Manrope',
@@ -670,6 +721,40 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                         ),
                         decoration: InputDecoration(
                           labelText: l10n.value_label,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(color: _kSub),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(color: _kSub),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(
+                              color: _kPrimary,
+                              width: 2,
+                            ),
+                          ),
+                          labelStyle: const TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 12,
+                            color: _kPrimary,
+                          ),
+                          floatingLabelBehavior: FloatingLabelBehavior.always,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: subtitleController,
+                        style: const TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 16,
+                          color: _kText,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: l10n.subtitle_label,
+                          hintText: l10n.optional,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                             borderSide: const BorderSide(color: _kSub),
@@ -732,9 +817,17 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                       ),
                       const SizedBox(width: 8),
                       ElevatedButton(
-                        onPressed:
-                            () =>
-                                Navigator.pop(context, controller.text.trim()),
+                        onPressed: () {
+                          final value = valueController.text.trim();
+                          if (value.isEmpty) return;
+                          Navigator.pop(context, (
+                            value: value,
+                            subtitle:
+                                subtitleController.text.trim().isEmpty
+                                    ? null
+                                    : subtitleController.text.trim(),
+                          ));
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: _kPrimary,
                           foregroundColor: Colors.white,
@@ -767,7 +860,11 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     );
   }
 
-  Future<void> _editValue(int id, String currentValue) async {
+  Future<void> _editValue(
+    int id,
+    String currentValue, {
+    String? currentSubtitle,
+  }) async {
     final isCoreStatus = _isCoreStatusValue(currentValue);
     final isCoreFormatSaga = _isCoreFormatSagaValue(currentValue);
     final isCoreValue = isCoreStatus || isCoreFormatSaga;
@@ -775,19 +872,29 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     final l10n = AppLocalizations.of(context)!;
     final provider = Provider.of<BookProvider?>(context, listen: false);
 
-    final result =
-        await _showV2EditValueDialog(
-              id,
-              currentValue,
-              isCoreValue,
-              isCoreStatus,
-            );
+    final result = await _showV2EditValueDialog(
+      id,
+      currentValue,
+      currentSubtitle,
+      isCoreValue,
+      isCoreStatus,
+    );
 
-    if (result != null && result.isNotEmpty && result != currentValue) {
+    final newValue = result?.value ?? '';
+    final newSubtitle = result?.subtitle ?? '';
+    final hasValueChange = newValue.isNotEmpty && newValue != currentValue;
+    final hasSubtitleChange = newSubtitle != (currentSubtitle ?? '');
+
+    if (newValue.isNotEmpty && (hasValueChange || hasSubtitleChange)) {
       try {
         final db = await DatabaseHelper.instance.database;
         final repository = BookRepository(db);
-        await repository.updateLookupValue(_selectedTable, id, result);
+        await repository.updateLookupValue(
+          _selectedTable,
+          id,
+          newValue,
+          subtitle: newSubtitle.isEmpty ? null : newSubtitle,
+        );
 
         if (!context.mounted) return;
         messenger.showSnackBar(
@@ -806,24 +913,27 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text('${l10n.error}: $e'),
-            backgroundColor:
-                const Color(0xFFB3261E),
+            backgroundColor: const Color(0xFFB3261E),
           ),
         );
       }
     }
   }
 
-  Future<String?> _showV2EditValueDialog(
+  Future<({String value, String? subtitle})?> _showV2EditValueDialog(
     int id,
     String currentValue,
+    String? currentSubtitle,
     bool isCoreValue,
     bool isCoreStatus,
   ) async {
     final l10n = AppLocalizations.of(context)!;
-    final controller = TextEditingController(text: currentValue);
+    final valueController = TextEditingController(text: currentValue);
+    final subtitleController = TextEditingController(
+      text: currentSubtitle ?? '',
+    );
 
-    return showDialog<String>(
+    return showDialog<({String value, String? subtitle})>(
       context: context,
       builder: (context) {
         return Dialog(
@@ -901,7 +1011,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                         ],
                         const SizedBox(height: 24),
                         TextField(
-                          controller: controller,
+                          controller: valueController,
                           autofocus: true,
                           style: const TextStyle(
                             fontFamily: 'Manrope',
@@ -910,6 +1020,40 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                           ),
                           decoration: InputDecoration(
                             labelText: l10n.value_label,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(color: _kSub),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(color: _kSub),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(
+                                color: _kPrimary,
+                                width: 2,
+                              ),
+                            ),
+                            labelStyle: const TextStyle(
+                              fontFamily: 'Manrope',
+                              fontSize: 12,
+                              color: _kPrimary,
+                            ),
+                            floatingLabelBehavior: FloatingLabelBehavior.always,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: subtitleController,
+                          style: const TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 16,
+                            color: _kText,
+                          ),
+                          decoration: InputDecoration(
+                            labelText: l10n.subtitle_label,
+                            hintText: l10n.optional,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                               borderSide: const BorderSide(color: _kSub),
@@ -973,9 +1117,17 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                       ),
                       const SizedBox(width: 8),
                       ElevatedButton(
-                        onPressed:
-                            () =>
-                                Navigator.pop(context, controller.text.trim()),
+                        onPressed: () {
+                          final value = valueController.text.trim();
+                          if (value.isEmpty) return;
+                          Navigator.pop(context, (
+                            value: value,
+                            subtitle:
+                                subtitleController.text.trim().isEmpty
+                                    ? null
+                                    : subtitleController.text.trim(),
+                          ));
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: _kPrimary,
                           foregroundColor: Colors.white,
@@ -1021,9 +1173,9 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       } else {
         message = l10n.core_format_saga_cannot_delete;
       }
-      
-        _showV2CoreDeleteWarning(message);
-      
+
+      _showV2CoreDeleteWarning(message);
+
       return;
     }
 
@@ -1207,8 +1359,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         }
       } else {
         // Value not in use, simple confirmation
-        final confirmed =
-            await _showV2ConfirmDeleteDialog(value);
+        final confirmed = await _showV2ConfirmDeleteDialog(value);
 
         if (confirmed == true) {
           await repository.deleteLookupValue(_selectedTable, id);
@@ -1234,13 +1385,11 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text('${l10n.error}: $e'),
-          backgroundColor:
-              const Color(0xFFB3261E),
+          backgroundColor: const Color(0xFFB3261E),
         ),
       );
     }
   }
-
 
   void _showV2CoreDeleteWarning(String message) {
     final l10n = AppLocalizations.of(context)!;
@@ -1325,7 +1474,6 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       },
     );
   }
-
 
   Future<bool?> _showV2ConfirmDeleteDialog(String value) async {
     final l10n = AppLocalizations.of(context)!;
@@ -1450,11 +1598,11 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       },
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return _buildV2(context);
   }
-
 
   Widget _buildV2(BuildContext context) {
     return Scaffold(
@@ -1716,11 +1864,12 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
   Widget _buildValueCardV2(BuildContext context, Map<String, dynamic> item) {
     final idColumn =
         _selectedTable == 'format_saga' ? 'format_id' : '${_selectedTable}_id';
-    final id = item[idColumn] as int;
+    final id = item[idColumn] as int? ?? 0;
     final value = _extractValue(item);
+    if (id == 0) return const SizedBox.shrink();
     final isCore = _isCoreValue(value);
     final color = _getValueColor(value);
-    final subtitle = _getValueSubtitle(value);
+    final subtitle = _getValueSubtitle(context, item);
 
     return Container(
       padding: const EdgeInsets.all(15),
@@ -1784,7 +1933,14 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
           _buildIconButton(
             icon: Icons.edit_outlined,
             color: isCore ? const Color(0xFF80717B) : _kPrimary,
-            onPressed: isCore ? null : () => _editValue(id, value),
+            onPressed:
+                isCore
+                    ? null
+                    : () => _editValue(
+                      id,
+                      value,
+                      currentSubtitle: item['subtitle'] as String?,
+                    ),
           ),
           const SizedBox(width: 4),
           _buildIconButton(
@@ -1863,7 +2019,16 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     return _kPrimary;
   }
 
-  String _getValueSubtitle(String value) {
+  String _getValueSubtitle(BuildContext context, Map<String, dynamic> item) {
+    final l10n = AppLocalizations.of(context)!;
+    final value = _extractValue(item);
+
+    // Prefer a user-defined subtitle if provided
+    final customSubtitle = (item['subtitle'] as String?)?.trim();
+    if (customSubtitle != null && customSubtitle.isNotEmpty) {
+      return customSubtitle;
+    }
+
     if (_selectedTable == 'status') {
       switch (value.toLowerCase()) {
         case 'abandoned':
@@ -1883,12 +2048,28 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
           return 'Completed status';
       }
     }
+
+    const targetTables = {
+      'format_saga',
+      'language',
+      'place',
+      'format',
+      'author',
+      'genre',
+      'editorial',
+      'saga',
+      'saga_universe',
+    };
+    if (targetTables.contains(_selectedTable)) {
+      final count = (item['_usageCount'] as int?) ?? 0;
+      return l10n.dropdown_usage_subtitle(count);
+    }
+
     if (_selectedTable == 'format_saga') {
       return 'Saga format category';
     }
     return 'Configured value';
   }
-
 }
 
 class _DeleteOptionsDialog extends StatefulWidget {
@@ -1902,7 +2083,8 @@ class _DeleteOptionsDialog extends StatefulWidget {
     required this.usageCount,
     required this.tableName,
     required this.currentId,
-    required this.allValues});
+    required this.allValues,
+  });
 
   @override
   State<_DeleteOptionsDialog> createState() => _DeleteOptionsDialogState();
@@ -1936,10 +2118,8 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
     final otherValues =
         widget.allValues.where((v) => v[idColumn] != widget.currentId).toList();
 
-    
-      return _buildV2(context, valueColumn, idColumn, otherValues);
+    return _buildV2(context, valueColumn, idColumn, otherValues);
   }
-
 
   Widget _buildV2(
     BuildContext context,
@@ -2269,8 +2449,7 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.please_select_replacement),
-            backgroundColor:
-                const Color(0xFFB3261E),
+            backgroundColor: const Color(0xFFB3261E),
           ),
         );
         return;
@@ -2282,8 +2461,7 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.please_enter_new_value),
-            backgroundColor:
-                const Color(0xFFB3261E),
+            backgroundColor: const Color(0xFFB3261E),
           ),
         );
         return;

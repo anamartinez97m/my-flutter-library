@@ -3320,6 +3320,12 @@ abstract class AppLocalizations {
   /// **'Value'**
   String get value_label;
 
+  /// No description provided for @subtitle_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtitle'**
+  String get subtitle_label;
+
   /// No description provided for @value_added_successfully.
   ///
   /// In en, this message translates to:
@@ -3379,6 +3385,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The value \"{value}\" is used by {count} book(s).'**
   String value_in_use(Object value, Object count);
+
+  /// No description provided for @dropdown_usage_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Used by {count} book(s)'**
+  String dropdown_usage_subtitle(Object count);
 
   /// No description provided for @what_would_you_like_to_do.
   ///

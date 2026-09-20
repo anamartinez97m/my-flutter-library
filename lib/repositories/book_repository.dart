@@ -443,27 +443,39 @@ class BookRepository {
     // Special handling for saga and saga_universe which are stored in book table
     if (tableName == 'saga_universe') {
       final result = await db.rawQuery('''
-        SELECT DISTINCT saga_universe as name
-        FROM book
-        WHERE saga_universe IS NOT NULL AND saga_universe != ''
-        ORDER BY saga_universe
+        SELECT DISTINCT b.saga_universe as name, m.subtitle as subtitle
+        FROM book b
+        LEFT JOIN dropdown_subtitle_metadata m
+          ON m.category = 'saga_universe' AND m.value = b.saga_universe
+        WHERE b.saga_universe IS NOT NULL AND b.saga_universe != ''
+        ORDER BY b.saga_universe
       ''');
       // Add a fake ID for compatibility with the UI
       return result.asMap().entries.map((entry) {
-        return {'saga_universe_id': entry.key + 1, 'name': entry.value['name']};
+        return {
+          'saga_universe_id': entry.key + 1,
+          'name': entry.value['name'],
+          'subtitle': entry.value['subtitle'],
+        };
       }).toList();
     }
 
     if (tableName == 'saga') {
       final result = await db.rawQuery('''
-        SELECT DISTINCT saga as name
-        FROM book
-        WHERE saga IS NOT NULL AND saga != ''
-        ORDER BY saga
+        SELECT DISTINCT b.saga as name, m.subtitle as subtitle
+        FROM book b
+        LEFT JOIN dropdown_subtitle_metadata m
+          ON m.category = 'saga' AND m.value = b.saga
+        WHERE b.saga IS NOT NULL AND b.saga != ''
+        ORDER BY b.saga
       ''');
       // Add a fake ID for compatibility with the UI
       return result.asMap().entries.map((entry) {
-        return {'saga_id': entry.key + 1, 'name': entry.value['name']};
+        return {
+          'saga_id': entry.key + 1,
+          'name': entry.value['name'],
+          'subtitle': entry.value['subtitle'],
+        };
       }).toList();
     }
 
@@ -477,14 +489,27 @@ class BookRepository {
             ? 'value'
             : 'name';
 
-    final result = await db.query(
-      tableName,
-      columns: [idColumn, valueColumn],
-      orderBy: valueColumn,
-      distinct: true,
-    );
+    // sqflite may return unmodifiable maps, so build fresh mutable ones.
+    List<Map<String, dynamic>> values;
+    try {
+      values = await db.query(
+        tableName,
+        columns: [idColumn, valueColumn, 'subtitle'],
+        orderBy: valueColumn,
+        distinct: true,
+      );
+    } on DatabaseException catch (_) {
+      // Gracefully fall back if the subtitle column doesn't exist yet
+      // (e.g. the app was hot-reloaded after a schema change).
+      values = await db.query(
+        tableName,
+        columns: [idColumn, valueColumn],
+        orderBy: valueColumn,
+        distinct: true,
+      );
+    }
 
-    return result;
+    return values.map((row) => Map<String, dynamic>.from(row)).toList();
   }
 
   /// Get format saga expected books mapping
@@ -534,15 +559,24 @@ class BookRepository {
 
   /// Add a new value to a lookup table
   /// For format_saga, expectedBooks can be provided to set the expected book count
+  /// [subtitle] is an optional custom subtitle shown in the Manage Dropdowns list
   Future<int> addLookupValue(
     String tableName,
     String value, {
     int? expectedBooks,
+    String? subtitle,
   }) async {
     // saga and saga_universe are text fields in book table, not lookup tables
-    // Return a fake ID for compatibility
+    // Store their subtitle in a metadata table and return a fake ID
     if (tableName == 'saga' || tableName == 'saga_universe') {
-      return 0; // No actual insert needed
+      if (subtitle != null && subtitle.isNotEmpty) {
+        await db.insert(
+          'dropdown_subtitle_metadata',
+          {'category': tableName, 'value': value, 'subtitle': subtitle},
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
+      return 0;
     }
 
     final valueColumn =
@@ -559,15 +593,21 @@ class BookRepository {
       data['expected_books'] = expectedBooks;
     }
 
+    if (subtitle != null && subtitle.isNotEmpty) {
+      data['subtitle'] = subtitle;
+    }
+
     return await db.insert(tableName, data);
   }
 
   /// Update a value in a lookup table
+  /// [subtitle] is an optional custom subtitle shown in the Manage Dropdowns list
   Future<int> updateLookupValue(
     String tableName,
     int id,
-    String newValue,
-  ) async {
+    String newValue, {
+    String? subtitle,
+  }) async {
     // saga and saga_universe are text fields in book table, not lookup tables
     // We need to get the old value first and update all books with it
     if (tableName == 'saga' || tableName == 'saga_universe') {
@@ -575,10 +615,34 @@ class BookRepository {
       final allValues = await getLookupValues(tableName);
       if (id > 0 && id <= allValues.length) {
         final oldValue = allValues[id - 1]['name'] as String;
-        return await db.rawUpdate(
+        final updatedRows = await db.rawUpdate(
           'UPDATE book SET $tableName = ? WHERE $tableName = ?',
           [newValue, oldValue],
         );
+
+        // Move any existing subtitle metadata to the new value
+        if (subtitle != null) {
+          if (subtitle.isEmpty) {
+            await db.delete(
+              'dropdown_subtitle_metadata',
+              where: 'category = ? AND value = ?',
+              whereArgs: [tableName, oldValue],
+            );
+          } else {
+            await db.delete(
+              'dropdown_subtitle_metadata',
+              where: 'category = ? AND value IN (?, ?)',
+              whereArgs: [tableName, oldValue, newValue],
+            );
+            await db.insert(
+              'dropdown_subtitle_metadata',
+              {'category': tableName, 'value': newValue, 'subtitle': subtitle},
+              conflictAlgorithm: ConflictAlgorithm.replace,
+            );
+          }
+        }
+
+        return updatedRows;
       }
       return 0;
     }
@@ -593,9 +657,14 @@ class BookRepository {
             ? 'value'
             : 'name';
 
+    final data = <String, dynamic>{valueColumn: newValue};
+    if (subtitle != null) {
+      data['subtitle'] = subtitle.isEmpty ? null : subtitle;
+    }
+
     return await db.update(
       tableName,
-      {valueColumn: newValue},
+      data,
       where: '$idColumn = ?',
       whereArgs: [id],
     );

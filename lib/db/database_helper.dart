@@ -23,7 +23,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 41,
+      version: 42,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -34,49 +34,56 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE IF NOT EXISTS status (
         status_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        value VARCHAR(50) NOT NULL
+        value VARCHAR(50) NOT NULL,
+        subtitle TEXT
       )
     ''');
 
     await db.execute('''
       CREATE TABLE IF NOT EXISTS author (
         author_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name VARCHAR(50) NOT NULL
+        name VARCHAR(50) NOT NULL,
+        subtitle TEXT
       )
     ''');
 
     await db.execute('''
       CREATE TABLE IF NOT EXISTS editorial (
         editorial_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name VARCHAR(50) NOT NULL
+        name VARCHAR(50) NOT NULL,
+        subtitle TEXT
       )
     ''');
 
     await db.execute('''
       CREATE TABLE IF NOT EXISTS genre (
         genre_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name VARCHAR(50) NOT NULL
+        name VARCHAR(50) NOT NULL,
+        subtitle TEXT
       )
     ''');
 
     await db.execute('''
       CREATE TABLE IF NOT EXISTS language (
         language_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name VARCHAR(50) NOT NULL
+        name VARCHAR(50) NOT NULL,
+        subtitle TEXT
       )
     ''');
 
     await db.execute('''
       CREATE TABLE IF NOT EXISTS place (
         place_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name VARCHAR(50) NOT NULL
+        name VARCHAR(50) NOT NULL,
+        subtitle TEXT
       )
     ''');
 
     await db.execute('''
       CREATE TABLE IF NOT EXISTS format (
         format_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        value VARCHAR(50) NOT NULL
+        value VARCHAR(50) NOT NULL,
+        subtitle TEXT
       )
     ''');
 
@@ -84,7 +91,17 @@ class DatabaseHelper {
       CREATE TABLE IF NOT EXISTS format_saga (
         format_id INTEGER PRIMARY KEY AUTOINCREMENT,
         value VARCHAR(50) NOT NULL,
-        expected_books INTEGER
+        expected_books INTEGER,
+        subtitle TEXT
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS dropdown_subtitle_metadata (
+        category TEXT NOT NULL,
+        value TEXT NOT NULL,
+        subtitle TEXT,
+        PRIMARY KEY (category, value)
       )
     ''');
 
@@ -1353,6 +1370,27 @@ class DatabaseHelper {
       ''');
       await db.execute('''
         CREATE INDEX IF NOT EXISTS idx_tandem_chapters_tandem_id ON tandem_chapters (tandem_id)
+      ''');
+    }
+    if (oldVersion < 42) {
+      // Add optional subtitle column to all dropdown lookup tables
+      await db.execute('ALTER TABLE status ADD COLUMN subtitle TEXT');
+      await db.execute('ALTER TABLE author ADD COLUMN subtitle TEXT');
+      await db.execute('ALTER TABLE editorial ADD COLUMN subtitle TEXT');
+      await db.execute('ALTER TABLE genre ADD COLUMN subtitle TEXT');
+      await db.execute('ALTER TABLE language ADD COLUMN subtitle TEXT');
+      await db.execute('ALTER TABLE place ADD COLUMN subtitle TEXT');
+      await db.execute('ALTER TABLE format ADD COLUMN subtitle TEXT');
+      await db.execute('ALTER TABLE format_saga ADD COLUMN subtitle TEXT');
+
+      // Metadata table for saga/saga_universe subtitles (not stored in lookup tables)
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS dropdown_subtitle_metadata (
+          category TEXT NOT NULL,
+          value TEXT NOT NULL,
+          subtitle TEXT,
+          PRIMARY KEY (category, value)
+        )
       ''');
     }
   }

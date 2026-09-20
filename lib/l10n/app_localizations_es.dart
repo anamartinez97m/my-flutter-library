@@ -1849,6 +1849,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get value_label => 'Valor';
 
   @override
+  String get subtitle_label => 'Subtítulo';
+
+  @override
   String get value_added_successfully => 'Valor añadido correctamente';
 
   @override
@@ -1883,6 +1886,11 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String value_in_use(Object value, Object count) {
     return 'El valor \"$value\" es usado por $count libro(s).';
+  }
+
+  @override
+  String dropdown_usage_subtitle(Object count) {
+    return 'Usado por $count libro(s)';
   }
 
   @override
