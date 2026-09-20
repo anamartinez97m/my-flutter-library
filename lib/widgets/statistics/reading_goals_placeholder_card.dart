@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
-import 'package:myrandomlibrary/screens/year_challenges.dart';
+import 'package:myrandomlibrary/screens/new_ui/new_year_challenges_screen_2.dart';
 
 /// Placeholder card for Reading Goals Progress feature (future goals tracking)
 class ReadingGoalsPlaceholderCard extends StatelessWidget {
@@ -17,7 +17,7 @@ class ReadingGoalsPlaceholderCard extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const YearChallengesScreen(),
+              builder: (context) => const NewYearChallengesScreen2(),
             ),
           );
         },

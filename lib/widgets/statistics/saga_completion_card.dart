@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_saga_completion_detail_screen.dart';
-import 'package:myrandomlibrary/screens/saga_completion_detail.dart';
 
 /// Displays saga completion statistics
 ///
@@ -42,16 +41,10 @@ class SagaCompletionCard extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder:
-                (_) =>
-                    useNewUi
-                        ? NewSagaCompletionDetailScreen(
-                          sagaStats: sagaStats,
-                          books: books,
-                        )
-                        : SagaCompletionDetailScreen(
-                          sagaStats: sagaStats,
-                          books: books,
-                        ),
+                (_) => NewSagaCompletionDetailScreen(
+                  sagaStats: sagaStats,
+                  books: books,
+                ),
           ),
         );
       },

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/repositories/year_challenge_repository.dart';
-import 'package:myrandomlibrary/screens/year_challenges.dart';
+import 'package:myrandomlibrary/screens/new_ui/new_year_challenges_screen_2.dart';
 
 /// Card showing current year's reading goals progress
 class ReadingGoalsCard extends StatefulWidget {
@@ -94,7 +94,7 @@ class _ReadingGoalsCardState extends State<ReadingGoalsCard>
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const YearChallengesScreen(),
+                builder: (context) => const NewYearChallengesScreen2(),
               ),
             );
           },
@@ -147,7 +147,8 @@ class _ReadingGoalsCardState extends State<ReadingGoalsCard>
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const YearChallengesScreen(),
+                          builder:
+                              (context) => const NewYearChallengesScreen2(),
                         ),
                       );
                     },
@@ -182,7 +183,7 @@ class _ReadingGoalsCardState extends State<ReadingGoalsCard>
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const YearChallengesScreen(),
+              builder: (context) => const NewYearChallengesScreen2(),
             ),
           );
         },

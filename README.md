@@ -685,6 +685,8 @@ lib/
 │
 ├── widgets/
 │   ├── autocomplete_text_field.dart
+│   ├── booklist.dart
+│   ├── book_clubs_card.dart
 │   ├── bundle_input_widget_v2.dart
 │   ├── bundle_read_dates_widget.dart
 │   ├── chip_autocomplete_field.dart

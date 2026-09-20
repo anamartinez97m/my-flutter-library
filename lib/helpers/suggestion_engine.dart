@@ -20,6 +20,12 @@ class Suggestion {
     this.isApplied = false,
     this.isRejected = false,
   });
+
+  /// Stable identifier for persisting the suggestion's state.
+  String get id {
+    final sortedBookIds = bookIds.toList()..sort();
+    return '$field|$value|${sortedBookIds.join(',')}';
+  }
 }
 
 class SuggestionEngine {
@@ -80,7 +86,12 @@ class SuggestionEngine {
     final Map<String, List<Book>> authorBooks = {};
     for (final book in books) {
       final authors =
-          book.author?.split(',').map((a) => a.trim()).where((a) => a.isNotEmpty).toList() ?? [];
+          book.author
+              ?.split(',')
+              .map((a) => a.trim())
+              .where((a) => a.isNotEmpty)
+              .toList() ??
+          [];
       for (final author in authors) {
         authorBooks.putIfAbsent(author, () => []).add(book);
       }
@@ -103,7 +114,10 @@ class SuggestionEngine {
         } else {
           // For genre, handle comma-separated
           if (field == 'genre') {
-            final genres = value.split(',').map((g) => g.trim()).where((g) => g.isNotEmpty);
+            final genres = value
+                .split(',')
+                .map((g) => g.trim())
+                .where((g) => g.isNotEmpty);
             for (final genre in genres) {
               valueCounts.putIfAbsent(genre, () => []).add(book);
             }
@@ -116,17 +130,19 @@ class SuggestionEngine {
       if (valueCounts.isEmpty || emptyBooks.isEmpty) continue;
 
       // Find the dominant value
-      final sortedValues = valueCounts.entries.toList()
-        ..sort((a, b) => b.value.length.compareTo(a.value.length));
+      final sortedValues =
+          valueCounts.entries.toList()
+            ..sort((a, b) => b.value.length.compareTo(a.value.length));
 
       final dominantValue = sortedValues.first.key;
       final dominantCount = sortedValues.first.value.length;
       final totalWithValue = authorBookList.length - emptyBooks.length;
 
       // Calculate confidence
-      final confidence = totalWithValue > 0
-          ? ((dominantCount / totalWithValue) * 100).round()
-          : 0;
+      final confidence =
+          totalWithValue > 0
+              ? ((dominantCount / totalWithValue) * 100).round()
+              : 0;
 
       if (confidence < 70) continue; // Below threshold
 
@@ -149,25 +165,26 @@ class SuggestionEngine {
 
       if (targetBooks.isEmpty) continue;
 
-      final bookIds = targetBooks
-          .where((b) => b.bookId != null)
-          .map((b) => b.bookId!)
-          .toList();
-      final bookNames = targetBooks
-          .map((b) => b.name ?? '?')
-          .toList();
+      final bookIds =
+          targetBooks
+              .where((b) => b.bookId != null)
+              .map((b) => b.bookId!)
+              .toList();
+      final bookNames = targetBooks.map((b) => b.name ?? '?').toList();
 
       if (bookIds.isEmpty) continue;
 
-      suggestions.add(Suggestion(
-        description:
-            '$dominantCount/${authorBookList.length} books by $author have "$dominantValue" as ${_fieldLabel(field)}',
-        field: field,
-        value: dominantValue,
-        bookIds: bookIds,
-        bookNames: bookNames,
-        confidence: confidence,
-      ));
+      suggestions.add(
+        Suggestion(
+          description:
+              '$dominantCount/${authorBookList.length} books by $author have "$dominantValue" as ${_fieldLabel(field)}',
+          field: field,
+          value: dominantValue,
+          bookIds: bookIds,
+          bookNames: bookNames,
+          confidence: confidence,
+        ),
+      );
     }
 
     return suggestions;
@@ -204,7 +221,10 @@ class SuggestionEngine {
           emptyBooks.add(book);
         } else {
           if (field == 'genre') {
-            final genres = value.split(',').map((g) => g.trim()).where((g) => g.isNotEmpty);
+            final genres = value
+                .split(',')
+                .map((g) => g.trim())
+                .where((g) => g.isNotEmpty);
             for (final genre in genres) {
               valueCounts.putIfAbsent(genre, () => []).add(book);
             }
@@ -216,38 +236,41 @@ class SuggestionEngine {
 
       if (valueCounts.isEmpty || emptyBooks.isEmpty) continue;
 
-      final sortedValues = valueCounts.entries.toList()
-        ..sort((a, b) => b.value.length.compareTo(a.value.length));
+      final sortedValues =
+          valueCounts.entries.toList()
+            ..sort((a, b) => b.value.length.compareTo(a.value.length));
 
       final dominantValue = sortedValues.first.key;
       final dominantCount = sortedValues.first.value.length;
       final totalWithValue = sagaBookList.length - emptyBooks.length;
 
-      final confidence = totalWithValue > 0
-          ? ((dominantCount / totalWithValue) * 100).round()
-          : 0;
+      final confidence =
+          totalWithValue > 0
+              ? ((dominantCount / totalWithValue) * 100).round()
+              : 0;
 
       if (confidence < 70) continue;
 
-      final bookIds = emptyBooks
-          .where((b) => b.bookId != null)
-          .map((b) => b.bookId!)
-          .toList();
-      final bookNames = emptyBooks
-          .map((b) => b.name ?? '?')
-          .toList();
+      final bookIds =
+          emptyBooks
+              .where((b) => b.bookId != null)
+              .map((b) => b.bookId!)
+              .toList();
+      final bookNames = emptyBooks.map((b) => b.name ?? '?').toList();
 
       if (bookIds.isEmpty) continue;
 
-      suggestions.add(Suggestion(
-        description:
-            '$dominantCount/${sagaBookList.length} books in saga "$saga" have "$dominantValue" as ${_fieldLabel(field)}',
-        field: field,
-        value: dominantValue,
-        bookIds: bookIds,
-        bookNames: bookNames,
-        confidence: confidence,
-      ));
+      suggestions.add(
+        Suggestion(
+          description:
+              '$dominantCount/${sagaBookList.length} books in saga "$saga" have "$dominantValue" as ${_fieldLabel(field)}',
+          field: field,
+          value: dominantValue,
+          bookIds: bookIds,
+          bookNames: bookNames,
+          confidence: confidence,
+        ),
+      );
     }
 
     return suggestions;
@@ -286,34 +309,39 @@ class SuggestionEngine {
       }
 
       if (editorialCounts.isNotEmpty && missingEditorial.isNotEmpty) {
-        final sortedEditorials = editorialCounts.entries.toList()
-          ..sort((a, b) => b.value.compareTo(a.value));
+        final sortedEditorials =
+            editorialCounts.entries.toList()
+              ..sort((a, b) => b.value.compareTo(a.value));
 
         final dominantEditorial = sortedEditorials.first.key;
-        final totalWithEditorial = sagaBookList.length - missingEditorial.length;
-        final confidence = totalWithEditorial > 0
-            ? ((sortedEditorials.first.value / totalWithEditorial) * 100).round()
-            : 0;
+        final totalWithEditorial =
+            sagaBookList.length - missingEditorial.length;
+        final confidence =
+            totalWithEditorial > 0
+                ? ((sortedEditorials.first.value / totalWithEditorial) * 100)
+                    .round()
+                : 0;
 
         if (confidence >= 70) {
-          final bookIds = missingEditorial
-              .where((b) => b.bookId != null)
-              .map((b) => b.bookId!)
-              .toList();
-          final bookNames = missingEditorial
-              .map((b) => b.name ?? '?')
-              .toList();
+          final bookIds =
+              missingEditorial
+                  .where((b) => b.bookId != null)
+                  .map((b) => b.bookId!)
+                  .toList();
+          final bookNames = missingEditorial.map((b) => b.name ?? '?').toList();
 
           if (bookIds.isNotEmpty) {
-            suggestions.add(Suggestion(
-              description:
-                  'Books in saga "$saga" are missing editorial, but peers have "$dominantEditorial"',
-              field: 'editorial',
-              value: dominantEditorial,
-              bookIds: bookIds,
-              bookNames: bookNames,
-              confidence: confidence,
-            ));
+            suggestions.add(
+              Suggestion(
+                description:
+                    'Books in saga "$saga" are missing editorial, but peers have "$dominantEditorial"',
+                field: 'editorial',
+                value: dominantEditorial,
+                bookIds: bookIds,
+                bookNames: bookNames,
+                confidence: confidence,
+              ),
+            );
           }
         }
       }

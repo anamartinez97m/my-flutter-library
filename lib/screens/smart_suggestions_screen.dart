@@ -6,6 +6,7 @@ import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/providers/role_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SmartSuggestionsScreen extends StatefulWidget {
   const SmartSuggestionsScreen({super.key});
@@ -15,14 +16,32 @@ class SmartSuggestionsScreen extends StatefulWidget {
 }
 
 class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
+  static const _rejectedSuggestionsKey = 'rejected_smart_suggestions';
+
   List<Suggestion> _suggestions = [];
   bool _isLoading = true;
   final Set<int> _expandedIndices = {};
+  final Set<String> _rejectedIds = {};
 
   @override
   void initState() {
     super.initState();
-    _generateSuggestions();
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
+    await _loadRejectedSuggestions();
+    await _generateSuggestions();
+  }
+
+  Future<void> _loadRejectedSuggestions() async {
+    final prefs = await SharedPreferences.getInstance();
+    _rejectedIds.addAll(prefs.getStringList(_rejectedSuggestionsKey) ?? []);
+  }
+
+  Future<void> _saveRejectedSuggestions() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_rejectedSuggestionsKey, _rejectedIds.toList());
   }
 
   String _getFieldLabel(String key) {
@@ -74,7 +93,8 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
           provider.allBooks,
         );
         setState(() {
-          _suggestions = suggestions;
+          _suggestions =
+              suggestions.where((s) => !_rejectedIds.contains(s.id)).toList();
           _isLoading = false;
         });
       } else {
@@ -104,6 +124,10 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
 
       await provider?.loadBooks();
 
+      if (_rejectedIds.remove(suggestion.id)) {
+        await _saveRejectedSuggestions();
+      }
+
       if (!context.mounted) return;
       messenger.showSnackBar(
         SnackBar(
@@ -124,11 +148,18 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
     }
   }
 
-  void _rejectSuggestion(int index) {
+  Future<void> _rejectSuggestion(int index) async {
+    final suggestion = _suggestions[index];
+
     setState(() {
-      _suggestions[index].isRejected = true;
+      _suggestions.removeAt(index);
+      _expandedIndices.clear();
     });
 
+    _rejectedIds.add(suggestion.id);
+    await _saveRejectedSuggestions();
+
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(AppLocalizations.of(context)!.suggestion_rejected),

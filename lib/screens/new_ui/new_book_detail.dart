@@ -3063,7 +3063,8 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                       AppLocalizations.of(
                                         context,
                                       )!.saga_universe,
-                                  value: _currentBook.sagaUniverse!,
+                                  value:
+                                      '${_currentBook.sagaUniverse!}${context.watch<RoleProvider>().isAdmin && _currentBook.orderWithinUniverse != null ? ' #${_currentBook.orderWithinUniverse}' : ''}',
                                   link: true,
                                 ),
                               ),
@@ -3103,21 +3104,6 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                 ),
                                 fullWidth: true,
                               );
-                              if (_currentBook.orderWithinUniverse != null) {
-                                addCell(
-                                  _DetailCard(
-                                    icon: Icons.format_list_numbered,
-                                    label:
-                                        AppLocalizations.of(
-                                          context,
-                                        )!.saga_universe_order,
-                                    value:
-                                        _currentBook.orderWithinUniverse
-                                            .toString(),
-                                  ),
-                                  fullWidth: true,
-                                );
-                              }
                             }
                           }
 
