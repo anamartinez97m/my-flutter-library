@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
@@ -166,18 +167,28 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
                 return false;
               }
             }
-            if (_filterPages.isNotEmpty && book.pages != null) {
-              final p = book.pages!;
-              if (!_filterPages.any((range) => _pagesInRange(p, range))) {
-                return false;
-              }
+            final pages = _bookPages(book, provider.allBooks);
+            if (_filterPages.isNotEmpty &&
+                pages.isNotEmpty &&
+                !_filterPages.any(
+                  (range) => pages.any((p) => _pagesInRange(p, range)),
+                )) {
+              return false;
             }
+            final publicationYears = _bookPublicationYears(
+              book,
+              provider.allBooks,
+            );
             if (_filterYear.isNotEmpty &&
-                book.originalPublicationYear != null) {
-              final decade = (book.originalPublicationYear! ~/ 10) * 10;
-              if (!_filterYear.any((y) => (int.tryParse(y) ?? -1) == decade)) {
-                return false;
-              }
+                publicationYears.isNotEmpty &&
+                !_filterYear.any(
+                  (year) => publicationYears.any(
+                    (publicationYear) =>
+                        (int.tryParse(year) ?? -1) ==
+                        (publicationYear ~/ 10) * 10,
+                  ),
+                )) {
+              return false;
             }
             return true;
           }).toList();
@@ -248,10 +259,55 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
     return result;
   }
 
+  List<int> _bookPages(Book book, List<Book> allBooks) => _bookNumericValues(
+    primaryValue: book.pages,
+    bundleValues: book.bundlePages,
+    childValues: allBooks
+        .where((child) => child.bundleParentId == book.bookId)
+        .map((child) => child.pages),
+  );
+
+  List<int> _bookPublicationYears(Book book, List<Book> allBooks) =>
+      _bookNumericValues(
+        primaryValue: book.originalPublicationYear,
+        bundleValues: book.bundlePublicationYears,
+        childValues: allBooks
+            .where((child) => child.bundleParentId == book.bookId)
+            .map((child) => child.originalPublicationYear),
+      );
+
+  List<int> _bookNumericValues({
+    required int? primaryValue,
+    required String? bundleValues,
+    Iterable<int?> childValues = const [],
+  }) {
+    final values = <int>{
+      if (primaryValue != null) primaryValue,
+      ...childValues.whereType<int>(),
+    };
+    if (bundleValues != null && bundleValues.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(bundleValues);
+        if (decoded is List) {
+          values.addAll(
+            decoded
+                .map((value) => int.tryParse(value.toString()))
+                .whereType<int>(),
+          );
+        }
+      } on FormatException {
+        return values.toList();
+      }
+    }
+    return values.toList();
+  }
+
   bool _pagesInRange(int pages, String range) {
     switch (range) {
-      case '0-200':
-        return pages >= 0 && pages <= 200;
+      case '0-100':
+        return pages >= 0 && pages <= 100;
+      case '100-200':
+        return pages >= 100 && pages <= 200;
       case '200-400':
         return pages >= 200 && pages <= 400;
       case '400-600':
@@ -1052,7 +1108,14 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
       title: l10n.pages,
       child: _multiChipsField(
         selected: _filterPages,
-        options: const ['0-200', '200-400', '400-600', '600-900', '900+'],
+        options: const [
+          '0-100',
+          '100-200',
+          '200-400',
+          '400-600',
+          '600-900',
+          '900+',
+        ],
         anyLabel: l10n.any,
         onChanged: (v) => setState(() => _filterPages = v),
       ),
@@ -1076,13 +1139,28 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
   ];
 
   Widget _buildDecadeCard(AppLocalizations l10n) {
-    if (_decadeOptions.length <= 5) {
+    final provider = Provider.of<BookProvider?>(context, listen: false);
+    final decadeOptions = <String>{..._decadeOptions};
+    if (provider != null) {
+      for (final book in provider.allBooks) {
+        decadeOptions.addAll(
+          _bookPublicationYears(
+            book,
+            provider.allBooks,
+          ).map((year) => '${(year ~/ 10) * 10}'),
+        );
+      }
+    }
+    final allDecades =
+        decadeOptions.toList()
+          ..sort((a, b) => int.parse(b).compareTo(int.parse(a)));
+    if (allDecades.length <= 5) {
       return _sectionCard(
         icon: Icons.calendar_today_outlined,
         title: l10n.publication_year_decade,
         child: _multiChipsField(
           selected: _filterYear,
-          options: _decadeOptions,
+          options: allDecades,
           anyLabel: l10n.any,
           labelBuilder: (v) => '${v}s',
           onChanged: (v) => setState(() => _filterYear = v),
@@ -1090,12 +1168,12 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
       );
     }
     final popular = _mostUsedOptions(
-      allOptions: _decadeOptions,
-      valuesOf: (b) {
-        final year = b.originalPublicationYear;
-        if (year == null) return const <String>[];
-        return [((year ~/ 10) * 10).toString()];
-      },
+      allOptions: allDecades,
+      valuesOf:
+          (book) => _bookPublicationYears(
+            book,
+            provider?.allBooks ?? [],
+          ).map((year) => '${(year ~/ 10) * 10}'),
     );
     return _sectionCard(
       icon: Icons.calendar_today_outlined,
@@ -1105,7 +1183,7 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
         fieldTitle: l10n.publication_year_decade,
         selected: _filterYear,
         popular: popular,
-        allOptions: _decadeOptions,
+        allOptions: allDecades,
         anyLabel: l10n.any,
         multiSelect: true,
         labelBuilder: (v) => '${v}s',
