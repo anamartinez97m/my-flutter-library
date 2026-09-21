@@ -12,7 +12,7 @@
   "settings": "Ajustes",
   
   "search_by_title": "Título",
-  "search_by_isbn": "ISBN/ASIN",
+  "search_by_isbn": "ISBN",
   "search_by_author": "Autor",
   "search_by_genre": "Género",
   "search_by_editorial": "Editorial",

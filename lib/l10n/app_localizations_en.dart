@@ -27,7 +27,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get search_by_title => 'Title';
 
   @override
-  String get search_by_isbn => 'ISBN/ASIN';
+  String get search_by_isbn => 'ISBN';
 
   @override
   String get search_by_author => 'Author';

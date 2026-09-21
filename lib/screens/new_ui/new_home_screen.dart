@@ -149,6 +149,12 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     });
   }
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadEnabledFilters() async {
     final prefs = await SharedPreferences.getInstance();
     final saved = prefs.getStringList('enabled_filters');
@@ -1097,47 +1103,50 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
             padding: const EdgeInsets.fromLTRB(0, 12, 0, 8),
             child: Column(
               children: [
-                SizedBox(
-                  height: 36,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    itemCount: searchLabels.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 8),
-                    itemBuilder: (ctx, i) {
-                      final sel = i == _selectedSearchButtonIndex;
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() => _selectedSearchButtonIndex = i);
-                          provider.searchBooks(
-                            _searchController.text.trim(),
-                            searchIndex: i,
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 17,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: sel ? _kPrimary : Colors.white,
-                            border: Border.all(
-                              color: sel ? _kPrimary : _kBorder,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: SizedBox(
+                    height: 36,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      padding: EdgeInsets.zero,
+                      itemCount: searchLabels.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 8),
+                      itemBuilder: (ctx, i) {
+                        final sel = i == _selectedSearchButtonIndex;
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() => _selectedSearchButtonIndex = i);
+                            provider.searchBooks(
+                              _searchController.text.trim(),
+                              searchIndex: i,
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 17,
+                              vertical: 8,
                             ),
-                            borderRadius: BorderRadius.circular(9999),
-                          ),
-                          child: Text(
-                            searchLabels[i],
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: sel ? Colors.white : _kInactiveText,
-                              letterSpacing: 0.26,
+                            decoration: BoxDecoration(
+                              color: sel ? _kPrimary : Colors.white,
+                              border: Border.all(
+                                color: sel ? _kPrimary : _kBorder,
+                              ),
+                              borderRadius: BorderRadius.circular(9999),
+                            ),
+                            child: Text(
+                              searchLabels[i],
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: sel ? Colors.white : _kInactiveText,
+                                letterSpacing: 0.26,
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
                 ),
                 const SizedBox(height: 14),
