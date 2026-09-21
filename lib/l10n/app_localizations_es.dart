@@ -458,6 +458,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get bundle => 'Paquete';
 
   @override
+  String get part_of_bundle => 'Parte del paquete';
+
+  @override
   String get tandem => 'Tándem';
 
   @override

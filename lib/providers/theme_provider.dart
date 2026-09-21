@@ -291,12 +291,40 @@ class ThemeProvider with ChangeNotifier {
     }
   }
 
+  SnackBarThemeData get _snackBarTheme => SnackBarThemeData(
+    backgroundColor: const Color(0xFF43102B),
+    actionTextColor: Colors.white,
+    disabledActionTextColor: Colors.white70,
+    contentTextStyle: const TextStyle(
+      fontFamily: 'Manrope',
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+      color: Colors.white,
+    ),
+    behavior: SnackBarBehavior.floating,
+    elevation: 6,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+  );
+
+  MaterialBannerThemeData get _materialBannerTheme =>
+      const MaterialBannerThemeData(
+        backgroundColor: Color(0xFF43102B),
+        contentTextStyle: TextStyle(
+          fontFamily: 'Manrope',
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: Colors.white,
+        ),
+      );
+
   ThemeData get lightTheme {
     final colorScheme = _getLightColorScheme();
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
       brightness: Brightness.light,
+      snackBarTheme: _snackBarTheme,
+      bannerTheme: _materialBannerTheme,
       appBarTheme: AppBarTheme(
         centerTitle: true,
         elevation: 0,
@@ -352,6 +380,8 @@ class ThemeProvider with ChangeNotifier {
       useMaterial3: true,
       brightness: Brightness.dark,
       colorScheme: colorScheme,
+      snackBarTheme: _snackBarTheme,
+      bannerTheme: _materialBannerTheme,
       appBarTheme: AppBarTheme(
         centerTitle: true,
         elevation: 0,

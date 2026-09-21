@@ -263,6 +263,7 @@
   "no": "No",
   "isbn_asin": "ISBN/ASIN",
   "bundle": "Paquete",
+  "part_of_bundle": "Parte del paquete",
   "tandem": "Tándem",
   "saga_format_without_saga": "Formato de Saga Sin Saga",
   "saga_format_without_n_saga": "Formato de Saga Sin N_Saga",

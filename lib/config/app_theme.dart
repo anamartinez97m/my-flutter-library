@@ -24,6 +24,7 @@ class AppTheme {
   static const Color accentColor = Colors.purpleAccent;
   static const Color errorColor = Colors.red;
   static const Color successColor = Colors.green;
+  static const Color notificationColor = Color(0xFF43102B);
 
   // Text styles
   static TextStyle? headlineLarge(BuildContext context) =>
@@ -54,23 +55,19 @@ class AppTheme {
       Theme.of(context).textTheme.bodySmall;
 
   // Common widget styles
-  static EdgeInsets get cardPadding =>
-      const EdgeInsets.all(spacingLarge);
+  static EdgeInsets get cardPadding => const EdgeInsets.all(spacingLarge);
 
-  static EdgeInsets get cardMargin =>
-      const EdgeInsets.symmetric(
-        horizontal: spacingLarge,
-        vertical: spacingSmall,
-      );
+  static EdgeInsets get cardMargin => const EdgeInsets.symmetric(
+    horizontal: spacingLarge,
+    vertical: spacingSmall,
+  );
 
-  static EdgeInsets get screenPadding =>
-      const EdgeInsets.all(spacingLarge);
+  static EdgeInsets get screenPadding => const EdgeInsets.all(spacingLarge);
 
-  static EdgeInsets get sectionPadding =>
-      const EdgeInsets.symmetric(
-        horizontal: spacingLarge,
-        vertical: spacingMedium,
-      );
+  static EdgeInsets get sectionPadding => const EdgeInsets.symmetric(
+    horizontal: spacingLarge,
+    vertical: spacingMedium,
+  );
 
   static SizedBox get verticalSpaceXSmall =>
       const SizedBox(height: spacingXSmall);
@@ -103,10 +100,9 @@ class AppTheme {
       const SizedBox(width: spacingLarge);
 
   // Card decoration
-  static ShapeBorder get cardShape =>
-      RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(cardBorderRadius),
-      );
+  static ShapeBorder get cardShape => RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(cardBorderRadius),
+  );
 
   // Input decoration
   static InputDecoration inputDecoration({
@@ -125,24 +121,32 @@ class AppTheme {
   // Snackbar
   static SnackBar successSnackBar(String message) {
     return SnackBar(
-      content: Text(message),
-      backgroundColor: successColor,
+      content: Text(message, style: _notificationTextStyle),
+      backgroundColor: notificationColor,
       duration: const Duration(seconds: 3),
     );
   }
 
   static SnackBar errorSnackBar(String message) {
     return SnackBar(
-      content: Text(message),
-      backgroundColor: errorColor,
+      content: Text(message, style: _notificationTextStyle),
+      backgroundColor: notificationColor,
       duration: const Duration(seconds: 5),
     );
   }
 
   static SnackBar infoSnackBar(String message, {Duration? duration}) {
     return SnackBar(
-      content: Text(message),
+      content: Text(message, style: _notificationTextStyle),
+      backgroundColor: notificationColor,
       duration: duration ?? const Duration(seconds: 3),
     );
   }
+
+  static const TextStyle _notificationTextStyle = TextStyle(
+    fontFamily: 'Manrope',
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    color: Colors.white,
+  );
 }

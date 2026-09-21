@@ -454,6 +454,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bundle => 'Bundle';
 
   @override
+  String get part_of_bundle => 'Part of bundle';
+
+  @override
   String get tandem => 'Tandem';
 
   @override

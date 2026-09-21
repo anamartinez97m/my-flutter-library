@@ -890,6 +890,12 @@ abstract class AppLocalizations {
   /// **'Bundle'**
   String get bundle;
 
+  /// No description provided for @part_of_bundle.
+  ///
+  /// In en, this message translates to:
+  /// **'Part of bundle'**
+  String get part_of_bundle;
+
   /// No description provided for @tandem.
   ///
   /// In en, this message translates to:
