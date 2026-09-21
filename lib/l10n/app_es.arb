@@ -1777,5 +1777,52 @@
   "drag_to_reorder": "Arrastra los libros para establecer su orden de lectura",
   "retry": "Reintentar",
   "universe_reading_position": "Posición de lectura del universo (opcional)",
-  "universe_reading_position_hint": "Posición en el orden de lectura del universo"
+  "universe_reading_position_hint": "Posición en el orden de lectura del universo",
+
+  "tandem_reading": "Lectura en Tándem",
+  "tandem_readings": "Lecturas en Tándem",
+  "create_tandem": "Crear Tándem",
+  "edit_tandem": "Editar Tándem",
+  "delete_tandem": "Eliminar Tándem",
+  "delete_tandem_confirm": "¿Seguro que quieres eliminar esta lectura en tándem?",
+  "select_book_a": "Seleccionar Libro A",
+  "select_book_b": "Seleccionar Libro B",
+  "tandem_title_optional": "Título del tándem (opcional)",
+  "add_step": "Añadir Paso",
+  "edit_step": "Editar Paso",
+  "delete_step": "Eliminar Paso",
+  "delete_step_confirm": "¿Seguro que quieres eliminar este paso?",
+  "start_chapter": "Capítulo Inicial",
+  "end_chapter": "Capítulo Final",
+  "chapter_singular": "Capítulo {number}",
+  "@chapter_singular": {
+    "placeholders": { "number": {} }
+  },
+  "chapter_range": "Capítulos {start}-{end}",
+  "@chapter_range": {
+    "placeholders": { "start": {}, "end": {} }
+  },
+  "tandem_progress": "{completed} / {total} pasos completados",
+  "@tandem_progress": {
+    "placeholders": { "completed": {}, "total": {} }
+  },
+  "tandem_progress_percent": "{percent}%",
+  "@tandem_progress_percent": {
+    "placeholders": { "percent": {} }
+  },
+  "no_tandem_readings": "No hay lecturas en tándem",
+  "same_book_error": "Los dos libros no pueden ser el mismo",
+  "select_both_books_error": "Selecciona ambos libros",
+  "invalid_chapter_range": "El capítulo final debe ser igual o mayor que el inicial",
+  "chapter_must_be_positive": "El número de capítulo debe ser al menos 1",
+  "mark_as_read": "Marcar como leído",
+  "mark_as_unread": "Marcar como no leído",
+  "tandem_deleted": "Lectura en tándem eliminada",
+  "step_deleted": "Paso eliminado",
+  "tandem_created": "Lectura en tándem creada",
+  "no_steps_yet": "Aún no hay pasos. Pulsa + para añadir el primero.",
+  "tandem_with": "Tándem con {bookName}",
+  "@tandem_with": {
+    "placeholders": { "bookName": {} }
+  }
 }

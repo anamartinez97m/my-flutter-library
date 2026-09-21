@@ -1456,7 +1456,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get mark_as_finished => 'Marcar como Terminado';
 
   @override
-  String get mark_as_read => 'Marcar como Leído';
+  String get mark_as_read => 'Marcar como leído';
 
   @override
   String get confirm_finish_title => 'Terminar Lectura';
@@ -4024,4 +4024,108 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get universe_reading_position_hint =>
       'Posición en el orden de lectura del universo';
+
+  @override
+  String get tandem_reading => 'Lectura en Tándem';
+
+  @override
+  String get tandem_readings => 'Lecturas en Tándem';
+
+  @override
+  String get create_tandem => 'Crear Tándem';
+
+  @override
+  String get edit_tandem => 'Editar Tándem';
+
+  @override
+  String get delete_tandem => 'Eliminar Tándem';
+
+  @override
+  String get delete_tandem_confirm =>
+      '¿Seguro que quieres eliminar esta lectura en tándem?';
+
+  @override
+  String get select_book_a => 'Seleccionar Libro A';
+
+  @override
+  String get select_book_b => 'Seleccionar Libro B';
+
+  @override
+  String get tandem_title_optional => 'Título del tándem (opcional)';
+
+  @override
+  String get add_step => 'Añadir Paso';
+
+  @override
+  String get edit_step => 'Editar Paso';
+
+  @override
+  String get delete_step => 'Eliminar Paso';
+
+  @override
+  String get delete_step_confirm => '¿Seguro que quieres eliminar este paso?';
+
+  @override
+  String get start_chapter => 'Capítulo Inicial';
+
+  @override
+  String get end_chapter => 'Capítulo Final';
+
+  @override
+  String chapter_singular(Object number) {
+    return 'Capítulo $number';
+  }
+
+  @override
+  String chapter_range(Object start, Object end) {
+    return 'Capítulos $start-$end';
+  }
+
+  @override
+  String tandem_progress(Object completed, Object total) {
+    return '$completed / $total pasos completados';
+  }
+
+  @override
+  String tandem_progress_percent(Object percent) {
+    return '$percent%';
+  }
+
+  @override
+  String get no_tandem_readings => 'No hay lecturas en tándem';
+
+  @override
+  String get same_book_error => 'Los dos libros no pueden ser el mismo';
+
+  @override
+  String get select_both_books_error => 'Selecciona ambos libros';
+
+  @override
+  String get invalid_chapter_range =>
+      'El capítulo final debe ser igual o mayor que el inicial';
+
+  @override
+  String get chapter_must_be_positive =>
+      'El número de capítulo debe ser al menos 1';
+
+  @override
+  String get mark_as_unread => 'Marcar como no leído';
+
+  @override
+  String get tandem_deleted => 'Lectura en tándem eliminada';
+
+  @override
+  String get step_deleted => 'Paso eliminado';
+
+  @override
+  String get tandem_created => 'Lectura en tándem creada';
+
+  @override
+  String get no_steps_yet =>
+      'Aún no hay pasos. Pulsa + para añadir el primero.';
+
+  @override
+  String tandem_with(Object bookName) {
+    return 'Tándem con $bookName';
+  }
 }

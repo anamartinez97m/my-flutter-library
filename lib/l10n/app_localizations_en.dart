@@ -1440,7 +1440,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mark_as_finished => 'Mark as Finished';
 
   @override
-  String get mark_as_read => 'Mark as Read';
+  String get mark_as_read => 'Mark as read';
 
   @override
   String get confirm_finish_title => 'Finish Reading';
@@ -3975,4 +3975,107 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get universe_reading_position_hint =>
       'Position in the universe reading order';
+
+  @override
+  String get tandem_reading => 'Tandem Reading';
+
+  @override
+  String get tandem_readings => 'Tandem Readings';
+
+  @override
+  String get create_tandem => 'Create Tandem';
+
+  @override
+  String get edit_tandem => 'Edit Tandem';
+
+  @override
+  String get delete_tandem => 'Delete Tandem';
+
+  @override
+  String get delete_tandem_confirm =>
+      'Are you sure you want to delete this tandem reading?';
+
+  @override
+  String get select_book_a => 'Select Book A';
+
+  @override
+  String get select_book_b => 'Select Book B';
+
+  @override
+  String get tandem_title_optional => 'Tandem title (optional)';
+
+  @override
+  String get add_step => 'Add Step';
+
+  @override
+  String get edit_step => 'Edit Step';
+
+  @override
+  String get delete_step => 'Delete Step';
+
+  @override
+  String get delete_step_confirm =>
+      'Are you sure you want to delete this step?';
+
+  @override
+  String get start_chapter => 'Start Chapter';
+
+  @override
+  String get end_chapter => 'End Chapter';
+
+  @override
+  String chapter_singular(Object number) {
+    return 'Chapter $number';
+  }
+
+  @override
+  String chapter_range(Object start, Object end) {
+    return 'Chapters $start-$end';
+  }
+
+  @override
+  String tandem_progress(Object completed, Object total) {
+    return '$completed / $total steps completed';
+  }
+
+  @override
+  String tandem_progress_percent(Object percent) {
+    return '$percent%';
+  }
+
+  @override
+  String get no_tandem_readings => 'No tandem readings';
+
+  @override
+  String get same_book_error => 'Both books cannot be the same';
+
+  @override
+  String get select_both_books_error => 'Please select both books';
+
+  @override
+  String get invalid_chapter_range =>
+      'End chapter must be equal or greater than start chapter';
+
+  @override
+  String get chapter_must_be_positive => 'Chapter number must be at least 1';
+
+  @override
+  String get mark_as_unread => 'Mark as unread';
+
+  @override
+  String get tandem_deleted => 'Tandem reading deleted';
+
+  @override
+  String get step_deleted => 'Step deleted';
+
+  @override
+  String get tandem_created => 'Tandem reading created';
+
+  @override
+  String get no_steps_yet => 'No steps added yet. Tap + to add the first step.';
+
+  @override
+  String tandem_with(Object bookName) {
+    return 'Tandem with $bookName';
+  }
 }

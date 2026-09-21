@@ -2639,7 +2639,7 @@ abstract class AppLocalizations {
   /// No description provided for @mark_as_read.
   ///
   /// In en, this message translates to:
-  /// **'Mark as Read'**
+  /// **'Mark as read'**
   String get mark_as_read;
 
   /// No description provided for @confirm_finish_title.
@@ -7183,6 +7183,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Position in the universe reading order'**
   String get universe_reading_position_hint;
+
+  /// No description provided for @tandem_reading.
+  ///
+  /// In en, this message translates to:
+  /// **'Tandem Reading'**
+  String get tandem_reading;
+
+  /// No description provided for @tandem_readings.
+  ///
+  /// In en, this message translates to:
+  /// **'Tandem Readings'**
+  String get tandem_readings;
+
+  /// No description provided for @create_tandem.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Tandem'**
+  String get create_tandem;
+
+  /// No description provided for @edit_tandem.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Tandem'**
+  String get edit_tandem;
+
+  /// No description provided for @delete_tandem.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Tandem'**
+  String get delete_tandem;
+
+  /// No description provided for @delete_tandem_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this tandem reading?'**
+  String get delete_tandem_confirm;
+
+  /// No description provided for @select_book_a.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Book A'**
+  String get select_book_a;
+
+  /// No description provided for @select_book_b.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Book B'**
+  String get select_book_b;
+
+  /// No description provided for @tandem_title_optional.
+  ///
+  /// In en, this message translates to:
+  /// **'Tandem title (optional)'**
+  String get tandem_title_optional;
+
+  /// No description provided for @add_step.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Step'**
+  String get add_step;
+
+  /// No description provided for @edit_step.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Step'**
+  String get edit_step;
+
+  /// No description provided for @delete_step.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Step'**
+  String get delete_step;
+
+  /// No description provided for @delete_step_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this step?'**
+  String get delete_step_confirm;
+
+  /// No description provided for @start_chapter.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Chapter'**
+  String get start_chapter;
+
+  /// No description provided for @end_chapter.
+  ///
+  /// In en, this message translates to:
+  /// **'End Chapter'**
+  String get end_chapter;
+
+  /// No description provided for @chapter_singular.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapter {number}'**
+  String chapter_singular(Object number);
+
+  /// No description provided for @chapter_range.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapters {start}-{end}'**
+  String chapter_range(Object start, Object end);
+
+  /// No description provided for @tandem_progress.
+  ///
+  /// In en, this message translates to:
+  /// **'{completed} / {total} steps completed'**
+  String tandem_progress(Object completed, Object total);
+
+  /// No description provided for @tandem_progress_percent.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}%'**
+  String tandem_progress_percent(Object percent);
+
+  /// No description provided for @no_tandem_readings.
+  ///
+  /// In en, this message translates to:
+  /// **'No tandem readings'**
+  String get no_tandem_readings;
+
+  /// No description provided for @same_book_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Both books cannot be the same'**
+  String get same_book_error;
+
+  /// No description provided for @select_both_books_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select both books'**
+  String get select_both_books_error;
+
+  /// No description provided for @invalid_chapter_range.
+  ///
+  /// In en, this message translates to:
+  /// **'End chapter must be equal or greater than start chapter'**
+  String get invalid_chapter_range;
+
+  /// No description provided for @chapter_must_be_positive.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapter number must be at least 1'**
+  String get chapter_must_be_positive;
+
+  /// No description provided for @mark_as_unread.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as unread'**
+  String get mark_as_unread;
+
+  /// No description provided for @tandem_deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Tandem reading deleted'**
+  String get tandem_deleted;
+
+  /// No description provided for @step_deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Step deleted'**
+  String get step_deleted;
+
+  /// No description provided for @tandem_created.
+  ///
+  /// In en, this message translates to:
+  /// **'Tandem reading created'**
+  String get tandem_created;
+
+  /// No description provided for @no_steps_yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No steps added yet. Tap + to add the first step.'**
+  String get no_steps_yet;
+
+  /// No description provided for @tandem_with.
+  ///
+  /// In en, this message translates to:
+  /// **'Tandem with {bookName}'**
+  String tandem_with(Object bookName);
 }
 
 class _AppLocalizationsDelegate

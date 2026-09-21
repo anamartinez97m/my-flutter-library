@@ -27,8 +27,12 @@ import 'package:myrandomlibrary/screens/new_ui/reading_sessions_screen.dart';
 import 'package:myrandomlibrary/screens/new_ui/universe_reading_order_screen.dart';
 import 'package:myrandomlibrary/model/reading_session.dart';
 import 'package:myrandomlibrary/model/reading_club.dart';
+import 'package:myrandomlibrary/model/tandem_reading.dart';
 import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
 import 'package:myrandomlibrary/repositories/reading_club_repository.dart';
+import 'package:myrandomlibrary/repositories/tandem_repository.dart';
+import 'package:myrandomlibrary/screens/new_ui/tandem_create_screen.dart';
+import 'package:myrandomlibrary/screens/new_ui/tandem_reading_screen.dart';
 import 'package:myrandomlibrary/widgets/reading_club_dialog.dart';
 import 'package:myrandomlibrary/services/book_metadata_service.dart';
 import 'package:myrandomlibrary/services/notification_service.dart';
@@ -3965,6 +3969,9 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                           currentBookId: _currentBook.bookId,
                         ),
 
+                      // Tandem Readings
+                      _TandemReadingsCard(currentBook: _currentBook),
+
                       // New fields
                       if (_currentBook.myRating != null &&
                           _currentBook.myRating! > 0)
@@ -5414,4 +5421,209 @@ class _DailyReadingData {
     required this.hasTimeReadData,
     required this.hasDidReadData,
   });
+}
+
+/// Card showing the Tandem Readings this book belongs to, plus a button to
+/// create a new tandem with this book pre-selected.
+class _TandemReadingsCard extends StatefulWidget {
+  final Book currentBook;
+
+  const _TandemReadingsCard({required this.currentBook});
+
+  @override
+  State<_TandemReadingsCard> createState() => _TandemReadingsCardState();
+}
+
+class _TandemReadingsCardState extends State<_TandemReadingsCard> {
+  List<TandemReading> _tandems = [];
+  final Map<int, String> _otherBookNames = {};
+  final Map<int, Map<String, int>> _progress = {};
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTandems();
+  }
+
+  Future<void> _loadTandems() async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final tandemRepo = TandemRepository(db);
+      final bookRepo = BookRepository(db);
+      final bookId = widget.currentBook.bookId;
+      if (bookId == null) {
+        if (mounted) setState(() => _isLoading = false);
+        return;
+      }
+
+      final tandems = await tandemRepo.getTandemsForBook(bookId);
+      for (final tandem in tandems) {
+        final otherId =
+            tandem.bookAId == bookId ? tandem.bookBId : tandem.bookAId;
+        final other = await bookRepo.getBookById(otherId);
+        _otherBookNames[tandem.tandemId!] = other?.name ?? '';
+        _progress[tandem.tandemId!] = await tandemRepo.getTandemProgress(
+          tandem.tandemId!,
+        );
+      }
+
+      if (mounted) {
+        setState(() {
+          _tandems = tandems;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _createTandem() async {
+    // The create screen replaces itself with TandemReadingScreen on success;
+    // refresh the card when we come back either way.
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) => TandemCreateScreen(initialBook: widget.currentBook),
+      ),
+    );
+    _loadTandems();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Card(
+      elevation: 1,
+      margin: const EdgeInsets.only(bottom: 12),
+      color: Theme.of(context).colorScheme.primaryContainer,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.swap_horiz,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 24,
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    l10n.tandem_readings,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  tooltip: l10n.create_tandem,
+                  icon: Icon(
+                    Icons.add_circle_outline,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  onPressed: _createTandem,
+                ),
+              ],
+            ),
+            if (_isLoading)
+              const Center(child: CircularProgressIndicator())
+            else if (_tandems.isEmpty)
+              Text(
+                l10n.no_tandem_readings,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontStyle: FontStyle.italic,
+                ),
+              )
+            else
+              ..._tandems.map((tandem) {
+                final id = tandem.tandemId!;
+                final progress = _progress[id] ?? {'completed': 0, 'total': 0};
+                final title =
+                    tandem.title?.isNotEmpty == true
+                        ? tandem.title!
+                        : l10n.tandem_with(
+                          _otherBookNames[id]?.isNotEmpty == true
+                              ? _otherBookNames[id]!
+                              : l10n.unknown_title,
+                        );
+                return InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TandemReadingScreen(tandemId: id),
+                      ),
+                    ).then((_) => _loadTandems());
+                  },
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.2),
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.menu_book,
+                          size: 20,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                title,
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(fontWeight: FontWeight.w600),
+                              ),
+                              Text(
+                                l10n.tandem_progress(
+                                  progress['completed']!,
+                                  progress['total']!,
+                                ),
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.bodySmall?.copyWith(
+                                  color:
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: 16,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+          ],
+        ),
+      ),
+    );
+  }
 }

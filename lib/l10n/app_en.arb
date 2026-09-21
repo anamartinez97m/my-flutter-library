@@ -1771,5 +1771,52 @@
   "drag_to_reorder": "Drag books to set their reading order",
   "retry": "Retry",
   "universe_reading_position": "Universe reading position (optional)",
-  "universe_reading_position_hint": "Position in the universe reading order"
+  "universe_reading_position_hint": "Position in the universe reading order",
+
+  "tandem_reading": "Tandem Reading",
+  "tandem_readings": "Tandem Readings",
+  "create_tandem": "Create Tandem",
+  "edit_tandem": "Edit Tandem",
+  "delete_tandem": "Delete Tandem",
+  "delete_tandem_confirm": "Are you sure you want to delete this tandem reading?",
+  "select_book_a": "Select Book A",
+  "select_book_b": "Select Book B",
+  "tandem_title_optional": "Tandem title (optional)",
+  "add_step": "Add Step",
+  "edit_step": "Edit Step",
+  "delete_step": "Delete Step",
+  "delete_step_confirm": "Are you sure you want to delete this step?",
+  "start_chapter": "Start Chapter",
+  "end_chapter": "End Chapter",
+  "chapter_singular": "Chapter {number}",
+  "@chapter_singular": {
+    "placeholders": { "number": {} }
+  },
+  "chapter_range": "Chapters {start}-{end}",
+  "@chapter_range": {
+    "placeholders": { "start": {}, "end": {} }
+  },
+  "tandem_progress": "{completed} / {total} steps completed",
+  "@tandem_progress": {
+    "placeholders": { "completed": {}, "total": {} }
+  },
+  "tandem_progress_percent": "{percent}%",
+  "@tandem_progress_percent": {
+    "placeholders": { "percent": {} }
+  },
+  "no_tandem_readings": "No tandem readings",
+  "same_book_error": "Both books cannot be the same",
+  "select_both_books_error": "Please select both books",
+  "invalid_chapter_range": "End chapter must be equal or greater than start chapter",
+  "chapter_must_be_positive": "Chapter number must be at least 1",
+  "mark_as_read": "Mark as read",
+  "mark_as_unread": "Mark as unread",
+  "tandem_deleted": "Tandem reading deleted",
+  "step_deleted": "Step deleted",
+  "tandem_created": "Tandem reading created",
+  "no_steps_yet": "No steps added yet. Tap + to add the first step.",
+  "tandem_with": "Tandem with {bookName}",
+  "@tandem_with": {
+    "placeholders": { "bookName": {} }
+  }
 }
