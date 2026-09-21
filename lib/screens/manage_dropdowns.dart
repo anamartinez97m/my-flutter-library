@@ -237,13 +237,15 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                                     size: 24,
                                   ),
                                   const SizedBox(width: 12),
-                                  Text(
-                                    l10n.saga_completion_setup,
-                                    style: const TextStyle(
-                                      fontFamily: 'Manrope',
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w600,
-                                      color: kPrimary,
+                                  Expanded(
+                                    child: Text(
+                                      l10n.saga_completion_setup,
+                                      style: const TextStyle(
+                                        fontFamily: 'Manrope',
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w600,
+                                        color: kPrimary,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -418,30 +420,32 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                                       ),
                                     ),
                                     const SizedBox(width: 16),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          l10n.unknown_show_as_question,
-                                          style: const TextStyle(
-                                            fontFamily: 'Manrope',
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.normal,
-                                            color: kText,
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            l10n.unknown_show_as_question,
+                                            style: const TextStyle(
+                                              fontFamily: 'Manrope',
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.normal,
+                                              color: kText,
+                                            ),
                                           ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          l10n.for_sagas_unknown_length,
-                                          style: const TextStyle(
-                                            fontFamily: 'Manrope',
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.normal,
-                                            color: kSub,
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            l10n.for_sagas_unknown_length,
+                                            style: const TextStyle(
+                                              fontFamily: 'Manrope',
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.normal,
+                                              color: kSub,
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -486,8 +490,10 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                           color: kBg,
                           border: Border(top: BorderSide(color: kBorder)),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                        child: Wrap(
+                          alignment: WrapAlignment.end,
+                          spacing: 8,
+                          runSpacing: 8,
                           children: [
                             TextButton(
                               onPressed: () => Navigator.pop(context, null),
@@ -510,7 +516,6 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 8),
                             ElevatedButton(
                               onPressed: () {
                                 if (selectedOption == 'unknown') {

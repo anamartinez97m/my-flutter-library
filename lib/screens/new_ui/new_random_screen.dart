@@ -23,6 +23,9 @@ const _kCardBorder = Color(0x4DD5C2C7);
 const _kChipBg = Color(0x80F2EDEB);
 const _kChipBorder = Color(0x80D5C2C7);
 const _kChipSelected = Color(0xE643102B);
+const _kAvoid = Color(0xFF8B4A3C);
+const _kAvoidBg = Color(0xFFFFF0EC);
+const _kAvoidBorder = Color(0xFFE3A99C);
 const _kCardShadow = [
   BoxShadow(color: Color(0x0A000000), blurRadius: 12, offset: Offset(0, 4)),
 ];
@@ -44,6 +47,9 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
   List<String> _filterPages = [];
   List<String> _filterYear = [];
   List<String> _filterAuthor = [];
+  List<String> _excludedGenres = [];
+  List<String> _excludedFormats = [];
+  List<String> _excludedAuthors = [];
   bool? _filterTBR;
   bool _genreUseAndLogic = true;
   bool _statusUseAndLogic = false;
@@ -193,6 +199,7 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
             return true;
           }).toList();
     }
+    filtered = filtered.where((book) => !_isExcluded(book)).toList();
     final sagaFiltered = _filterBySagaOrder(filtered, provider.allBooks);
     if (sagaFiltered.isEmpty) {
       setState(() => _randomBook = null);
@@ -206,6 +213,29 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
     setState(
       () => _randomBook = sagaFiltered[Random().nextInt(sagaFiltered.length)],
     );
+  }
+
+  bool _isExcluded(Book book) {
+    if (book.formatValue != null &&
+        _excludedFormats.contains(book.formatValue)) {
+      return true;
+    }
+
+    final genres =
+        book.genre
+            ?.split(',')
+            .map((genre) => genre.trim())
+            .where((genre) => genre.isNotEmpty) ??
+        const <String>[];
+    if (genres.any(_excludedGenres.contains)) return true;
+
+    final authors =
+        book.author
+            ?.split(',')
+            .map((author) => author.trim())
+            .where((author) => author.isNotEmpty) ??
+        const <String>[];
+    return authors.any(_excludedAuthors.contains);
   }
 
   List<Book> _filterBySagaOrder(List<Book> filtered, List<Book> allBooks) {
@@ -274,7 +304,7 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
         childValues: allBooks
             .where((child) => child.bundleParentId == book.bookId)
             .map((child) => child.originalPublicationYear),
-      );
+      ).where((year) => year >= 1000 && year <= 9999).toList();
 
   List<int> _bookNumericValues({
     required int? primaryValue,
@@ -333,6 +363,9 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
       _filterPages = [];
       _filterYear = [];
       _filterAuthor = [];
+      _excludedGenres = [];
+      _excludedFormats = [];
+      _excludedAuthors = [];
       _filterTBR = null;
       _randomBook = null;
       _selectedBookTitles = [];
@@ -391,6 +424,8 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
             _buildDecadeCard(l10n),
             const SizedBox(height: 16),
             _buildAuthorCard(l10n),
+            const SizedBox(height: 16),
+            _buildAvoidCard(l10n),
             if (_randomBook != null) ...[
               const SizedBox(height: 24),
               _buildResultCard(l10n),
@@ -1228,6 +1263,242 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
         anyLabel: l10n.any,
         multiSelect: true,
         onChanged: (v) => setState(() => _filterAuthor = v),
+      ),
+    );
+  }
+
+  Future<void> _openAvoidPicker({
+    required AppLocalizations l10n,
+    required String fieldTitle,
+    required List<String> options,
+    required List<String> selected,
+    required ValueChanged<List<String>> onChanged,
+  }) async {
+    final result = await Navigator.push<OptionSelectionResult>(
+      context,
+      MaterialPageRoute(
+        builder:
+            (_) => NewOptionSelectionScreen(
+              title: l10n.select_field_options(fieldTitle),
+              searchHint: l10n.search_field_options(fieldTitle),
+              popularLabel: l10n.most_used_label,
+              allLabel: l10n.all_field_options(fieldTitle),
+              anyLabel: l10n.any,
+              allOptions: options,
+              popularOptions: const [],
+              initialSelected: selected,
+              multiSelect: true,
+            ),
+      ),
+    );
+    if (result != null) onChanged(result.selected);
+  }
+
+  Widget _avoidSelectionRow({
+    required String label,
+    required List<String> selected,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: _kPrimary,
+                ),
+              ),
+            ),
+            if (selected.isNotEmpty)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: _kAvoidBg,
+                  borderRadius: BorderRadius.circular(9999),
+                  border: Border.all(color: _kAvoidBorder),
+                ),
+                child: Text(
+                  '${selected.length}',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: _kAvoid,
+                  ),
+                ),
+              ),
+            const SizedBox(width: 8),
+            const Icon(Icons.chevron_right, size: 18, color: _kPrimary),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _avoidChip(String label, VoidCallback onRemove) {
+    return Container(
+      padding: const EdgeInsets.only(left: 12, right: 6, top: 6, bottom: 6),
+      decoration: BoxDecoration(
+        color: _kAvoidBg,
+        borderRadius: BorderRadius.circular(9999),
+        border: Border.all(color: _kAvoidBorder),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.remove_circle_outline, size: 15, color: _kAvoid),
+          const SizedBox(width: 5),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 180),
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: _kAvoid,
+              ),
+            ),
+          ),
+          const SizedBox(width: 2),
+          InkWell(
+            onTap: onRemove,
+            borderRadius: BorderRadius.circular(9999),
+            child: const Padding(
+              padding: EdgeInsets.all(3),
+              child: Icon(Icons.close, size: 13, color: _kAvoid),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAvoidCard(AppLocalizations l10n) {
+    final formats = _formatList.map((item) => item['value'] as String).toList();
+    final genres = _genreList.map((item) => item['name'] as String).toList();
+    final authors = _authorList.map((item) => item['name'] as String).toList();
+    final hasExclusions =
+        _excludedGenres.isNotEmpty ||
+        _excludedFormats.isNotEmpty ||
+        _excludedAuthors.isNotEmpty;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(17),
+      decoration: BoxDecoration(
+        color: _kCardBg,
+        border: Border.all(color: _kCardBorder),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: _kCardShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.block, size: 17, color: _kAvoid),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  l10n.avoid_from_recommendation,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: _kPrimary,
+                    letterSpacing: 0.26,
+                  ),
+                ),
+              ),
+              Text(
+                l10n.optional,
+                style: const TextStyle(fontSize: 11, color: _kSub),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            l10n.avoid_recommendation_description,
+            style: const TextStyle(fontSize: 12, color: _kSub, height: 1.35),
+          ),
+          if (hasExclusions) ...[
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 7,
+              runSpacing: 7,
+              children: [
+                ..._excludedGenres.map(
+                  (value) => _avoidChip(
+                    value,
+                    () => setState(() => _excludedGenres.remove(value)),
+                  ),
+                ),
+                ..._excludedFormats.map(
+                  (value) => _avoidChip(
+                    value,
+                    () => setState(() => _excludedFormats.remove(value)),
+                  ),
+                ),
+                ..._excludedAuthors.map(
+                  (value) => _avoidChip(
+                    value,
+                    () => setState(() => _excludedAuthors.remove(value)),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          const SizedBox(height: 10),
+          const Divider(height: 1, color: _kBorder),
+          _avoidSelectionRow(
+            label: l10n.genre,
+            selected: _excludedGenres,
+            onTap:
+                () => _openAvoidPicker(
+                  l10n: l10n,
+                  fieldTitle: l10n.genre,
+                  options: genres,
+                  selected: _excludedGenres,
+                  onChanged:
+                      (values) => setState(() => _excludedGenres = values),
+                ),
+          ),
+          const Divider(height: 1, color: _kBorder),
+          _avoidSelectionRow(
+            label: l10n.format,
+            selected: _excludedFormats,
+            onTap:
+                () => _openAvoidPicker(
+                  l10n: l10n,
+                  fieldTitle: l10n.format,
+                  options: formats,
+                  selected: _excludedFormats,
+                  onChanged:
+                      (values) => setState(() => _excludedFormats = values),
+                ),
+          ),
+          const Divider(height: 1, color: _kBorder),
+          _avoidSelectionRow(
+            label: l10n.author,
+            selected: _excludedAuthors,
+            onTap:
+                () => _openAvoidPicker(
+                  l10n: l10n,
+                  fieldTitle: l10n.author,
+                  options: authors,
+                  selected: _excludedAuthors,
+                  onChanged:
+                      (values) => setState(() => _excludedAuthors = values),
+                ),
+          ),
+        ],
       ),
     );
   }

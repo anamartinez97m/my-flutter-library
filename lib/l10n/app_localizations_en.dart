@@ -2743,6 +2743,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Set your preferences and let the vault decide.';
 
   @override
+  String get avoid_from_recommendation => 'Avoid from recommendation';
+
+  @override
+  String get avoid_recommendation_description =>
+      'Books matching any selected option will be excluded.';
+
+  @override
   String get select_books_card_subtitle =>
       'Choose specific shelves or collections';
 

@@ -1224,6 +1224,8 @@
   "tap_to_view_details": "Toca la tarjeta para ver detalles",
   "discover_next_read": "Descubre Tu Próxima Lectura",
   "set_preferences_description": "Configura tus preferencias y deja que la biblioteca decida.",
+  "avoid_from_recommendation": "Evitar en la recomendación",
+  "avoid_recommendation_description": "Se excluirán los libros que coincidan con cualquier opción seleccionada.",
   "select_books_card_subtitle": "Elige estanterías o colecciones específicas",
   "surprise_me": "Sorpréndeme",
   "see_all_count": "Ver todos ({count})",

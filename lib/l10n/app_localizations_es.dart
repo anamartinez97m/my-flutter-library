@@ -2780,6 +2780,13 @@ class AppLocalizationsEs extends AppLocalizations {
       'Configura tus preferencias y deja que la biblioteca decida.';
 
   @override
+  String get avoid_from_recommendation => 'Evitar en la recomendación';
+
+  @override
+  String get avoid_recommendation_description =>
+      'Se excluirán los libros que coincidan con cualquier opción seleccionada.';
+
+  @override
   String get select_books_card_subtitle =>
       'Elige estanterías o colecciones específicas';
 

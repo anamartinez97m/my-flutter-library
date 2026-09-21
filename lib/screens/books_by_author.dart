@@ -668,6 +668,9 @@ class _MultiAuthorScreen extends StatefulWidget {
 
 class _MultiAuthorScreenState extends State<_MultiAuthorScreen> {
   int _selectedIndex = 0;
+  bool _showFullCatalog = false;
+  GlobalKey<_AuthorContentViewState> _contentKey =
+      GlobalKey<_AuthorContentViewState>();
 
   @override
   Widget build(BuildContext context) {
@@ -695,6 +698,19 @@ class _MultiAuthorScreenState extends State<_MultiAuthorScreen> {
               ),
             ),
             centerTitle: true,
+            actions: [
+              IconButton(
+                icon: Icon(
+                  _showFullCatalog ? Icons.library_books : Icons.travel_explore,
+                  color: _kV2AppBar,
+                ),
+                tooltip:
+                    _showFullCatalog
+                        ? AppLocalizations.of(context)!.my_library_view
+                        : AppLocalizations.of(context)!.full_catalog,
+                onPressed: () => _contentKey.currentState?.toggleCatalogView(),
+              ),
+            ],
           ),
           const Divider(height: 1, color: Color(0xFFD5C2C7)),
           const SizedBox(height: 8),
@@ -708,7 +724,14 @@ class _MultiAuthorScreenState extends State<_MultiAuthorScreen> {
               itemBuilder: (ctx, i) {
                 final sel = i == _selectedIndex;
                 return GestureDetector(
-                  onTap: () => setState(() => _selectedIndex = i),
+                  onTap: () {
+                    if (i == _selectedIndex) return;
+                    setState(() {
+                      _selectedIndex = i;
+                      _showFullCatalog = false;
+                      _contentKey = GlobalKey<_AuthorContentViewState>();
+                    });
+                  },
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 17,
@@ -736,9 +759,15 @@ class _MultiAuthorScreenState extends State<_MultiAuthorScreen> {
           ),
           Expanded(
             child: _AuthorContentView(
-              key: ValueKey(widget.authors[_selectedIndex]),
+              key: _contentKey,
               author: widget.authors[_selectedIndex],
               provider: widget.provider,
+              showHeader: false,
+              onCatalogViewChanged: (showFullCatalog) {
+                if (mounted) {
+                  setState(() => _showFullCatalog = showFullCatalog);
+                }
+              },
             ),
           ),
         ],
@@ -750,11 +779,15 @@ class _MultiAuthorScreenState extends State<_MultiAuthorScreen> {
 class _AuthorContentView extends StatefulWidget {
   final String author;
   final BookProvider provider;
+  final bool showHeader;
+  final ValueChanged<bool>? onCatalogViewChanged;
 
   const _AuthorContentView({
     super.key,
     required this.author,
     required this.provider,
+    this.showHeader = true,
+    this.onCatalogViewChanged,
   });
 
   @override
@@ -767,12 +800,17 @@ class _AuthorContentViewState extends State<_AuthorContentView> {
   String get author => widget.author;
   BookProvider get provider => widget.provider;
 
+  void toggleCatalogView() {
+    setState(() => _showFullCatalog = !_showFullCatalog);
+    widget.onCatalogViewChanged?.call(_showFullCatalog);
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_showFullCatalog) {
       return CustomScrollView(
         slivers: [
-          _buildV2AppBar(context),
+          if (widget.showHeader) _buildV2AppBar(context),
           SliverFillRemaining(
             child: _CatalogView(author: author, provider: provider),
           ),
@@ -819,7 +857,7 @@ class _AuthorContentViewState extends State<_AuthorContentView> {
     if (filteredBooks.isEmpty) {
       return CustomScrollView(
         slivers: [
-          _buildV2AppBar(context),
+          if (widget.showHeader) _buildV2AppBar(context),
           SliverFillRemaining(
             child: Center(
               child: Text(
@@ -839,7 +877,7 @@ class _AuthorContentViewState extends State<_AuthorContentView> {
     final l10n = AppLocalizations.of(context)!;
     return CustomScrollView(
       slivers: [
-        _buildV2AppBar(context),
+        if (widget.showHeader) _buildV2AppBar(context),
         // Stats row
         SliverToBoxAdapter(
           child: Padding(
@@ -928,11 +966,7 @@ class _AuthorContentViewState extends State<_AuthorContentView> {
             color: _kV2AppBar,
           ),
           tooltip: _showFullCatalog ? l10n.my_library_view : l10n.full_catalog,
-          onPressed: () {
-            setState(() {
-              _showFullCatalog = !_showFullCatalog;
-            });
-          },
+          onPressed: toggleCatalogView,
         ),
       ],
       bottom: const PreferredSize(

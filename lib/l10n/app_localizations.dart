@@ -4976,6 +4976,18 @@ abstract class AppLocalizations {
   /// **'Set your preferences and let the vault decide.'**
   String get set_preferences_description;
 
+  /// No description provided for @avoid_from_recommendation.
+  ///
+  /// In en, this message translates to:
+  /// **'Avoid from recommendation'**
+  String get avoid_from_recommendation;
+
+  /// No description provided for @avoid_recommendation_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Books matching any selected option will be excluded.'**
+  String get avoid_recommendation_description;
+
   /// No description provided for @select_books_card_subtitle.
   ///
   /// In en, this message translates to:

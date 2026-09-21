@@ -207,6 +207,21 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
     }
   }
 
+  Future<void> _refreshBundle() async {
+    final bookId = _currentBook.bookId;
+    if (bookId == null) return;
+
+    final db = await DatabaseHelper.instance.database;
+    final repository = BookRepository(db);
+    final updatedBook = await repository.getBookById(bookId);
+    if (!mounted) return;
+
+    setState(() {
+      if (updatedBook != null) _currentBook = updatedBook;
+      _bundleBooksKey++;
+    });
+  }
+
   Future<Map<int, List<ReadDate>>> _loadIndividualBundleBooksReadDates() async {
     if (_currentBook.isBundle != true) return {};
 
@@ -1045,6 +1060,59 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
     }
   }
 
+  Widget _buildProgressTypeCard({
+    required bool selected,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return Expanded(
+      child: Material(
+        color: selected ? _kPrimary.withValues(alpha: 0.08) : _kBg,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: selected ? _kPrimary : _kPrimary.withValues(alpha: 0.22),
+            width: selected ? 2 : 1,
+          ),
+        ),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(icon, color: _kPrimary, size: 22),
+                const SizedBox(height: 10),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: _kPrimary,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 12,
+                    color: _kSub,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _showProgressModal() async {
     final provider = Provider.of<BookProvider?>(context, listen: false);
     final messenger = ScaffoldMessenger.of(context);
@@ -1059,6 +1127,8 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
     );
 
     bool usePercentage = isPercentage;
+    String percentageDraft = isPercentage ? currentProgress.toString() : '';
+    String pagesDraft = isPercentage ? '' : currentProgress.toString();
 
     final result = await showDialog<Map<String, dynamic>>(
       context: context,
@@ -1067,22 +1137,24 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
             builder:
                 (context, setDialogState) => AlertDialog(
                   backgroundColor: _kBg,
+                  elevation: 25,
+                  constraints: const BoxConstraints(maxWidth: 384),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(24),
                   ),
-                  titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                  contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-                  actionsPadding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                  titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+                  contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+                  actionsPadding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
                   title: Row(
                     children: [
                       const Icon(Icons.trending_up, color: _kPrimary, size: 24),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           AppLocalizations.of(context)!.update_reading_progress,
                           style: const TextStyle(
                             fontFamily: 'Manrope',
-                            fontSize: 18,
+                            fontSize: 20,
                             fontWeight: FontWeight.w600,
                             color: _kPrimary,
                           ),
@@ -1094,39 +1166,63 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Toggle between percentage and pages
-                        Row(
-                          children: [
-                            Expanded(
-                              child: SegmentedButton<bool>(
-                                segments: [
-                                  ButtonSegment(
-                                    value: true,
-                                    label: Text(
-                                      AppLocalizations.of(context)!.percentage,
-                                    ),
-                                  ),
-                                  ButtonSegment(
-                                    value: false,
-                                    label: Text(
-                                      AppLocalizations.of(
-                                        context,
-                                      )!.pages_label_short,
-                                    ),
-                                  ),
-                                ],
-                                selected: {usePercentage},
-                                onSelectionChanged: (Set<bool> newSelection) {
+                        IntrinsicHeight(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _buildProgressTypeCard(
+                                selected: usePercentage,
+                                icon: Icons.percent,
+                                title: AppLocalizations.of(context)!.percentage,
+                                subtitle: '0–100%',
+                                onTap: () {
+                                  if (usePercentage) return;
+                                  pagesDraft = progressController.text;
                                   setDialogState(() {
-                                    usePercentage = newSelection.first;
-                                    progressController.clear();
+                                    usePercentage = true;
+                                    progressController.value = TextEditingValue(
+                                      text: percentageDraft,
+                                      selection: TextSelection.collapsed(
+                                        offset: percentageDraft.length,
+                                      ),
+                                    );
                                   });
                                 },
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 12),
+                              _buildProgressTypeCard(
+                                selected: !usePercentage,
+                                icon: Icons.menu_book_outlined,
+                                title:
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.pages_label_short,
+                                subtitle:
+                                    _currentBook.pages == null
+                                        ? AppLocalizations.of(
+                                          context,
+                                        )!.pages_label_short
+                                        : AppLocalizations.of(
+                                          context,
+                                        )!.total_pages(_currentBook.pages!),
+                                onTap: () {
+                                  if (!usePercentage) return;
+                                  percentageDraft = progressController.text;
+                                  setDialogState(() {
+                                    usePercentage = false;
+                                    progressController.value = TextEditingValue(
+                                      text: pagesDraft,
+                                      selection: TextSelection.collapsed(
+                                        offset: pagesDraft.length,
+                                      ),
+                                    );
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 20),
                         TextField(
                           controller: progressController,
                           decoration: InputDecoration(
@@ -1138,31 +1234,95 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                     : AppLocalizations.of(
                                       context,
                                     )!.current_page,
-                            border: const OutlineInputBorder(),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 17,
+                              vertical: 15,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(color: _kSub),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(
+                                color: _kPrimary,
+                                width: 2,
+                              ),
+                            ),
+                            labelStyle: const TextStyle(
+                              fontFamily: 'Manrope',
+                              color: _kPrimary,
+                            ),
                             hintText:
                                 usePercentage
                                     ? '0-100'
                                     : '1-${_currentBook.pages ?? 0}',
+                            suffixText:
+                                usePercentage
+                                    ? '%'
+                                    : _currentBook.pages == null
+                                    ? AppLocalizations.of(
+                                      context,
+                                    )!.pages_label_short
+                                    : '/ ${_currentBook.pages}',
+                            suffixStyle: const TextStyle(
+                              fontFamily: 'Manrope',
+                              fontWeight: FontWeight.w600,
+                              color: _kSub,
+                            ),
                           ),
                           keyboardType: TextInputType.number,
                           inputFormatters: [
                             FilteringTextInputFormatter.digitsOnly,
                           ],
                         ),
-                        if (!usePercentage && _currentBook.pages != null) ...[
-                          const SizedBox(height: 12),
-                          Text(
-                            AppLocalizations.of(
-                              context,
-                            )!.total_pages(_currentBook.pages!),
-                            style: Theme.of(
-                              context,
-                            ).textTheme.bodySmall?.copyWith(
-                              color:
-                                  Theme.of(
-                                    context,
-                                  ).colorScheme.onSurfaceVariant,
-                            ),
+                        if (usePercentage || _currentBook.pages != null) ...[
+                          const SizedBox(height: 16),
+                          ValueListenableBuilder<TextEditingValue>(
+                            valueListenable: progressController,
+                            builder: (context, textValue, _) {
+                              final value = int.tryParse(textValue.text) ?? 0;
+                              final maximum =
+                                  usePercentage ? 100 : _currentBook.pages!;
+                              final progress =
+                                  maximum <= 0
+                                      ? 0.0
+                                      : (value / maximum).clamp(0.0, 1.0);
+                              return Column(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(6),
+                                    child: LinearProgressIndicator(
+                                      value: progress,
+                                      minHeight: 8,
+                                      backgroundColor: _kPrimary.withValues(
+                                        alpha: 0.1,
+                                      ),
+                                      valueColor:
+                                          const AlwaysStoppedAnimation<Color>(
+                                            _kPrimary,
+                                          ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(
+                                      '${(progress * 100).round()}%',
+                                      style: const TextStyle(
+                                        fontFamily: 'Manrope',
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: _kPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
                           ),
                         ],
                       ],
@@ -1171,6 +1331,16 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
+                      style: TextButton.styleFrom(
+                        foregroundColor: _kPrimary,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 10,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
                       child: Text(
                         AppLocalizations.of(context)!.cancel,
                         style: const TextStyle(
@@ -1239,13 +1409,14 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                         backgroundColor: _kPrimary,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
+                          horizontal: 24,
                           vertical: 10,
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        elevation: 0,
+                        elevation: 4,
+                        shadowColor: const Color(0x1A000000),
                       ),
                       child: Text(
                         AppLocalizations.of(context)!.save,
@@ -1260,6 +1431,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                 ),
           ),
     );
+    progressController.dispose();
 
     if (result != null) {
       try {
@@ -3491,11 +3663,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                             // (status may have changed via Start Reading, edit, etc.)
                                             if (mounted) {
                                               await _loadReadDates();
-                                              if (mounted) {
-                                                setState(() {
-                                                  _bundleBooksKey++;
-                                                });
-                                              }
+                                              await _refreshBundle();
                                             }
                                           },
                                         ),
@@ -3517,9 +3685,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                               ),
                                             );
                                             if (mounted) {
-                                              setState(() {
-                                                _bundleBooksKey++;
-                                              });
+                                              await _refreshBundle();
                                             }
                                           },
                                           icon: const Icon(
@@ -4761,7 +4927,7 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.add_circle_outline, color: _kPrimary),
+                icon: const Icon(Icons.add, color: _kPrimary, size: 20),
                 onPressed: _showAddClubDialog,
                 tooltip: AppLocalizations.of(context)!.add_to_club,
               ),

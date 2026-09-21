@@ -1218,6 +1218,8 @@
   "tap_to_view_details": "Tap card to view details",
   "discover_next_read": "Discover Your Next Read",
   "set_preferences_description": "Set your preferences and let the vault decide.",
+  "avoid_from_recommendation": "Avoid from recommendation",
+  "avoid_recommendation_description": "Books matching any selected option will be excluded.",
   "select_books_card_subtitle": "Choose specific shelves or collections",
   "surprise_me": "Surprise Me",
   "see_all_count": "See all ({count})",

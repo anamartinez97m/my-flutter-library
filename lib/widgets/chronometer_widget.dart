@@ -564,7 +564,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
 
   Widget _buildV2(BuildContext context) {
     const kBg = Color(0xFFFDF8F6);
-    const kPrimary = Color(0xFF5D2641);
+    const kPrimary = Color(0xFF43102B);
     const kText = Color(0xFF1C1B1A);
     const kTimerBg = Color(0xFFF7F3F0);
     const kTimerBorder = Color(0x33D5C2C7);
