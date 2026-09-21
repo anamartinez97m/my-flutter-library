@@ -186,383 +186,390 @@ class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
     return Container(
       decoration: const BoxDecoration(
         color: _kBg,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Handle
-          Padding(
-            padding: const EdgeInsets.only(top: 12, bottom: 4),
-            child: Container(
-              width: 48,
-              height: 6,
-              decoration: BoxDecoration(
-                color: const Color(0x80D5C2C7),
-                borderRadius: BorderRadius.circular(9999),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle
+            Padding(
+              padding: const EdgeInsets.only(top: 12, bottom: 4),
+              child: Container(
+                width: 48,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: const Color(0x80D5C2C7),
+                  borderRadius: BorderRadius.circular(9999),
+                ),
               ),
             ),
-          ),
-          SafeArea(
-            top: false,
-            left: false,
-            right: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+            SafeArea(
+              top: false,
+              left: false,
+              right: false,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(20, 4, 20, 20 + bottomInset),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.reading_log.toUpperCase(),
+                              style: const TextStyle(
+                                fontFamily: 'Manrope',
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 1.0,
+                                color: _kSub,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              l10n.log_reading_session,
+                              style: const TextStyle(
+                                fontFamily: 'Manrope',
+                                fontSize: 22,
+                                fontWeight: FontWeight.w700,
+                                color: _kText,
+                              ),
+                            ),
+                          ],
+                        ),
+                        GestureDetector(
+                          onTap: _discard,
+                          child: Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              color: _kCardBg,
+                              borderRadius: BorderRadius.circular(9999),
+                              border: Border.all(
+                                color: _kBorder.withValues(alpha: 0.5),
+                              ),
+                            ),
+                            child: const Icon(
+                              Icons.close,
+                              size: 16,
+                              color: _kText,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    // Date & Time pickers
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _PickerButton(
+                            icon: Icons.calendar_today_outlined,
+                            label: _formattedDate,
+                            onTap: _pickDate,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _PickerButton(
+                            icon: Icons.access_time,
+                            label: _selectedTime.format(context),
+                            onTap: _pickTime,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    // Duration card
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: _kCardBg,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: const Color(0x33D5C2C7)),
+                      ),
+                      child: Column(
                         children: [
                           Text(
-                            l10n.reading_log.toUpperCase(),
+                            '${_durationMinutes}m',
                             style: const TextStyle(
                               fontFamily: 'Manrope',
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 1.0,
-                              color: _kSub,
+                              fontSize: 40,
+                              fontWeight: FontWeight.w700,
+                              color: _kPrimary,
+                              height: 1.0,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            l10n.log_reading_session,
+                            l10n.reading_duration.toUpperCase(),
                             style: const TextStyle(
                               fontFamily: 'Manrope',
-                              fontSize: 22,
-                              fontWeight: FontWeight.w700,
-                              color: _kText,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.8,
+                              color: _kSub,
                             ),
+                          ),
+                          const SizedBox(height: 20),
+                          SliderTheme(
+                            data: SliderTheme.of(context).copyWith(
+                              activeTrackColor: _kPrimary,
+                              inactiveTrackColor: const Color(0xFFD5C2C7),
+                              thumbColor: _kPrimary,
+                              overlayColor: _kPrimary.withValues(alpha: 0.1),
+                              trackHeight: 6,
+                            ),
+                            child: Slider(
+                              value:
+                                  _durationMinutes
+                                      .clamp(_minDuration, _maxDuration)
+                                      .toDouble(),
+                              min: _minDuration.toDouble(),
+                              max: _maxDuration.toDouble(),
+                              divisions: 23,
+                              onChanged: (value) {
+                                setState(() {
+                                  _durationMinutes = value.round();
+                                  _isCustomMode = false;
+                                  _customMinutesController.text =
+                                      _durationMinutes.toString();
+                                });
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: const [
+                              _DurationLabel('5m'),
+                              _DurationLabel('15m'),
+                              _DurationLabel('30m'),
+                              _DurationLabel('45m'),
+                              _DurationLabel('60m'),
+                              _DurationLabel('90+'),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              const gap = 8.0;
+                              final columnWidth =
+                                  (constraints.maxWidth - 3 * gap) / 4;
+                              final twoColumnWidth = columnWidth * 2 + gap;
+
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Row(
+                                    children: [
+                                      SizedBox(
+                                        width: columnWidth,
+                                        child: _DurationChip(
+                                          label: '+5m',
+                                          isSelected:
+                                              !_isCustomMode &&
+                                              _durationMinutes == 5,
+                                          onTap: () => _setDuration(5),
+                                        ),
+                                      ),
+                                      const SizedBox(width: gap),
+                                      SizedBox(
+                                        width: columnWidth,
+                                        child: _DurationChip(
+                                          label: '+15m',
+                                          isSelected:
+                                              !_isCustomMode &&
+                                              _durationMinutes == 15,
+                                          onTap: () => _setDuration(15),
+                                        ),
+                                      ),
+                                      const SizedBox(width: gap),
+                                      SizedBox(
+                                        width: columnWidth,
+                                        child: _DurationChip(
+                                          label: '+30m',
+                                          isSelected:
+                                              !_isCustomMode &&
+                                              _durationMinutes == 30,
+                                          onTap: () => _setDuration(30),
+                                        ),
+                                      ),
+                                      const SizedBox(width: gap),
+                                      SizedBox(
+                                        width: columnWidth,
+                                        child: _DurationChip(
+                                          label: '1h',
+                                          isSelected:
+                                              !_isCustomMode &&
+                                              _durationMinutes == 60,
+                                          onTap: () => _setDuration(60),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: gap),
+                                  Row(
+                                    children: [
+                                      SizedBox(
+                                        width: twoColumnWidth,
+                                        child: _DurationChip(
+                                          label: l10n.custom,
+                                          isSelected: _isCustomMode,
+                                          onTap: _toggleCustomMode,
+                                        ),
+                                      ),
+                                      const SizedBox(width: gap),
+                                      SizedBox(
+                                        width: twoColumnWidth,
+                                        child: Container(
+                                          height: 40,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                          ),
+                                          alignment: Alignment.center,
+                                          decoration: BoxDecoration(
+                                            color:
+                                                _isCustomMode
+                                                    ? Colors.white
+                                                    : _kCardBg,
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                            border: Border.all(
+                                              color: const Color(0xFFD5C2C7),
+                                            ),
+                                          ),
+                                          child: TextField(
+                                            controller:
+                                                _customMinutesController,
+                                            enabled: _isCustomMode,
+                                            keyboardType: TextInputType.number,
+                                            inputFormatters: [
+                                              FilteringTextInputFormatter
+                                                  .digitsOnly,
+                                            ],
+                                            onChanged: _onCustomMinutesChanged,
+                                            textAlign: TextAlign.center,
+                                            decoration: InputDecoration(
+                                              hintText: l10n.minutes_short,
+                                              border: InputBorder.none,
+                                              enabledBorder: InputBorder.none,
+                                              focusedBorder: InputBorder.none,
+                                              disabledBorder: InputBorder.none,
+                                              isDense: true,
+                                              contentPadding: EdgeInsets.zero,
+                                              hintStyle: TextStyle(
+                                                color:
+                                                    _isCustomMode
+                                                        ? const Color(
+                                                          0xFF5D2641,
+                                                        ).withValues(alpha: 0.5)
+                                                        : const Color(
+                                                          0xFF514348,
+                                                        ).withValues(
+                                                          alpha: 0.5,
+                                                        ),
+                                              ),
+                                            ),
+                                            style: const TextStyle(
+                                              fontFamily: 'Manrope',
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w600,
+                                              color: Color(0xFF5D2641),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              );
+                            },
                           ),
                         ],
                       ),
-                      GestureDetector(
-                        onTap: _discard,
-                        child: Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            color: _kCardBg,
-                            borderRadius: BorderRadius.circular(9999),
-                            border: Border.all(
-                              color: _kBorder.withValues(alpha: 0.5),
+                    ),
+                    const SizedBox(height: 24),
+                    // Actions
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: _isSaving ? null : _discard,
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: _kText,
+                              side: const BorderSide(color: _kBorder),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              textStyle: const TextStyle(
+                                fontFamily: 'Manrope',
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            child: Text(l10n.discard),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: FilledButton(
+                            onPressed: _isSaving ? null : _logSession,
+                            style: FilledButton.styleFrom(
+                              backgroundColor: _kPrimary,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              textStyle: const TextStyle(
+                                fontFamily: 'Manrope',
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                if (_isSaving)
+                                  const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                else
+                                  const Icon(Icons.check, size: 18),
+                                const SizedBox(width: 8),
+                                Text(l10n.log_session),
+                              ],
                             ),
                           ),
-                          child: const Icon(
-                            Icons.close,
-                            size: 16,
-                            color: _kText,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  // Date & Time pickers
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _PickerButton(
-                          icon: Icons.calendar_today_outlined,
-                          label: _formattedDate,
-                          onTap: _pickDate,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _PickerButton(
-                          icon: Icons.access_time,
-                          label: _selectedTime.format(context),
-                          onTap: _pickTime,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  // Duration card
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: _kCardBg,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: const Color(0x33D5C2C7)),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          '${_durationMinutes}m',
-                          style: const TextStyle(
-                            fontFamily: 'Manrope',
-                            fontSize: 40,
-                            fontWeight: FontWeight.w700,
-                            color: _kPrimary,
-                            height: 1.0,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          l10n.reading_duration.toUpperCase(),
-                          style: const TextStyle(
-                            fontFamily: 'Manrope',
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.8,
-                            color: _kSub,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        SliderTheme(
-                          data: SliderTheme.of(context).copyWith(
-                            activeTrackColor: _kPrimary,
-                            inactiveTrackColor: const Color(0xFFD5C2C7),
-                            thumbColor: _kPrimary,
-                            overlayColor: _kPrimary.withValues(alpha: 0.1),
-                            trackHeight: 6,
-                          ),
-                          child: Slider(
-                            value:
-                                _durationMinutes
-                                    .clamp(_minDuration, _maxDuration)
-                                    .toDouble(),
-                            min: _minDuration.toDouble(),
-                            max: _maxDuration.toDouble(),
-                            divisions: 23,
-                            onChanged: (value) {
-                              setState(() {
-                                _durationMinutes = value.round();
-                                _isCustomMode = false;
-                                _customMinutesController.text =
-                                    _durationMinutes.toString();
-                              });
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: const [
-                            _DurationLabel('5m'),
-                            _DurationLabel('15m'),
-                            _DurationLabel('30m'),
-                            _DurationLabel('45m'),
-                            _DurationLabel('60m'),
-                            _DurationLabel('90+'),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        LayoutBuilder(
-                          builder: (context, constraints) {
-                            const gap = 8.0;
-                            final columnWidth =
-                                (constraints.maxWidth - 3 * gap) / 4;
-                            final twoColumnWidth = columnWidth * 2 + gap;
-
-                            return Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Row(
-                                  children: [
-                                    SizedBox(
-                                      width: columnWidth,
-                                      child: _DurationChip(
-                                        label: '+5m',
-                                        isSelected:
-                                            !_isCustomMode &&
-                                            _durationMinutes == 5,
-                                        onTap: () => _setDuration(5),
-                                      ),
-                                    ),
-                                    const SizedBox(width: gap),
-                                    SizedBox(
-                                      width: columnWidth,
-                                      child: _DurationChip(
-                                        label: '+15m',
-                                        isSelected:
-                                            !_isCustomMode &&
-                                            _durationMinutes == 15,
-                                        onTap: () => _setDuration(15),
-                                      ),
-                                    ),
-                                    const SizedBox(width: gap),
-                                    SizedBox(
-                                      width: columnWidth,
-                                      child: _DurationChip(
-                                        label: '+30m',
-                                        isSelected:
-                                            !_isCustomMode &&
-                                            _durationMinutes == 30,
-                                        onTap: () => _setDuration(30),
-                                      ),
-                                    ),
-                                    const SizedBox(width: gap),
-                                    SizedBox(
-                                      width: columnWidth,
-                                      child: _DurationChip(
-                                        label: '1h',
-                                        isSelected:
-                                            !_isCustomMode &&
-                                            _durationMinutes == 60,
-                                        onTap: () => _setDuration(60),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: gap),
-                                Row(
-                                  children: [
-                                    SizedBox(
-                                      width: twoColumnWidth,
-                                      child: _DurationChip(
-                                        label: l10n.custom,
-                                        isSelected: _isCustomMode,
-                                        onTap: _toggleCustomMode,
-                                      ),
-                                    ),
-                                    const SizedBox(width: gap),
-                                    SizedBox(
-                                      width: twoColumnWidth,
-                                      child: Container(
-                                        height: 40,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                        ),
-                                        alignment: Alignment.center,
-                                        decoration: BoxDecoration(
-                                          color:
-                                              _isCustomMode
-                                                  ? Colors.white
-                                                  : _kCardBg,
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                          border: Border.all(
-                                            color:
-                                                _isCustomMode
-                                                    ? const Color(0xFF5D2641)
-                                                    : const Color(0xFFD5C2C7),
-                                          ),
-                                        ),
-                                        child: TextField(
-                                          controller: _customMinutesController,
-                                          enabled: _isCustomMode,
-                                          keyboardType: TextInputType.number,
-                                          inputFormatters: [
-                                            FilteringTextInputFormatter
-                                                .digitsOnly,
-                                          ],
-                                          onChanged: _onCustomMinutesChanged,
-                                          textAlign: TextAlign.center,
-                                          decoration: InputDecoration(
-                                            hintText: l10n.minutes_short,
-                                            border: InputBorder.none,
-                                            isDense: true,
-                                            contentPadding: EdgeInsets.zero,
-                                            hintStyle: TextStyle(
-                                              color:
-                                                  _isCustomMode
-                                                      ? const Color(
-                                                        0xFF5D2641,
-                                                      ).withValues(alpha: 0.5)
-                                                      : const Color(
-                                                        0xFF514348,
-                                                      ).withValues(alpha: 0.5),
-                                            ),
-                                          ),
-                                          style: const TextStyle(
-                                            fontFamily: 'Manrope',
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w600,
-                                            color: Color(0xFF5D2641),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            );
-                          },
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  // Actions
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: _isSaving ? null : _discard,
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: _kText,
-                            side: const BorderSide(color: _kBorder),
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            textStyle: const TextStyle(
-                              fontFamily: 'Manrope',
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          child: Text(l10n.discard),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: FilledButton(
-                          onPressed: _isSaving ? null : _logSession,
-                          style: FilledButton.styleFrom(
-                            backgroundColor: _kPrimary,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            textStyle: const TextStyle(
-                              fontFamily: 'Manrope',
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              if (_isSaving)
-                                const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
-                                  ),
-                                )
-                              else
-                                const Icon(Icons.check, size: 18),
-                              const SizedBox(width: 8),
-                              Text(l10n.log_session),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
