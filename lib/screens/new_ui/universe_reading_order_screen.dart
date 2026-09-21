@@ -34,8 +34,10 @@ class _UniverseReadingOrderScreenState
   static const _kMuted = Color(0xFFD5C2C7);
   static const _nodeSize = 72.0;
   static const _trackWidth = 150.0;
-  static const _rowHeight = 142.0;
+  static const _rowHeight = 116.0;
+  static const _trackStagger = 68.0;
   static const _canvasPadding = 54.0;
+  static const _firstNodeTop = 104.0;
   static const _sagaColors = [
     Color(0xFF43102B),
     Color(0xFF894B67),
@@ -113,29 +115,39 @@ class _UniverseReadingOrderScreenState
     });
   }
 
+  String? _trackFor(Book book) {
+    final saga = book.saga?.trim();
+    return saga == null || saga.isEmpty ? null : saga;
+  }
+
   List<String?> get _tracks {
+    final sorted = [..._books]..sort(_compareBooks);
     final sagas = <String?>[];
-    for (final book in _books) {
-      final saga = book.saga?.trim();
-      final key = saga == null || saga.isEmpty ? null : saga;
-      if (!sagas.contains(key)) sagas.add(key);
+    for (final book in sorted) {
+      final track = _trackFor(book);
+      if (!sagas.contains(track)) sagas.add(track);
     }
     return sagas;
   }
 
   Map<int, Offset> _positionsFor(List<String?> tracks) {
     final sorted = [..._books]..sort(_compareBooks);
+    final booksByTrack = <String?, List<Book>>{};
+    for (final book in sorted) {
+      booksByTrack.putIfAbsent(_trackFor(book), () => []).add(book);
+    }
     final positions = <int, Offset>{};
-    for (var row = 0; row < sorted.length; row++) {
-      final book = sorted[row];
-      final saga = book.saga?.trim();
-      final key = saga == null || saga.isEmpty ? null : saga;
-      final column = math.max(0, tracks.indexOf(key));
-      if (book.bookId != null) {
-        positions[book.bookId!] = Offset(
-          _canvasPadding + column * _trackWidth,
-          72 + row * _rowHeight,
-        );
+    for (var column = 0; column < tracks.length; column++) {
+      final books = booksByTrack[tracks[column]] ?? const <Book>[];
+      final trackTop = _firstNodeTop + column * _trackStagger;
+      for (var row = 0; row < books.length; row++) {
+        final bookId = books[row].bookId;
+        if (bookId != null) {
+          positions[bookId] = Offset(
+            _canvasPadding + column * _trackWidth,
+            trackTop + row * _rowHeight,
+          );
+        }
       }
     }
     return positions;
@@ -671,9 +683,13 @@ class _UniverseReadingOrderScreenState
       MediaQuery.sizeOf(context).width,
       _canvasPadding * 2 + math.max(1, tracks.length) * _trackWidth,
     );
+    final lowestNode = positions.values.fold<double>(
+      _firstNodeTop,
+      (lowest, position) => math.max(lowest, position.dy),
+    );
     final height = math.max(
       MediaQuery.sizeOf(context).height - 100,
-      150 + _books.length * _rowHeight,
+      lowestNode + _nodeSize + 72,
     );
     final booksById = {for (final book in _books) book.bookId: book};
     return InteractiveViewer(
@@ -698,18 +714,30 @@ class _UniverseReadingOrderScreenState
             ),
             for (var index = 0; index < tracks.length; index++)
               Positioned(
-                left: _canvasPadding + index * _trackWidth - 20,
-                top: 18,
-                width: _trackWidth - 18,
-                child: Text(
-                  tracks[index] ?? l10n.standalone_books,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: _sagaColors[index % _sagaColors.length],
-                    fontFamily: 'Manrope',
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
+                left: _canvasPadding + index * _trackWidth - 34,
+                top: _firstNodeTop + index * _trackStagger - 72,
+                width: _trackWidth - 4,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: _sagaColors[index % _sagaColors.length].withValues(
+                      alpha: 0.1,
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Text(
+                    tracks[index] ?? l10n.standalone_books,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: _sagaColors[index % _sagaColors.length],
+                      fontFamily: 'Manrope',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ),
@@ -833,23 +861,30 @@ class _BookNode extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 7),
-            Text(
-              displayTitle,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: Color(0xFF514348),
-                fontFamily: 'Manrope',
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                height: 1.15,
+            Container(
+              color: const Color(0xFFFDF8F6),
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: Text(
+                displayTitle,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Color(0xFF514348),
+                  fontFamily: 'Manrope',
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  height: 1.15,
+                ),
               ),
             ),
             if (book.orderWithinUniverse == null)
-              Text(
-                AppLocalizations.of(context)!.unordered,
-                style: const TextStyle(color: Color(0xFF894B67), fontSize: 9),
+              ColoredBox(
+                color: const Color(0xFFFDF8F6),
+                child: Text(
+                  AppLocalizations.of(context)!.unordered,
+                  style: const TextStyle(color: Color(0xFF894B67), fontSize: 9),
+                ),
               ),
           ],
         ),
@@ -880,11 +915,8 @@ class _ReadingOrderPainter extends CustomPainter {
       final to = positions[relation.toBookId];
       final fromBook = booksById[relation.fromBookId];
       if (from == null || to == null || fromBook == null) continue;
-      final vector = to - from;
-      if (vector.distance == 0) continue;
-      final direction = vector / vector.distance;
-      final start = from + direction * nodeRadius;
-      final end = to - direction * nodeRadius;
+      if (from == to) continue;
+      final path = _relationPath(from, to);
       final isSolid = relation.type == 'next';
       final paint =
           Paint()
@@ -895,23 +927,61 @@ class _ReadingOrderPainter extends CustomPainter {
             ..strokeWidth = isSolid ? 2.8 : 2
             ..style = PaintingStyle.stroke
             ..strokeCap = StrokeCap.round;
-      final path =
-          Path()
-            ..moveTo(start.dx, start.dy)
-            ..cubicTo(
-              start.dx,
-              start.dy + (end.dy - start.dy) * 0.42,
-              end.dx,
-              start.dy + (end.dy - start.dy) * 0.58,
-              end.dx,
-              end.dy,
-            );
       if (isSolid) {
         canvas.drawPath(path, paint);
       } else {
         _drawDashedPath(canvas, path, paint);
       }
+      _drawArrowhead(canvas, path, paint);
     }
+  }
+
+  Path _relationPath(Offset from, Offset to) {
+    if ((to.dx - from.dx).abs() < 1) {
+      final start = Offset(from.dx + nodeRadius, from.dy);
+      final end = Offset(to.dx + nodeRadius, to.dy);
+      final laneX = from.dx + nodeRadius + 28;
+      return Path()
+        ..moveTo(start.dx, start.dy)
+        ..cubicTo(laneX, start.dy, laneX, end.dy, end.dx, end.dy);
+    }
+    final direction = (to.dx - from.dx).sign;
+    final start = Offset(from.dx + direction * nodeRadius, from.dy);
+    final end = Offset(to.dx - direction * nodeRadius, to.dy);
+    final controlX = (start.dx + end.dx) / 2;
+    return Path()
+      ..moveTo(start.dx, start.dy)
+      ..cubicTo(controlX, start.dy, controlX, end.dy, end.dx, end.dy);
+  }
+
+  void _drawArrowhead(Canvas canvas, Path path, Paint paint) {
+    final metrics = path.computeMetrics().toList();
+    if (metrics.isEmpty) return;
+    final metric = metrics.last;
+    final tangent = metric.getTangentForOffset(metric.length);
+    if (tangent == null) return;
+    const arrowLength = 11.0;
+    const arrowAngle = math.pi / 7;
+    final angle = tangent.angle;
+    final tip = tangent.position;
+    final arrow =
+        Path()
+          ..moveTo(tip.dx, tip.dy)
+          ..lineTo(
+            tip.dx - arrowLength * math.cos(angle - arrowAngle),
+            tip.dy - arrowLength * math.sin(angle - arrowAngle),
+          )
+          ..lineTo(
+            tip.dx - arrowLength * math.cos(angle + arrowAngle),
+            tip.dy - arrowLength * math.sin(angle + arrowAngle),
+          )
+          ..close();
+    canvas.drawPath(
+      arrow,
+      Paint()
+        ..color = paint.color
+        ..style = PaintingStyle.fill,
+    );
   }
 
   void _drawDashedPath(Canvas canvas, Path path, Paint paint) {
