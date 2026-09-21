@@ -681,6 +681,16 @@ class BookRepository {
 
   /// Delete a book and its relationships
   Future<void> deleteBook(int bookId) async {
+    final bookRows = await db.query(
+      'book',
+      columns: ['bundle_parent_id'],
+      where: 'book_id = ?',
+      whereArgs: [bookId],
+      limit: 1,
+    );
+    final bundleParentId =
+        bookRows.isEmpty ? null : bookRows.first['bundle_parent_id'] as int?;
+
     // Delete from junction tables first
     await db.delete(
       'books_by_author',
@@ -750,6 +760,9 @@ class BookRepository {
 
     // Delete the book
     await db.delete('book', where: 'book_id = ?', whereArgs: [bookId]);
+    if (bundleParentId != null) {
+      await _syncBundleCount(bundleParentId);
+    }
   }
 
   /// Check if books already exist in the database with the same ISBN, ASIN, or name
@@ -1115,7 +1128,24 @@ class BookRepository {
     // Link genres (many-to-many relationship)
     await _linkGenres(bookId, book.genre);
 
+    if (book.bundleParentId != null) {
+      await _syncBundleCount(book.bundleParentId!);
+    }
+
     return bookId;
+  }
+
+  Future<void> _syncBundleCount(int parentBookId) async {
+    await db.rawUpdate(
+      '''
+      UPDATE book
+      SET bundle_count = (
+        SELECT COUNT(*) FROM book WHERE bundle_parent_id = ?
+      )
+      WHERE book_id = ?
+      ''',
+      [parentBookId, parentBookId],
+    );
   }
 
   // ==================== Read Dates Methods ====================
