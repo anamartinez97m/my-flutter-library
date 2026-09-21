@@ -75,6 +75,13 @@ class NotificationService {
   static const String prefReadingReminderMinute = 'reading_reminder_minute';
   static const String prefReadingReminderAllBooks =
       'reading_reminder_all_books';
+  static const String prefChampionshipReminderEnabled =
+      'championship_reminder_enabled';
+  static const String prefChampionshipReminderHour =
+      'championship_reminder_hour';
+  static const String prefChampionshipReminderMinute =
+      'championship_reminder_minute';
+  static const int _championshipReminderId = 200000;
 
   /// Global navigator key used to navigate from notification taps
   static final GlobalKey<NavigatorState> navigatorKey =
@@ -645,6 +652,74 @@ class NotificationService {
       }
     }
     debugPrint('📖 Canceled all reading reminder notifications');
+  }
+
+  static DateTime nextChampionshipReminderDate({
+    required DateTime now,
+    required int hour,
+    required int minute,
+  }) {
+    var scheduledDate = DateTime(now.year, now.month, 1, hour, minute);
+    if (!scheduledDate.isAfter(now)) {
+      scheduledDate = DateTime(now.year, now.month + 1, 1, hour, minute);
+    }
+    return scheduledDate;
+  }
+
+  Future<void> scheduleChampionshipReminder() async {
+    if (!_initialized) await initialize();
+
+    final prefs = await SharedPreferences.getInstance();
+    await _notifications.cancel(_championshipReminderId);
+    if (!(prefs.getBool(prefChampionshipReminderEnabled) ?? false)) return;
+
+    final hour = prefs.getInt(prefChampionshipReminderHour) ?? 21;
+    final minute = prefs.getInt(prefChampionshipReminderMinute) ?? 0;
+    final now = tz.TZDateTime.now(tz.local);
+    final nextDate = nextChampionshipReminderDate(
+      now: now,
+      hour: hour,
+      minute: minute,
+    );
+    final scheduledDate = tz.TZDateTime(
+      tz.local,
+      nextDate.year,
+      nextDate.month,
+      nextDate.day,
+      nextDate.hour,
+      nextDate.minute,
+    );
+
+    const androidDetails = AndroidNotificationDetails(
+      'championship_reminders',
+      'Championship Reminders',
+      channelDescription: 'Monthly reminders for the book championship',
+      importance: Importance.high,
+      priority: Priority.high,
+      icon: '@mipmap/ic_launcher',
+    );
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+    final hasExactAlarmPermission = await requestExactAlarmPermission();
+
+    await _notifications.zonedSchedule(
+      _championshipReminderId,
+      'Book championship reminder',
+      'Review this month’s book championship',
+      scheduledDate,
+      const NotificationDetails(android: androidDetails, iOS: iosDetails),
+      androidScheduleMode:
+          hasExactAlarmPermission
+              ? AndroidScheduleMode.exactAllowWhileIdle
+              : AndroidScheduleMode.inexactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.dayOfMonthAndTime,
+      payload: 'championship_reminder',
+    );
   }
 
   Future<void> showImmediateNotification({

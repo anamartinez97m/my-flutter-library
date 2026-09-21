@@ -1314,8 +1314,8 @@
   "backup_frequency_weekly": "Semanal",
   "backup_frequency_monthly": "Mensual",
 
-  "reading_reminders": "Recordatorios de Lectura",
-  "reading_reminders_subtitle": "Notificaciones diarias para seguir tu lectura",
+  "reading_reminders": "Notificaciones",
+  "reading_reminders_subtitle": "Recordatorios de lectura y del campeonato",
   "enable_reading_reminders": "Activar Recordatorios de Lectura",
   "enable_reading_reminders_subtitle": "Recibe una notificación diaria preguntando si has leído hoy",
   "reminder_time": "Hora del Recordatorio",
@@ -1334,6 +1334,9 @@
   "reading_reminder_enabled": "Recordatorios de lectura activados",
   "reading_reminder_disabled": "Recordatorios de lectura desactivados",
   "no_started_books_for_reminder": "No hay libros con estado Iniciado para recordar",
+  "enable_championship_reminders": "Activar recordatorios del campeonato",
+  "championship_reminders_subtitle": "Recibe una notificación el día 1 de cada mes",
+  "championship_reminder_time": "Hora del recordatorio del campeonato",
 
   "fetch_book_info": "Buscar información del libro",
   "fetching_book_info": "Buscando información del libro...",

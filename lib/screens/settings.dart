@@ -52,6 +52,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   int _readingReminderHour = 21;
   int _readingReminderMinute = 0;
   bool _readingReminderAllBooks = true;
+  bool _championshipReminderEnabled = false;
+  int _championshipReminderHour = 21;
+  int _championshipReminderMinute = 0;
 
   // Price Statistics & Currency
   bool _showPriceStatistics = false;
@@ -248,6 +251,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _readingReminderAllBooks =
           prefs.getBool(NotificationService.prefReadingReminderAllBooks) ??
           true;
+      _championshipReminderEnabled =
+          prefs.getBool(NotificationService.prefChampionshipReminderEnabled) ??
+          false;
+      _championshipReminderHour =
+          prefs.getInt(NotificationService.prefChampionshipReminderHour) ?? 21;
+      _championshipReminderMinute =
+          prefs.getInt(NotificationService.prefChampionshipReminderMinute) ?? 0;
     });
   }
 
@@ -283,6 +293,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
         SnackBar(content: Text(msg), duration: const Duration(seconds: 3)),
       );
     }
+  }
+
+  Future<void> _saveChampionshipReminderSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(
+      NotificationService.prefChampionshipReminderEnabled,
+      _championshipReminderEnabled,
+    );
+    await prefs.setInt(
+      NotificationService.prefChampionshipReminderHour,
+      _championshipReminderHour,
+    );
+    await prefs.setInt(
+      NotificationService.prefChampionshipReminderMinute,
+      _championshipReminderMinute,
+    );
+    await NotificationService().scheduleChampionshipReminder();
   }
 
   Future<void> _loadPriceSettings() async {
@@ -3218,6 +3245,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
             dense: true,
           ),
         ],
+        const Divider(height: 32),
+        SwitchListTile(
+          title: Text(l10n.enable_championship_reminders),
+          subtitle: Text(l10n.championship_reminders_subtitle),
+          value: _championshipReminderEnabled,
+          onChanged: (val) {
+            setState(() => _championshipReminderEnabled = val);
+            _saveChampionshipReminderSettings();
+          },
+          activeColor: _kV2Primary,
+          contentPadding: EdgeInsets.zero,
+        ),
+        if (_championshipReminderEnabled)
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(l10n.championship_reminder_time),
+            trailing: Text(
+              '${_championshipReminderHour.toString().padLeft(2, '0')}:${_championshipReminderMinute.toString().padLeft(2, '0')}',
+              style: const TextStyle(
+                fontFamily: 'Manrope',
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            onTap: () async {
+              final time = await showTimePicker(
+                context: context,
+                initialTime: TimeOfDay(
+                  hour: _championshipReminderHour,
+                  minute: _championshipReminderMinute,
+                ),
+              );
+              if (time != null) {
+                setState(() {
+                  _championshipReminderHour = time.hour;
+                  _championshipReminderMinute = time.minute;
+                });
+                _saveChampionshipReminderSettings();
+              }
+            },
+          ),
       ],
     );
   }

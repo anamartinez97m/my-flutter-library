@@ -1308,8 +1308,8 @@
   "backup_frequency_weekly": "Weekly",
   "backup_frequency_monthly": "Monthly",
 
-  "reading_reminders": "Reading Reminders",
-  "reading_reminders_subtitle": "Daily notifications to track your reading",
+  "reading_reminders": "Notifications",
+  "reading_reminders_subtitle": "Reading and championship reminders",
   "enable_reading_reminders": "Enable Reading Reminders",
   "enable_reading_reminders_subtitle": "Get a daily notification asking if you've read today",
   "reminder_time": "Reminder Time",
@@ -1328,6 +1328,9 @@
   "reading_reminder_enabled": "Reading reminders enabled",
   "reading_reminder_disabled": "Reading reminders disabled",
   "no_started_books_for_reminder": "No books with Started status to remind about",
+  "enable_championship_reminders": "Enable championship reminders",
+  "championship_reminders_subtitle": "Receive a notification on the 1st of every month",
+  "championship_reminder_time": "Championship reminder time",
 
   "fetch_book_info": "Fetch book info",
   "fetching_book_info": "Fetching book info...",

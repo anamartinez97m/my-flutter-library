@@ -5321,13 +5321,13 @@ abstract class AppLocalizations {
   /// No description provided for @reading_reminders.
   ///
   /// In en, this message translates to:
-  /// **'Reading Reminders'**
+  /// **'Notifications'**
   String get reading_reminders;
 
   /// No description provided for @reading_reminders_subtitle.
   ///
   /// In en, this message translates to:
-  /// **'Daily notifications to track your reading'**
+  /// **'Reading and championship reminders'**
   String get reading_reminders_subtitle;
 
   /// No description provided for @enable_reading_reminders.
@@ -5419,6 +5419,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No books with Started status to remind about'**
   String get no_started_books_for_reminder;
+
+  /// No description provided for @enable_championship_reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable championship reminders'**
+  String get enable_championship_reminders;
+
+  /// No description provided for @championship_reminders_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive a notification on the 1st of every month'**
+  String get championship_reminders_subtitle;
+
+  /// No description provided for @championship_reminder_time.
+  ///
+  /// In en, this message translates to:
+  /// **'Championship reminder time'**
+  String get championship_reminder_time;
 
   /// No description provided for @fetch_book_info.
   ///

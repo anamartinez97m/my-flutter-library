@@ -2939,11 +2939,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get backup_frequency_monthly => 'Monthly';
 
   @override
-  String get reading_reminders => 'Reading Reminders';
+  String get reading_reminders => 'Notifications';
 
   @override
-  String get reading_reminders_subtitle =>
-      'Daily notifications to track your reading';
+  String get reading_reminders_subtitle => 'Reading and championship reminders';
 
   @override
   String get enable_reading_reminders => 'Enable Reading Reminders';
@@ -2995,6 +2994,16 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get no_started_books_for_reminder =>
       'No books with Started status to remind about';
+
+  @override
+  String get enable_championship_reminders => 'Enable championship reminders';
+
+  @override
+  String get championship_reminders_subtitle =>
+      'Receive a notification on the 1st of every month';
+
+  @override
+  String get championship_reminder_time => 'Championship reminder time';
 
   @override
   String get fetch_book_info => 'Fetch book info';
