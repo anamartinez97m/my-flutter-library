@@ -800,6 +800,15 @@ class _AuthorContentViewState extends State<_AuthorContentView> {
   String get author => widget.author;
   BookProvider get provider => widget.provider;
 
+  @override
+  void initState() {
+    super.initState();
+    // Refresh the book list so the author screen reflects the latest data,
+    // especially bundle child authors that may have been edited from the
+    // book detail screen while the provider cache was stale.
+    provider.loadBooks();
+  }
+
   void toggleCatalogView() {
     setState(() => _showFullCatalog = !_showFullCatalog);
     widget.onCatalogViewChanged?.call(_showFullCatalog);
@@ -818,15 +827,18 @@ class _AuthorContentViewState extends State<_AuthorContentView> {
       );
     }
 
+    final selectedAuthor = _normalizeAuthorName(author);
+
     final filteredBooks =
         provider.allBooks.where((book) {
-          if (book.author == null) return false;
+          if (book.author == null || book.author!.isEmpty) return false;
           final bookAuthors =
               book.author!
                   .split(',')
-                  .map((a) => a.trim().toLowerCase())
+                  .map((a) => _normalizeAuthorName(a))
+                  .where((a) => a.isNotEmpty)
                   .toList();
-          return bookAuthors.contains(author.toLowerCase());
+          return bookAuthors.contains(selectedAuthor);
         }).toList();
 
     final readBooksWithRating =
@@ -854,6 +866,17 @@ class _AuthorContentViewState extends State<_AuthorContentView> {
       return (a.name ?? '').compareTo(b.name ?? '');
     });
 
+    final l10n = AppLocalizations.of(context)!;
+
+    // Map bundle parent IDs to their titles so individual child books can
+    // surface which bundle they belong to, even if the bundle itself is not
+    // shown for this author.
+    final bundleNamesById = <int, String>{
+      for (final b in provider.allBooks)
+        if (b.isBundle == true && b.bookId != null)
+          b.bookId!: b.name ?? l10n.unknown,
+    };
+
     if (filteredBooks.isEmpty) {
       return CustomScrollView(
         slivers: [
@@ -874,7 +897,6 @@ class _AuthorContentViewState extends State<_AuthorContentView> {
       );
     }
 
-    final l10n = AppLocalizations.of(context)!;
     return CustomScrollView(
       slivers: [
         if (widget.showHeader) _buildV2AppBar(context),
@@ -928,6 +950,11 @@ class _AuthorContentViewState extends State<_AuthorContentView> {
                 isRead: isRead,
                 subtitle: sagaText,
                 year: book.originalPublicationYear,
+                bundleCount: book.isBundle == true ? book.bundleCount : null,
+                bundleName:
+                    book.bundleParentId != null
+                        ? bundleNamesById[book.bundleParentId]
+                        : null,
               );
             }, childCount: filteredBooks.length),
           ),
@@ -978,6 +1005,22 @@ class _AuthorContentViewState extends State<_AuthorContentView> {
 }
 
 // ── V2 shared helpers ────────────────────────────────────────────────────────
+
+String _normalizeAuthorName(String name) {
+  return _removeAuthorAccents(
+    name.toLowerCase().trim(),
+  ).replaceAll(RegExp(r'[^\w\s]'), '').replaceAll(RegExp(r'\s+'), ' ');
+}
+
+String _removeAuthorAccents(String str) {
+  const withAccents = 'àáâãäåèéêëìíîïòóôõöùúûüýñç';
+  const withoutAccents = 'aaaaaaeeeeiiiioooooouuuuync';
+  String result = str;
+  for (int i = 0; i < withAccents.length; i++) {
+    result = result.replaceAll(withAccents[i], withoutAccents[i]);
+  }
+  return result;
+}
 
 Widget _v2StatChip({
   required IconData icon,
@@ -1034,6 +1077,8 @@ Widget _v2BookCard({
   required bool isRead,
   String? subtitle,
   int? year,
+  int? bundleCount,
+  String? bundleName,
 }) {
   return GestureDetector(
     onTap: () {
@@ -1072,6 +1117,29 @@ Widget _v2BookCard({
                 height: 1.25,
               ),
             ),
+            if (bundleCount != null || bundleName != null) ...[
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  if (bundleCount != null && bundleCount > 0)
+                    _v2InfoChip(
+                      icon: Icons.layers_outlined,
+                      label:
+                          '${AppLocalizations.of(context)!.bundle} · $bundleCount ${AppLocalizations.of(context)!.books}',
+                      foregroundColor: _kV2AppBar,
+                    ),
+                  if (bundleName != null) ...[
+                    if (bundleCount != null) const SizedBox(width: 8),
+                    _v2InfoChip(
+                      icon: Icons.folder_copy_outlined,
+                      label: AppLocalizations.of(context)!.part_of_bundle,
+                      foregroundColor: _kV2Text,
+                      tooltip: bundleName,
+                    ),
+                  ],
+                ],
+              ),
+            ],
             if (subtitle != null) ...[
               const SizedBox(height: 5),
               Text(
@@ -1132,4 +1200,43 @@ Widget _v2BookCard({
       ),
     ),
   );
+}
+
+Widget _v2InfoChip({
+  IconData? icon,
+  required String label,
+  required Color foregroundColor,
+  String? tooltip,
+}) {
+  final chip = Container(
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    decoration: BoxDecoration(
+      color: foregroundColor.withValues(alpha: 0.08),
+      borderRadius: BorderRadius.circular(6),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (icon != null) ...[
+          Icon(icon, size: 12, color: foregroundColor),
+          const SizedBox(width: 4),
+        ],
+        Text(
+          label,
+          style: TextStyle(
+            fontFamily: 'Manrope',
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: foregroundColor,
+            letterSpacing: 0.3,
+          ),
+        ),
+      ],
+    ),
+  );
+
+  if (tooltip != null && tooltip.isNotEmpty) {
+    return Tooltip(message: tooltip, child: chip);
+  }
+  return chip;
 }

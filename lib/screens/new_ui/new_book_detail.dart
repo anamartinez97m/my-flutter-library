@@ -5295,85 +5295,98 @@ class _BundleBooksScreen extends StatelessWidget {
                     ? Icons.play_circle
                     : Icons.circle_outlined;
 
-            return Container(
-              margin: const EdgeInsets.only(bottom: 8),
-              padding: const EdgeInsets.all(13),
-              decoration: BoxDecoration(
-                color: primary.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: primary.withValues(alpha: 0.1)),
-              ),
-              child: ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: Icon(statusIcon, color: statusColor, size: 28),
-                title: Text(
-                  book.name ?? l10n.unknown_title,
-                  style: const TextStyle(
-                    color: primary,
-                    fontFamily: 'Manrope',
-                    fontWeight: FontWeight.w500,
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => NewBookDetailScreen(book: book),
                   ),
+                );
+              },
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.all(13),
+                decoration: BoxDecoration(
+                  color: primary.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: primary.withValues(alpha: 0.1)),
                 ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    if (book.author != null && book.author!.isNotEmpty)
-                      Text(
-                        book.author!,
-                        style: const TextStyle(
-                          color: sub,
-                          fontFamily: 'Manrope',
-                          fontSize: 12,
-                        ),
+                    Icon(statusIcon, color: statusColor, size: 28),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            book.name ?? l10n.unknown_title,
+                            style: const TextStyle(
+                              color: primary,
+                              fontFamily: 'Manrope',
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          if (book.author != null &&
+                              book.author!.isNotEmpty) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              book.author!,
+                              style: const TextStyle(
+                                color: sub,
+                                fontFamily: 'Manrope',
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: 4),
+                          Wrap(
+                            runSpacing: 2,
+                            children: [
+                              Text(
+                                book.statusValue != null
+                                    ? StatusHelper.getLocalizedLabel(
+                                      book.statusValue!,
+                                      l10n,
+                                    )
+                                    : l10n.no_status,
+                                style: TextStyle(
+                                  color: statusColor,
+                                  fontFamily: 'Manrope',
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              if (book.pages != null)
+                                Text(
+                                  ' • ${l10n.pages_count(book.pages!)}',
+                                  style: const TextStyle(
+                                    color: sub,
+                                    fontFamily: 'Manrope',
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              if (book.nSaga != null && book.nSaga!.isNotEmpty)
+                                Text(
+                                  ' • #${book.nSaga}',
+                                  style: const TextStyle(
+                                    color: sub,
+                                    fontFamily: 'Manrope',
+                                    fontSize: 12,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ],
                       ),
-                    Wrap(
-                      runSpacing: 2,
-                      children: [
-                        Text(
-                          book.statusValue != null
-                              ? StatusHelper.getLocalizedLabel(
-                                book.statusValue!,
-                                l10n,
-                              )
-                              : l10n.no_status,
-                          style: TextStyle(
-                            color: statusColor,
-                            fontFamily: 'Manrope',
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        if (book.pages != null)
-                          Text(
-                            ' • ${l10n.pages_count(book.pages!)}',
-                            style: const TextStyle(
-                              color: sub,
-                              fontFamily: 'Manrope',
-                              fontSize: 12,
-                            ),
-                          ),
-                        if (book.nSaga != null && book.nSaga!.isNotEmpty)
-                          Text(
-                            ' • #${book.nSaga}',
-                            style: const TextStyle(
-                              color: sub,
-                              fontFamily: 'Manrope',
-                              fontSize: 12,
-                            ),
-                          ),
-                      ],
                     ),
+                    const SizedBox(width: 8),
+                    const Icon(Icons.arrow_forward_ios, size: 16, color: sub),
                   ],
                 ),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => NewBookDetailScreen(book: book),
-                    ),
-                  );
-                },
               ),
             );
           },
