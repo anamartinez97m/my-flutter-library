@@ -213,6 +213,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
               final l10n = AppLocalizations.of(context)!;
               return Dialog(
                 backgroundColor: kBg,
+                clipBehavior: Clip.antiAlias,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(24),
                 ),
@@ -681,6 +682,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       builder: (context) {
         return Dialog(
           backgroundColor: _kBg,
+          clipBehavior: Clip.antiAlias,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
@@ -943,6 +945,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       builder: (context) {
         return Dialog(
           backgroundColor: _kBg,
+          clipBehavior: Clip.antiAlias,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
@@ -1403,6 +1406,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       builder: (context) {
         return Dialog(
           backgroundColor: _kBg,
+          clipBehavior: Clip.antiAlias,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
@@ -1488,6 +1492,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       builder: (context) {
         return Dialog(
           backgroundColor: _kBg,
+          clipBehavior: Clip.antiAlias,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
@@ -2136,6 +2141,7 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
 
     return Dialog(
       backgroundColor: _kBg,
+      clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       elevation: 25,
       child: ConstrainedBox(

@@ -145,6 +145,7 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: _kBg,
+      clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       elevation: 25,
       child: ConstrainedBox(

@@ -68,8 +68,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final currentWeight = _fieldWeights[name] ?? 0;
 
-    final result =
-        await _showV2WeightDialog(name, currentWeight);
+    final result = await _showV2WeightDialog(name, currentWeight);
 
     if (result != null) {
       try {
@@ -99,6 +98,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
       builder: (context) {
         return Dialog(
           backgroundColor: _kBg,
+          clipBehavior: Clip.antiAlias,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
@@ -257,16 +257,14 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    final result =
-        await _showV2AddFieldDialog();
+    final result = await _showV2AddFieldDialog();
 
     if (result != null && result.isNotEmpty) {
       if (_fieldNames.contains(result)) {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.field_name_already_exists(result)),
-            backgroundColor:
-                const Color(0xFFB3261E),
+            backgroundColor: const Color(0xFFB3261E),
           ),
         );
         return;
@@ -291,8 +289,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text('${l10n.error}: $e'),
-            backgroundColor:
-                const Color(0xFFB3261E),
+            backgroundColor: const Color(0xFFB3261E),
           ),
         );
       }
@@ -308,6 +305,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
       builder: (context) {
         return Dialog(
           backgroundColor: _kBg,
+          clipBehavior: Clip.antiAlias,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
@@ -459,16 +457,14 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    final result =
-        await _showV2EditFieldDialog(oldName);
+    final result = await _showV2EditFieldDialog(oldName);
 
     if (result != null && result.isNotEmpty && result != oldName) {
       if (_fieldNames.contains(result)) {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.field_name_already_exists(result)),
-            backgroundColor:
-                const Color(0xFFB3261E),
+            backgroundColor: const Color(0xFFB3261E),
           ),
         );
         return;
@@ -493,8 +489,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text('${l10n.error}: $e'),
-            backgroundColor:
-                const Color(0xFFB3261E),
+            backgroundColor: const Color(0xFFB3261E),
           ),
         );
       }
@@ -510,6 +505,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
       builder: (context) {
         return Dialog(
           backgroundColor: _kBg,
+          clipBehavior: Clip.antiAlias,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
@@ -669,8 +665,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
     final count = result.first['count'] as int;
 
     if (!context.mounted) return;
-    final confirmed =
-        await _showV2DeleteFieldDialog(name, count);
+    final confirmed = await _showV2DeleteFieldDialog(name, count);
 
     if (confirmed == true) {
       try {
@@ -683,8 +678,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.deleted_value(name)),
-            backgroundColor:
-                const Color(0xFFB3261E),
+            backgroundColor: const Color(0xFFB3261E),
           ),
         );
       } catch (e) {
@@ -692,14 +686,12 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text('${l10n.error}: $e'),
-            backgroundColor:
-                const Color(0xFFB3261E),
+            backgroundColor: const Color(0xFFB3261E),
           ),
         );
       }
     }
   }
-
 
   Future<bool?> _showV2DeleteFieldDialog(String name, int count) async {
     final l10n = AppLocalizations.of(context)!;
@@ -709,6 +701,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
       builder: (context) {
         return Dialog(
           backgroundColor: _kBg,
+          clipBehavior: Clip.antiAlias,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
@@ -861,7 +854,6 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
   Widget build(BuildContext context) {
     return _buildV2(context);
   }
-
 
   Widget _buildV2(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;

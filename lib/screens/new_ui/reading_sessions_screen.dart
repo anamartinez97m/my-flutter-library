@@ -231,6 +231,7 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
       builder:
           (context) => Dialog(
             backgroundColor: _kBg,
+            clipBehavior: Clip.antiAlias,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(24),
             ),

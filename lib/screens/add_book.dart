@@ -267,6 +267,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       builder:
           (BuildContext dialogContext) => Dialog(
             backgroundColor: kBg,
+            clipBehavior: Clip.antiAlias,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(24),
             ),

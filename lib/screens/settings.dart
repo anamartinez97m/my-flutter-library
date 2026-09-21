@@ -711,6 +711,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             builder:
                 (context, setDialogState) => Dialog(
                   backgroundColor: Colors.white,
+                  clipBehavior: Clip.antiAlias,
                   elevation: 8,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),

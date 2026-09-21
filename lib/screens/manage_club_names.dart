@@ -129,6 +129,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
       builder: (context) {
         return Dialog(
           backgroundColor: _kBg,
+          clipBehavior: Clip.antiAlias,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
@@ -321,6 +322,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
       builder: (context) {
         return Dialog(
           backgroundColor: _kBg,
+          clipBehavior: Clip.antiAlias,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
