@@ -4095,95 +4095,41 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
 
                       if (_currentBook.myReview != null &&
                           _currentBook.myReview!.isNotEmpty)
-                        Card(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          elevation: 1,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Padding(
-                            padding: AppTheme.cardPadding,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.rate_review,
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                      size: 24,
-                                    ),
-                                    AppTheme.horizontalSpaceLarge,
-                                    Text(
-                                      AppLocalizations.of(context)!.my_review,
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleMedium?.copyWith(
-                                        color:
-                                            Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                AppTheme.verticalSpaceMedium,
-                                Text(
-                                  _currentBook.myReview!,
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                ),
-                              ],
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildSectionHeader(
+                              icon: Icons.rate_review,
+                              title: AppLocalizations.of(context)!.my_review,
                             ),
-                          ),
+                            const SizedBox(height: 16),
+                            _buildSectionItem(
+                              child: Text(
+                                _currentBook.myReview!,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            ),
+                          ],
                         ),
 
                       // Notes
                       if (_currentBook.notes != null &&
                           _currentBook.notes!.isNotEmpty)
-                        Card(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          elevation: 1,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Padding(
-                            padding: AppTheme.cardPadding,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.notes,
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                      size: 24,
-                                    ),
-                                    AppTheme.horizontalSpaceLarge,
-                                    Text(
-                                      AppLocalizations.of(context)!.notes,
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleMedium?.copyWith(
-                                        color:
-                                            Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                AppTheme.verticalSpaceMedium,
-                                Text(
-                                  _currentBook.notes!,
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                ),
-                              ],
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildSectionHeader(
+                              icon: Icons.notes,
+                              title: AppLocalizations.of(context)!.notes,
                             ),
-                          ),
+                            const SizedBox(height: 16),
+                            _buildSectionItem(
+                              child: Text(
+                                _currentBook.notes!,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            ),
+                          ],
                         ),
 
                       // Reading Clubs
