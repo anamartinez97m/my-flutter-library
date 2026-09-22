@@ -725,13 +725,17 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                             size: 24,
                           ),
                           const SizedBox(width: 12),
-                          Text(
-                            l10n.delete_rating_field_name,
-                            style: const TextStyle(
-                              fontFamily: 'Manrope',
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFFB3261E),
+                          Expanded(
+                            child: Text(
+                              l10n.delete_rating_field_name,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontFamily: 'Manrope',
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFFB3261E),
+                              ),
                             ),
                           ),
                         ],

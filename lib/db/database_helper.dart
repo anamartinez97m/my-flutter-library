@@ -23,7 +23,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 43,
+      version: 45,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -385,6 +385,12 @@ class DatabaseHelper {
       CREATE INDEX IF NOT EXISTS idx_reading_clubs_club_name ON reading_clubs (club_name)
     ''');
 
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS reading_club_names (
+        club_name VARCHAR(100) PRIMARY KEY
+      )
+    ''');
+
     // Insert default status values if table is empty
     final statusCount = await db.rawQuery(
       'SELECT COUNT(*) as count FROM status',
@@ -462,6 +468,26 @@ class DatabaseHelper {
     await db.execute('''
       CREATE INDEX IF NOT EXISTS idx_placeholder_relations_book
       ON placeholder_relations (book_id)
+    ''');
+
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS placeholder_placeholder_relations (
+        relation_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        from_placeholder_id INTEGER NOT NULL,
+        to_placeholder_id INTEGER NOT NULL,
+        relation_type TEXT NOT NULL,
+        created_at TEXT DEFAULT (datetime('now')),
+        FOREIGN KEY (from_placeholder_id) REFERENCES universe_placeholders(placeholder_id) ON DELETE CASCADE,
+        FOREIGN KEY (to_placeholder_id) REFERENCES universe_placeholders(placeholder_id) ON DELETE CASCADE
+      )
+    ''');
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_placeholder_placeholder_relations_from
+      ON placeholder_placeholder_relations (from_placeholder_id)
+    ''');
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_placeholder_placeholder_relations_to
+      ON placeholder_placeholder_relations (to_placeholder_id)
     ''');
   }
 
@@ -1437,6 +1463,50 @@ class DatabaseHelper {
           subtitle TEXT,
           PRIMARY KEY (category, value)
         )
+      ''');
+    }
+    if (oldVersion < 44) {
+      // Reading clubs are now managed from Settings as a list of club names.
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS reading_club_names (
+          club_name VARCHAR(100) PRIMARY KEY
+        )
+      ''');
+      // Seed with club names already used by books.
+      final existing = await db.rawQuery('''
+        SELECT DISTINCT club_name
+        FROM reading_clubs
+        WHERE club_name IS NOT NULL AND club_name != ''
+      ''');
+      for (final row in existing) {
+        final name = row['club_name'] as String?;
+        if (name != null && name.isNotEmpty) {
+          await db.insert('reading_club_names', {
+            'club_name': name,
+          }, conflictAlgorithm: ConflictAlgorithm.ignore);
+        }
+      }
+    }
+    if (oldVersion < 45) {
+      // Universe Reading Order: allow relations between two placeholders.
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS placeholder_placeholder_relations (
+          relation_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          from_placeholder_id INTEGER NOT NULL,
+          to_placeholder_id INTEGER NOT NULL,
+          relation_type TEXT NOT NULL,
+          created_at TEXT DEFAULT (datetime('now')),
+          FOREIGN KEY (from_placeholder_id) REFERENCES universe_placeholders(placeholder_id) ON DELETE CASCADE,
+          FOREIGN KEY (to_placeholder_id) REFERENCES universe_placeholders(placeholder_id) ON DELETE CASCADE
+        )
+      ''');
+      await db.execute('''
+        CREATE INDEX IF NOT EXISTS idx_placeholder_placeholder_relations_from
+        ON placeholder_placeholder_relations (from_placeholder_id)
+      ''');
+      await db.execute('''
+        CREATE INDEX IF NOT EXISTS idx_placeholder_placeholder_relations_to
+        ON placeholder_placeholder_relations (to_placeholder_id)
       ''');
     }
   }

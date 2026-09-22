@@ -1873,6 +1873,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   // N Saga field
                   TextFormField(
                     controller: _nSagaController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     decoration: InputDecoration(
                       labelText: AppLocalizations.of(context)!.saga_number,
                       border: const OutlineInputBorder(),

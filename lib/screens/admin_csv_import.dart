@@ -2609,7 +2609,7 @@ class _BookImportPreview extends StatelessWidget {
               children: [
                 Icon(
                   item.importType == 'NEW'
-                      ? Icons.add_circle
+                      ? Icons.add
                       : item.importType == 'UPDATE'
                       ? Icons.update
                       : Icons.warning,

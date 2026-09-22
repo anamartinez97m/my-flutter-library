@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
+import 'package:myrandomlibrary/repositories/reading_club_repository.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
 const _kBg = Color(0xFFFDF8F6);
@@ -31,20 +32,36 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
     try {
       final db = await DatabaseHelper.instance.database;
 
-      // Get all clubs with their book counts
+      // Get all managed club names with their book counts
       final result = await db.rawQuery('''
+        SELECT 
+          c.club_name,
+          COUNT(rc.club_id) as book_count,
+          AVG(rc.reading_progress) as avg_progress
+        FROM reading_club_names c
+        LEFT JOIN reading_clubs rc ON rc.club_name = c.club_name
+        GROUP BY c.club_name
+        ORDER BY c.club_name ASC
+      ''');
+
+      // Also include any orphan clubs that might exist in reading_clubs
+      // but not in reading_club_names yet.
+      final managedNames =
+          result.map((row) => row['club_name'] as String).toSet();
+      final orphanResult = await db.rawQuery('''
         SELECT 
           club_name,
           COUNT(*) as book_count,
           AVG(reading_progress) as avg_progress
         FROM reading_clubs
+        WHERE club_name NOT IN (${managedNames.map((_) => '?').join(',')})
         GROUP BY club_name
         ORDER BY club_name ASC
-      ''');
+      ''', managedNames.toList());
 
       if (mounted) {
         setState(() {
-          _clubs = result;
+          _clubs = [...result, ...orphanResult];
           _isLoading = false;
         });
       }
@@ -64,10 +81,11 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
     if (newName != null && newName != oldName) {
       try {
         final db = await DatabaseHelper.instance.database;
+        final repository = ReadingClubRepository(db);
 
         // Check if new name already exists
         final existing = await db.query(
-          'reading_clubs',
+          'reading_club_names',
           where: 'club_name = ?',
           whereArgs: [newName],
           limit: 1,
@@ -87,14 +105,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
           return;
         }
 
-        // Rename all instances
-        await db.update(
-          'reading_clubs',
-          {'club_name': newName},
-          where: 'club_name = ?',
-          whereArgs: [oldName],
-        );
-
+        await repository.renameClubName(oldName, newName);
         await _loadClubs();
 
         if (mounted) {
@@ -281,14 +292,9 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
     if (confirmed == true) {
       try {
         final db = await DatabaseHelper.instance.database;
+        final repository = ReadingClubRepository(db);
 
-        // Delete all books from this club
-        await db.delete(
-          'reading_clubs',
-          where: 'club_name = ?',
-          whereArgs: [clubName],
-        );
-
+        await repository.deleteClubName(clubName);
         await _loadClubs();
 
         if (mounted) {
@@ -439,6 +445,98 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
     );
   }
 
+  Future<void> _showAddClubNameDialog() async {
+    final l10n = AppLocalizations.of(context)!;
+    final controller = TextEditingController();
+    final name = await showDialog<String>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            backgroundColor: _kBg,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            title: Row(
+              children: [
+                const Icon(Icons.group_add, color: _kPrimary),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    l10n.new_club,
+                    style: const TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: _kPrimary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            content: TextField(
+              controller: controller,
+              autofocus: true,
+              decoration: InputDecoration(
+                labelText: l10n.club_name,
+                hintText: l10n.enter_club_name,
+                border: const OutlineInputBorder(),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(
+                  l10n.cancel,
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  final value = controller.text.trim();
+                  if (value.isNotEmpty) Navigator.of(context).pop(value);
+                },
+                style: ElevatedButton.styleFrom(backgroundColor: _kPrimary),
+                child: Text(
+                  l10n.add,
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+    );
+
+    if (name == null || name.trim().isEmpty) return;
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final repository = ReadingClubRepository(db);
+      await repository.addClubName(name);
+      await _loadClubs();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.added_value(name)),
+            backgroundColor: _kPrimary,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${l10n.error}: $e'),
+            backgroundColor: const Color(0xFFB3261E),
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return _buildV2(context);
@@ -476,6 +574,21 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
           _isLoading
               ? const Center(child: CircularProgressIndicator(color: _kPrimary))
               : _buildBody(context),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _showAddClubNameDialog,
+        backgroundColor: _kPrimary,
+        foregroundColor: Colors.white,
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        icon: const Icon(Icons.add),
+        label: Text(
+          l10n.new_club,
+          style: const TextStyle(
+            fontFamily: 'Manrope',
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
     );
   }
 

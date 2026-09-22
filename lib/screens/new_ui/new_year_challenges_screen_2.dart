@@ -168,7 +168,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                                   ?.copyWith(fontWeight: FontWeight.bold),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.add_circle),
+                              icon: const Icon(Icons.add),
                               onPressed: () {
                                 setDialogState(() {
                                   customChallenges.add({

@@ -120,46 +120,53 @@ class _ReadingClubDialogState extends State<ReadingClubDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Club Name Field with Autocomplete
-              Autocomplete<String>(
-                initialValue: TextEditingValue(text: _clubNameController.text),
-                optionsBuilder: (TextEditingValue textEditingValue) {
-                  if (textEditingValue.text.isEmpty) {
-                    return const Iterable<String>.empty();
-                  }
-                  return widget.existingClubNames.where((String option) {
-                    return option.toLowerCase().contains(
-                      textEditingValue.text.toLowerCase(),
+              // Club Name Field - choose from existing clubs created in Settings
+              Builder(
+                builder: (context) {
+                  final clubOptions = [
+                    ...widget.existingClubNames,
+                    if (_isEditing &&
+                        _clubNameController.text.isNotEmpty &&
+                        !widget.existingClubNames.contains(
+                          _clubNameController.text,
+                        ))
+                      _clubNameController.text,
+                  ];
+
+                  if (clubOptions.isEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Text(
+                        AppLocalizations.of(context)!.no_clubs_yet,
+                        style: TextStyle(
+                          fontFamily: 'Manrope',
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
                     );
-                  });
-                },
-                onSelected: (String selection) {
-                  _clubNameController.text = selection;
-                },
-                fieldViewBuilder: (
-                  BuildContext context,
-                  TextEditingController fieldTextEditingController,
-                  FocusNode fieldFocusNode,
-                  VoidCallback onFieldSubmitted,
-                ) {
-                  // Sync with our controller
-                  if (fieldTextEditingController.text.isEmpty &&
-                      _clubNameController.text.isNotEmpty) {
-                    fieldTextEditingController.text = _clubNameController.text;
                   }
 
-                  return TextFormField(
-                    controller: fieldTextEditingController,
-                    focusNode: fieldFocusNode,
+                  return DropdownButtonFormField<String>(
+                    value:
+                        _clubNameController.text.isEmpty ||
+                                !clubOptions.contains(_clubNameController.text)
+                            ? null
+                            : _clubNameController.text,
+                    isExpanded: true,
                     decoration: InputDecoration(
                       labelText: AppLocalizations.of(context)!.club_name,
-                      hintText:
-                          AppLocalizations.of(
-                            context,
-                          )!.enter_or_select_club_name,
                       border: const OutlineInputBorder(),
                       prefixIcon: const Icon(Icons.groups),
                     ),
+                    items: [
+                      for (final name in clubOptions)
+                        DropdownMenuItem(value: name, child: Text(name)),
+                    ],
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => _clubNameController.text = value);
+                      }
+                    },
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return AppLocalizations.of(
@@ -167,9 +174,6 @@ class _ReadingClubDialogState extends State<ReadingClubDialog> {
                         )!.please_enter_club_name;
                       }
                       return null;
-                    },
-                    onChanged: (value) {
-                      _clubNameController.text = value;
                     },
                   );
                 },
@@ -267,7 +271,11 @@ class _ReadingClubDialogState extends State<ReadingClubDialog> {
           ),
         ),
         ElevatedButton(
-          onPressed: _save,
+          onPressed:
+              widget.existingClubNames.isEmpty &&
+                      (!_isEditing || _clubNameController.text.isEmpty)
+                  ? null
+                  : _save,
           style: ElevatedButton.styleFrom(
             backgroundColor: _kPrimary,
             foregroundColor: Colors.white,

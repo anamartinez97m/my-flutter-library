@@ -8,6 +8,8 @@ class AutocompleteTextField extends StatelessWidget {
   final TextCapitalization? textCapitalization;
   final void Function(String)? onSelected;
   final void Function(String)? onChanged;
+  final String? Function(String?)? validator;
+  final InputDecoration? decoration;
 
   const AutocompleteTextField({
     super.key,
@@ -18,6 +20,8 @@ class AutocompleteTextField extends StatelessWidget {
     this.textCapitalization,
     this.onSelected,
     this.onChanged,
+    this.validator,
+    this.decoration,
   });
 
   @override
@@ -55,13 +59,16 @@ class AutocompleteTextField extends StatelessWidget {
         return TextFormField(
           controller: fieldTextEditingController,
           focusNode: fieldFocusNode,
-          decoration: InputDecoration(
-            labelText: labelText,
-            border: const OutlineInputBorder(),
-            prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
-          ),
+          decoration:
+              decoration ??
+              InputDecoration(
+                labelText: labelText,
+                border: const OutlineInputBorder(),
+                prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
+              ),
           textCapitalization: textCapitalization ?? TextCapitalization.none,
           onChanged: onChanged,
+          validator: validator,
         );
       },
       optionsViewBuilder: (

@@ -84,6 +84,9 @@ class _UniverseReadingOrderScreenState
         repository.getBookRelationsForUniverse(widget.universe),
         repository.getPlaceholdersByUniverse(widget.universe),
         repository.getPlaceholderRelationsForUniverse(widget.universe),
+        repository.getPlaceholderPlaceholderRelationsForUniverse(
+          widget.universe,
+        ),
       ]);
       final loadedBooks = results[0] as List<Book>;
       final bookIdsInUniverse =
@@ -130,6 +133,7 @@ class _UniverseReadingOrderScreenState
         _relations = [
           ...results[1] as List<BookRelation>,
           ...results[3] as List<BookRelation>,
+          ...results[4] as List<BookRelation>,
         ];
         _loading = false;
       });
@@ -209,30 +213,9 @@ class _UniverseReadingOrderScreenState
   }
 
   List<BookRelation> get _displayRelations {
-    final result = [..._relations];
-    final sagas = <String, List<Book>>{};
-    for (final book in _books) {
-      final saga = book.saga?.trim();
-      if (saga != null && saga.isNotEmpty && book.bookId != null) {
-        sagas.putIfAbsent(saga, () => []).add(book);
-      }
-    }
-    for (final books in sagas.values) {
-      books.sort(_compareBooks);
-      for (var index = 0; index < books.length - 1; index++) {
-        final from = books[index].bookId!;
-        final to = books[index + 1].bookId!;
-        final exists = result.any(
-          (relation) => relation.fromBookId == from && relation.toBookId == to,
-        );
-        if (!exists) {
-          result.add(
-            BookRelation(fromBookId: from, toBookId: to, type: 'next'),
-          );
-        }
-      }
-    }
-    return result;
+    // Only show relations explicitly added by the user; do not draw
+    // auto-generated saga-sequence lines.
+    return [..._relations];
   }
 
   Future<void> _handleBookTap(Book book) async {
@@ -244,6 +227,7 @@ class _UniverseReadingOrderScreenState
           context,
           MaterialPageRoute(builder: (_) => NewBookDetailScreen(book: book)),
         );
+        await _loadData();
       }
       return;
     }
@@ -263,11 +247,12 @@ class _UniverseReadingOrderScreenState
       final repository = await _repository();
       final fromId = _relationStartBookId!;
       if (fromId < 0 && bookId < 0) {
-        throw StateError(
-          'Placeholder-to-placeholder relations are not supported',
+        await repository.insertPlaceholderPlaceholderRelation(
+          fromPlaceholderId: -fromId,
+          toPlaceholderId: -bookId,
+          type: type,
         );
-      }
-      if (fromId < 0 || bookId < 0) {
+      } else if (fromId < 0 || bookId < 0) {
         await repository.insertPlaceholderRelation(
           PlaceholderRelation(
             placeholderId: -(fromId < 0 ? fromId : bookId),
@@ -355,14 +340,24 @@ class _UniverseReadingOrderScreenState
       await showModalBottomSheet<void>(
         context: context,
         backgroundColor: _kBg,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
         builder:
             (sheetContext) => SafeArea(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   ListTile(
-                    leading: const Icon(Icons.edit_outlined),
-                    title: Text(l10n.edit_placeholder),
+                    leading: const Icon(Icons.edit_outlined, color: _kPrimary),
+                    title: Text(
+                      l10n.edit_placeholder,
+                      style: const TextStyle(
+                        fontFamily: 'Manrope',
+                        fontWeight: FontWeight.w600,
+                        color: _kPrimary,
+                      ),
+                    ),
                     onTap: () async {
                       Navigator.pop(sheetContext);
                       await Navigator.push(
@@ -372,6 +367,7 @@ class _UniverseReadingOrderScreenState
                               (_) => UniversePlaceholdersScreen(
                                 initialUniverse: widget.universe,
                                 editPlaceholder: placeholder,
+                                returnAfterEdit: true,
                               ),
                         ),
                       );
@@ -379,8 +375,18 @@ class _UniverseReadingOrderScreenState
                     },
                   ),
                   ListTile(
-                    leading: const Icon(Icons.library_add_outlined),
-                    title: Text(l10n.promote_to_library),
+                    leading: const Icon(
+                      Icons.library_add_outlined,
+                      color: _kPrimary,
+                    ),
+                    title: Text(
+                      l10n.promote_to_library,
+                      style: const TextStyle(
+                        fontFamily: 'Manrope',
+                        fontWeight: FontWeight.w600,
+                        color: _kPrimary,
+                      ),
+                    ),
                     onTap: () async {
                       Navigator.pop(sheetContext);
                       await Navigator.push(
@@ -406,9 +412,16 @@ class _UniverseReadingOrderScreenState
                   ListTile(
                     leading: const Icon(
                       Icons.delete_outline,
-                      color: Colors.red,
+                      color: Color(0xFFB3261E),
                     ),
-                    title: Text(l10n.delete_placeholder),
+                    title: Text(
+                      l10n.delete_placeholder,
+                      style: const TextStyle(
+                        fontFamily: 'Manrope',
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFFB3261E),
+                      ),
+                    ),
                     onTap: () async {
                       Navigator.pop(sheetContext);
                       final repository = await _repository();
@@ -439,14 +452,15 @@ class _UniverseReadingOrderScreenState
                   ),
                   title: Text(book.name ?? l10n.unknown_title),
                   subtitle: Text(book.saga ?? l10n.standalone_books),
-                  onTap: () {
+                  onTap: () async {
                     Navigator.pop(context);
-                    Navigator.push(
+                    await Navigator.push(
                       this.context,
                       MaterialPageRoute(
                         builder: (_) => NewBookDetailScreen(book: book),
                       ),
                     );
+                    await _loadData();
                   },
                 ),
                 if (_editMode)
@@ -664,10 +678,20 @@ class _UniverseReadingOrderScreenState
                                       if (confirmed != true) return;
                                       final repository = await _repository();
                                       if (relation.relationId! < 0) {
-                                        await repository
-                                            .deletePlaceholderRelation(
-                                              -relation.relationId!,
-                                            );
+                                        final isPlaceholderPlaceholder =
+                                            relation.fromBookId < 0 &&
+                                            relation.toBookId < 0;
+                                        if (isPlaceholderPlaceholder) {
+                                          await repository
+                                              .deletePlaceholderPlaceholderRelation(
+                                                -relation.relationId!,
+                                              );
+                                        } else {
+                                          await repository
+                                              .deletePlaceholderRelation(
+                                                -relation.relationId!,
+                                              );
+                                        }
                                       } else {
                                         await repository.deleteBookRelation(
                                           relation.relationId!,
@@ -736,6 +760,25 @@ class _UniverseReadingOrderScreenState
         centerTitle: true,
         actions: [
           IconButton(
+            tooltip: l10n.add_placeholder,
+            icon: const Icon(Icons.add),
+            color: _kPrimary,
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (_) => UniversePlaceholdersScreen(
+                        initialUniverse: widget.universe,
+                        returnAfterEdit: true,
+                        openAddForm: true,
+                      ),
+                ),
+              );
+              await _loadData();
+            },
+          ),
+          IconButton(
             tooltip: _editMode ? l10n.finish_editing : l10n.edit_reading_order,
             icon: Icon(_editMode ? Icons.done : Icons.edit_outlined),
             color: _kPrimary,
@@ -774,7 +817,7 @@ class _UniverseReadingOrderScreenState
 
   Widget _buildEditToolbar(AppLocalizations l10n) {
     return Container(
-      color: Colors.white,
+      color: _kBg,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,

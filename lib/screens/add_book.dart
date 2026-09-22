@@ -1664,6 +1664,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
       const SizedBox(height: 10),
       TextFormField(
         controller: _nSagaController,
+        keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         decoration: _v2Deco(l10n.saga_number, Icons.format_list_numbered),
       ),
       const SizedBox(height: 10),

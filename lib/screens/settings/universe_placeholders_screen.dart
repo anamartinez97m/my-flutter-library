@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
@@ -7,6 +8,8 @@ import 'package:myrandomlibrary/providers/role_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/screens/add_book.dart';
 import 'package:myrandomlibrary/services/book_metadata_service.dart';
+import 'package:myrandomlibrary/widgets/autocomplete_text_field.dart';
+import 'package:myrandomlibrary/widgets/chip_autocomplete_field.dart';
 import 'package:provider/provider.dart';
 
 const _kBg = Color(0xFFFDF8F6);
@@ -20,11 +23,15 @@ const _kSurface = Color(0xFFFFFBFA);
 class UniversePlaceholdersScreen extends StatefulWidget {
   final String? initialUniverse;
   final UniversePlaceholder? editPlaceholder;
+  final bool returnAfterEdit;
+  final bool openAddForm;
 
   const UniversePlaceholdersScreen({
     super.key,
     this.initialUniverse,
     this.editPlaceholder,
+    this.returnAfterEdit = false,
+    this.openAddForm = false,
   });
 
   @override
@@ -47,7 +54,26 @@ class _UniversePlaceholdersScreenState
   void initState() {
     super.initState();
     _selectedUniverse = widget.initialUniverse;
-    _load(openEditor: widget.editPlaceholder != null);
+    if (widget.editPlaceholder != null && widget.returnAfterEdit) {
+      // Opened only to edit a placeholder from another screen; load data then
+      // show the form and return once it closes.
+      _load().then((_) {
+        if (!mounted) return;
+        _showPlaceholderForm(widget.editPlaceholder).then((_) {
+          if (mounted) Navigator.pop(context);
+        });
+      });
+    } else if (widget.openAddForm) {
+      // Opened to add a placeholder from another screen.
+      _load().then((_) {
+        if (!mounted) return;
+        _showPlaceholderForm().then((_) {
+          if (mounted) Navigator.pop(context);
+        });
+      });
+    } else {
+      _load(openEditor: widget.editPlaceholder != null);
+    }
   }
 
   Future<void> _load({bool openEditor = false}) async {
@@ -182,353 +208,302 @@ class _UniversePlaceholdersScreenState
       text: placeholder?.orderWithinUniverse?.toString(),
     );
     final notes = TextEditingController(text: placeholder?.notes);
-    final authorOptions =
-        {
-            ..._authors,
-            if (placeholder?.author?.isNotEmpty == true) placeholder!.author!,
-          }.toList()
-          ..sort();
-    final sagaOptions =
-        {
-            ..._sagas,
-            if (placeholder?.saga?.isNotEmpty == true) placeholder!.saga!,
-          }.toList()
-          ..sort();
-    final universeOptions =
-        {
-            ..._universes,
-            if (placeholder?.sagaUniverse.isNotEmpty == true)
-              placeholder!.sagaUniverse,
-          }.toList()
-          ..sort();
     final formKey = GlobalKey<FormState>();
     final saved = await showDialog<bool>(
       context: context,
       builder:
-          (context) => Dialog(
-            backgroundColor: _kBg,
-            surfaceTintColor: Colors.transparent,
-            clipBehavior: Clip.antiAlias,
-            elevation: 24,
-            insetPadding: const EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 24,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 560, maxHeight: 760),
-              child: SizedBox(
-                width: double.infinity,
-                height: MediaQuery.sizeOf(context).height * 0.86,
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 20, 12, 16),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 44,
-                            height: 44,
-                            decoration: BoxDecoration(
-                              color: _kPrimary.withValues(alpha: 0.08),
-                              borderRadius: BorderRadius.circular(13),
+          (context) => _withManropeFont(
+            context,
+            Dialog(
+              backgroundColor: _kBg,
+              surfaceTintColor: Colors.transparent,
+              clipBehavior: Clip.antiAlias,
+              elevation: 24,
+              insetPadding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 24,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 560,
+                  maxHeight: 760,
+                ),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: MediaQuery.sizeOf(context).height * 0.86,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 20, 12, 16),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color: _kPrimary.withValues(alpha: 0.08),
+                                borderRadius: BorderRadius.circular(13),
+                              ),
+                              child: Icon(
+                                placeholder == null
+                                    ? Icons.add
+                                    : Icons.edit_outlined,
+                                color: _kPrimary,
+                              ),
                             ),
-                            child: Icon(
-                              placeholder == null
-                                  ? Icons.add_circle_outline
-                                  : Icons.edit_outlined,
-                              color: _kPrimary,
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    placeholder == null
+                                        ? l10n.add_placeholder
+                                        : l10n.edit_placeholder,
+                                    style: const TextStyle(
+                                      fontFamily: 'Manrope',
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w700,
+                                      color: _kPrimary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    l10n.universe_placeholders_subtitle,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontFamily: 'Manrope',
+                                      fontSize: 12,
+                                      color: _kSub,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
+                            IconButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              icon: const Icon(Icons.close, color: _kSub),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Divider(height: 1, color: _kBorder),
+                      Expanded(
+                        child: Form(
+                          key: formKey,
+                          child: SingleChildScrollView(
+                            padding: const EdgeInsets.all(24),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
+                              spacing: 12,
                               children: [
-                                Text(
-                                  placeholder == null
-                                      ? l10n.add_placeholder
-                                      : l10n.edit_placeholder,
-                                  style: const TextStyle(
-                                    fontFamily: 'Manrope',
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w700,
-                                    color: _kPrimary,
+                                _formSectionLabel(
+                                  Icons.menu_book_outlined,
+                                  l10n.placeholder_book,
+                                ),
+                                TextFormField(
+                                  controller: title,
+                                  autofocus: placeholder == null,
+                                  textCapitalization:
+                                      TextCapitalization.sentences,
+                                  decoration: _fieldDecoration(
+                                    l10n.filter_title,
+                                    icon: Icons.menu_book_outlined,
+                                  ),
+                                  validator:
+                                      (value) =>
+                                          value == null || value.trim().isEmpty
+                                              ? l10n.placeholder_title_required
+                                              : null,
+                                ),
+                                ChipAutocompleteField(
+                                  labelText: l10n.author,
+                                  suggestions: _authors,
+                                  initialValues:
+                                      author.text.isEmpty ? [] : [author.text],
+                                  hintText: l10n.search_or_add_author,
+                                  maxSelections: 1,
+                                  onChanged:
+                                      (values) =>
+                                          author.text =
+                                              values.isNotEmpty
+                                                  ? values.first
+                                                  : '',
+                                  decoration: _fieldDecoration(
+                                    l10n.author,
+                                    icon: Icons.person_outline,
                                   ),
                                 ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  l10n.universe_placeholders_subtitle,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontFamily: 'Manrope',
-                                    fontSize: 12,
-                                    color: _kSub,
+                                const SizedBox(height: 4),
+                                _formSectionLabel(
+                                  Icons.auto_awesome_outlined,
+                                  l10n.saga_universe,
+                                ),
+                                AutocompleteTextField(
+                                  controller: universe,
+                                  labelText: l10n.saga_universe,
+                                  suggestions: _universes,
+                                  textCapitalization: TextCapitalization.words,
+                                  onChanged: (_) => setState(() {}),
+                                  onSelected: (_) => setState(() {}),
+                                  validator:
+                                      (value) =>
+                                          value == null || value.trim().isEmpty
+                                              ? l10n.required_field
+                                              : null,
+                                  decoration: _fieldDecoration(
+                                    l10n.saga_universe,
+                                    icon: Icons.auto_awesome_outlined,
+                                  ),
+                                ),
+                                LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    final sagaField = AutocompleteTextField(
+                                      controller: saga,
+                                      labelText: l10n.saga,
+                                      suggestions: _sagas,
+                                      textCapitalization:
+                                          TextCapitalization.words,
+                                      onChanged: (_) => setState(() {}),
+                                      onSelected: (_) => setState(() {}),
+                                      decoration: _fieldDecoration(
+                                        l10n.saga,
+                                        icon:
+                                            Icons.collections_bookmark_outlined,
+                                      ),
+                                    );
+                                    final numberField = TextFormField(
+                                      controller: nSaga,
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.digitsOnly,
+                                      ],
+                                      decoration: _fieldDecoration(
+                                        l10n.saga_number,
+                                        icon: Icons.tag,
+                                      ),
+                                    );
+                                    if (constraints.maxWidth < 430) {
+                                      return Column(
+                                        spacing: 12,
+                                        children: [sagaField, numberField],
+                                      );
+                                    }
+                                    return Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      spacing: 12,
+                                      children: [
+                                        Expanded(child: sagaField),
+                                        SizedBox(
+                                          width: 150,
+                                          child: numberField,
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                                TextFormField(
+                                  controller: order,
+                                  keyboardType: TextInputType.number,
+                                  decoration: _fieldDecoration(
+                                    l10n.reading_order_position,
+                                    icon: Icons.format_list_numbered,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                _formSectionLabel(
+                                  Icons.more_horiz,
+                                  l10n.optional,
+                                ),
+                                TextFormField(
+                                  controller: notes,
+                                  minLines: 3,
+                                  maxLines: 5,
+                                  textCapitalization:
+                                      TextCapitalization.sentences,
+                                  decoration: _fieldDecoration(
+                                    l10n.notes,
+                                    icon: Icons.notes_outlined,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          IconButton(
-                            onPressed: () => Navigator.pop(context, false),
-                            icon: const Icon(Icons.close, color: _kSub),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Divider(height: 1, color: _kBorder),
-                    Expanded(
-                      child: Form(
-                        key: formKey,
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.all(24),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            spacing: 12,
-                            children: [
-                              _formSectionLabel(
-                                Icons.menu_book_outlined,
-                                l10n.placeholder_book,
-                              ),
-                              TextFormField(
-                                controller: title,
-                                autofocus: placeholder == null,
-                                textCapitalization:
-                                    TextCapitalization.sentences,
-                                decoration: _fieldDecoration(
-                                  l10n.filter_title,
-                                  icon: Icons.menu_book_outlined,
-                                ),
-                                validator:
-                                    (value) =>
-                                        value == null || value.trim().isEmpty
-                                            ? l10n.placeholder_title_required
-                                            : null,
-                              ),
-                              DropdownButtonFormField<String>(
-                                initialValue:
-                                    author.text.isEmpty ? '' : author.text,
-                                isExpanded: true,
-                                dropdownColor: _kSurface,
-                                icon: const Icon(
-                                  Icons.keyboard_arrow_down,
-                                  color: _kPrimary,
-                                ),
-                                decoration: _fieldDecoration(
-                                  l10n.author,
-                                  icon: Icons.person_outline,
-                                ),
-                                items: [
-                                  const DropdownMenuItem(
-                                    value: '',
-                                    child: Text('—'),
-                                  ),
-                                  for (final value in authorOptions)
-                                    DropdownMenuItem(
-                                      value: value,
-                                      child: Text(
-                                        value,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                ],
-                                onChanged: (value) => author.text = value ?? '',
-                              ),
-                              const SizedBox(height: 4),
-                              _formSectionLabel(
-                                Icons.auto_awesome_outlined,
-                                l10n.saga_universe,
-                              ),
-                              DropdownButtonFormField<String>(
-                                initialValue:
-                                    universeOptions.contains(universe.text)
-                                        ? universe.text
-                                        : null,
-                                isExpanded: true,
-                                dropdownColor: _kSurface,
-                                icon: const Icon(
-                                  Icons.keyboard_arrow_down,
-                                  color: _kPrimary,
-                                ),
-                                decoration: _fieldDecoration(
-                                  l10n.saga_universe,
-                                  icon: Icons.auto_awesome_outlined,
-                                ),
-                                items: [
-                                  for (final value in universeOptions)
-                                    DropdownMenuItem(
-                                      value: value,
-                                      child: Text(
-                                        value,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                ],
-                                onChanged:
-                                    (value) => universe.text = value ?? '',
-                                validator:
-                                    (value) =>
-                                        value == null || value.trim().isEmpty
-                                            ? l10n.required_field
-                                            : null,
-                              ),
-                              LayoutBuilder(
-                                builder: (context, constraints) {
-                                  final sagaField = DropdownButtonFormField<
-                                    String
-                                  >(
-                                    initialValue:
-                                        saga.text.isEmpty ? '' : saga.text,
-                                    isExpanded: true,
-                                    dropdownColor: _kSurface,
-                                    icon: const Icon(
-                                      Icons.keyboard_arrow_down,
-                                      color: _kPrimary,
-                                    ),
-                                    decoration: _fieldDecoration(
-                                      l10n.saga,
-                                      icon: Icons.collections_bookmark_outlined,
-                                    ),
-                                    items: [
-                                      const DropdownMenuItem(
-                                        value: '',
-                                        child: Text('—'),
-                                      ),
-                                      for (final value in sagaOptions)
-                                        DropdownMenuItem(
-                                          value: value,
-                                          child: Text(
-                                            value,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                    ],
-                                    onChanged:
-                                        (value) => saga.text = value ?? '',
-                                  );
-                                  final numberField = TextFormField(
-                                    controller: nSaga,
-                                    decoration: _fieldDecoration(
-                                      l10n.saga_number,
-                                      icon: Icons.tag,
-                                    ),
-                                  );
-                                  if (constraints.maxWidth < 430) {
-                                    return Column(
-                                      spacing: 12,
-                                      children: [sagaField, numberField],
-                                    );
-                                  }
-                                  return Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    spacing: 12,
-                                    children: [
-                                      Expanded(child: sagaField),
-                                      SizedBox(width: 150, child: numberField),
-                                    ],
-                                  );
-                                },
-                              ),
-                              TextFormField(
-                                controller: order,
-                                keyboardType: TextInputType.number,
-                                decoration: _fieldDecoration(
-                                  l10n.reading_order_position,
-                                  icon: Icons.format_list_numbered,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              _formSectionLabel(
-                                Icons.more_horiz,
-                                l10n.optional,
-                              ),
-                              TextFormField(
-                                controller: notes,
-                                minLines: 3,
-                                maxLines: 5,
-                                textCapitalization:
-                                    TextCapitalization.sentences,
-                                decoration: _fieldDecoration(
-                                  l10n.notes,
-                                  icon: Icons.notes_outlined,
-                                ),
-                              ),
-                            ],
-                          ),
                         ),
                       ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.fromLTRB(
-                        20,
-                        14,
-                        20,
-                        14 + MediaQuery.paddingOf(context).bottom,
-                      ),
-                      decoration: const BoxDecoration(
-                        color: _kSurface,
-                        border: Border(top: BorderSide(color: _kBorder)),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextButton(
-                              onPressed: () => Navigator.pop(context, false),
-                              style: TextButton.styleFrom(
-                                foregroundColor: _kPrimary,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 14,
+                      Container(
+                        padding: EdgeInsets.fromLTRB(
+                          20,
+                          14,
+                          20,
+                          14 + MediaQuery.paddingOf(context).bottom,
+                        ),
+                        decoration: const BoxDecoration(
+                          color: _kSurface,
+                          border: Border(top: BorderSide(color: _kBorder)),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: _kPrimary,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
                                 ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              child: Text(
-                                l10n.cancel,
-                                style: const TextStyle(
-                                  fontFamily: 'Manrope',
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                if (formKey.currentState!.validate()) {
-                                  Navigator.pop(context, true);
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: _kPrimary,
-                                foregroundColor: Colors.white,
-                                elevation: 0,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 14,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              icon: const Icon(Icons.check, size: 18),
-                              label: Text(
-                                l10n.save,
-                                style: const TextStyle(
-                                  fontFamily: 'Manrope',
-                                  fontWeight: FontWeight.w600,
+                                child: Text(
+                                  l10n.cancel,
+                                  style: const TextStyle(
+                                    fontFamily: 'Manrope',
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  if (formKey.currentState!.validate()) {
+                                    Navigator.pop(context, true);
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: _kPrimary,
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                icon: const Icon(Icons.check, size: 18),
+                                label: Text(
+                                  l10n.save,
+                                  style: const TextStyle(
+                                    fontFamily: 'Manrope',
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -590,6 +565,16 @@ class _UniversePlaceholdersScreenState
     await _load();
   }
 
+  Widget _withManropeFont(BuildContext context, Widget child) {
+    final theme = Theme.of(context);
+    return Theme(
+      data: theme.copyWith(
+        textTheme: theme.textTheme.apply(fontFamily: 'Manrope'),
+      ),
+      child: child,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!context.watch<RoleProvider>().isAdmin) {
@@ -613,147 +598,154 @@ class _UniversePlaceholdersScreenState
         ),
     ]..sort((a, b) => (a.order ?? 999999).compareTo(b.order ?? 999999));
     final missing = _sagasWithMissingEarlierEntries;
-    return Scaffold(
-      backgroundColor: _kBg,
-      appBar: AppBar(
+    return _withManropeFont(
+      context,
+      Scaffold(
         backgroundColor: _kBg,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: _kPrimary),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          l10n.universe_placeholders,
-          style: const TextStyle(
-            fontFamily: 'Manrope',
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            color: _kPrimary,
-            letterSpacing: -0.5,
+        appBar: AppBar(
+          backgroundColor: _kBg,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: _kPrimary),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: Text(
+            l10n.universe_placeholders,
+            style: const TextStyle(
+              fontFamily: 'Manrope',
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: _kPrimary,
+              letterSpacing: -0.5,
+            ),
+          ),
+          centerTitle: true,
+          bottom: const PreferredSize(
+            preferredSize: Size.fromHeight(1),
+            child: Divider(height: 1, color: _kBorder),
           ),
         ),
-        centerTitle: true,
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, color: _kBorder),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _showPlaceholderForm,
-        backgroundColor: _kPrimary,
-        foregroundColor: Colors.white,
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        icon: const Icon(Icons.add),
-        label: Text(
-          l10n.add_placeholder,
-          style: const TextStyle(
-            fontFamily: 'Manrope',
-            fontWeight: FontWeight.w600,
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: _showPlaceholderForm,
+          backgroundColor: _kPrimary,
+          foregroundColor: Colors.white,
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          icon: const Icon(Icons.add),
+          label: Text(
+            l10n.add_placeholder,
+            style: const TextStyle(
+              fontFamily: 'Manrope',
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
-      ),
-      body:
-          _loading
-              ? const Center(child: CircularProgressIndicator(color: _kPrimary))
-              : SafeArea(
-                top: false,
-                child: CustomScrollView(
-                  slivers: [
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
-                      sliver: SliverToBoxAdapter(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              l10n.universe_placeholders_subtitle,
-                              style: const TextStyle(
-                                fontFamily: 'Manrope',
-                                fontSize: 14,
-                                color: _kSub,
-                                height: 1.4,
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            DropdownButtonFormField<String>(
-                              initialValue:
-                                  _universes.contains(_selectedUniverse)
-                                      ? _selectedUniverse
-                                      : null,
-                              isExpanded: true,
-                              dropdownColor: _kSurface,
-                              icon: const Icon(
-                                Icons.keyboard_arrow_down,
-                                color: _kPrimary,
-                              ),
-                              style: const TextStyle(
-                                fontFamily: 'Manrope',
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                color: _kText,
-                              ),
-                              decoration: _fieldDecoration(
-                                l10n.saga_universe,
-                                icon: Icons.auto_awesome_outlined,
-                              ),
-                              items: [
-                                for (final universe in _universes)
-                                  DropdownMenuItem(
-                                    value: universe,
-                                    child: Text(
-                                      universe,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                              ],
-                              onChanged: (value) {
-                                _selectedUniverse = value;
-                                _load();
-                              },
-                            ),
-                            const SizedBox(height: 16),
-                            _buildSummaryCard(l10n),
-                            if (missing.isNotEmpty) ...[
-                              const SizedBox(height: 12),
-                              _buildWarningCard(l10n, missing),
-                            ],
-                            const SizedBox(height: 24),
-                            Text(
-                              _selectedUniverse ?? l10n.saga_universe,
-                              style: const TextStyle(
-                                fontFamily: 'Manrope',
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
-                                color: _kText,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                          ],
-                        ),
-                      ),
-                    ),
-                    if (entries.isEmpty)
-                      SliverFillRemaining(
-                        hasScrollBody: false,
-                        child: _buildEmptyState(l10n),
-                      )
-                    else
+        body:
+            _loading
+                ? const Center(
+                  child: CircularProgressIndicator(color: _kPrimary),
+                )
+                : SafeArea(
+                  top: false,
+                  child: CustomScrollView(
+                    slivers: [
                       SliverPadding(
-                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 104),
-                        sliver: SliverList.separated(
-                          itemCount: entries.length,
-                          separatorBuilder:
-                              (_, __) => const SizedBox(height: 10),
-                          itemBuilder:
-                              (context, index) =>
-                                  _buildEntryCard(entries[index], l10n),
+                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+                        sliver: SliverToBoxAdapter(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                l10n.universe_placeholders_subtitle,
+                                style: const TextStyle(
+                                  fontFamily: 'Manrope',
+                                  fontSize: 14,
+                                  color: _kSub,
+                                  height: 1.4,
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              DropdownButtonFormField<String>(
+                                initialValue:
+                                    _universes.contains(_selectedUniverse)
+                                        ? _selectedUniverse
+                                        : null,
+                                isExpanded: true,
+                                dropdownColor: _kSurface,
+                                icon: const Icon(
+                                  Icons.keyboard_arrow_down,
+                                  color: _kPrimary,
+                                ),
+                                style: const TextStyle(
+                                  fontFamily: 'Manrope',
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: _kText,
+                                ),
+                                decoration: _fieldDecoration(
+                                  l10n.saga_universe,
+                                  icon: Icons.auto_awesome_outlined,
+                                ),
+                                items: [
+                                  for (final universe in _universes)
+                                    DropdownMenuItem(
+                                      value: universe,
+                                      child: Text(
+                                        universe,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                ],
+                                onChanged: (value) {
+                                  _selectedUniverse = value;
+                                  _load();
+                                },
+                              ),
+                              const SizedBox(height: 16),
+                              _buildSummaryCard(l10n),
+                              if (missing.isNotEmpty) ...[
+                                const SizedBox(height: 12),
+                                _buildWarningCard(l10n, missing),
+                              ],
+                              const SizedBox(height: 24),
+                              Text(
+                                _selectedUniverse ?? l10n.saga_universe,
+                                style: const TextStyle(
+                                  fontFamily: 'Manrope',
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                  color: _kText,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                            ],
+                          ),
                         ),
                       ),
-                  ],
+                      if (entries.isEmpty)
+                        SliverFillRemaining(
+                          hasScrollBody: false,
+                          child: _buildEmptyState(l10n),
+                        )
+                      else
+                        SliverPadding(
+                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 104),
+                          sliver: SliverList.separated(
+                            itemCount: entries.length,
+                            separatorBuilder:
+                                (_, __) => const SizedBox(height: 10),
+                            itemBuilder:
+                                (context, index) =>
+                                    _buildEntryCard(entries[index], l10n),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
-              ),
+      ),
     );
   }
 

@@ -3434,7 +3434,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                               _currentBook.readCount! > 0) {
                             addCell(
                               _DetailCard(
-                                icon: Icons.add_circle_outline,
+                                icon: Icons.add,
                                 label: AppLocalizations.of(context)!.times_read,
                                 value: '${_currentBook.readCount}',
                               ),

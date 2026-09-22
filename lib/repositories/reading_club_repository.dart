@@ -55,7 +55,8 @@ class ReadingClubRepository {
 
   // Get all books in a specific club with book details
   Future<List<Map<String, dynamic>>> getBooksInClub(String clubName) async {
-    final List<Map<String, dynamic>> result = await db.rawQuery('''
+    final List<Map<String, dynamic>> result = await db.rawQuery(
+      '''
       SELECT 
         rc.*,
         b.name as book_name,
@@ -70,20 +71,74 @@ class ReadingClubRepository {
       LEFT JOIN status s ON b.status_id = s.status_id
       WHERE rc.club_name = ?
       ORDER BY rc.target_date ASC, b.name ASC
-    ''', [clubName]);
+    ''',
+      [clubName],
+    );
 
     return result;
   }
 
-  // Get all unique club names
+  // Get all unique club names from the managed list
   Future<List<String>> getAllClubNames() async {
     final List<Map<String, dynamic>> result = await db.rawQuery('''
-      SELECT DISTINCT club_name
-      FROM reading_clubs
+      SELECT club_name
+      FROM reading_club_names
       ORDER BY club_name ASC
     ''');
 
     return result.map((row) => row['club_name'] as String).toList();
+  }
+
+  // Add a new managed club name
+  Future<int> addClubName(String name) async {
+    return await db.insert('reading_club_names', {
+      'club_name': name.trim(),
+    }, conflictAlgorithm: ConflictAlgorithm.ignore);
+  }
+
+  // Rename a managed club name and update existing book associations
+  Future<void> renameClubName(String oldName, String newName) async {
+    final trimmedOld = oldName.trim();
+    final trimmedNew = newName.trim();
+    if (trimmedOld == trimmedNew) return;
+
+    await db.transaction((txn) async {
+      // Remove the new name if it already exists to avoid conflicts
+      await txn.delete(
+        'reading_club_names',
+        where: 'club_name = ?',
+        whereArgs: [trimmedNew],
+      );
+      await txn.update(
+        'reading_club_names',
+        {'club_name': trimmedNew},
+        where: 'club_name = ?',
+        whereArgs: [trimmedOld],
+      );
+      await txn.update(
+        'reading_clubs',
+        {'club_name': trimmedNew},
+        where: 'club_name = ?',
+        whereArgs: [trimmedOld],
+      );
+    });
+  }
+
+  // Delete a managed club name and remove existing book associations
+  Future<void> deleteClubName(String name) async {
+    final trimmedName = name.trim();
+    await db.transaction((txn) async {
+      await txn.delete(
+        'reading_club_names',
+        where: 'club_name = ?',
+        whereArgs: [trimmedName],
+      );
+      await txn.delete(
+        'reading_clubs',
+        where: 'club_name = ?',
+        whereArgs: [trimmedName],
+      );
+    });
   }
 
   // Get all reading clubs with book details
@@ -109,14 +164,17 @@ class ReadingClubRepository {
 
   // Get club statistics
   Future<Map<String, dynamic>> getClubStatistics(String clubName) async {
-    final List<Map<String, dynamic>> result = await db.rawQuery('''
+    final List<Map<String, dynamic>> result = await db.rawQuery(
+      '''
       SELECT 
         COUNT(*) as total_books,
         AVG(rc.reading_progress) as avg_progress,
         SUM(CASE WHEN rc.reading_progress >= 100 THEN 1 ELSE 0 END) as completed_books
       FROM reading_clubs rc
       WHERE rc.club_name = ?
-    ''', [clubName]);
+    ''',
+      [clubName],
+    );
 
     if (result.isNotEmpty) {
       return result.first;

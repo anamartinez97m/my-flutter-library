@@ -9,6 +9,7 @@ class ChipAutocompleteField extends StatefulWidget {
   final Function(List<String>) onChanged;
   final String? hintText;
   final int? maxSelections; // null = unlimited, 1 = single selection, etc.
+  final InputDecoration? decoration;
 
   const ChipAutocompleteField({
     super.key,
@@ -19,6 +20,7 @@ class ChipAutocompleteField extends StatefulWidget {
     required this.onChanged,
     this.hintText,
     this.maxSelections,
+    this.decoration,
   });
 
   @override
@@ -122,13 +124,17 @@ class _ChipAutocompleteFieldState extends State<ChipAutocompleteField> {
             return TextFormField(
               controller: fieldTextEditingController,
               focusNode: fieldFocusNode,
-              decoration: InputDecoration(
-                labelText: widget.labelText,
-                hintText: widget.hintText,
-                border: const OutlineInputBorder(),
-                prefixIcon:
-                    widget.prefixIcon != null ? Icon(widget.prefixIcon) : null,
-              ),
+              decoration:
+                  widget.decoration ??
+                  InputDecoration(
+                    labelText: widget.labelText,
+                    hintText: widget.hintText,
+                    border: const OutlineInputBorder(),
+                    prefixIcon:
+                        widget.prefixIcon != null
+                            ? Icon(widget.prefixIcon)
+                            : null,
+                  ),
               textCapitalization: TextCapitalization.words,
               onFieldSubmitted: (value) {
                 _addValue(value);

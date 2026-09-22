@@ -154,27 +154,33 @@ class BookRepository {
     return null;
   }
 
-  /// Get distinct saga names from all books
+  /// Get distinct saga names from all books and registered dropdown metadata
   Future<List<String>> getDistinctSagas() async {
     final result = await db.rawQuery('''
-      SELECT DISTINCT saga FROM book 
-      WHERE saga IS NOT NULL AND saga != '' 
-      ORDER BY saga
+      SELECT DISTINCT saga as name FROM book
+      WHERE saga IS NOT NULL AND saga != ''
+      UNION
+      SELECT value as name FROM dropdown_subtitle_metadata
+      WHERE category = 'saga' AND value IS NOT NULL AND value != ''
+      ORDER BY name
     ''');
 
-    return result.map((row) => row['saga'] as String).toList();
+    return result.map((row) => row['name'] as String).toList();
   }
 
-  /// Get distinct saga universe names from all books
+  /// Get distinct saga universe names from all books and registered dropdown metadata
   Future<List<String>> getDistinctSagaUniverses() async {
     final result = await db.rawQuery('''
-      SELECT DISTINCT saga_universe 
-      FROM book 
+      SELECT DISTINCT saga_universe as name
+      FROM book
       WHERE saga_universe IS NOT NULL AND saga_universe != ''
-      ORDER BY saga_universe
+      UNION
+      SELECT value as name FROM dropdown_subtitle_metadata
+      WHERE category = 'saga_universe' AND value IS NOT NULL AND value != ''
+      ORDER BY name
     ''');
 
-    return result.map((row) => row['saga_universe'] as String).toList();
+    return result.map((row) => row['name'] as String).toList();
   }
 
   /// Get count of books marked as TBR
@@ -429,15 +435,18 @@ class BookRepository {
     }
   }
 
-  /// Get unique saga values from books for autocomplete
+  /// Get unique saga values from books and registered dropdown metadata for autocomplete
   Future<List<String>> getUniqueSagas() async {
     final result = await db.rawQuery('''
-      SELECT DISTINCT saga 
-      FROM book 
+      SELECT DISTINCT saga as name
+      FROM book
       WHERE saga IS NOT NULL AND saga != ''
-      ORDER BY saga
+      UNION
+      SELECT value as name FROM dropdown_subtitle_metadata
+      WHERE category = 'saga' AND value IS NOT NULL AND value != ''
+      ORDER BY name
       ''');
-    return result.map((row) => row['saga'] as String).toList();
+    return result.map((row) => row['name'] as String).toList();
   }
 
   /// Get all values from a lookup table
@@ -450,7 +459,16 @@ class BookRepository {
         LEFT JOIN dropdown_subtitle_metadata m
           ON m.category = 'saga_universe' AND m.value = b.saga_universe
         WHERE b.saga_universe IS NOT NULL AND b.saga_universe != ''
-        ORDER BY b.saga_universe
+        UNION
+        SELECT value as name, subtitle
+        FROM dropdown_subtitle_metadata
+        WHERE category = 'saga_universe'
+          AND value IS NOT NULL AND value != ''
+          AND NOT EXISTS (
+            SELECT 1 FROM book b2
+            WHERE b2.saga_universe = dropdown_subtitle_metadata.value
+          )
+        ORDER BY name
       ''');
       // Add a fake ID for compatibility with the UI
       return result.asMap().entries.map((entry) {
@@ -469,7 +487,16 @@ class BookRepository {
         LEFT JOIN dropdown_subtitle_metadata m
           ON m.category = 'saga' AND m.value = b.saga
         WHERE b.saga IS NOT NULL AND b.saga != ''
-        ORDER BY b.saga
+        UNION
+        SELECT value as name, subtitle
+        FROM dropdown_subtitle_metadata
+        WHERE category = 'saga'
+          AND value IS NOT NULL AND value != ''
+          AND NOT EXISTS (
+            SELECT 1 FROM book b2
+            WHERE b2.saga = dropdown_subtitle_metadata.value
+          )
+        ORDER BY name
       ''');
       // Add a fake ID for compatibility with the UI
       return result.asMap().entries.map((entry) {
@@ -568,14 +595,22 @@ class BookRepository {
     int? expectedBooks,
     String? subtitle,
   }) async {
-    // saga and saga_universe are text fields in book table, not lookup tables
-    // Store their subtitle in a metadata table and return a fake ID
+    // saga and saga_universe are text fields in book table, not lookup tables.
+    // Register the value in a metadata table so it appears as a dropdown option
+    // even before any book uses it. Preserve any existing subtitle when none
+    // is provided.
     if (tableName == 'saga' || tableName == 'saga_universe') {
       if (subtitle != null && subtitle.isNotEmpty) {
         await db.insert(
           'dropdown_subtitle_metadata',
           {'category': tableName, 'value': value, 'subtitle': subtitle},
           conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      } else {
+        await db.insert(
+          'dropdown_subtitle_metadata',
+          {'category': tableName, 'value': value, 'subtitle': null},
+          conflictAlgorithm: ConflictAlgorithm.ignore,
         );
       }
       return 0;
@@ -610,32 +645,51 @@ class BookRepository {
     String newValue, {
     String? subtitle,
   }) async {
-    // saga and saga_universe are text fields in book table, not lookup tables
-    // We need to get the old value first and update all books with it
+    // saga and saga_universe are text fields in book table, not lookup tables.
+    // Their values are kept in a metadata registry so they can be managed as
+    // dropdown options even before any book uses them.
     if (tableName == 'saga' || tableName == 'saga_universe') {
       // Get the old value from the fake ID
       final allValues = await getLookupValues(tableName);
       if (id > 0 && id <= allValues.length) {
         final oldValue = allValues[id - 1]['name'] as String;
+
+        // Update any books using the old value
         final updatedRows = await db.rawUpdate(
           'UPDATE book SET $tableName = ? WHERE $tableName = ?',
           [newValue, oldValue],
         );
 
-        // Move any existing subtitle metadata to the new value
+        if (oldValue != newValue) {
+          // Move the metadata entry from old value to new value if possible.
+          // If the new value is already registered, keep its metadata.
+          await db.rawUpdate(
+            'UPDATE OR IGNORE dropdown_subtitle_metadata SET value = ? WHERE category = ? AND value = ?',
+            [newValue, tableName, oldValue],
+          );
+          // Remove any leftover old entry
+          await db.delete(
+            'dropdown_subtitle_metadata',
+            where: 'category = ? AND value = ?',
+            whereArgs: [tableName, oldValue],
+          );
+          // Ensure the new value remains registered as a dropdown option
+          await db.insert(
+            'dropdown_subtitle_metadata',
+            {'category': tableName, 'value': newValue, 'subtitle': null},
+            conflictAlgorithm: ConflictAlgorithm.ignore,
+          );
+        }
+
+        // Apply explicit subtitle change
         if (subtitle != null) {
           if (subtitle.isEmpty) {
             await db.delete(
               'dropdown_subtitle_metadata',
               where: 'category = ? AND value = ?',
-              whereArgs: [tableName, oldValue],
+              whereArgs: [tableName, newValue],
             );
           } else {
-            await db.delete(
-              'dropdown_subtitle_metadata',
-              where: 'category = ? AND value IN (?, ?)',
-              whereArgs: [tableName, oldValue, newValue],
-            );
             await db.insert(
               'dropdown_subtitle_metadata',
               {'category': tableName, 'value': newValue, 'subtitle': subtitle},
@@ -674,6 +728,21 @@ class BookRepository {
 
   /// Delete a value from a lookup table
   Future<int> deleteLookupValue(String tableName, int id) async {
+    // saga and saga_universe are text fields in book table; their dropdown
+    // entries are stored in the metadata registry.
+    if (tableName == 'saga' || tableName == 'saga_universe') {
+      final allValues = await getLookupValues(tableName);
+      if (id > 0 && id <= allValues.length) {
+        final value = allValues[id - 1]['name'] as String;
+        return await db.delete(
+          'dropdown_subtitle_metadata',
+          where: 'category = ? AND value = ?',
+          whereArgs: [tableName, value],
+        );
+      }
+      return 0;
+    }
+
     // format_saga table uses 'format_id' not 'format_saga_id'
     final idColumn =
         tableName == 'format_saga' ? 'format_id' : '${tableName}_id';
@@ -2203,15 +2272,61 @@ class BookRepository {
     }).toList();
   }
 
+  Future<List<BookRelation>> getPlaceholderPlaceholderRelationsForUniverse(
+    String universe,
+  ) async {
+    final result = await db.rawQuery(
+      '''
+      SELECT ppr.relation_id, ppr.from_placeholder_id, ppr.to_placeholder_id,
+        ppr.relation_type
+      FROM placeholder_placeholder_relations ppr
+      INNER JOIN universe_placeholders p1
+        ON ppr.from_placeholder_id = p1.placeholder_id
+      INNER JOIN universe_placeholders p2
+        ON ppr.to_placeholder_id = p2.placeholder_id
+      WHERE p1.saga_universe = ? OR p2.saga_universe = ?
+      ''',
+      [universe, universe],
+    );
+    return result.map((row) {
+      return BookRelation(
+        relationId: -(row['relation_id'] as int),
+        fromBookId: -(row['from_placeholder_id'] as int),
+        toBookId: -(row['to_placeholder_id'] as int),
+        type: (row['relation_type'] as String?) ?? 'next',
+      );
+    }).toList();
+  }
+
   Future<int> insertPlaceholderRelation(PlaceholderRelation relation) async {
     final data = relation.toMap()..remove('relation_id');
     if (data['created_at'] == null) data.remove('created_at');
     return db.insert('placeholder_relations', data);
   }
 
+  Future<int> insertPlaceholderPlaceholderRelation({
+    required int fromPlaceholderId,
+    required int toPlaceholderId,
+    required String type,
+  }) async {
+    return db.insert('placeholder_placeholder_relations', {
+      'from_placeholder_id': fromPlaceholderId,
+      'to_placeholder_id': toPlaceholderId,
+      'relation_type': type,
+    });
+  }
+
   Future<int> deletePlaceholderRelation(int relationId) {
     return db.delete(
       'placeholder_relations',
+      where: 'relation_id = ?',
+      whereArgs: [relationId],
+    );
+  }
+
+  Future<int> deletePlaceholderPlaceholderRelation(int relationId) {
+    return db.delete(
+      'placeholder_placeholder_relations',
       where: 'relation_id = ?',
       whereArgs: [relationId],
     );
@@ -2233,6 +2348,32 @@ class BookRepository {
           'type': relation['relation_type'] ?? 'next',
         });
       }
+
+      // Migrate placeholder-to-placeholder relations into placeholder-to-book.
+      final placeholderRelations = await txn.query(
+        'placeholder_placeholder_relations',
+        where: 'from_placeholder_id = ? OR to_placeholder_id = ?',
+        whereArgs: [placeholderId, placeholderId],
+      );
+      for (final relation in placeholderRelations) {
+        final otherPlaceholderId =
+            relation['from_placeholder_id'] == placeholderId
+                ? relation['to_placeholder_id'] as int
+                : relation['from_placeholder_id'] as int;
+        final isSource = relation['from_placeholder_id'] == placeholderId;
+        await txn.insert('placeholder_relations', {
+          'placeholder_id': otherPlaceholderId,
+          'book_id': bookId,
+          'placeholder_is_source': isSource ? 1 : 0,
+          'relation_type': relation['relation_type'] ?? 'next',
+        });
+      }
+      await txn.delete(
+        'placeholder_placeholder_relations',
+        where: 'from_placeholder_id = ? OR to_placeholder_id = ?',
+        whereArgs: [placeholderId, placeholderId],
+      );
+
       await txn.delete(
         'universe_placeholders',
         where: 'placeholder_id = ?',
