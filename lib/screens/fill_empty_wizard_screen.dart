@@ -15,6 +15,14 @@ class FillEmptyWizardScreen extends StatefulWidget {
 }
 
 class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
+  static const _kBg = Color(0xFFFDF8F6);
+  static const _kPrimary = Color(0xFF43102B);
+  static const _kSecondary = Color(0xFF894B67);
+  static const _kText = Color(0xFF1C1B1A);
+  static const _kSubText = Color(0xFF5F5E5C);
+  static const _kIconBg = Color(0xFFF2EDEB);
+  static const _kBorder = Color(0xFFD5C2C7);
+
   String? _selectedField;
   bool _isLoading = false;
   bool _isApplying = false;
@@ -290,7 +298,22 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.fill_empty_fields)),
+      backgroundColor: _kBg,
+      appBar: AppBar(
+        backgroundColor: _kBg,
+        surfaceTintColor: Colors.transparent,
+        foregroundColor: _kPrimary,
+        elevation: 0,
+        title: Text(
+          l10n.fill_empty_fields,
+          style: const TextStyle(
+            fontFamily: 'Manrope',
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: _kText,
+          ),
+        ),
+      ),
       body: _selectedField == null ? _buildFieldPicker() : _buildWizard(),
     );
   }
@@ -298,35 +321,88 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
   Widget _buildFieldPicker() {
     final l10n = AppLocalizations.of(context)!;
 
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.select_field_to_fill,
-            style: Theme.of(context).textTheme.titleMedium,
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+      children: [
+        Text(
+          l10n.select_field_to_fill,
+          style: const TextStyle(
+            fontFamily: 'Manrope',
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: _kText,
           ),
-          const SizedBox(height: 16),
-          ..._availableFields.map((field) {
-            final key = field['key']!;
-            return Card(
-              child: ListTile(
-                leading: Icon(
-                  _getFieldIcon(key),
-                  color: Theme.of(context).colorScheme.primary,
+        ),
+        const SizedBox(height: 6),
+        Text(
+          l10n.fill_empty_fields_hint,
+          style: const TextStyle(
+            fontFamily: 'Manrope',
+            fontSize: 13,
+            color: _kSubText,
+            height: 1.4,
+          ),
+        ),
+        const SizedBox(height: 20),
+        ..._availableFields.map((field) {
+          final key = field['key']!;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: InkWell(
+              onTap: () {
+                setState(() => _selectedField = key);
+                _loadEmptyBooks();
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.72),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: _kBorder.withValues(alpha: 0.55)),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x0A000000),
+                      blurRadius: 12,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
                 ),
-                title: Text(_getFieldLabel(key)),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  setState(() => _selectedField = key);
-                  _loadEmptyBooks();
-                },
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: const BoxDecoration(
+                        color: _kIconBg,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        _getFieldIcon(key),
+                        color: _kPrimary,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Text(
+                        _getFieldLabel(key),
+                        style: const TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: _kText,
+                        ),
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right, color: _kSubText, size: 18),
+                  ],
+                ),
               ),
-            );
-          }),
-        ],
-      ),
+            ),
+          );
+        }),
+      ],
     );
   }
 
@@ -334,40 +410,90 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(
+              width: 32,
+              height: 32,
+              child: CircularProgressIndicator(
+                color: _kPrimary,
+                strokeWidth: 2.5,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              l10n.fill_empty_fields_hint,
+              style: const TextStyle(
+                fontFamily: 'Manrope',
+                fontSize: 14,
+                color: _kSubText,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
     }
 
     if (_groups.isEmpty) {
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.check_circle_outline,
-              size: 64,
-              color: Theme.of(
-                context,
-              ).colorScheme.primary.withValues(alpha: 0.6),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              l10n.no_books_with_empty_field,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 72,
+                height: 72,
+                decoration: const BoxDecoration(
+                  color: _kIconBg,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.check_rounded,
+                  size: 36,
+                  color: _kPrimary,
+                ),
               ),
-            ),
-            const SizedBox(height: 24),
-            TextButton.icon(
-              onPressed: () {
-                setState(() {
-                  _selectedField = null;
-                  _groups = [];
-                });
-              },
-              icon: const Icon(Icons.arrow_back),
-              label: Text(l10n.back),
-            ),
-          ],
+              const SizedBox(height: 20),
+              Text(
+                l10n.no_books_with_empty_field,
+                style: const TextStyle(
+                  fontFamily: 'Manrope',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: _kText,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              OutlinedButton.icon(
+                onPressed: () {
+                  setState(() {
+                    _selectedField = null;
+                    _groups = [];
+                  });
+                },
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: _kPrimary,
+                  side: const BorderSide(color: _kBorder),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                icon: const Icon(Icons.arrow_back, size: 18),
+                label: Text(
+                  l10n.back,
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -378,135 +504,171 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
     return Column(
       children: [
         // Progress header
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          color: Theme.of(
-            context,
-          ).colorScheme.primaryContainer.withValues(alpha: 0.3),
-          child: Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () {
-                  setState(() {
-                    _selectedField = null;
-                    _groups = [];
-                  });
-                },
-                tooltip: l10n.back,
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.group_n_of_total(
-                        _currentGroupIndex + 1,
-                        _groups.length,
-                      ),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    Text(
-                      l10n.books_without_field(
-                        totalEmpty,
-                        _getFieldLabel(_selectedField!),
-                      ),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.72),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: _kBorder.withValues(alpha: 0.55)),
+            ),
+            child: Row(
+              children: [
+                IconButton(
+                  color: _kPrimary,
+                  icon: const Icon(Icons.arrow_back, size: 20),
+                  onPressed: () {
+                    setState(() {
+                      _selectedField = null;
+                      _groups = [];
+                    });
+                  },
+                  tooltip: l10n.back,
                 ),
-              ),
-              // Nav buttons
-              IconButton(
-                onPressed:
-                    _currentGroupIndex > 0
-                        ? () {
-                          setState(() {
-                            _currentGroupIndex--;
-                            _preselectGroup(_currentGroupIndex);
-                          });
-                        }
-                        : null,
-                icon: const Icon(Icons.chevron_left),
-              ),
-              IconButton(
-                onPressed:
-                    _currentGroupIndex < _groups.length - 1
-                        ? () {
-                          setState(() {
-                            _currentGroupIndex++;
-                            _preselectGroup(_currentGroupIndex);
-                          });
-                        }
-                        : null,
-                icon: const Icon(Icons.chevron_right),
-              ),
-            ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.group_n_of_total(
+                          _currentGroupIndex + 1,
+                          _groups.length,
+                        ),
+                        style: const TextStyle(
+                          fontFamily: 'Manrope',
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                          color: _kText,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        l10n.books_without_field(
+                          totalEmpty,
+                          _getFieldLabel(_selectedField!),
+                        ),
+                        style: const TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 11,
+                          color: _kSubText,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Nav buttons
+                IconButton(
+                  color: _kPrimary,
+                  onPressed:
+                      _currentGroupIndex > 0
+                          ? () {
+                            setState(() {
+                              _currentGroupIndex--;
+                              _preselectGroup(_currentGroupIndex);
+                            });
+                          }
+                          : null,
+                  icon: const Icon(Icons.chevron_left),
+                ),
+                IconButton(
+                  color: _kPrimary,
+                  onPressed:
+                      _currentGroupIndex < _groups.length - 1
+                          ? () {
+                            setState(() {
+                              _currentGroupIndex++;
+                              _preselectGroup(_currentGroupIndex);
+                            });
+                          }
+                          : null,
+                  icon: const Icon(Icons.chevron_right),
+                ),
+              ],
+            ),
           ),
         ),
 
         // Progress bar
-        LinearProgressIndicator(
-          value:
-              _groups.isEmpty ? 0 : (_currentGroupIndex + 1) / _groups.length,
-          backgroundColor:
-              Theme.of(context).colorScheme.surfaceContainerHighest,
-          valueColor: AlwaysStoppedAnimation<Color>(
-            Theme.of(context).colorScheme.primary,
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(999),
+            child: LinearProgressIndicator(
+              minHeight: 5,
+              value:
+                  _groups.isEmpty
+                      ? 0
+                      : (_currentGroupIndex + 1) / _groups.length,
+              backgroundColor: _kIconBg,
+              valueColor: const AlwaysStoppedAnimation<Color>(_kPrimary),
+            ),
           ),
         ),
 
         Expanded(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Group header
-                Card(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primaryContainer.withValues(alpha: 0.3),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.person,
-                          color: Theme.of(context).colorScheme.primary,
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.78),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: _kBorder.withValues(alpha: 0.65)),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x0A000000),
+                        blurRadius: 12,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: const BoxDecoration(
+                          color: _kIconBg,
+                          shape: BoxShape.circle,
                         ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                group.name,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              Text(
-                                l10n.books_in_group(group.books.length),
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.primary.withValues(alpha: 0.6),
-                                ),
-                              ),
-                            ],
-                          ),
+                        child: const Icon(
+                          Icons.person_outline,
+                          color: _kPrimary,
+                          size: 20,
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              group.name,
+                              style: const TextStyle(
+                                fontFamily: 'Manrope',
+                                fontWeight: FontWeight.w700,
+                                fontSize: 15,
+                                color: _kText,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              l10n.books_in_group(group.books.length),
+                              style: const TextStyle(
+                                fontFamily: 'Manrope',
+                                fontSize: 11,
+                                color: _kSubText,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -516,14 +678,10 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.tertiaryContainer.withValues(alpha: 0.3),
-                      borderRadius: BorderRadius.circular(8),
+                      color: _kSecondary.withValues(alpha: 0.07),
+                      borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.tertiary.withValues(alpha: 0.4),
+                        color: _kSecondary.withValues(alpha: 0.22),
                       ),
                     ),
                     child: Column(
@@ -531,9 +689,9 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                       children: [
                         Row(
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.lightbulb_outline,
-                              color: Theme.of(context).colorScheme.tertiary,
+                              color: _kSecondary,
                               size: 18,
                             ),
                             const SizedBox(width: 8),
@@ -542,10 +700,11 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                                 l10n.other_books_have(
                                   group.suggestions.join(', '),
                                 ),
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color:
-                                      Theme.of(context).colorScheme.onSurface,
+                                style: const TextStyle(
+                                  fontFamily: 'Manrope',
+                                  fontSize: 12,
+                                  color: _kText,
+                                  height: 1.4,
                                 ),
                               ),
                             ),
@@ -560,21 +719,22 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                                 final isSelected = _groupSelectedValue == s;
                                 return ActionChip(
                                   label: Text(s),
-                                  backgroundColor:
-                                      isSelected
-                                          ? Theme.of(
-                                            context,
-                                          ).colorScheme.primaryContainer
-                                          : null,
-                                  side:
-                                      isSelected
-                                          ? BorderSide(
-                                            color:
-                                                Theme.of(
-                                                  context,
-                                                ).colorScheme.primary,
-                                          )
-                                          : null,
+                                  labelStyle: TextStyle(
+                                    fontFamily: 'Manrope',
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: isSelected ? Colors.white : _kText,
+                                  ),
+                                  backgroundColor: Colors.white,
+                                  color: WidgetStatePropertyAll(
+                                    isSelected ? _kPrimary : Colors.white,
+                                  ),
+                                  side: BorderSide(
+                                    color: isSelected ? _kPrimary : _kBorder,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
                                   onPressed: () {
                                     setState(() => _groupSelectedValue = s);
                                   },
@@ -588,11 +748,38 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
 
                 // Value picker dropdown
                 DropdownButtonFormField<String>(
-                  value: _groupSelectedValue,
+                  key: ValueKey('$_currentGroupIndex-$_groupSelectedValue'),
+                  initialValue: _groupSelectedValue,
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 14,
+                    color: _kText,
+                  ),
+                  dropdownColor: _kBg,
+                  iconEnabledColor: _kPrimary,
                   decoration: InputDecoration(
                     labelText: l10n.select_value_to_apply,
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.label),
+                    labelStyle: const TextStyle(
+                      fontFamily: 'Manrope',
+                      color: _kSubText,
+                    ),
+                    prefixIcon: const Icon(
+                      Icons.label_outline,
+                      color: _kSecondary,
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: _kBorder),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: _kPrimary,
+                        width: 1.5,
+                      ),
+                    ),
                   ),
                   items:
                       _fieldValues.map((item) {
@@ -610,36 +797,58 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                   final isSelected = _groupSelectedBookIds.contains(
                     book.bookId,
                   );
-                  return CheckboxListTile(
-                    value: isSelected,
-                    onChanged: (selected) {
-                      setState(() {
-                        if (selected == true && book.bookId != null) {
-                          _groupSelectedBookIds.add(book.bookId!);
-                        } else {
-                          _groupSelectedBookIds.remove(book.bookId);
-                        }
-                      });
-                    },
-                    title: Text(
-                      book.name ?? '',
-                      style: const TextStyle(fontWeight: FontWeight.w600),
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    decoration: BoxDecoration(
+                      color:
+                          isSelected
+                              ? _kPrimary.withValues(alpha: 0.04)
+                              : Colors.white.withValues(alpha: 0.7),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color:
+                            isSelected
+                                ? _kPrimary.withValues(alpha: 0.22)
+                                : _kBorder.withValues(alpha: 0.55),
+                      ),
                     ),
-                    subtitle:
-                        book.author != null
-                            ? Text(
-                              book.author!,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color:
-                                    Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
-                              ),
-                            )
-                            : null,
-                    dense: true,
-                    activeColor: Theme.of(context).colorScheme.primary,
+                    child: CheckboxListTile(
+                      value: isSelected,
+                      onChanged: (selected) {
+                        setState(() {
+                          if (selected == true && book.bookId != null) {
+                            _groupSelectedBookIds.add(book.bookId!);
+                          } else {
+                            _groupSelectedBookIds.remove(book.bookId);
+                          }
+                        });
+                      },
+                      title: Text(
+                        book.name ?? '',
+                        style: const TextStyle(
+                          fontFamily: 'Manrope',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                          color: _kText,
+                        ),
+                      ),
+                      subtitle:
+                          book.author != null
+                              ? Text(
+                                book.author!,
+                                style: const TextStyle(
+                                  fontFamily: 'Manrope',
+                                  fontSize: 11,
+                                  color: _kSubText,
+                                ),
+                              )
+                              : null,
+                      dense: true,
+                      controlAffinity: ListTileControlAffinity.leading,
+                      activeColor: _kPrimary,
+                      checkColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                    ),
                   );
                 }),
                 const SizedBox(height: 16),
@@ -647,7 +856,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                 // Apply button
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton.icon(
+                  child: FilledButton.icon(
                     onPressed:
                         (_groupSelectedBookIds.isNotEmpty &&
                                 _groupSelectedValue != null &&
@@ -656,20 +865,29 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                             : null,
                     icon:
                         _isApplying
-                            ? SizedBox(
+                            ? const SizedBox(
                               width: 16,
                               height: 16,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: Theme.of(context).colorScheme.onPrimary,
+                                color: Colors.white,
                               ),
                             )
-                            : const Icon(Icons.check),
+                            : const Icon(Icons.check, size: 18),
                     label: Text(l10n.apply_to_group),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: _kPrimary,
+                      foregroundColor: Colors.white,
+                      disabledBackgroundColor: _kBorder,
+                      disabledForegroundColor: _kSubText,
                       padding: const EdgeInsets.symmetric(vertical: 14),
+                      textStyle: const TextStyle(
+                        fontFamily: 'Manrope',
+                        fontWeight: FontWeight.w700,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                   ),
                 ),
