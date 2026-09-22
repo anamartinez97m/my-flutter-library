@@ -7369,6 +7369,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tandem with {bookName}'**
   String tandem_with(Object bookName);
+
+  /// No description provided for @universe_placeholders.
+  ///
+  /// In en, this message translates to:
+  /// **'Universe Placeholders'**
+  String get universe_placeholders;
+
+  /// No description provided for @universe_placeholders_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage books missing from universe reading orders'**
+  String get universe_placeholders_subtitle;
+
+  /// No description provided for @add_placeholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Add placeholder'**
+  String get add_placeholder;
+
+  /// No description provided for @placeholder_book.
+  ///
+  /// In en, this message translates to:
+  /// **'Placeholder book'**
+  String get placeholder_book;
+
+  /// No description provided for @not_in_library.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in library'**
+  String get not_in_library;
+
+  /// No description provided for @in_library.
+  ///
+  /// In en, this message translates to:
+  /// **'In library'**
+  String get in_library;
+
+  /// No description provided for @promote_to_library.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to library'**
+  String get promote_to_library;
+
+  /// No description provided for @delete_placeholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete placeholder'**
+  String get delete_placeholder;
+
+  /// No description provided for @edit_placeholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit placeholder'**
+  String get edit_placeholder;
+
+  /// No description provided for @placeholder_title_required.
+  ///
+  /// In en, this message translates to:
+  /// **'A title is required'**
+  String get placeholder_title_required;
+
+  /// No description provided for @required_field.
+  ///
+  /// In en, this message translates to:
+  /// **'Required field'**
+  String get required_field;
+
+  /// No description provided for @reading_order_position.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading order position'**
+  String get reading_order_position;
+
+  /// No description provided for @cover_url.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover URL'**
+  String get cover_url;
+
+  /// No description provided for @missing_earlier_entries.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing earlier entries in: {sagas}'**
+  String missing_earlier_entries(Object sagas);
 }
 
 class _AppLocalizationsDelegate

@@ -5,9 +5,13 @@ import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/model/book_relation.dart';
+import 'package:myrandomlibrary/model/placeholder_relation.dart';
+import 'package:myrandomlibrary/model/universe_placeholder.dart';
 import 'package:myrandomlibrary/providers/role_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
+import 'package:myrandomlibrary/screens/add_book.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
+import 'package:myrandomlibrary/screens/settings/universe_placeholders_screen.dart';
 import 'package:provider/provider.dart';
 
 class UniverseReadingOrderScreen extends StatefulWidget {
@@ -78,6 +82,8 @@ class _UniverseReadingOrderScreenState
       final results = await Future.wait([
         repository.getBooksByUniverse(widget.universe),
         repository.getBookRelationsForUniverse(widget.universe),
+        repository.getPlaceholdersByUniverse(widget.universe),
+        repository.getPlaceholderRelationsForUniverse(widget.universe),
       ]);
       final loadedBooks = results[0] as List<Book>;
       final bookIdsInUniverse =
@@ -92,10 +98,39 @@ class _UniverseReadingOrderScreenState
             }
             return true;
           }).toList();
+      final placeholders = (results[2] as List<UniversePlaceholder>).map(
+        (placeholder) => Book(
+          bookId: -placeholder.placeholderId!,
+          name: placeholder.title,
+          saga: placeholder.saga,
+          nSaga: placeholder.nSaga,
+          sagaUniverse: placeholder.sagaUniverse,
+          author: placeholder.author,
+          coverUrl: placeholder.coverUrl,
+          notes: placeholder.notes,
+          orderWithinUniverse: placeholder.orderWithinUniverse,
+          formatSagaValue: null,
+          isbn: null,
+          asin: null,
+          pages: null,
+          originalPublicationYear: null,
+          loaned: null,
+          statusValue: null,
+          editorialValue: null,
+          languageValue: null,
+          placeValue: null,
+          formatValue: null,
+          createdAt: placeholder.createdAt,
+          isPlaceholder: true,
+        ),
+      );
       if (!mounted) return;
       setState(() {
-        _books = books;
-        _relations = results[1] as List<BookRelation>;
+        _books = [...books, ...placeholders]..sort(_compareBooks);
+        _relations = [
+          ...results[1] as List<BookRelation>,
+          ...results[3] as List<BookRelation>,
+        ];
         _loading = false;
       });
     } catch (error) {
@@ -202,10 +237,14 @@ class _UniverseReadingOrderScreenState
 
   Future<void> _handleBookTap(Book book) async {
     if (!_editMode || !_addingRelation) {
-      await Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => NewBookDetailScreen(book: book)),
-      );
+      if (book.isPlaceholder) {
+        await _showBookActions(book);
+      } else {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => NewBookDetailScreen(book: book)),
+        );
+      }
       return;
     }
     final bookId = book.bookId;
@@ -222,13 +261,26 @@ class _UniverseReadingOrderScreenState
     if (type == null || !mounted) return;
     try {
       final repository = await _repository();
-      await repository.insertBookRelation(
-        BookRelation(
-          fromBookId: _relationStartBookId!,
-          toBookId: bookId,
-          type: type,
-        ),
-      );
+      final fromId = _relationStartBookId!;
+      if (fromId < 0 && bookId < 0) {
+        throw StateError(
+          'Placeholder-to-placeholder relations are not supported',
+        );
+      }
+      if (fromId < 0 || bookId < 0) {
+        await repository.insertPlaceholderRelation(
+          PlaceholderRelation(
+            placeholderId: -(fromId < 0 ? fromId : bookId),
+            bookId: fromId > 0 ? fromId : bookId,
+            placeholderIsSource: fromId < 0,
+            type: type,
+          ),
+        );
+      } else {
+        await repository.insertBookRelation(
+          BookRelation(fromBookId: fromId, toBookId: bookId, type: type),
+        );
+      }
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context)!.relation_added)),
@@ -281,8 +333,97 @@ class _UniverseReadingOrderScreenState
     );
   }
 
+  UniversePlaceholder _placeholderFromBook(Book book) {
+    return UniversePlaceholder(
+      placeholderId: -book.bookId!,
+      sagaUniverse: book.sagaUniverse!,
+      title: book.name ?? '',
+      author: book.author,
+      saga: book.saga,
+      nSaga: book.nSaga,
+      orderWithinUniverse: book.orderWithinUniverse,
+      coverUrl: book.coverUrl,
+      notes: book.notes,
+      createdAt: book.createdAt,
+    );
+  }
+
   Future<void> _showBookActions(Book book) async {
     final l10n = AppLocalizations.of(context)!;
+    if (book.isPlaceholder) {
+      final placeholder = _placeholderFromBook(book);
+      await showModalBottomSheet<void>(
+        context: context,
+        backgroundColor: _kBg,
+        builder:
+            (sheetContext) => SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.edit_outlined),
+                    title: Text(l10n.edit_placeholder),
+                    onTap: () async {
+                      Navigator.pop(sheetContext);
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (_) => UniversePlaceholdersScreen(
+                                initialUniverse: widget.universe,
+                                editPlaceholder: placeholder,
+                              ),
+                        ),
+                      );
+                      await _loadData();
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.library_add_outlined),
+                    title: Text(l10n.promote_to_library),
+                    onTap: () async {
+                      Navigator.pop(sheetContext);
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (_) => AddBookScreen(
+                                initialPlaceholder: placeholder,
+                                onBookSaved:
+                                    (bookId) => _repository().then(
+                                      (repository) =>
+                                          repository.promotePlaceholderToBook(
+                                            placeholder.placeholderId!,
+                                            bookId,
+                                          ),
+                                    ),
+                              ),
+                        ),
+                      );
+                      await _loadData();
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(
+                      Icons.delete_outline,
+                      color: Colors.red,
+                    ),
+                    title: Text(l10n.delete_placeholder),
+                    onTap: () async {
+                      Navigator.pop(sheetContext);
+                      final repository = await _repository();
+                      await repository.deletePlaceholder(
+                        placeholder.placeholderId!,
+                      );
+                      await _loadData();
+                    },
+                  ),
+                ],
+              ),
+            ),
+      );
+      return;
+    }
     await showModalBottomSheet<void>(
       context: context,
       backgroundColor: _kBg,
@@ -423,7 +564,11 @@ class _UniverseReadingOrderScreenState
       for (var index = 0; index < reordered.length; index++) {
         final id = reordered[index].bookId;
         if (id != null) {
-          await repository.updateBookUniverseOrder(id, index + 1);
+          if (id < 0) {
+            await repository.updatePlaceholderUniverseOrder(-id, index + 1);
+          } else {
+            await repository.updateBookUniverseOrder(id, index + 1);
+          }
         }
       }
       if (!mounted) return;
@@ -518,9 +663,16 @@ class _UniverseReadingOrderScreenState
                                       );
                                       if (confirmed != true) return;
                                       final repository = await _repository();
-                                      await repository.deleteBookRelation(
-                                        relation.relationId!,
-                                      );
+                                      if (relation.relationId! < 0) {
+                                        await repository
+                                            .deletePlaceholderRelation(
+                                              -relation.relationId!,
+                                            );
+                                      } else {
+                                        await repository.deleteBookRelation(
+                                          relation.relationId!,
+                                        );
+                                      }
                                       if (!context.mounted || !mounted) return;
                                       Navigator.pop(context);
                                       ScaffoldMessenger.of(
@@ -792,6 +944,8 @@ class _BookNode extends StatelessWidget {
       'read',
       'repeated',
     ].contains(book.statusValue?.toLowerCase());
+    final isPlaceholder = book.isPlaceholder;
+    final nodeColor = isPlaceholder ? Colors.grey.shade600 : color;
     return GestureDetector(
       onTap: onTap,
       onLongPress: onLongPress,
@@ -807,12 +961,15 @@ class _BookNode extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: const Color(0xFFFDF8F6),
-                border: Border.all(color: color, width: selected ? 4 : 2),
+                border: Border.all(
+                  color: nodeColor,
+                  width: selected ? 4 : (isPlaceholder ? 2.5 : 2),
+                ),
                 boxShadow:
                     selected
                         ? [
                           BoxShadow(
-                            color: color.withValues(alpha: 0.35),
+                            color: nodeColor.withValues(alpha: 0.35),
                             blurRadius: 14,
                             spreadRadius: 3,
                           ),
@@ -821,7 +978,7 @@ class _BookNode extends StatelessWidget {
               ),
               child: ClipOval(
                 child: Opacity(
-                  opacity: isRead ? 1 : 0.76,
+                  opacity: isPlaceholder ? 0.45 : (isRead ? 1 : 0.76),
                   child:
                       coverUrl == null || coverUrl.isEmpty
                           ? ColoredBox(
@@ -878,6 +1035,19 @@ class _BookNode extends StatelessWidget {
                 ),
               ),
             ),
+            if (isPlaceholder)
+              Container(
+                color: const Color(0xFFFDF8F6),
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                child: Text(
+                  AppLocalizations.of(context)!.not_in_library,
+                  style: TextStyle(
+                    color: Colors.grey.shade700,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
             if (book.orderWithinUniverse == null)
               ColoredBox(
                 color: const Color(0xFFFDF8F6),

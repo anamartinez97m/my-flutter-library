@@ -63,6 +63,7 @@ class Book {
   acquiredDate; // Date acquired: 'YYYY' for year-only or 'YYYY-MM-DD' for full date
   final int?
   orderWithinUniverse; // Position within a universe reading order (nullable = unordered)
+  final bool isPlaceholder;
 
   Book({
     required this.bookId,
@@ -116,6 +117,7 @@ class Book {
     this.metadataFetchedAt,
     this.acquiredDate,
     this.orderWithinUniverse,
+    this.isPlaceholder = false,
   });
 
   factory Book.fromMap(Map<String, dynamic> map) {

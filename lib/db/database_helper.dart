@@ -23,7 +23,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 42,
+      version: 43,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -193,6 +193,8 @@ class DatabaseHelper {
     await db.execute('''
       CREATE INDEX IF NOT EXISTS idx_book_relations_to ON book_relations (to_book_id)
     ''');
+
+    await _createUniversePlaceholderTables(db);
 
     // Tandem Readings: tandem_readings table
     await db.execute('''
@@ -420,6 +422,47 @@ class DatabaseHelper {
       });
       await db.insert('format_saga', {'value': 'Saga', 'expected_books': null});
     }
+  }
+
+  Future<void> _createUniversePlaceholderTables(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS universe_placeholders (
+        placeholder_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        saga_universe VARCHAR(100) NOT NULL,
+        title VARCHAR(200) NOT NULL,
+        author VARCHAR(100),
+        saga VARCHAR(50),
+        n_saga VARCHAR(50),
+        order_within_universe INTEGER,
+        cover_url TEXT,
+        notes TEXT,
+        created_at TEXT DEFAULT (datetime('now'))
+      )
+    ''');
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_universe_placeholders_universe
+      ON universe_placeholders (saga_universe)
+    ''');
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS placeholder_relations (
+        relation_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        placeholder_id INTEGER NOT NULL,
+        book_id INTEGER NOT NULL,
+        placeholder_is_source BOOLEAN NOT NULL DEFAULT 1,
+        relation_type TEXT,
+        created_at TEXT DEFAULT (datetime('now')),
+        FOREIGN KEY (placeholder_id) REFERENCES universe_placeholders(placeholder_id) ON DELETE CASCADE,
+        FOREIGN KEY (book_id) REFERENCES book(book_id) ON DELETE CASCADE
+      )
+    ''');
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_placeholder_relations_placeholder
+      ON placeholder_relations (placeholder_id)
+    ''');
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_placeholder_relations_book
+      ON placeholder_relations (book_id)
+    ''');
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -1310,6 +1353,9 @@ class DatabaseHelper {
       await db.execute('''
         CREATE INDEX IF NOT EXISTS idx_year_challenges_year ON year_challenges(year)
       ''');
+    }
+    if (oldVersion < 43) {
+      await _createUniversePlaceholderTables(db);
     }
     if (oldVersion < 41) {
       // Universe Reading Order: add order_within_universe to book

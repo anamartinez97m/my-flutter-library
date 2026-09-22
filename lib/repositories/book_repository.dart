@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/model/book_relation.dart';
+import 'package:myrandomlibrary/model/placeholder_relation.dart';
 import 'package:myrandomlibrary/model/read_date.dart';
+import 'package:myrandomlibrary/model/universe_placeholder.dart';
 import 'package:sqflite/sqflite.dart';
 
 class BookRepository {
@@ -2111,5 +2113,131 @@ class BookRepository {
       where: 'book_id = ?',
       whereArgs: [bookId],
     );
+  }
+
+  Future<List<String>> getUniversesWithPlaceholders() async {
+    final result = await db.rawQuery('''
+      SELECT saga_universe FROM book
+      WHERE saga_universe IS NOT NULL AND saga_universe != ''
+      UNION
+      SELECT saga_universe FROM universe_placeholders
+      ORDER BY saga_universe
+    ''');
+    return result.map((row) => row['saga_universe'] as String).toList();
+  }
+
+  Future<List<UniversePlaceholder>> getPlaceholdersByUniverse(
+    String universe,
+  ) async {
+    final result = await db.query(
+      'universe_placeholders',
+      where: 'saga_universe = ?',
+      whereArgs: [universe],
+      orderBy:
+          'order_within_universe IS NULL, order_within_universe, n_saga, title',
+    );
+    return result.map(UniversePlaceholder.fromMap).toList();
+  }
+
+  Future<int> insertPlaceholder(UniversePlaceholder placeholder) async {
+    final data = placeholder.toMap()..remove('placeholder_id');
+    if (data['created_at'] == null) data.remove('created_at');
+    return db.insert('universe_placeholders', data);
+  }
+
+  Future<int> updatePlaceholder(UniversePlaceholder placeholder) {
+    final data =
+        placeholder.toMap()
+          ..remove('placeholder_id')
+          ..remove('created_at');
+    return db.update(
+      'universe_placeholders',
+      data,
+      where: 'placeholder_id = ?',
+      whereArgs: [placeholder.placeholderId],
+    );
+  }
+
+  Future<int> deletePlaceholder(int id) {
+    return db.delete(
+      'universe_placeholders',
+      where: 'placeholder_id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<int> updatePlaceholderUniverseOrder(int id, int? order) {
+    return db.update(
+      'universe_placeholders',
+      {'order_within_universe': order},
+      where: 'placeholder_id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<List<BookRelation>> getPlaceholderRelationsForUniverse(
+    String universe,
+  ) async {
+    final result = await db.rawQuery(
+      '''
+      SELECT pr.relation_id, pr.placeholder_id, pr.book_id,
+        pr.placeholder_is_source, pr.relation_type
+      FROM placeholder_relations pr
+      INNER JOIN universe_placeholders p
+        ON pr.placeholder_id = p.placeholder_id
+      INNER JOIN book b ON pr.book_id = b.book_id
+      WHERE p.saga_universe = ? OR b.saga_universe = ?
+      ''',
+      [universe, universe],
+    );
+    return result.map((row) {
+      final placeholderId = -(row['placeholder_id'] as int);
+      final bookId = row['book_id'] as int;
+      final placeholderIsSource = row['placeholder_is_source'] == 1;
+      return BookRelation(
+        relationId: -(row['relation_id'] as int),
+        fromBookId: placeholderIsSource ? placeholderId : bookId,
+        toBookId: placeholderIsSource ? bookId : placeholderId,
+        type: (row['relation_type'] as String?) ?? 'next',
+      );
+    }).toList();
+  }
+
+  Future<int> insertPlaceholderRelation(PlaceholderRelation relation) async {
+    final data = relation.toMap()..remove('relation_id');
+    if (data['created_at'] == null) data.remove('created_at');
+    return db.insert('placeholder_relations', data);
+  }
+
+  Future<int> deletePlaceholderRelation(int relationId) {
+    return db.delete(
+      'placeholder_relations',
+      where: 'relation_id = ?',
+      whereArgs: [relationId],
+    );
+  }
+
+  Future<void> promotePlaceholderToBook(int placeholderId, int bookId) async {
+    await db.transaction((txn) async {
+      final relations = await txn.query(
+        'placeholder_relations',
+        where: 'placeholder_id = ?',
+        whereArgs: [placeholderId],
+      );
+      for (final relation in relations) {
+        final otherBookId = relation['book_id'] as int;
+        final isSource = relation['placeholder_is_source'] == 1;
+        await txn.insert('book_relations', {
+          'from_book_id': isSource ? bookId : otherBookId,
+          'to_book_id': isSource ? otherBookId : bookId,
+          'type': relation['relation_type'] ?? 'next',
+        });
+      }
+      await txn.delete(
+        'universe_placeholders',
+        where: 'placeholder_id = ?',
+        whereArgs: [placeholderId],
+      );
+    });
   }
 }

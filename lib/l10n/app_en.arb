@@ -1819,5 +1819,22 @@
   "tandem_with": "Tandem with {bookName}",
   "@tandem_with": {
     "placeholders": { "bookName": {} }
+  },
+  "universe_placeholders": "Universe Placeholders",
+  "universe_placeholders_subtitle": "Manage books missing from universe reading orders",
+  "add_placeholder": "Add placeholder",
+  "placeholder_book": "Placeholder book",
+  "not_in_library": "Not in library",
+  "in_library": "In library",
+  "promote_to_library": "Add to library",
+  "delete_placeholder": "Delete placeholder",
+  "edit_placeholder": "Edit placeholder",
+  "placeholder_title_required": "A title is required",
+  "required_field": "Required field",
+  "reading_order_position": "Reading order position",
+  "cover_url": "Cover URL",
+  "missing_earlier_entries": "Missing earlier entries in: {sagas}",
+  "@missing_earlier_entries": {
+    "placeholders": { "sagas": {} }
   }
 }

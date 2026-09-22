@@ -4082,4 +4082,49 @@ class AppLocalizationsEn extends AppLocalizations {
   String tandem_with(Object bookName) {
     return 'Tandem with $bookName';
   }
+
+  @override
+  String get universe_placeholders => 'Universe Placeholders';
+
+  @override
+  String get universe_placeholders_subtitle =>
+      'Manage books missing from universe reading orders';
+
+  @override
+  String get add_placeholder => 'Add placeholder';
+
+  @override
+  String get placeholder_book => 'Placeholder book';
+
+  @override
+  String get not_in_library => 'Not in library';
+
+  @override
+  String get in_library => 'In library';
+
+  @override
+  String get promote_to_library => 'Add to library';
+
+  @override
+  String get delete_placeholder => 'Delete placeholder';
+
+  @override
+  String get edit_placeholder => 'Edit placeholder';
+
+  @override
+  String get placeholder_title_required => 'A title is required';
+
+  @override
+  String get required_field => 'Required field';
+
+  @override
+  String get reading_order_position => 'Reading order position';
+
+  @override
+  String get cover_url => 'Cover URL';
+
+  @override
+  String missing_earlier_entries(Object sagas) {
+    return 'Missing earlier entries in: $sagas';
+  }
 }

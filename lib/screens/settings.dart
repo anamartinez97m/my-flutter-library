@@ -19,6 +19,7 @@ import 'package:myrandomlibrary/screens/tutorial_screen.dart';
 import 'package:myrandomlibrary/screens/reverse_assign_screen.dart';
 import 'package:myrandomlibrary/screens/fill_empty_wizard_screen.dart';
 import 'package:myrandomlibrary/screens/smart_suggestions_screen.dart';
+import 'package:myrandomlibrary/screens/settings/universe_placeholders_screen.dart';
 import 'package:myrandomlibrary/services/google_auth_service.dart';
 import 'package:myrandomlibrary/services/backup_service.dart';
 import 'package:myrandomlibrary/services/notification_service.dart';
@@ -2474,6 +2475,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                   // Admin-only items
                   if (isAdmin) ...[
+                    _buildV2ActionCard(
+                      icon: Icons.auto_stories_outlined,
+                      iconColor: _kV2Primary,
+                      title: l10n.universe_placeholders,
+                      subtitle: l10n.universe_placeholders_subtitle,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const UniversePlaceholdersScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 16),
                     _buildV2ActionCard(
                       icon: Icons.upload_file,
                       iconColor: _kV2Primary,

@@ -4,6 +4,7 @@ import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/model/read_date.dart';
+import 'package:myrandomlibrary/model/universe_placeholder.dart';
 import 'package:myrandomlibrary/model/book_rating_field.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
@@ -22,7 +23,10 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:myrandomlibrary/services/book_metadata_service.dart';
 
 class AddBookScreen extends StatefulWidget {
-  const AddBookScreen({super.key});
+  final UniversePlaceholder? initialPlaceholder;
+  final Future<void> Function(int bookId)? onBookSaved;
+
+  const AddBookScreen({super.key, this.initialPlaceholder, this.onBookSaved});
 
   @override
   State<AddBookScreen> createState() => _AddBookScreenState();
@@ -160,6 +164,25 @@ class _AddBookScreenState extends State<AddBookScreen> {
   @override
   void initState() {
     super.initState();
+    final placeholder = widget.initialPlaceholder;
+    if (placeholder != null) {
+      _nameController.text = placeholder.title;
+      _authorController.text = placeholder.author ?? '';
+      _selectedAuthors =
+          placeholder.author
+              ?.split(',')
+              .map((author) => author.trim())
+              .where((author) => author.isNotEmpty)
+              .toList() ??
+          [];
+      _sagaController.text = placeholder.saga ?? '';
+      _nSagaController.text = placeholder.nSaga ?? '';
+      _sagaUniverseController.text = placeholder.sagaUniverse;
+      _universeReadingPositionController.text =
+          placeholder.orderWithinUniverse?.toString() ?? '';
+      _notesController.text = placeholder.notes ?? '';
+      _fetchedCoverUrl = placeholder.coverUrl;
+    }
     _loadDropdownData();
     _loadRatingFieldSuggestions();
   }
@@ -806,6 +829,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
       // Reload books in provider
       if (!context.mounted) return;
+      await widget.onBookSaved?.call(bookId);
       await provider?.loadBooks();
 
       if (!context.mounted) return;

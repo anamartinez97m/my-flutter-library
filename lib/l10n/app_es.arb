@@ -1825,5 +1825,22 @@
   "tandem_with": "Tándem con {bookName}",
   "@tandem_with": {
     "placeholders": { "bookName": {} }
+  },
+  "universe_placeholders": "Marcadores de universo",
+  "universe_placeholders_subtitle": "Gestiona libros que faltan en los órdenes de lectura",
+  "add_placeholder": "Añadir marcador",
+  "placeholder_book": "Libro marcador",
+  "not_in_library": "No está en la biblioteca",
+  "in_library": "En la biblioteca",
+  "promote_to_library": "Añadir a la biblioteca",
+  "delete_placeholder": "Eliminar marcador",
+  "edit_placeholder": "Editar marcador",
+  "placeholder_title_required": "El título es obligatorio",
+  "required_field": "Campo obligatorio",
+  "reading_order_position": "Posición en el orden de lectura",
+  "cover_url": "URL de portada",
+  "missing_earlier_entries": "Faltan entradas anteriores en: {sagas}",
+  "@missing_earlier_entries": {
+    "placeholders": { "sagas": {} }
   }
 }
