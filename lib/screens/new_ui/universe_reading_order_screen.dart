@@ -36,12 +36,11 @@ class _UniverseReadingOrderScreenState
   static const _kSub = Color(0xFF514348);
   static const _kBg = Color(0xFFFDF8F6);
   static const _kMuted = Color(0xFFD5C2C7);
-  static const _nodeSize = 72.0;
-  static const _trackWidth = 150.0;
-  static const _rowHeight = 116.0;
-  static const _trackStagger = 68.0;
-  static const _canvasPadding = 54.0;
-  static const _firstNodeTop = 104.0;
+  static const _nodeSize = 84.0;
+  static const _trackWidth = 220.0;
+  static const _rowHeight = 140.0;
+  static const _canvasPadding = 64.0;
+  static const _firstNodeTop = 160.0;
   static const _sagaColors = [
     Color(0xFF43102B),
     Color(0xFF894B67),
@@ -169,27 +168,76 @@ class _UniverseReadingOrderScreenState
     return sagas;
   }
 
-  Map<int, Offset> _positionsFor(List<String?> tracks) {
+  Set<int> _sideBookIds(List<String?> tracks) {
+    final booksById = {for (final book in _books) book.bookId: book};
+    final sideBookIds = <int>{};
+    for (final relation in _displayRelations) {
+      if (relation.type == 'next') continue;
+      final toBook = booksById[relation.toBookId];
+      if (toBook == null) continue;
+      final toTrack = _trackFor(toBook);
+      final fromBook = booksById[relation.fromBookId];
+      if (fromBook == null) continue;
+      final fromTrack = _trackFor(fromBook);
+      if (toTrack != null && toTrack == fromTrack) {
+        sideBookIds.add(relation.toBookId);
+      }
+    }
+    return sideBookIds;
+  }
+
+  List<double> _trackWidths(
+    List<String?> tracks,
+    Map<String?, List<Book>> booksByTrack,
+    Set<int> sideBookIds,
+  ) {
+    return tracks.map((track) {
+      final books = booksByTrack[track] ?? const <Book>[];
+      final hasSide = books.any((book) => sideBookIds.contains(book.bookId));
+      return hasSide ? _trackWidth * 2 : _trackWidth;
+    }).toList();
+  }
+
+  ({Map<int, Offset> positions, List<double> trackWidths}) _layoutFor(
+    List<String?> tracks,
+  ) {
     final sorted = [..._books]..sort(_compareBooks);
     final booksByTrack = <String?, List<Book>>{};
     for (final book in sorted) {
       booksByTrack.putIfAbsent(_trackFor(book), () => []).add(book);
     }
+    final sideBookIds = _sideBookIds(tracks);
+    final trackWidths = _trackWidths(tracks, booksByTrack, sideBookIds);
     final positions = <int, Offset>{};
+    var currentX = _canvasPadding;
     for (var column = 0; column < tracks.length; column++) {
       final books = booksByTrack[tracks[column]] ?? const <Book>[];
-      final trackTop = _firstNodeTop + column * _trackStagger;
-      for (var row = 0; row < books.length; row++) {
-        final bookId = books[row].bookId;
+      final mainBooks =
+          books.where((b) => !sideBookIds.contains(b.bookId)).toList();
+      final sideBooks =
+          books.where((b) => sideBookIds.contains(b.bookId)).toList();
+      final trackTop = _firstNodeTop;
+      for (var row = 0; row < mainBooks.length; row++) {
+        final bookId = mainBooks[row].bookId;
         if (bookId != null) {
           positions[bookId] = Offset(
-            _canvasPadding + column * _trackWidth,
+            currentX + _trackWidth / 2,
             trackTop + row * _rowHeight,
           );
         }
       }
+      for (var row = 0; row < sideBooks.length; row++) {
+        final bookId = sideBooks[row].bookId;
+        if (bookId != null) {
+          positions[bookId] = Offset(
+            currentX + _trackWidth * 1.5,
+            trackTop + row * _rowHeight,
+          );
+        }
+      }
+      currentX += trackWidths[column];
     }
-    return positions;
+    return (positions: positions, trackWidths: trackWidths);
   }
 
   int _compareBooks(Book a, Book b) {
@@ -760,25 +808,6 @@ class _UniverseReadingOrderScreenState
         centerTitle: true,
         actions: [
           IconButton(
-            tooltip: l10n.add_placeholder,
-            icon: const Icon(Icons.add),
-            color: _kPrimary,
-            onPressed: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder:
-                      (_) => UniversePlaceholdersScreen(
-                        initialUniverse: widget.universe,
-                        returnAfterEdit: true,
-                        openAddForm: true,
-                      ),
-                ),
-              );
-              await _loadData();
-            },
-          ),
-          IconButton(
             tooltip: _editMode ? l10n.finish_editing : l10n.edit_reading_order,
             icon: Icon(_editMode ? Icons.done : Icons.edit_outlined),
             color: _kPrimary,
@@ -819,9 +848,29 @@ class _UniverseReadingOrderScreenState
     return Container(
       color: _kBg,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 8,
         children: [
+          TextButton.icon(
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (_) => UniversePlaceholdersScreen(
+                        initialUniverse: widget.universe,
+                        returnAfterEdit: true,
+                        openAddForm: true,
+                      ),
+                ),
+              );
+              await _loadData();
+            },
+            icon: const Icon(Icons.add),
+            label: Text(l10n.add_placeholder),
+          ),
           TextButton.icon(
             onPressed: _showReorderSheet,
             icon: const Icon(Icons.reorder),
@@ -838,10 +887,10 @@ class _UniverseReadingOrderScreenState
             label: Text(l10n.add_relation),
           ),
           if (_relations.isNotEmpty)
-            IconButton(
-              tooltip: l10n.delete_relation,
+            TextButton.icon(
               onPressed: _showRelationsSheet,
               icon: const Icon(Icons.link_off),
+              label: Text(l10n.delete_relation),
             ),
         ],
       ),
@@ -873,10 +922,16 @@ class _UniverseReadingOrderScreenState
       return Center(child: Text(l10n.no_books_in_universe));
     }
     final tracks = _tracks;
-    final positions = _positionsFor(tracks);
+    final layout = _layoutFor(tracks);
+    final positions = layout.positions;
+    final trackWidths = layout.trackWidths;
+    final totalTrackWidth = trackWidths.fold<double>(
+      0,
+      (sum, width) => sum + width,
+    );
     final width = math.max(
       MediaQuery.sizeOf(context).width,
-      _canvasPadding * 2 + math.max(1, tracks.length) * _trackWidth,
+      _canvasPadding * 2 + math.max(1, totalTrackWidth),
     );
     final lowestNode = positions.values.fold<double>(
       _firstNodeTop,
@@ -887,6 +942,12 @@ class _UniverseReadingOrderScreenState
       lowestNode + _nodeSize + 72,
     );
     final booksById = {for (final book in _books) book.bookId: book};
+    final trackLefts = <double>[];
+    var cumulativeX = _canvasPadding;
+    for (final trackWidth in trackWidths) {
+      trackLefts.add(cumulativeX);
+      cumulativeX += trackWidth;
+    }
     return InteractiveViewer(
       constrained: false,
       minScale: 0.5,
@@ -909,9 +970,9 @@ class _UniverseReadingOrderScreenState
             ),
             for (var index = 0; index < tracks.length; index++)
               Positioned(
-                left: _canvasPadding + index * _trackWidth - 34,
-                top: _firstNodeTop + index * _trackStagger - 72,
-                width: _trackWidth - 4,
+                left: trackLefts[index] + 20,
+                top: _firstNodeTop - 100,
+                width: trackWidths[index] - 4,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 10,
@@ -925,13 +986,14 @@ class _UniverseReadingOrderScreenState
                   ),
                   child: Text(
                     tracks[index] ?? l10n.standalone_books,
+                    textAlign: TextAlign.center,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: _sagaColors[index % _sagaColors.length],
                       fontFamily: 'Manrope',
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                 ),
@@ -993,13 +1055,13 @@ class _BookNode extends StatelessWidget {
       onTap: onTap,
       onLongPress: onLongPress,
       child: SizedBox(
-        width: 116,
+        width: 132,
         child: Column(
           children: [
             AnimatedContainer(
               duration: const Duration(milliseconds: 180),
-              width: 72,
-              height: 72,
+              width: 84,
+              height: 84,
               padding: EdgeInsets.all(selected ? 4 : 2.5),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
@@ -1021,7 +1083,7 @@ class _BookNode extends StatelessWidget {
               ),
               child: ClipOval(
                 child: Opacity(
-                  opacity: isPlaceholder ? 0.45 : (isRead ? 1 : 0.76),
+                  opacity: isPlaceholder ? 0.65 : (isRead ? 1 : 0.82),
                   child:
                       coverUrl == null || coverUrl.isEmpty
                           ? ColoredBox(
@@ -1032,7 +1094,7 @@ class _BookNode extends StatelessWidget {
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontFamily: 'Manrope',
-                                  fontSize: 26,
+                                  fontSize: 28,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -1050,7 +1112,7 @@ class _BookNode extends StatelessWidget {
                                           .toUpperCase(),
                                       style: const TextStyle(
                                         color: Colors.white,
-                                        fontSize: 26,
+                                        fontSize: 28,
                                         fontWeight: FontWeight.w700,
                                       ),
                                     ),
@@ -1072,9 +1134,9 @@ class _BookNode extends StatelessWidget {
                 style: const TextStyle(
                   color: Color(0xFF514348),
                   fontFamily: 'Manrope',
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  height: 1.15,
+                  height: 1.2,
                 ),
               ),
             ),
@@ -1086,7 +1148,7 @@ class _BookNode extends StatelessWidget {
                   AppLocalizations.of(context)!.not_in_library,
                   style: TextStyle(
                     color: Colors.grey.shade700,
-                    fontSize: 9,
+                    fontSize: 10,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -1096,7 +1158,11 @@ class _BookNode extends StatelessWidget {
                 color: const Color(0xFFFDF8F6),
                 child: Text(
                   AppLocalizations.of(context)!.unordered,
-                  style: const TextStyle(color: Color(0xFF894B67), fontSize: 9),
+                  style: const TextStyle(
+                    color: Color(0xFF894B67),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
           ],
@@ -1137,7 +1203,7 @@ class _ReadingOrderPainter extends CustomPainter {
                 isSolid
                     ? colorForBook(fromBook)
                     : const Color(0xFF894B67).withValues(alpha: 0.65)
-            ..strokeWidth = isSolid ? 2.8 : 2
+            ..strokeWidth = isSolid ? 3.4 : 2.8
             ..style = PaintingStyle.stroke
             ..strokeCap = StrokeCap.round;
       if (isSolid) {
@@ -1148,6 +1214,8 @@ class _ReadingOrderPainter extends CustomPainter {
       _drawArrowhead(canvas, path, paint);
     }
   }
+
+  static const _arrowMargin = 8.0;
 
   Path _relationPath(Offset from, Offset to) {
     if ((to.dx - from.dx).abs() < 1) {
@@ -1160,7 +1228,7 @@ class _ReadingOrderPainter extends CustomPainter {
     }
     final direction = (to.dx - from.dx).sign;
     final start = Offset(from.dx + direction * nodeRadius, from.dy);
-    final end = Offset(to.dx - direction * nodeRadius, to.dy);
+    final end = Offset(to.dx - direction * (nodeRadius + _arrowMargin), to.dy);
     final controlX = (start.dx + end.dx) / 2;
     return Path()
       ..moveTo(start.dx, start.dy)
@@ -1173,7 +1241,7 @@ class _ReadingOrderPainter extends CustomPainter {
     final metric = metrics.last;
     final tangent = metric.getTangentForOffset(metric.length);
     if (tangent == null) return;
-    const arrowLength = 11.0;
+    const arrowLength = 16.0;
     const arrowAngle = math.pi / 7;
     final angle = tangent.angle;
     final tip = tangent.position;
