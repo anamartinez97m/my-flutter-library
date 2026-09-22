@@ -17,6 +17,13 @@ class SmartSuggestionsScreen extends StatefulWidget {
 
 class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
   static const _rejectedSuggestionsKey = 'rejected_smart_suggestions';
+  static const _kBg = Color(0xFFFDF8F6);
+  static const _kPrimary = Color(0xFF43102B);
+  static const _kSecondary = Color(0xFF894B67);
+  static const _kText = Color(0xFF1C1B1A);
+  static const _kSubText = Color(0xFF5F5E5C);
+  static const _kIconBg = Color(0xFFF2EDEB);
+  static const _kBorder = Color(0xFFD5C2C7);
 
   List<Suggestion> _suggestions = [];
   bool _isLoading = true;
@@ -190,63 +197,110 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
         _suggestions.where((s) => !s.isApplied && !s.isRejected).length;
 
     return Scaffold(
+      backgroundColor: _kBg,
       appBar: AppBar(
-        title: Text(l10n.smart_suggestions),
+        backgroundColor: _kBg,
+        surfaceTintColor: Colors.transparent,
+        foregroundColor: _kPrimary,
+        elevation: 0,
+        title: Text(
+          l10n.smart_suggestions,
+          style: const TextStyle(
+            fontFamily: 'Manrope',
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: _kText,
+          ),
+        ),
         actions: [
           if (pendingCount > 1)
-            TextButton.icon(
-              onPressed: _acceptAll,
-              icon: const Icon(Icons.done_all),
-              label: Text(l10n.accept_all),
+            Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: TextButton.icon(
+                onPressed: _acceptAll,
+                style: TextButton.styleFrom(foregroundColor: _kPrimary),
+                icon: const Icon(Icons.done_all, size: 18),
+                label: Text(
+                  l10n.accept_all,
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
             ),
         ],
       ),
       body:
           _isLoading
-              ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const CircularProgressIndicator(),
-                    const SizedBox(height: 16),
-                    Text(
-                      l10n.generating_suggestions,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              )
+              ? _buildLoadingState(l10n)
               : _suggestions.isEmpty
-              ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.check_circle_outline,
-                      size: 64,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withValues(alpha: 0.7),
-                    ),
-                    const SizedBox(height: 16),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32),
-                      child: Text(
-                        l10n.no_suggestions,
-                        style: Theme.of(
-                          context,
-                        ).textTheme.titleMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ],
-                ),
-              )
+              ? _buildEmptyState(l10n)
               : _buildSuggestionsList(),
+    );
+  }
+
+  Widget _buildLoadingState(AppLocalizations l10n) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(
+            width: 32,
+            height: 32,
+            child: CircularProgressIndicator(
+              color: _kPrimary,
+              strokeWidth: 2.5,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            l10n.generating_suggestions,
+            style: const TextStyle(
+              fontFamily: 'Manrope',
+              fontSize: 14,
+              color: _kSubText,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(AppLocalizations l10n) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 72,
+              height: 72,
+              decoration: const BoxDecoration(
+                color: _kIconBg,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.check_rounded,
+                size: 36,
+                color: _kPrimary,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              l10n.no_suggestions,
+              style: const TextStyle(
+                fontFamily: 'Manrope',
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: _kText,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -259,44 +313,71 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
     return Column(
       children: [
         // Header
-        Container(
-          padding: const EdgeInsets.all(16),
-          color: Theme.of(
-            context,
-          ).colorScheme.primaryContainer.withValues(alpha: 0.3),
-          child: Row(
-            children: [
-              Icon(
-                Icons.auto_fix_high,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                l10n.n_suggestions_found(_suggestions.length),
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-              const Spacer(),
-              if (pendingCount == 0)
-                Chip(
-                  label: Text(
-                    l10n.all_suggestions_processed,
-                    style: const TextStyle(fontSize: 11),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.72),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: _kBorder.withValues(alpha: 0.55)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: const BoxDecoration(
+                    color: _kIconBg,
+                    shape: BoxShape.circle,
                   ),
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.primaryContainer.withValues(alpha: 0.5),
+                  child: const Icon(
+                    Icons.auto_fix_high,
+                    color: _kPrimary,
+                    size: 20,
+                  ),
                 ),
-            ],
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    l10n.n_suggestions_found(_suggestions.length),
+                    style: const TextStyle(
+                      fontFamily: 'Manrope',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      color: _kText,
+                    ),
+                  ),
+                ),
+                if (pendingCount == 0)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _kPrimary.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      l10n.all_suggestions_processed,
+                      style: const TextStyle(
+                        fontFamily: 'Manrope',
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: _kPrimary,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
 
         // Suggestions list
         Expanded(
           child: ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
             itemCount: _suggestions.length,
             itemBuilder: (context, index) {
               final suggestion = _suggestions[index];
@@ -317,93 +398,117 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
   ) {
     final l10n = AppLocalizations.of(context)!;
 
-    Color cardColor;
-    if (suggestion.isApplied) {
-      cardColor = Theme.of(
-        context,
-      ).colorScheme.primaryContainer.withValues(alpha: 0.2);
-    } else if (suggestion.isRejected) {
-      cardColor = Theme.of(
-        context,
-      ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5);
-    } else {
-      cardColor = Theme.of(context).colorScheme.surface;
-    }
+    final statusColor = suggestion.isApplied ? _kPrimary : _kSecondary;
 
-    return Card(
-      elevation: suggestion.isApplied || suggestion.isRejected ? 0 : 2,
-      color: cardColor,
+    return Container(
       margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color:
+            suggestion.isApplied
+                ? _kPrimary.withValues(alpha: 0.04)
+                : Colors.white.withValues(alpha: 0.78),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color:
+              suggestion.isApplied
+                  ? _kPrimary.withValues(alpha: 0.18)
+                  : _kBorder.withValues(alpha: 0.65),
+        ),
+        boxShadow:
+            suggestion.isApplied
+                ? null
+                : const [
+                  BoxShadow(
+                    color: Color(0x0A000000),
+                    blurRadius: 12,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          ListTile(
-            leading: CircleAvatar(
-              backgroundColor:
-                  suggestion.isApplied
-                      ? Theme.of(context).colorScheme.primary
-                      : suggestion.isRejected
-                      ? Theme.of(context).colorScheme.onSurfaceVariant
-                      : Theme.of(context).colorScheme.primary,
-              child: Icon(
-                suggestion.isApplied
-                    ? Icons.check
-                    : suggestion.isRejected
-                    ? Icons.close
-                    : _getFieldIcon(suggestion.field),
-                color: Theme.of(context).colorScheme.onPrimary,
-                size: 20,
-              ),
-            ),
-            title: Text(
-              l10n.apply_value_to_books(
-                suggestion.value,
-                _getFieldLabel(suggestion.field),
-                suggestion.bookIds.length,
-              ),
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-                decoration:
-                    suggestion.isRejected ? TextDecoration.lineThrough : null,
-              ),
-            ),
-            subtitle: Row(
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 8, 8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 2,
-                  ),
+                  width: 40,
+                  height: 40,
                   decoration: BoxDecoration(
-                    color: _confidenceColor(
-                      suggestion.confidence,
-                    ).withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(12),
+                    color: statusColor.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
                   ),
-                  child: Text(
-                    l10n.suggestion_confidence(suggestion.confidence),
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: _confidenceColor(suggestion.confidence),
-                      fontWeight: FontWeight.w600,
-                    ),
+                  child: Icon(
+                    suggestion.isApplied
+                        ? Icons.check_rounded
+                        : _getFieldIcon(suggestion.field),
+                    color: statusColor,
+                    size: 20,
                   ),
                 ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.apply_value_to_books(
+                          suggestion.value,
+                          _getFieldLabel(suggestion.field),
+                          suggestion.bookIds.length,
+                        ),
+                        style: const TextStyle(
+                          fontFamily: 'Manrope',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          color: _kText,
+                          height: 1.35,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 9,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _confidenceColor(
+                            suggestion.confidence,
+                          ).withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          l10n.suggestion_confidence(suggestion.confidence),
+                          style: TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 10,
+                            color: _confidenceColor(suggestion.confidence),
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  color: _kSubText,
+                  icon: Icon(
+                    isExpanded ? Icons.expand_less : Icons.expand_more,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      if (isExpanded) {
+                        _expandedIndices.remove(index);
+                      } else {
+                        _expandedIndices.add(index);
+                      }
+                    });
+                  },
+                ),
               ],
-            ),
-            trailing: IconButton(
-              icon: Icon(isExpanded ? Icons.expand_less : Icons.expand_more),
-              onPressed: () {
-                setState(() {
-                  if (isExpanded) {
-                    _expandedIndices.remove(index);
-                  } else {
-                    _expandedIndices.add(index);
-                  }
-                });
-              },
             ),
           ),
 
@@ -412,44 +517,57 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
               suggestion.description,
-              style: TextStyle(
+              style: const TextStyle(
+                fontFamily: 'Manrope',
                 fontSize: 12,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                fontStyle: FontStyle.italic,
+                color: _kSubText,
+                height: 1.45,
               ),
             ),
           ),
 
           // Expanded: show affected books
           if (isExpanded)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            Container(
+              margin: const EdgeInsets.fromLTRB(16, 14, 16, 4),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: _kIconBg.withValues(alpha: 0.7),
+                borderRadius: BorderRadius.circular(8),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    l10n.affected_books,
+                    l10n.affected_books.toUpperCase(),
                     style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
+                      fontFamily: 'Manrope',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 10,
+                      letterSpacing: 0.7,
+                      color: _kSecondary,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
                   ...suggestion.bookNames.map(
                     (name) => Padding(
-                      padding: const EdgeInsets.only(left: 8, bottom: 2),
+                      padding: const EdgeInsets.only(bottom: 6),
                       child: Row(
                         children: [
-                          Icon(
-                            Icons.book,
+                          const Icon(
+                            Icons.menu_book_outlined,
                             size: 14,
-                            color: Theme.of(context).colorScheme.outlineVariant,
+                            color: _kSecondary,
                           ),
-                          const SizedBox(width: 6),
+                          const SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               name,
-                              style: const TextStyle(fontSize: 13),
+                              style: const TextStyle(
+                                fontFamily: 'Manrope',
+                                fontSize: 12,
+                                color: _kText,
+                              ),
                             ),
                           ),
                         ],
@@ -463,25 +581,42 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
           // Action buttons
           if (!suggestion.isApplied && !suggestion.isRejected)
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  TextButton(
+                  OutlinedButton(
                     onPressed: () => _rejectSuggestion(index),
-                    style: TextButton.styleFrom(
-                      foregroundColor: Theme.of(context).colorScheme.error,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: _kSecondary,
+                      side: const BorderSide(color: _kBorder),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
-                    child: Text(l10n.reject),
+                    child: Text(
+                      l10n.reject,
+                      style: const TextStyle(
+                        fontFamily: 'Manrope',
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 8),
-                  ElevatedButton.icon(
+                  FilledButton.icon(
                     onPressed: () => _applySuggestion(index),
                     icon: const Icon(Icons.check, size: 16),
                     label: Text(l10n.accept),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: _kPrimary,
+                      foregroundColor: Colors.white,
+                      textStyle: const TextStyle(
+                        fontFamily: 'Manrope',
+                        fontWeight: FontWeight.w700,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                   ),
                 ],
@@ -490,21 +625,18 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
 
           if (suggestion.isApplied)
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.check_circle,
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 16,
-                  ),
-                  const SizedBox(width: 4),
+                  const Icon(Icons.check_circle, color: _kPrimary, size: 16),
+                  const SizedBox(width: 6),
                   Text(
                     l10n.suggestion_applied,
-                    style: TextStyle(
+                    style: const TextStyle(
+                      fontFamily: 'Manrope',
                       fontSize: 12,
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.w500,
+                      color: _kPrimary,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
@@ -516,10 +648,9 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
   }
 
   Color _confidenceColor(int confidence) {
-    final cs = Theme.of(context).colorScheme;
-    if (confidence >= 90) return cs.primary;
-    if (confidence >= 80) return cs.primary.withValues(alpha: 0.8);
-    if (confidence >= 70) return cs.secondary;
-    return cs.error;
+    if (confidence >= 90) return _kPrimary;
+    if (confidence >= 80) return _kSecondary;
+    if (confidence >= 70) return const Color(0xFF8A5A22);
+    return const Color(0xFFA13A3A);
   }
 }
