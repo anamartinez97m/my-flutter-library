@@ -28,17 +28,47 @@ class _TandemCreateScreenState extends State<TandemCreateScreen> {
   Book? _bookA;
   Book? _bookB;
   final TextEditingController _titleController = TextEditingController();
+  final FocusNode _titleFocusNode = FocusNode();
   bool _isCreating = false;
 
   @override
   void initState() {
     super.initState();
     _bookA = widget.initialBook;
+    _titleFocusNode.addListener(() {
+      if (mounted) setState(() {});
+    });
+    _loadSuggestedBookB();
+  }
+
+  /// If the starting book has a single tandem companion in the same
+  /// saga/universe, pre-select it as Book B so the user doesn't have to.
+  Future<void> _loadSuggestedBookB() async {
+    final book = widget.initialBook;
+    if (book == null ||
+        ((book.saga == null || book.saga!.isEmpty) &&
+            (book.sagaUniverse == null || book.sagaUniverse!.isEmpty))) {
+      return;
+    }
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final suggestions = await BookRepository(db).getTandemBooks(
+        book.saga?.isNotEmpty == true ? book.saga : null,
+        book.sagaUniverse?.isNotEmpty == true ? book.sagaUniverse : null,
+      );
+      final others = suggestions.where((b) => b.bookId != book.bookId).toList();
+      if (others.length == 1 && mounted) {
+        setState(() => _bookB = others.first);
+      }
+    } catch (_) {
+      // Ignore suggestion failures — the user can still pick Book B manually.
+    }
   }
 
   @override
   void dispose() {
     _titleController.dispose();
+    _titleFocusNode.dispose();
     super.dispose();
   }
 
@@ -171,10 +201,14 @@ class _TandemCreateScreenState extends State<TandemCreateScreen> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: _kBorder),
+                  border:
+                      _titleFocusNode.hasFocus
+                          ? null
+                          : Border.all(color: _kBorder),
                 ),
                 child: TextField(
                   controller: _titleController,
+                  focusNode: _titleFocusNode,
                   style: const TextStyle(
                     fontFamily: 'Manrope',
                     fontSize: 15,
@@ -305,10 +339,7 @@ class _BookSelector extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(
-              book == null ? Icons.add_circle_outline : Icons.swap_horiz,
-              color: accent,
-            ),
+            Icon(book == null ? Icons.add : Icons.swap_horiz, color: accent),
           ],
         ),
       ),
@@ -365,8 +396,17 @@ class _TandemBookPickerScreenState extends State<_TandemBookPickerScreen> {
   static const _kBorder = Color(0xFFD5C2C7);
 
   final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
   List<Book> _results = [];
   bool _loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchFocusNode.addListener(() {
+      if (mounted) setState(() {});
+    });
+  }
 
   Future<void> _search(String query) async {
     if (query.trim().isEmpty) {
@@ -391,6 +431,7 @@ class _TandemBookPickerScreenState extends State<_TandemBookPickerScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -431,10 +472,14 @@ class _TandemBookPickerScreenState extends State<_TandemBookPickerScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: _kBorder),
+                border:
+                    _searchFocusNode.hasFocus
+                        ? null
+                        : Border.all(color: _kBorder),
               ),
               child: TextField(
                 controller: _searchController,
+                focusNode: _searchFocusNode,
                 autofocus: true,
                 onChanged: _search,
                 style: const TextStyle(fontFamily: 'Manrope', fontSize: 15),

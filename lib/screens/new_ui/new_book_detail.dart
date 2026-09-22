@@ -4520,6 +4520,10 @@ class _TandemBooksCard extends StatefulWidget {
 }
 
 class _TandemBooksCardState extends State<_TandemBooksCard> {
+  static const _kPrimary = Color(0xFF43102B);
+  static const _kSub = Color(0xFF514348);
+  static const _kBorder = Color(0xFF27231E);
+
   List<dynamic> _tandemBooks = [];
   bool _isLoading = true;
 
@@ -4558,132 +4562,126 @@ class _TandemBooksCardState extends State<_TandemBooksCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 1,
-      margin: const EdgeInsets.only(bottom: 12),
-      color: Theme.of(context).colorScheme.primaryContainer,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.swap_horizontal_circle_outlined,
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 24,
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        AppLocalizations.of(context)!.tandem_books,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        AppLocalizations.of(context)!.read_together_with,
-                        style: Theme.of(
-                          context,
-                        ).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+    final l10n = AppLocalizations.of(context)!;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader(
+          icon: Icons.swap_horizontal_circle_outlined,
+          title: l10n.read_together_with,
+        ),
+        const SizedBox(height: 16),
+        if (_isLoading)
+          const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Center(child: CircularProgressIndicator()),
+          )
+        else if (_tandemBooks.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Text(
+              l10n.no_tandem_books,
+              style: const TextStyle(
+                color: _kSub,
+                fontStyle: FontStyle.italic,
+                fontFamily: 'Manrope',
+              ),
             ),
-            const SizedBox(height: 16),
-            if (_isLoading)
-              const Center(child: CircularProgressIndicator())
-            else if (_tandemBooks.isEmpty)
-              Text(
-                AppLocalizations.of(context)!.no_tandem_books,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontStyle: FontStyle.italic,
-                ),
-              )
-            else
-              ..._tandemBooks.map((book) {
-                return InkWell(
-                  onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => NewBookDetailScreen(book: book),
-                      ),
-                    );
-                  },
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.2),
-                        width: 1,
-                      ),
-                    ),
-                    child: Row(
+          )
+        else
+          ..._tandemBooks.map((book) {
+            return _buildSectionItem(
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => NewBookDetailScreen(book: book),
+                  ),
+                );
+              },
+              child: Row(
+                children: [
+                  const Icon(Icons.menu_book, size: 20, color: _kPrimary),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
-                          Icons.menu_book,
-                          size: 20,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                book.name ??
-                                    AppLocalizations.of(context)!.unknown_title,
-                                style: Theme.of(context).textTheme.bodyMedium
-                                    ?.copyWith(fontWeight: FontWeight.w600),
-                              ),
-                              if (book.author != null &&
-                                  book.author!.isNotEmpty)
-                                Text(
-                                  book.author!,
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.bodySmall?.copyWith(
-                                    color:
-                                        Theme.of(
-                                          context,
-                                        ).colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                            ],
+                        Text(
+                          book.name ?? l10n.unknown_title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF1C1B1A),
                           ),
                         ),
-                        Icon(
-                          Icons.arrow_forward_ios,
-                          size: 16,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                        if (book.author != null && book.author!.isNotEmpty)
+                          Text(
+                            book.author!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontFamily: 'Manrope',
+                              fontSize: 12,
+                              color: _kSub,
+                            ),
+                          ),
                       ],
                     ),
                   ),
-                );
-              }),
-          ],
+                  const Icon(Icons.arrow_forward_ios, size: 16, color: _kSub),
+                ],
+              ),
+            );
+          }),
+      ],
+    );
+  }
+
+  Widget _buildSectionHeader({required IconData icon, required String title}) {
+    return Container(
+      padding: const EdgeInsets.only(bottom: 9),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: _kBorder.withValues(alpha: 0.2)),
         ),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: _kPrimary, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: _kPrimary,
+                fontFamily: 'Manrope',
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionItem({required Widget child, VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.all(13),
+        decoration: BoxDecoration(
+          color: _kPrimary.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: _kPrimary.withValues(alpha: 0.1)),
+        ),
+        child: child,
       ),
     );
   }
@@ -5435,6 +5433,10 @@ class _TandemReadingsCard extends StatefulWidget {
 }
 
 class _TandemReadingsCardState extends State<_TandemReadingsCard> {
+  static const _kPrimary = Color(0xFF43102B);
+  static const _kSub = Color(0xFF514348);
+  static const _kBorder = Color(0xFF27231E);
+
   List<TandemReading> _tandems = [];
   final Map<int, String> _otherBookNames = {};
   final Map<int, Map<String, int>> _progress = {};
@@ -5495,134 +5497,176 @@ class _TandemReadingsCardState extends State<_TandemReadingsCard> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Card(
-      elevation: 1,
-      margin: const EdgeInsets.only(bottom: 12),
-      color: Theme.of(context).colorScheme.primaryContainer,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader(
+          icon: Icons.swap_horiz,
+          title: l10n.tandem_readings,
+          trailing: [
+            IconButton(
+              tooltip: l10n.create_tandem,
+              icon: const Icon(Icons.add, color: _kPrimary, size: 20),
+              onPressed: _createTandem,
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        if (_isLoading)
+          _buildSectionItem(
+            child: Row(
               children: [
-                Icon(
-                  Icons.swap_horiz,
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 24,
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Text(
-                    l10n.tandem_readings,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+                const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: _kPrimary,
                   ),
                 ),
-                IconButton(
-                  tooltip: l10n.create_tandem,
-                  icon: Icon(
-                    Icons.add_circle_outline,
-                    color: Theme.of(context).colorScheme.primary,
+                const SizedBox(width: 12),
+                Text(
+                  l10n.loading,
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 13,
+                    color: _kSub,
                   ),
-                  onPressed: _createTandem,
                 ),
               ],
             ),
-            if (_isLoading)
-              const Center(child: CircularProgressIndicator())
-            else if (_tandems.isEmpty)
-              Text(
-                l10n.no_tandem_readings,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontStyle: FontStyle.italic,
-                ),
-              )
-            else
-              ..._tandems.map((tandem) {
-                final id = tandem.tandemId!;
-                final progress = _progress[id] ?? {'completed': 0, 'total': 0};
-                final title =
-                    tandem.title?.isNotEmpty == true
-                        ? tandem.title!
-                        : l10n.tandem_with(
-                          _otherBookNames[id]?.isNotEmpty == true
-                              ? _otherBookNames[id]!
-                              : l10n.unknown_title,
-                        );
-                return InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TandemReadingScreen(tandemId: id),
-                      ),
-                    ).then((_) => _loadTandems());
-                  },
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.2),
-                        width: 1,
-                      ),
+          )
+        else if (_tandems.isEmpty)
+          _buildSectionItem(
+            onTap: _createTandem,
+            child: Row(
+              children: [
+                const Icon(Icons.add, color: _kPrimary, size: 20),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    l10n.no_tandem_readings,
+                    style: const TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 14,
+                      fontStyle: FontStyle.italic,
+                      color: _kSub,
                     ),
-                    child: Row(
+                  ),
+                ),
+              ],
+            ),
+          )
+        else
+          ..._tandems.map((tandem) {
+            final id = tandem.tandemId!;
+            final progress = _progress[id] ?? {'completed': 0, 'total': 0};
+            final title =
+                tandem.title?.isNotEmpty == true
+                    ? tandem.title!
+                    : l10n.tandem_with(
+                      _otherBookNames[id]?.isNotEmpty == true
+                          ? _otherBookNames[id]!
+                          : l10n.unknown_title,
+                    );
+            return _buildSectionItem(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TandemReadingScreen(tandemId: id),
+                  ),
+                ).then((_) => _loadTandems());
+              },
+              child: Row(
+                children: [
+                  const Icon(Icons.swap_horiz, color: _kPrimary, size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
-                          Icons.menu_book,
-                          size: 20,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                title,
-                                style: Theme.of(context).textTheme.bodyMedium
-                                    ?.copyWith(fontWeight: FontWeight.w600),
-                              ),
-                              Text(
-                                l10n.tandem_progress(
-                                  progress['completed']!,
-                                  progress['total']!,
-                                ),
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.bodySmall?.copyWith(
-                                  color:
-                                      Theme.of(
-                                        context,
-                                      ).colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ],
+                        Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF1C1B1A),
                           ),
                         ),
-                        Icon(
-                          Icons.arrow_forward_ios,
-                          size: 16,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        const SizedBox(height: 2),
+                        Text(
+                          l10n.tandem_progress(
+                            progress['completed']!,
+                            progress['total']!,
+                          ),
+                          style: const TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 12,
+                            color: _kSub,
+                          ),
                         ),
                       ],
                     ),
                   ),
-                );
-              }),
-          ],
+                  const Icon(Icons.arrow_forward_ios, size: 16, color: _kSub),
+                ],
+              ),
+            );
+          }),
+      ],
+    );
+  }
+
+  Widget _buildSectionHeader({
+    required IconData icon,
+    required String title,
+    List<Widget>? trailing,
+  }) {
+    return Container(
+      padding: const EdgeInsets.only(bottom: 9),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: _kBorder.withValues(alpha: 0.2)),
         ),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: _kPrimary, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: _kPrimary,
+                fontFamily: 'Manrope',
+              ),
+            ),
+          ),
+          if (trailing != null) ...trailing,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionItem({required Widget child, VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.all(13),
+        decoration: BoxDecoration(
+          color: _kPrimary.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: _kPrimary.withValues(alpha: 0.1)),
+        ),
+        child: child,
       ),
     );
   }

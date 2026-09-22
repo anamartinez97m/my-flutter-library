@@ -32,9 +32,8 @@ class TandemChapterForm extends StatefulWidget {
 class _TandemChapterFormState extends State<TandemChapterForm> {
   static const _kBg = Color(0xFFFDF8F6);
   static const _kPrimary = Color(0xFF43102B);
+  static const _kSub = Color(0xFF514348);
   static const _kText = Color(0xFF1C1B1A);
-  static const _kCardBg = Color(0xFFF7F3F0);
-  static const _kBorder = Color(0xFFD5C2C7);
 
   late int _selectedBookId;
   late final TextEditingController _startController;
@@ -157,55 +156,53 @@ class _TandemChapterFormState extends State<TandemChapterForm> {
                         ),
                         GestureDetector(
                           onTap: () => Navigator.pop(context),
-                          child: Container(
-                            width: 32,
-                            height: 32,
-                            decoration: BoxDecoration(
-                              color: _kCardBg,
-                              borderRadius: BorderRadius.circular(9999),
-                              border: Border.all(
-                                color: _kBorder.withValues(alpha: 0.5),
-                              ),
-                            ),
-                            child: const Icon(
-                              Icons.close,
-                              size: 16,
-                              color: _kText,
-                            ),
+                          child: const Icon(
+                            Icons.close,
+                            size: 24,
+                            color: _kText,
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 20),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _BookToggle(
-                            name: widget.bookA.name ?? l10n.unknown_title,
-                            color: _kPrimary,
-                            isSelected: _selectedBookId == widget.bookA.bookId,
-                            onTap:
-                                () => setState(
-                                  () => _selectedBookId = widget.bookA.bookId!,
-                                ),
+                    SizedBox(
+                      height: 80,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
+                            child: _BookToggle(
+                              name: widget.bookA.name ?? l10n.unknown_title,
+                              color: _kPrimary,
+                              isSelected:
+                                  _selectedBookId == widget.bookA.bookId,
+                              onTap:
+                                  () => setState(
+                                    () =>
+                                        _selectedBookId = widget.bookA.bookId!,
+                                  ),
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _BookToggle(
-                            name: widget.bookB.name ?? l10n.unknown_title,
-                            color: _kPrimary,
-                            isSelected: _selectedBookId == widget.bookB.bookId,
-                            onTap:
-                                () => setState(
-                                  () => _selectedBookId = widget.bookB.bookId!,
-                                ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _BookToggle(
+                              name: widget.bookB.name ?? l10n.unknown_title,
+                              color: _kPrimary,
+                              isSelected:
+                                  _selectedBookId == widget.bookB.bookId,
+                              onTap:
+                                  () => setState(
+                                    () =>
+                                        _selectedBookId = widget.bookB.bookId!,
+                                  ),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 20),
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
                           child: _ChapterField(
@@ -221,6 +218,17 @@ class _TandemChapterFormState extends State<TandemChapterForm> {
                           ),
                         ),
                       ],
+                    ),
+                    const SizedBox(height: 4),
+                    Center(
+                      child: Text(
+                        l10n.end_chapter_hint,
+                        style: const TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 10,
+                          color: _kSub,
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 24),
                     SizedBox(
@@ -283,6 +291,8 @@ class _BookToggle extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
+        width: double.infinity,
+        height: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
           color: isSelected ? color.withValues(alpha: 0.08) : Colors.white,
@@ -328,26 +338,35 @@ class _ChapterField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFD5C2C7)),
-      ),
-      child: TextField(
-        controller: controller,
-        keyboardType: TextInputType.number,
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-        style: const TextStyle(fontFamily: 'Manrope', fontSize: 15),
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(
-            fontFamily: 'Manrope',
-            fontSize: 12,
-            color: Color(0xFF514348),
-          ),
-          border: InputBorder.none,
+    return TextField(
+      controller: controller,
+      keyboardType: TextInputType.number,
+      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      style: const TextStyle(fontFamily: 'Manrope', fontSize: 15),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(
+          fontFamily: 'Manrope',
+          fontSize: 12,
+          color: Color(0xFF514348),
+        ),
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 10,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFD5C2C7)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFD5C2C7)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFF43102B), width: 1.5),
         ),
       ),
     );

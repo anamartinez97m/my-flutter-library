@@ -1794,6 +1794,7 @@
   "delete_step_confirm": "¿Seguro que quieres eliminar este paso?",
   "start_chapter": "Capítulo Inicial",
   "end_chapter": "Capítulo Final",
+  "end_chapter_hint": "Para un solo capítulo, deja Capítulo Final en blanco.",
   "chapter_singular": "Capítulo {number}",
   "@chapter_singular": {
     "placeholders": { "number": {} }

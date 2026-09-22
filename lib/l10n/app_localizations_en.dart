@@ -4024,6 +4024,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get end_chapter => 'End Chapter';
 
   @override
+  String get end_chapter_hint =>
+      'For a single chapter, leave End Chapter blank.';
+
+  @override
   String chapter_singular(Object number) {
     return 'Chapter $number';
   }

@@ -7274,6 +7274,12 @@ abstract class AppLocalizations {
   /// **'End Chapter'**
   String get end_chapter;
 
+  /// No description provided for @end_chapter_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'For a single chapter, leave End Chapter blank.'**
+  String get end_chapter_hint;
+
   /// No description provided for @chapter_singular.
   ///
   /// In en, this message translates to:
