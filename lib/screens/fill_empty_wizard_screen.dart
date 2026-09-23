@@ -314,7 +314,10 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
           ),
         ),
       ),
-      body: _selectedField == null ? _buildFieldPicker() : _buildWizard(),
+      body: SafeArea(
+        top: false,
+        child: _selectedField == null ? _buildFieldPicker() : _buildWizard(),
+      ),
     );
   }
 

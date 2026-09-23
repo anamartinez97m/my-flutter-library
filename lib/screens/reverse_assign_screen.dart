@@ -15,6 +15,14 @@ class ReverseAssignScreen extends StatefulWidget {
 }
 
 class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
+  static const _kBg = Color(0xFFFDF8F6);
+  static const _kPrimary = Color(0xFF43102B);
+  static const _kSecondary = Color(0xFF894B67);
+  static const _kText = Color(0xFF1C1B1A);
+  static const _kSubText = Color(0xFF5F5E5C);
+  static const _kIconBg = Color(0xFFF2EDEB);
+  static const _kBorder = Color(0xFFD5C2C7);
+
   int _currentStep = 0;
   String? _selectedField;
   String? _selectedValue;
@@ -27,12 +35,12 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
   final TextEditingController _searchController = TextEditingController();
 
   final List<Map<String, String>> _availableFields = [
-    {'key': 'genre', 'icon': 'category'},
-    {'key': 'format', 'icon': 'book'},
-    {'key': 'language', 'icon': 'language'},
-    {'key': 'place', 'icon': 'place'},
-    {'key': 'editorial', 'icon': 'business'},
-    {'key': 'format_saga', 'icon': 'collections_bookmark'},
+    {'key': 'genre'},
+    {'key': 'format'},
+    {'key': 'language'},
+    {'key': 'place'},
+    {'key': 'editorial'},
+    {'key': 'format_saga'},
   ];
 
   String _getFieldLabel(String key) {
@@ -178,7 +186,6 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
         ),
       );
 
-      // Reload candidate books to reflect changes
       await _loadCandidateBooks();
     } catch (e) {
       messenger.showSnackBar(
@@ -213,90 +220,656 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.assign_books_to_value)),
-      body: Stepper(
-        currentStep: _currentStep,
-        onStepContinue: _onStepContinue,
-        onStepCancel: _onStepCancel,
-        controlsBuilder: (context, details) {
-          return Padding(
-            padding: const EdgeInsets.only(top: 16),
-            child: Row(
+      backgroundColor: _kBg,
+      appBar: AppBar(
+        backgroundColor: _kBg,
+        surfaceTintColor: Colors.transparent,
+        foregroundColor: _kPrimary,
+        elevation: 0,
+        title: Text(
+          l10n.assign_books_to_value,
+          style: const TextStyle(
+            fontFamily: 'Manrope',
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: _kText,
+          ),
+        ),
+      ),
+      body: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            _buildStepHeader(l10n),
+            Expanded(
+              child:
+                  _isLoading
+                      ? _buildLoadingState(l10n)
+                      : _currentStep == 0
+                      ? _buildFieldSelector(l10n)
+                      : _currentStep == 1
+                      ? _buildValueSelector(l10n)
+                      : _buildBookSelector(l10n),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStepHeader(AppLocalizations l10n) {
+    final labels = [l10n.select_field, l10n.select_value, l10n.select_books];
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.72),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: _kBorder.withValues(alpha: 0.55)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                if (_currentStep < 2)
-                  ElevatedButton(
-                    onPressed: _canContinue() ? details.onStepContinue : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                    ),
-                    child: Text(l10n.continue_label),
-                  ),
-                if (_currentStep == 2)
-                  ElevatedButton.icon(
-                    onPressed:
-                        (_selectedBookIds.isNotEmpty && !_isApplying)
-                            ? _applyToSelected
-                            : null,
-                    icon:
-                        _isApplying
-                            ? SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Theme.of(context).colorScheme.onPrimary,
-                              ),
-                            )
-                            : const Icon(Icons.check),
-                    label: Text(l10n.apply_to_n_books(_selectedBookIds.length)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                Expanded(
+                  child: Text(
+                    labels[_currentStep],
+                    style: const TextStyle(
+                      fontFamily: 'Manrope',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      color: _kText,
                     ),
                   ),
-                const SizedBox(width: 8),
-                if (_currentStep > 0)
-                  TextButton(
-                    onPressed: details.onStepCancel,
-                    child: Text(l10n.back),
+                ),
+                Text(
+                  '${_currentStep + 1} / 3',
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: _kSubText,
                   ),
+                ),
               ],
             ),
-          );
-        },
-        steps: [
-          // Step 1: Pick field
-          Step(
-            title: Text(l10n.select_field),
-            subtitle:
-                _selectedField != null
-                    ? Text(_getFieldLabel(_selectedField!))
-                    : null,
-            isActive: _currentStep >= 0,
-            state: _currentStep > 0 ? StepState.complete : StepState.indexed,
-            content: _buildFieldSelector(),
+            const SizedBox(height: 12),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(999),
+              child: LinearProgressIndicator(
+                minHeight: 5,
+                value: (_currentStep + 1) / 3,
+                backgroundColor: _kIconBg,
+                valueColor: const AlwaysStoppedAnimation<Color>(_kPrimary),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingState(AppLocalizations l10n) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(
+            width: 32,
+            height: 32,
+            child: CircularProgressIndicator(
+              color: _kPrimary,
+              strokeWidth: 2.5,
+            ),
           ),
-          // Step 2: Pick value
-          Step(
-            title: Text(l10n.select_value),
-            subtitle: _selectedValue != null ? Text(_selectedValue!) : null,
-            isActive: _currentStep >= 1,
-            state: _currentStep > 1 ? StepState.complete : StepState.indexed,
-            content: _buildValueSelector(),
-          ),
-          // Step 3: Select books
-          Step(
-            title: Text(l10n.select_books),
-            subtitle:
-                _selectedBookIds.isNotEmpty
-                    ? Text(l10n.books_selected(_selectedBookIds.length))
-                    : null,
-            isActive: _currentStep >= 2,
-            state: StepState.indexed,
-            content: _buildBookSelector(),
+          const SizedBox(height: 20),
+          Text(
+            l10n.loading,
+            style: const TextStyle(
+              fontFamily: 'Manrope',
+              fontSize: 14,
+              color: _kSubText,
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFieldSelector(AppLocalizations l10n) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+      children: [
+        Text(
+          l10n.select_field,
+          style: const TextStyle(
+            fontFamily: 'Manrope',
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: _kText,
+          ),
+        ),
+        const SizedBox(height: 20),
+        ..._availableFields.map((field) {
+          final key = field['key']!;
+          final isSelected = _selectedField == key;
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: InkWell(
+              onTap: () {
+                setState(() {
+                  _selectedField = key;
+                  _selectedValue = null;
+                  _fieldValues = [];
+                  _candidateBooks = [];
+                  _selectedBookIds.clear();
+                });
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color:
+                      isSelected
+                          ? _kPrimary.withValues(alpha: 0.08)
+                          : Colors.white.withValues(alpha: 0.72),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color:
+                        isSelected
+                            ? _kPrimary
+                            : _kBorder.withValues(alpha: 0.55),
+                  ),
+                  boxShadow:
+                      isSelected
+                          ? null
+                          : const [
+                            BoxShadow(
+                              color: Color(0x0A000000),
+                              blurRadius: 12,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color:
+                            isSelected
+                                ? _kPrimary.withValues(alpha: 0.12)
+                                : _kIconBg,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        _getFieldIcon(key),
+                        color: _kPrimary,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Text(
+                        _getFieldLabel(key),
+                        style: TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 14,
+                          fontWeight:
+                              isSelected ? FontWeight.w700 : FontWeight.w600,
+                          color: _kText,
+                        ),
+                      ),
+                    ),
+                    if (isSelected)
+                      const Icon(
+                        Icons.check_circle,
+                        color: _kPrimary,
+                        size: 20,
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }),
+        const SizedBox(height: 24),
+        _buildContinueButton(l10n),
+      ],
+    );
+  }
+
+  Widget _buildValueSelector(AppLocalizations l10n) {
+    if (_fieldValues.isEmpty) {
+      return ListView(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+        children: [
+          Text(
+            l10n.no_values_available,
+            style: const TextStyle(
+              fontFamily: 'Manrope',
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: _kText,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          _buildBackButton(l10n),
+        ],
+      );
+    }
+
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+      children: [
+        Text(
+          l10n.select_value,
+          style: const TextStyle(
+            fontFamily: 'Manrope',
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: _kText,
+          ),
+        ),
+        const SizedBox(height: 20),
+        DropdownButtonFormField<String>(
+          key: ValueKey('selected_value_$_selectedValue'),
+          initialValue: _selectedValue,
+          style: const TextStyle(
+            fontFamily: 'Manrope',
+            fontSize: 14,
+            color: _kText,
+          ),
+          dropdownColor: _kBg,
+          iconEnabledColor: _kPrimary,
+          decoration: InputDecoration(
+            labelText: l10n.select_value,
+            labelStyle: const TextStyle(
+              fontFamily: 'Manrope',
+              color: _kSubText,
+            ),
+            prefixIcon: const Icon(Icons.label_outline, color: _kSecondary),
+            filled: true,
+            fillColor: Colors.white,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: _kBorder),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: _kPrimary, width: 1.5),
+            ),
+          ),
+          items:
+              _fieldValues.map((item) {
+                final name = _getValueName(item);
+                return DropdownMenuItem(value: name, child: Text(name));
+              }).toList(),
+          onChanged: (value) {
+            setState(() => _selectedValue = value);
+          },
+        ),
+        const SizedBox(height: 24),
+        _buildContinueButton(l10n),
+        const SizedBox(height: 8),
+        _buildBackButton(l10n),
+      ],
+    );
+  }
+
+  Widget _buildBookSelector(AppLocalizations l10n) {
+    final books = _filteredBooks;
+
+    if (books.isEmpty) {
+      return ListView(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+        children: [
+          _buildInfoBar(l10n),
+          const SizedBox(height: 24),
+          Container(
+            padding: const EdgeInsets.all(32),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.72),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: _kBorder.withValues(alpha: 0.55)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 72,
+                  height: 72,
+                  decoration: const BoxDecoration(
+                    color: _kIconBg,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.check_rounded,
+                    size: 36,
+                    color: _kPrimary,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  l10n.all_books_already_have_value,
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: _kText,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          _buildBackButton(l10n),
+        ],
+      );
+    }
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+          child: _buildInfoBar(l10n),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _searchController,
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 14,
+                    color: _kText,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: l10n.search_books_by_title,
+                    hintStyle: const TextStyle(
+                      fontFamily: 'Manrope',
+                      color: _kSubText,
+                    ),
+                    prefixIcon: const Icon(Icons.search, size: 20),
+                    filled: true,
+                    fillColor: Colors.white,
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 10,
+                      horizontal: 12,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: _kBorder),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: _kPrimary,
+                        width: 1.5,
+                      ),
+                    ),
+                  ),
+                  onChanged: (value) {
+                    setState(() => _searchQuery = value);
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              TextButton.icon(
+                onPressed: () {
+                  setState(() {
+                    if (_selectedBookIds.length == books.length) {
+                      _selectedBookIds.clear();
+                    } else {
+                      _selectedBookIds.clear();
+                      for (final book in books) {
+                        if (book.bookId != null) {
+                          _selectedBookIds.add(book.bookId!);
+                        }
+                      }
+                    }
+                  });
+                },
+                icon: Icon(
+                  _selectedBookIds.length == books.length
+                      ? Icons.deselect
+                      : Icons.select_all,
+                  size: 18,
+                  color: _kPrimary,
+                ),
+                label: Text(
+                  _selectedBookIds.length == books.length
+                      ? l10n.deselect_all
+                      : l10n.select_all,
+                  style: const TextStyle(
+                    fontFamily: 'Manrope',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: _kPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              '${books.length} ${l10n.books_available}',
+              style: const TextStyle(
+                fontFamily: 'Manrope',
+                fontSize: 12,
+                color: _kSubText,
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+            itemCount: books.length,
+            itemBuilder: (context, index) {
+              final book = books[index];
+              final isSelected = _selectedBookIds.contains(book.bookId);
+              final currentValue = _getCurrentFieldValue(book);
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                decoration: BoxDecoration(
+                  color:
+                      isSelected
+                          ? _kPrimary.withValues(alpha: 0.04)
+                          : Colors.white.withValues(alpha: 0.7),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color:
+                        isSelected
+                            ? _kPrimary.withValues(alpha: 0.22)
+                            : _kBorder.withValues(alpha: 0.55),
+                  ),
+                ),
+                child: CheckboxListTile(
+                  value: isSelected,
+                  onChanged: (selected) {
+                    setState(() {
+                      if (selected == true && book.bookId != null) {
+                        _selectedBookIds.add(book.bookId!);
+                      } else {
+                        _selectedBookIds.remove(book.bookId);
+                      }
+                    });
+                  },
+                  title: Text(
+                    book.name ?? '',
+                    style: const TextStyle(
+                      fontFamily: 'Manrope',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                      color: _kText,
+                    ),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (book.author != null && book.author!.isNotEmpty)
+                        Text(
+                          book.author!,
+                          style: const TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 12,
+                            color: _kSubText,
+                          ),
+                        ),
+                      if (currentValue.isNotEmpty)
+                        Text(
+                          '${_getFieldLabel(_selectedField!)}: $currentValue',
+                          style: TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 11,
+                            color: _kSecondary,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                    ],
+                  ),
+                  dense: true,
+                  activeColor: _kPrimary,
+                  checkColor: Colors.white,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                ),
+              );
+            },
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+          child: SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed:
+                  (_selectedBookIds.isNotEmpty && !_isApplying)
+                      ? _applyToSelected
+                      : null,
+              icon:
+                  _isApplying
+                      ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                      : const Icon(Icons.check, size: 18),
+              label: Text(l10n.apply_to_n_books(_selectedBookIds.length)),
+              style: FilledButton.styleFrom(
+                backgroundColor: _kPrimary,
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: _kBorder,
+                disabledForegroundColor: _kSubText,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                textStyle: const TextStyle(
+                  fontFamily: 'Manrope',
+                  fontWeight: FontWeight.w700,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+          child: _buildBackButton(l10n),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInfoBar(AppLocalizations l10n) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: _kPrimary.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: _kPrimary.withValues(alpha: 0.22)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.info_outline, color: _kPrimary, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              l10n.reverse_assign_info(
+                _selectedValue ?? '',
+                _getFieldLabel(_selectedField ?? ''),
+              ),
+              style: const TextStyle(
+                fontFamily: 'Manrope',
+                fontSize: 13,
+                color: _kText,
+                height: 1.4,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContinueButton(AppLocalizations l10n) {
+    return SizedBox(
+      width: double.infinity,
+      child: FilledButton.icon(
+        onPressed: _canContinue() ? _onStepContinue : null,
+        icon: const Icon(Icons.arrow_forward, size: 18),
+        label: Text(l10n.continue_label),
+        style: FilledButton.styleFrom(
+          backgroundColor: _kPrimary,
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: _kBorder,
+          disabledForegroundColor: _kSubText,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          textStyle: const TextStyle(
+            fontFamily: 'Manrope',
+            fontWeight: FontWeight.w700,
+          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBackButton(AppLocalizations l10n) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton(
+        onPressed: _onStepCancel,
+        style: OutlinedButton.styleFrom(
+          foregroundColor: _kSecondary,
+          side: const BorderSide(color: _kBorder),
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          textStyle: const TextStyle(
+            fontFamily: 'Manrope',
+            fontWeight: FontWeight.w600,
+          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        child: Text(l10n.back),
       ),
     );
   }
@@ -338,332 +911,5 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
         }
       });
     }
-  }
-
-  Widget _buildFieldSelector() {
-    return Column(
-      children:
-          _availableFields.map((field) {
-            final key = field['key']!;
-            final isSelected = _selectedField == key;
-
-            return Card(
-              elevation: isSelected ? 3 : 1,
-              color:
-                  isSelected
-                      ? Theme.of(
-                        context,
-                      ).colorScheme.primaryContainer.withValues(alpha: 0.3)
-                      : null,
-              child: ListTile(
-                leading: Icon(
-                  _getFieldIcon(key),
-                  color:
-                      isSelected
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-                title: Text(
-                  _getFieldLabel(key),
-                  style: TextStyle(
-                    fontWeight:
-                        isSelected ? FontWeight.bold : FontWeight.normal,
-                    color:
-                        isSelected
-                            ? Theme.of(context).colorScheme.primary
-                            : null,
-                  ),
-                ),
-                trailing:
-                    isSelected
-                        ? Icon(
-                          Icons.check_circle,
-                          color: Theme.of(context).colorScheme.primary,
-                        )
-                        : null,
-                onTap: () {
-                  setState(() {
-                    _selectedField = key;
-                    _selectedValue = null;
-                    _fieldValues = [];
-                    _candidateBooks = [];
-                    _selectedBookIds.clear();
-                  });
-                },
-              ),
-            );
-          }).toList(),
-    );
-  }
-
-  Widget _buildValueSelector() {
-    if (_isLoading) {
-      return const Padding(
-        padding: EdgeInsets.all(32),
-        child: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    if (_fieldValues.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.all(32),
-        child: Center(
-          child: Text(
-            AppLocalizations.of(context)!.no_values_available,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ),
-      );
-    }
-
-    return ListView.builder(
-      shrinkWrap: true,
-      itemCount: _fieldValues.length,
-      itemBuilder: (context, index) {
-        final item = _fieldValues[index];
-        final valueName = _getValueName(item);
-        final isSelected = _selectedValue == valueName;
-
-        return Card(
-          elevation: isSelected ? 3 : 1,
-          color:
-              isSelected
-                  ? Theme.of(
-                    context,
-                  ).colorScheme.primaryContainer.withValues(alpha: 0.3)
-                  : null,
-          child: ListTile(
-            title: Text(
-              valueName,
-              style: TextStyle(
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color:
-                    isSelected ? Theme.of(context).colorScheme.primary : null,
-              ),
-            ),
-            trailing:
-                isSelected
-                    ? Icon(
-                      Icons.check_circle,
-                      color: Theme.of(context).colorScheme.primary,
-                    )
-                    : null,
-            onTap: () {
-              setState(() {
-                _selectedValue = valueName;
-                _candidateBooks = [];
-                _selectedBookIds.clear();
-              });
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildBookSelector() {
-    final l10n = AppLocalizations.of(context)!;
-
-    if (_isLoading) {
-      return const Padding(
-        padding: EdgeInsets.all(32),
-        child: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    final books = _filteredBooks;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Info bar
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Theme.of(
-              context,
-            ).colorScheme.primaryContainer.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: Theme.of(
-                context,
-              ).colorScheme.primary.withValues(alpha: 0.3),
-            ),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                Icons.info_outline,
-                color: Theme.of(context).colorScheme.primary,
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  l10n.reverse_assign_info(
-                    _selectedValue ?? '',
-                    _getFieldLabel(_selectedField ?? ''),
-                  ),
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-
-        // Search + Select All
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  hintText: l10n.search_books_by_title,
-                  prefixIcon: const Icon(Icons.search, size: 20),
-                  border: const OutlineInputBorder(),
-                  isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 10,
-                    horizontal: 12,
-                  ),
-                ),
-                onChanged: (value) {
-                  setState(() => _searchQuery = value);
-                },
-              ),
-            ),
-            const SizedBox(width: 8),
-            TextButton.icon(
-              onPressed: () {
-                setState(() {
-                  if (_selectedBookIds.length == books.length) {
-                    _selectedBookIds.clear();
-                  } else {
-                    _selectedBookIds.clear();
-                    for (final book in books) {
-                      if (book.bookId != null) {
-                        _selectedBookIds.add(book.bookId!);
-                      }
-                    }
-                  }
-                });
-              },
-              icon: Icon(
-                _selectedBookIds.length == books.length && books.isNotEmpty
-                    ? Icons.deselect
-                    : Icons.select_all,
-                size: 18,
-              ),
-              label: Text(
-                _selectedBookIds.length == books.length && books.isNotEmpty
-                    ? l10n.deselect_all
-                    : l10n.select_all,
-                style: const TextStyle(fontSize: 12),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-
-        // Count
-        Text(
-          '${books.length} ${l10n.books_available}',
-          style: TextStyle(
-            fontSize: 12,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: 8),
-
-        // Book list
-        SizedBox(
-          height: 400,
-          child:
-              books.isEmpty
-                  ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.check_circle_outline,
-                          size: 48,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.primary.withValues(alpha: 0.6),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          l10n.all_books_already_have_value,
-                          style: TextStyle(
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  )
-                  : ListView.builder(
-                    itemCount: books.length,
-                    itemBuilder: (context, index) {
-                      final book = books[index];
-                      final isSelected = _selectedBookIds.contains(book.bookId);
-                      final currentValue = _getCurrentFieldValue(book);
-
-                      return CheckboxListTile(
-                        value: isSelected,
-                        onChanged: (selected) {
-                          setState(() {
-                            if (selected == true && book.bookId != null) {
-                              _selectedBookIds.add(book.bookId!);
-                            } else {
-                              _selectedBookIds.remove(book.bookId);
-                            }
-                          });
-                        },
-                        title: Text(
-                          book.name ?? '',
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (book.author != null && book.author!.isNotEmpty)
-                              Text(
-                                book.author!,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color:
-                                      Theme.of(
-                                        context,
-                                      ).colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                            if (currentValue.isNotEmpty)
-                              Text(
-                                '${_getFieldLabel(_selectedField!)}: $currentValue',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ),
-                          ],
-                        ),
-                        dense: true,
-                        activeColor: Theme.of(context).colorScheme.primary,
-                      );
-                    },
-                  ),
-        ),
-      ],
-    );
   }
 }

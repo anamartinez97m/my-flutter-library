@@ -1083,7 +1083,7 @@ class _BookNode extends StatelessWidget {
               ),
               child: ClipOval(
                 child: Opacity(
-                  opacity: isPlaceholder ? 0.65 : (isRead ? 1 : 0.82),
+                  opacity: isPlaceholder ? 0.25 : (isRead ? 1 : 0.82),
                   child:
                       coverUrl == null || coverUrl.isEmpty
                           ? ColoredBox(

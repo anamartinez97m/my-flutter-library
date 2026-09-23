@@ -231,12 +231,15 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
             ),
         ],
       ),
-      body:
-          _isLoading
-              ? _buildLoadingState(l10n)
-              : _suggestions.isEmpty
-              ? _buildEmptyState(l10n)
-              : _buildSuggestionsList(),
+      body: SafeArea(
+        top: false,
+        child:
+            _isLoading
+                ? _buildLoadingState(l10n)
+                : _suggestions.isEmpty
+                ? _buildEmptyState(l10n)
+                : _buildSuggestionsList(),
+      ),
     );
   }
 
