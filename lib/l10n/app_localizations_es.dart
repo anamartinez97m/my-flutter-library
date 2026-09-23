@@ -181,6 +181,20 @@ class AppLocalizationsEs extends AppLocalizations {
   String get export_csv => 'Exportar a CSV';
 
   @override
+  String get download_csv_import_template =>
+      'Descargar plantilla CSV de importación';
+
+  @override
+  String csv_template_saved(Object path) {
+    return 'Plantilla CSV guardada en $path';
+  }
+
+  @override
+  String error_downloading_csv_template(Object error) {
+    return 'Error al descargar la plantilla CSV: $error';
+  }
+
+  @override
   String get create_backup => 'Crear Copia de Seguridad';
 
   @override

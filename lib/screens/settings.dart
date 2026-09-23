@@ -1739,6 +1739,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  Future<void> _downloadCsvImportTemplate(BuildContext context) async {
+    try {
+      final selectedDirectory = await FilePicker.platform.getDirectoryPath(
+        dialogTitle: AppLocalizations.of(context)!.select_folder_save_csv,
+      );
+      if (selectedDirectory == null) return;
+
+      final filePath = '$selectedDirectory/my_library_import_template.csv';
+      final csv = const ListToCsvConverter().convert([
+        CsvImportHelper.importTemplateHeaders,
+      ]);
+      await File(filePath).writeAsString('\uFEFF$csv');
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.csv_template_saved(filePath),
+            ),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(
+                context,
+              )!.error_downloading_csv_template(e.toString()),
+            ),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> _exportToCsv(BuildContext context) async {
     try {
       // Show loading indicator
@@ -1772,57 +1811,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       List<List<dynamic>> csvData = [];
 
       // Add header row with ALL book fields (proper CSV format for re-import)
-      csvData.add([
-        'Title',
-        'Author',
-        'ISBN',
-        'ASIN',
-        'Saga',
-        'N_Saga',
-        'Saga Universe',
-        'Format Saga',
-        'Status',
-        'Editorial',
-        'Language',
-        'Place',
-        'Format',
-        'Genre',
-        'Pages',
-        'Original Publication Year',
-        'Loaned',
-        'Date Read Initial',
-        'Date Read Final',
-        'Read Count',
-        'My Rating',
-        'My Review',
-        'Is Bundle',
-        'Bundle Count',
-        'Bundle Numbers',
-        'Bundle Start Dates',
-        'Bundle End Dates',
-        'Bundle Pages',
-        'Bundle Publication Years',
-        'Bundle Titles',
-        'Bundle Authors',
-        'TBR',
-        'Is Tandem',
-        'Original Book ID',
-        'Notification Enabled',
-        'Notification Datetime',
-        'Bundle Parent ID',
-        'Reading Progress',
-        'Progress Type',
-        'Notes',
-        'Price',
-        'Rating Override',
-        'Release Date',
-        'Cover URL',
-        'Description',
-        'Metadata Source',
-        'Metadata Fetched At',
-        'Created At',
-        'Acquired Date',
-      ]);
+      csvData.add(CsvImportHelper.importTemplateHeaders);
 
       // Add book data with ALL fields
       for (var book in allBooks) {
@@ -3166,6 +3155,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           icon: Icons.download,
           label: l10n.import_csv,
           onTap: () => _importFromCsv(context),
+        ),
+        const SizedBox(height: 12),
+        _buildV2SettingsButton(
+          icon: Icons.file_download_outlined,
+          label: l10n.download_csv_import_template,
+          onTap: () => _downloadCsvImportTemplate(context),
         ),
         const SizedBox(height: 12),
         _buildV2SettingsButton(

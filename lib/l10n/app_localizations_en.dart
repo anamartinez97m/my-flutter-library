@@ -180,6 +180,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get export_csv => 'Export to CSV';
 
   @override
+  String get download_csv_import_template => 'Download CSV import template';
+
+  @override
+  String csv_template_saved(Object path) {
+    return 'CSV import template saved to $path';
+  }
+
+  @override
+  String error_downloading_csv_template(Object error) {
+    return 'Error downloading CSV template: $error';
+  }
+
+  @override
   String get create_backup => 'Create Backup';
 
   @override

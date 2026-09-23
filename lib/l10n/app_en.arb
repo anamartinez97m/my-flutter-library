@@ -100,6 +100,15 @@
   
   "import_csv": "Import from CSV",
   "export_csv": "Export to CSV",
+  "download_csv_import_template": "Download CSV import template",
+  "csv_template_saved": "CSV import template saved to {path}",
+  "@csv_template_saved": {
+    "placeholders": { "path": {} }
+  },
+  "error_downloading_csv_template": "Error downloading CSV template: {error}",
+  "@error_downloading_csv_template": {
+    "placeholders": { "error": {} }
+  },
   "create_backup": "Create Backup",
   "backup_canceled": "Backup Canceled",
   "backup_created_successfully": "Backup created successfully!\n {backup_path}",

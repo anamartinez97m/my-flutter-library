@@ -100,6 +100,15 @@
   
   "import_csv": "Importar desde CSV",
   "export_csv": "Exportar a CSV",
+  "download_csv_import_template": "Descargar plantilla CSV de importación",
+  "csv_template_saved": "Plantilla CSV guardada en {path}",
+  "@csv_template_saved": {
+    "placeholders": { "path": {} }
+  },
+  "error_downloading_csv_template": "Error al descargar la plantilla CSV: {error}",
+  "@error_downloading_csv_template": {
+    "placeholders": { "error": {} }
+  },
   "create_backup": "Crear Copia de Seguridad",
   "backup_canceled": "Copia de Seguridad Cancelada",
   "backup_created_successfully": "Copia de Seguridad Creada Exitosamente!\n {backup_path}",

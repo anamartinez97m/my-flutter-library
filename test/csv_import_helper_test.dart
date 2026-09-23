@@ -139,4 +139,13 @@ void main() {
       );
     });
   });
+
+  test('CSV import template is recognized as the normal import format', () {
+    expect(
+      CsvImportHelper.detectCsvFormat(CsvImportHelper.importTemplateHeaders),
+      CsvFormat.format1,
+    );
+    expect(CsvImportHelper.importTemplateHeaders, contains('Acquired Date'));
+    expect(CsvImportHelper.importTemplateHeaders, contains('Is Bundle'));
+  });
 }

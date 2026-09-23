@@ -416,6 +416,24 @@ abstract class AppLocalizations {
   /// **'Export to CSV'**
   String get export_csv;
 
+  /// No description provided for @download_csv_import_template.
+  ///
+  /// In en, this message translates to:
+  /// **'Download CSV import template'**
+  String get download_csv_import_template;
+
+  /// No description provided for @csv_template_saved.
+  ///
+  /// In en, this message translates to:
+  /// **'CSV import template saved to {path}'**
+  String csv_template_saved(Object path);
+
+  /// No description provided for @error_downloading_csv_template.
+  ///
+  /// In en, this message translates to:
+  /// **'Error downloading CSV template: {error}'**
+  String error_downloading_csv_template(Object error);
+
   /// No description provided for @create_backup.
   ///
   /// In en, this message translates to:
