@@ -3024,7 +3024,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         const SizedBox(height: 24),
         // TBR Limit
-        const TBRLimitSetting(useNewUi: true),
+        const TBRLimitSetting(),
       ],
     );
   }

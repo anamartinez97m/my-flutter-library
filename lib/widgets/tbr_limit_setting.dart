@@ -11,9 +11,7 @@ const _kV2Text = Color(0xFF1C1B1A);
 const _kV2InputBorder = Color(0xFF6B7280);
 
 class TBRLimitSetting extends StatefulWidget {
-  final bool useNewUi;
-
-  const TBRLimitSetting({super.key, this.useNewUi = false});
+  const TBRLimitSetting({super.key});
 
   @override
   State<TBRLimitSetting> createState() => _TBRLimitSettingState();
@@ -81,58 +79,6 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
                   errorText =
                       AppLocalizations.of(context)!.maximum_limit_200_books;
                 }
-              }
-
-              if (!widget.useNewUi) {
-                return AlertDialog(
-                  title: Text(AppLocalizations.of(context)!.set_tbr_limit),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        AppLocalizations.of(context)!.max_tbr_books_description,
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        controller: _controller,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                        ],
-                        decoration: InputDecoration(
-                          labelText: AppLocalizations.of(context)!.tbr_limit,
-                          border: const OutlineInputBorder(),
-                          suffixText: AppLocalizations.of(context)!.books,
-                          helperText:
-                              AppLocalizations.of(context)!.range_1_200_books,
-                          errorText: errorText,
-                        ),
-                        autofocus: true,
-                        onChanged: (value) {
-                          setState(() {});
-                        },
-                      ),
-                    ],
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(AppLocalizations.of(context)!.cancel),
-                    ),
-                    ElevatedButton(
-                      onPressed:
-                          isValid
-                              ? () {
-                                _saveTBRLimit(currentValue);
-                                Navigator.pop(context);
-                              }
-                              : null,
-                      child: Text(AppLocalizations.of(context)!.save),
-                    ),
-                  ],
-                );
               }
 
               return AlertDialog(
@@ -322,26 +268,6 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-
-    if (!widget.useNewUi) {
-      return Card(
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: ListTile(
-          leading: Icon(
-            Icons.bookmark_add,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-          title: Text(l10n.tbr_limit),
-          subtitle: Text(l10n.max_tbr_books_subtitle(_tbrLimit.toString())),
-          trailing: IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: _showEditDialog,
-          ),
-          onTap: _showEditDialog,
-        ),
-      );
-    }
 
     return GestureDetector(
       onTap: _showEditDialog,

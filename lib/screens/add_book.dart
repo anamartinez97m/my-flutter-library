@@ -2408,7 +2408,6 @@ class _AddBookScreenState extends State<AddBookScreen> {
         ReadDatesWidget(
           bookId: 0,
           initialReadDates: _readDates,
-          titleColor: _kPrimary,
           onChanged: (readDates) {
             setState(() {
               _readDates = readDates;

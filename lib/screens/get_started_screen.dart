@@ -4,6 +4,13 @@ import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_navigation_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+const _kPrimary = Color(0xFF43102B);
+const _kBackground = Color(0xFFFDF8F6);
+const _kSurface = Color(0xFFFFFCFA);
+const _kBorder = Color(0xFFD5C2C7);
+const _kMuted = Color(0xFF76656B);
+const _kText = Color(0xFF1C1B1A);
+
 class GetStartedScreen extends StatefulWidget {
   const GetStartedScreen({super.key});
 
@@ -66,6 +73,13 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
     }
   }
 
+  Future<void> _goToNextPage() async {
+    await _pageController.nextPage(
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
   @override
   void dispose() {
     _pageController.dispose();
@@ -75,131 +89,268 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final colorScheme = Theme.of(context).colorScheme;
     final isLastPage =
         _imagePaths.isNotEmpty && _currentPage == _imagePaths.length - 1;
 
-    if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-
-    if (_loadFailed || _imagePaths.isEmpty) {
-      return Scaffold(
+    return Theme(
+      data: Theme.of(context).copyWith(
+        textTheme: Theme.of(context).textTheme.apply(fontFamily: 'Manrope'),
+      ),
+      child: Scaffold(
+        backgroundColor: _kBackground,
         body: SafeArea(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(32.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.auto_stories_outlined,
-                    size: 80,
-                    color: colorScheme.primary,
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    AppLocalizations.of(context)!.app_title,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 32),
-                  FilledButton.icon(
-                    onPressed: _completeOnboarding,
-                    icon: const Icon(Icons.check_circle_outline),
-                    label: Text(l10n.get_started),
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 48),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: _imagePaths.length,
-                onPageChanged: (index) {
-                  setState(() => _currentPage = index);
-                },
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Image.asset(
-                        _imagePaths[index],
-                        fit: BoxFit.contain,
-                        errorBuilder:
-                            (_, __, ___) => Center(
-                              child: Icon(
-                                Icons.image_not_supported_outlined,
-                                size: 64,
-                                color: colorScheme.outlineVariant,
-                              ),
+          child:
+              _isLoading
+                  ? const Center(
+                    child: CircularProgressIndicator(color: _kPrimary),
+                  )
+                  : _loadFailed || _imagePaths.isEmpty
+                  ? _buildFallback(l10n)
+                  : LayoutBuilder(
+                    builder: (context, constraints) {
+                      final horizontalPadding =
+                          constraints.maxWidth >= 600 ? 48.0 : 20.0;
+                      return Column(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(
+                              horizontalPadding,
+                              20,
+                              horizontalPadding,
+                              18,
                             ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(_imagePaths.length, (index) {
-                final isActive = index == _currentPage;
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  width: isActive ? 20 : 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color:
-                        isActive
-                            ? colorScheme.primary
-                            : colorScheme.outlineVariant,
-                    borderRadius: BorderRadius.circular(4),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: _kPrimary,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Icon(
+                                    Icons.auto_stories_rounded,
+                                    color: Colors.white,
+                                    size: 21,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    l10n.app_title,
+                                    style: const TextStyle(
+                                      color: _kPrimary,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: -0.5,
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  '${_currentPage + 1}/${_imagePaths.length}',
+                                  style: const TextStyle(
+                                    color: _kMuted,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: PageView.builder(
+                              controller: _pageController,
+                              itemCount: _imagePaths.length,
+                              onPageChanged: (index) {
+                                setState(() => _currentPage = index);
+                              },
+                              itemBuilder: (context, index) {
+                                return Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: horizontalPadding,
+                                  ),
+                                  child: Center(
+                                    child: Container(
+                                      constraints: const BoxConstraints(
+                                        maxWidth: 520,
+                                      ),
+                                      padding: const EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        color: _kSurface,
+                                        borderRadius: BorderRadius.circular(28),
+                                        border: Border.all(color: _kBorder),
+                                        boxShadow: const [
+                                          BoxShadow(
+                                            color: Color(0x14000000),
+                                            blurRadius: 24,
+                                            offset: Offset(0, 10),
+                                          ),
+                                        ],
+                                      ),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(20),
+                                        child: Image.asset(
+                                          _imagePaths[index],
+                                          fit: BoxFit.contain,
+                                          errorBuilder:
+                                              (_, __, ___) => const Center(
+                                                child: Icon(
+                                                  Icons
+                                                      .image_not_supported_outlined,
+                                                  size: 56,
+                                                  color: _kMuted,
+                                                ),
+                                              ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(
+                              horizontalPadding,
+                              22,
+                              horizontalPadding,
+                              24,
+                            ),
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: List.generate(_imagePaths.length, (
+                                    index,
+                                  ) {
+                                    final isActive = index == _currentPage;
+                                    return AnimatedContainer(
+                                      duration: const Duration(
+                                        milliseconds: 250,
+                                      ),
+                                      margin: const EdgeInsets.symmetric(
+                                        horizontal: 4,
+                                      ),
+                                      width: isActive ? 28 : 8,
+                                      height: 8,
+                                      decoration: BoxDecoration(
+                                        color: isActive ? _kPrimary : _kBorder,
+                                        borderRadius: BorderRadius.circular(99),
+                                      ),
+                                    );
+                                  }),
+                                ),
+                                const SizedBox(height: 22),
+                                ConstrainedBox(
+                                  constraints: const BoxConstraints(
+                                    maxWidth: 520,
+                                  ),
+                                  child: FilledButton.icon(
+                                    onPressed:
+                                        isLastPage
+                                            ? _completeOnboarding
+                                            : _goToNextPage,
+                                    icon: Icon(
+                                      isLastPage
+                                          ? Icons.check_rounded
+                                          : Icons.arrow_forward_rounded,
+                                      size: 20,
+                                    ),
+                                    label: Text(
+                                      isLastPage ? l10n.get_started : l10n.next,
+                                    ),
+                                    style: FilledButton.styleFrom(
+                                      minimumSize: const Size(
+                                        double.infinity,
+                                        54,
+                                      ),
+                                      backgroundColor: _kPrimary,
+                                      foregroundColor: Colors.white,
+                                      textStyle: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      elevation: 0,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
-                );
-              }),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFallback(AppLocalizations l10n) {
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(32),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 460),
+          child: Container(
+            padding: const EdgeInsets.all(28),
+            decoration: BoxDecoration(
+              color: _kSurface,
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(color: _kBorder),
             ),
-            const SizedBox(height: 24),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32.0),
-              child: AnimatedOpacity(
-                opacity: isLastPage ? 1.0 : 0.0,
-                duration: const Duration(milliseconds: 300),
-                child: FilledButton.icon(
-                  onPressed: isLastPage ? _completeOnboarding : null,
-                  icon: const Icon(Icons.check_circle_outline),
-                  label: Text(l10n.get_started),
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 48),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 72,
+                  height: 72,
+                  decoration: const BoxDecoration(
+                    color: _kPrimary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.auto_stories_rounded,
+                    size: 34,
+                    color: Colors.white,
                   ),
                 ),
-              ),
+                const SizedBox(height: 22),
+                Text(
+                  l10n.app_title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: _kText,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.7,
+                  ),
+                ),
+                const SizedBox(height: 28),
+                FilledButton.icon(
+                  onPressed: _completeOnboarding,
+                  icon: const Icon(Icons.arrow_forward_rounded),
+                  label: Text(l10n.get_started),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 54),
+                    backgroundColor: _kPrimary,
+                    foregroundColor: Colors.white,
+                    textStyle: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 0,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 32),
-          ],
+          ),
         ),
       ),
     );

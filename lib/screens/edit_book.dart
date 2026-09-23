@@ -2812,7 +2812,6 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     ReadDatesWidget(
                       bookId: widget.book.bookId!,
                       initialReadDates: _readDates,
-                      useNewUi: widget.useNewUi,
                       onChanged: (readDates) {
                         setState(() {
                           _readDates = readDates;

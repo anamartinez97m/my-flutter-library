@@ -11,13 +11,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ChronometerWidget extends StatefulWidget {
   final int bookId;
   final VoidCallback? onSessionComplete;
-  final bool useNewUi;
 
   const ChronometerWidget({
     super.key,
     required this.bookId,
     this.onSessionComplete,
-    this.useNewUi = false,
   });
 
   @override
@@ -384,182 +382,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
 
   @override
   Widget build(BuildContext context) {
-    if (widget.useNewUi) {
-      return _buildV2(context);
-    }
-    return _buildV1(context);
-  }
-
-  Widget _buildV1(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) async {
-        if (didPop) return;
-        final shouldPop = await _handleBackButton();
-        if (shouldPop && context.mounted) {
-          Navigator.of(context).pop();
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(
-                context,
-              ).colorScheme.shadow.withValues(alpha: 0.1),
-              blurRadius: 10,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  AppLocalizations.of(context)!.reading_timer,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () async {
-                    if (_isRunning) {
-                      // Show confirmation dialog if timer is running
-                      final shouldClose = await showDialog<bool>(
-                        context: context,
-                        builder:
-                            (context) => AlertDialog(
-                              title: Text(
-                                AppLocalizations.of(context)!.timer_is_running,
-                              ),
-                              content: Text(
-                                AppLocalizations.of(
-                                  context,
-                                )!.timer_exit_confirm,
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed:
-                                      () => Navigator.pop(context, false),
-                                  child: Text(
-                                    AppLocalizations.of(context)!.cancel,
-                                  ),
-                                ),
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, true),
-                                  style: TextButton.styleFrom(
-                                    foregroundColor:
-                                        Theme.of(context).colorScheme.error,
-                                  ),
-                                  child: Text(
-                                    AppLocalizations.of(context)!.exit_label,
-                                  ),
-                                ),
-                              ],
-                            ),
-                      );
-                      if (shouldClose == true && context.mounted) {
-                        Navigator.pop(context);
-                      }
-                    } else {
-                      Navigator.pop(context);
-                    }
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // Timer display
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 32),
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Text(
-                _formatDuration(_elapsedSeconds),
-                style: TextStyle(
-                  fontSize: 48,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.primary,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Control buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                if (!_isRunning && _elapsedSeconds == 0)
-                  ElevatedButton.icon(
-                    onPressed: _createNewSession,
-                    icon: const Icon(Icons.play_arrow),
-                    label: Text(AppLocalizations.of(context)!.start),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
-                    ),
-                  ),
-                if (_isRunning)
-                  ElevatedButton.icon(
-                    onPressed: _pauseTimer,
-                    icon: const Icon(Icons.pause),
-                    label: Text(AppLocalizations.of(context)!.pause),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
-                    ),
-                  ),
-                if (!_isRunning && _elapsedSeconds > 0)
-                  ElevatedButton.icon(
-                    onPressed: _startTimer,
-                    icon: const Icon(Icons.play_arrow),
-                    label: Text(AppLocalizations.of(context)!.resume),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
-                    ),
-                  ),
-                if (_elapsedSeconds > 0)
-                  ElevatedButton.icon(
-                    onPressed: _stopAndSaveSession,
-                    icon: const Icon(Icons.stop),
-                    label: Text(AppLocalizations.of(context)!.stop_and_save),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.error,
-                      foregroundColor: Theme.of(context).colorScheme.onError,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 50),
-          ],
-        ),
-      ),
-    );
+    return _buildV2(context);
   }
 
   Widget _buildV2(BuildContext context) {
