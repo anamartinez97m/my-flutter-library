@@ -702,6 +702,7 @@
 
   "pages_empty": "Páginas Vacías",
   "is_bundle": "Es Paquete",
+  "all_except_individual_bundle_books": "Ocultar libros de paquetes",
   "is_tandem": "Es Tándem",
   "publication_year_empty_filter": "Año de Publicación Vacío",
   "publication_date": "Fecha de Publicación",

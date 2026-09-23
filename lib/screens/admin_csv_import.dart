@@ -432,15 +432,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
           headers
               .map((header) => header.toString().toLowerCase().trim())
               .toSet();
-      final requiredBundleHeaders = {
-        'read',
-        'title',
-        'author',
-        'pages',
-        'saga number',
-        'original publication year',
-        'parent',
-      };
+      final requiredBundleHeaders = {'title', 'parent'};
       final csvFormat = CsvImportHelper.detectCsvFormat(headers);
 
       if (widget.bundleImport) {
@@ -590,6 +582,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
             description: book.description,
             metadataSource: book.metadataSource,
             metadataFetchedAt: book.metadataFetchedAt,
+            acquiredDate: book.acquiredDate,
             orderWithinUniverse: book.orderWithinUniverse,
           );
 
@@ -634,6 +627,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                 b.bundle_parent_id, b.reading_progress, b.progress_type,
                 b.notes, b.price, b.rating_override, b.release_date,
                 b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at,
+                b.acquired_date,
                 GROUP_CONCAT(DISTINCT a.name) as author,
                 GROUP_CONCAT(DISTINCT g.name) as genre
               from book b 
@@ -720,6 +714,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                     description: existingBook.description,
                     metadataSource: existingBook.metadataSource,
                     metadataFetchedAt: existingBook.metadataFetchedAt,
+                    acquiredDate: existingBook.acquiredDate,
                     orderWithinUniverse: existingBook.orderWithinUniverse,
                   );
                 }
@@ -897,6 +892,10 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                     bookWithMappedStatus.metadataFetchedAt?.isNotEmpty == true
                         ? bookWithMappedStatus.metadataFetchedAt
                         : existingBook.metadataFetchedAt,
+                acquiredDate:
+                    bookWithMappedStatus.acquiredDate?.isNotEmpty == true
+                        ? bookWithMappedStatus.acquiredDate
+                        : existingBook.acquiredDate,
                 orderWithinUniverse: existingBook.orderWithinUniverse,
               );
 
@@ -1124,6 +1123,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               description: item.book.description,
               metadataSource: item.book.metadataSource,
               metadataFetchedAt: item.book.metadataFetchedAt,
+              acquiredDate: item.book.acquiredDate,
               orderWithinUniverse: item.book.orderWithinUniverse,
             );
             await repository.addBook(bookToAdd);
@@ -1321,6 +1321,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               description: item.book.description,
               metadataSource: item.book.metadataSource,
               metadataFetchedAt: item.book.metadataFetchedAt,
+              acquiredDate: item.book.acquiredDate,
               orderWithinUniverse: item.book.orderWithinUniverse,
             );
             await repository.addBook(bookToAdd);
@@ -2255,6 +2256,7 @@ class _BookImportPreview extends StatelessWidget {
       description: book.description,
       metadataSource: book.metadataSource,
       metadataFetchedAt: book.metadataFetchedAt,
+      acquiredDate: book.acquiredDate,
       orderWithinUniverse: book.orderWithinUniverse,
     );
   }

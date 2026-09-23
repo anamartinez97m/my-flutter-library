@@ -940,6 +940,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
               await repository.deleteBook(existingBooks[i].bookId!);
             }
           }
+        } else {
+          for (final existingBook in existingBooks) {
+            await repository.deleteBook(existingBook.bookId!);
+          }
         }
       }
 

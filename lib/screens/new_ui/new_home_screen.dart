@@ -663,6 +663,8 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                     options: {
                                       'true': l10n.yes,
                                       'false': l10n.no,
+                                      'exclude_individual':
+                                          l10n.all_except_individual_bundle_books,
                                     },
                                   ),
                                   _singleChoiceChipFilter(

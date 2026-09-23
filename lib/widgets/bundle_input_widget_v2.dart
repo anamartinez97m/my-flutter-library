@@ -87,7 +87,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
         (widget.initialBundleBooks?.isNotEmpty == true
             ? widget.initialBundleBooks!.length
             : widget.useNewUi
-            ? 1
+            ? 0
             : null);
     _bundleCountController = TextEditingController(
       text: initialCount?.toString() ?? '',
@@ -115,7 +115,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
 
   void _onCountChanged() {
     final count = int.tryParse(_bundleCountController.text);
-    if (count != null && count > 0) {
+    if (count != null && count >= 0) {
       setState(() {
         // Adjust list to match count
         while (_bundleBooks.length < count) {
@@ -141,7 +141,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
   void _changeCount(int delta) {
     final current = int.tryParse(_bundleCountController.text) ?? 0;
     final next = current + delta;
-    _bundleCountController.text = (next < 1 ? 1 : next).toString();
+    _bundleCountController.text = (next < 0 ? 0 : next).toString();
     _bundleCountController.selection = TextSelection.collapsed(
       offset: _bundleCountController.text.length,
     );

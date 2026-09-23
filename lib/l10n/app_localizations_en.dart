@@ -1495,6 +1495,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get is_bundle => 'Is Bundle';
 
   @override
+  String get all_except_individual_bundle_books => 'Hide bundle books';
+
+  @override
   String get is_tandem => 'Is Tandem';
 
   @override

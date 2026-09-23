@@ -230,6 +230,10 @@ class BookProvider extends ChangeNotifier {
                     final isBundle = book.isBundle == true;
                     if (filterValue == 'true' && !isBundle) return false;
                     if (filterValue == 'false' && isBundle) return false;
+                    if (filterValue == 'exclude_individual' &&
+                        book.bundleParentId != null) {
+                      return false;
+                    }
                     break;
                   case 'is_tandem':
                     final isTandem = book.isTandem == true;

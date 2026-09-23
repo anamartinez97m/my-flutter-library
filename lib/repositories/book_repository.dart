@@ -12,7 +12,11 @@ class BookRepository {
 
   BookRepository(this.db);
 
-  Future<List<Book>> searchBooks(String input, int searchIndex) async {
+  Future<List<Book>> searchBooks(
+    String input,
+    int searchIndex, {
+    bool includeIndividualBundleBooks = false,
+  }) async {
     String whereClause;
     switch (searchIndex) {
       case 0:
@@ -73,6 +77,10 @@ class BookRepository {
       group by b.book_id
       order by b.name
       ''', params);
+
+    if (includeIndividualBundleBooks) {
+      return allResults.map((row) => Book.fromMap(row)).toList();
+    }
 
     // Process results: if a book is an individual bundle book, replace it with its parent
     final Set<int> addedBookIds = {};

@@ -184,46 +184,53 @@ class CsvImportHelper {
     List<dynamic> headers,
     int bundleParentId,
   ) {
-    final headerMap = <String, int>{};
-    for (int i = 0; i < headers.length; i++) {
-      final raw = headers[i].toString().toLowerCase().trim();
-      headerMap[raw] = i;
-      headerMap[raw.replaceAll('_', ' ')] = i;
-    }
+    final book = _parseFormat1(row, headers);
+    if (book == null) return null;
 
-    String? value(String key) {
-      final index = headerMap[key];
-      if (index == null || index >= row.length) return null;
-      final result = row[index]?.toString().trim();
-      return result?.isEmpty ?? true ? null : result;
-    }
-
-    final title = value('title');
-    if (title == null) return null;
-    final pages = value('pages');
-    final publicationYear = value('original publication year');
     return Book(
       bookId: null,
-      name: title,
-      author: value('author'),
-      saga: null,
-      nSaga: value('saga number'),
-      formatSagaValue: null,
-      isbn: null,
-      asin: null,
-      pages: pages == null ? null : int.tryParse(pages),
-      originalPublicationYear:
-          publicationYear == null ? null : int.tryParse(publicationYear),
-      loaned: 'no',
-      statusValue: value('read'),
-      editorialValue: null,
-      languageValue: null,
-      placeValue: null,
-      formatValue: null,
-      createdAt: DateTime.now().toIso8601String(),
-      readCount: 0,
+      name: book.name,
+      author: book.author,
+      saga: book.saga,
+      nSaga: book.nSaga,
+      sagaUniverse: book.sagaUniverse,
+      formatSagaValue: book.formatSagaValue,
+      isbn: book.isbn,
+      asin: book.asin,
+      pages: book.pages,
+      originalPublicationYear: book.originalPublicationYear,
+      loaned: book.loaned,
+      statusValue: book.statusValue,
+      editorialValue: book.editorialValue,
+      languageValue: book.languageValue,
+      placeValue: book.placeValue,
+      formatValue: book.formatValue,
+      createdAt: book.createdAt,
+      genre: book.genre,
+      dateReadInitial: book.dateReadInitial,
+      dateReadFinal: book.dateReadFinal,
+      readCount: book.readCount,
+      myRating: book.myRating,
+      myReview: book.myReview,
       isBundle: false,
+      tbr: book.tbr,
+      isTandem: book.isTandem,
+      originalBookId: book.originalBookId,
+      notificationEnabled: book.notificationEnabled,
+      notificationDatetime: book.notificationDatetime,
+      releaseDate: book.releaseDate,
       bundleParentId: bundleParentId,
+      readingProgress: book.readingProgress,
+      progressType: book.progressType,
+      notes: book.notes,
+      price: book.price,
+      ratingOverride: book.ratingOverride,
+      coverUrl: book.coverUrl,
+      description: book.description,
+      metadataSource: book.metadataSource,
+      metadataFetchedAt: book.metadataFetchedAt,
+      acquiredDate: book.acquiredDate,
+      orderWithinUniverse: book.orderWithinUniverse,
     );
   }
 
@@ -273,7 +280,8 @@ class CsvImportHelper {
     final publisher = getValue('editorial') ?? getValue('publisher');
     final genre = getValue('genre');
     var saga = getValue('saga');
-    var nSaga = getValue('n_saga') ?? getValue('n saga');
+    var nSaga =
+        getValue('n_saga') ?? getValue('n saga') ?? getValue('saga number');
     final sagaUniverse = getValue('saga universe') ?? getValue('sagauniverse');
     final formatSaga = getValue('format saga') ?? getValue('format_saga');
     var isbn = getValue('isbn') ?? getValue('isbn13');

@@ -1511,6 +1511,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get is_bundle => 'Es Paquete';
 
   @override
+  String get all_except_individual_bundle_books => 'Ocultar libros de paquetes';
+
+  @override
   String get is_tandem => 'Es Tándem';
 
   @override

@@ -2726,6 +2726,12 @@ abstract class AppLocalizations {
   /// **'Is Bundle'**
   String get is_bundle;
 
+  /// No description provided for @all_except_individual_bundle_books.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide bundle books'**
+  String get all_except_individual_bundle_books;
+
   /// No description provided for @is_tandem.
   ///
   /// In en, this message translates to:

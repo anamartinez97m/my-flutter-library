@@ -696,6 +696,7 @@
 
   "pages_empty": "Pages Empty",
   "is_bundle": "Is Bundle",
+  "all_except_individual_bundle_books": "Hide bundle books",
   "is_tandem": "Is Tandem",
   "publication_year_empty_filter": "Publication Year Empty",
   "publication_date": "Publication Date",

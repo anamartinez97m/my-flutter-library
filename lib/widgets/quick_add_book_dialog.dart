@@ -53,11 +53,16 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
       final repository = BookRepository(db);
 
       // Search by title
-      final results = await repository.searchBooks(query, 0);
+      final results = await repository.searchBooks(
+        query,
+        0,
+        includeIndividualBundleBooks: true,
+      );
 
       // Filter out books already in this saga/universe
       final filtered =
           results.where((book) {
+            if (book.bundleParentId != null) return true;
             if (widget.sagaName != null) {
               return book.saga != widget.sagaName;
             } else if (widget.sagaUniverse != null) {
@@ -85,47 +90,23 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
 
-      for (final book in _selectedBooks) {
-        // Update the book with the saga/universe
-        final updatedBook = Book(
-          bookId: book.bookId,
-          name: book.name,
-          isbn: book.isbn,
-          asin: book.asin,
-          author: book.author,
-          saga: widget.sagaName ?? book.saga,
-          nSaga: book.nSaga,
-          sagaUniverse: widget.sagaUniverse ?? book.sagaUniverse,
-          formatSagaValue: book.formatSagaValue,
-          pages: book.pages,
-          originalPublicationYear: book.originalPublicationYear,
-          loaned: book.loaned,
-          statusValue: book.statusValue,
-          editorialValue: book.editorialValue,
-          languageValue: book.languageValue,
-          placeValue: book.placeValue,
-          formatValue: book.formatValue,
-          createdAt: book.createdAt,
-          genre: book.genre,
-          dateReadInitial: book.dateReadInitial,
-          dateReadFinal: book.dateReadFinal,
-          readCount: book.readCount,
-          myReview: book.myReview,
-          isBundle: book.isBundle,
-          bundleCount: book.bundleCount,
-          bundleNumbers: book.bundleNumbers,
-          bundleStartDates: book.bundleStartDates,
-          bundleEndDates: book.bundleEndDates,
-          bundlePages: book.bundlePages,
-          bundlePublicationYears: book.bundlePublicationYears,
-          bundleTitles: book.bundleTitles,
-          tbr: book.tbr,
-          isTandem: book.isTandem,
-          orderWithinUniverse: book.orderWithinUniverse,
-        );
-
-        await repository.deleteBook(book.bookId!);
-        await repository.addBook(updatedBook);
+      // Update the book with the saga/universe
+      final bookIds =
+          _selectedBooks.map((book) => book.bookId).whereType<int>().toList();
+      final updated =
+          widget.sagaName != null
+              ? await repository.updateBooksField(
+                bookIds,
+                'saga',
+                widget.sagaName!,
+              )
+              : await repository.updateBooksField(
+                bookIds,
+                'saga_universe',
+                widget.sagaUniverse!,
+              );
+      if (updated != bookIds.length) {
+        throw StateError('Could not update all selected books');
       }
 
       if (mounted) {
