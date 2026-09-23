@@ -3116,11 +3116,22 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                 child: _DetailCard(
                                   icon: Icons.person,
                                   label: AppLocalizations.of(context)!.author,
-                                  value: _currentBook.author!
-                                      .split(',')
-                                      .map((a) => a.trim())
-                                      .where((a) => a.isNotEmpty)
-                                      .join('\n'),
+                                  value:
+                                      (() {
+                                        final authors =
+                                            _currentBook.author!
+                                                .split(',')
+                                                .map((a) => a.trim())
+                                                .where((a) => a.isNotEmpty)
+                                                .toList();
+                                        if (authors.length <= 3) {
+                                          return authors.join('\n');
+                                        }
+                                        final shown = authors
+                                            .take(3)
+                                            .join('\n');
+                                        return '$shown\n+${authors.length - 3}';
+                                      })(),
                                   link: true,
                                 ),
                               ),
