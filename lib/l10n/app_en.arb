@@ -1846,5 +1846,17 @@
   "missing_earlier_entries": "Missing earlier entries in: {sagas}",
   "@missing_earlier_entries": {
     "placeholders": { "sagas": {} }
+  },
+  "contact_me": "Contact Me",
+  "contact_me_subtitle": "Send feedback, ideas or report a bug",
+  "contact_me_intro": "Found a bug, have an idea or just want to share feedback? Fill in the form and it will be sent to me by email.",
+  "contact_me_summary": "Short summary",
+  "contact_me_description": "Description",
+  "contact_me_required": "This field is required",
+  "contact_me_sent": "Thanks! Your message has been sent.",
+  "contact_me_send": "Send",
+  "contact_me_no_email_app": "No email app found. You can write to {email} directly.",
+  "@contact_me_no_email_app": {
+    "placeholders": { "email": {} }
   }
 }
