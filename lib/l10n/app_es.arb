@@ -1875,5 +1875,17 @@
   "discovery_field_notes": "tus notas",
   "random_mood": "Estado de ánimo",
   "random_books_card_subtitle": "Obtén un libro al azar de una lista que tú eliges",
-  "random_filters_card_subtitle": "Filtra tu biblioteca por formato, género, páginas y más"
+  "random_filters_card_subtitle": "Filtra tu biblioteca por formato, género, páginas y más",
+  "contact_me": "Contáctame",
+  "contact_me_subtitle": "Envía comentarios, ideas o reporta un error",
+  "contact_me_intro": "¿Has encontrado un error, tienes una idea o simplemente quieres dar tu opinión? Rellena el formulario y me llegará por correo electrónico.",
+  "contact_me_summary": "Resumen breve",
+  "contact_me_description": "Descripción",
+  "contact_me_required": "Este campo es obligatorio",
+  "contact_me_sent": "¡Gracias! Tu mensaje se ha enviado.",
+  "contact_me_send": "Enviar",
+  "contact_me_no_email_app": "No se encontró ninguna app de correo. Puedes escribirme directamente a {email}.",
+  "@contact_me_no_email_app": {
+    "placeholders": { "email": {} }
+  }
 }
