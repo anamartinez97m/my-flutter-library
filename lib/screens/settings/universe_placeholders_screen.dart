@@ -198,7 +198,13 @@ class _UniversePlaceholdersScreenState
   Future<void> _showPlaceholderForm([UniversePlaceholder? placeholder]) async {
     final l10n = AppLocalizations.of(context)!;
     final title = TextEditingController(text: placeholder?.title);
-    final author = TextEditingController(text: placeholder?.author);
+    var authors =
+        placeholder?.author
+            ?.split(',')
+            .map((value) => value.trim())
+            .where((value) => value.isNotEmpty)
+            .toList() ??
+        <String>[];
     final saga = TextEditingController(text: placeholder?.saga);
     final nSaga = TextEditingController(text: placeholder?.nSaga);
     final universe = TextEditingController(
@@ -321,20 +327,14 @@ class _UniversePlaceholdersScreenState
                                               : null,
                                 ),
                                 ChipAutocompleteField(
-                                  labelText: l10n.author,
+                                  labelText: l10n.authors,
                                   suggestions: _authors,
-                                  initialValues:
-                                      author.text.isEmpty ? [] : [author.text],
+                                  initialValues: authors,
                                   hintText: l10n.search_or_add_author,
-                                  maxSelections: 1,
                                   onChanged:
-                                      (values) =>
-                                          author.text =
-                                              values.isNotEmpty
-                                                  ? values.first
-                                                  : '',
+                                      (values) => authors = List.of(values),
                                   decoration: _fieldDecoration(
-                                    l10n.author,
+                                    l10n.authors,
                                     icon: Icons.person_outline,
                                   ),
                                 ),
@@ -511,11 +511,13 @@ class _UniversePlaceholdersScreenState
     );
     if (saved != true) return;
     if (mounted) setState(() => _loading = true);
+    final authorValue = authors.isEmpty ? null : authors.join(', ');
+    final sagaValue = saga.text.trim().isEmpty ? null : saga.text.trim();
     var coverUrl = placeholder?.coverUrl;
     try {
       final fetchedCover = await BookMetadataService().fetchCoverOnly(
         title: title.text.trim(),
-        author: author.text.trim().isEmpty ? null : author.text.trim(),
+        author: authors.isEmpty ? null : authors.first,
       );
       if (fetchedCover?.trim().isNotEmpty == true) coverUrl = fetchedCover;
     } catch (error) {
@@ -525,14 +527,17 @@ class _UniversePlaceholdersScreenState
       placeholderId: placeholder?.placeholderId,
       sagaUniverse: universe.text.trim(),
       title: title.text.trim(),
-      author: author.text.trim().isEmpty ? null : author.text.trim(),
-      saga: saga.text.trim().isEmpty ? null : saga.text.trim(),
+      author: authorValue,
+      saga: sagaValue,
       nSaga: nSaga.text.trim().isEmpty ? null : nSaga.text.trim(),
       orderWithinUniverse: int.tryParse(order.text.trim()),
       coverUrl: coverUrl,
       notes: notes.text.trim().isEmpty ? null : notes.text.trim(),
       createdAt: placeholder?.createdAt,
     );
+    if (sagaValue != null && !_sagas.contains(sagaValue)) {
+      await _repository!.addLookupValue('saga', sagaValue);
+    }
     if (placeholder == null) {
       await _repository!.insertPlaceholder(value);
     } else {
