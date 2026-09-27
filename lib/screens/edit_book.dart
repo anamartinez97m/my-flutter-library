@@ -1312,8 +1312,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                               context,
                             )!.please_enter_valid_year,
                           ),
-                          backgroundColor:
-                              AppTheme.notificationColor,
+                          backgroundColor: AppTheme.notificationColor,
                         ),
                       );
                     }
@@ -2966,7 +2965,6 @@ class _EditBookScreenState extends State<EditBookScreen> {
           _fetchedMetadataSource = metadata.source;
         });
 
-        final colorScheme = Theme.of(context).colorScheme;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)!.book_info_found),
