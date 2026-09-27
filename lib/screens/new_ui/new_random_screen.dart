@@ -9,6 +9,7 @@ import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_genre_selection_screen.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_option_selection_screen.dart';
+import 'package:myrandomlibrary/utils/format_saga_helper.dart';
 import 'package:myrandomlibrary/widgets/chip_autocomplete_field.dart';
 import 'package:provider/provider.dart';
 import 'package:myrandomlibrary/widgets/shimmer_loading.dart';
@@ -60,6 +61,7 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
   List<Map<String, dynamic>> _placeList = [];
   List<Map<String, dynamic>> _statusList = [];
   List<Map<String, dynamic>> _editorialList = [];
+  List<Map<String, dynamic>> _formatSagaList = [];
   List<Map<String, dynamic>> _authorList = [];
 
   Book? _randomBook;
@@ -83,7 +85,7 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
       final place = await repo.getLookupValues('place');
       final status = await repo.getLookupValues('status');
       final editorial = await repo.getLookupValues('editorial');
-      await repo.getLookupValues('format_saga');
+      final formatSaga = await repo.getLookupValues('format_saga');
       final author = await repo.getLookupValues('author');
       if (mounted) {
         setState(() {
@@ -93,6 +95,7 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
           _placeList = place;
           _statusList = status;
           _editorialList = editorial;
+          _formatSagaList = formatSaga;
           _authorList = author;
           _isLoading = false;
         });
@@ -408,6 +411,8 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
             _buildSelectBooksCard(l10n),
             const SizedBox(height: 16),
             _buildFormatCard(l10n),
+            const SizedBox(height: 16),
+            _buildFormatSagaCard(l10n),
             const SizedBox(height: 16),
             _buildLanguageCard(l10n),
             const SizedBox(height: 16),
@@ -744,6 +749,25 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
         anyLabel: l10n.any,
         multiSelect: true,
         onChanged: (v) => setState(() => _filterFormat = v),
+      ),
+    );
+  }
+
+  Widget _buildFormatSagaCard(AppLocalizations l10n) {
+    final allFormatSagas =
+        _formatSagaList
+            .map((e) => e['value'] as String?)
+            .whereType<String>()
+            .toList();
+    return _sectionCard(
+      icon: Icons.auto_stories_outlined,
+      title: l10n.format_saga,
+      child: _singleChipsField<String>(
+        selected: _filterFormatSaga,
+        options: allFormatSagas,
+        labelOf: (v) => FormatSagaHelper.getLocalizedLabel(v, l10n),
+        anyLabel: l10n.any,
+        onChanged: (v) => setState(() => _filterFormatSaga = v),
       ),
     );
   }
