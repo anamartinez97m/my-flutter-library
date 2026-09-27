@@ -725,7 +725,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.move_to_standby),
-          backgroundColor: colorScheme.secondary,
+          backgroundColor: AppTheme.notificationColor,
         ),
       );
     } catch (e) {
@@ -785,7 +785,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.moved_back_to_reading),
-          backgroundColor: colorScheme.primary,
+          backgroundColor: AppTheme.notificationColor,
         ),
       );
     } catch (e) {
@@ -868,7 +868,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.started_reading),
-          backgroundColor: colorScheme.primary,
+          backgroundColor: AppTheme.notificationColor,
         ),
       );
     } catch (e) {
@@ -979,7 +979,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.marked_as_finished),
-          backgroundColor: colorScheme.primary,
+          backgroundColor: AppTheme.notificationColor,
         ),
       );
     } catch (e) {
@@ -1050,7 +1050,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.marked_as_read),
-          backgroundColor: colorScheme.primary,
+          backgroundColor: AppTheme.notificationColor,
         ),
       );
     } catch (e) {
@@ -1469,7 +1469,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.progress_updated),
-            backgroundColor: colorScheme.primary,
+            backgroundColor: AppTheme.notificationColor,
           ),
         );
       } catch (e) {
@@ -1497,7 +1497,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)!.marked_read_today),
-            backgroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: AppTheme.notificationColor,
           ),
         );
       }
@@ -2363,7 +2363,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
               content: Text(
                 AppLocalizations.of(context)!.book_updated_successfully,
               ),
-              backgroundColor: Theme.of(context).colorScheme.primary,
+              backgroundColor: AppTheme.notificationColor,
             ),
           );
         }
@@ -4780,7 +4780,7 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
                     context,
                   )!.book_already_in_club(result.clubName),
                 ),
-                backgroundColor: Theme.of(context).colorScheme.secondary,
+                backgroundColor: AppTheme.notificationColor,
               ),
             );
           }
@@ -4797,7 +4797,7 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
               content: Text(
                 AppLocalizations.of(context)!.added_to_club(result.clubName),
               ),
-              backgroundColor: Theme.of(context).colorScheme.primary,
+              backgroundColor: AppTheme.notificationColor,
             ),
           );
         }
@@ -4839,7 +4839,7 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
               content: Text(
                 AppLocalizations.of(context)!.club_membership_updated,
               ),
-              backgroundColor: Theme.of(context).colorScheme.primary,
+              backgroundColor: AppTheme.notificationColor,
             ),
           );
         }
@@ -4897,7 +4897,7 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
               content: Text(
                 AppLocalizations.of(context)!.removed_from_club(club.clubName),
               ),
-              backgroundColor: Theme.of(context).colorScheme.primary,
+              backgroundColor: AppTheme.notificationColor,
             ),
           );
         }

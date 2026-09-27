@@ -28,6 +28,7 @@ import 'package:myrandomlibrary/widgets/tbr_limit_setting.dart';
 import 'package:myrandomlibrary/widgets/status_mapping_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../config/app_theme.dart';
 
 const _kChipBg = Color(0xFFF2EDEB);
 const _kChipBorder = Color(0x80D5C2C7);
@@ -437,7 +438,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.cloud_backup_success),
-            backgroundColor: colorScheme.primary,
+            backgroundColor: AppTheme.notificationColor,
           ),
         );
       } else {
@@ -576,14 +577,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.cloud_restore_success),
-            backgroundColor: colorScheme.primary,
+            backgroundColor: AppTheme.notificationColor,
           ),
         );
       } else {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.no_cloud_backup),
-            backgroundColor: colorScheme.secondary,
+            backgroundColor: AppTheme.notificationColor,
           ),
         );
       }
@@ -968,7 +969,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             SnackBar(
               content: Text(AppLocalizations.of(context)!.backup_canceled),
               backgroundColor:
-                  Theme.of(context).colorScheme.surfaceContainerHighest,
+                  AppTheme.notificationColor,
             ),
           );
         }
@@ -989,7 +990,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 context,
               )!.backup_created_successfully(backupPath),
             ),
-            backgroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: AppTheme.notificationColor,
             duration: const Duration(seconds: 4),
           ),
         );
@@ -1616,7 +1617,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             content: Text(
               AppLocalizations.of(context)!.deleted_books(allBooks.length),
             ),
-            backgroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: AppTheme.notificationColor,
             duration: const Duration(seconds: 3),
           ),
         );
@@ -1717,7 +1718,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             content: Text(
               AppLocalizations.of(context)!.database_restored_successfully,
             ),
-            backgroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: AppTheme.notificationColor,
             duration: const Duration(seconds: 3),
           ),
         );
@@ -1758,7 +1759,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             content: Text(
               AppLocalizations.of(context)!.csv_template_saved(filePath),
             ),
-            backgroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: AppTheme.notificationColor,
           ),
         );
       }
@@ -1800,7 +1801,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(AppLocalizations.of(context)!.no_books_to_export),
-              backgroundColor: Theme.of(context).colorScheme.secondary,
+              backgroundColor: AppTheme.notificationColor,
             ),
           );
         }
@@ -1889,7 +1890,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             SnackBar(
               content: Text(AppLocalizations.of(context)!.export_canceled),
               backgroundColor:
-                  Theme.of(context).colorScheme.surfaceContainerHighest,
+                  AppTheme.notificationColor,
             ),
           );
         }
@@ -1910,7 +1911,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 context,
               )!.exported_books(allBooks.length, filePath),
             ),
-            backgroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: AppTheme.notificationColor,
             duration: const Duration(seconds: 4),
           ),
         );
