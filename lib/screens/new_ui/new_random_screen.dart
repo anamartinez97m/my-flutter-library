@@ -13,6 +13,7 @@ import 'package:myrandomlibrary/widgets/chip_autocomplete_field.dart';
 import 'package:provider/provider.dart';
 import 'package:myrandomlibrary/widgets/shimmer_loading.dart';
 import 'package:myrandomlibrary/widgets/random_shimmer.dart';
+import 'package:myrandomlibrary/widgets/theme_discovery_card.dart';
 
 const _kBg = Color(0xFFFDF8F6);
 const _kPrimary = Color(0xFF43102B);
@@ -405,6 +406,8 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
               style: const TextStyle(fontSize: 14, color: _kPrimary),
             ),
             const SizedBox(height: 24),
+            const ThemeDiscoveryCard(),
+            const SizedBox(height: 16),
             _buildSelectBooksCard(l10n),
             const SizedBox(height: 16),
             _buildFormatCard(l10n),

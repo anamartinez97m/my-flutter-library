@@ -1852,5 +1852,22 @@
   "missing_earlier_entries": "Faltan entradas anteriores en: {sagas}",
   "@missing_earlier_entries": {
     "placeholders": { "sagas": {} }
-  }
+  },
+  "theme_discovery_title": "¿Qué te apetece leer?",
+  "theme_discovery_subtitle": "Encuentra libros de tu biblioteca por tema, ambiente o temática",
+  "theme_discovery_hint": "Halloween, brujas, otoño acogedor…",
+  "theme_discovery_helper": "Escribe un tema, ambiente o temática para buscar en tu biblioteca.",
+  "theme_discovery_suggestions": "Prueba con alguno de estos:",
+  "theme_discovery_no_results": "Ningún libro de tu biblioteca coincide con \"{query}\"",
+  "theme_discovery_show_more": "Mostrar más",
+  "theme_discovery_loosely_related": "Relacionados de lejos ({count})",
+  "theme_discovery_match_percent": "{percent}% de coincidencia",
+  "theme_discovery_results_count": "{count} libros coinciden",
+  "theme_discovery_reason_in_field": "\"{term}\" en {field}",
+  "discovery_field_title": "título",
+  "discovery_field_genre": "género",
+  "discovery_field_saga": "saga",
+  "discovery_field_description": "descripción",
+  "discovery_field_author": "autor",
+  "discovery_field_notes": "tus notas"
 }
