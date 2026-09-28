@@ -33,8 +33,8 @@ The UI only ever sees `DiscoveryResult` — it never knows which matcher produce
 
 | Concern | Existing component | How it's reused |
 |---|---|---|
-| Book data | `lib/model/book.dart` (`Book`) | Matched directly. No new book model, no duplicated data. Fields used: `name`, `author`, `description`, `genre` (comma-joined via `GROUP_CONCAT` in `BookRepository`), `saga`, `sagaUniverse`, `bundleTitles`, `notes`/`myReview` (optional, low weight). |
-| Book loading | `BookProvider.allBooks` (`lib/providers/book_provider.dart`) | Source of the book list; already loaded in memory by `loadBooks()`. No new queries. |
+| Book data | `lib/model/book.dart` (`Book`) | Matched directly. No new book model, no duplicated data. Fields used: `name`, `author`, `description`, `genre` (comma-joined via `GROUP_CONCAT` in `BookRepository`), `saga`, `sagaUniverse`, `bundleTitles`, `notes`/`myReview` (low weight — decided), `statusValue` (for unread-first ordering). |
+| Book loading | `BookProvider.allBooks` (`lib/providers/book_provider.dart`) | Source of the book list; already loaded in memory by `loadBooks()`. No new queries. Always the **whole library** — the Random screen's filters are **not** applied (decided). |
 | State management | `provider` / `ChangeNotifier` | Screen uses local `State` + the service; no new state-management package. |
 | Pure-Dart engines | `lib/helpers/suggestion_engine.dart` (`SuggestionEngine`) | Precedent for a Flutter-free, testable engine over `List<Book>`. Discovery engine follows the same style. |
 | Book UI | `lib/widgets/book_card_v2.dart` (`BookCardV2`) | Renders cover/title/author/saga. We add a small match footer (relevance + concept chips) around it, not inside it. |
@@ -83,7 +83,7 @@ test/discovery/
 ```
 
 Modified files (minimal):
-- `lib/screens/new_ui/new_random_screen.dart` — insert `ThemeDiscoveryCard` + `SizedBox(height: 16)` above `_buildSelectBooksCard(l10n)` (plus any wiring decided in §15 Q2).
+- `lib/screens/new_ui/new_random_screen.dart` — insert `ThemeDiscoveryCard` + `SizedBox(height: 16)` above `_buildSelectBooksCard(l10n)` (display only — no wiring into the random picker or Select Books; decided).
 - `lib/l10n/app_en.arb`, `lib/l10n/app_es.arb` (+ regenerated `app_localizations*.dart` via `flutter gen-l10n`) — new strings.
 
 Nothing else is modified. No DB migration.
@@ -100,9 +100,10 @@ Nothing else is modified. No DB migration.
 class ThemeConcept {
   final String id;                    // 'halloween', 'dark_academia'
   final String displayName;           // 'Halloween'
-  final String? emoji;                // '🎃' — shown in chips, comes from data, not UI
+  final String displayNameEs;         // 'Halloween' / 'Brujas' — picked by current locale
+  final String emoji;                 // '🎃' — shown in chips (decided: emoji), comes from data, not UI
   final String category;              // 'seasonal', 'supernatural', 'fantasy', ...
-  final List<String> keywords;        // strong direct signals
+  final List<String> keywords;        // strong direct signals — English AND Spanish (decided)
   final List<String> aliases;         // alternate names for the concept itself ('romcom', 'rom-com')
   final List<String> relatedConceptIds;
   final List<String> negativeKeywords; // optional, e.g. for 'something spooky but NOT horror'
@@ -134,26 +135,44 @@ class ThemeConcept {
 
 Keywords and related lists are copied verbatim from the spec.
 
-### 3.3 Unresolved related references (decision needed)
+### 3.3 Additional concepts (decided: add all as full concepts)
 
-The spec's "Related" lists reference names that are **not** defined as concepts. These must be resolved so the related-concept graph is consistent:
+The spec's "Related" lists reference names that are not defined as concepts. **Decision: add every one of them as a full concept** (id, displayName/displayNameEs, emoji, keywords EN+ES, related ids). Keyword overlap with existing concepts is fine — concepts are not mutually exclusive.
 
-| Referenced name | Proposed resolution |
-|---|---|
-| paranormal | alias of **Supernatural** |
-| suspense | alias of **Thriller** |
-| detective | keyword only (already in Mystery/Crime) — drop as related id, link to **Mystery** |
-| contemporary romance | alias of **Romance** (or new light concept) |
-| horror, occult, dark fantasy, gothic, contemporary, psychological horror | **add as new concepts** (small keyword lists) — they appear frequently and are central to queries like "spooky", "dark fantasy with vampires" |
-| travel, nature, technology, artificial intelligence, space opera, vikings, ancient world, royalty, relationships, politics, workplace, psychological, dark | add as **lightweight concepts** (displayName + a few keywords) so they can participate in related scoring |
+| New concept | Seed keywords (EN) | Related |
+|---|---|---|
+| Horror | horror, terror, scary, frightening, gore, nightmare | supernatural, ghosts, demons, psychological horror, halloween |
+| Occult | occult, ritual, tarot, séance, grimoire, dark arts | witches, demons, supernatural, magic |
+| Dark Fantasy | dark fantasy, grimdark, cursed, sinister, blood magic | fantasy, horror, gothic, vampires |
+| Gothic | gothic, gothic novel, manor, crumbling mansion, brooding, macabre | horror, victorian, dark romance, mystery |
+| Paranormal | paranormal, paranormal romance, medium, poltergeist | supernatural, ghosts, vampires, werewolves |
+| Contemporary | contemporary, modern day, present day, realistic fiction | contemporary romance, friendship, family |
+| Contemporary Romance | contemporary romance, modern romance, second chance, fake dating | romance, contemporary, romantic comedy |
+| Psychological Horror | psychological horror, madness, insanity, dread, disturbing | horror, psychological thriller, psychological |
+| Psychological | psychological, psyche, trauma, mental health, obsession | psychological thriller, psychological horror |
+| Suspense | suspense, suspenseful, tension, cliffhanger, edge of your seat | thriller, mystery |
+| Detective | detective, private investigator, sleuth, inspector, case | mystery, crime |
+| Travel | travel, road trip, journey abroad, backpacking, wanderlust | adventure, summer |
+| Nature | nature, forest, wilderness, mountains, wildlife, ocean | spring, autumn, survival |
+| Technology | technology, tech, robot, robots, virtual reality, hacking | science fiction, cyberpunk, artificial intelligence |
+| Artificial Intelligence | artificial intelligence, ai, android, sentient machine, robot | science fiction, technology |
+| Space Opera | space opera, galactic empire, starship, fleet, interstellar war | space, science fiction, aliens |
+| Vikings | viking, vikings, norsemen, longship, raid, jarl | norse mythology, historical, war |
+| Ancient World | ancient, ancient greece, ancient rome, ancient egypt, antiquity, pharaoh | mythology, historical |
+| Royalty | royalty, royal, prince, princess, queen, king, crown | political intrigue, historical romance, epic fantasy |
+| Relationships | relationship, relationships, marriage, divorce, love triangle | romance, family |
+| Politics | politics, political, election, government, senator | political intrigue, dystopian |
+| Workplace | workplace, office, coworkers, boss, colleague | romantic comedy, contemporary |
+| Dark | dark, bleak, grim, disturbing, twisted | dark fantasy, dark romance, gothic |
 
-A `concept_catalog_test.dart` test asserts every `relatedConceptId` resolves to a concept, so the catalog can't silently drift.
+Final keyword lists (and Spanish equivalents) are refined during implementation; `concept_catalog_test.dart` asserts every `relatedConceptId` resolves to a concept and every concept has non-empty EN and ES keywords, so the catalog can't silently drift.
 
-Default in the implementation: follow the table above unless told otherwise.
+### 3.4 Localization of concepts (decided: EN + ES from the start)
 
-### 3.4 Localization of concepts
-
-The app ships English + Spanish. Phase 1: concept `displayName` stays in the catalog (English), with an optional `displayNameEs` / keyword list per locale added later. Spanish keywords (e.g. `bruja`, `vampiro`, `navidad`) can be appended to `keywords` now at no cost since matching is language-agnostic after normalization. **Open question:** include Spanish keywords in Phase 1?
+- Every concept has `displayName` (EN) and `displayNameEs`; the chip label follows the app locale (`LocaleProvider`).
+- Every concept's `keywords` include Spanish equivalents (e.g. Witches: `bruja`, `brujas`, `brujería`, `aquelarre`, `hechizo`; Vampires: `vampiro`, `vampiros`; Christmas: `navidad`, `navideño`, `nochebuena`; Halloween: `halloween`, `terror`, `embrujado`, `noche de brujas`).
+- Matching is language-agnostic after normalization (accents folded, so `brujería` ≡ `brujeria`), so a Spanish query matches English metadata only through the concept, and vice versa.
+- Spanish plural rules added to the stemmer (`-es` after consonant: `ladrones→ladron`; `-s` after vowel).
 
 ---
 
@@ -165,9 +184,9 @@ Applied identically to query, book fields and catalog keywords:
 2. Diacritic folding (`á→a`, `ñ→n`, `ç→c`, `ü→u`, …) via a static map.
 3. Punctuation → space; hyphens treated as spaces (`rom-com` ≡ `rom com`, `enemies-to-lovers` ≡ `enemies to lovers`). Apostrophes removed (`valentine's` → `valentines`).
 4. Collapse whitespace.
-5. Tokenize; light stemming for plurals: `-ies→-y`, `-ves→-f`/`-fe` (`werewolves→werewolf`), `-es`/`-s` (guarded: min length, not `-ss`). Both surface and stemmed forms are kept.
+5. Tokenize; light stemming for plurals: `-ies→-y`, `-ves→-f`/`-fe` (`werewolves→werewolf`), `-es`/`-s` (guarded: min length, not `-ss`). Spanish plurals (`-es`/`-s`) handled too. Both surface and stemmed forms are kept.
 6. Phrase matching on token boundaries (so `war` doesn't match `warrior`, `ice` doesn't match `police`).
-7. Stop words (`a`, `with`, `but`, `something`, `books`, `for`, `the`, `not`, …) dropped from **free-text** query terms, but `not`/`no`/`without` are detected first to build negations.
+7. Stop words EN + ES (`a`, `with`, `but`, `something`, `books`, `for`, `the`, `not`, `con`, `de`, `pero`, `algo`, `libros`, `sin`, `no`, …) dropped from **free-text** query terms, but `not`/`no`/`without` are detected first to build negations.
 
 ---
 
@@ -188,7 +207,7 @@ Steps:
 2. Longest-phrase-first scan of the catalog phrase index (`dark academia` before `dark`, `fantasy romance` before `fantasy`).
 3. Each hit → **direct query concept** (weight 1.0).
 4. For each direct concept, expand `relatedConceptIds` one hop → **related query concepts** (weight ≈ 0.4). Not transitive (prevents `halloween → witches → magic → fantasy` from reaching every book).
-5. Negation window (`not X`, `but not X`, `without X`, `no X`) → `negatedConcepts` / negated terms.
+5. Negation window (`not X`, `but not X`, `without X`, `no X`, `sin X`, `pero no X`) → `negatedConcepts` / negated terms.
 6. Remaining non-stop-word tokens → `freeTerms`, matched literally against book fields (so unknown words like an author or saga name still work).
 
 Multi-concept queries (`romance with witches`) produce multiple direct concepts; books matching more of them rank higher (see §6.3).
@@ -206,7 +225,7 @@ Multi-concept queries (`romance with witches`) produce multiple direct concepts;
 | saga / universe | `saga`, `sagaUniverse` | 0.70 |
 | description | `description` | **0.55** (medium) |
 | author | `author` | **0.25** (weak) |
-| notes/review | `notes`, `myReview` | 0.20 (optional) |
+| notes/review | `notes`, `myReview` (user's own text) | 0.20 (decided: included, lowest weight) |
 
 ### 6.2 Signal types
 
@@ -247,8 +266,16 @@ relevance   = clamp( (rawScore / ideal) × (0.6 + 0.4 × coverage), 0, 1 )
 ```
 
 - Score is **relative to the query**, not to other books → stable %, not a "rating".
-- Minimum threshold (e.g. `< 0.15`) → dropped; `0.15–0.35` → shown in a collapsed "Loosely related" group (see §9 edge cases).
-- Ties broken by: coverage ↓, number of distinct matched concepts ↓, title A→Z.
+- Bands (decided):
+  - `≥ 0.35` → **main results**.
+  - `0.15–0.35` → **"Loosely related"** group, collapsed by default.
+  - `< 0.15` → dropped.
+- Ordering within each band (decided: unread first):
+  1. **Unread first** — "read" = `statusValue` `yes` or `repeated`; everything else (`no`, `started`, `tbreleased`, `standby`, `abandoned`) counts as unread.
+  2. relevance ↓
+  3. coverage ↓, number of distinct matched concepts ↓, title A→Z.
+- Unread-first is applied by `BookDiscoveryService` as a presentation ordering; it does **not** change the relevance %.
+- All statuses are included (decided).
 
 ### 6.5 Explanation ("why this matched")
 
@@ -285,12 +312,12 @@ The UI renders chips from `matchedConcepts` (emoji + displayName from the catalo
 - Follows `new_ui` v2 look (tokens, Manrope, card borders, shadows of `NewRandomScreen`).
 - **Search area**: prominent `TextField` — label *"What are you in the mood for?"*, hint *"Halloween, witches, cozy autumn…"*; clear button.
 - **Suggestion chips** under the field when empty: a few catalog concepts (Halloween, Cozy, Dark Academia, Romantasy…) pulled from the catalog, tapping fills the query.
-- **Results**: rendered inside the card (non-scrolling `Column`, since the Random screen is already a `SingleChildScrollView`), top N shown with "Show more" — or in a pushed full screen, depending on §15 Q1. Each item is a `DiscoveryResultCard` = existing `BookCardV2` (cover, title, author, saga/universe) + footer row:
-  - subtle relevance indicator: `92% match` text + thin bar (explicitly *not* stars/hearts, to avoid looking like a rating),
-  - matched-concept chips (`🧙 Witches  🔮 Magic  🌙 Paranormal  🎃 Halloween`),
+- **Results (decided: inline in the card)**: rendered inside the card as a non-scrolling `Column` (the Random screen is already a `SingleChildScrollView`). Top **5** shown, then a **"Show more"** button revealing +5 at a time. Below, a collapsed **"Loosely related (N)"** expandable section. Each item is a `DiscoveryResultCard` = existing `BookCardV2` (cover, title, author, saga/universe) + footer row:
+  - relevance (decided: percentage **and** bar): `92% match` text + thin `LinearProgressIndicator`-style bar in `_kPrimary` (explicitly *not* stars/hearts, to avoid looking like a rating),
+  - matched-concept chips with emoji (decided), localized name: `🧙 Witches  🔮 Magic  🌙 Paranormal  🎃 Halloween` / `🧙 Brujas …`,
   - optional one-line "Why this matches".
-- Tapping a result opens the existing book detail (`new_book_detail.dart`) exactly as `BookCardV2` does today (pending §15 Q7).
-- Optional integration with the random picker (pending §15 Q2).
+- Tapping a result opens the existing book detail (`new_book_detail.dart`) exactly as `BookCardV2` does today (decided).
+- **No** integration with the random picker, Select Books, or the Random screen filters (decided) — the card is independent of the rest of the screen's state.
 - Not a chatbot: single input, list of books, no conversation history.
 
 ---
@@ -302,7 +329,7 @@ The UI renders chips from `matchedConcepts` (emoji + displayName from the catalo
 | Empty query | Show suggestion chips + helper text; no search run. |
 | Very short query (<2 chars) | No search; helper text. |
 | No matches | Empty state: "No books in your library match *X*" + suggestion chips. |
-| Very low relevance | Below threshold hidden; low band grouped under "Loosely related" (collapsed). |
+| Very low relevance | `< 0.15` hidden; `0.15–0.35` grouped under "Loosely related" (collapsed). |
 | Missing description / genre / author | Null-safe `SearchableBook` (empty token sets); never throws. |
 | Duplicate keywords (in catalog or across concepts) | Catalog index is a `Set`; hits deduped per (concept, field). |
 | Capitalization / accents / punctuation | `TextNormalizer` (§4). |
@@ -360,6 +387,10 @@ Pure Dart unit tests (no widgets) under `test/discovery/`, using small in-memory
 | + | Catalog integrity: every `relatedConceptId` resolves; no empty keyword lists | `concept_catalog_test.dart` |
 | + | Negation: `spooky but not horror` excludes horror-genre books | service |
 | + | Word-boundary: `war` doesn't match `warrior`, `ice` not in `police` | normalizer/matcher |
+| + | Spanish query (`brujas`) matches an English witch book via the concept, and vice versa | service |
+| + | Unread books ordered before read ones within a band; relevance % unchanged | service |
+| + | Loosely-related band boundaries (0.15 / 0.35) | service |
+| + | Notes/review hit scores below a description hit | matcher |
 
 Commands:
 
@@ -376,7 +407,7 @@ Full `flutter test` run before finishing to confirm no regressions (note: `test/
 ## 13. Implementation order
 
 1. `TextNormalizer` + tests.
-2. `ThemeConcept`, `concept_catalog_data.dart` (all concepts from §3.2 + resolutions from §3.3), `ConceptCatalog` + integrity test.
+2. `ThemeConcept`, `concept_catalog_data.dart` (all concepts from §3.2 + new concepts from §3.3, EN + ES keywords, emoji), `ConceptCatalog` + integrity test.
 3. `SearchableBook`, `SearchableTextBuilder`, `BookIndex`.
 4. `DiscoveryQuery` parsing (phrases, related expansion, negation, free terms).
 5. `BookMatcher` interface, `KeywordBookMatcher`, scoring (§6).
@@ -384,7 +415,7 @@ Full `flutter test` run before finishing to confirm no regressions (note: `test/
 7. `semantic_book_matcher.dart` skeleton + `Embedder` interface (unregistered).
 8. l10n strings (en + es), `flutter gen-l10n`.
 9. `DiscoveryResultCard` (wraps `BookCardV2`) and `ThemeDiscoveryCard` (debounce, empty/no-results states).
-10. Insert the card at the top of `NewRandomScreen` (above Select Books) + random-picker wiring per §15 Q2.
+10. Insert the card at the top of `NewRandomScreen` (above Select Books) (display only).
 11. Format, analyze, full test run; manual check on device/emulator.
 12. PR with the deliverables write-up required by §17 of the spec (architecture, reused components, catalog, matching, weighting, relevance, UI exposure, embedding path, file list, test results, confirmation existing features unchanged).
 
@@ -396,22 +427,21 @@ No chatbot UI · no external AI/API calls · no Google Books/OpenLibrary fetchin
 
 ---
 
-## 15. Decisions & open questions
+## 15. Decisions
 
-### Decided
+| # | Topic | Decision |
+|---|---|---|
+| — | Placement | Top of the **new-UI** Random screen (`NewRandomScreen`), above *Select Books*. No Home/v1 changes. |
+| 1 | Presentation | Results **inline inside the card** — top 5 + "Show more". |
+| 2 | Random-picker integration | **None** — discovery only shows matching books. |
+| 3 | Random screen filters | **Not applied** — always search the whole library. |
+| 4 | Statuses | **All books**, **unread first** within each band. |
+| 5 | Undefined related concepts | **Add all as full concepts** with keyword lists (§3.3). |
+| 6 | Language | **English + Spanish** keywords and display names from the start (§3.4). |
+| 7 | Tap on result | **Open book detail**. |
+| 8 | Relevance display | **Percentage + bar**. |
+| 9 | Concept chip icons | **Emoji**. |
+| 10 | Low relevance | Collapsed **"Loosely related"** group. |
+| 11 | Notes/reviews | **Included**, lowest weight (0.20). |
 
-- **Placement:** top of the new-UI Random screen (`NewRandomScreen`), above the *Select Books* card. **New UI only** (for now). No Home screen or v1 changes.
-
-### Open (asked in Slack)
-
-1. **Presentation:** results shown inline inside the card on the Random screen, or the card is a compact search field that opens a dedicated results screen?
-2. **Random-picker integration:** discovery only, or add a "Pick a random book from these results" action / let results feed the *Select Books* custom list?
-3. **Random screen filters:** should discovery results respect the Random screen's filters (format, language, genre, status/place, TBR, pages, decade, author, avoid), or search the whole library independently?
-4. **Statuses:** include all books (read, reading, TBR, TBReleased…), or only unread/TBR?
-5. **Unresolved related concepts** (§3.3): accept the proposal (aliases + add horror/occult/dark fantasy/gothic/contemporary/psychological horror + lightweight stubs), or only aliases and drop the rest?
-6. **Spanish keywords** in the Phase 1 catalog (bruja, vampiro, navidad…)?
-7. **Tap on a result:** open book detail, or add it to *Select Books*?
-8. **Relevance display:** percentage (`92% match`), subtle bar only, or both?
-9. **Concept chip icons:** emoji (🎃🧙) or Material icons?
-10. **Low-relevance results:** collapsed "Loosely related" group, or hidden?
-11. **Notes/reviews:** include the user's own `notes` / `myReview` in matching (low weight)?
+No open questions remain; ready to implement.
