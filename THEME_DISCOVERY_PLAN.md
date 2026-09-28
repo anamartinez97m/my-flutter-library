@@ -22,7 +22,7 @@ BookMatcher (interface)
       ↓
 DiscoveryResult { book, relevance 0..1, matchedConcepts, reasons }
       ↓
-ThemeDiscoveryScreen → existing BookCardV2 + small relevance/concept row
+Theme discovery card (top of NewRandomScreen) → existing BookCardV2 + small relevance/concept row
 ```
 
 The UI only ever sees `DiscoveryResult` — it never knows which matcher produced it.
@@ -39,7 +39,7 @@ The UI only ever sees `DiscoveryResult` — it never knows which matcher produce
 | Pure-Dart engines | `lib/helpers/suggestion_engine.dart` (`SuggestionEngine`) | Precedent for a Flutter-free, testable engine over `List<Book>`. Discovery engine follows the same style. |
 | Book UI | `lib/widgets/book_card_v2.dart` (`BookCardV2`) | Renders cover/title/author/saga. We add a small match footer (relevance + concept chips) around it, not inside it. |
 | Design tokens | `_kPrimary`, `_kText`, `_kBorder`, `_kDivider` (v2 tokens), `lib/config/app_theme.dart`, Manrope font | Same palette/typography/spacing as other `new_ui` screens. |
-| Navigation | `lib/screens/new_ui/new_home_screen.dart`, `new_navigation_screen.dart` | Entry point from Home (card/button) — no new bottom-nav tab, to avoid redesigning navigation. |
+| Entry point | `lib/screens/new_ui/new_random_screen.dart` (`NewRandomScreen`) | New card placed **above `_buildSelectBooksCard`** in `build()`, reusing the screen's card styling (`_kCardBg`, `_kCardBorder`, `_kCardShadow`, 40px circular icon header like the Select Books card). **New UI only** — the v1 `random` screen is not touched. No new bottom-nav tab, no Home screen changes. |
 | Localization | `lib/l10n/app_en.arb`, `app_es.arb` | All new UI strings added to both ARB files. |
 | Database | `DatabaseHelper` / sqflite | **Not touched in Phase 1.** Everything is derived in memory. |
 
@@ -72,7 +72,7 @@ lib/discovery/
     text_normalizer.dart          # lowercase, diacritics, punctuation, whitespace, simple singular/plural stemming
   book_discovery_service.dart     # orchestrates matchers, merges scores, ranks, thresholds
 
-lib/screens/new_ui/theme_discovery_screen.dart   # the UI
+lib/widgets/theme_discovery_card.dart            # the card shown at the top of NewRandomScreen (search field + results)
 lib/widgets/discovery_result_card.dart           # BookCardV2 + relevance + concept chips + "why this matches"
 
 test/discovery/
@@ -83,7 +83,7 @@ test/discovery/
 ```
 
 Modified files (minimal):
-- `lib/screens/new_ui/new_home_screen.dart` — add an entry point ("Discover by theme") to the new screen.
+- `lib/screens/new_ui/new_random_screen.dart` — insert `ThemeDiscoveryCard` + `SizedBox(height: 16)` above `_buildSelectBooksCard(l10n)` (plus any wiring decided in §15 Q2).
 - `lib/l10n/app_en.arb`, `lib/l10n/app_es.arb` (+ regenerated `app_localizations*.dart` via `flutter gen-l10n`) — new strings.
 
 Nothing else is modified. No DB migration.
@@ -278,18 +278,20 @@ The UI renders chips from `matchedConcepts` (emoji + displayName from the catalo
 
 ---
 
-## 8. UI (`ThemeDiscoveryScreen`)
+## 8. UI (`ThemeDiscoveryCard` on `NewRandomScreen`)
 
-- Follows `new_ui` v2 look (tokens, Manrope, card borders, `SafeArea` handling like other redesigned screens).
+- Location: top of the new-UI Random screen, directly above the **Select Books** card. v1 UI unchanged.
+- Card header mirrors `_buildSelectBooksCard`: 40px `_kPrimary` circle icon (e.g. `Icons.auto_awesome`), 20px title, 14px subtitle, divider.
+- Follows `new_ui` v2 look (tokens, Manrope, card borders, shadows of `NewRandomScreen`).
 - **Search area**: prominent `TextField` — label *"What are you in the mood for?"*, hint *"Halloween, witches, cozy autumn…"*; clear button.
 - **Suggestion chips** under the field when empty: a few catalog concepts (Halloween, Cozy, Dark Academia, Romantasy…) pulled from the catalog, tapping fills the query.
-- **Results**: `ListView` of `DiscoveryResultCard` = existing `BookCardV2` (cover, title, author, saga/universe) + footer row:
+- **Results**: rendered inside the card (non-scrolling `Column`, since the Random screen is already a `SingleChildScrollView`), top N shown with "Show more" — or in a pushed full screen, depending on §15 Q1. Each item is a `DiscoveryResultCard` = existing `BookCardV2` (cover, title, author, saga/universe) + footer row:
   - subtle relevance indicator: `92% match` text + thin bar (explicitly *not* stars/hearts, to avoid looking like a rating),
   - matched-concept chips (`🧙 Witches  🔮 Magic  🌙 Paranormal  🎃 Halloween`),
   - optional one-line "Why this matches".
-- Tapping a result opens the existing book detail (`new_book_detail.dart`) exactly as `BookCardV2` does today.
+- Tapping a result opens the existing book detail (`new_book_detail.dart`) exactly as `BookCardV2` does today (pending §15 Q7).
+- Optional integration with the random picker (pending §15 Q2).
 - Not a chatbot: single input, list of books, no conversation history.
-- Entry point: a card/button on `new_home_screen.dart`. (Legacy v1 UI: not added unless requested — see open questions.)
 
 ---
 
@@ -381,8 +383,8 @@ Full `flutter test` run before finishing to confirm no regressions (note: `test/
 6. `BookDiscoveryService` (merge, normalize, threshold, rank) + full test matrix (§12).
 7. `semantic_book_matcher.dart` skeleton + `Embedder` interface (unregistered).
 8. l10n strings (en + es), `flutter gen-l10n`.
-9. `DiscoveryResultCard` (wraps `BookCardV2`) and `ThemeDiscoveryScreen` (debounce, empty/no-results states).
-10. Home screen entry point.
+9. `DiscoveryResultCard` (wraps `BookCardV2`) and `ThemeDiscoveryCard` (debounce, empty/no-results states).
+10. Insert the card at the top of `NewRandomScreen` (above Select Books) + random-picker wiring per §15 Q2.
 11. Format, analyze, full test run; manual check on device/emulator.
 12. PR with the deliverables write-up required by §17 of the spec (architecture, reused components, catalog, matching, weighting, relevance, UI exposure, embedding path, file list, test results, confirmation existing features unchanged).
 
@@ -394,10 +396,22 @@ No chatbot UI · no external AI/API calls · no Google Books/OpenLibrary fetchin
 
 ---
 
-## 15. Open questions
+## 15. Decisions & open questions
 
-1. **Unresolved related concepts** (§3.3): OK to add the missing ones (horror, occult, dark fantasy, gothic, contemporary, …) as new catalog entries?
-2. **Spanish keywords**: add ES keywords to the catalog in Phase 1?
-3. **Entry point**: Home-screen card in the v2 UI only, or also a menu entry in the legacy v1 UI / a bottom-nav tab?
-4. **Loosely related band**: show low-relevance results collapsed, or hide them entirely?
-5. **Scope of fields**: include the user's own `notes` / `myReview` in matching (low weight), or keep matching to catalog metadata only?
+### Decided
+
+- **Placement:** top of the new-UI Random screen (`NewRandomScreen`), above the *Select Books* card. **New UI only** (for now). No Home screen or v1 changes.
+
+### Open (asked in Slack)
+
+1. **Presentation:** results shown inline inside the card on the Random screen, or the card is a compact search field that opens a dedicated results screen?
+2. **Random-picker integration:** discovery only, or add a "Pick a random book from these results" action / let results feed the *Select Books* custom list?
+3. **Random screen filters:** should discovery results respect the Random screen's filters (format, language, genre, status/place, TBR, pages, decade, author, avoid), or search the whole library independently?
+4. **Statuses:** include all books (read, reading, TBR, TBReleased…), or only unread/TBR?
+5. **Unresolved related concepts** (§3.3): accept the proposal (aliases + add horror/occult/dark fantasy/gothic/contemporary/psychological horror + lightweight stubs), or only aliases and drop the rest?
+6. **Spanish keywords** in the Phase 1 catalog (bruja, vampiro, navidad…)?
+7. **Tap on a result:** open book detail, or add it to *Select Books*?
+8. **Relevance display:** percentage (`92% match`), subtle bar only, or both?
+9. **Concept chip icons:** emoji (🎃🧙) or Material icons?
+10. **Low-relevance results:** collapsed "Loosely related" group, or hidden?
+11. **Notes/reviews:** include the user's own `notes` / `myReview` in matching (low weight)?
