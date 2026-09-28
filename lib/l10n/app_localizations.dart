@@ -7477,6 +7477,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Missing earlier entries in: {sagas}'**
   String missing_earlier_entries(Object sagas);
+
+  /// No description provided for @contact_me.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Me'**
+  String get contact_me;
+
+  /// No description provided for @contact_me_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send feedback, ideas or report a bug'**
+  String get contact_me_subtitle;
+
+  /// No description provided for @contact_me_intro.
+  ///
+  /// In en, this message translates to:
+  /// **'Found a bug, have an idea or just want to share feedback? Fill in the form and it will be sent to me by email.'**
+  String get contact_me_intro;
+
+  /// No description provided for @contact_me_summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Short summary'**
+  String get contact_me_summary;
+
+  /// No description provided for @contact_me_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get contact_me_description;
+
+  /// No description provided for @contact_me_required.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required'**
+  String get contact_me_required;
+
+  /// No description provided for @contact_me_sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks! Your message has been sent.'**
+  String get contact_me_sent;
+
+  /// No description provided for @contact_me_send.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get contact_me_send;
+
+  /// No description provided for @contact_me_no_email_app.
+  ///
+  /// In en, this message translates to:
+  /// **'No email app found. You can write to {email} directly.'**
+  String contact_me_no_email_app(Object email);
 }
 
 class _AppLocalizationsDelegate

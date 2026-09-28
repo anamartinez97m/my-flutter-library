@@ -4143,4 +4143,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String missing_earlier_entries(Object sagas) {
     return 'Missing earlier entries in: $sagas';
   }
+
+  @override
+  String get contact_me => 'Contact Me';
+
+  @override
+  String get contact_me_subtitle => 'Send feedback, ideas or report a bug';
+
+  @override
+  String get contact_me_intro =>
+      'Found a bug, have an idea or just want to share feedback? Fill in the form and it will be sent to me by email.';
+
+  @override
+  String get contact_me_summary => 'Short summary';
+
+  @override
+  String get contact_me_description => 'Description';
+
+  @override
+  String get contact_me_required => 'This field is required';
+
+  @override
+  String get contact_me_sent => 'Thanks! Your message has been sent.';
+
+  @override
+  String get contact_me_send => 'Send';
+
+  @override
+  String contact_me_no_email_app(Object email) {
+    return 'No email app found. You can write to $email directly.';
+  }
 }
