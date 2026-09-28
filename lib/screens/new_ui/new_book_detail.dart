@@ -1126,10 +1126,6 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
     final isPercentage = _currentBook.progressType == 'percentage';
     final currentProgress = _currentBook.readingProgress ?? 0;
 
-    final progressController = TextEditingController(
-      text: currentProgress.toString(),
-    );
-
     bool usePercentage = isPercentage;
     String percentageDraft = isPercentage ? currentProgress.toString() : '';
     String pagesDraft = isPercentage ? '' : currentProgress.toString();
@@ -1137,9 +1133,12 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
     final result = await showDialog<Map<String, dynamic>>(
       context: context,
       builder:
-          (context) => StatefulBuilder(
+          (context) => _OwnedTextController(
+            initialText: currentProgress.toString(),
             builder:
-                (context, setDialogState) => AlertDialog(
+                (context, progressController) => StatefulBuilder(
+                  builder:
+                      (context, setDialogState) => AlertDialog(
                   backgroundColor: _kBg,
                   elevation: 25,
                   constraints: const BoxConstraints(maxWidth: 384),
@@ -1433,9 +1432,9 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                     ),
                   ],
                 ),
+                ),
           ),
     );
-    progressController.dispose();
 
     if (result != null) {
       try {
@@ -5680,4 +5679,35 @@ class _TandemReadingsCardState extends State<_TandemReadingsCard> {
       ),
     );
   }
+}
+
+/// Owns a [TextEditingController] for the lifetime of a dialog so it is only
+/// disposed once the dialog's widgets have been unmounted.
+class _OwnedTextController extends StatefulWidget {
+  const _OwnedTextController({
+    required this.initialText,
+    required this.builder,
+  });
+
+  final String initialText;
+  final Widget Function(BuildContext context, TextEditingController controller)
+  builder;
+
+  @override
+  State<_OwnedTextController> createState() => _OwnedTextControllerState();
+}
+
+class _OwnedTextControllerState extends State<_OwnedTextController> {
+  late final TextEditingController _controller = TextEditingController(
+    text: widget.initialText,
+  );
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.builder(context, _controller);
 }
