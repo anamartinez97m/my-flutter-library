@@ -21,6 +21,7 @@ import 'package:provider/provider.dart';
 import 'package:myrandomlibrary/widgets/heart_rating_input.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:myrandomlibrary/services/book_metadata_service.dart';
+import '../config/app_theme.dart';
 
 class AddBookScreen extends StatefulWidget {
   final UniversePlaceholder? initialPlaceholder;
@@ -821,7 +822,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
               content: Text(
                 'Updated format saga for $updatedCount books in "$sagaName"',
               ),
-              backgroundColor: colorScheme.primary,
+              backgroundColor: AppTheme.notificationColor,
             ),
           );
         }
@@ -1278,7 +1279,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
             content: Text(
               AppLocalizations.of(context)!.isbn_required_for_fetch,
             ),
-            backgroundColor: Theme.of(context).colorScheme.secondary,
+            backgroundColor: AppTheme.notificationColor,
           ),
         );
       }
@@ -1341,14 +1342,14 @@ class _AddBookScreenState extends State<AddBookScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)!.book_info_found),
-            backgroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: AppTheme.notificationColor,
           ),
         );
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)!.no_book_info_found),
-            backgroundColor: Theme.of(context).colorScheme.secondary,
+            backgroundColor: AppTheme.notificationColor,
           ),
         );
       }

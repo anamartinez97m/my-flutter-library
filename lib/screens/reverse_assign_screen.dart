@@ -6,6 +6,7 @@ import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/providers/role_provider.dart';
 import 'package:provider/provider.dart';
+import '../config/app_theme.dart';
 
 class ReverseAssignScreen extends StatefulWidget {
   const ReverseAssignScreen({super.key});
@@ -182,7 +183,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.bulk_updated_books(count)),
-          backgroundColor: colorScheme.primary,
+          backgroundColor: AppTheme.notificationColor,
         ),
       );
 

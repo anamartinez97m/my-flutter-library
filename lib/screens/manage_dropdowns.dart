@@ -4,6 +4,7 @@ import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:provider/provider.dart';
+import '../config/app_theme.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
 const _kBg = Color(0xFFFDF8F6);
@@ -530,9 +531,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                                       SnackBar(
                                         content: Text(l10n.enter_valid_number),
                                         backgroundColor:
-                                            Theme.of(
-                                              context,
-                                            ).colorScheme.secondary,
+                                            AppTheme.notificationColor,
                                       ),
                                     );
                                     return;

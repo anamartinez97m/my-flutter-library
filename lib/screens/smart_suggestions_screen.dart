@@ -7,6 +7,7 @@ import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/providers/role_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../config/app_theme.dart';
 
 class SmartSuggestionsScreen extends StatefulWidget {
   const SmartSuggestionsScreen({super.key});
@@ -139,7 +140,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.suggestion_applied),
-          backgroundColor: colorScheme.primary,
+          backgroundColor: AppTheme.notificationColor,
         ),
       );
       setState(() {
@@ -170,7 +171,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(AppLocalizations.of(context)!.suggestion_rejected),
-        backgroundColor: Theme.of(context).colorScheme.secondary,
+        backgroundColor: AppTheme.notificationColor,
       ),
     );
   }

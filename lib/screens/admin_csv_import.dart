@@ -13,6 +13,7 @@ import 'package:myrandomlibrary/utils/csv_import_helper.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
+import '../config/app_theme.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
 const _kV2Bg = Color(0xFFFDF8F6);
@@ -1369,7 +1370,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
             content: Text(
               'Import complete: $imported imported, $updated updated, $skipped skipped.',
             ),
-            backgroundColor: colorScheme.primary,
+            backgroundColor: AppTheme.notificationColor,
             duration: const Duration(seconds: 2),
           ),
         );
@@ -1388,7 +1389,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
             content: Text(
               'Partial import complete: $imported imported, $updated updated, $skipped skipped. ${_importItems.length} books remaining.',
             ),
-            backgroundColor: colorScheme.primary,
+            backgroundColor: AppTheme.notificationColor,
             duration: const Duration(seconds: 4),
           ),
         );
