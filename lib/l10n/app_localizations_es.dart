@@ -1027,6 +1027,15 @@ class AppLocalizationsEs extends AppLocalizations {
       'Renombrar o eliminar clubes de lectura';
 
   @override
+  String get theme_main => 'Principal';
+
+  @override
+  String get theme_ocean => 'Océano';
+
+  @override
+  String get theme_royal => 'Real';
+
+  @override
   String get warm_earth => 'Tierra Cálida';
 
   @override

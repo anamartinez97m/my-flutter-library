@@ -83,10 +83,11 @@ class MyApp extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final localeProvider = Provider.of<LocaleProvider>(context);
 
-    const v2Overlay = SystemUiOverlayStyle(
-      statusBarColor: Color(0xFFFDF8F6),
-      statusBarIconBrightness: Brightness.dark,
-      statusBarBrightness: Brightness.light,
+    final isDarkMode = themeProvider.themeMode == AppThemeMode.dark;
+    final v2Overlay = SystemUiOverlayStyle(
+      statusBarColor: themeProvider.palette.background,
+      statusBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
+      statusBarBrightness: isDarkMode ? Brightness.dark : Brightness.light,
     );
 
     final lightBase = themeProvider.lightTheme;
@@ -150,11 +151,9 @@ class MyApp extends StatelessWidget {
         ),
       ),
       themeMode:
-          themeProvider.themeMode == AppThemeMode.light
-              ? ThemeMode.light
-              : themeProvider.themeMode == AppThemeMode.dark
+          themeProvider.themeMode == AppThemeMode.dark
               ? ThemeMode.dark
-              : ThemeMode.system,
+              : ThemeMode.light,
       home: const _AutoBackupRunner(),
     );
 
