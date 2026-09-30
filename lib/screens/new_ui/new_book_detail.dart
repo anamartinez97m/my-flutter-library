@@ -3333,6 +3333,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                       AppLocalizations.of(context)!.editorial,
                                   value: _currentBook.editorialValue!,
                                   link: true,
+                                  singleLine: true,
                                 ),
                               ),
                             );
@@ -4441,17 +4442,28 @@ class _DetailCard extends StatelessWidget {
   final String label;
   final String value;
   final bool link;
+  final bool singleLine;
 
   const _DetailCard({
     required this.icon,
     required this.label,
     required this.value,
     this.link = false,
+    this.singleLine = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).colorScheme.primary;
+    final valueText = Text(
+      value,
+      maxLines: singleLine ? 1 : null,
+      overflow: singleLine ? TextOverflow.ellipsis : null,
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+        color: link ? primaryColor : Theme.of(context).colorScheme.onSurface,
+        fontWeight: link ? FontWeight.w500 : null,
+      ),
+    );
     return GestureDetector(
       onLongPress: () {
         Clipboard.setData(ClipboardData(text: value));
@@ -4490,25 +4502,35 @@ class _DetailCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    Text(
-                      value,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color:
-                            link
-                                ? primaryColor
-                                : Theme.of(context).colorScheme.onSurface,
-                        fontWeight: link ? FontWeight.w500 : null,
-                      ),
-                    ),
-                    if (link) ...[
-                      const SizedBox(width: 2),
-                      Icon(Icons.chevron_right, size: 16, color: primaryColor),
-                    ],
-                  ],
-                ),
+                child:
+                    singleLine
+                        ? Row(
+                          children: [
+                            Flexible(child: valueText),
+                            if (link) ...[
+                              const SizedBox(width: 2),
+                              Icon(
+                                Icons.chevron_right,
+                                size: 16,
+                                color: primaryColor,
+                              ),
+                            ],
+                          ],
+                        )
+                        : Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            valueText,
+                            if (link) ...[
+                              const SizedBox(width: 2),
+                              Icon(
+                                Icons.chevron_right,
+                                size: 16,
+                                color: primaryColor,
+                              ),
+                            ],
+                          ],
+                        ),
               ),
             ],
           ),
