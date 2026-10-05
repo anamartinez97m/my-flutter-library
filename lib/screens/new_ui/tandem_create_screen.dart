@@ -121,7 +121,14 @@ class _TandemCreateScreenState extends State<TandemCreateScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text(l10n.tandem_created)));
+        ).showSnackBar(
+          SnackBar(
+            content: Text(
+              l10n.tandem_created,
+              style: const TextStyle(fontFamily: 'Manrope'),
+            ),
+          ),
+        );
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -139,7 +146,11 @@ class _TandemCreateScreenState extends State<TandemCreateScreen> {
   void _showError(String message) {
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ).showSnackBar(
+      SnackBar(
+        content: Text(message, style: const TextStyle(fontFamily: 'Manrope')),
+      ),
+    );
   }
 
   @override
