@@ -346,7 +346,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
             ),
           ),
           const SizedBox(height: 10),
-          _buildNextAction(nextQuarter),
+          _buildAvailableVotes(),
         ],
       ),
     );
@@ -540,31 +540,73 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
     );
   }
 
-  Widget _buildNextAction(int? nextQuarter) {
-    VoidCallback? action;
-    String title;
-    String subtitle;
-    if (nextQuarter != null) {
-      final firstMonth = (nextQuarter - 1) * 3 + 1;
-      title = 'Vote: Quarter $nextQuarter Winner';
-      subtitle =
-          '${_monthName(firstMonth)}, ${_monthName(firstMonth + 1)} & ${_monthName(firstMonth + 2)} finalists await';
-      action = () => _runQuarterlyCompetition(nextQuarter);
-    } else if (_canRunSemifinalCompetition(1) ||
-        _canRunSemifinalCompetition(2)) {
-      final round = _canRunSemifinalCompetition(1) ? 1 : 2;
-      title = 'Vote: Semifinal $round Winner';
-      subtitle =
-          round == 1 ? 'Q1 & Q3 champions await' : 'Q2 & Q4 champions await';
-      action = () => _runSemifinalCompetition(round);
-    } else if (_canRunFinalCompetition()) {
-      title = 'Vote: Grand Finale Winner';
-      subtitle = 'The semifinal champions await';
-      action = _runFinalCompetition;
-    } else {
-      title = 'Next round coming soon';
-      subtitle = 'Complete the current qualifiers to continue';
+  bool _canSelectMonthlyWinner(int month) =>
+      !_isFutureMonth(month) &&
+      (monthBooksCache[month]?.isNotEmpty ?? false) &&
+      _monthWinner(month) == null;
+
+  Widget _buildAvailableVotes() {
+    final rows = <Widget>[
+      for (var month = 1; month <= 12; month++)
+        if (_canSelectMonthlyWinner(month))
+          _buildVoteRow(
+            title: 'Vote: ${_monthName(month)} Winner',
+            subtitle:
+                '${monthBooksCache[month]!.length} ${monthBooksCache[month]!.length == 1 ? 'book' : 'books'} read in ${_monthName(month)} ${widget.year}',
+            action: () => _selectMonthlyWinner(month),
+          ),
+      for (var quarter = 1; quarter <= 4; quarter++)
+        if (_canRunQuarterlyCompetition(quarter))
+          _buildVoteRow(
+            title: 'Vote: Quarter $quarter Winner',
+            subtitle: _quarterFinalistsSubtitle(quarter),
+            action: () => _runQuarterlyCompetition(quarter),
+          ),
+      for (var round = 1; round <= 2; round++)
+        if (_canRunSemifinalCompetition(round))
+          _buildVoteRow(
+            title: 'Vote: Semifinal $round Winner',
+            subtitle:
+                round == 1
+                    ? 'Q1 & Q3 champions await'
+                    : 'Q2 & Q4 champions await',
+            action: () => _runSemifinalCompetition(round),
+          ),
+      if (_canRunFinalCompetition())
+        _buildVoteRow(
+          title: 'Vote: Grand Finale Winner',
+          subtitle: 'The semifinal champions await',
+          action: _runFinalCompetition,
+        ),
+    ];
+    if (rows.isEmpty) {
+      rows.add(
+        _buildVoteRow(
+          title: 'Next round coming soon',
+          subtitle: 'Complete the current qualifiers to continue',
+        ),
+      );
     }
+    return Column(
+      children: [
+        for (var i = 0; i < rows.length; i++) ...[
+          if (i > 0) const SizedBox(height: 8),
+          rows[i],
+        ],
+      ],
+    );
+  }
+
+  String _quarterFinalistsSubtitle(int quarter) {
+    final firstMonth = (quarter - 1) * 3 + 1;
+    return '${_monthName(firstMonth)}, ${_monthName(firstMonth + 1)} & ${_monthName(firstMonth + 2)} finalists await';
+  }
+
+  Widget _buildVoteRow({
+    required String title,
+    required String subtitle,
+    VoidCallback? action,
+  }) {
     return Container(
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
