@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 // Main DarkTheme color palette.
 // Same tokens as V2Colors (lib/config/v2_design_system.dart) so the two can be
-// swapped; values come from the Figma "Main DarkTheme" frame. Tokens marked
-// "derived" have no counterpart in that frame.
+// swapped; values come from the Figma "Main DarkTheme" frame.
+// Tokens marked "derived" have no counterpart in that frame.
 abstract final class V2MainDarkColors {
   // Backgrounds and surfaces
   static const background = Color(0xFF393E46);
@@ -50,9 +50,15 @@ abstract final class V2MainDarkColors {
   // Main DarkTheme-only colors (no V2Colors equivalent)
   static const onPrimary = Color(0xFF4D213A);
   static const navBarBackground = Color(0xCC393E46);
+  static const searchBackground = Color(0xFF222831);
   static const chipSelected = Color(0xFFB9A2AB);
   static const chipText = Color(0xFFD4C2C8);
   static const chipTextSelected = Color(0xFF4D213A);
+  static const cardTitle = Color(0xFFB9A2AB);
+  static const cardMeta = Color(0xFFE4E4E7);
+  static const navActiveIcon = Color(0xFFB9A2AB);
+  static const navInactiveIcon = Color(0xFFB9A2AB);
+  static const filterFabIcon = Color(0xFFB9A2AB);
   static const rating = Color(0xFFCA8A04);
   static const saga = Color(0xB3F6B5D4);
   static const fabShadow = Color(0x2643102B);
