@@ -7531,6 +7531,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No email app found. You can write to {email} directly.'**
   String contact_me_no_email_app(Object email);
+
+  /// No description provided for @theme_discovery_title.
+  ///
+  /// In en, this message translates to:
+  /// **'What are you in the mood for?'**
+  String get theme_discovery_title;
+
+  /// No description provided for @theme_discovery_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Find books in your library by theme, mood or topic'**
+  String get theme_discovery_subtitle;
+
+  /// No description provided for @theme_discovery_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Halloween, witches, cozy autumn…'**
+  String get theme_discovery_hint;
+
+  /// No description provided for @theme_discovery_helper.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a theme, mood or topic to search your library.'**
+  String get theme_discovery_helper;
+
+  /// No description provided for @theme_discovery_suggestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Try one of these:'**
+  String get theme_discovery_suggestions;
+
+  /// No description provided for @theme_discovery_no_results.
+  ///
+  /// In en, this message translates to:
+  /// **'No books in your library match \"{query}\"'**
+  String theme_discovery_no_results(Object query);
+
+  /// No description provided for @theme_discovery_show_more.
+  ///
+  /// In en, this message translates to:
+  /// **'Show more'**
+  String get theme_discovery_show_more;
+
+  /// No description provided for @theme_discovery_loosely_related.
+  ///
+  /// In en, this message translates to:
+  /// **'Loosely related ({count})'**
+  String theme_discovery_loosely_related(int count);
+
+  /// No description provided for @theme_discovery_match_percent.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% match'**
+  String theme_discovery_match_percent(int percent);
+
+  /// No description provided for @theme_discovery_results_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} matching books'**
+  String theme_discovery_results_count(int count);
+
+  /// No description provided for @theme_discovery_reason_in_field.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{term}\" in {field}'**
+  String theme_discovery_reason_in_field(Object term, Object field);
+
+  /// No description provided for @discovery_field_title.
+  ///
+  /// In en, this message translates to:
+  /// **'title'**
+  String get discovery_field_title;
+
+  /// No description provided for @discovery_field_genre.
+  ///
+  /// In en, this message translates to:
+  /// **'genre'**
+  String get discovery_field_genre;
+
+  /// No description provided for @discovery_field_saga.
+  ///
+  /// In en, this message translates to:
+  /// **'saga'**
+  String get discovery_field_saga;
+
+  /// No description provided for @discovery_field_description.
+  ///
+  /// In en, this message translates to:
+  /// **'description'**
+  String get discovery_field_description;
+
+  /// No description provided for @discovery_field_author.
+  ///
+  /// In en, this message translates to:
+  /// **'author'**
+  String get discovery_field_author;
+
+  /// No description provided for @discovery_field_notes.
+  ///
+  /// In en, this message translates to:
+  /// **'your notes'**
+  String get discovery_field_notes;
 }
 
 class _AppLocalizationsDelegate

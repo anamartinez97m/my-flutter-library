@@ -4225,4 +4225,67 @@ class AppLocalizationsEs extends AppLocalizations {
   String contact_me_no_email_app(Object email) {
     return 'No se encontró ninguna app de correo. Puedes escribirme directamente a $email.';
   }
+
+  @override
+  String get theme_discovery_title => '¿Qué te apetece leer?';
+
+  @override
+  String get theme_discovery_subtitle =>
+      'Encuentra libros de tu biblioteca por tema, ambiente o temática';
+
+  @override
+  String get theme_discovery_hint => 'Halloween, brujas, otoño acogedor…';
+
+  @override
+  String get theme_discovery_helper =>
+      'Escribe un tema, ambiente o temática para buscar en tu biblioteca.';
+
+  @override
+  String get theme_discovery_suggestions => 'Prueba con alguno de estos:';
+
+  @override
+  String theme_discovery_no_results(Object query) {
+    return 'Ningún libro de tu biblioteca coincide con \"$query\"';
+  }
+
+  @override
+  String get theme_discovery_show_more => 'Mostrar más';
+
+  @override
+  String theme_discovery_loosely_related(int count) {
+    return 'Relacionados de lejos ($count)';
+  }
+
+  @override
+  String theme_discovery_match_percent(int percent) {
+    return '$percent% de coincidencia';
+  }
+
+  @override
+  String theme_discovery_results_count(int count) {
+    return '$count libros coinciden';
+  }
+
+  @override
+  String theme_discovery_reason_in_field(Object term, Object field) {
+    return '\"$term\" en $field';
+  }
+
+  @override
+  String get discovery_field_title => 'título';
+
+  @override
+  String get discovery_field_genre => 'género';
+
+  @override
+  String get discovery_field_saga => 'saga';
+
+  @override
+  String get discovery_field_description => 'descripción';
+
+  @override
+  String get discovery_field_author => 'autor';
+
+  @override
+  String get discovery_field_notes => 'tus notas';
 }

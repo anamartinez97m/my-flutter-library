@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../config/app_theme.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
 const _kV2Bg = Color(0xFFFDF8F6);
@@ -50,7 +51,7 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
             AppLocalizations.of(context)!.tbr_limit_set_to(limit.toString()),
           ),
           duration: const Duration(seconds: 2),
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          backgroundColor: AppTheme.notificationColor,
         ),
       );
     }

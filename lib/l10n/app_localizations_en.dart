@@ -4173,4 +4173,67 @@ class AppLocalizationsEn extends AppLocalizations {
   String contact_me_no_email_app(Object email) {
     return 'No email app found. You can write to $email directly.';
   }
+
+  @override
+  String get theme_discovery_title => 'What are you in the mood for?';
+
+  @override
+  String get theme_discovery_subtitle =>
+      'Find books in your library by theme, mood or topic';
+
+  @override
+  String get theme_discovery_hint => 'Halloween, witches, cozy autumn…';
+
+  @override
+  String get theme_discovery_helper =>
+      'Type a theme, mood or topic to search your library.';
+
+  @override
+  String get theme_discovery_suggestions => 'Try one of these:';
+
+  @override
+  String theme_discovery_no_results(Object query) {
+    return 'No books in your library match \"$query\"';
+  }
+
+  @override
+  String get theme_discovery_show_more => 'Show more';
+
+  @override
+  String theme_discovery_loosely_related(int count) {
+    return 'Loosely related ($count)';
+  }
+
+  @override
+  String theme_discovery_match_percent(int percent) {
+    return '$percent% match';
+  }
+
+  @override
+  String theme_discovery_results_count(int count) {
+    return '$count matching books';
+  }
+
+  @override
+  String theme_discovery_reason_in_field(Object term, Object field) {
+    return '\"$term\" in $field';
+  }
+
+  @override
+  String get discovery_field_title => 'title';
+
+  @override
+  String get discovery_field_genre => 'genre';
+
+  @override
+  String get discovery_field_saga => 'saga';
+
+  @override
+  String get discovery_field_description => 'description';
+
+  @override
+  String get discovery_field_author => 'author';
+
+  @override
+  String get discovery_field_notes => 'your notes';
 }

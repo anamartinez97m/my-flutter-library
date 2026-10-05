@@ -1858,5 +1858,37 @@
   "contact_me_no_email_app": "No email app found. You can write to {email} directly.",
   "@contact_me_no_email_app": {
     "placeholders": { "email": {} }
-  }
+  },
+  "theme_discovery_title": "What are you in the mood for?",
+  "theme_discovery_subtitle": "Find books in your library by theme, mood or topic",
+  "theme_discovery_hint": "Halloween, witches, cozy autumn…",
+  "theme_discovery_helper": "Type a theme, mood or topic to search your library.",
+  "theme_discovery_suggestions": "Try one of these:",
+  "theme_discovery_no_results": "No books in your library match \"{query}\"",
+  "@theme_discovery_no_results": {
+    "placeholders": { "query": {} }
+  },
+  "theme_discovery_show_more": "Show more",
+  "theme_discovery_loosely_related": "Loosely related ({count})",
+  "@theme_discovery_loosely_related": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "theme_discovery_match_percent": "{percent}% match",
+  "@theme_discovery_match_percent": {
+    "placeholders": { "percent": { "type": "int" } }
+  },
+  "theme_discovery_results_count": "{count} matching books",
+  "@theme_discovery_results_count": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "theme_discovery_reason_in_field": "\"{term}\" in {field}",
+  "@theme_discovery_reason_in_field": {
+    "placeholders": { "term": {}, "field": {} }
+  },
+  "discovery_field_title": "title",
+  "discovery_field_genre": "genre",
+  "discovery_field_saga": "saga",
+  "discovery_field_description": "description",
+  "discovery_field_author": "author",
+  "discovery_field_notes": "your notes"
 }

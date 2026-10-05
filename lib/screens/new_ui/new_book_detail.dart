@@ -725,7 +725,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.move_to_standby),
-          backgroundColor: colorScheme.secondary,
+          backgroundColor: AppTheme.notificationColor,
         ),
       );
     } catch (e) {
@@ -785,7 +785,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.moved_back_to_reading),
-          backgroundColor: colorScheme.primary,
+          backgroundColor: AppTheme.notificationColor,
         ),
       );
     } catch (e) {
@@ -868,7 +868,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.started_reading),
-          backgroundColor: colorScheme.primary,
+          backgroundColor: AppTheme.notificationColor,
         ),
       );
     } catch (e) {
@@ -979,7 +979,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.marked_as_finished),
-          backgroundColor: colorScheme.primary,
+          backgroundColor: AppTheme.notificationColor,
         ),
       );
     } catch (e) {
@@ -1050,7 +1050,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.marked_as_read),
-          backgroundColor: colorScheme.primary,
+          backgroundColor: AppTheme.notificationColor,
         ),
       );
     } catch (e) {
@@ -1126,10 +1126,6 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
     final isPercentage = _currentBook.progressType == 'percentage';
     final currentProgress = _currentBook.readingProgress ?? 0;
 
-    final progressController = TextEditingController(
-      text: currentProgress.toString(),
-    );
-
     bool usePercentage = isPercentage;
     String percentageDraft = isPercentage ? currentProgress.toString() : '';
     String pagesDraft = isPercentage ? '' : currentProgress.toString();
@@ -1137,9 +1133,12 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
     final result = await showDialog<Map<String, dynamic>>(
       context: context,
       builder:
-          (context) => StatefulBuilder(
+          (context) => _OwnedTextController(
+            initialText: currentProgress.toString(),
             builder:
-                (context, setDialogState) => AlertDialog(
+                (context, progressController) => StatefulBuilder(
+                  builder:
+                      (context, setDialogState) => AlertDialog(
                   backgroundColor: _kBg,
                   elevation: 25,
                   constraints: const BoxConstraints(maxWidth: 384),
@@ -1433,9 +1432,9 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                     ),
                   ],
                 ),
+                ),
           ),
     );
-    progressController.dispose();
 
     if (result != null) {
       try {
@@ -1469,7 +1468,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(l10n.progress_updated),
-            backgroundColor: colorScheme.primary,
+            backgroundColor: AppTheme.notificationColor,
           ),
         );
       } catch (e) {
@@ -1497,7 +1496,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)!.marked_read_today),
-            backgroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: AppTheme.notificationColor,
           ),
         );
       }
@@ -2363,7 +2362,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
               content: Text(
                 AppLocalizations.of(context)!.book_updated_successfully,
               ),
-              backgroundColor: Theme.of(context).colorScheme.primary,
+              backgroundColor: AppTheme.notificationColor,
             ),
           );
         }
@@ -3333,6 +3332,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                       AppLocalizations.of(context)!.editorial,
                                   value: _currentBook.editorialValue!,
                                   link: true,
+                                  singleLine: true,
                                 ),
                               ),
                             );
@@ -4441,17 +4441,28 @@ class _DetailCard extends StatelessWidget {
   final String label;
   final String value;
   final bool link;
+  final bool singleLine;
 
   const _DetailCard({
     required this.icon,
     required this.label,
     required this.value,
     this.link = false,
+    this.singleLine = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).colorScheme.primary;
+    final valueText = Text(
+      value,
+      maxLines: singleLine ? 1 : null,
+      overflow: singleLine ? TextOverflow.ellipsis : null,
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+        color: link ? primaryColor : Theme.of(context).colorScheme.onSurface,
+        fontWeight: link ? FontWeight.w500 : null,
+      ),
+    );
     return GestureDetector(
       onLongPress: () {
         Clipboard.setData(ClipboardData(text: value));
@@ -4490,25 +4501,35 @@ class _DetailCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    Text(
-                      value,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color:
-                            link
-                                ? primaryColor
-                                : Theme.of(context).colorScheme.onSurface,
-                        fontWeight: link ? FontWeight.w500 : null,
-                      ),
-                    ),
-                    if (link) ...[
-                      const SizedBox(width: 2),
-                      Icon(Icons.chevron_right, size: 16, color: primaryColor),
-                    ],
-                  ],
-                ),
+                child:
+                    singleLine
+                        ? Row(
+                          children: [
+                            Flexible(child: valueText),
+                            if (link) ...[
+                              const SizedBox(width: 2),
+                              Icon(
+                                Icons.chevron_right,
+                                size: 16,
+                                color: primaryColor,
+                              ),
+                            ],
+                          ],
+                        )
+                        : Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            valueText,
+                            if (link) ...[
+                              const SizedBox(width: 2),
+                              Icon(
+                                Icons.chevron_right,
+                                size: 16,
+                                color: primaryColor,
+                              ),
+                            ],
+                          ],
+                        ),
               ),
             ],
           ),
@@ -4780,7 +4801,7 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
                     context,
                   )!.book_already_in_club(result.clubName),
                 ),
-                backgroundColor: Theme.of(context).colorScheme.secondary,
+                backgroundColor: AppTheme.notificationColor,
               ),
             );
           }
@@ -4797,7 +4818,7 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
               content: Text(
                 AppLocalizations.of(context)!.added_to_club(result.clubName),
               ),
-              backgroundColor: Theme.of(context).colorScheme.primary,
+              backgroundColor: AppTheme.notificationColor,
             ),
           );
         }
@@ -4839,7 +4860,7 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
               content: Text(
                 AppLocalizations.of(context)!.club_membership_updated,
               ),
-              backgroundColor: Theme.of(context).colorScheme.primary,
+              backgroundColor: AppTheme.notificationColor,
             ),
           );
         }
@@ -4897,7 +4918,7 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
               content: Text(
                 AppLocalizations.of(context)!.removed_from_club(club.clubName),
               ),
-              backgroundColor: Theme.of(context).colorScheme.primary,
+              backgroundColor: AppTheme.notificationColor,
             ),
           );
         }
@@ -5680,4 +5701,35 @@ class _TandemReadingsCardState extends State<_TandemReadingsCard> {
       ),
     );
   }
+}
+
+/// Owns a [TextEditingController] for the lifetime of a dialog so it is only
+/// disposed once the dialog's widgets have been unmounted.
+class _OwnedTextController extends StatefulWidget {
+  const _OwnedTextController({
+    required this.initialText,
+    required this.builder,
+  });
+
+  final String initialText;
+  final Widget Function(BuildContext context, TextEditingController controller)
+  builder;
+
+  @override
+  State<_OwnedTextController> createState() => _OwnedTextControllerState();
+}
+
+class _OwnedTextControllerState extends State<_OwnedTextController> {
+  late final TextEditingController _controller = TextEditingController(
+    text: widget.initialText,
+  );
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.builder(context, _controller);
 }

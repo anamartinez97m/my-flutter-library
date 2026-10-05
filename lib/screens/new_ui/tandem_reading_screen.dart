@@ -26,6 +26,13 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
   static const _kMuted = Color(0xFFD5C2C7);
   static const _kBorder = Color(0x4DD5C2C7);
   static const _kText = Color(0xFF1C1B1A);
+  static const _kManrope = TextStyle(fontFamily: 'Manrope');
+  static const _kDialogTitleStyle = TextStyle(
+    fontFamily: 'Manrope',
+    fontSize: 20,
+    fontWeight: FontWeight.w700,
+    color: _kText,
+  );
 
   TandemReading? _tandem;
   Book? _bookA;
@@ -188,16 +195,16 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: Text(l10n.delete_step),
-            content: Text(l10n.delete_step_confirm),
+            title: Text(l10n.delete_step, style: _kDialogTitleStyle),
+            content: Text(l10n.delete_step_confirm, style: _kManrope),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: Text(l10n.cancel),
+                child: Text(l10n.cancel, style: _kManrope),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
-                child: Text(l10n.delete_step),
+                child: Text(l10n.delete_step, style: _kManrope),
               ),
             ],
           ),
@@ -214,7 +221,9 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
     if (mounted) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(l10n.step_deleted)));
+      ).showSnackBar(
+        SnackBar(content: Text(l10n.step_deleted, style: _kManrope)),
+      );
     }
   }
 
@@ -224,16 +233,16 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: Text(l10n.delete_tandem),
-            content: Text(l10n.delete_tandem_confirm),
+            title: Text(l10n.delete_tandem, style: _kDialogTitleStyle),
+            content: Text(l10n.delete_tandem_confirm, style: _kManrope),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: Text(l10n.cancel),
+                child: Text(l10n.cancel, style: _kManrope),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
-                child: Text(l10n.delete_tandem),
+                child: Text(l10n.delete_tandem, style: _kManrope),
               ),
             ],
           ),
@@ -245,7 +254,9 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
     if (mounted) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(l10n.tandem_deleted)));
+      ).showSnackBar(
+        SnackBar(content: Text(l10n.tandem_deleted, style: _kManrope)),
+      );
       Navigator.pop(context, true);
     }
   }
@@ -263,7 +274,10 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
         backgroundColor: _kBg,
         appBar: _buildAppBar(''),
         body: Center(
-          child: Text(_error ?? '', style: const TextStyle(color: _kSub)),
+          child: Text(
+            _error ?? '',
+            style: const TextStyle(fontFamily: 'Manrope', color: _kSub),
+          ),
         ),
       );
     }
@@ -349,7 +363,11 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
           if (l10n != null && _tandem?.title?.isNotEmpty == true)
             Text(
               l10n.tandem_reading,
-              style: const TextStyle(color: _kSub, fontSize: 10),
+              style: const TextStyle(
+                fontFamily: 'Manrope',
+                color: _kSub,
+                fontSize: 10,
+              ),
             ),
         ],
       ),
@@ -519,11 +537,11 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
                           (context) => [
                             PopupMenuItem(
                               value: 'edit',
-                              child: Text(l10n.edit_step),
+                              child: Text(l10n.edit_step, style: _kManrope),
                             ),
                             PopupMenuItem(
                               value: 'delete',
-                              child: Text(l10n.delete_step),
+                              child: Text(l10n.delete_step, style: _kManrope),
                             ),
                           ],
                     ),

@@ -20,6 +20,7 @@ import 'package:myrandomlibrary/services/notification_service.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:myrandomlibrary/services/book_metadata_service.dart';
+import '../config/app_theme.dart';
 
 class EditBookScreen extends StatefulWidget {
   final Book book;
@@ -1053,7 +1054,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
               content: Text(
                 'Updated format saga for $updatedCount books in "${updatedBook.saga}"',
               ),
-              backgroundColor: colorScheme.primary,
+              backgroundColor: AppTheme.notificationColor,
             ),
           );
         }
@@ -1109,7 +1110,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
               content: Text(
                 'Notification scheduled for ${_notificationDateTime!.toString().split('.')[0]}',
               ),
-              backgroundColor: colorScheme.primary,
+              backgroundColor: AppTheme.notificationColor,
             ),
           );
         } catch (e, stackTrace) {
@@ -1139,7 +1140,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(l10n.book_updated_successfully),
-          backgroundColor: colorScheme.primary,
+          backgroundColor: AppTheme.notificationColor,
         ),
       );
     } catch (e) {
@@ -1311,8 +1312,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                               context,
                             )!.please_enter_valid_year,
                           ),
-                          backgroundColor:
-                              Theme.of(context).colorScheme.secondary,
+                          backgroundColor: AppTheme.notificationColor,
                         ),
                       );
                     }
@@ -2905,7 +2905,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
             content: Text(
               AppLocalizations.of(context)!.isbn_required_for_fetch,
             ),
-            backgroundColor: Theme.of(context).colorScheme.secondary,
+            backgroundColor: AppTheme.notificationColor,
           ),
         );
       }
@@ -2965,18 +2965,17 @@ class _EditBookScreenState extends State<EditBookScreen> {
           _fetchedMetadataSource = metadata.source;
         });
 
-        final colorScheme = Theme.of(context).colorScheme;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)!.book_info_found),
-            backgroundColor: colorScheme.primary,
+            backgroundColor: AppTheme.notificationColor,
           ),
         );
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)!.no_book_info_found),
-            backgroundColor: Theme.of(context).colorScheme.secondary,
+            backgroundColor: AppTheme.notificationColor,
           ),
         );
       }

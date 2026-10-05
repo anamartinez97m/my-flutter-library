@@ -5,14 +5,17 @@ import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
+import 'package:myrandomlibrary/providers/role_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_genre_selection_screen.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_option_selection_screen.dart';
+import 'package:myrandomlibrary/utils/format_saga_helper.dart';
 import 'package:myrandomlibrary/widgets/chip_autocomplete_field.dart';
 import 'package:provider/provider.dart';
 import 'package:myrandomlibrary/widgets/shimmer_loading.dart';
 import 'package:myrandomlibrary/widgets/random_shimmer.dart';
+import 'package:myrandomlibrary/widgets/theme_discovery_card.dart';
 
 const _kBg = Color(0xFFFDF8F6);
 const _kPrimary = Color(0xFF43102B);
@@ -43,7 +46,7 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
   List<String> _filterPlace = [];
   List<String> _filterStatus = [];
   List<String> _filterEditorial = [];
-  String? _filterFormatSaga;
+  List<String> _filterFormatSaga = [];
   List<String> _filterPages = [];
   List<String> _filterYear = [];
   List<String> _filterAuthor = [];
@@ -60,6 +63,7 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
   List<Map<String, dynamic>> _placeList = [];
   List<Map<String, dynamic>> _statusList = [];
   List<Map<String, dynamic>> _editorialList = [];
+  List<Map<String, dynamic>> _formatSagaList = [];
   List<Map<String, dynamic>> _authorList = [];
 
   Book? _randomBook;
@@ -83,7 +87,7 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
       final place = await repo.getLookupValues('place');
       final status = await repo.getLookupValues('status');
       final editorial = await repo.getLookupValues('editorial');
-      await repo.getLookupValues('format_saga');
+      final formatSaga = await repo.getLookupValues('format_saga');
       final author = await repo.getLookupValues('author');
       if (mounted) {
         setState(() {
@@ -93,6 +97,7 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
           _placeList = place;
           _statusList = status;
           _editorialList = editorial;
+          _formatSagaList = formatSaga;
           _authorList = author;
           _isLoading = false;
         });
@@ -157,9 +162,11 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
                 return false;
               }
             }
-            if (_filterFormatSaga != null &&
-                book.formatSagaValue != _filterFormatSaga) {
-              return false;
+            if (_filterFormatSaga.isNotEmpty) {
+              if (book.formatSagaValue == null ||
+                  !_filterFormatSaga.contains(book.formatSagaValue)) {
+                return false;
+              }
             }
             if (_filterAuthor.isNotEmpty) {
               final authors =
@@ -359,7 +366,7 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
       _filterPlace = [];
       _filterStatus = [];
       _filterEditorial = [];
-      _filterFormatSaga = null;
+      _filterFormatSaga = [];
       _filterPages = [];
       _filterYear = [];
       _filterAuthor = [];
@@ -376,6 +383,7 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final isAdmin = context.watch<RoleProvider>().isAdmin;
     if (_isLoading) {
       return const Scaffold(
         backgroundColor: _kBg,
@@ -404,10 +412,16 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 14, color: _kPrimary),
             ),
-            const SizedBox(height: 24),
+            if (isAdmin) ...[
+              const SizedBox(height: 24),
+              const ThemeDiscoveryCard(),
+              const SizedBox(height: 16),
+            ],
             _buildSelectBooksCard(l10n),
             const SizedBox(height: 16),
             _buildFormatCard(l10n),
+            const SizedBox(height: 16),
+            _buildFormatSagaCard(l10n),
             const SizedBox(height: 16),
             _buildLanguageCard(l10n),
             const SizedBox(height: 16),
@@ -744,6 +758,46 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
         anyLabel: l10n.any,
         multiSelect: true,
         onChanged: (v) => setState(() => _filterFormat = v),
+      ),
+    );
+  }
+
+  Widget _buildFormatSagaCard(AppLocalizations l10n) {
+    final allFormatSagas =
+        _formatSagaList
+            .map((e) => e['value'] as String?)
+            .whereType<String>()
+            .toList();
+    if (allFormatSagas.length <= 5) {
+      return _sectionCard(
+        icon: Icons.auto_stories_outlined,
+        title: l10n.format_saga,
+        child: _multiChipsField(
+          selected: _filterFormatSaga,
+          options: allFormatSagas,
+          anyLabel: l10n.any,
+          labelBuilder: (v) => FormatSagaHelper.getLocalizedLabel(v, l10n),
+          onChanged: (v) => setState(() => _filterFormatSaga = v),
+        ),
+      );
+    }
+    final popular = _mostUsedOptions(
+      allOptions: allFormatSagas,
+      valuesOf: (b) => [if (b.formatSagaValue != null) b.formatSagaValue!],
+    );
+    return _sectionCard(
+      icon: Icons.auto_stories_outlined,
+      title: l10n.format_saga,
+      child: _seeAllOptionsField(
+        l10n: l10n,
+        fieldTitle: l10n.format_saga,
+        selected: _filterFormatSaga,
+        popular: popular,
+        allOptions: allFormatSagas,
+        anyLabel: l10n.any,
+        multiSelect: true,
+        labelBuilder: (v) => FormatSagaHelper.getLocalizedLabel(v, l10n),
+        onChanged: (v) => setState(() => _filterFormatSaga = v),
       ),
     );
   }
