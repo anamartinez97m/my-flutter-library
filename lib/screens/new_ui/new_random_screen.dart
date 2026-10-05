@@ -44,7 +44,7 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
   List<String> _filterPlace = [];
   List<String> _filterStatus = [];
   List<String> _filterEditorial = [];
-  String? _filterFormatSaga;
+  List<String> _filterFormatSaga = [];
   List<String> _filterPages = [];
   List<String> _filterYear = [];
   List<String> _filterAuthor = [];
@@ -160,9 +160,11 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
                 return false;
               }
             }
-            if (_filterFormatSaga != null &&
-                book.formatSagaValue != _filterFormatSaga) {
-              return false;
+            if (_filterFormatSaga.isNotEmpty) {
+              if (book.formatSagaValue == null ||
+                  !_filterFormatSaga.contains(book.formatSagaValue)) {
+                return false;
+              }
             }
             if (_filterAuthor.isNotEmpty) {
               final authors =
@@ -362,7 +364,7 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
       _filterPlace = [];
       _filterStatus = [];
       _filterEditorial = [];
-      _filterFormatSaga = null;
+      _filterFormatSaga = [];
       _filterPages = [];
       _filterYear = [];
       _filterAuthor = [];
@@ -759,14 +761,35 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
             .map((e) => e['value'] as String?)
             .whereType<String>()
             .toList();
+    if (allFormatSagas.length <= 5) {
+      return _sectionCard(
+        icon: Icons.auto_stories_outlined,
+        title: l10n.format_saga,
+        child: _multiChipsField(
+          selected: _filterFormatSaga,
+          options: allFormatSagas,
+          anyLabel: l10n.any,
+          labelBuilder: (v) => FormatSagaHelper.getLocalizedLabel(v, l10n),
+          onChanged: (v) => setState(() => _filterFormatSaga = v),
+        ),
+      );
+    }
+    final popular = _mostUsedOptions(
+      allOptions: allFormatSagas,
+      valuesOf: (b) => [if (b.formatSagaValue != null) b.formatSagaValue!],
+    );
     return _sectionCard(
       icon: Icons.auto_stories_outlined,
       title: l10n.format_saga,
-      child: _singleChipsField<String>(
+      child: _seeAllOptionsField(
+        l10n: l10n,
+        fieldTitle: l10n.format_saga,
         selected: _filterFormatSaga,
-        options: allFormatSagas,
-        labelOf: (v) => FormatSagaHelper.getLocalizedLabel(v, l10n),
+        popular: popular,
+        allOptions: allFormatSagas,
         anyLabel: l10n.any,
+        multiSelect: true,
+        labelBuilder: (v) => FormatSagaHelper.getLocalizedLabel(v, l10n),
         onChanged: (v) => setState(() => _filterFormatSaga = v),
       ),
     );
