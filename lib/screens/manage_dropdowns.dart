@@ -899,7 +899,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
           _selectedTable,
           id,
           newValue,
-          subtitle: newSubtitle.isEmpty ? null : newSubtitle,
+          subtitle: newSubtitle,
         );
 
         if (!context.mounted) return;
