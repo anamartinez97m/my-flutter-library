@@ -4196,6 +4196,37 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get contact_me => 'Contáctame';
+
+  @override
+  String get contact_me_subtitle =>
+      'Envía comentarios, ideas o reporta un error';
+
+  @override
+  String get contact_me_intro =>
+      '¿Has encontrado un error, tienes una idea o simplemente quieres dar tu opinión? Rellena el formulario y me llegará por correo electrónico.';
+
+  @override
+  String get contact_me_summary => 'Resumen breve';
+
+  @override
+  String get contact_me_description => 'Descripción';
+
+  @override
+  String get contact_me_required => 'Este campo es obligatorio';
+
+  @override
+  String get contact_me_sent => '¡Gracias! Tu mensaje se ha enviado.';
+
+  @override
+  String get contact_me_send => 'Enviar';
+
+  @override
+  String contact_me_no_email_app(Object email) {
+    return 'No se encontró ninguna app de correo. Puedes escribirme directamente a $email.';
+  }
+
+  @override
   String get theme_discovery_title => '¿Qué te apetece leer?';
 
   @override

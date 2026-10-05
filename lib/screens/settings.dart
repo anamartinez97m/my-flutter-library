@@ -19,6 +19,7 @@ import 'package:myrandomlibrary/screens/tutorial_screen.dart';
 import 'package:myrandomlibrary/screens/reverse_assign_screen.dart';
 import 'package:myrandomlibrary/screens/fill_empty_wizard_screen.dart';
 import 'package:myrandomlibrary/screens/smart_suggestions_screen.dart';
+import 'package:myrandomlibrary/screens/settings/contact_me_screen.dart';
 import 'package:myrandomlibrary/screens/settings/universe_placeholders_screen.dart';
 import 'package:myrandomlibrary/services/google_auth_service.dart';
 import 'package:myrandomlibrary/services/backup_service.dart';
@@ -2450,6 +2451,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const SizedBox(height: 16),
                   ],
+
+                  // Contact Me
+                  _buildV2ActionCard(
+                    icon: Icons.mail_outline,
+                    iconColor: _kV2Primary,
+                    title: l10n.contact_me,
+                    subtitle: l10n.contact_me_subtitle,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ContactMeScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
 
                   // Delete All Data (action card)
                   _buildV2ActionCard(
