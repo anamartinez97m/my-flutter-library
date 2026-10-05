@@ -5,6 +5,7 @@ import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
+import 'package:myrandomlibrary/providers/role_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_genre_selection_screen.dart';
@@ -377,6 +378,7 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final isAdmin = context.watch<RoleProvider>().isAdmin;
     if (_isLoading) {
       return const Scaffold(
         backgroundColor: _kBg,
@@ -405,9 +407,11 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 14, color: _kPrimary),
             ),
-            const SizedBox(height: 24),
-            const ThemeDiscoveryCard(),
-            const SizedBox(height: 16),
+            if (isAdmin) ...[
+              const SizedBox(height: 24),
+              const ThemeDiscoveryCard(),
+              const SizedBox(height: 16),
+            ],
             _buildSelectBooksCard(l10n),
             const SizedBox(height: 16),
             _buildFormatCard(l10n),
