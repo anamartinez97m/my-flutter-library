@@ -1,103 +1,76 @@
 import 'package:flutter/material.dart';
 
-/// Color palette for the "WarmEarth DarkTheme" design.
-class WarmEarthDarkThemeColors {
-  const WarmEarthDarkThemeColors._();
+// Warm Earth DarkTheme color palette.
+// Same tokens as V2Colors (lib/config/v2_design_system.dart) so the two can be
+// swapped; values come from the Figma "Warm Earth DarkTheme" frame.
+// Tokens marked "derived" have no counterpart in that frame.
+abstract final class V2WarmEarthDarkColors {
+  // Backgrounds and surfaces
+  static const background = Color(0xFF393E46);
+  static const surface = Color(0xFF222831);
+  static const surfaceWarm = Color(0xFF222831);
+  static const surfaceAlt = Color(0xFF222831);
+  static const surfaceMuted = Color(0xFF2C2928);
+  static const surfaceTimer = Color(0xFF2C2928);
+  static const shimmerBase = Color(0xFF373433);
+  static const borderDialog = Color(0xFFD5C2BF);
+  static const buttonText = Color(0xFF4E2423);
 
-  // Backgrounds
-  /// Screen, top app bar and search section background.
-  static const Color background = Color(0xFF393E46);
+  // Brand colors
+  static const primary = Color(0xFFD4BAB9);
+  static const primaryAlt = Color(0xFFD7C2C0);
+  static const secondary = Color(0xFFF8B6B3);
 
-  /// Bottom navigation bar background.
-  static const Color navBarBackground = Color(0xCC393E46);
+  // Text colors
+  static const textPrimary = Color(0xFFD4BAB9);
+  static const textStrong = Color(0xFFF4EEED);
+  static const textSecondary = Color(0xFFD7C2C0);
+  static const textSubtle = Color(0xCCD4BAB9); // derived
+  static const textMuted = Color(0xB3D7C2C0); // derived
+  static const textMutedAlt = Color(0x99D7C2C0); // derived
 
-  /// Card background.
-  static const Color surface = Color(0xFF222831);
+  // Borders, dividers, and controls
+  static const border = Color(0xFFD5C2BF);
+  static const borderStrong = Color(0xFFF4EEED); // derived
+  static const borderNeutral = Color(0xFFD5C2BF);
+  static const borderInput = Color(0xFFD5C2BF);
+  static const borderSoft = Color(0x33524342);
+  static const divider = Color(0xFF373433);
+  static const chip = Color(0xFF222831);
+  static const control = Color(0xFFF4EEED);
+  static const error = Color(0xFFFFB4AB); // derived
+  static const success = Color(0xFF34D399); // derived
+  static const successBackground = Color(0xFF064E3B); // derived
+  static const successBorder = Color(0xFF047857); // derived
+  static const warning = Color(0xFFFFD27A); // derived
+  static const warningBackground = Color(0xFF3D2E00); // derived
+  static const warningBorder = Color(0xFF8A6D1F); // derived
+  static const disabled = Color(0xFF6B6F76); // derived
 
-  /// Search input background.
-  static const Color searchBackground = Color(0xFF222831);
+  // Warm Earth DarkTheme-only colors (no V2Colors equivalent)
+  static const onPrimary = Color(0xFF4E2423);
+  static const navBarBackground = Color(0xCC393E46);
+  static const searchBackground = Color(0xFF222831);
+  static const chipSelected = Color(0xFFD4BAB9);
+  static const chipText = Color(0xFFD7C2C0);
+  static const chipTextSelected = Color(0xFF4E2423);
+  static const cardTitle = Color(0xFFD4BAB9);
+  static const cardMeta = Color(0xFFD4BAB9);
+  static const navActiveIcon = Color(0xFFD4BAB9);
+  static const navInactiveIcon = Color(0xFFD4BAB9);
+  static const filterFabIcon = Color(0xFFE7E1DF);
+  static const rating = Color(0xFFCA8A04);
+  static const saga = Color(0xB3F8B6B3);
+  static const fabShadow = Color(0x2643102B);
+  static const filterFabShadow = Color(0x1A000000);
+}
 
-  /// Unselected search-type chip background.
-  static const Color chipBackground = Color(0xFF222831);
-
-  /// Selected search-type chip background.
-  static const Color selectedChipBackground = Color(0xFFD4BAB9);
-
-  /// Advanced filter floating button background.
-  static const Color filterFabBackground = Color(0xFF2C2928);
-
-  // Brand
-  /// Add-book FAB background.
-  static const Color primary = Color(0xFFD4BAB9);
-
-  /// Add-book FAB icon.
-  static const Color onPrimary = Color(0xFF4E2423);
-
-  /// Add-book FAB shadow.
-  static const Color primaryShadow = Color(0x2643102B);
-
-  // Text
-  /// "My Book Vault" header title.
-  static const Color appTitle = Color(0xFFD4BAB9);
-
-  /// Book card title.
-  static const Color cardTitle = Color(0xFFD4BAB9);
-
-  /// Book card author and metadata text/icons.
-  static const Color cardMetaText = Color(0xFFD4BAB9);
-
-  /// Unselected chip text.
-  static const Color chipText = Color(0xFFD7C2C0);
-
-  /// Selected chip text.
-  static const Color selectedChipText = Color(0xFF4E2423);
-
-  /// Search input text, search and clear icons.
-  static const Color searchText = Color(0xFFD7C2C0);
-
-  // Borders and dividers
-  /// Bottom nav top border and card inner divider.
-  static const Color divider = Color(0xFF373433);
-
-  /// Book card border.
-  static const Color cardBorder = Color(0xFFD5C2BF);
-
-  /// Unselected chip border.
-  static const Color chipBorder = Color(0xFFD5C2BF);
-
-  /// Selected chip border.
-  static const Color selectedChipBorder = Color(0xFFD4BAB9);
-
-  /// Search input border.
-  static const Color searchBorder = Color(0xFFD5C2BF);
-
-  /// Advanced filter floating button border.
-  static const Color filterFabBorder = Color(0x33524342);
-
-  // Navigation
-  /// Active tab pill.
-  static const Color navActiveIndicator = Color(0xFFF4EEED);
-
-  /// Active tab icon.
-  static const Color navActiveIcon = Color(0xFFD4BAB9);
-
-  /// Inactive tab icon.
-  static const Color navInactiveIcon = Color(0xFFD4BAB9);
-
-  // Icons
-  /// Advanced filter floating button icon.
-  static const Color filterFabIcon = Color(0xFFE7E1DF);
-
-  /// Saga icon in book card.
-  static const Color sagaIcon = Color(0xB3F8B6B3);
-
-  /// Rating star icon in book card.
-  static const Color ratingIcon = Color(0xFFCA8A04);
-
-  // Shadows
-  /// Book card and search input shadow.
-  static const Color cardShadow = Color(0x0A000000);
-
-  /// Advanced filter floating button shadow.
-  static const Color filterFabShadow = Color(0x1A000000);
+// Warm Earth DarkTheme shadow recipes, mirroring V2Shadows.
+abstract final class V2WarmEarthDarkShadows {
+  static const subtle = [
+    BoxShadow(color: Color(0x0A000000), blurRadius: 6, offset: Offset(0, 3)),
+  ];
+  static const card = [
+    BoxShadow(color: Color(0x0A000000), blurRadius: 10, offset: Offset(0, 2)),
+  ];
 }
