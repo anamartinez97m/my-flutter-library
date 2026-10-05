@@ -689,21 +689,18 @@ class BookRepository {
           );
         }
 
-        // Apply explicit subtitle change
+        // Apply explicit subtitle change; an empty subtitle clears it but
+        // keeps the value registered as a dropdown option.
         if (subtitle != null) {
-          if (subtitle.isEmpty) {
-            await db.delete(
-              'dropdown_subtitle_metadata',
-              where: 'category = ? AND value = ?',
-              whereArgs: [tableName, newValue],
-            );
-          } else {
-            await db.insert(
-              'dropdown_subtitle_metadata',
-              {'category': tableName, 'value': newValue, 'subtitle': subtitle},
-              conflictAlgorithm: ConflictAlgorithm.replace,
-            );
-          }
+          await db.insert(
+            'dropdown_subtitle_metadata',
+            {
+              'category': tableName,
+              'value': newValue,
+              'subtitle': subtitle.isEmpty ? null : subtitle,
+            },
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
         }
 
         return updatedRows;
