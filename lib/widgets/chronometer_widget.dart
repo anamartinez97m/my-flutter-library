@@ -7,6 +7,7 @@ import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../config/app_theme.dart';
 
 class ChronometerWidget extends StatefulWidget {
   final int bookId;
@@ -289,7 +290,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
             content: Text(
               '${AppLocalizations.of(context)!.reading_session_saved}: ${_formatDuration(savedDuration)}',
             ),
-            backgroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: AppTheme.notificationColor,
           ),
         );
       }

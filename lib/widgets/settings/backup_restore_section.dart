@@ -5,6 +5,7 @@ import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:provider/provider.dart';
+import '../../config/app_theme.dart';
 
 class BackupRestoreSection extends StatelessWidget {
   const BackupRestoreSection({super.key});
@@ -50,7 +51,7 @@ class BackupRestoreSection extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)!.backup_created),
-            backgroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: AppTheme.notificationColor,
           ),
         );
       }
@@ -128,7 +129,7 @@ class BackupRestoreSection extends StatelessWidget {
             content: Text(
               AppLocalizations.of(context)!.backup_restored_successfully,
             ),
-            backgroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: AppTheme.notificationColor,
           ),
         );
       }
