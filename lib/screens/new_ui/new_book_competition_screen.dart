@@ -44,7 +44,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
   }
 
   Future<void> _loadCompetitionData() async {
-    setState(() => isLoading = true);
+    setState(() => isLoading = competitionResult == null);
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookCompetitionRepository(db);
@@ -114,7 +114,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
             ),
       ),
     );
-    if (result == true) _loadCompetitionData();
+    if (result == true) await _loadCompetitionData();
   }
 
   Future<void> _runQuarterlyCompetition(int quarter) async {
