@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
@@ -7,16 +8,16 @@ import 'package:myrandomlibrary/model/year_challenge.dart';
 import 'package:myrandomlibrary/repositories/year_challenge_repository.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
-const _kBg = Color(0xFFFDF8F6);
-const _kPrimary = Color(0xFF5D2641);
+const _kBg = V2Colors.background;
+const _kPrimary = V2Colors.primaryAlt;
 const _kPrimarySoft = Color(0xFFF9F1F4);
-const _kText = Color(0xFF1C1B1A);
+const _kText = V2Colors.textPrimary;
 const _kSub = Color(0xFF76666D);
 const _kBorder = Color(0xFFE8DED8);
 const _kTrack = Color(0xFFEDE6E1);
-const _kSuccess = Color(0xFF059669);
-const _kSuccessBg = Color(0xFFECFDF5);
-const _kSuccessBorder = Color(0xFFA7F3D0);
+const _kSuccess = V2Colors.success;
+const _kSuccessBg = V2Colors.successBackground;
+const _kSuccessBorder = V2Colors.successBorder;
 
 class NewYearChallengesScreen2 extends StatefulWidget {
   const NewYearChallengesScreen2({super.key});
@@ -568,7 +569,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
         title: Text(
           l10n.year_challenges,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w700,
             color: _kPrimary,
@@ -625,7 +626,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
               l10n.no_challenges_yet,
               textAlign: TextAlign.center,
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
                 color: _kPrimary,
@@ -636,7 +637,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
               l10n.create_first_challenge,
               textAlign: TextAlign.center,
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 14,
                 color: _kSub,
               ),
@@ -673,7 +674,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                       const Text(
                         'PREVIOUS YEARS',
                         style: TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
                           color: _kSub,
@@ -693,7 +694,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                         child: Text(
                           '${_previousChallenges.length} Years',
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                             color: _kPrimary,
@@ -705,7 +706,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                   const Text(
                     'Sorted by year',
                     style: TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: _kSub,
@@ -735,7 +736,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                 child: Text(
                   'No previous challenges yet.',
                   style: TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 14,
                     color: _kSub,
                   ),
@@ -800,7 +801,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
             child: Text(
               '${challenge.year}',
               style: TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 72,
                 fontWeight: FontWeight.w900,
                 color: _kPrimary.withValues(alpha: 0.04),
@@ -847,7 +848,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                             Text(
                               '${challenge.year} Active',
                               style: const TextStyle(
-                                fontFamily: 'Manrope',
+                                fontFamily: V2Typography.family,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.white,
@@ -883,7 +884,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                             Text(
                               isComplete ? 'Goal Met!' : 'On Track',
                               style: const TextStyle(
-                                fontFamily: 'Manrope',
+                                fontFamily: V2Typography.family,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                                 color: Color(0xFF047857),
@@ -936,7 +937,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                             Text(
                               '$percentage%',
                               style: const TextStyle(
-                                fontFamily: 'Manrope',
+                                fontFamily: V2Typography.family,
                                 fontSize: 24,
                                 fontWeight: FontWeight.w900,
                                 color: _kPrimary,
@@ -945,7 +946,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                             const Text(
                               'COMPLETED',
                               style: TextStyle(
-                                fontFamily: 'Manrope',
+                                fontFamily: V2Typography.family,
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,
                                 color: _kSub,
@@ -969,7 +970,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                             Text(
                               '$booksRead',
                               style: const TextStyle(
-                                fontFamily: 'Manrope',
+                                fontFamily: V2Typography.family,
                                 fontSize: 30,
                                 fontWeight: FontWeight.w800,
                                 color: _kText,
@@ -980,7 +981,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                             Text(
                               'of $targetBooks books',
                               style: const TextStyle(
-                                fontFamily: 'Manrope',
+                                fontFamily: V2Typography.family,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                                 color: _kSub,
@@ -992,7 +993,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                         Text(
                           '$booksLeft books left to conquer this goal',
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                             color: _kPrimary,
@@ -1051,7 +1052,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
           Text(
             '${DateTime.now().year} ${l10n.reading_goals}',
             style: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 18,
               fontWeight: FontWeight.w800,
               color: _kPrimary,
@@ -1061,7 +1062,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
           Text(
             l10n.no_challenge_set_for_year(DateTime.now().year.toString()),
             style: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 14,
               color: _kSub,
             ),
@@ -1093,7 +1094,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
           Text(
             text,
             style: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 11,
               fontWeight: FontWeight.w500,
               color: _kText,
@@ -1135,7 +1136,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
               Text(
                 label,
                 style: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
@@ -1208,7 +1209,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                           : Text(
                             '${challenge.year % 100}',
                             style: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                               color: _kPrimary,
@@ -1226,7 +1227,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                         Text(
                           '${challenge.year} Challenge',
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
                             color: _kText,
@@ -1252,7 +1253,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                           child: Text(
                             isComplete ? 'Goal Met!' : '$percentage% met',
                             style: TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
                               color:
@@ -1265,7 +1266,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                     Text(
                       'Finished Dec 31, ${challenge.year}',
                       style: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 11,
                         fontWeight: FontWeight.w400,
                         color: _kSub,
@@ -1299,7 +1300,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
               Text(
                 '$booksRead of $targetBooks books',
                 style: TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                   color: isComplete ? const Color(0xFF064E3B) : _kSub,
@@ -1308,7 +1309,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
               Text(
                 '$booksRead / $targetBooks',
                 style: TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                   color: isComplete ? const Color(0xFF065F46) : _kText,
@@ -1385,7 +1386,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                       const Text(
                         'Plan Ahead',
                         style: TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                           color: _kText,
@@ -1394,7 +1395,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                       Text(
                         'Set $nextYear Challenge',
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 11,
                           fontWeight: FontWeight.w400,
                           color: _kSub,
@@ -1432,7 +1433,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                         Text(
                           l10n.new_challenge,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,

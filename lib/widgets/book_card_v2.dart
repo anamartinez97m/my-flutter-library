@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
@@ -6,10 +7,10 @@ import 'package:myrandomlibrary/utils/format_saga_helper.dart';
 import 'package:myrandomlibrary/utils/status_helper.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
-const _kPrimary = Color(0xFF43102B);
-const _kText = Color(0xFF5F5E5C);
-const _kBorder = Color(0xFFCEC5BE);
-const _kDivider = Color(0xFFE6E2DF);
+const _kPrimary = V2Colors.primary;
+const _kText = V2Colors.textSubtle;
+const _kBorder = V2Colors.borderNeutral;
+const _kDivider = V2Colors.divider;
 
 DateTime? _parsePublicationDate(String? value) {
   if (value == null || value.isEmpty) return null;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/widgets/book_card_v2.dart';
@@ -6,12 +7,12 @@ import 'package:myrandomlibrary/widgets/quick_add_book_dialog.dart';
 import 'package:provider/provider.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
-const _kPrimary = Color(0xFF43102B);
-const _kBg = Color(0xFFFDF8F6);
-const _kBorder = Color(0xFFCEC5BE);
-const _kDivider = Color(0xFFE6E2DF);
-const _kText = Color(0xFF5F5E5C);
-const _kSub = Color(0xFF514348);
+const _kPrimary = V2Colors.primary;
+const _kBg = V2Colors.background;
+const _kBorder = V2Colors.borderNeutral;
+const _kDivider = V2Colors.divider;
+const _kText = V2Colors.textSubtle;
+const _kSub = V2Colors.textSecondary;
 const _kCardShadow = [
   BoxShadow(color: Color(0x0A000000), blurRadius: 12, offset: Offset(0, 4)),
 ];
@@ -128,7 +129,7 @@ class BooksBySagaScreen extends StatelessWidget {
             ? '${AppLocalizations.of(context)!.saga_universe}: $sagaName'
             : '${AppLocalizations.of(context)!.saga}: $sagaName',
         style: const TextStyle(
-          fontFamily: 'Manrope',
+          fontFamily: V2Typography.family,
           fontSize: 20,
           fontWeight: FontWeight.w600,
           color: _kPrimary,
@@ -184,7 +185,7 @@ class BooksBySagaScreen extends StatelessWidget {
               Text(
                 '$totalBooks',
                 style: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 34,
                   fontWeight: FontWeight.bold,
                   color: _kPrimary,

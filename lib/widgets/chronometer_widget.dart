@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/model/reading_session.dart';
 import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
@@ -387,12 +388,12 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
   }
 
   Widget _buildV2(BuildContext context) {
-    const kBg = Color(0xFFFDF8F6);
-    const kPrimary = Color(0xFF43102B);
-    const kText = Color(0xFF1C1B1A);
-    const kTimerBg = Color(0xFFF7F3F0);
-    const kTimerBorder = Color(0x33D5C2C7);
-    const kButtonText = Color(0xFFD68DAC);
+    const kBg = V2Colors.background;
+    const kPrimary = V2Colors.primary;
+    const kText = V2Colors.textPrimary;
+    const kTimerBg = V2Colors.surfaceTimer;
+    final kTimerBorder = V2Colors.border.withValues(alpha: 0.2);
+    const kButtonText = V2Colors.buttonText;
 
     return PopScope(
       canPop: false,
@@ -407,7 +408,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
         decoration: BoxDecoration(
           color: kBg,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          border: Border.all(color: const Color(0x4DD5C2C7)),
+          border: Border.all(color: V2Colors.border.withValues(alpha: 0.3)),
           boxShadow: const [
             BoxShadow(
               color: Color(0x1F000000),
@@ -426,7 +427,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
                 width: 48,
                 height: 6,
                 decoration: BoxDecoration(
-                  color: const Color(0x80D5C2C7),
+                  color: V2Colors.border.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(9999),
                 ),
               ),
@@ -447,7 +448,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
                         Text(
                           AppLocalizations.of(context)!.reading_timer,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
                             color: kText,
@@ -531,10 +532,10 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
                         child: Text(
                           _formatDuration(_elapsedSeconds),
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 56,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF43102B),
+                            color: V2Colors.primary,
                             letterSpacing: -1.4,
                             fontFeatures: [FontFeature.tabularFigures()],
                           ),
@@ -661,7 +662,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
                 Text(
                   label,
                   style: TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: textColor,

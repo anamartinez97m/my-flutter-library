@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
@@ -7,11 +8,11 @@ import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/model/reading_session.dart';
 import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
 
-const _kText = Color(0xFF1C1B1A);
-const _kSub = Color(0xFF514348);
-const _kBg = Color(0xFFFDF8F6);
-const _kPrimary = Color(0xFF5D2641);
-const _kBorder = Color(0xFFDDD9D7);
+const _kText = V2Colors.textPrimary;
+const _kSub = V2Colors.textSecondary;
+const _kBg = V2Colors.background;
+const _kPrimary = V2Colors.primaryAlt;
+const _kBorder = V2Colors.borderDialog;
 
 /// v2 full-screen list of all reading sessions for a single book.
 ///
@@ -259,7 +260,7 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
                               child: Text(
                                 l10n.delete,
                                 style: const TextStyle(
-                                  fontFamily: 'Manrope',
+                                  fontFamily: V2Typography.family,
                                   fontSize: 20,
                                   fontWeight: FontWeight.w600,
                                   color: Color(0xFFB3261E),
@@ -272,7 +273,7 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
                         Text(
                           l10n.confirm_delete_session,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 16,
                             color: _kText,
                             height: 1.4,
@@ -309,7 +310,7 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
                           child: Text(
                             l10n.cancel,
                             style: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                             ),
@@ -333,7 +334,7 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
                           child: Text(
                             l10n.delete,
                             style: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                             ),
@@ -479,7 +480,7 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
             Text(
               l10n.reading_sessions_title,
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
                 color: _kPrimary,
@@ -491,7 +492,7 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
                 _formatDuration(_totalSeconds),
               ),
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
                 color: _kPrimary,
@@ -517,10 +518,10 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF7F3F0),
+                              color: V2Colors.surfaceTimer,
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: const Color(0x22D5C2C7),
+                                color: V2Colors.border.withValues(alpha: 0.13),
                               ),
                             ),
                             child: IntrinsicHeight(
@@ -536,7 +537,9 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
                                   ),
                                   Container(
                                     width: 1,
-                                    color: const Color(0x33D5C2C7),
+                                    color: V2Colors.border.withValues(
+                                      alpha: 0.2,
+                                    ),
                                   ),
                                   Expanded(
                                     child: _StatCell(
@@ -548,7 +551,9 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
                                   ),
                                   Container(
                                     width: 1,
-                                    color: const Color(0x33D5C2C7),
+                                    color: V2Colors.border.withValues(
+                                      alpha: 0.2,
+                                    ),
                                   ),
                                   Expanded(
                                     child: _StatCell(
@@ -569,7 +574,7 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
                               Text(
                                 l10n.recent_sessions.toUpperCase(),
                                 style: const TextStyle(
-                                  fontFamily: 'Manrope',
+                                  fontFamily: V2Typography.family,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
                                   letterSpacing: 0.8,
@@ -580,7 +585,7 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
                               Expanded(
                                 child: Container(
                                   height: 1,
-                                  color: const Color(0x33D5C2C7),
+                                  color: V2Colors.border.withValues(alpha: 0.2),
                                 ),
                               ),
                             ],
@@ -599,7 +604,7 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
                                   child: Text(
                                     l10n.no_reading_sessions,
                                     style: const TextStyle(
-                                      fontFamily: 'Manrope',
+                                      fontFamily: V2Typography.family,
                                       fontSize: 14,
                                       color: _kSub,
                                     ),
@@ -689,7 +694,7 @@ class _StatCell extends StatelessWidget {
         Text(
           label.toUpperCase(),
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 10,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.6,
@@ -701,7 +706,7 @@ class _StatCell extends StatelessWidget {
         Text(
           value,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 16,
             fontWeight: FontWeight.w700,
             color: _kPrimary,
@@ -726,7 +731,7 @@ class _TimelineItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const dotColor = Color(0xFF5D2641);
+    const dotColor = V2Colors.primaryAlt;
 
     return IntrinsicHeight(
       child: Row(
@@ -801,7 +806,7 @@ class _SessionCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0x33D5C2C7)),
+        border: Border.all(color: V2Colors.border.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -821,13 +826,13 @@ class _SessionCard extends StatelessWidget {
                           ? Theme.of(
                             context,
                           ).colorScheme.secondary.withValues(alpha: 0.15)
-                          : const Color(0xFFF7F3F0),
+                          : V2Colors.surfaceTimer,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color:
                         isPersonalBest
                             ? Theme.of(context).colorScheme.secondary
-                            : const Color(0xFFD5C2C7),
+                            : V2Colors.border,
                   ),
                 ),
                 child: Row(
@@ -836,16 +841,16 @@ class _SessionCard extends StatelessWidget {
                     const Icon(
                       Icons.timer_outlined,
                       size: 14,
-                      color: Color(0xFF5D2641),
+                      color: V2Colors.primaryAlt,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       formatDuration(duration),
                       style: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF5D2641),
+                        color: V2Colors.primaryAlt,
                       ),
                     ),
                   ],
@@ -880,7 +885,7 @@ class _SessionCard extends StatelessWidget {
               Text(
                 formatDate(date),
                 style: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: _kSub,
@@ -891,7 +896,7 @@ class _SessionCard extends StatelessWidget {
                 child: Text(
                   '·',
                   style: TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: _kSub.withValues(alpha: 0.5),
@@ -903,7 +908,7 @@ class _SessionCard extends StatelessWidget {
               Text(
                 formatTime(time),
                 style: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: _kSub,
@@ -974,7 +979,7 @@ class _EditingSessionCard extends StatelessWidget {
               Text(
                 l10n.editing_session,
                 style: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 0.6,
@@ -1009,7 +1014,7 @@ class _EditingSessionCard extends StatelessWidget {
                     Text(
                       l10n.date_label.toUpperCase(),
                       style: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.6,
@@ -1025,9 +1030,11 @@ class _EditingSessionCard extends StatelessWidget {
                           vertical: 10,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF7F3F0),
+                          color: V2Colors.surfaceTimer,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0x33D5C2C7)),
+                          border: Border.all(
+                            color: V2Colors.border.withValues(alpha: 0.2),
+                          ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -1041,7 +1048,7 @@ class _EditingSessionCard extends StatelessWidget {
                             Text(
                               DateFormat('yyyy-MM-dd').format(editDate),
                               style: const TextStyle(
-                                fontFamily: 'Manrope',
+                                fontFamily: V2Typography.family,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
                                 color: _kText,
@@ -1062,7 +1069,7 @@ class _EditingSessionCard extends StatelessWidget {
                     Text(
                       l10n.start_time.toUpperCase(),
                       style: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.6,
@@ -1078,9 +1085,11 @@ class _EditingSessionCard extends StatelessWidget {
                           vertical: 10,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF7F3F0),
+                          color: V2Colors.surfaceTimer,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0x33D5C2C7)),
+                          border: Border.all(
+                            color: V2Colors.border.withValues(alpha: 0.2),
+                          ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -1094,7 +1103,7 @@ class _EditingSessionCard extends StatelessWidget {
                             Text(
                               editTime.format(context),
                               style: const TextStyle(
-                                fontFamily: 'Manrope',
+                                fontFamily: V2Typography.family,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
                                 color: _kText,
@@ -1114,7 +1123,7 @@ class _EditingSessionCard extends StatelessWidget {
           Text(
             l10n.duration_label.toUpperCase(),
             style: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 10,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.6,
@@ -1127,9 +1136,9 @@ class _EditingSessionCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12),
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: const Color(0xFFF7F3F0),
+              color: V2Colors.surfaceTimer,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFD5C2C7)),
+              border: Border.all(color: V2Colors.border),
             ),
             child: Row(
               children: [
@@ -1152,7 +1161,7 @@ class _EditingSessionCard extends StatelessWidget {
                       contentPadding: EdgeInsets.zero,
                     ),
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: _kText,

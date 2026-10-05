@@ -16,9 +16,10 @@ class BookRatingField {
       ratingFieldId: map['rating_field_id'] as int?,
       bookId: map['book_id'] as int,
       fieldName: map['field_name'] as String,
-      ratingValue: map['rating_value'] is double
-          ? map['rating_value'] as double
-          : double.tryParse(map['rating_value']?.toString() ?? '') ?? 0.0,
+      ratingValue:
+          map['rating_value'] is double
+              ? map['rating_value'] as double
+              : double.tryParse(map['rating_value']?.toString() ?? '') ?? 0.0,
     );
   }
 

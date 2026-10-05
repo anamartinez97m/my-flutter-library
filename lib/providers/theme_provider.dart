@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum AppThemeMode { light, dark, system }
@@ -291,143 +292,11 @@ class ThemeProvider with ChangeNotifier {
     }
   }
 
-  SnackBarThemeData get _snackBarTheme => SnackBarThemeData(
-    backgroundColor: const Color(0xFF43102B),
-    actionTextColor: Colors.white,
-    disabledActionTextColor: Colors.white70,
-    contentTextStyle: const TextStyle(
-      fontFamily: 'Manrope',
-      fontSize: 14,
-      fontWeight: FontWeight.w500,
-      color: Colors.white,
-    ),
-    behavior: SnackBarBehavior.floating,
-    elevation: 6,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+  ThemeData get lightTheme => V2DesignSystem.theme(
+    _getLightColorScheme(),
+    brightness: Brightness.light,
   );
 
-  MaterialBannerThemeData get _materialBannerTheme =>
-      const MaterialBannerThemeData(
-        backgroundColor: Color(0xFF43102B),
-        contentTextStyle: TextStyle(
-          fontFamily: 'Manrope',
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          color: Colors.white,
-        ),
-      );
-
-  ThemeData get lightTheme {
-    final colorScheme = _getLightColorScheme();
-    return ThemeData(
-      useMaterial3: true,
-      colorScheme: colorScheme,
-      brightness: Brightness.light,
-      snackBarTheme: _snackBarTheme,
-      bannerTheme: _materialBannerTheme,
-      appBarTheme: AppBarTheme(
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: colorScheme.primary,
-        foregroundColor: colorScheme.onPrimary,
-        iconTheme: IconThemeData(color: colorScheme.onPrimary),
-        titleTextStyle: TextStyle(
-          color: colorScheme.onPrimary,
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: colorScheme.primary,
-          foregroundColor: colorScheme.onPrimary,
-          elevation: 2,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: const StadiumBorder(),
-        ),
-      ),
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(foregroundColor: colorScheme.primary),
-      ),
-      floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: colorScheme.primary,
-        foregroundColor: colorScheme.onPrimary,
-      ),
-      iconTheme: IconThemeData(color: colorScheme.primary),
-      cardTheme: CardThemeData(
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: colorScheme.primary, width: 2),
-        ),
-      ),
-      navigationBarTheme: NavigationBarThemeData(
-        indicatorColor: colorScheme.primary.withValues(alpha: 0.2),
-        labelTextStyle: WidgetStateProperty.all(
-          TextStyle(fontSize: 12, color: colorScheme.onSurface),
-        ),
-      ),
-    );
-  }
-
-  ThemeData get darkTheme {
-    final colorScheme = _getDarkColorScheme();
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.dark,
-      colorScheme: colorScheme,
-      snackBarTheme: _snackBarTheme,
-      bannerTheme: _materialBannerTheme,
-      appBarTheme: AppBarTheme(
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: colorScheme.primary,
-        foregroundColor: colorScheme.onPrimary,
-        iconTheme: IconThemeData(color: colorScheme.onPrimary),
-        titleTextStyle: TextStyle(
-          color: colorScheme.onPrimary,
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: colorScheme.primary,
-          foregroundColor: colorScheme.onPrimary,
-          elevation: 2,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: const StadiumBorder(),
-        ),
-      ),
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(foregroundColor: colorScheme.primary),
-      ),
-      floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: colorScheme.primary,
-        foregroundColor: colorScheme.onPrimary,
-      ),
-      iconTheme: IconThemeData(color: colorScheme.primary),
-      cardTheme: CardThemeData(
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: colorScheme.primary, width: 2),
-        ),
-      ),
-      navigationBarTheme: NavigationBarThemeData(
-        indicatorColor: colorScheme.primary.withValues(alpha: 0.2),
-        labelTextStyle: WidgetStateProperty.all(
-          TextStyle(fontSize: 12, color: colorScheme.onSurface),
-        ),
-      ),
-    );
-  }
+  ThemeData get darkTheme =>
+      V2DesignSystem.theme(_getDarkColorScheme(), brightness: Brightness.dark);
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
 /// New "Ratings & Pages" statistics screen matching the redesigned UI.
@@ -21,16 +22,16 @@ class RatingsPagesScreen extends StatefulWidget {
   final int? longestPages;
   final String? longestBookName;
 
-  static const kBg = Color(0xFFFDF8F6);
-  static const kPrimary = Color(0xFF43102B);
-  static const kSecondary = Color(0xFF894B67);
-  static const kTertiary = Color(0xFFBC92A6);
-  static const kMuted = Color(0xFFD5C2C7);
-  static const kText = Color(0xFF1C1B1A);
-  static const kSub = Color(0xFF514348);
-  static const kBorder = Color(0x4DD5C2C7);
-  static const kDivider = Color(0xFFE6E2DF);
-  static const kBarBg = Color(0xFFE6E2DF);
+  static const kBg = V2Colors.background;
+  static const kPrimary = V2Colors.primary;
+  static const kSecondary = V2Colors.secondary;
+  static const kTertiary = Color(0xFFBC92A6); // Not represented in V2Colors.
+  static const kMuted = V2Colors.border;
+  static const kText = V2Colors.textPrimary;
+  static const kSub = V2Colors.textSecondary;
+  static const kBorder = Color(0x4DD5C2C7); // Exact alpha variant.
+  static const kDivider = V2Colors.divider;
+  static const kBarBg = V2Colors.divider;
 
   const RatingsPagesScreen({
     super.key,
@@ -92,7 +93,7 @@ class _RatingsPagesScreenState extends State<RatingsPagesScreen> {
         title: Text(
           l10n.section_ratings_pages,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
             color: _kPrimary,
@@ -102,7 +103,7 @@ class _RatingsPagesScreenState extends State<RatingsPagesScreen> {
         centerTitle: true,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: const Color(0xFFD5C2C7)),
+          child: Container(height: 1, color: V2Colors.border),
         ),
       ),
       body: SingleChildScrollView(
@@ -189,7 +190,7 @@ class _RatingsPagesScreenState extends State<RatingsPagesScreen> {
                   child: Text(
                     title,
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
                       color: _kPrimary,
@@ -235,7 +236,7 @@ class _RatingsPagesScreenState extends State<RatingsPagesScreen> {
             Text(
               widget.averageRating.toStringAsFixed(2),
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 40,
                 fontWeight: FontWeight.bold,
                 color: _kSecondary,
@@ -450,7 +451,7 @@ class _RatingsPagesScreenState extends State<RatingsPagesScreen> {
         Text(
           value,
           style: TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 16,
             fontWeight: FontWeight.bold,
             color: color,

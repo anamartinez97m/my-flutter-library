@@ -40,17 +40,17 @@ class BookCompetition {
       'opponent_book_name': opponentBookName,
       'winner_book_id': winnerBookId,
     };
-    
+
     // Only include competition_id if it's not null (for updates, not inserts)
     if (competitionId != null) {
       map['competition_id'] = competitionId;
     }
-    
+
     // Only include created_at if it's not null (let database use default)
     if (createdAt != null) {
       map['created_at'] = createdAt;
     }
-    
+
     return map;
   }
 
@@ -122,28 +122,19 @@ class MonthlyWinner {
   final int month;
   final BookCompetition winner;
 
-  MonthlyWinner({
-    required this.month,
-    required this.winner,
-  });
+  MonthlyWinner({required this.month, required this.winner});
 }
 
 class QuarterlyWinner {
   final int quarter;
   final BookCompetition winner;
 
-  QuarterlyWinner({
-    required this.quarter,
-    required this.winner,
-  });
+  QuarterlyWinner({required this.quarter, required this.winner});
 }
 
 class SemifinalWinner {
   final int roundNumber;
   final BookCompetition winner;
 
-  SemifinalWinner({
-    required this.roundNumber,
-    required this.winner,
-  });
+  SemifinalWinner({required this.roundNumber, required this.winner});
 }

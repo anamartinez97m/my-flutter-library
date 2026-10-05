@@ -39,15 +39,15 @@ class BookMetadata {
 
   /// Get the best available cover URL (prefers larger sizes)
   String? get bestCoverUrl {
-    return largeCoverUrl ?? 
-           mediumCoverUrl ?? 
-           coverUrl ?? 
-           thumbnailUrl ?? 
-           smallThumbnailUrl;
+    return largeCoverUrl ??
+        mediumCoverUrl ??
+        coverUrl ??
+        thumbnailUrl ??
+        smallThumbnailUrl;
   }
 
   /// Check if metadata has valid description
-  bool get hasDescription => 
+  bool get hasDescription =>
       description != null && description!.trim().isNotEmpty;
 
   /// Check if metadata has valid cover image
@@ -74,9 +74,10 @@ class BookMetadata {
       publisher: json['publisher'] as String?,
       language: json['language'] as String?,
       source: json['source'] as String?,
-      fetchedAt: json['fetchedAt'] != null 
-          ? DateTime.parse(json['fetchedAt'] as String)
-          : null,
+      fetchedAt:
+          json['fetchedAt'] != null
+              ? DateTime.parse(json['fetchedAt'] as String)
+              : null,
     );
   }
 

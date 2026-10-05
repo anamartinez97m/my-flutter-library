@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
@@ -7,11 +8,11 @@ import 'package:provider/provider.dart';
 import '../config/app_theme.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
-const _kBg = Color(0xFFFDF8F6);
-const _kPrimary = Color(0xFF43102B);
-const _kSub = Color(0xFF514348);
-const _kText = Color(0xFF1C1B1A);
-const _kBorder = Color(0xFFD5C2C7);
+const _kBg = V2Colors.background;
+const _kPrimary = V2Colors.primary;
+const _kSub = V2Colors.textSecondary;
+const _kText = V2Colors.textPrimary;
+const _kBorder = V2Colors.border;
 
 class ManageDropdownsScreen extends StatefulWidget {
   const ManageDropdownsScreen({super.key});
@@ -198,13 +199,13 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     final controller = TextEditingController();
     String? selectedOption = 'number';
 
-    const kBg = Color(0xFFFDF8F6);
-    const kPrimary = Color(0xFF5D2641);
+    const kBg = V2Colors.background;
+    const kPrimary = V2Colors.primaryAlt;
     const kText = Color(0xFF1C1B1B);
     const kSub = Color(0xFF49454F);
-    const kBorder = Color(0xFFDDD9D7);
-    const kInfoBg = Color(0x1A5D2641);
-    const kInfoBorder = Color(0x335D2641);
+    const kBorder = V2Colors.borderDialog;
+    final kInfoBg = V2Colors.primaryAlt.withValues(alpha: 0.1);
+    final kInfoBorder = V2Colors.primaryAlt.withValues(alpha: 0.2);
 
     return await showDialog<int?>(
       context: context,
@@ -243,7 +244,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                                     child: Text(
                                       l10n.saga_completion_setup,
                                       style: const TextStyle(
-                                        fontFamily: 'Manrope',
+                                        fontFamily: V2Typography.family,
                                         fontSize: 20,
                                         fontWeight: FontWeight.w600,
                                         color: kPrimary,
@@ -257,7 +258,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                               Text(
                                 l10n.you_are_adding(formatSagaName),
                                 style: const TextStyle(
-                                  fontFamily: 'Manrope',
+                                  fontFamily: V2Typography.family,
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                   color: kText,
@@ -279,7 +280,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                                     Text(
                                       l10n.how_many_books_saga,
                                       style: const TextStyle(
-                                        fontFamily: 'Manrope',
+                                        fontFamily: V2Typography.family,
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
                                         color: kPrimary,
@@ -289,7 +290,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                                     Text(
                                       l10n.saga_completion_explanation,
                                       style: const TextStyle(
-                                        fontFamily: 'Manrope',
+                                        fontFamily: V2Typography.family,
                                         fontSize: 14,
                                         fontWeight: FontWeight.normal,
                                         color: kSub,
@@ -323,7 +324,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                                           Text(
                                             l10n.specific_number_of_books,
                                             style: const TextStyle(
-                                              fontFamily: 'Manrope',
+                                              fontFamily: V2Typography.family,
                                               fontSize: 16,
                                               fontWeight: FontWeight.normal,
                                               color: kText,
@@ -341,7 +342,8 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                                                       TextInputType.number,
                                                   autofocus: true,
                                                   style: const TextStyle(
-                                                    fontFamily: 'Manrope',
+                                                    fontFamily:
+                                                        V2Typography.family,
                                                     fontSize: 18,
                                                     color: kText,
                                                   ),
@@ -387,7 +389,8 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                                                     labelText:
                                                         l10n.number_of_books,
                                                     labelStyle: const TextStyle(
-                                                      fontFamily: 'Manrope',
+                                                      fontFamily:
+                                                          V2Typography.family,
                                                       fontSize: 12,
                                                       color: kPrimary,
                                                     ),
@@ -430,7 +433,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                                           Text(
                                             l10n.unknown_show_as_question,
                                             style: const TextStyle(
-                                              fontFamily: 'Manrope',
+                                              fontFamily: V2Typography.family,
                                               fontSize: 16,
                                               fontWeight: FontWeight.normal,
                                               color: kText,
@@ -440,7 +443,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                                           Text(
                                             l10n.for_sagas_unknown_length,
                                             style: const TextStyle(
-                                              fontFamily: 'Manrope',
+                                              fontFamily: V2Typography.family,
                                               fontSize: 14,
                                               fontWeight: FontWeight.normal,
                                               color: kSub,
@@ -457,7 +460,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                               Text(
                                 '${l10n.examples}:',
                                 style: const TextStyle(
-                                  fontFamily: 'Manrope',
+                                  fontFamily: V2Typography.family,
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                   color: kText,
@@ -512,7 +515,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                               child: Text(
                                 l10n.cancel,
                                 style: const TextStyle(
-                                  fontFamily: 'Manrope',
+                                  fontFamily: V2Typography.family,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -555,7 +558,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                               child: Text(
                                 l10n.continue_label,
                                 style: const TextStyle(
-                                  fontFamily: 'Manrope',
+                                  fontFamily: V2Typography.family,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -591,7 +594,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         shape: BoxShape.circle,
-        border: Border.all(color: const Color(0xFF6B7280)),
+        border: Border.all(color: V2Colors.borderInput),
       ),
     );
   }
@@ -600,7 +603,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     return RichText(
       text: TextSpan(
         style: const TextStyle(
-          fontFamily: 'Manrope',
+          fontFamily: V2Typography.family,
           fontSize: 14,
           color: Color(0xFF49454F),
         ),
@@ -708,7 +711,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                           Text(
                             '${l10n.add} ${_getTableLabel(context, _selectedTable)}',
                             style: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
                               color: _kPrimary,
@@ -721,7 +724,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                         controller: valueController,
                         autofocus: true,
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 18,
                           color: _kText,
                         ),
@@ -743,7 +746,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                             ),
                           ),
                           labelStyle: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 12,
                             color: _kPrimary,
                           ),
@@ -754,7 +757,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                       TextField(
                         controller: subtitleController,
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 16,
                           color: _kText,
                         ),
@@ -777,7 +780,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                             ),
                           ),
                           labelStyle: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 12,
                             color: _kPrimary,
                           ),
@@ -815,7 +818,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                         child: Text(
                           l10n.cancel,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -849,7 +852,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                         child: Text(
                           l10n.add,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -972,7 +975,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                             Text(
                               '${l10n.edit} ${_getTableLabel(context, _selectedTable)}',
                               style: const TextStyle(
-                                fontFamily: 'Manrope',
+                                fontFamily: V2Typography.family,
                                 fontSize: 20,
                                 fontWeight: FontWeight.w600,
                                 color: _kPrimary,
@@ -1005,7 +1008,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                                         ? l10n.core_status_warning
                                         : l10n.core_format_saga_warning,
                                     style: const TextStyle(
-                                      fontFamily: 'Manrope',
+                                      fontFamily: V2Typography.family,
                                       fontSize: 13,
                                       color: Color(0xFFB3261E),
                                       height: 1.4,
@@ -1021,7 +1024,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                           controller: valueController,
                           autofocus: true,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 18,
                             color: _kText,
                           ),
@@ -1043,7 +1046,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                               ),
                             ),
                             labelStyle: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 12,
                               color: _kPrimary,
                             ),
@@ -1054,7 +1057,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                         TextField(
                           controller: subtitleController,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 16,
                             color: _kText,
                           ),
@@ -1077,7 +1080,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                               ),
                             ),
                             labelStyle: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 12,
                               color: _kPrimary,
                             ),
@@ -1116,7 +1119,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                         child: Text(
                           l10n.cancel,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -1150,7 +1153,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                         child: Text(
                           l10n.save,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -1429,7 +1432,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                       Text(
                         l10n.cannot_delete,
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
                           color: _kPrimary,
@@ -1441,7 +1444,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                   Text(
                     message,
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 16,
                       color: _kText,
                       height: 1.4,
@@ -1467,7 +1470,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                       child: Text(
                         l10n.ok,
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
@@ -1518,7 +1521,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                           Text(
                             l10n.confirm_delete_title,
                             style: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFFB3261E),
@@ -1530,7 +1533,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                       Text(
                         l10n.confirm_delete_value(value),
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 16,
                           color: _kText,
                           height: 1.4,
@@ -1567,7 +1570,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                         child: Text(
                           l10n.cancel,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -1591,7 +1594,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                         child: Text(
                           l10n.delete,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -1658,7 +1661,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
               child: Text(
                 l10n.manage_dropdown_values,
                 style: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
                   color: Color(0xFF4A1E34),
@@ -1716,7 +1719,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
               _getEntityDescription(context, _selectedTable),
               textAlign: TextAlign.left,
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
                 color: Color(0xFF80717B),
@@ -1776,18 +1779,15 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
               _loadValues();
             },
             labelStyle: TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 12,
               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
               color: isSelected ? Colors.white : const Color(0xFF57534E),
             ),
-            selectedColor: const Color(0xFF5D2641),
+            selectedColor: V2Colors.primaryAlt,
             backgroundColor: Colors.white,
             side: BorderSide(
-              color:
-                  isSelected
-                      ? const Color(0xFF5D2641)
-                      : const Color(0xFFE8DEDA),
+              color: isSelected ? V2Colors.primaryAlt : const Color(0xFFE8DEDA),
             ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(9999),
@@ -1812,7 +1812,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
             const Text(
               'Configured Values',
               style: TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFF4A1E34),
@@ -1830,10 +1830,10 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                 child: Text(
                   '${_displayValues.length}',
                   style: TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF5D2641),
+                    color: V2Colors.primaryAlt,
                   ),
                 ),
               ),
@@ -1845,14 +1845,14 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
           controller: _searchController,
           onChanged: (value) => setState(() => _searchQuery = value),
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 16,
             color: _kText,
           ),
           decoration: InputDecoration(
             hintText: l10n.search,
             hintStyle: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 14,
               color: _kSub,
             ),
@@ -1888,7 +1888,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         border: Border.all(color: const Color(0xFFF1E8E6)),
         boxShadow: [
           BoxShadow(
-            color: const Color(0x0A5D2641),
+            color: V2Colors.primaryAlt.withValues(alpha: 0.04),
             blurRadius: 5,
             offset: const Offset(0, 2),
           ),
@@ -1919,7 +1919,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                 Text(
                   value,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF2B1B24),
@@ -1930,7 +1930,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                   subtitle,
                   textAlign: TextAlign.left,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
                     color: Color(0xFF80717B),
@@ -2166,7 +2166,7 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
                         Text(
                           l10n.delete_value,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFFB3261E),
@@ -2178,7 +2178,7 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
                     Text(
                       l10n.value_in_use(widget.value, widget.usageCount),
                       style: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: _kText,
@@ -2188,7 +2188,7 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
                     Text(
                       l10n.what_would_you_like_to_do,
                       style: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 14,
                         color: _kSub,
                       ),
@@ -2215,7 +2215,7 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
                             decoration: InputDecoration(
                               labelText: l10n.select_replacement,
                               labelStyle: const TextStyle(
-                                fontFamily: 'Manrope',
+                                fontFamily: V2Typography.family,
                                 fontSize: 12,
                                 color: _kPrimary,
                               ),
@@ -2238,7 +2238,7 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
                             ),
                             isExpanded: true,
                             style: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 15,
                               color: _kText,
                             ),
@@ -2284,7 +2284,7 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
                           controller: _newValueController,
                           textCapitalization: TextCapitalization.words,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 16,
                             color: _kText,
                           ),
@@ -2306,7 +2306,7 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
                               ),
                             ),
                             labelStyle: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 12,
                               color: _kPrimary,
                             ),
@@ -2352,7 +2352,7 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
                     child: Text(
                       l10n.cancel,
                       style: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -2376,7 +2376,7 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
                     child: Text(
                       l10n.proceed,
                       style: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -2412,9 +2412,7 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
                 color: selected ? _kPrimary : Colors.white,
                 shape: BoxShape.circle,
                 border:
-                    selected
-                        ? null
-                        : Border.all(color: const Color(0xFF6B7280)),
+                    selected ? null : Border.all(color: V2Colors.borderInput),
               ),
               child:
                   selected
@@ -2430,7 +2428,7 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 16,
                     color: _kText,
                   ),
@@ -2439,7 +2437,7 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
                   Text(
                     subtitle,
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 12,
                       color: _kSub,
                     ),

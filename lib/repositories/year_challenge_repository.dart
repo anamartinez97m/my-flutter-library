@@ -37,10 +37,7 @@ class YearChallengeRepository {
   /// Get all challenges
   Future<List<YearChallenge>> getAllChallenges() async {
     try {
-      final results = await db.query(
-        'year_challenges',
-        orderBy: 'year DESC',
-      );
+      final results = await db.query('year_challenges', orderBy: 'year DESC');
 
       return results.map((map) => YearChallenge.fromMap(map)).toList();
     } catch (e) {
@@ -94,7 +91,8 @@ class YearChallengeRepository {
     }
 
     // Count books read in the year
-    final booksResult = await db.rawQuery('''
+    final booksResult = await db.rawQuery(
+      '''
       SELECT COUNT(DISTINCT COALESCE(orig.book_id, b.book_id)) as count,
              SUM(COALESCE(orig.pages, b.pages, 0)) as total_pages
       FROM book b
@@ -103,7 +101,9 @@ class YearChallengeRepository {
       WHERE CAST(substr(rd.date_finished, 1, 4) AS INTEGER) = ?
         AND rd.date_finished IS NOT NULL 
         AND rd.date_finished != ""
-    ''', [year]);
+    ''',
+      [year],
+    );
 
     final booksRead = booksResult.first['count'] as int? ?? 0;
     final pagesRead = booksResult.first['total_pages'] as int? ?? 0;
@@ -114,12 +114,14 @@ class YearChallengeRepository {
       'targetPages': challenge.targetPages ?? 0,
       'booksRead': booksRead,
       'pagesRead': pagesRead,
-      'booksProgress': (challenge.targetBooks != null && challenge.targetBooks! > 0) 
-          ? (booksRead / challenge.targetBooks!) 
-          : 0.0,
-      'pagesProgress': (challenge.targetPages != null && challenge.targetPages! > 0) 
-          ? (pagesRead / challenge.targetPages!) 
-          : 0.0,
+      'booksProgress':
+          (challenge.targetBooks != null && challenge.targetBooks! > 0)
+              ? (booksRead / challenge.targetBooks!)
+              : 0.0,
+      'pagesProgress':
+          (challenge.targetPages != null && challenge.targetPages! > 0)
+              ? (pagesRead / challenge.targetPages!)
+              : 0.0,
     };
   }
 }

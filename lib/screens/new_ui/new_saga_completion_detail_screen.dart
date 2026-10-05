@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/screens/books_by_saga.dart';
@@ -30,15 +31,6 @@ class NewSagaCompletionDetailScreen extends StatefulWidget {
 
 class _NewSagaCompletionDetailScreenState
     extends State<NewSagaCompletionDetailScreen> {
-  static const _kBg = Color(0xFFFDF8F6);
-  static const _kPrimary = Color(0xFF43102B);
-  static const _kText = Color(0xFF1C1B1A);
-  static const _kSub = Color(0xFF514348);
-  static const _kBorder = Color(0xFFD5C2C7);
-  static const _kDivider = Color(0xFFE6E2DF);
-  static const _kMuted = Color(0xFFD5C2C7);
-  static const _kSecondary = Color(0xFF894B67);
-
   late int _selectedTabIndex;
   _SortMode _sortMode = _SortMode.name;
 
@@ -50,12 +42,12 @@ class _NewSagaCompletionDetailScreenState
 
   List<MapEntry<String, Map<String, dynamic>>> get _completedSagas {
     return widget.sagaStats.entries.where((e) {
-      final total = e.value['total'] as int;
-      final read = e.value['read'] as int;
-      // For unknown totals (-1), never consider completed
-      if (total == -1) return false;
-      return read == total;
-    }).toList()
+        final total = e.value['total'] as int;
+        final read = e.value['read'] as int;
+        // For unknown totals (-1), never consider completed
+        if (total == -1) return false;
+        return read == total;
+      }).toList()
       ..sort((a, b) {
         if (_sortMode == _SortMode.name) return a.key.compareTo(b.key);
         final totalA = a.value['total'] as int;
@@ -68,12 +60,12 @@ class _NewSagaCompletionDetailScreenState
 
   List<MapEntry<String, Map<String, dynamic>>> get _inProgressSagas {
     return widget.sagaStats.entries.where((e) {
-      final total = e.value['total'] as int;
-      final read = e.value['read'] as int;
-      // For unknown totals, consider partial if any books read
-      if (total == -1) return read > 0;
-      return read > 0 && read < total;
-    }).toList()
+        final total = e.value['total'] as int;
+        final read = e.value['read'] as int;
+        // For unknown totals, consider partial if any books read
+        if (total == -1) return read > 0;
+        return read > 0 && read < total;
+      }).toList()
       ..sort((a, b) {
         if (_sortMode == _SortMode.name) return a.key.compareTo(b.key);
         final totalA = a.value['total'] as int;
@@ -126,22 +118,22 @@ class _NewSagaCompletionDetailScreenState
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: _kBg,
+      backgroundColor: V2Colors.background,
       appBar: AppBar(
-        backgroundColor: _kBg,
+        backgroundColor: V2Colors.background,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: _kPrimary),
+          icon: const Icon(Icons.arrow_back, color: V2Colors.primary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           l10n.saga_completion,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
-            color: _kPrimary,
+            color: V2Colors.primary,
             letterSpacing: -0.5,
           ),
         ),
@@ -154,14 +146,14 @@ class _NewSagaCompletionDetailScreenState
                   : _sortMode == _SortMode.ascending
                   ? Icons.arrow_upward
                   : Icons.arrow_downward,
-              color: _kPrimary,
+              color: V2Colors.primary,
             ),
             onPressed: _cycleSortMode,
           ),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: _kBorder),
+          child: Container(height: 1, color: V2Colors.border),
         ),
       ),
       body: Column(
@@ -175,7 +167,7 @@ class _NewSagaCompletionDetailScreenState
                     index: 0,
                     label: l10n.completed,
                     count: _completedSagas.length,
-                    color: _kPrimary,
+                    color: V2Colors.primary,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -184,7 +176,7 @@ class _NewSagaCompletionDetailScreenState
                     index: 1,
                     label: l10n.in_progress,
                     count: _inProgressSagas.length,
-                    color: _kSecondary,
+                    color: V2Colors.secondary,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -193,7 +185,7 @@ class _NewSagaCompletionDetailScreenState
                     index: 2,
                     label: l10n.not_started,
                     count: _notStartedSagas.length,
-                    color: _kSub,
+                    color: V2Colors.textSecondary,
                   ),
                 ),
               ],
@@ -201,7 +193,7 @@ class _NewSagaCompletionDetailScreenState
           ),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Divider(height: 1, thickness: 1, color: _kDivider),
+            child: Divider(height: 1, thickness: 1, color: V2Colors.divider),
           ),
           Expanded(child: _buildTabContent()),
         ],
@@ -225,7 +217,7 @@ class _NewSagaCompletionDetailScreenState
           color: isSelected ? color.withValues(alpha: 0.08) : Colors.white,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelected ? color : _kBorder,
+            color: isSelected ? color : V2Colors.border,
             width: isSelected ? 1.5 : 1,
           ),
         ),
@@ -234,20 +226,20 @@ class _NewSagaCompletionDetailScreenState
             Text(
               '$count',
               style: TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: isSelected ? color : _kSub,
+                color: isSelected ? color : V2Colors.textSecondary,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 12,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                color: isSelected ? color : _kSub,
+                color: isSelected ? color : V2Colors.textSecondary,
               ),
               textAlign: TextAlign.center,
             ),
@@ -265,19 +257,19 @@ class _NewSagaCompletionDetailScreenState
     switch (_selectedTabIndex) {
       case 0:
         sagas = _completedSagas;
-        color = _kPrimary;
+        color = V2Colors.primary;
         emptyMessage = AppLocalizations.of(context)!.no_completed_sagas;
       case 1:
         sagas = _inProgressSagas;
-        color = _kSecondary;
+        color = V2Colors.secondary;
         emptyMessage = AppLocalizations.of(context)!.no_sagas_in_progress;
       case 2:
         sagas = _notStartedSagas;
-        color = _kSub;
+        color = V2Colors.textSecondary;
         emptyMessage = AppLocalizations.of(context)!.no_unstarted_sagas;
       default:
         sagas = [];
-        color = _kSub;
+        color = V2Colors.textSecondary;
         emptyMessage = '';
     }
 
@@ -289,12 +281,15 @@ class _NewSagaCompletionDetailScreenState
             Icon(
               Icons.collections_bookmark_outlined,
               size: 64,
-              color: _kMuted,
+              color: V2Colors.border,
             ),
             const SizedBox(height: 16),
             Text(
               emptyMessage,
-              style: const TextStyle(fontSize: 16, color: _kSub),
+              style: const TextStyle(
+                fontSize: 16,
+                color: V2Colors.textSecondary,
+              ),
             ),
           ],
         ),
@@ -337,7 +332,9 @@ class _NewSagaCompletionDetailScreenState
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0x1A27231E)),
+              border: Border.all(
+                color: V2Colors.borderStrong.withValues(alpha: .1),
+              ),
               boxShadow: const [
                 BoxShadow(
                   color: Color(0x0A000000),
@@ -355,10 +352,10 @@ class _NewSagaCompletionDetailScreenState
                       child: Text(
                         sagaName,
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: _kText,
+                          color: V2Colors.textPrimary,
                         ),
                       ),
                     ),
@@ -375,7 +372,7 @@ class _NewSagaCompletionDetailScreenState
                       child: Text(
                         isUnknownTotal ? '$read / ?' : '$read / $total',
                         style: TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontWeight: FontWeight.bold,
                           color: color,
                           fontSize: 12,
@@ -390,7 +387,7 @@ class _NewSagaCompletionDetailScreenState
                   child: LinearProgressIndicator(
                     value: progress,
                     minHeight: 8,
-                    backgroundColor: _kDivider,
+                    backgroundColor: V2Colors.divider,
                     valueColor: AlwaysStoppedAnimation<Color>(color),
                   ),
                 ),
@@ -400,9 +397,9 @@ class _NewSagaCompletionDetailScreenState
                       ? '${AppLocalizations.of(context)!.format}: ${FormatSagaHelper.getLocalizedLabel(formatSaga, AppLocalizations.of(context)!)}'
                       : '${(progress * 100).toStringAsFixed(0)}% ${AppLocalizations.of(context)!.complete_label}',
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 12,
-                    color: _kSub,
+                    color: V2Colors.textSecondary,
                   ),
                 ),
               ],

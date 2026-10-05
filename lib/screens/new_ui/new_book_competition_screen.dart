@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
@@ -9,9 +10,7 @@ import 'package:myrandomlibrary/screens/new_ui/new_quarterly_winner_selection_sc
 import 'package:myrandomlibrary/screens/new_ui/new_semifinal_winner_selection_screen.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_yearly_winner_selection_screen.dart';
 
-// ── v2 design tokens ─────────────────────────────────────────────────────────
-const _kBg = Color(0xFFFDF8F5);
-const _kPrimary = Color(0xFF5D2641);
+// Competition-specific colors not represented in the shared palette.
 const _kInk = Color(0xFF1F151B);
 const _kSub = Color(0xFF7A6B73);
 const _kBorder = Color(0xFFE2D1DC);
@@ -182,26 +181,28 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
     final theme = Theme.of(context);
     return Theme(
       data: theme.copyWith(
-        textTheme: theme.textTheme.apply(fontFamily: 'Manrope'),
-        primaryTextTheme: theme.primaryTextTheme.apply(fontFamily: 'Manrope'),
+        textTheme: theme.textTheme.apply(fontFamily: V2Typography.family),
+        primaryTextTheme: theme.primaryTextTheme.apply(
+          fontFamily: V2Typography.family,
+        ),
       ),
       child: Scaffold(
-        backgroundColor: _kBg,
+        backgroundColor: V2Colors.background,
         appBar: AppBar(
-          backgroundColor: _kBg,
+          backgroundColor: V2Colors.background,
           surfaceTintColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: _kPrimary),
+            icon: const Icon(Icons.arrow_back, color: V2Colors.primaryAlt),
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
             l10n.best_book_of_year(widget.year.toString()),
             style: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 20,
               fontWeight: FontWeight.w600,
-              color: _kPrimary,
+              color: V2Colors.primaryAlt,
               letterSpacing: -0.5,
             ),
           ),
@@ -214,7 +215,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
         body:
             isLoading
                 ? const Center(
-                  child: CircularProgressIndicator(color: _kPrimary),
+                  child: CircularProgressIndicator(color: V2Colors.primaryAlt),
                 )
                 : competitionResult == null
                 ? Center(
@@ -275,7 +276,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
               const Text(
                 'TOURNAMENT STATUS',
                 style: TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 12,
                   height: 4 / 3,
                   fontWeight: FontWeight.w600,
@@ -302,7 +303,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
                           : 'Tournament In Progress'
                       : 'Q$nextQuarter Voting Currently Active',
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 16,
                     height: 1.5,
                     fontWeight: FontWeight.w800,
@@ -313,7 +314,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
               Text(
                 '$decided / 4 Quarters Ready',
                 style: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                   color: _kSub,
@@ -338,7 +339,11 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(999),
                     gradient: const LinearGradient(
-                      colors: [_kPrimary, _kPrimary, _kGold],
+                      colors: [
+                        V2Colors.primaryAlt,
+                        V2Colors.primaryAlt,
+                        _kGold,
+                      ],
                     ),
                   ),
                 ),
@@ -425,7 +430,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 14,
                     height: 1.35,
                     fontWeight: FontWeight.w800,
@@ -438,7 +443,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 10,
                     height: 1.5,
                     color: Color(0xE6FDE68A),
@@ -452,7 +457,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 9,
                     color: Colors.white.withValues(alpha: .6),
                   ),
@@ -480,7 +485,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
                       Text(
                         rating.toStringAsFixed(2),
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                           color: Color(0xFF522238),
@@ -493,7 +498,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
                 Text(
                   winner.bookName,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 20,
                     height: 1.38,
                     fontWeight: FontWeight.w800,
@@ -504,7 +509,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
                 Text(
                   details,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 12,
                     height: 1.35,
                     fontWeight: FontWeight.w500,
@@ -524,7 +529,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
                   child: const Text(
                     'Champion Title',
                     style: TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 11,
                       height: 1.5,
                       fontWeight: FontWeight.w600,
@@ -620,7 +625,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: _kPrimary,
+              color: V2Colors.primaryAlt,
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(
@@ -659,7 +664,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
             TextButton.icon(
               onPressed: action,
               style: TextButton.styleFrom(
-                backgroundColor: _kPrimary,
+                backgroundColor: V2Colors.primaryAlt,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 14,
@@ -713,7 +718,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
                 duration: const Duration(milliseconds: 180),
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
-                  color: selected ? _kPrimary : Colors.transparent,
+                  color: selected ? V2Colors.primaryAlt : Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
@@ -730,7 +735,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
                         tabs[index].$2,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 12,
                           fontWeight:
                               selected ? FontWeight.w700 : FontWeight.w600,
@@ -851,7 +856,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
                   Icon(
                     canVote ? Icons.add : Icons.hourglass_empty,
                     size: canVote ? 25 : 24,
-                    color: canVote ? _kPrimary : _kSub,
+                    color: canVote ? V2Colors.primaryAlt : _kSub,
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -859,7 +864,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: canVote ? _kPrimary : _kSub,
+                      color: canVote ? V2Colors.primaryAlt : _kSub,
                     ),
                   ),
                 ],
@@ -915,14 +920,18 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
           children: [
             Row(
               children: [
-                const Icon(Icons.flag_outlined, size: 14, color: _kPrimary),
+                const Icon(
+                  Icons.flag_outlined,
+                  size: 14,
+                  color: V2Colors.primaryAlt,
+                ),
                 const SizedBox(width: 6),
                 Text(
                   'Semifinal $round',
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: _kPrimary,
+                    color: V2Colors.primaryAlt,
                   ),
                 ),
                 const Spacer(),
@@ -961,7 +970,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
                   margin: const EdgeInsets.symmetric(horizontal: 8),
                   alignment: Alignment.center,
                   decoration: const BoxDecoration(
-                    color: _kPrimary,
+                    color: V2Colors.primaryAlt,
                     shape: BoxShape.circle,
                   ),
                   child: const Text(
@@ -1000,7 +1009,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
     return Container(
       padding: const EdgeInsets.all(11),
       decoration: BoxDecoration(
-        color: ready ? _kBg : _kGoldSoft.withValues(alpha: .4),
+        color: ready ? V2Colors.background : _kGoldSoft.withValues(alpha: .4),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: ready ? _kBorder.withValues(alpha: .8) : _kGold,
@@ -1019,7 +1028,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
             ready ? contender.winner.bookName : 'To be decided',
             textAlign: alignEnd ? TextAlign.right : TextAlign.left,
             style: TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 12,
               fontWeight: FontWeight.w700,
               fontStyle: ready ? FontStyle.normal : FontStyle.italic,
@@ -1085,7 +1094,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
               const SizedBox(width: 8),
               Text(
                 'GRAND FINALE ${widget.year}',
-                style: _overline(color: _kPrimary, size: 12),
+                style: _overline(color: V2Colors.primaryAlt, size: 12),
               ),
               const Spacer(),
               _badge('Year-End Crowning', Colors.white, _kSub),
@@ -1122,7 +1131,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
                           ? Icons.how_to_vote_outlined
                           : Icons.lock_outline,
                       size: 24,
-                      color: _kPrimary,
+                      color: V2Colors.primaryAlt,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -1173,15 +1182,15 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.circle, size: 8, color: _kPrimary),
+              const Icon(Icons.circle, size: 8, color: V2Colors.primaryAlt),
               const SizedBox(width: 6),
               Text(
                 'Q$quarter Feeder (${_monthName(firstMonth)} - ${_monthName(firstMonth + 2)})',
                 style: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: _kPrimary,
+                  color: V2Colors.primaryAlt,
                 ),
               ),
             ],
@@ -1193,7 +1202,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
               child: Text(
                 'Winner: ${winner.winner.bookName}',
                 style: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
                   color: _kGreen,
@@ -1221,7 +1230,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
                         constraints: const BoxConstraints(minHeight: 76),
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: _kBg,
+                          color: V2Colors.background,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: _kBorder.withValues(alpha: .6),
@@ -1232,7 +1241,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
                             Text(
                               _monthName(month).toUpperCase(),
                               style: const TextStyle(
-                                fontFamily: 'Manrope',
+                                fontFamily: V2Typography.family,
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,
                                 color: _kSub,
@@ -1246,7 +1255,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
                                       : 'Select'),
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                fontFamily: 'Manrope',
+                                fontFamily: V2Typography.family,
                                 fontSize: 11,
                                 height: 1.25,
                                 fontWeight: FontWeight.w600,
@@ -1275,10 +1284,10 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
           color: _kLavender,
           borderRadius: BorderRadius.circular(4),
         ),
-        child: Icon(icon, size: 16, color: _kPrimary),
+        child: Icon(icon, size: 16, color: V2Colors.primaryAlt),
       ),
       const SizedBox(width: 8),
-      Text(title, style: _titleStyle(16, color: _kPrimary)),
+      Text(title, style: _titleStyle(16, color: V2Colors.primaryAlt)),
       if (trailing != null) ...[
         const Spacer(),
         Text(
@@ -1303,7 +1312,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
     child: Text(
       text,
       style: TextStyle(
-        fontFamily: 'Manrope',
+        fontFamily: V2Typography.family,
         fontSize: 10,
         fontWeight: FontWeight.w600,
         color: foreground,
@@ -1321,7 +1330,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
   );
 
   TextStyle _overline({Color color = _kSub, double size = 11}) => TextStyle(
-    fontFamily: 'Manrope',
+    fontFamily: V2Typography.family,
     fontSize: size,
     height: 1.5,
     fontWeight: FontWeight.w700,
@@ -1330,7 +1339,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
   );
 
   TextStyle _titleStyle(double size, {Color color = _kInk}) => TextStyle(
-    fontFamily: 'Manrope',
+    fontFamily: V2Typography.family,
     fontSize: size,
     height: 1.25,
     fontWeight: FontWeight.w800,

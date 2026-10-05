@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
@@ -150,18 +151,18 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
   InputDecoration _v2InputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(color: Color(0xFF7A6A71), fontSize: 14),
+      hintStyle: const TextStyle(color: V2Colors.textMutedAlt, fontSize: 14),
       filled: true,
-      fillColor: const Color(0x66FDF8F6),
+      fillColor: V2Colors.background.withValues(alpha: 0.4),
       isDense: true,
       contentPadding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFFE8E2DE)),
+        borderSide: const BorderSide(color: V2Colors.borderSoft),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFF5D2641), width: 1.5),
+        borderSide: const BorderSide(color: V2Colors.primaryAlt, width: 1.5),
       ),
     );
   }
@@ -181,8 +182,8 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
         Text(
           label.toUpperCase(),
           style: const TextStyle(
-            color: Color(0xFF7A6A71),
-            fontFamily: 'Manrope',
+            color: V2Colors.textMutedAlt,
+            fontFamily: V2Typography.family,
             fontSize: 10,
             fontWeight: FontWeight.w700,
             letterSpacing: .5,
@@ -196,8 +197,8 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
           keyboardType: keyboardType,
           inputFormatters: inputFormatters,
           style: const TextStyle(
-            color: Color(0xFF270008),
-            fontFamily: 'Manrope',
+            color: V2Colors.textStrong,
+            fontFamily: V2Typography.family,
             fontSize: 14,
             fontWeight: FontWeight.w500,
           ),
@@ -209,10 +210,10 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
 
   Widget _buildV2(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    const primary = Color(0xFF5D2641);
-    const text = Color(0xFF270008);
-    const secondary = Color(0xFF7A6A71);
-    const border = Color(0xFFE8E2DE);
+    const primary = V2Colors.primaryAlt;
+    const text = V2Colors.textStrong;
+    const secondary = V2Colors.textMutedAlt;
+    const border = V2Colors.borderSoft;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -229,11 +230,11 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
               color: Colors.white,
               border: Border.all(color: border),
               borderRadius: BorderRadius.circular(16),
-              boxShadow: const [
+              boxShadow: [
                 BoxShadow(
-                  color: Color(0x0A5D2641),
+                  color: V2Colors.primaryAlt.withValues(alpha: 0.04),
                   blurRadius: 10,
-                  offset: Offset(0, 2),
+                  offset: const Offset(0, 2),
                 ),
               ],
             ),
@@ -264,7 +265,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                         l10n.this_is_a_bundle,
                         style: const TextStyle(
                           color: text,
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
                         ),
@@ -274,7 +275,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                         l10n.bundle_description,
                         style: const TextStyle(
                           color: secondary,
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 12,
                           height: 1.6,
                         ),
@@ -321,7 +322,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                             l10n.number_of_books_in_bundle.toUpperCase(),
                             style: const TextStyle(
                               color: secondary,
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 11,
                               fontWeight: FontWeight.w800,
                               letterSpacing: .55,
@@ -332,7 +333,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                             l10n.bundle_count_input_hint,
                             style: const TextStyle(
                               color: secondary,
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 11,
                               height: 1.35,
                             ),
@@ -346,7 +347,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                 Container(
                   padding: const EdgeInsets.all(7),
                   decoration: BoxDecoration(
-                    color: const Color(0x99FDF8F6),
+                    color: V2Colors.background.withValues(alpha: 0.6),
                     border: Border.all(color: border.withValues(alpha: .7)),
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -369,7 +370,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             color: text,
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 24,
                             fontWeight: FontWeight.w800,
                           ),
@@ -386,7 +387,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                             suffixText: ' BOOKS',
                             suffixStyle: TextStyle(
                               color: secondary,
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                               letterSpacing: .6,
@@ -409,7 +410,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                 'VOLUMES IN THIS BUNDLE',
                 style: TextStyle(
                   color: text,
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
                   letterSpacing: .7,
@@ -466,12 +467,12 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
         onPressed: onPressed,
         icon: Icon(icon, size: 20),
         style: IconButton.styleFrom(
-          backgroundColor: filled ? const Color(0xFF5D2641) : Colors.white,
-          foregroundColor: filled ? Colors.white : const Color(0xFF270008),
+          backgroundColor: filled ? V2Colors.primaryAlt : Colors.white,
+          foregroundColor: filled ? Colors.white : V2Colors.textStrong,
           side:
               filled
                   ? BorderSide.none
-                  : const BorderSide(color: Color(0xFFE8E2DE)),
+                  : const BorderSide(color: V2Colors.borderSoft),
           shape: const CircleBorder(),
         ),
       ),
@@ -494,13 +495,13 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
       padding: const EdgeInsets.all(17),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(color: const Color(0xFFE8E2DE)),
+        border: Border.all(color: V2Colors.borderSoft),
         borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color(0x0A5D2641),
+            color: V2Colors.primaryAlt.withValues(alpha: 0.04),
             blurRadius: 10,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -514,14 +515,14 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                   vertical: 3,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF5D2641),
+                  color: V2Colors.primaryAlt,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
                   'Vol. ${index + 1}',
                   style: const TextStyle(
                     color: Colors.white,
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                   ),
@@ -533,29 +534,29 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                 showCheckmark: false,
                 avatar: Icon(
                   isRead ? Icons.check_circle : Icons.circle_outlined,
-                  color:
-                      isRead
-                          ? const Color(0xFF5D2641)
-                          : const Color(0xFF7A6A71),
+                  color: isRead ? V2Colors.primaryAlt : V2Colors.textMutedAlt,
                   size: 18,
                 ),
                 label: Text(l10n.read_label),
                 onSelected:
                     (selected) =>
                         update(() => book.status = selected ? 'Yes' : 'No'),
-                selectedColor: const Color(0x66FDF8F6),
-                backgroundColor: const Color(0x66FDF8F6),
-                side: const BorderSide(color: Color(0xFFE8E2DE)),
+                selectedColor: V2Colors.background.withValues(alpha: 0.4),
+                backgroundColor: V2Colors.background.withValues(alpha: 0.4),
+                side: const BorderSide(color: V2Colors.borderSoft),
                 labelStyle: const TextStyle(
-                  color: Color(0xFF7A6A71),
-                  fontFamily: 'Manrope',
+                  color: V2Colors.textMutedAlt,
+                  fontFamily: V2Typography.family,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                 ),
               ),
             ],
           ),
-          const Divider(height: 25, color: Color(0x80E8E2DE)),
+          Divider(
+            height: 25,
+            color: V2Colors.borderSoft.withValues(alpha: 0.5),
+          ),
           _v2Field(
             fieldKey: ValueKey('title_$index'),
             label: l10n.book_title,
