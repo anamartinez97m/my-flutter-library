@@ -1,103 +1,76 @@
 import 'package:flutter/material.dart';
 
-/// Color palette for the "Ocean DarkTheme" design.
-class OceanDarkThemeColors {
-  const OceanDarkThemeColors._();
+// Ocean DarkTheme color palette.
+// Same tokens as V2Colors (lib/config/v2_design_system.dart) so the two can be
+// swapped; values come from the Figma "Ocean DarkTheme" frame.
+// Tokens marked "derived" have no counterpart in that frame.
+abstract final class V2OceanDarkColors {
+  // Backgrounds and surfaces
+  static const background = Color(0xFF393E46);
+  static const surface = Color(0xFF222831);
+  static const surfaceWarm = Color(0xFF222831);
+  static const surfaceAlt = Color(0xFF222831);
+  static const surfaceMuted = Color(0xFF272A2C);
+  static const surfaceTimer = Color(0xFF272A2C);
+  static const shimmerBase = Color(0xFF323536);
+  static const borderDialog = Color(0xFFBAC9CD);
+  static const buttonText = Color(0xFF00363A);
 
-  // Backgrounds
-  /// Screen, top app bar and search section background.
-  static const Color background = Color(0xFF393E46);
+  // Brand colors
+  static const primary = Color(0xFFABC5C8);
+  static const primaryAlt = Color(0xFFC5C6CB);
+  static const secondary = Color(0xFF6AD6E0);
 
-  /// Bottom navigation bar background.
-  static const Color navBarBackground = Color(0xCC393E46);
+  // Text colors
+  static const textPrimary = Color(0xFFABC5C8);
+  static const textStrong = Color(0xFFEAF0F1);
+  static const textSecondary = Color(0xFFC5C6CB);
+  static const textSubtle = Color(0xCCABC5C8); // derived
+  static const textMuted = Color(0xB3C5C6CB); // derived
+  static const textMutedAlt = Color(0x99C5C6CB); // derived
 
-  /// Card background.
-  static const Color surface = Color(0xFF222831);
+  // Borders, dividers, and controls
+  static const border = Color(0xFFBAC9CD);
+  static const borderStrong = Color(0xFFEAF0F1); // derived
+  static const borderNeutral = Color(0xFFBAC9CD);
+  static const borderInput = Color(0xFFBAC9CD);
+  static const borderSoft = Color(0x3345474B);
+  static const divider = Color(0xFF323536);
+  static const chip = Color(0xFF222831);
+  static const control = Color(0xFFEAF0F1);
+  static const error = Color(0xFFFFB4AB); // derived
+  static const success = Color(0xFF34D399); // derived
+  static const successBackground = Color(0xFF064E3B); // derived
+  static const successBorder = Color(0xFF047857); // derived
+  static const warning = Color(0xFFFFD27A); // derived
+  static const warningBackground = Color(0xFF3D2E00); // derived
+  static const warningBorder = Color(0xFF8A6D1F); // derived
+  static const disabled = Color(0xFF6B6F76); // derived
 
-  /// Search input background.
-  static const Color searchBackground = Color(0xFF222831);
+  // Ocean DarkTheme-only colors (no V2Colors equivalent)
+  static const onPrimary = Color(0xFF00363A);
+  static const navBarBackground = Color(0xCC393E46);
+  static const searchBackground = Color(0xFF222831);
+  static const chipSelected = Color(0xFFABC5C8);
+  static const chipText = Color(0xFFC5C6CB);
+  static const chipTextSelected = Color(0xFF00363A);
+  static const cardTitle = Color(0xFFABC5C8);
+  static const cardMeta = Color(0xFFABC5C8);
+  static const navActiveIcon = Color(0xFFABC5C8);
+  static const navInactiveIcon = Color(0xFFABC5C8);
+  static const filterFabIcon = Color(0xFFE1E3E4);
+  static const rating = Color(0xFFCA8A04);
+  static const saga = Color(0xB36AD6E0);
+  static const fabShadow = Color(0x2600666E);
+  static const filterFabShadow = Color(0x1A000000);
+}
 
-  /// Unselected search-type chip background.
-  static const Color chipBackground = Color(0xFF222831);
-
-  /// Selected search-type chip background.
-  static const Color selectedChipBackground = Color(0xFFABC5C8);
-
-  /// Advanced filter floating button background.
-  static const Color filterFabBackground = Color(0xFF272A2C);
-
-  // Brand
-  /// Add-book FAB background.
-  static const Color primary = Color(0xFFABC5C8);
-
-  /// Add-book FAB icon.
-  static const Color onPrimary = Color(0xFF00363A);
-
-  /// Add-book FAB shadow.
-  static const Color primaryShadow = Color(0x2600666E);
-
-  // Text
-  /// "My Book Vault" header title.
-  static const Color appTitle = Color(0xFFABC5C8);
-
-  /// Book card title.
-  static const Color cardTitle = Color(0xFFABC5C8);
-
-  /// Book card author and metadata text/icons.
-  static const Color cardMetaText = Color(0xFFABC5C8);
-
-  /// Unselected chip text.
-  static const Color chipText = Color(0xFFC5C6CB);
-
-  /// Selected chip text.
-  static const Color selectedChipText = Color(0xFF00363A);
-
-  /// Search input text, search and clear icons.
-  static const Color searchText = Color(0xFFC5C6CB);
-
-  // Borders and dividers
-  /// Bottom nav top border and card inner divider.
-  static const Color divider = Color(0xFF323536);
-
-  /// Book card border.
-  static const Color cardBorder = Color(0xFFBAC9CD);
-
-  /// Unselected chip border.
-  static const Color chipBorder = Color(0xFFBAC9CD);
-
-  /// Selected chip border.
-  static const Color selectedChipBorder = Color(0xFFABC5C8);
-
-  /// Search input border.
-  static const Color searchBorder = Color(0xFFBAC9CD);
-
-  /// Advanced filter floating button border.
-  static const Color filterFabBorder = Color(0x3345474B);
-
-  // Navigation
-  /// Active tab pill.
-  static const Color navActiveIndicator = Color(0xFFEAF0F1);
-
-  /// Active tab icon.
-  static const Color navActiveIcon = Color(0xFFABC5C8);
-
-  /// Inactive tab icon.
-  static const Color navInactiveIcon = Color(0xFFABC5C8);
-
-  // Icons
-  /// Advanced filter floating button icon.
-  static const Color filterFabIcon = Color(0xFFE1E3E4);
-
-  /// Saga icon in book card.
-  static const Color sagaIcon = Color(0xB36AD6E0);
-
-  /// Rating star icon in book card.
-  static const Color ratingIcon = Color(0xFFCA8A04);
-
-  // Shadows
-  /// Book card and search input shadow.
-  static const Color cardShadow = Color(0x0A000000);
-
-  /// Advanced filter floating button shadow.
-  static const Color filterFabShadow = Color(0x1A000000);
+// Ocean DarkTheme shadow recipes, mirroring V2Shadows.
+abstract final class V2OceanDarkShadows {
+  static const subtle = [
+    BoxShadow(color: Color(0x0A000000), blurRadius: 6, offset: Offset(0, 3)),
+  ];
+  static const card = [
+    BoxShadow(color: Color(0x0A000000), blurRadius: 10, offset: Offset(0, 2)),
+  ];
 }
