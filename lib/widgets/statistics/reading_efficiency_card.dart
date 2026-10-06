@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
-const _kPrimary = Color(0xFF43102B);
-const _kSecondary = Color(0xFF894B67);
-const _kTertiary = Color(0xFFBC92A6);
-const _kSub = Color(0xFF514348);
-const _kDivider = Color(0xFFE6E2DF);
+const _kPrimary = V2Colors.primary;
+const _kSecondary = V2Colors.secondary;
+const _kTertiary = Color(0xFFBC92A6); // Not represented in V2Colors.
+const _kSub = V2Colors.textSecondary;
+const _kDivider = V2Colors.divider;
 
 /// Reading Efficiency — Insight-first card.
 ///
@@ -127,7 +128,7 @@ class _InsightRow extends StatelessWidget {
               Text(
                 headline,
                 style: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                   color: _kPrimary,
@@ -138,7 +139,7 @@ class _InsightRow extends StatelessWidget {
               Text(
                 caption,
                 style: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 11,
                   color: _kSub,
                 ),
@@ -177,7 +178,7 @@ class _SupportStat extends StatelessWidget {
               Text(
                 value,
                 style: TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: color,
@@ -186,7 +187,7 @@ class _SupportStat extends StatelessWidget {
               Text(
                 label,
                 style: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 10,
                   color: _kSub,
                 ),

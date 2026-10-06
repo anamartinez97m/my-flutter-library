@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 
-const _kBg = Color(0xFFFDF8F6);
-const _kPrimary = Color(0xFF5D2641);
-const _kText = Color(0xFF1C1B1A);
-const _kSub = Color(0xFF514348);
-const _kBorder = Color(0xFFDDD9D7);
-const _kWarning = Color(0xFF7A4D00);
-const _kWarningBg = Color(0xFFFFF4D9);
-const _kWarningBorder = Color(0xFFE5C46B);
+const _kBg = V2Colors.background;
+const _kPrimary = V2Colors.primaryAlt;
+const _kText = V2Colors.textPrimary;
+const _kSub = V2Colors.textSecondary;
+const _kBorder = V2Colors.borderDialog;
+const _kWarning = V2Colors.warning;
+const _kWarningBg = V2Colors.warningBackground;
+const _kWarningBorder = V2Colors.warningBorder;
 
 /// Dialog for quickly searching and adding books to a saga or universe
 class QuickAddBookDialog extends StatefulWidget {
@@ -148,7 +149,7 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                       child: Text(
                         '${AppLocalizations.of(context)!.add_books_to} ${widget.sagaName ?? widget.sagaUniverse}',
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
                           color: _kPrimary,
@@ -171,12 +172,15 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                   controller: _searchController,
                   autofocus: true,
                   textInputAction: TextInputAction.search,
-                  style: const TextStyle(fontFamily: 'Manrope', color: _kText),
+                  style: const TextStyle(
+                    fontFamily: V2Typography.family,
+                    color: _kText,
+                  ),
                   decoration: InputDecoration(
                     labelText:
                         AppLocalizations.of(context)!.search_books_by_title,
                     labelStyle: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       color: _kPrimary,
                     ),
                     prefixIcon: const Icon(Icons.search, color: _kPrimary),
@@ -239,7 +243,7 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                           context,
                         )!.books_selected(_selectedBooks.length),
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           color: _kPrimary,
                           fontWeight: FontWeight.w600,
                         ),
@@ -277,7 +281,7 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                                     )!.no_books_found,
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(
-                                  fontFamily: 'Manrope',
+                                  fontFamily: V2Typography.family,
                                   color: _kSub,
                                 ),
                               ),
@@ -328,7 +332,7 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                                 book.name ??
                                     AppLocalizations.of(context)!.unknown,
                                 style: const TextStyle(
-                                  fontFamily: 'Manrope',
+                                  fontFamily: V2Typography.family,
                                   fontWeight: FontWeight.w600,
                                   color: _kText,
                                 ),
@@ -340,7 +344,7 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                                     Text(
                                       'by ${book.author}',
                                       style: const TextStyle(
-                                        fontFamily: 'Manrope',
+                                        fontFamily: V2Typography.family,
                                         fontSize: 13,
                                         color: _kSub,
                                       ),
@@ -372,7 +376,7 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                                             child: Text(
                                               '$assignmentLabel: $currentAssignment',
                                               style: const TextStyle(
-                                                fontFamily: 'Manrope',
+                                                fontFamily: V2Typography.family,
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.w600,
                                                 color: _kWarning,
@@ -421,7 +425,7 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                       child: Text(
                         AppLocalizations.of(context)!.cancel,
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
@@ -450,7 +454,7 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                           context,
                         )!.add_n_books(_selectedBooks.length),
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),

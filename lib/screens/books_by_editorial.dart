@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
 import 'package:provider/provider.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
-const _kPrimary = Color(0xFF43102B);
-const _kBg = Color(0xFFFDF8F6);
-const _kBorder = Color(0xFFCEC5BE);
-const _kDivider = Color(0xFFE6E2DF);
-const _kText = Color(0xFF5F5E5C);
-const _kSub = Color(0xFF514348);
+const _kPrimary = V2Colors.primary;
+const _kBg = V2Colors.background;
+const _kBorder = V2Colors.borderNeutral;
+const _kDivider = V2Colors.divider;
+const _kText = V2Colors.textSubtle;
+const _kSub = V2Colors.textSecondary;
 
 class BooksByEditorialScreen extends StatelessWidget {
   final String editorialName;
@@ -80,7 +81,7 @@ class BooksByEditorialScreen extends StatelessWidget {
                 child: Text(
                   AppLocalizations.of(context)!.no_books_for_editorial,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 16,
                     color: _kSub,
                   ),
@@ -169,7 +170,7 @@ class BooksByEditorialScreen extends StatelessWidget {
       title: Text(
         editorialName,
         style: const TextStyle(
-          fontFamily: 'Manrope',
+          fontFamily: V2Typography.family,
           fontSize: 20,
           fontWeight: FontWeight.w600,
           color: _kPrimary,
@@ -179,7 +180,7 @@ class BooksByEditorialScreen extends StatelessWidget {
       centerTitle: true,
       bottom: const PreferredSize(
         preferredSize: Size.fromHeight(1),
-        child: Divider(height: 1, color: Color(0xFFD5C2C7)),
+        child: Divider(height: 1, color: V2Colors.border),
       ),
     );
   }
@@ -214,7 +215,7 @@ Widget _statChip({
         Text(
           value,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 15,
             fontWeight: FontWeight.w700,
             color: _kPrimary,
@@ -224,7 +225,7 @@ Widget _statChip({
         Text(
           label,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 11,
             fontWeight: FontWeight.w500,
             color: _kText,
@@ -255,7 +256,7 @@ Widget _bookCard({
     child: Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: isRead ? const Color(0xFFF5F3F2) : Colors.white,
+        color: isRead ? V2Colors.surfaceMuted : Colors.white,
         border: Border.all(color: _kBorder),
         borderRadius: BorderRadius.circular(8),
         boxShadow: [

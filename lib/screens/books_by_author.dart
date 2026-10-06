@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/model/book_metadata.dart';
@@ -634,12 +635,12 @@ class _CatalogViewState extends State<_CatalogView> {
 // V2 DESIGN
 // ─────────────────────────────────────────────────────────────────────────────
 
-const _kV2Bg = Color(0xFFFDF8F6);
-const _kV2AppBar = Color(0xFF43102B);
-const _kV2Text = Color(0xFF5F5E5C);
-const _kV2Sub = Color(0xFF5F5E5C);
-const _kV2Border = Color(0xFFCEC5BE);
-const _kV2Divider = Color(0xFFE6E2DF);
+const _kV2Bg = V2Colors.background;
+const _kV2AppBar = V2Colors.primary;
+const _kV2Text = V2Colors.textSubtle;
+const _kV2Sub = V2Colors.textSubtle;
+const _kV2Border = V2Colors.borderNeutral;
+const _kV2Divider = V2Colors.divider;
 
 class _SingleAuthorScreen extends StatelessWidget {
   final String author;
@@ -690,7 +691,7 @@ class _MultiAuthorScreenState extends State<_MultiAuthorScreen> {
             title: Text(
               AppLocalizations.of(context)!.authors,
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
                 color: _kV2AppBar,
@@ -712,7 +713,7 @@ class _MultiAuthorScreenState extends State<_MultiAuthorScreen> {
               ),
             ],
           ),
-          const Divider(height: 1, color: Color(0xFFD5C2C7)),
+          const Divider(height: 1, color: V2Colors.border),
           const SizedBox(height: 8),
           SizedBox(
             height: 52,
@@ -745,7 +746,7 @@ class _MultiAuthorScreenState extends State<_MultiAuthorScreen> {
                     child: Text(
                       widget.authors[i],
                       style: TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: sel ? Colors.white : _kV2Sub,
@@ -886,7 +887,7 @@ class _AuthorContentViewState extends State<_AuthorContentView> {
               child: Text(
                 AppLocalizations.of(context)!.no_books_for_author,
                 style: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 16,
                   color: _kV2Sub,
                 ),
@@ -978,7 +979,7 @@ class _AuthorContentViewState extends State<_AuthorContentView> {
       title: Text(
         author,
         style: const TextStyle(
-          fontFamily: 'Manrope',
+          fontFamily: V2Typography.family,
           fontSize: 20,
           fontWeight: FontWeight.w600,
           color: _kV2AppBar,
@@ -998,7 +999,7 @@ class _AuthorContentViewState extends State<_AuthorContentView> {
       ],
       bottom: const PreferredSize(
         preferredSize: Size.fromHeight(1),
-        child: Divider(height: 1, color: Color(0xFFD5C2C7)),
+        child: Divider(height: 1, color: V2Colors.border),
       ),
     );
   }
@@ -1049,7 +1050,7 @@ Widget _v2StatChip({
         Text(
           value,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 15,
             fontWeight: FontWeight.w700,
             color: _kV2AppBar,
@@ -1059,7 +1060,7 @@ Widget _v2StatChip({
         Text(
           label,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 11,
             fontWeight: FontWeight.w500,
             color: _kV2Text,
@@ -1092,7 +1093,7 @@ Widget _v2BookCard({
     child: Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: isRead ? const Color(0xFFF5F3F2) : Colors.white,
+        color: isRead ? V2Colors.surfaceMuted : Colors.white,
         border: Border.all(color: _kV2Border),
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
@@ -1224,7 +1225,7 @@ Widget _v2InfoChip({
         Text(
           label,
           style: TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 11,
             fontWeight: FontWeight.w600,
             color: foregroundColor,

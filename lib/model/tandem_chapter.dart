@@ -18,9 +18,10 @@ class TandemChapter {
   });
 
   /// Display label: "Chapter 3" or "Chapters 3-5"
-  String get displayLabel => startChapter == endChapter
-      ? 'Chapter $startChapter'
-      : 'Chapters $startChapter-$endChapter';
+  String get displayLabel =>
+      startChapter == endChapter
+          ? 'Chapter $startChapter'
+          : 'Chapters $startChapter-$endChapter';
 
   /// Number of chapters in this entry
   int get chapterCount => endChapter - startChapter + 1;

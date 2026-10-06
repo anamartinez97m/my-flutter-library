@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/discovery/index/searchable_text_builder.dart';
 import 'package:myrandomlibrary/discovery/model/discovery_result.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/widgets/book_card_v2.dart';
 
-const _kPrimary = Color(0xFF43102B);
-const _kSub = Color(0xFF514348);
-const _kChipBg = Color(0x80F2EDEB);
-const _kChipBorder = Color(0x80D5C2C7);
-const _kTrack = Color(0xFFE6E2DF);
+const _kPrimary = V2Colors.primary;
+const _kSub = V2Colors.textSecondary;
+final _kChipBg = V2Colors.chip.withValues(alpha: 0.5);
+final _kChipBorder = V2Colors.border.withValues(alpha: 0.5);
+const _kTrack = V2Colors.divider;
 
 /// A [BookCardV2] plus how well the book matches the discovery query:
 /// relevance (percentage and bar), matched concepts and a short "why".

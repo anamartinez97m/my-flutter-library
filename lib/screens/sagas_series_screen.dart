@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_saga_completion_detail_screen.dart';
@@ -31,13 +32,13 @@ class SagasSeriesScreen extends StatelessWidget {
     final completionPercentage =
         total > 0 ? (completedSagas / total * 100).round() : 0;
 
-    const kBg = Color(0xFFFDF8F6);
-    const kPrimary = Color(0xFF43102B);
-    const kSecondary = Color(0xFF894B67);
-    const kMuted = Color(0xFFD5C2C7);
-    const kText = Color(0xFF1C1B1A);
-    const kSub = Color(0xFF514348);
-    const kBorder = Color(0x4DD5C2C7);
+    const kBg = V2Colors.background;
+    const kPrimary = V2Colors.primary;
+    const kSecondary = V2Colors.secondary;
+    const kMuted = V2Colors.border;
+    const kText = V2Colors.textPrimary;
+    const kSub = V2Colors.textSecondary;
+    const kBorder = Color(0x4DD5C2C7); // Exact alpha variant.
 
     return Scaffold(
       backgroundColor: kBg,
@@ -52,7 +53,7 @@ class SagasSeriesScreen extends StatelessWidget {
         title: Text(
           l10n.section_sagas_series,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
             color: kPrimary,
@@ -62,7 +63,7 @@ class SagasSeriesScreen extends StatelessWidget {
         centerTitle: true,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: const Color(0xFFD5C2C7)),
+          child: Container(height: 1, color: V2Colors.border),
         ),
       ),
       body: SingleChildScrollView(
@@ -91,7 +92,7 @@ class SagasSeriesScreen extends StatelessWidget {
                   Text(
                     l10n.completion_rate,
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
                       color: kText,
@@ -112,7 +113,7 @@ class SagasSeriesScreen extends StatelessWidget {
                           child: Text(
                             '$completionPercentage%',
                             style: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 34,
                               fontWeight: FontWeight.bold,
                               color: kText,
@@ -158,7 +159,7 @@ class SagasSeriesScreen extends StatelessWidget {
                     child: Text(
                       l10n.status_breakdown,
                       style: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
                         color: kText,
@@ -204,7 +205,7 @@ class SagasSeriesScreen extends StatelessWidget {
                   Text(
                     'View more',
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: kPrimary,
@@ -244,8 +245,8 @@ class SagasSeriesScreen extends StatelessWidget {
     VoidCallback? onTap,
   }) {
     final fraction = total > 0 ? count / total : 0.0;
-    const kText = Color(0xFF1C1B1A);
-    const kBarBg = Color(0xFFE6E2DF);
+    const kText = V2Colors.textPrimary;
+    const kBarBg = V2Colors.divider;
 
     return GestureDetector(
       onTap: onTap,
@@ -270,7 +271,7 @@ class SagasSeriesScreen extends StatelessWidget {
                   Text(
                     label,
                     style: TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: labelColor,
@@ -283,7 +284,7 @@ class SagasSeriesScreen extends StatelessWidget {
               Text(
                 '$count',
                 style: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                   color: kText,

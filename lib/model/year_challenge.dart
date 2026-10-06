@@ -29,9 +29,10 @@ class YearChallenge {
       'target_pages': targetPages,
       'created_at': createdAt.toIso8601String(),
       'notes': notes,
-      'custom_challenges': customChallenges != null
-          ? jsonEncode(customChallenges!.map((c) => c.toJson()).toList())
-          : null,
+      'custom_challenges':
+          customChallenges != null
+              ? jsonEncode(customChallenges!.map((c) => c.toJson()).toList())
+              : null,
     };
   }
 
@@ -43,11 +44,12 @@ class YearChallenge {
       targetPages: map['target_pages'] as int?,
       createdAt: DateTime.parse(map['created_at'] as String),
       notes: map['notes'] as String?,
-      customChallenges: map['custom_challenges'] != null
-          ? (jsonDecode(map['custom_challenges']) as List)
-              .map((c) => CustomChallenge.fromJson(c))
-              .toList()
-          : null,
+      customChallenges:
+          map['custom_challenges'] != null
+              ? (jsonDecode(map['custom_challenges']) as List)
+                  .map((c) => CustomChallenge.fromJson(c))
+                  .toList()
+              : null,
     );
   }
 

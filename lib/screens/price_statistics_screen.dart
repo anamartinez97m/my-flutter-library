@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:myrandomlibrary/helpers/statistics_calculator.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
@@ -15,16 +16,16 @@ class PriceStatisticsScreen extends StatefulWidget {
   final PriceStatsData? priceStats;
   final String currencySymbol;
 
-  static const kBg = Color(0xFFFDF8F6);
-  static const kPrimary = Color(0xFF43102B);
-  static const kSecondary = Color(0xFF894B67);
-  static const kTertiary = Color(0xFFBC92A6);
-  static const kMuted = Color(0xFFD5C2C7);
-  static const kText = Color(0xFF1C1B1A);
-  static const kSub = Color(0xFF514348);
-  static const kBorder = Color(0x4DD5C2C7);
-  static const kDivider = Color(0xFFE6E2DF);
-  static const kBarBg = Color(0xFFE6E2DF);
+  static const kBg = V2Colors.background;
+  static const kPrimary = V2Colors.primary;
+  static const kSecondary = V2Colors.secondary;
+  static const kTertiary = Color(0xFFBC92A6); // Not represented in V2Colors.
+  static const kMuted = V2Colors.border;
+  static const kText = V2Colors.textPrimary;
+  static const kSub = V2Colors.textSecondary;
+  static const kBorder = Color(0x4DD5C2C7); // Exact alpha variant.
+  static const kDivider = V2Colors.divider;
+  static const kBarBg = V2Colors.divider;
 
   const PriceStatisticsScreen({
     super.key,
@@ -95,7 +96,7 @@ class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
         title: Text(
           l10n.section_price_statistics,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
             color: _kPrimary,
@@ -105,7 +106,7 @@ class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
         centerTitle: true,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: const Color(0xFFD5C2C7)),
+          child: Container(height: 1, color: V2Colors.border),
         ),
       ),
       body: SingleChildScrollView(
@@ -211,7 +212,7 @@ class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
                   child: Text(
                     title,
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
                       color: _kPrimary,
@@ -469,7 +470,7 @@ class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
                           Text(
                             '${widget.currencySymbol}${stats.totalSpent.toStringAsFixed(2)}',
                             style: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
                               color: _kSecondary,
@@ -560,7 +561,7 @@ class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
         Text(
           price,
           style: TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 16,
             fontWeight: FontWeight.bold,
             color: color,

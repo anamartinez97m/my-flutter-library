@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
@@ -15,13 +16,13 @@ import 'package:myrandomlibrary/widgets/book_card_v2.dart';
 import 'package:myrandomlibrary/widgets/shimmer_loading.dart';
 
 // ── Figma design tokens ────────────────────────────────────────────────────────
-const _kPrimary = Color(0xFF43102B);
-const _kBg = Color(0xFFFDF8F6);
-const _kBorder = Color(0xFFCEC5BE);
-const _kDivider = Color(0xFFE6E2DF);
-const _kText = Color(0xFF5F5E5C);
-const _kInactiveText = Color(0xFF514348);
-const _kFabSmall = Color(0xFFECE7E5);
+const _kPrimary = V2Colors.primary;
+const _kBg = V2Colors.background;
+const _kBorder = V2Colors.borderNeutral;
+const _kDivider = V2Colors.divider;
+const _kText = V2Colors.textSubtle;
+const _kInactiveText = V2Colors.textSecondary;
+const _kFabSmall = V2Colors.control;
 const _kChipBg = Color(0x80F2EDEB);
 const _kChipBorder = Color(0x80D5C2C7);
 const _kChipSelected = Color(0xE643102B);
@@ -240,9 +241,8 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
   InputDecoration _figmaDropdownDecoration(String label) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(
-        color: Color(0xFF514348),
-        fontSize: 16,
+      labelStyle: V2Typography.body.copyWith(
+        color: V2Colors.textSecondary,
         fontWeight: FontWeight.w400,
       ),
       floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -250,15 +250,15 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
       fillColor: _kBg,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Color(0xFF27231E)),
+        borderSide: const BorderSide(color: V2Colors.borderStrong),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Color(0xFF27231E)),
+        borderSide: const BorderSide(color: V2Colors.borderStrong),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Color(0xFF27231E)),
+        borderSide: const BorderSide(color: V2Colors.borderStrong),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 17, vertical: 17),
     );
@@ -481,7 +481,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                     style: const TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.w700,
-                                      color: Color(0xFF1C1B1A),
+                                      color: V2Colors.textPrimary,
                                     ),
                                   ),
                                   GestureDetector(
@@ -491,7 +491,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                       child: const Icon(
                                         Icons.close,
                                         size: 18,
-                                        color: Color(0xFF1C1B1A),
+                                        color: V2Colors.textPrimary,
                                       ),
                                     ),
                                   ),
@@ -515,7 +515,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                       const Icon(
                                         Icons.sort,
                                         size: 18,
-                                        color: Color(0xFF1C1B1A),
+                                        color: V2Colors.textPrimary,
                                       ),
                                       const SizedBox(width: 12),
                                       Text(
@@ -523,7 +523,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                         style: const TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.w600,
-                                          color: Color(0xFF1C1B1A),
+                                          color: V2Colors.textPrimary,
                                         ),
                                       ),
                                     ],
@@ -537,7 +537,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                     decoration: BoxDecoration(
                                       color: _kBg,
                                       border: Border.all(
-                                        color: const Color(0xFF27231E),
+                                        color: V2Colors.borderStrong,
                                       ),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
@@ -550,11 +550,11 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                               isExpanded: true,
                                               style: const TextStyle(
                                                 fontSize: 16,
-                                                color: Color(0xFF1C1B1A),
+                                                color: V2Colors.textPrimary,
                                               ),
                                               icon: const Icon(
                                                 Icons.keyboard_arrow_down,
-                                                color: Color(0xFF1C1B1A),
+                                                color: V2Colors.textPrimary,
                                               ),
                                               items: [
                                                 DropdownMenuItem(
@@ -603,7 +603,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                             decoration: BoxDecoration(
                                               color: _kFabSmall,
                                               border: Border.all(
-                                                color: const Color(0xFFD5C2C7),
+                                                color: V2Colors.border,
                                               ),
                                               shape: BoxShape.circle,
                                             ),
@@ -632,7 +632,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                     style: const TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.w600,
-                                      color: Color(0xFF1C1B1A),
+                                      color: V2Colors.textPrimary,
                                     ),
                                   ),
                                   const SizedBox(height: 16),
@@ -1017,7 +1017,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                         },
                                         style: OutlinedButton.styleFrom(
                                           side: const BorderSide(
-                                            color: Color(0xFF837378),
+                                            color: V2Colors.textMuted,
                                           ),
                                           shape: const StadiumBorder(),
                                           foregroundColor: _kPrimary,
@@ -1158,7 +1158,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                     height: 50,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      border: Border.all(color: const Color(0xFF27231E)),
+                      border: Border.all(color: V2Colors.borderStrong),
                       borderRadius: BorderRadius.circular(8),
                       boxShadow: [
                         BoxShadow(
@@ -1194,7 +1194,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                             ),
                             style: const TextStyle(
                               fontSize: 14,
-                              color: Color(0xFF27231E),
+                              color: V2Colors.borderStrong,
                             ),
                           ),
                         ),

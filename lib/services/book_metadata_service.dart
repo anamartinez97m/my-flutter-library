@@ -4,7 +4,7 @@ import 'google_books_service.dart';
 import 'open_library_service.dart';
 
 /// Hybrid book metadata service that combines Google Books and Open Library APIs
-/// 
+///
 /// Strategy:
 /// 1. Primary source: Google Books API (query by ISBN first, then title+author)
 /// 2. Fallback source: Open Library API (only if Google Books fails or data is incomplete)
@@ -15,13 +15,13 @@ class BookMetadataService {
   final OpenLibraryService _openLibraryService = OpenLibraryService();
 
   /// Fetch complete book metadata using hybrid strategy
-  /// 
+  ///
   /// Parameters:
   /// - [isbn]: Book ISBN (preferred for accurate results)
   /// - [title]: Book title (required if ISBN not available)
   /// - [author]: Book author (optional, improves search accuracy)
   /// - [language]: Book language (optional, filters Google Books results by language)
-  /// 
+  ///
   /// Returns merged metadata from both sources, or null if no data found
   Future<BookMetadata?> fetchMetadata({
     String? isbn,
@@ -29,10 +29,12 @@ class BookMetadataService {
     String? author,
     String? language,
   }) async {
-    debugPrint('[MetadataService] Starting fetch - ISBN: $isbn, Title: $title, Author: $author, Language: $language');
+    debugPrint(
+      '[MetadataService] Starting fetch - ISBN: $isbn, Title: $title, Author: $author, Language: $language',
+    );
 
     // Validate input
-    if ((isbn == null || isbn.trim().isEmpty) && 
+    if ((isbn == null || isbn.trim().isEmpty) &&
         (title == null || title.trim().isEmpty)) {
       debugPrint('[MetadataService] Error: ISBN or title required');
       return null;
@@ -50,7 +52,7 @@ class BookMetadataService {
           language: language,
         );
       }
-      
+
       // Fallback to title+author search if ISBN failed or not provided
       if (googleMetadata == null && title != null && title.trim().isNotEmpty) {
         googleMetadata = await _googleBooksService.fetchByTitleAndAuthor(
@@ -65,10 +67,10 @@ class BookMetadataService {
 
     // STEP 2: Check if we need Open Library fallback
     final needsOpenLibrary = _shouldFetchFromOpenLibrary(googleMetadata);
-    
+
     if (needsOpenLibrary) {
       debugPrint('[MetadataService] Fetching from Open Library (missing data)');
-      
+
       try {
         if (isbn != null && isbn.trim().isNotEmpty) {
           openLibraryMetadata = await _openLibraryService.fetchByIsbn(isbn);
@@ -85,11 +87,13 @@ class BookMetadataService {
 
     // STEP 3: Merge results
     final mergedMetadata = _mergeMetadata(googleMetadata, openLibraryMetadata);
-    
+
     if (mergedMetadata != null) {
-      debugPrint('[MetadataService] Success - Source: ${mergedMetadata.source}, '
-          'HasDescription: ${mergedMetadata.hasDescription}, '
-          'HasCover: ${mergedMetadata.hasCover}');
+      debugPrint(
+        '[MetadataService] Success - Source: ${mergedMetadata.source}, '
+        'HasDescription: ${mergedMetadata.hasDescription}, '
+        'HasCover: ${mergedMetadata.hasCover}',
+      );
     } else {
       debugPrint('[MetadataService] No metadata found');
     }
@@ -98,7 +102,7 @@ class BookMetadataService {
   }
 
   /// Determine if we should fetch from Open Library
-  /// 
+  ///
   /// Fetch from Open Library if:
   /// - Google Books returned no results, OR
   /// - Description is missing or empty, OR
@@ -122,7 +126,7 @@ class BookMetadataService {
   }
 
   /// Merge metadata from Google Books and Open Library
-  /// 
+  ///
   /// Strategy:
   /// - Prefer Google Books data when available
   /// - Fill missing fields with Open Library data
@@ -157,27 +161,28 @@ class BookMetadataService {
       ),
       publisher: googleMetadata.publisher ?? openLibraryMetadata.publisher,
       language: googleMetadata.language ?? openLibraryMetadata.language,
-      
+
       // Prefer Google Books for numeric data
-      publishedYear: googleMetadata.publishedYear ?? openLibraryMetadata.publishedYear,
+      publishedYear:
+          googleMetadata.publishedYear ?? openLibraryMetadata.publishedYear,
       pageCount: googleMetadata.pageCount ?? openLibraryMetadata.pageCount,
-      
+
       // Prefer Google Books for identifiers
       isbn10: googleMetadata.isbn10 ?? openLibraryMetadata.isbn10,
       isbn13: googleMetadata.isbn13 ?? openLibraryMetadata.isbn13,
-      
+
       // Merge cover images (prefer Google Books, but keep all available sizes)
-      smallThumbnailUrl: googleMetadata.smallThumbnailUrl ?? 
-                         openLibraryMetadata.smallThumbnailUrl,
-      thumbnailUrl: googleMetadata.thumbnailUrl ?? 
-                    openLibraryMetadata.thumbnailUrl,
-      coverUrl: googleMetadata.coverUrl ?? 
-                openLibraryMetadata.coverUrl,
-      mediumCoverUrl: googleMetadata.mediumCoverUrl ?? 
-                      openLibraryMetadata.mediumCoverUrl,
-      largeCoverUrl: googleMetadata.largeCoverUrl ?? 
-                     openLibraryMetadata.largeCoverUrl,
-      
+      smallThumbnailUrl:
+          googleMetadata.smallThumbnailUrl ??
+          openLibraryMetadata.smallThumbnailUrl,
+      thumbnailUrl:
+          googleMetadata.thumbnailUrl ?? openLibraryMetadata.thumbnailUrl,
+      coverUrl: googleMetadata.coverUrl ?? openLibraryMetadata.coverUrl,
+      mediumCoverUrl:
+          googleMetadata.mediumCoverUrl ?? openLibraryMetadata.mediumCoverUrl,
+      largeCoverUrl:
+          googleMetadata.largeCoverUrl ?? openLibraryMetadata.largeCoverUrl,
+
       source: 'merged',
       fetchedAt: DateTime.now(),
     );
@@ -188,7 +193,7 @@ class BookMetadataService {
   String? _selectBestDescription(String? desc1, String? desc2) {
     if (desc1 == null || desc1.trim().isEmpty) return desc2;
     if (desc2 == null || desc2.trim().isEmpty) return desc1;
-    
+
     // Prefer the longer description (usually more detailed)
     return desc1.length >= desc2.length ? desc1 : desc2;
   }
@@ -206,7 +211,7 @@ class BookMetadataService {
       author: author,
       language: language,
     );
-    
+
     return metadata?.bestCoverUrl;
   }
 
@@ -223,7 +228,7 @@ class BookMetadataService {
       author: author,
       language: language,
     );
-    
+
     return metadata?.description;
   }
 }

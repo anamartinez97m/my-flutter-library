@@ -3,6 +3,7 @@ import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/model/book.dart';
@@ -30,10 +31,10 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/app_theme.dart';
 
-const _kChipBg = Color(0xFFF2EDEB);
-const _kChipBorder = Color(0x80D5C2C7);
-const _kChipSelected = Color(0xE643102B);
-const _kSub = Color(0xFF514348);
+const _kChipBg = V2Colors.chip;
+final _kChipBorder = V2Colors.border.withValues(alpha: 0.5);
+final _kChipSelected = V2Colors.primary.withValues(alpha: 0.9);
+const _kSub = V2Colors.textSecondary;
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -717,7 +718,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   elevation: 8,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
-                    side: const BorderSide(color: Color(0x4DD5C2C7)),
+                    side: BorderSide(
+                      color: V2Colors.border.withValues(alpha: 0.3),
+                    ),
                   ),
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 420),
@@ -732,7 +735,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 child: Text(
                                   title,
                                   style: const TextStyle(
-                                    fontFamily: 'Manrope',
+                                    fontFamily: V2Typography.family,
                                     fontSize: 20,
                                     fontWeight: FontWeight.w600,
                                     color: _kV2Primary,
@@ -750,7 +753,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ],
                           ),
                         ),
-                        const Divider(color: Color(0x4DD5C2C7), height: 1),
+                        Divider(
+                          color: V2Colors.border.withValues(alpha: 0.3),
+                          height: 1,
+                        ),
                         ConstrainedBox(
                           constraints: BoxConstraints(
                             maxHeight:
@@ -766,7 +772,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     Text(
                                       l10n.normal_filters,
                                       style: const TextStyle(
-                                        fontFamily: 'Manrope',
+                                        fontFamily: V2Typography.family,
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
                                         color: _kV2Primary,
@@ -798,7 +804,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     Text(
                                       l10n.advanced_filters,
                                       style: const TextStyle(
-                                        fontFamily: 'Manrope',
+                                        fontFamily: V2Typography.family,
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
                                         color: _kV2Primary,
@@ -828,10 +834,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ),
                         Container(
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFF7F3F0),
+                          decoration: BoxDecoration(
+                            color: V2Colors.surfaceTimer,
                             border: Border(
-                              top: BorderSide(color: Color(0x4DD5C2C7)),
+                              top: BorderSide(
+                                color: V2Colors.border.withValues(alpha: 0.3),
+                              ),
                             ),
                           ),
                           padding: const EdgeInsets.symmetric(
@@ -2344,12 +2352,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // ─────────────────────────────────────────────────────────────────────────
   // V2 DESIGN
   // ─────────────────────────────────────────────────────────────────────────
-  static const _kV2Bg = Color(0xFFFDF8F6);
-  static const _kV2Primary = Color(0xFF43102B);
-  static const _kV2Text = Color(0xFF1C1B1A);
-  static const _kV2SubText = Color(0xFF5F5E5C);
-  static const _kV2IconBg = Color(0xFFF2EDEB);
-  static const _kV2Border = Color(0xFF27231E);
+  static const _kV2Bg = V2Colors.background;
+  static const _kV2Primary = V2Colors.primary;
+  static const _kV2Text = V2Colors.textPrimary;
+  static const _kV2SubText = V2Colors.textSubtle;
+  static const _kV2IconBg = V2Colors.chip;
+  static const _kV2Border = V2Colors.borderStrong;
 
   Widget _buildV2Scaffold(BuildContext context, {required bool isAdmin}) {
     final l10n = AppLocalizations.of(context)!;
@@ -2528,7 +2536,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       padding: const EdgeInsets.only(top: 25),
                       decoration: const BoxDecoration(
                         border: Border(
-                          top: BorderSide(color: Color(0xFFCEC5BE)),
+                          top: BorderSide(color: V2Colors.borderNeutral),
                         ),
                       ),
                       child: GestureDetector(
@@ -2559,7 +2567,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             Text(
                               'About ${l10n.application_name}',
                               style: const TextStyle(
-                                fontFamily: 'Manrope',
+                                fontFamily: V2Typography.family,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
                                 color: _kV2SubText,
@@ -2620,7 +2628,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Text(
                     title,
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: _kV2Text,
@@ -2696,7 +2704,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Text(
                         title,
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: _kV2Text,
@@ -2785,7 +2793,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         title,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           color: iconColor,
@@ -2801,7 +2809,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Text(
                       title,
                       style: TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
                         color:
@@ -2843,7 +2851,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Text(
                   l10n.theme_mode,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: _kV2Text,
@@ -2884,7 +2892,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Text(
                   l10n.light_theme_colors,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: _kV2Text,
@@ -2896,7 +2904,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Text(
                   l10n.dark_theme_colors,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: _kV2Text,
@@ -2913,7 +2921,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         Text(
           l10n.language,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 16,
             fontWeight: FontWeight.w600,
             color: _kV2Text,
@@ -3058,7 +3066,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: Text(
                   _currentUser!.email ?? '',
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 14,
                     color: _kV2Text,
                   ),
@@ -3090,7 +3098,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         vertical: 14,
                       ),
                       textStyle: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 14,
                       ),
                       shape: RoundedRectangleBorder(
@@ -3116,7 +3124,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         vertical: 14,
                       ),
                       textStyle: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 14,
                       ),
                       side: const BorderSide(color: _kV2Primary),
@@ -3202,7 +3210,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             trailing: Text(
               '${_readingReminderHour.toString().padLeft(2, '0')}:${_readingReminderMinute.toString().padLeft(2, '0')}',
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -3226,7 +3234,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Text(
             l10n.reminder_books_option,
             style: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 14,
               fontWeight: FontWeight.w600,
               color: _kV2Text,
@@ -3277,7 +3285,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             trailing: Text(
               '${_championshipReminderHour.toString().padLeft(2, '0')}:${_championshipReminderMinute.toString().padLeft(2, '0')}',
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -3449,7 +3457,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: Text(
                 label,
                 style: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                   color: _kV2Text,

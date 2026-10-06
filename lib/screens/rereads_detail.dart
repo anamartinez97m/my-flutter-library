@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
@@ -9,13 +10,13 @@ import 'package:provider/provider.dart';
 /// Lists all books that have been read more than once, sorted by re-read
 /// count. Tapping a book opens the v2 book detail.
 class RereadsDetailScreen extends StatelessWidget {
-  static const kBg = Color(0xFFFDF8F6);
-  static const kPrimary = Color(0xFF43102B);
-  static const kSecondary = Color(0xFF894B67);
-  static const kMuted = Color(0xFFD5C2C7);
-  static const kText = Color(0xFF1C1B1A);
-  static const kSub = Color(0xFF514348);
-  static const kBorder = Color(0x4DD5C2C7);
+  static const kBg = V2Colors.background;
+  static const kPrimary = V2Colors.primary;
+  static const kSecondary = V2Colors.secondary;
+  static const kMuted = V2Colors.border;
+  static const kText = V2Colors.textPrimary;
+  static const kSub = V2Colors.textSecondary;
+  static const kBorder = Color(0x4DD5C2C7); // Exact alpha variant.
 
   const RereadsDetailScreen({super.key});
 
@@ -36,7 +37,7 @@ class RereadsDetailScreen extends StatelessWidget {
         title: Text(
           l10n.re_read_books,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
             color: kPrimary,
@@ -46,7 +47,7 @@ class RereadsDetailScreen extends StatelessWidget {
         centerTitle: true,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: const Color(0xFFD5C2C7)),
+          child: Container(height: 1, color: V2Colors.border),
         ),
       ),
       body: Consumer<BookProvider>(
@@ -154,7 +155,7 @@ class RereadsDetailScreen extends StatelessWidget {
                               Text(
                                 book.name ?? l10n.unknown,
                                 style: const TextStyle(
-                                  fontFamily: 'Manrope',
+                                  fontFamily: V2Typography.family,
                                   fontSize: 15,
                                   fontWeight: FontWeight.w600,
                                   color: kText,

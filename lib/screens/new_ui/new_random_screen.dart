@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/role_provider.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_random_books_screen.dart';
@@ -6,9 +7,8 @@ import 'package:myrandomlibrary/screens/new_ui/new_random_filters_screen.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_random_mood_screen.dart';
 import 'package:provider/provider.dart';
 
-const _kBg = Color(0xFFFDF8F6);
-const _kPrimary = Color(0xFF43102B);
-const _kSub = Color(0xFF514348);
+const _kBg = V2Colors.background;
+const _kPrimary = V2Colors.primary;
 
 /// Random tab: one card per way of getting a recommendation (mood, specific
 /// books, filters), each opening its own screen.
@@ -40,17 +40,16 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
             Text(
               l10n.discover_next_read,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: V2Typography.sectionTitle.copyWith(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: _kPrimary,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               l10n.set_preferences_description,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 14, color: _kPrimary),
+              style: V2Typography.body.copyWith(color: _kPrimary),
             ),
             const SizedBox(height: 16),
             if (isAdmin) ...[
@@ -106,7 +105,7 @@ class _RandomOptionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = BorderRadius.circular(16);
+    final radius = BorderRadius.circular(V2Radii.cardLarge);
     return Material(
       color: Colors.transparent,
       borderRadius: radius,
@@ -116,16 +115,12 @@ class _RandomOptionCard extends StatelessWidget {
         child: Ink(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: V2Colors.surface,
             borderRadius: radius,
-            border: Border.all(color: const Color(0x1A27231E)),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x0A000000),
-                blurRadius: 6,
-                offset: Offset(0, 4),
-              ),
-            ],
+            border: Border.all(
+              color: V2Colors.borderNeutral.withValues(alpha: 0.1),
+            ),
+            boxShadow: V2Shadows.subtle,
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -137,11 +132,7 @@ class _RandomOptionCard extends StatelessWidget {
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: _kPrimary,
-                ),
+                style: V2Typography.title.copyWith(color: _kPrimary),
               ),
               const SizedBox(height: 6),
               Flexible(
@@ -150,10 +141,8 @@ class _RandomOptionCard extends StatelessWidget {
                   textAlign: TextAlign.center,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 3,
-                  style: const TextStyle(
-                    fontSize: 13,
+                  style: V2Typography.bodySmall.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: _kSub,
                     letterSpacing: 0.26,
                   ),
                 ),

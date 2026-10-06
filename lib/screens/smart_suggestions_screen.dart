@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/helpers/suggestion_engine.dart';
@@ -18,13 +19,13 @@ class SmartSuggestionsScreen extends StatefulWidget {
 
 class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
   static const _rejectedSuggestionsKey = 'rejected_smart_suggestions';
-  static const _kBg = Color(0xFFFDF8F6);
-  static const _kPrimary = Color(0xFF43102B);
-  static const _kSecondary = Color(0xFF894B67);
-  static const _kText = Color(0xFF1C1B1A);
-  static const _kSubText = Color(0xFF5F5E5C);
-  static const _kIconBg = Color(0xFFF2EDEB);
-  static const _kBorder = Color(0xFFD5C2C7);
+  static const _kBg = V2Colors.background;
+  static const _kPrimary = V2Colors.primary;
+  static const _kSecondary = V2Colors.secondary;
+  static const _kText = V2Colors.textPrimary;
+  static const _kSubText = V2Colors.textSubtle;
+  static const _kIconBg = V2Colors.chip;
+  static const _kBorder = V2Colors.border;
 
   List<Suggestion> _suggestions = [];
   bool _isLoading = true;
@@ -207,7 +208,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
         title: Text(
           l10n.smart_suggestions,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w700,
             color: _kText,
@@ -224,7 +225,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                 label: Text(
                   l10n.accept_all,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -261,7 +262,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
           Text(
             l10n.generating_suggestions,
             style: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 14,
               color: _kSubText,
             ),
@@ -295,7 +296,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
             Text(
               l10n.no_suggestions,
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: _kText,
@@ -346,7 +347,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                   child: Text(
                     l10n.n_suggestions_found(_suggestions.length),
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
                       color: _kText,
@@ -366,7 +367,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                     child: Text(
                       l10n.all_suggestions_processed,
                       style: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         color: _kPrimary,
@@ -465,7 +466,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                           suggestion.bookIds.length,
                         ),
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
                           color: _kText,
@@ -487,7 +488,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                         child: Text(
                           l10n.suggestion_confidence(suggestion.confidence),
                           style: TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 10,
                             color: _confidenceColor(suggestion.confidence),
                             fontWeight: FontWeight.w700,
@@ -522,7 +523,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
             child: Text(
               suggestion.description,
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 12,
                 color: _kSubText,
                 height: 1.45,
@@ -545,7 +546,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                   Text(
                     l10n.affected_books.toUpperCase(),
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontWeight: FontWeight.w700,
                       fontSize: 10,
                       letterSpacing: 0.7,
@@ -568,7 +569,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                             child: Text(
                               name,
                               style: const TextStyle(
-                                fontFamily: 'Manrope',
+                                fontFamily: V2Typography.family,
                                 fontSize: 12,
                                 color: _kText,
                               ),
@@ -601,7 +602,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                     child: Text(
                       l10n.reject,
                       style: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -615,7 +616,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                       backgroundColor: _kPrimary,
                       foregroundColor: Colors.white,
                       textStyle: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontWeight: FontWeight.w700,
                       ),
                       shape: RoundedRectangleBorder(
@@ -637,7 +638,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                   Text(
                     l10n.suggestion_applied,
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 12,
                       color: _kPrimary,
                       fontWeight: FontWeight.w600,

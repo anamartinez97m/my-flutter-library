@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_navigation_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const _kPrimary = Color(0xFF43102B);
-const _kBackground = Color(0xFFFDF8F6);
-const _kSurface = Color(0xFFFFFCFA);
-const _kBorder = Color(0xFFD5C2C7);
-const _kMuted = Color(0xFF76656B);
-const _kText = Color(0xFF1C1B1A);
+const _kPrimary = V2Colors.primary;
+const _kBackground = V2Colors.background;
+const _kSurface = V2Colors.surfaceWarm;
+const _kBorder = V2Colors.border;
+const _kMuted = V2Colors.textMuted;
+const _kText = V2Colors.textPrimary;
 
 class GetStartedScreen extends StatefulWidget {
   const GetStartedScreen({super.key});
@@ -94,7 +95,9 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
 
     return Theme(
       data: Theme.of(context).copyWith(
-        textTheme: Theme.of(context).textTheme.apply(fontFamily: 'Manrope'),
+        textTheme: Theme.of(
+          context,
+        ).textTheme.apply(fontFamily: V2Typography.family),
       ),
       child: Scaffold(
         backgroundColor: _kBackground,

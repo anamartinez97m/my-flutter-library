@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
@@ -26,12 +27,12 @@ class LogReadingSessionSheet extends StatefulWidget {
 }
 
 class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
-  static const _kBg = Color(0xFFFDF8F6);
-  static const _kPrimary = Color(0xFF5D2641);
-  static const _kText = Color(0xFF1C1B1A);
-  static const _kSub = Color(0xFF514348);
-  static const _kCardBg = Color(0xFFF7F3F0);
-  static const _kBorder = Color(0xFFD5C2C7);
+  static const _kBg = V2Colors.background;
+  static const _kPrimary = V2Colors.primaryAlt;
+  static const _kText = V2Colors.textPrimary;
+  static const _kSub = V2Colors.textSecondary;
+  static const _kCardBg = V2Colors.surfaceTimer;
+  static const _kBorder = V2Colors.border;
 
   late DateTime _selectedDate;
   late TimeOfDay _selectedTime;
@@ -204,7 +205,7 @@ class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
                 width: 48,
                 height: 6,
                 decoration: BoxDecoration(
-                  color: const Color(0x80D5C2C7),
+                  color: V2Colors.border.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(9999),
                 ),
               ),
@@ -229,7 +230,7 @@ class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
                             Text(
                               l10n.reading_log.toUpperCase(),
                               style: const TextStyle(
-                                fontFamily: 'Manrope',
+                                fontFamily: V2Typography.family,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
                                 letterSpacing: 1.0,
@@ -240,7 +241,7 @@ class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
                             Text(
                               l10n.log_reading_session,
                               style: const TextStyle(
-                                fontFamily: 'Manrope',
+                                fontFamily: V2Typography.family,
                                 fontSize: 22,
                                 fontWeight: FontWeight.w700,
                                 color: _kText,
@@ -298,14 +299,16 @@ class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
                       decoration: BoxDecoration(
                         color: _kCardBg,
                         borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: const Color(0x33D5C2C7)),
+                        border: Border.all(
+                          color: V2Colors.border.withValues(alpha: 0.2),
+                        ),
                       ),
                       child: Column(
                         children: [
                           Text(
                             '${_durationMinutes}m',
                             style: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 40,
                               fontWeight: FontWeight.w700,
                               color: _kPrimary,
@@ -316,7 +319,7 @@ class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
                           Text(
                             l10n.reading_duration.toUpperCase(),
                             style: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
                               letterSpacing: 0.8,
@@ -327,7 +330,7 @@ class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
                           SliderTheme(
                             data: SliderTheme.of(context).copyWith(
                               activeTrackColor: _kPrimary,
-                              inactiveTrackColor: const Color(0xFFD5C2C7),
+                              inactiveTrackColor: V2Colors.border,
                               thumbColor: _kPrimary,
                               overlayColor: _kPrimary.withValues(alpha: 0.1),
                               trackHeight: 6,
@@ -449,7 +452,7 @@ class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
                                               12,
                                             ),
                                             border: Border.all(
-                                              color: const Color(0xFFD5C2C7),
+                                              color: V2Colors.border,
                                             ),
                                           ),
                                           child: TextField(
@@ -474,21 +477,21 @@ class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
                                               hintStyle: TextStyle(
                                                 color:
                                                     _isCustomMode
-                                                        ? const Color(
-                                                          0xFF5D2641,
-                                                        ).withValues(alpha: 0.5)
-                                                        : const Color(
-                                                          0xFF514348,
-                                                        ).withValues(
-                                                          alpha: 0.5,
-                                                        ),
+                                                        ? V2Colors.primaryAlt
+                                                            .withValues(
+                                                              alpha: 0.5,
+                                                            )
+                                                        : V2Colors.textSecondary
+                                                            .withValues(
+                                                              alpha: 0.5,
+                                                            ),
                                               ),
                                             ),
                                             style: const TextStyle(
-                                              fontFamily: 'Manrope',
+                                              fontFamily: V2Typography.family,
                                               fontSize: 13,
                                               fontWeight: FontWeight.w600,
-                                              color: Color(0xFF5D2641),
+                                              color: V2Colors.primaryAlt,
                                             ),
                                           ),
                                         ),
@@ -517,7 +520,7 @@ class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               textStyle: const TextStyle(
-                                fontFamily: 'Manrope',
+                                fontFamily: V2Typography.family,
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -537,7 +540,7 @@ class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               textStyle: const TextStyle(
-                                fontFamily: 'Manrope',
+                                fontFamily: V2Typography.family,
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -593,22 +596,22 @@ class _PickerButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: const Color(0xFFF7F3F0),
+          color: V2Colors.surfaceTimer,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0x33D5C2C7)),
+          border: Border.all(color: V2Colors.border.withValues(alpha: 0.2)),
         ),
         child: Row(
           children: [
-            Icon(icon, size: 18, color: const Color(0xFF5D2641)),
+            Icon(icon, size: 18, color: V2Colors.primaryAlt),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
                 label,
                 style: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF1C1B1A),
+                  color: V2Colors.textPrimary,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -616,7 +619,7 @@ class _PickerButton extends StatelessWidget {
             const Icon(
               Icons.keyboard_arrow_down,
               size: 18,
-              color: Color(0xFF514348),
+              color: V2Colors.textSecondary,
             ),
           ],
         ),
@@ -635,10 +638,10 @@ class _DurationLabel extends StatelessWidget {
     return Text(
       label,
       style: const TextStyle(
-        fontFamily: 'Manrope',
+        fontFamily: V2Typography.family,
         fontSize: 11,
         fontWeight: FontWeight.w500,
-        color: Color(0xFF514348),
+        color: V2Colors.textSecondary,
       ),
     );
   }
@@ -664,20 +667,19 @@ class _DurationChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF5D2641) : Colors.transparent,
+          color: isSelected ? V2Colors.primaryAlt : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color:
-                isSelected ? const Color(0xFF5D2641) : const Color(0xFFD5C2C7),
+            color: isSelected ? V2Colors.primaryAlt : V2Colors.border,
           ),
         ),
         child: Text(
           label,
           style: TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: isSelected ? Colors.white : const Color(0xFF5D2641),
+            color: isSelected ? Colors.white : V2Colors.primaryAlt,
           ),
         ),
       ),

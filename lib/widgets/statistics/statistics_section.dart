@@ -19,37 +19,29 @@ class StatisticsSection extends StatelessWidget {
     return Card(
       elevation: 1,
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ExpansionTile(
-        leading: Icon(
-          icon,
-          color: Theme.of(context).colorScheme.primary,
-        ),
+        leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
         title: Text(
           title,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         initiallyExpanded: initiallyExpanded,
         shape: const Border(),
         collapsedShape: const Border(),
         children: [
           Padding(
-            padding: const EdgeInsets.only(
-              left: 8,
-              right: 8,
-              bottom: 16,
-            ),
+            padding: const EdgeInsets.only(left: 8, right: 8, bottom: 16),
             child: Column(
-              children: children.map((child) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: child,
-                );
-              }).toList(),
+              children:
+                  children.map((child) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: child,
+                    );
+                  }).toList(),
             ),
           ),
         ],

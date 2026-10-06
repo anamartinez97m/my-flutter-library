@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 
@@ -11,16 +12,16 @@ import 'package:myrandomlibrary/model/book.dart';
 class TopRankingsScreen extends StatefulWidget {
   final List<Book> books;
 
-  static const kBg = Color(0xFFFDF8F6);
-  static const kPrimary = Color(0xFF43102B);
-  static const kSecondary = Color(0xFF894B67);
-  static const kTertiary = Color(0xFFBC92A6);
-  static const kMuted = Color(0xFFD5C2C7);
-  static const kText = Color(0xFF1C1B1A);
-  static const kSub = Color(0xFF514348);
-  static const kBorder = Color(0x4DD5C2C7);
-  static const kDivider = Color(0xFFE6E2DF);
-  static const kBarBg = Color(0xFFE6E2DF);
+  static const kBg = V2Colors.background;
+  static const kPrimary = V2Colors.primary;
+  static const kSecondary = V2Colors.secondary;
+  static const kTertiary = Color(0xFFBC92A6); // Not represented in V2Colors.
+  static const kMuted = V2Colors.border;
+  static const kText = V2Colors.textPrimary;
+  static const kSub = V2Colors.textSecondary;
+  static const kBorder = Color(0x4DD5C2C7); // Exact alpha variant.
+  static const kDivider = V2Colors.divider;
+  static const kBarBg = V2Colors.divider;
 
   const TopRankingsScreen({super.key, required this.books});
 
@@ -136,7 +137,7 @@ class _TopRankingsScreenState extends State<TopRankingsScreen> {
         title: Text(
           l10n.section_top_rankings,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
             color: _kPrimary,
@@ -146,7 +147,7 @@ class _TopRankingsScreenState extends State<TopRankingsScreen> {
         centerTitle: true,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: const Color(0xFFD5C2C7)),
+          child: Container(height: 1, color: V2Colors.border),
         ),
       ),
       body: SingleChildScrollView(
@@ -251,7 +252,7 @@ class _TopRankingsScreenState extends State<TopRankingsScreen> {
                   child: Text(
                     section.title,
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
                       color: _kPrimary,

@@ -2,7 +2,6 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
@@ -83,23 +82,6 @@ class MyApp extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final localeProvider = Provider.of<LocaleProvider>(context);
 
-    const v2Overlay = SystemUiOverlayStyle(
-      statusBarColor: Color(0xFFFDF8F6),
-      statusBarIconBrightness: Brightness.dark,
-      statusBarBrightness: Brightness.light,
-    );
-
-    final lightBase = themeProvider.lightTheme;
-    final darkBase = themeProvider.darkTheme;
-    final lightTheme = lightBase.copyWith(
-      appBarTheme: lightBase.appBarTheme.copyWith(
-        systemOverlayStyle: v2Overlay,
-      ),
-    );
-    final darkTheme = darkBase.copyWith(
-      appBarTheme: darkBase.appBarTheme.copyWith(systemOverlayStyle: v2Overlay),
-    );
-
     final app = MaterialApp(
       navigatorKey: NotificationService.navigatorKey,
       title: 'My Book Vault',
@@ -111,44 +93,8 @@ class MyApp extends StatelessWidget {
       ],
       supportedLocales: const [Locale('en'), Locale('es')],
       locale: localeProvider.locale,
-      theme: lightTheme.copyWith(
-        textTheme: lightTheme.textTheme.copyWith(
-          headlineLarge: lightTheme.textTheme.headlineLarge?.copyWith(
-            fontSize: 24,
-          ),
-          headlineMedium: lightTheme.textTheme.headlineMedium?.copyWith(
-            fontSize: 20,
-          ),
-          headlineSmall: lightTheme.textTheme.headlineSmall?.copyWith(
-            fontSize: 18,
-          ),
-          titleLarge: lightTheme.textTheme.titleLarge?.copyWith(fontSize: 18),
-          titleMedium: lightTheme.textTheme.titleMedium?.copyWith(fontSize: 16),
-          titleSmall: lightTheme.textTheme.titleSmall?.copyWith(fontSize: 14),
-          bodyLarge: lightTheme.textTheme.bodyLarge?.copyWith(fontSize: 14),
-          bodyMedium: lightTheme.textTheme.bodyMedium?.copyWith(fontSize: 13),
-          bodySmall: lightTheme.textTheme.bodySmall?.copyWith(fontSize: 12),
-        ),
-      ),
-      darkTheme: darkTheme.copyWith(
-        textTheme: darkTheme.textTheme.copyWith(
-          headlineLarge: darkTheme.textTheme.headlineLarge?.copyWith(
-            fontSize: 24,
-          ),
-          headlineMedium: darkTheme.textTheme.headlineMedium?.copyWith(
-            fontSize: 20,
-          ),
-          headlineSmall: darkTheme.textTheme.headlineSmall?.copyWith(
-            fontSize: 18,
-          ),
-          titleLarge: darkTheme.textTheme.titleLarge?.copyWith(fontSize: 18),
-          titleMedium: darkTheme.textTheme.titleMedium?.copyWith(fontSize: 16),
-          titleSmall: darkTheme.textTheme.titleSmall?.copyWith(fontSize: 14),
-          bodyLarge: darkTheme.textTheme.bodyLarge?.copyWith(fontSize: 14),
-          bodyMedium: darkTheme.textTheme.bodyMedium?.copyWith(fontSize: 13),
-          bodySmall: darkTheme.textTheme.bodySmall?.copyWith(fontSize: 12),
-        ),
-      ),
+      theme: themeProvider.lightTheme,
+      darkTheme: themeProvider.darkTheme,
       themeMode:
           themeProvider.themeMode == AppThemeMode.light
               ? ThemeMode.light
@@ -158,7 +104,7 @@ class MyApp extends StatelessWidget {
       home: const _AutoBackupRunner(),
     );
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(value: v2Overlay, child: app);
+    return app;
   }
 }
 

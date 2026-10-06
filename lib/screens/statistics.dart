@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/widgets/shimmer_loading.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
@@ -496,12 +497,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     int currentYear,
     AppLocalizations l10n,
   ) {
-    const kBg = Color(0xFFFDF8F6);
-    const kPrimary = Color(0xFF43102B);
-    const kSub = Color(0xFF514348);
-    const kText = Color(0xFF1C1B1A);
-    const kBadgeBg = Color(0xFFF2EDEB);
-    const kBadgeBorder = Color(0xFFD5C2C7);
+    const kBg = V2Colors.background;
+    const kPrimary = V2Colors.primary;
+    const kSub = V2Colors.textSecondary;
+    const kText = V2Colors.textPrimary;
+    const kBadgeBg = V2Colors.chip;
+    const kBadgeBorder = V2Colors.border;
 
     BoxDecoration cardDeco({double radius = 12}) => BoxDecoration(
       color: Colors.white,

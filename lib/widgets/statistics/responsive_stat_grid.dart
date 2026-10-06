@@ -6,10 +6,7 @@ import 'package:flutter/material.dart';
 class ResponsiveStatGrid extends StatelessWidget {
   final List<Widget> children;
 
-  const ResponsiveStatGrid({
-    super.key,
-    required this.children,
-  });
+  const ResponsiveStatGrid({super.key, required this.children});
 
   @override
   Widget build(BuildContext context) {
@@ -19,12 +16,13 @@ class ResponsiveStatGrid extends StatelessWidget {
     if (!isTablet || children.isEmpty) {
       // Phone layout - single column
       return Column(
-        children: children.map((child) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: child,
-          );
-        }).toList(),
+        children:
+            children.map((child) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: child,
+              );
+            }).toList(),
       );
     }
 

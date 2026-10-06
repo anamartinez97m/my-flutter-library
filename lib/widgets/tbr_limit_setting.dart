@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/app_theme.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
-const _kV2Bg = Color(0xFFFDF8F6);
-const _kV2Primary = Color(0xFF43102B);
-const _kV2Sub = Color(0xFF514348);
-const _kV2Text = Color(0xFF1C1B1A);
-const _kV2InputBorder = Color(0xFF6B7280);
+const _kV2Bg = V2Colors.background;
+const _kV2Primary = V2Colors.primary;
+const _kV2Sub = V2Colors.textSecondary;
+const _kV2Text = V2Colors.textPrimary;
+const _kV2InputBorder = V2Colors.borderInput;
 
 class TBRLimitSetting extends StatefulWidget {
   const TBRLimitSetting({super.key});
@@ -102,7 +103,7 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
                       child: Text(
                         AppLocalizations.of(context)!.set_tbr_limit,
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                           color: _kV2Primary,
@@ -118,7 +119,7 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
                     Text(
                       AppLocalizations.of(context)!.max_tbr_books_description,
                       style: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 14,
                         color: _kV2Sub,
                       ),
@@ -133,7 +134,7 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
                         setState(() {});
                       },
                       style: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 15,
                         color: _kV2Text,
                       ),
@@ -146,17 +147,17 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
                             AppLocalizations.of(context)!.range_1_200_books,
                         errorText: errorText,
                         helperStyle: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 12,
                           color: _kV2Sub,
                         ),
                         labelStyle: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 14,
                           color: _kV2Primary,
                         ),
                         floatingLabelStyle: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 12,
                           color: _kV2Primary,
                         ),
@@ -212,7 +213,7 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
                           child: Text(
                             AppLocalizations.of(context)!.cancel,
                             style: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
                             ),
@@ -244,7 +245,7 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
                           child: Text(
                             AppLocalizations.of(context)!.save,
                             style: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
                             ),
@@ -278,7 +279,9 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0x1A27231E)),
+          border: Border.all(
+            color: V2Colors.borderStrong.withValues(alpha: 0.1),
+          ),
           boxShadow: const [
             BoxShadow(
               color: Color(0x0A000000),
@@ -311,7 +314,7 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
                   Text(
                     l10n.tbr_limit,
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: _kV2Text,
@@ -321,7 +324,7 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
                   Text(
                     l10n.max_tbr_books_subtitle(_tbrLimit.toString()),
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 13,
                       color: _kV2Sub,
                     ),

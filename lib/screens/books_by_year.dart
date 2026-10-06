@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/model/book.dart';
@@ -9,14 +10,14 @@ import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
 class BooksByYearScreen extends StatefulWidget {
   final int initialYear;
 
-  static const kBg = Color(0xFFFDF8F6);
-  static const kPrimary = Color(0xFF43102B);
-  static const kSecondary = Color(0xFF894B67);
-  static const kTertiary = Color(0xFFBC92A6);
-  static const kText = Color(0xFF1C1B1A);
-  static const kSub = Color(0xFF514348);
-  static const kBorder = Color(0x4DD5C2C7);
-  static const kDivider = Color(0xFFE6E2DF);
+  static const kBg = V2Colors.background;
+  static const kPrimary = V2Colors.primary;
+  static const kSecondary = V2Colors.secondary;
+  static const kTertiary = Color(0xFFBC92A6); // Not represented in V2Colors.
+  static const kText = V2Colors.textPrimary;
+  static const kSub = V2Colors.textSecondary;
+  static const kBorder = Color(0x4DD5C2C7); // Exact alpha variant.
+  static const kDivider = V2Colors.divider;
 
   const BooksByYearScreen({super.key, required this.initialYear});
 
@@ -204,7 +205,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
               child: Text(
                 _getMonthName(date.month),
                 style: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
                   color: _kPrimary,
@@ -244,7 +245,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
         title: Text(
           l10n.books_by_year,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
             color: _kPrimary,
@@ -254,7 +255,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
         centerTitle: true,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: const Color(0xFFD5C2C7)),
+          child: Container(height: 1, color: V2Colors.border),
         ),
       ),
       body: FutureBuilder<List<int>>(
@@ -304,7 +305,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
                         Text(
                           '${l10n.year}: ',
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: _kPrimary,
@@ -324,7 +325,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
                               underline: const SizedBox.shrink(),
                               dropdownColor: Colors.white,
                               style: const TextStyle(
-                                fontFamily: 'Manrope',
+                                fontFamily: V2Typography.family,
                                 fontSize: 14,
                                 color: _kText,
                               ),
@@ -445,7 +446,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
                     Text(
                       _getDisplayName(bookData),
                       style: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: _kText,
@@ -471,7 +472,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
                     Text(
                       book.myRating!.toStringAsFixed(1),
                       style: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
                         color: _kSecondary,

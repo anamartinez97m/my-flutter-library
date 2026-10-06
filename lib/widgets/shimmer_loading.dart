@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 
-const _kDefaultLoadingBackground = Color(0xFFFDF8F6);
-const _kDefaultShimmerBase = Color(0xFFF2E8E3);
-const _kDefaultShimmerHighlight = Color(0xFFFFFFFF);
+const _kDefaultLoadingBackground = V2Colors.background;
+const _kDefaultShimmerBase = V2Colors.shimmerBase;
+const _kDefaultShimmerHighlight = V2Colors.surface;
 
 class ShimmerLoading extends StatefulWidget {
   const ShimmerLoading({
@@ -30,11 +31,7 @@ class _ShimmerLoadingState extends State<ShimmerLoading>
   void initState() {
     super.initState();
     _shimmerController = AnimationController.unbounded(vsync: this)
-      ..repeat(
-        min: -0.5,
-        max: 1.5,
-        period: const Duration(milliseconds: 1200),
-      );
+      ..repeat(min: -0.5, max: 1.5, period: const Duration(milliseconds: 1200));
   }
 
   @override

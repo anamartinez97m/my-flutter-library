@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/read_date.dart';
 
@@ -119,9 +120,9 @@ class _ReadDatesWidgetState extends State<ReadDatesWidget> {
   }
 
   Widget _buildV2(BuildContext context) {
-    const primary = Color(0xFF43102B);
-    const border = Color(0xFFD5C2C7);
-    const label = Color(0xFF76656B);
+    const primary = V2Colors.primary;
+    const border = V2Colors.border;
+    const label = V2Colors.textMuted;
     final l10n = AppLocalizations.of(context)!;
 
     Widget dateField({
@@ -145,7 +146,7 @@ class _ReadDatesWidgetState extends State<ReadDatesWidget> {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: label,
@@ -165,7 +166,7 @@ class _ReadDatesWidgetState extends State<ReadDatesWidget> {
                         value ?? l10n.not_set,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: value == null ? label : primary,
@@ -190,7 +191,7 @@ class _ReadDatesWidgetState extends State<ReadDatesWidget> {
               child: Text(
                 '${l10n.reading_sessions} (${_readDates.length})',
                 style: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                   color: primary,
@@ -222,7 +223,7 @@ class _ReadDatesWidgetState extends State<ReadDatesWidget> {
                   l10n.no_reading_sessions,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 13,
                     color: label,
                   ),
@@ -251,7 +252,7 @@ class _ReadDatesWidgetState extends State<ReadDatesWidget> {
                         child: Text(
                           '${index + 1}',
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                             color: primary,
@@ -263,7 +264,7 @@ class _ReadDatesWidgetState extends State<ReadDatesWidget> {
                         child: Text(
                           '${l10n.session} ${index + 1}',
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
                             color: primary,

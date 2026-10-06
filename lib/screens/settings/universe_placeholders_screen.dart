@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
@@ -12,13 +13,13 @@ import 'package:myrandomlibrary/widgets/autocomplete_text_field.dart';
 import 'package:myrandomlibrary/widgets/chip_autocomplete_field.dart';
 import 'package:provider/provider.dart';
 
-const _kBg = Color(0xFFFDF8F6);
-const _kPrimary = Color(0xFF43102B);
-const _kSecondary = Color(0xFF894B67);
-const _kText = Color(0xFF1C1B1A);
-const _kSub = Color(0xFF514348);
-const _kBorder = Color(0xFFD5C2C7);
-const _kSurface = Color(0xFFFFFBFA);
+const _kBg = V2Colors.background;
+const _kPrimary = V2Colors.primary;
+const _kSecondary = V2Colors.secondary;
+const _kText = V2Colors.textPrimary;
+const _kSub = V2Colors.textSecondary;
+const _kBorder = V2Colors.border;
+const _kSurface = V2Colors.surfaceAlt;
 
 class UniversePlaceholdersScreen extends StatefulWidget {
   final String? initialUniverse;
@@ -149,7 +150,10 @@ class _UniversePlaceholdersScreenState
   InputDecoration _fieldDecoration(String label, {IconData? icon}) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(fontFamily: 'Manrope', color: _kSub),
+      labelStyle: const TextStyle(
+        fontFamily: V2Typography.family,
+        color: _kSub,
+      ),
       prefixIcon:
           icon == null ? null : Icon(icon, color: _kSecondary, size: 20),
       filled: true,
@@ -183,7 +187,7 @@ class _UniversePlaceholdersScreenState
           Text(
             label.toUpperCase(),
             style: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 11,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
@@ -270,7 +274,7 @@ class _UniversePlaceholdersScreenState
                                         ? l10n.add_placeholder
                                         : l10n.edit_placeholder,
                                     style: const TextStyle(
-                                      fontFamily: 'Manrope',
+                                      fontFamily: V2Typography.family,
                                       fontSize: 20,
                                       fontWeight: FontWeight.w700,
                                       color: _kPrimary,
@@ -282,7 +286,7 @@ class _UniversePlaceholdersScreenState
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
-                                      fontFamily: 'Manrope',
+                                      fontFamily: V2Typography.family,
                                       fontSize: 12,
                                       color: _kSub,
                                     ),
@@ -464,7 +468,7 @@ class _UniversePlaceholdersScreenState
                                 child: Text(
                                   l10n.cancel,
                                   style: const TextStyle(
-                                    fontFamily: 'Manrope',
+                                    fontFamily: V2Typography.family,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -493,7 +497,7 @@ class _UniversePlaceholdersScreenState
                                 label: Text(
                                   l10n.save,
                                   style: const TextStyle(
-                                    fontFamily: 'Manrope',
+                                    fontFamily: V2Typography.family,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -574,7 +578,7 @@ class _UniversePlaceholdersScreenState
     final theme = Theme.of(context);
     return Theme(
       data: theme.copyWith(
-        textTheme: theme.textTheme.apply(fontFamily: 'Manrope'),
+        textTheme: theme.textTheme.apply(fontFamily: V2Typography.family),
       ),
       child: child,
     );
@@ -618,7 +622,7 @@ class _UniversePlaceholdersScreenState
           title: Text(
             l10n.universe_placeholders,
             style: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 20,
               fontWeight: FontWeight.w600,
               color: _kPrimary,
@@ -643,7 +647,7 @@ class _UniversePlaceholdersScreenState
           label: Text(
             l10n.add_placeholder,
             style: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -666,7 +670,7 @@ class _UniversePlaceholdersScreenState
                               Text(
                                 l10n.universe_placeholders_subtitle,
                                 style: const TextStyle(
-                                  fontFamily: 'Manrope',
+                                  fontFamily: V2Typography.family,
                                   fontSize: 14,
                                   color: _kSub,
                                   height: 1.4,
@@ -685,7 +689,7 @@ class _UniversePlaceholdersScreenState
                                   color: _kPrimary,
                                 ),
                                 style: const TextStyle(
-                                  fontFamily: 'Manrope',
+                                  fontFamily: V2Typography.family,
                                   fontSize: 15,
                                   fontWeight: FontWeight.w600,
                                   color: _kText,
@@ -719,7 +723,7 @@ class _UniversePlaceholdersScreenState
                               Text(
                                 _selectedUniverse ?? l10n.saga_universe,
                                 style: const TextStyle(
-                                  fontFamily: 'Manrope',
+                                  fontFamily: V2Typography.family,
                                   fontSize: 18,
                                   fontWeight: FontWeight.w700,
                                   color: _kText,
@@ -785,7 +789,7 @@ class _UniversePlaceholdersScreenState
           Text(
             value,
             style: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 22,
               fontWeight: FontWeight.w700,
               color: _kPrimary,
@@ -796,7 +800,7 @@ class _UniversePlaceholdersScreenState
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 12,
               color: _kSub,
             ),
@@ -824,7 +828,7 @@ class _UniversePlaceholdersScreenState
             child: Text(
               l10n.missing_earlier_entries(missing.join(', ')),
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF6B4608),
@@ -863,7 +867,7 @@ class _UniversePlaceholdersScreenState
               l10n.no_books_in_universe,
               textAlign: TextAlign.center,
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
                 color: _kText,
@@ -874,7 +878,7 @@ class _UniversePlaceholdersScreenState
               l10n.universe_placeholders_subtitle,
               textAlign: TextAlign.center,
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 13,
                 color: _kSub,
                 height: 1.4,
@@ -931,7 +935,7 @@ class _UniversePlaceholdersScreenState
             child: Text(
               '${entry.order ?? '—'}',
               style: TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
                 color: isOwned ? _kSub : _kPrimary,
@@ -943,7 +947,7 @@ class _UniversePlaceholdersScreenState
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 15,
               fontWeight: FontWeight.w700,
               color: _kText,
@@ -960,7 +964,7 @@ class _UniversePlaceholdersScreenState
                   Text(
                     entry.saga!,
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 12,
                       color: _kSub,
                     ),
@@ -980,7 +984,7 @@ class _UniversePlaceholdersScreenState
                   child: Text(
                     isOwned ? l10n.in_library : l10n.not_in_library,
                     style: TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       color: isOwned ? _kSub : _kSecondary,
@@ -1052,7 +1056,7 @@ class _UniversePlaceholdersScreenState
         Text(
           label,
           style: TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 13,
             fontWeight: FontWeight.w600,
             color: color,

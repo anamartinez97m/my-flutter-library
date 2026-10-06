@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
@@ -16,13 +17,13 @@ class ReverseAssignScreen extends StatefulWidget {
 }
 
 class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
-  static const _kBg = Color(0xFFFDF8F6);
-  static const _kPrimary = Color(0xFF43102B);
-  static const _kSecondary = Color(0xFF894B67);
-  static const _kText = Color(0xFF1C1B1A);
-  static const _kSubText = Color(0xFF5F5E5C);
-  static const _kIconBg = Color(0xFFF2EDEB);
-  static const _kBorder = Color(0xFFD5C2C7);
+  static const _kBg = V2Colors.background;
+  static const _kPrimary = V2Colors.primary;
+  static const _kSecondary = V2Colors.secondary;
+  static const _kText = V2Colors.textPrimary;
+  static const _kSubText = V2Colors.textSubtle;
+  static const _kIconBg = V2Colors.chip;
+  static const _kBorder = V2Colors.border;
 
   int _currentStep = 0;
   String? _selectedField;
@@ -230,7 +231,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
         title: Text(
           l10n.assign_books_to_value,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w700,
             color: _kText,
@@ -279,7 +280,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                   child: Text(
                     labels[_currentStep],
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
                       color: _kText,
@@ -289,7 +290,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                 Text(
                   '${_currentStep + 1} / 3',
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: _kSubText,
@@ -330,7 +331,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
           Text(
             l10n.loading,
             style: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 14,
               color: _kSubText,
             ),
@@ -347,7 +348,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
         Text(
           l10n.select_field,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 16,
             fontWeight: FontWeight.w700,
             color: _kText,
@@ -419,7 +420,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                       child: Text(
                         _getFieldLabel(key),
                         style: TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 14,
                           fontWeight:
                               isSelected ? FontWeight.w700 : FontWeight.w600,
@@ -453,7 +454,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
           Text(
             l10n.no_values_available,
             style: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: _kText,
@@ -472,7 +473,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
         Text(
           l10n.select_value,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 16,
             fontWeight: FontWeight.w700,
             color: _kText,
@@ -483,7 +484,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
           key: ValueKey('selected_value_$_selectedValue'),
           initialValue: _selectedValue,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 14,
             color: _kText,
           ),
@@ -492,7 +493,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
           decoration: InputDecoration(
             labelText: l10n.select_value,
             labelStyle: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               color: _kSubText,
             ),
             prefixIcon: const Icon(Icons.label_outline, color: _kSecondary),
@@ -560,7 +561,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                 Text(
                   l10n.all_books_already_have_value,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: _kText,
@@ -590,14 +591,14 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                 child: TextField(
                   controller: _searchController,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 14,
                     color: _kText,
                   ),
                   decoration: InputDecoration(
                     hintText: l10n.search_books_by_title,
                     hintStyle: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       color: _kSubText,
                     ),
                     prefixIcon: const Icon(Icons.search, size: 20),
@@ -653,7 +654,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                       ? l10n.deselect_all
                       : l10n.select_all,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: _kPrimary,
@@ -670,7 +671,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
             child: Text(
               '${books.length} ${l10n.books_available}',
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 12,
                 color: _kSubText,
               ),
@@ -715,7 +716,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                   title: Text(
                     book.name ?? '',
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
                       color: _kText,
@@ -728,7 +729,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                         Text(
                           book.author!,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 12,
                             color: _kSubText,
                           ),
@@ -737,7 +738,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                         Text(
                           '${_getFieldLabel(_selectedField!)}: $currentValue',
                           style: TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 11,
                             color: _kSecondary,
                             fontStyle: FontStyle.italic,
@@ -783,7 +784,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                 disabledForegroundColor: _kSubText,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 textStyle: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontWeight: FontWeight.w700,
                 ),
                 shape: RoundedRectangleBorder(
@@ -820,7 +821,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                 _getFieldLabel(_selectedField ?? ''),
               ),
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 13,
                 color: _kText,
                 height: 1.4,
@@ -846,7 +847,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
           disabledForegroundColor: _kSubText,
           padding: const EdgeInsets.symmetric(vertical: 14),
           textStyle: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontWeight: FontWeight.w700,
           ),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -865,7 +866,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
           side: const BorderSide(color: _kBorder),
           padding: const EdgeInsets.symmetric(vertical: 14),
           textStyle: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontWeight: FontWeight.w600,
           ),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),

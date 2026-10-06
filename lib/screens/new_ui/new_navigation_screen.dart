@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_home_screen.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_my_books_screen.dart';
@@ -106,10 +107,10 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
     final base = Theme.of(context);
     return Theme(
       data: base.copyWith(
-        textTheme: base.textTheme.apply(fontFamily: 'Manrope'),
+        textTheme: base.textTheme.apply(fontFamily: V2Typography.family),
         appBarTheme: base.appBarTheme.copyWith(
           titleTextStyle: (base.appBarTheme.titleTextStyle ?? const TextStyle())
-              .copyWith(fontFamily: 'Manrope'),
+              .copyWith(fontFamily: V2Typography.family),
         ),
       ),
       child: _buildContent(context),
@@ -118,7 +119,7 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
 
   Widget _buildInlineHeader(BuildContext context) {
     return Container(
-      color: const Color(0xFFFDF8F6),
+      color: V2Colors.background,
       padding: const EdgeInsets.fromLTRB(25, 20, 8, 12),
       child: Row(
         children: [
@@ -126,10 +127,10 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
             child: Text(
               AppLocalizations.of(context)!.app_title,
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
-                color: Color(0xFF43102B),
+                color: V2Colors.primary,
                 letterSpacing: -0.5,
               ),
             ),
@@ -150,7 +151,7 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFFFDF8F6),
+        backgroundColor: V2Colors.background,
         body: SafeArea(
           child: Column(
             children: [
@@ -162,24 +163,24 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
         bottomNavigationBar: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(height: 1, color: const Color(0xFF43102B)),
+            Container(height: 1, color: V2Colors.primary),
             NavigationBarTheme(
               data: NavigationBarThemeData(
                 height: 64,
-                backgroundColor: const Color(0xFFFDF8F6),
-                indicatorColor: const Color(0xFFECE7E5),
+                backgroundColor: V2Colors.background,
+                indicatorColor: V2Colors.control,
                 indicatorShape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(12)),
                 ),
                 iconTheme: WidgetStateProperty.resolveWith((states) {
                   if (states.contains(WidgetState.selected)) {
                     return const IconThemeData(
-                      color: Color(0xFF43102B),
+                      color: V2Colors.primary,
                       size: 22,
                     );
                   }
                   return const IconThemeData(
-                    color: Color(0xFF514348),
+                    color: V2Colors.textSecondary,
                     size: 22,
                   );
                 }),

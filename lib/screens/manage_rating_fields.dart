@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/repositories/book_rating_field_repository.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
-const _kBg = Color(0xFFFDF8F6);
-const _kPrimary = Color(0xFF43102B);
-const _kSub = Color(0xFF514348);
-const _kText = Color(0xFF1C1B1A);
-const _kBorder = Color(0xFFD5C2C7);
+const _kBg = V2Colors.background;
+const _kPrimary = V2Colors.primary;
+const _kSub = V2Colors.textSecondary;
+const _kText = V2Colors.textPrimary;
+const _kBorder = V2Colors.border;
 
 class ManageRatingFieldsScreen extends StatefulWidget {
   const ManageRatingFieldsScreen({super.key});
@@ -121,7 +122,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                           Text(
                             l10n.edit_weight,
                             style: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
                               color: _kPrimary,
@@ -133,7 +134,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                       Text(
                         name,
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: _kText,
@@ -145,7 +146,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                         keyboardType: TextInputType.number,
                         autofocus: true,
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 18,
                           color: _kText,
                         ),
@@ -169,7 +170,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                             ),
                           ),
                           labelStyle: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 12,
                             color: _kPrimary,
                           ),
@@ -207,7 +208,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                         child: Text(
                           l10n.cancel,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -236,7 +237,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                         child: Text(
                           l10n.save,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -332,7 +333,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                           Text(
                             l10n.add_rating_field_name,
                             style: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
                               color: _kPrimary,
@@ -346,7 +347,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                         textCapitalization: TextCapitalization.words,
                         autofocus: true,
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 18,
                           color: _kText,
                         ),
@@ -369,7 +370,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                             ),
                           ),
                           labelStyle: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 12,
                             color: _kPrimary,
                           ),
@@ -407,7 +408,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                         child: Text(
                           l10n.cancel,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -436,7 +437,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                         child: Text(
                           l10n.add,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -532,7 +533,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                           Text(
                             l10n.edit_rating_field_name,
                             style: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
                               color: _kPrimary,
@@ -546,7 +547,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                         textCapitalization: TextCapitalization.words,
                         autofocus: true,
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 18,
                           color: _kText,
                         ),
@@ -568,7 +569,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                             ),
                           ),
                           labelStyle: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 12,
                             color: _kPrimary,
                           ),
@@ -606,7 +607,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                         child: Text(
                           l10n.cancel,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -635,7 +636,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                         child: Text(
                           l10n.save,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -731,7 +732,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
-                                fontFamily: 'Manrope',
+                                fontFamily: V2Typography.family,
                                 fontSize: 20,
                                 fontWeight: FontWeight.w600,
                                 color: Color(0xFFB3261E),
@@ -744,7 +745,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                       Text(
                         l10n.confirm_delete_value(name),
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 16,
                           color: _kText,
                           height: 1.4,
@@ -771,7 +772,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                                 child: Text(
                                   l10n.field_used_in_ratings(count),
                                   style: const TextStyle(
-                                    fontFamily: 'Manrope',
+                                    fontFamily: V2Typography.family,
                                     fontSize: 13,
                                     color: Color(0xFFB3261E),
                                     height: 1.4,
@@ -813,7 +814,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                         child: Text(
                           l10n.cancel,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -837,7 +838,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                         child: Text(
                           l10n.delete,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -874,7 +875,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         title: Text(
           l10n.manage_rating_field_names,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
             color: _kPrimary,
@@ -924,7 +925,9 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0x1A27231E)),
+          border: Border.all(
+            color: V2Colors.borderStrong.withValues(alpha: 0.1),
+          ),
           boxShadow: const [
             BoxShadow(
               color: Color(0x0A000000),
@@ -955,7 +958,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                 Text(
                   l10n.about_rating_fields,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: _kText,
@@ -967,7 +970,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
             Text(
               l10n.about_rating_fields_description,
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 14,
                 color: _kSub,
                 height: 1.4,
@@ -1042,7 +1045,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         style: TextStyle(
           color: color,
           fontWeight: FontWeight.w600,
-          fontFamily: isV2 ? 'Manrope' : null,
+          fontFamily: isV2 ? V2Typography.family : null,
         ),
       ),
       if (!isValid && hasWeights)
@@ -1054,7 +1057,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                     ? const Color(0xFFB3261E)
                     : Theme.of(context).colorScheme.error,
             fontSize: 12,
-            fontFamily: isV2 ? 'Manrope' : null,
+            fontFamily: isV2 ? V2Typography.family : null,
           ),
         ),
       if (!hasWeights)
@@ -1064,7 +1067,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
             color:
                 isV2 ? _kSub : Theme.of(context).colorScheme.onSurfaceVariant,
             fontSize: 12,
-            fontFamily: isV2 ? 'Manrope' : null,
+            fontFamily: isV2 ? V2Typography.family : null,
           ),
         ),
     ];
@@ -1092,7 +1095,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         child: Text(
           AppLocalizations.of(context)!.no_rating_field_names,
           style: TextStyle(
-            fontFamily: isV2 ? 'Manrope' : null,
+            fontFamily: isV2 ? V2Typography.family : null,
             color: isV2 ? _kSub : null,
           ),
         ),
@@ -1116,7 +1119,9 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0x1A27231E)),
+              border: Border.all(
+                color: V2Colors.borderStrong.withValues(alpha: 0.1),
+              ),
               boxShadow: const [
                 BoxShadow(
                   color: Color(0x0A000000),
@@ -1148,7 +1153,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                       Text(
                         name,
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
                           color: _kText,
@@ -1158,7 +1163,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                         Text(
                           l10n.default_suggestion,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 12,
                             color: _kSub,
                           ),
@@ -1177,7 +1182,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                       color:
                           hasWeight
                               ? _kPrimary.withValues(alpha: 0.08)
-                              : const Color(0xFFF2EDEB),
+                              : V2Colors.chip,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: hasWeight ? _kPrimary : _kBorder,
@@ -1186,7 +1191,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                     child: Text(
                       '$weight%',
                       style: TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: hasWeight ? _kPrimary : _kSub,

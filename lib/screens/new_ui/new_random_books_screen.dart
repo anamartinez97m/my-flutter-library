@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
@@ -9,8 +10,8 @@ import 'package:myrandomlibrary/widgets/chip_autocomplete_field.dart';
 import 'package:myrandomlibrary/widgets/random_pick_scaffold.dart';
 import 'package:provider/provider.dart';
 
-const _kPrimary = Color(0xFF43102B);
-const _kSub = Color(0xFF514348);
+const _kPrimary = V2Colors.primary;
+const _kSub = V2Colors.textSecondary;
 
 /// Book titles picked on [NewRandomBooksScreen], kept by the random tab so
 /// they survive closing and reopening the screen.
@@ -172,9 +173,9 @@ class _SelectedBookTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0x1A27231E)),
+        border: Border.all(color: V2Colors.borderStrong.withValues(alpha: 0.1)),
       ),
       child: Row(
         children: [

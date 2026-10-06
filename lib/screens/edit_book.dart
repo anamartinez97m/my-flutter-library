@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
@@ -33,12 +34,14 @@ class EditBookScreen extends StatefulWidget {
 }
 
 class _EditBookScreenState extends State<EditBookScreen> {
-  static const _kBg = Color(0xFFFDF8F6);
-  static const _kPrimary = Color(0xFF43102B);
-  static const _kSub = Color(0xFF514348);
-  static const _kLabel = Color(0xCC43102B);
-  static const _kInputBorder = Color(0xFF6B7280);
-  static const _kNotesBorder = Color(0xFFD5C2C7);
+  static const _kBg = V2Colors.background;
+  static const _kPrimary = V2Colors.primary;
+  static const _kSub = V2Colors.textSecondary;
+  static const _kLabel = Color(
+    0xCC43102B,
+  ); // V2Colors.primary at 80% alpha (const-safe).
+  static const _kInputBorder = V2Colors.borderInput;
+  static const _kNotesBorder = V2Colors.border;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -1335,7 +1338,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
     child: Text(
       title,
       style: const TextStyle(
-        fontFamily: 'Manrope',
+        fontFamily: V2Typography.family,
         fontSize: 20,
         fontWeight: FontWeight.w600,
         color: _kPrimary,
@@ -1343,9 +1346,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
     ),
   );
 
-  Widget _v2Divider() => const Padding(
-    padding: EdgeInsets.symmetric(vertical: 17),
-    child: Divider(color: Color(0x4DD5C2C7), height: 1),
+  Widget _v2Divider() => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 17),
+    child: Divider(color: V2Colors.border.withValues(alpha: 0.3), height: 1),
   );
 
   Widget _v2BookListsSection(BuildContext context, AppLocalizations l10n) =>
@@ -1413,7 +1416,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 });
               },
             ),
-            const Divider(height: 1, color: Color(0x4DD5C2C7)),
+            Divider(height: 1, color: V2Colors.border.withValues(alpha: 0.3)),
             CheckboxListTile(
               title: Text(
                 l10n.mark_as_tandem,
@@ -1446,9 +1449,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
     top: false,
     child: Container(
       padding: const EdgeInsets.fromLTRB(16, 17, 16, 16),
-      decoration: const BoxDecoration(
-        color: Color(0xE6FDF8F6),
-        border: Border(top: BorderSide(color: Color(0x33D5C2C7))),
+      decoration: BoxDecoration(
+        color: V2Colors.background.withValues(alpha: 0.9),
+        border: Border(
+          top: BorderSide(color: V2Colors.border.withValues(alpha: 0.2)),
+        ),
       ),
       child: SizedBox(
         width: double.infinity,
@@ -1463,7 +1468,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
           child: Text(
             l10n.update_book,
             style: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 16,
               fontWeight: FontWeight.w700,
             ),
@@ -1479,12 +1484,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
       colorScheme: theme.colorScheme.copyWith(
         primary: _kPrimary,
         onPrimary: Colors.white,
-        primaryContainer: const Color(0xFFF2EDEB),
+        primaryContainer: V2Colors.chip,
         onPrimaryContainer: _kPrimary,
         onSurfaceVariant: _kLabel,
       ),
       chipTheme: const ChipThemeData(
-        backgroundColor: Color(0xFFF2EDEB),
+        backgroundColor: V2Colors.chip,
         labelStyle: TextStyle(color: _kPrimary, fontSize: 12),
         deleteIconColor: _kSub,
         side: BorderSide(color: _kNotesBorder),
@@ -1546,7 +1551,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
             style:
                 widget.useNewUi
                     ? const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: _kPrimary,
@@ -1597,8 +1602,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       prefixIcon: const Icon(Icons.check_circle),
                     ),
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
-                      color: Color(0xFF43102B),
+                      fontFamily: V2Typography.family,
+                      color: V2Colors.primary,
                     ),
                     items:
                         _statusList.map((status) {
@@ -2149,8 +2154,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       prefixIcon: Icon(Icons.format_shapes),
                     ),
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
-                      color: Color(0xFF43102B),
+                      fontFamily: V2Typography.family,
+                      color: V2Colors.primary,
                     ),
                     items:
                         _formatSagaList.map((format) {
@@ -2181,8 +2186,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       prefixIcon: const Icon(Icons.language),
                     ),
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
-                      color: Color(0xFF43102B),
+                      fontFamily: V2Typography.family,
+                      color: V2Colors.primary,
                     ),
                     items:
                         _languageList.map((lang) {
@@ -2208,8 +2213,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       prefixIcon: const Icon(Icons.place),
                     ),
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
-                      color: Color(0xFF43102B),
+                      fontFamily: V2Typography.family,
+                      color: V2Colors.primary,
                     ),
                     items:
                         _placeList.map((place) {
@@ -2235,8 +2240,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       prefixIcon: const Icon(Icons.import_contacts),
                     ),
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
-                      color: Color(0xFF43102B),
+                      fontFamily: V2Typography.family,
+                      color: V2Colors.primary,
                     ),
                     items:
                         _formatList.map((format) {
@@ -2314,8 +2319,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       prefixIcon: const Icon(Icons.swap_horiz),
                     ),
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
-                      color: Color(0xFF43102B),
+                      fontFamily: V2Typography.family,
+                      color: V2Colors.primary,
                     ),
                     items: [
                       DropdownMenuItem(
@@ -2554,8 +2559,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
                                                       const OutlineInputBorder(),
                                                 ),
                                                 style: const TextStyle(
-                                                  fontFamily: 'Manrope',
-                                                  color: Color(0xFF43102B),
+                                                  fontFamily:
+                                                      V2Typography.family,
+                                                  color: V2Colors.primary,
                                                 ),
                                                 items: () {
                                                   // Combine suggestions with existing field names to avoid missing values

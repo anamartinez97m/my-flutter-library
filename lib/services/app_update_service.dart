@@ -10,8 +10,7 @@ class AppUpdateService {
     if (!Platform.isAndroid) return null;
     try {
       final updateInfo = await InAppUpdate.checkForUpdate();
-      if (updateInfo.updateAvailability ==
-          UpdateAvailability.updateAvailable) {
+      if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable) {
         return updateInfo;
       }
       return null;

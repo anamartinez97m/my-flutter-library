@@ -32,7 +32,8 @@ class AuthorCatalogItem {
   });
 
   /// Display year: prefer local DB year for owned books, otherwise API year
-  int? get displayYear => isInLibrary ? (localPublicationYear ?? publishedYear) : publishedYear;
+  int? get displayYear =>
+      isInLibrary ? (localPublicationYear ?? publishedYear) : publishedYear;
 
   /// Whether the book has been read
   bool get isRead => localBookStatus?.toLowerCase() == 'yes';

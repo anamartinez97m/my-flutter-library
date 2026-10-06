@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 
 /// Application theme configuration with consistent spacing and styles
 class AppTheme {
   // Spacing constants
-  static const double spacingXSmall = 4.0;
-  static const double spacingSmall = 8.0;
-  static const double spacingMedium = 12.0;
-  static const double spacingLarge = 16.0;
-  static const double spacingXLarge = 24.0;
-  static const double spacingXXLarge = 32.0;
+  static const double spacingXSmall = V2Spacing.xs;
+  static const double spacingSmall = V2Spacing.sm;
+  static const double spacingMedium = V2Spacing.md;
+  static const double spacingLarge = V2Spacing.lg;
+  static const double spacingXLarge = V2Spacing.xl;
+  static const double spacingXXLarge = V2Spacing.xxl;
 
   // Card properties
   static const double cardElevation = 2.0;
-  static const double cardBorderRadius = 12.0;
+  static const double cardBorderRadius = V2Radii.card;
 
   // Icon sizes
   static const double iconSizeSmall = 20.0;
@@ -20,11 +21,11 @@ class AppTheme {
   static const double iconSizeLarge = 36.0;
 
   // Colors
-  static const Color primaryColor = Colors.deepPurple;
-  static const Color accentColor = Colors.purpleAccent;
-  static const Color errorColor = Colors.red;
-  static const Color successColor = Colors.green;
-  static const Color notificationColor = Color(0xFF43102B);
+  static const Color primaryColor = V2Colors.primary;
+  static const Color accentColor = V2Colors.secondary;
+  static const Color errorColor = V2Colors.error;
+  static const Color successColor = V2Colors.success;
+  static const Color notificationColor = V2Colors.primary;
 
   // Text styles
   static TextStyle? headlineLarge(BuildContext context) =>
@@ -144,7 +145,7 @@ class AppTheme {
   }
 
   static const TextStyle _notificationTextStyle = TextStyle(
-    fontFamily: 'Manrope',
+    fontFamily: V2Typography.family,
     fontSize: 14,
     fontWeight: FontWeight.w500,
     color: Colors.white,
