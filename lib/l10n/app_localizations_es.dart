@@ -4257,4 +4257,15 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get discovery_field_notes => 'tus notas';
+
+  @override
+  String get random_mood => 'Estado de ánimo';
+
+  @override
+  String get random_books_card_subtitle =>
+      'Obtén un libro al azar de una lista que tú eliges';
+
+  @override
+  String get random_filters_card_subtitle =>
+      'Filtra tu biblioteca por formato, género, páginas y más';
 }

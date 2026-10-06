@@ -1878,5 +1878,8 @@
   "discovery_field_saga": "saga",
   "discovery_field_description": "description",
   "discovery_field_author": "author",
-  "discovery_field_notes": "your notes"
+  "discovery_field_notes": "your notes",
+  "random_mood": "Mood",
+  "random_books_card_subtitle": "Get a random book from a list you choose",
+  "random_filters_card_subtitle": "Filter your library by format, genre, pages and more"
 }
