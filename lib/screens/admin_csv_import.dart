@@ -619,7 +619,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               '''
               select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
                 b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
-                p.name as placeValue, f.value as formatValue,
+                (SELECT GROUP_CONCAT(pl.name) FROM books_by_place bbp JOIN place pl ON bbp.place_id = pl.place_id WHERE bbp.book_id = b.book_id) as placeValue, f.value as formatValue,
                 fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
                 b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
                 b.read_count, b.my_rating, b.my_review,
@@ -640,7 +640,6 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               left join status s on b.status_id = s.status_id 
               left join editorial e on b.editorial_id = e.editorial_id
               left join language l on b.language_id = l.language_id 
-              left join place p on b.place_id = p.place_id  
               left join format f on b.format_id = f.format_id
               left join format_saga fs on b.format_saga_id = fs.format_id
               where b.book_id = ?

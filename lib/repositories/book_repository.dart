@@ -47,7 +47,7 @@ class BookRepository {
     final allResults = await db.rawQuery('''
       select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
         b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
-        p.name as placeValue, f.value as formatValue,
+        (SELECT GROUP_CONCAT(pl.name) FROM books_by_place bbp JOIN place pl ON bbp.place_id = pl.place_id WHERE bbp.book_id = b.book_id) as placeValue, f.value as formatValue,
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count,
@@ -70,7 +70,6 @@ class BookRepository {
       left join status s on b.status_id = s.status_id 
       left join editorial e on b.editorial_id = e.editorial_id
       left join language l on b.language_id = l.language_id 
-      left join place p on b.place_id = p.place_id  
       left join format f on b.format_id = f.format_id
       left join format_saga fs on b.format_saga_id = fs.format_id
       where $whereClause
@@ -114,7 +113,7 @@ class BookRepository {
     final result = await db.rawQuery('''
       select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
         b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
-        p.name as placeValue, f.value as formatValue,
+        (SELECT GROUP_CONCAT(pl.name) FROM books_by_place bbp JOIN place pl ON bbp.place_id = pl.place_id WHERE bbp.book_id = b.book_id) as placeValue, f.value as formatValue,
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count,
@@ -137,7 +136,6 @@ class BookRepository {
       left join status s on b.status_id = s.status_id 
       left join editorial e on b.editorial_id = e.editorial_id
       left join language l on b.language_id = l.language_id 
-      left join place p on b.place_id = p.place_id  
       left join format f on b.format_id = f.format_id
       left join format_saga fs on b.format_saga_id = fs.format_id
       where b.name <> ""
@@ -207,7 +205,7 @@ class BookRepository {
     final result = await db.rawQuery('''
       select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
         b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
-        p.name as placeValue, f.value as formatValue,
+        (SELECT GROUP_CONCAT(pl.name) FROM books_by_place bbp JOIN place pl ON bbp.place_id = pl.place_id WHERE bbp.book_id = b.book_id) as placeValue, f.value as formatValue,
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count,
@@ -230,7 +228,6 @@ class BookRepository {
       left join status s on b.status_id = s.status_id 
       left join editorial e on b.editorial_id = e.editorial_id
       left join language l on b.language_id = l.language_id 
-      left join place p on b.place_id = p.place_id  
       left join format f on b.format_id = f.format_id
       left join format_saga fs on b.format_saga_id = fs.format_id
       where b.tbr = 1 
@@ -247,7 +244,7 @@ class BookRepository {
     final result = await db.rawQuery('''
       select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
         b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
-        p.name as placeValue, f.value as formatValue,
+        (SELECT GROUP_CONCAT(pl.name) FROM books_by_place bbp JOIN place pl ON bbp.place_id = pl.place_id WHERE bbp.book_id = b.book_id) as placeValue, f.value as formatValue,
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count,
@@ -270,7 +267,6 @@ class BookRepository {
       left join status s on b.status_id = s.status_id 
       left join editorial e on b.editorial_id = e.editorial_id
       left join language l on b.language_id = l.language_id 
-      left join place p on b.place_id = p.place_id  
       left join format f on b.format_id = f.format_id
       left join format_saga fs on b.format_saga_id = fs.format_id
       where LOWER(s.value) = 'started'
@@ -303,7 +299,7 @@ class BookRepository {
     final result = await db.rawQuery('''
       select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
         b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
-        p.name as placeValue, f.value as formatValue,
+        (SELECT GROUP_CONCAT(pl.name) FROM books_by_place bbp JOIN place pl ON bbp.place_id = pl.place_id WHERE bbp.book_id = b.book_id) as placeValue, f.value as formatValue,
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count,
@@ -326,7 +322,6 @@ class BookRepository {
       left join status s on b.status_id = s.status_id 
       left join editorial e on b.editorial_id = e.editorial_id
       left join language l on b.language_id = l.language_id 
-      left join place p on b.place_id = p.place_id  
       left join format f on b.format_id = f.format_id
       left join format_saga fs on b.format_saga_id = fs.format_id
       where $whereClause
@@ -437,6 +432,29 @@ class BookRepository {
         // Link book to genre (avoid duplicates)
         await db.insert('books_by_genre', {
           'genre_id': genreId,
+          'book_id': bookId,
+        }, conflictAlgorithm: ConflictAlgorithm.ignore);
+      }
+    }
+  }
+
+  /// Helper method to link book with places (handles comma-separated places)
+  Future<void> _linkPlaces(int bookId, String? placesStr) async {
+    if (placesStr == null || placesStr.isEmpty) {
+      return;
+    }
+
+    final places = placesStr
+        .split(',')
+        .map((p) => p.trim())
+        .where((p) => p.isNotEmpty);
+
+    for (final placeName in places) {
+      final placeId = await _getOrInsertLookupId('place', 'name', placeName);
+
+      if (placeId != null) {
+        await db.insert('books_by_place', {
+          'place_id': placeId,
           'book_id': bookId,
         }, conflictAlgorithm: ConflictAlgorithm.ignore);
       }
@@ -778,6 +796,11 @@ class BookRepository {
       where: 'book_id = ?',
       whereArgs: [bookId],
     );
+    await db.delete(
+      'books_by_place',
+      where: 'book_id = ?',
+      whereArgs: [bookId],
+    );
 
     // Delete read dates (CASCADE should handle this, but being explicit)
     await db.delete(
@@ -1003,14 +1026,6 @@ class BookRepository {
       );
       if (languageId != null) updates['language_id'] = languageId;
     }
-    if (existing['place_id'] == null && newBook.placeValue != null) {
-      final placeId = await _getOrInsertLookupId(
-        'place',
-        'name',
-        newBook.placeValue,
-      );
-      if (placeId != null) updates['place_id'] = placeId;
-    }
     if (existing['format_id'] == null && newBook.formatValue != null) {
       final formatId = await _getOrInsertLookupId(
         'format',
@@ -1086,6 +1101,18 @@ class BookRepository {
         newBook.genre!.isNotEmpty) {
       await _linkGenres(existingBookId, newBook.genre);
     }
+
+    // Update places if existing book has no places
+    final existingPlaces = await db.query(
+      'books_by_place',
+      where: 'book_id = ?',
+      whereArgs: [existingBookId],
+    );
+    if (existingPlaces.isEmpty &&
+        newBook.placeValue != null &&
+        newBook.placeValue!.isNotEmpty) {
+      await _linkPlaces(existingBookId, newBook.placeValue);
+    }
   }
 
   Future<int> addBook(Book book) async {
@@ -1104,11 +1131,6 @@ class BookRepository {
       'language',
       'name',
       book.languageValue,
-    );
-    final placeId = await _getOrInsertLookupId(
-      'place',
-      'name',
-      book.placeValue,
     );
     final formatId = await _getOrInsertLookupId(
       'format',
@@ -1135,7 +1157,6 @@ class BookRepository {
       'status_id': statusId,
       'editorial_id': editorialId,
       'language_id': languageId,
-      'place_id': placeId,
       'format_id': formatId,
       'format_saga_id': formatSagaId,
       'created_at': book.createdAt ?? DateTime.now().toIso8601String(),
@@ -1183,8 +1204,8 @@ class BookRepository {
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
 
-    // If this is an update (book already has an ID), clear old author/genre links first
-    // so that removed authors/genres are not preserved from the junction tables
+    // If this is an update (book already has an ID), clear old author/genre/place
+    // links first so that removed values are not preserved from the junction tables
     if (book.bookId != null) {
       await db.delete(
         'books_by_author',
@@ -1196,6 +1217,11 @@ class BookRepository {
         where: 'book_id = ?',
         whereArgs: [bookId],
       );
+      await db.delete(
+        'books_by_place',
+        where: 'book_id = ?',
+        whereArgs: [bookId],
+      );
     }
 
     // Link authors (many-to-many relationship)
@@ -1203,6 +1229,9 @@ class BookRepository {
 
     // Link genres (many-to-many relationship)
     await _linkGenres(bookId, book.genre);
+
+    // Link places (many-to-many relationship)
+    await _linkPlaces(bookId, book.placeValue);
 
     if (book.bundleParentId != null) {
       await _syncBundleCount(book.bundleParentId!);
@@ -1480,7 +1509,7 @@ class BookRepository {
         COALESCE(orig.isbn, b.isbn) as isbn,
         COALESCE(orig.asin, b.asin) as asin,
         COALESCE(orig_l.name, l.name) as languageValue,
-        COALESCE(orig_p.name, p.name) as placeValue,
+        COALESCE(orig_places.place, places.place) as placeValue,
         COALESCE(orig_f.value, f.value) as formatValue,
         COALESCE(orig_fs.value, fs.value) as formatSagaValue,
         COALESCE(orig.loaned, b.loaned) as loaned,
@@ -1521,7 +1550,6 @@ class BookRepository {
       LEFT JOIN status orig_s ON orig.status_id = orig_s.status_id
       LEFT JOIN editorial orig_e ON orig.editorial_id = orig_e.editorial_id
       LEFT JOIN language orig_l ON orig.language_id = orig_l.language_id
-      LEFT JOIN place orig_p ON orig.place_id = orig_p.place_id
       LEFT JOIN format orig_f ON orig.format_id = orig_f.format_id
       LEFT JOIN format_saga orig_fs ON orig.format_saga_id = orig_fs.format_id
       
@@ -1557,9 +1585,22 @@ class BookRepository {
         GROUP BY bbg.book_id
       ) genres ON b.book_id = genres.book_id
       
+      -- Get places for original and current book
+      LEFT JOIN (
+        SELECT bbp.book_id, GROUP_CONCAT(DISTINCT pl.name) as place
+        FROM books_by_place bbp
+        LEFT JOIN place pl ON bbp.place_id = pl.place_id
+        GROUP BY bbp.book_id
+      ) orig_places ON orig.book_id = orig_places.book_id
+      LEFT JOIN (
+        SELECT bbp.book_id, GROUP_CONCAT(DISTINCT pl.name) as place
+        FROM books_by_place bbp
+        LEFT JOIN place pl ON bbp.place_id = pl.place_id
+        GROUP BY bbp.book_id
+      ) places ON b.book_id = places.book_id
+      
       LEFT JOIN editorial e ON b.editorial_id = e.editorial_id
       LEFT JOIN language l ON b.language_id = l.language_id
-      LEFT JOIN place p ON b.place_id = p.place_id
       LEFT JOIN format f ON b.format_id = f.format_id
       LEFT JOIN format_saga fs ON b.format_saga_id = fs.format_id
       
@@ -1594,7 +1635,7 @@ class BookRepository {
       '''
       select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
         b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
-        p.name as placeValue, f.value as formatValue,
+        (SELECT GROUP_CONCAT(pl.name) FROM books_by_place bbp JOIN place pl ON bbp.place_id = pl.place_id WHERE bbp.book_id = b.book_id) as placeValue, f.value as formatValue,
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count,
@@ -1617,7 +1658,6 @@ class BookRepository {
       left join status s on b.status_id = s.status_id 
       left join editorial e on b.editorial_id = e.editorial_id
       left join language l on b.language_id = l.language_id 
-      left join place p on b.place_id = p.place_id  
       left join format f on b.format_id = f.format_id
       left join format_saga fs on b.format_saga_id = fs.format_id
       where b.bundle_parent_id = ?
@@ -1649,7 +1689,7 @@ class BookRepository {
       '''
       select b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
         b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
-        p.name as placeValue, f.value as formatValue,
+        (SELECT GROUP_CONCAT(pl.name) FROM books_by_place bbp JOIN place pl ON bbp.place_id = pl.place_id WHERE bbp.book_id = b.book_id) as placeValue, f.value as formatValue,
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count,
@@ -1672,7 +1712,6 @@ class BookRepository {
       left join status s on b.status_id = s.status_id 
       left join editorial e on b.editorial_id = e.editorial_id
       left join language l on b.language_id = l.language_id 
-      left join place p on b.place_id = p.place_id  
       left join format f on b.format_id = f.format_id
       left join format_saga fs on b.format_saga_id = fs.format_id
       where b.book_id = ?
@@ -1765,7 +1804,7 @@ class BookRepository {
 
   /// Bulk update a field for multiple books
   /// [field] can be: genre, author, format, language, place, editorial, format_saga, saga, saga_universe
-  /// For genre/author: adds the value (does not replace existing)
+  /// For genre/author/place: adds the value (does not replace existing)
   /// For lookup fields: sets the lookup ID
   /// For text fields: sets the text value
   Future<int> updateBooksField(
@@ -1796,6 +1835,23 @@ class BookRepository {
               updated++;
             }
           }
+        } else if (field == 'place') {
+          // Many-to-many: add place to junction table
+          final placeId = await _getOrInsertLookupIdTxn(
+            txn,
+            'place',
+            'name',
+            value,
+          );
+          if (placeId != null) {
+            for (final bookId in bookIds) {
+              await txn.insert('books_by_place', {
+                'place_id': placeId,
+                'book_id': bookId,
+              }, conflictAlgorithm: ConflictAlgorithm.ignore);
+              updated++;
+            }
+          }
         } else if (field == 'author') {
           // Many-to-many: add author to junction table
           final authorId = await _getOrInsertLookupIdTxn(
@@ -1821,7 +1877,7 @@ class BookRepository {
             [value, ...bookIds],
           );
         } else {
-          // Lookup ID fields: format, language, place, editorial, format_saga
+          // Lookup ID fields: format, language, editorial, format_saga
           final tableName = field;
           final valueColumn =
               (field == 'status' || field == 'format' || field == 'format_saga')
@@ -1899,19 +1955,21 @@ class BookRepository {
     } else if (field == 'author') {
       // Books with no authors in junction table
       return _getBooksWithoutJunctionValue('books_by_author', 'author_id');
+    } else if (field == 'place') {
+      return _getBooksWithoutJunctionValue('books_by_place', 'place_id');
     } else if (field == 'saga' || field == 'saga_universe') {
       whereCondition = "(b.$field IS NULL OR b.$field = '')";
     } else if (field == 'format_saga') {
       whereCondition = 'b.format_saga_id IS NULL';
     } else {
-      // Lookup fields: format, language, place, editorial
+      // Lookup fields: format, language, editorial
       whereCondition = 'b.${field}_id IS NULL';
     }
 
     final result = await db.rawQuery('''
       SELECT b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
         b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
-        p.name as placeValue, f.value as formatValue,
+        (SELECT GROUP_CONCAT(pl.name) FROM books_by_place bbp JOIN place pl ON bbp.place_id = pl.place_id WHERE bbp.book_id = b.book_id) as placeValue, f.value as formatValue,
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count,
@@ -1934,7 +1992,6 @@ class BookRepository {
       LEFT JOIN status s ON b.status_id = s.status_id 
       LEFT JOIN editorial e ON b.editorial_id = e.editorial_id
       LEFT JOIN language l ON b.language_id = l.language_id 
-      LEFT JOIN place p ON b.place_id = p.place_id  
       LEFT JOIN format f ON b.format_id = f.format_id
       LEFT JOIN format_saga fs ON b.format_saga_id = fs.format_id
       WHERE b.name <> "" AND b.bundle_parent_id IS NULL
@@ -1954,7 +2011,7 @@ class BookRepository {
     final result = await db.rawQuery('''
       SELECT b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
         b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
-        p.name as placeValue, f.value as formatValue,
+        (SELECT GROUP_CONCAT(pl.name) FROM books_by_place bbp JOIN place pl ON bbp.place_id = pl.place_id WHERE bbp.book_id = b.book_id) as placeValue, f.value as formatValue,
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count,
@@ -1977,7 +2034,6 @@ class BookRepository {
       LEFT JOIN status s ON b.status_id = s.status_id 
       LEFT JOIN editorial e ON b.editorial_id = e.editorial_id
       LEFT JOIN language l ON b.language_id = l.language_id 
-      LEFT JOIN place p ON b.place_id = p.place_id  
       LEFT JOIN format f ON b.format_id = f.format_id
       LEFT JOIN format_saga fs ON b.format_saga_id = fs.format_id
       WHERE b.name <> "" AND b.bundle_parent_id IS NULL
@@ -2021,6 +2077,17 @@ class BookRepository {
       final authorId = authorResult.first['author_id'] as int;
       whereCondition =
           'b.book_id NOT IN (SELECT book_id FROM books_by_author WHERE author_id = $authorId)';
+    } else if (field == 'place') {
+      final placeResult = await db.rawQuery(
+        "SELECT place_id FROM place WHERE LOWER(name) = ?",
+        [value.toLowerCase()],
+      );
+      if (placeResult.isEmpty) {
+        return getAllBooks();
+      }
+      final placeId = placeResult.first['place_id'] as int;
+      whereCondition =
+          'b.book_id NOT IN (SELECT book_id FROM books_by_place WHERE place_id = $placeId)';
     } else if (field == 'saga' || field == 'saga_universe') {
       whereCondition = "(b.$field IS NULL OR b.$field != ?)";
     } else if (field == 'format_saga') {
@@ -2052,7 +2119,7 @@ class BookRepository {
     final result = await db.rawQuery('''
       SELECT b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
         b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
-        p.name as placeValue, f.value as formatValue,
+        (SELECT GROUP_CONCAT(pl.name) FROM books_by_place bbp JOIN place pl ON bbp.place_id = pl.place_id WHERE bbp.book_id = b.book_id) as placeValue, f.value as formatValue,
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count,
@@ -2075,7 +2142,6 @@ class BookRepository {
       LEFT JOIN status s ON b.status_id = s.status_id 
       LEFT JOIN editorial e ON b.editorial_id = e.editorial_id
       LEFT JOIN language l ON b.language_id = l.language_id 
-      LEFT JOIN place p ON b.place_id = p.place_id  
       LEFT JOIN format f ON b.format_id = f.format_id
       LEFT JOIN format_saga fs ON b.format_saga_id = fs.format_id
       WHERE b.name <> "" AND b.bundle_parent_id IS NULL
@@ -2095,7 +2161,7 @@ class BookRepository {
       '''
       SELECT b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
         b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue, 
-        p.name as placeValue, f.value as formatValue,
+        (SELECT GROUP_CONCAT(pl.name) FROM books_by_place bbp JOIN place pl ON bbp.place_id = pl.place_id WHERE bbp.book_id = b.book_id) as placeValue, f.value as formatValue,
         fs.value as formatSagaValue, b.loaned, b.original_publication_year, 
         b.pages, b.created_at, b.date_read_initial, b.date_read_final, 
         b.read_count,
@@ -2118,7 +2184,6 @@ class BookRepository {
       LEFT JOIN status s ON b.status_id = s.status_id 
       LEFT JOIN editorial e ON b.editorial_id = e.editorial_id
       LEFT JOIN language l ON b.language_id = l.language_id 
-      LEFT JOIN place p ON b.place_id = p.place_id  
       LEFT JOIN format f ON b.format_id = f.format_id
       LEFT JOIN format_saga fs ON b.format_saga_id = fs.format_id
       WHERE b.saga_universe = ?

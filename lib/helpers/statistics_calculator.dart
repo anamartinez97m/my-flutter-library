@@ -255,8 +255,7 @@ class StatisticsCalculator {
               (formatByLanguageCounts[format]![language] ?? 0) + multiplier;
         }
       }
-      final place = book.placeValue;
-      if (place != null && place.isNotEmpty) {
+      for (final place in book.places) {
         placeCounts[place] = (placeCounts[place] ?? 0) + multiplier;
       }
       if (book.isBundle == true) {

@@ -170,8 +170,7 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
             }
           }
           if (_f.place.isNotEmpty) {
-            if (book.placeValue == null ||
-                !_f.place.contains(book.placeValue)) {
+            if (!book.places.any(_f.place.contains)) {
               return false;
             }
           }
@@ -952,7 +951,7 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
               }
               final popular = _mostUsedOptions(
                 allOptions: allPlaces,
-                valuesOf: (b) => [if (b.placeValue != null) b.placeValue!],
+                valuesOf: (b) => b.places,
               );
               return _seeAllOptionsField(
                 l10n: l10n,

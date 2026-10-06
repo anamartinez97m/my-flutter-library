@@ -933,6 +933,8 @@
   "select_publisher": "Seleccionar editorial",
   "genres": "Género(s)",
   "search_or_add_genre": "Escribe para buscar o añadir género",
+  "search_or_add_place": "Escribe para buscar o añadir lugar",
+  "places": "Lugares",
   "original_publication_date": "Fecha de Publicación Original (para notificaciones)",
   "release_date": "Fecha de Lanzamiento",
   "select_release_date": "Seleccionar fecha de lanzamiento",

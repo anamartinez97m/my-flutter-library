@@ -3614,6 +3614,18 @@ abstract class AppLocalizations {
   /// **'Type to search or add new genre'**
   String get search_or_add_genre;
 
+  /// No description provided for @search_or_add_place.
+  ///
+  /// In en, this message translates to:
+  /// **'Type to search or add new place'**
+  String get search_or_add_place;
+
+  /// No description provided for @places.
+  ///
+  /// In en, this message translates to:
+  /// **'Places'**
+  String get places;
+
   /// No description provided for @original_publication_date.
   ///
   /// In en, this message translates to:

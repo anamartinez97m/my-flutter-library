@@ -19,7 +19,7 @@ class BookCompetitionRepository {
       '''
       SELECT DISTINCT b.book_id, s.value as statusValue, b.name, e.name as editorialValue,
         b.saga, b.n_saga, b.saga_universe, b.isbn, b.asin, l.name as languageValue,
-        p.name as placeValue, f.value as formatValue,
+        (SELECT GROUP_CONCAT(pl.name) FROM books_by_place bbp JOIN place pl ON bbp.place_id = pl.place_id WHERE bbp.book_id = b.book_id) as placeValue, f.value as formatValue,
         fs.value as formatSagaValue, b.loaned, b.original_publication_year,
         b.pages, b.created_at, b.date_read_initial, b.date_read_final,
         b.read_count,
@@ -43,7 +43,6 @@ class BookCompetitionRepository {
       LEFT JOIN status s ON b.status_id = s.status_id
       LEFT JOIN editorial e ON b.editorial_id = e.editorial_id
       LEFT JOIN language l ON b.language_id = l.language_id
-      LEFT JOIN place p ON b.place_id = p.place_id
       LEFT JOIN format f ON b.format_id = f.format_id
       LEFT JOIN format_saga fs ON b.format_saga_id = fs.format_id
       WHERE b.read_count > 0

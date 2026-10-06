@@ -18,7 +18,7 @@ class Book {
   final int? languageId = 0;
   final String? languageValue;
   final int? placeId = 0;
-  final String? placeValue;
+  final String? placeValue; // Comma-separated list of places
   final int? formatId = 0;
   final String? formatValue;
   final String? createdAt;
@@ -202,6 +202,14 @@ class Book {
               : int.tryParse(map['order_within_universe']?.toString() ?? ''),
     );
   }
+
+  List<String> get places =>
+      placeValue
+          ?.split(',')
+          .map((p) => p.trim())
+          .where((p) => p.isNotEmpty)
+          .toList() ??
+      [];
 
   Map<String, dynamic> toMap() {
     return {

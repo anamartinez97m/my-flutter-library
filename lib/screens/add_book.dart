@@ -94,7 +94,6 @@ class _AddBookScreenState extends State<AddBookScreen> {
   int? _selectedOriginalBookId; // For repeated books
   int? _selectedFormatSagaId;
   int? _selectedLanguageId;
-  int? _selectedPlaceId;
   int? _selectedFormatId;
   String? _selectedLoaned;
 
@@ -102,12 +101,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
   List<Map<String, dynamic>> _statusList = [];
   List<Map<String, dynamic>> _formatSagaList = [];
   List<Map<String, dynamic>> _languageList = [];
-  List<Map<String, dynamic>> _placeList = [];
   List<Map<String, dynamic>> _formatList = [];
 
   // Autocomplete suggestions
   List<String> _authorSuggestions = [];
   List<String> _genreSuggestions = [];
+  List<String> _placeSuggestions = [];
   List<String> _editorialSuggestions = [];
   List<String> _sagaSuggestions = [];
   List<String> _sagaUniverseSuggestions = [];
@@ -115,6 +114,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   // Multi-value fields
   List<String> _selectedAuthors = [];
   List<String> _selectedGenres = [];
+  List<String> _selectedPlaces = [];
   List<String> _selectedEditorial = []; // Single value but displayed as chip
 
   bool _isLoading = true;
@@ -226,10 +226,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
         _statusList = _deduplicateById(status, 'status_id');
         _formatSagaList = _deduplicateById(formatSaga, 'format_id');
         _languageList = _deduplicateById(language, 'language_id');
-        _placeList = _deduplicateById(place, 'place_id');
         _formatList = _deduplicateById(format, 'format_id');
         _authorSuggestions = authors.map((a) => a['name'] as String).toList();
         _genreSuggestions = genres.map((g) => g['name'] as String).toList();
+        _placeSuggestions = place.map((p) => p['name'] as String).toList();
         _editorialSuggestions =
             editorials.map((e) => e['name'] as String).toList();
         _sagaSuggestions = sagas;
@@ -575,12 +575,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   as String?
               : null;
       String? placeValue =
-          _selectedPlaceId != null
-              ? _placeList.firstWhere(
-                    (p) => p['place_id'] == _selectedPlaceId,
-                  )['name']
-                  as String?
-              : null;
+          _selectedPlaces.isEmpty ? null : _selectedPlaces.join(', ');
       String? formatValue =
           _selectedFormatId != null
               ? _formatList.firstWhere(
@@ -874,7 +869,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         _selectedOriginalBookId = null;
         _selectedFormatSagaId = null;
         _selectedLanguageId = null;
-        _selectedPlaceId = null;
+        _selectedPlaces = [];
         _selectedFormatId = null;
         _selectedLoaned = null;
         _isBundle = false;
@@ -2027,26 +2022,15 @@ class _AddBookScreenState extends State<AddBookScreen> {
         ),
       ),
       const SizedBox(height: 10),
-      DropdownButtonFormField<int>(
-        value: _selectedPlaceId,
-        decoration: _v2Deco(l10n.place, Icons.place),
-        dropdownColor: Colors.white,
-        style: const TextStyle(
-          fontFamily: V2Typography.family,
-          color: _kPrimary,
-        ),
-        items:
-            _placeList
-                .map(
-                  (p) => DropdownMenuItem<int>(
-                    value: p['place_id'] as int,
-                    child: Text(p['name'] as String),
-                  ),
-                )
-                .toList(),
+      ChipAutocompleteField(
+        labelText: l10n.places,
+        prefixIcon: Icons.place,
+        suggestions: _placeSuggestions,
+        initialValues: _selectedPlaces,
+        hintText: l10n.search_or_add_place,
         onChanged:
             (v) => setState(() {
-              _selectedPlaceId = v;
+              _selectedPlaces = v;
             }),
       ),
       const SizedBox(height: 10),
