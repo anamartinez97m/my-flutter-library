@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
 class ChipAutocompleteField extends StatefulWidget {
   final String labelText;
@@ -11,6 +10,15 @@ class ChipAutocompleteField extends StatefulWidget {
   final int? maxSelections; // null = unlimited, 1 = single selection, etc.
   final InputDecoration? decoration;
 
+  /// Replaces the default chips shown under the field. Receives the current
+  /// values and a remove callback.
+  final Widget Function(
+    BuildContext context,
+    List<String> values,
+    void Function(String value) onRemove,
+  )?
+  selectedBuilder;
+
   const ChipAutocompleteField({
     super.key,
     required this.labelText,
@@ -21,6 +29,7 @@ class ChipAutocompleteField extends StatefulWidget {
     this.hintText,
     this.maxSelections,
     this.decoration,
+    this.selectedBuilder,
   });
 
   @override
@@ -103,6 +112,7 @@ class _ChipAutocompleteFieldState extends State<ChipAutocompleteField> {
             _addValue(selection);
             // Clear the field after selection
             _textController.clear();
+            FocusManager.instance.primaryFocus?.unfocus();
           },
           fieldViewBuilder: (
             BuildContext context,
@@ -179,46 +189,40 @@ class _ChipAutocompleteFieldState extends State<ChipAutocompleteField> {
         ),
         if (_selectedValues.isNotEmpty) ...[
           const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.only(left: 12.0),
-            child: Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children:
-                  _selectedValues.map((value) {
-                    return Chip(
-                      label: Text(value, style: const TextStyle(fontSize: 12)),
-                      deleteIcon: const Icon(Icons.close, size: 16),
-                      onDeleted: () => _removeValue(value),
-                      backgroundColor: Theme.of(
-                        context,
-                      ).colorScheme.primaryContainer.withValues(alpha: 0.4),
-                      labelStyle: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 0,
-                      ),
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      visualDensity: VisualDensity.compact,
-                    );
-                  }).toList(),
+          if (widget.selectedBuilder != null)
+            widget.selectedBuilder!(context, _selectedValues, _removeValue)
+          else
+            Padding(
+              padding: const EdgeInsets.only(left: 12.0),
+              child: Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children:
+                    _selectedValues.map((value) {
+                      return Chip(
+                        label: Text(
+                          value,
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        deleteIcon: const Icon(Icons.close, size: 16),
+                        onDeleted: () => _removeValue(value),
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer.withValues(alpha: 0.4),
+                        labelStyle: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 0,
+                        ),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        visualDensity: VisualDensity.compact,
+                      );
+                    }).toList(),
+              ),
             ),
-          ),
         ],
-        const SizedBox(height: 4),
-        Padding(
-          padding: const EdgeInsets.only(left: 12.0),
-          child: Text(
-            AppLocalizations.of(context)!.press_enter_to_add,
-            style: TextStyle(
-              fontSize: 11,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              fontStyle: FontStyle.italic,
-            ),
-          ),
-        ),
       ],
     );
   }

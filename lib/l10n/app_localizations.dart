@@ -7591,6 +7591,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'your notes'**
   String get discovery_field_notes;
+
+  /// No description provided for @random_mood.
+  ///
+  /// In en, this message translates to:
+  /// **'Mood'**
+  String get random_mood;
+
+  /// No description provided for @random_books_card_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Get a random book from a list you choose'**
+  String get random_books_card_subtitle;
+
+  /// No description provided for @random_filters_card_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter your library by format, genre, pages and more'**
+  String get random_filters_card_subtitle;
 }
 
 class _AppLocalizationsDelegate

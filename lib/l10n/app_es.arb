@@ -1871,5 +1871,8 @@
   "discovery_field_saga": "saga",
   "discovery_field_description": "descripción",
   "discovery_field_author": "autor",
-  "discovery_field_notes": "tus notas"
+  "discovery_field_notes": "tus notas",
+  "random_mood": "Estado de ánimo",
+  "random_books_card_subtitle": "Obtén un libro al azar de una lista que tú eliges",
+  "random_filters_card_subtitle": "Filtra tu biblioteca por formato, género, páginas y más"
 }
