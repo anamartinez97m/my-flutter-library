@@ -13,13 +13,8 @@ import 'package:provider/provider.dart';
 const _kPrimary = Color(0xFF43102B);
 const _kSub = Color(0xFF514348);
 const _kBorder = Color(0xFFD5C2C7);
-const _kCardBg = Color(0xB3FDF8F6);
-const _kCardBorder = Color(0x4DD5C2C7);
 const _kChipBg = Color(0x80F2EDEB);
 const _kChipBorder = Color(0x80D5C2C7);
-const _kCardShadow = [
-  BoxShadow(color: Color(0x0A000000), blurRadius: 12, offset: Offset(0, 4)),
-];
 
 /// "What are you in the mood for?" — free-text theme search over the user's
 /// own library, rendered inline as a card.
@@ -101,27 +96,49 @@ class _ThemeDiscoveryCardState extends State<ThemeDiscoveryCard> {
         _query.length >= BookDiscoveryService.minQueryLength &&
         _controller.text.trim() == _query;
 
-    return Container(
+    return SizedBox(
       width: double.infinity,
-      padding: const EdgeInsets.all(17),
-      decoration: BoxDecoration(
-        color: _kCardBg,
-        border: Border.all(color: _kCardBorder),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: _kCardShadow,
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _buildHeader(l10n),
-          const SizedBox(height: 16),
-          const Divider(color: _kBorder, height: 1),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
+          Center(
+            child: Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                color: _kPrimary.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.auto_awesome, color: _kPrimary, size: 34),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            l10n.theme_discovery_title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: _kPrimary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Text(
+              l10n.theme_discovery_subtitle,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 13, color: _kSub, height: 1.4),
+            ),
+          ),
+          const SizedBox(height: 28),
           _buildField(l10n),
           const SizedBox(height: 12),
           if (!searched) ...[
             Text(
               l10n.theme_discovery_helper,
+              textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 12, color: _kSub),
             ),
             const SizedBox(height: 12),
@@ -137,46 +154,6 @@ class _ThemeDiscoveryCardState extends State<ThemeDiscoveryCard> {
             ..._buildResults(l10n, results),
         ],
       ),
-    );
-  }
-
-  Widget _buildHeader(AppLocalizations l10n) {
-    return Row(
-      children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: const BoxDecoration(
-            color: _kPrimary,
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(Icons.auto_awesome, color: Colors.white, size: 20),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.theme_discovery_title,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: _kPrimary,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                l10n.theme_discovery_subtitle,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: _kPrimary.withValues(alpha: 0.8),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 
@@ -224,14 +201,15 @@ class _ThemeDiscoveryCardState extends State<ThemeDiscoveryCard> {
     final languageCode = Localizations.localeOf(context).languageCode;
     final suggestions = ConceptCatalog.instance.suggestions;
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           l10n.theme_discovery_suggestions,
+          textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 12, color: _kSub),
         ),
         const SizedBox(height: 8),
         Wrap(
+          alignment: WrapAlignment.center,
           spacing: 8,
           runSpacing: 8,
           children: [

@@ -85,6 +85,7 @@ class RandomPickScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
     return withManrope(
       context,
       Scaffold(
@@ -114,7 +115,7 @@ class RandomPickScaffold extends StatelessWidget {
                         ),
                       ),
                     ),
-                    _buildActionButtons(l10n),
+                    if (!keyboardOpen) _buildActionButtons(l10n),
                   ],
                 ),
       ),

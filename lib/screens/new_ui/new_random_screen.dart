@@ -32,8 +32,8 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
     final isAdmin = context.watch<RoleProvider>().isAdmin;
     return Scaffold(
       backgroundColor: _kBg,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -52,29 +52,36 @@ class _NewRandomScreenState extends State<NewRandomScreen> {
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 14, color: _kPrimary),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             if (isAdmin) ...[
-              _RandomOptionCard(
-                icon: Icons.auto_awesome,
-                title: l10n.theme_discovery_title,
-                subtitle: l10n.theme_discovery_subtitle,
-                onTap: () => _open(const NewRandomMoodScreen()),
+              Expanded(
+                child: _RandomOptionCard(
+                  icon: Icons.auto_awesome,
+                  title: l10n.theme_discovery_title,
+                  subtitle: l10n.theme_discovery_subtitle,
+                  onTap: () => _open(const NewRandomMoodScreen()),
+                ),
               ),
               const SizedBox(height: 16),
             ],
-            _RandomOptionCard(
-              icon: Icons.library_books,
-              title: l10n.select_books,
-              subtitle: l10n.random_books_card_subtitle,
-              onTap:
-                  () => _open(NewRandomBooksScreen(selection: _bookSelection)),
+            Expanded(
+              child: _RandomOptionCard(
+                icon: Icons.library_books,
+                title: l10n.select_books,
+                subtitle: l10n.random_books_card_subtitle,
+                onTap:
+                    () =>
+                        _open(NewRandomBooksScreen(selection: _bookSelection)),
+              ),
             ),
             const SizedBox(height: 16),
-            _RandomOptionCard(
-              icon: Icons.tune,
-              title: l10n.filters,
-              subtitle: l10n.random_filters_card_subtitle,
-              onTap: () => _open(NewRandomFiltersScreen(filters: _filters)),
+            Expanded(
+              child: _RandomOptionCard(
+                icon: Icons.tune,
+                title: l10n.filters,
+                subtitle: l10n.random_filters_card_subtitle,
+                onTap: () => _open(NewRandomFiltersScreen(filters: _filters)),
+              ),
             ),
           ],
         ),
@@ -107,7 +114,7 @@ class _RandomOptionCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: radius,
         child: Ink(
-          padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 28),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: radius,
@@ -121,12 +128,15 @@ class _RandomOptionCard extends StatelessWidget {
             ],
           ),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(icon, size: 30, color: _kPrimary),
               const SizedBox(height: 8),
               Text(
                 title,
                 textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -134,14 +144,18 @@ class _RandomOptionCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 6),
-              Text(
-                subtitle,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: _kSub,
-                  letterSpacing: 0.26,
+              Flexible(
+                child: Text(
+                  subtitle,
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 3,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: _kSub,
+                    letterSpacing: 0.26,
+                  ),
                 ),
               ),
             ],

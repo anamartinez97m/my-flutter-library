@@ -11,12 +11,6 @@ import 'package:provider/provider.dart';
 
 const _kPrimary = Color(0xFF43102B);
 const _kSub = Color(0xFF514348);
-const _kBorder = Color(0xFFD5C2C7);
-const _kCardBg = Color(0xB3FDF8F6);
-const _kCardBorder = Color(0x4DD5C2C7);
-const _kCardShadow = [
-  BoxShadow(color: Color(0x0A000000), blurRadius: 12, offset: Offset(0, 4)),
-];
 
 /// Book titles picked on [NewRandomBooksScreen], kept by the random tab so
 /// they survive closing and reopening the screen.
@@ -90,72 +84,42 @@ class _NewRandomBooksScreenState extends State<NewRandomBooksScreen> {
               : l10n.random_from_selected(_titles.length.toString()),
       onClear: _clear,
       clearLabel: l10n.clear_all,
-      children: [_buildSelectBooksCard(l10n)],
+      children: [_buildContent(l10n)],
     );
   }
 
-  Widget _buildSelectBooksCard(AppLocalizations l10n) {
-    return Container(
+  Widget _buildContent(AppLocalizations l10n) {
+    return SizedBox(
       width: double.infinity,
-      padding: const EdgeInsets.all(17),
-      decoration: BoxDecoration(
-        color: _kCardBg,
-        border: Border.all(color: _kCardBorder),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: _kCardShadow,
-      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: const BoxDecoration(
-                  color: _kPrimary,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.library_books,
-                  color: Colors.white,
-                  size: 20,
-                ),
+          const SizedBox(height: 24),
+          Center(
+            child: Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                color: _kPrimary.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.select_books,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: _kPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      l10n.random_books_card_subtitle,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: _kPrimary.withValues(alpha: 0.8),
-                      ),
-                    ),
-                  ],
-                ),
+              child: const Icon(
+                Icons.library_books,
+                color: _kPrimary,
+                size: 34,
               ),
-            ],
+            ),
           ),
-          const SizedBox(height: 16),
-          const Divider(color: _kBorder, height: 1),
-          const SizedBox(height: 16),
-          Text(
-            l10n.search_select_books_description,
-            style: const TextStyle(fontSize: 12, color: _kSub),
+          const SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Text(
+              l10n.search_select_books_description,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 13, color: _kSub, height: 1.4),
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 28),
           Consumer<BookProvider>(
             builder: (context, provider, _) {
               final titles =
@@ -167,7 +131,7 @@ class _NewRandomBooksScreenState extends State<NewRandomBooksScreen> {
               return ChipAutocompleteField(
                 key: ValueKey(_fieldKey),
                 labelText: l10n.select_books,
-                prefixIcon: Icons.library_books,
+                prefixIcon: Icons.search,
                 suggestions: titles,
                 initialValues: _titles,
                 hintText: l10n.type_to_search_books,
@@ -176,8 +140,60 @@ class _NewRandomBooksScreenState extends State<NewRandomBooksScreen> {
                       widget.selection.titles = values;
                       if (values.isEmpty) _randomBook = null;
                     }),
+                selectedBuilder:
+                    (context, values, onRemove) => Column(
+                      children: [
+                        for (final title in values)
+                          _SelectedBookTile(
+                            title: title,
+                            onRemove: () => onRemove(title),
+                          ),
+                      ],
+                    ),
               );
             },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One row per selected book: leading book icon, title, trailing remove icon.
+class _SelectedBookTile extends StatelessWidget {
+  final String title;
+  final VoidCallback onRemove;
+
+  const _SelectedBookTile({required this.title, required this.onRemove});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0x1A27231E)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.menu_book, size: 18, color: _kPrimary),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: _kPrimary,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          GestureDetector(
+            onTap: onRemove,
+            child: const Icon(Icons.close, size: 18, color: _kSub),
           ),
         ],
       ),
