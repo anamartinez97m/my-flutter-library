@@ -26,7 +26,10 @@ const _kCardShadow = [
 class ThemeDiscoveryCard extends StatefulWidget {
   final BookDiscoveryService? service;
 
-  const ThemeDiscoveryCard({super.key, this.service});
+  /// Narrows the library before searching (e.g. saga reading order).
+  final List<Book> Function(List<Book> books)? bookFilter;
+
+  const ThemeDiscoveryCard({super.key, this.service, this.bookFilter});
 
   @override
   State<ThemeDiscoveryCard> createState() => _ThemeDiscoveryCardState();
@@ -81,7 +84,10 @@ class _ThemeDiscoveryCardState extends State<ThemeDiscoveryCard> {
     if (_query != _cachedQuery || !identical(books, _cachedBooks)) {
       _cachedQuery = _query;
       _cachedBooks = books;
-      _cachedResults = _service.search(_query, books);
+      _cachedResults = _service.search(
+        _query,
+        widget.bookFilter?.call(books) ?? books,
+      );
     }
     return _cachedResults;
   }

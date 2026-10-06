@@ -4206,4 +4206,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get discovery_field_notes => 'your notes';
+
+  @override
+  String get random_mood => 'Mood';
+
+  @override
+  String get random_books_card_subtitle =>
+      'Get a random book from a list you choose';
+
+  @override
+  String get random_filters_card_subtitle =>
+      'Filter your library by format, genre, pages and more';
 }
