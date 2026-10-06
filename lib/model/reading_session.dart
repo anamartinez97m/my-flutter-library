@@ -37,12 +37,21 @@ class ReadingSession {
     return ReadingSession(
       sessionId: map['session_id'] as int?,
       bookId: map['book_id'] as int,
-      startTime: map['start_time'] != null ? DateTime.parse(map['start_time'] as String) : null,
-      endTime: map['end_time'] != null ? DateTime.parse(map['end_time'] as String) : null,
+      startTime:
+          map['start_time'] != null
+              ? DateTime.parse(map['start_time'] as String)
+              : null,
+      endTime:
+          map['end_time'] != null
+              ? DateTime.parse(map['end_time'] as String)
+              : null,
       durationSeconds: map['duration_seconds'] as int?,
       isActive: (map['is_active'] as int) == 1,
       didRead: (map['did_read'] as int?) == 1,
-      clickedAt: map['clicked_at'] != null ? DateTime.parse(map['clicked_at'] as String) : null,
+      clickedAt:
+          map['clicked_at'] != null
+              ? DateTime.parse(map['clicked_at'] as String)
+              : null,
     );
   }
 

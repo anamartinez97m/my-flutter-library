@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
-const _kPrimary = Color(0xFF43102B);
-const _kSecondary = Color(0xFF894B67);
-const _kTertiary = Color(0xFFBC92A6);
-const _kSub = Color(0xFF514348);
+const _kPrimary = V2Colors.primary;
+const _kSecondary = V2Colors.secondary;
+const _kTertiary = Color(0xFFBC92A6); // Not represented in V2Colors.
+const _kSub = V2Colors.textSecondary;
 
 /// Reading Efficiency 2 — Compact 3-column metric row.
 ///
@@ -73,7 +74,7 @@ class ReadingEfficiency2Card extends StatelessWidget {
           Text(
             l10n.reading_efficiency_2,
             style: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: _kPrimary,
@@ -89,7 +90,7 @@ class ReadingEfficiency2Card extends StatelessWidget {
                       margin: EdgeInsets.only(right: isLast ? 0 : 8),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFDF8F6),
+                        color: V2Colors.background,
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: const Color(0x1A27231E)),
                       ),
@@ -140,7 +141,7 @@ class _MetricTile extends StatelessWidget {
             Text(
               metric.value,
               style: TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: metric.color,
@@ -151,7 +152,7 @@ class _MetricTile extends StatelessWidget {
               child: Text(
                 metric.unit,
                 style: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 10,
                   color: _kSub,
                 ),
@@ -166,7 +167,7 @@ class _MetricTile extends StatelessWidget {
           child: Text(
             metric.subtitle,
             style: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 10,
               color: _kSub,
             ),

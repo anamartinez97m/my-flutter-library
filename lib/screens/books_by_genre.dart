@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
 import 'package:provider/provider.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
-const _kPrimary = Color(0xFF43102B);
-const _kBg = Color(0xFFFDF8F6);
-const _kBorder = Color(0xFFCEC5BE);
-const _kDivider = Color(0xFFE6E2DF);
-const _kText = Color(0xFF5F5E5C);
-const _kSub = Color(0xFF514348);
+const _kPrimary = V2Colors.primary;
+const _kBg = V2Colors.background;
+const _kBorder = V2Colors.borderNeutral;
+const _kDivider = V2Colors.divider;
+const _kText = V2Colors.textSubtle;
+const _kSub = V2Colors.textSecondary;
 
 class BooksByGenreScreen extends StatelessWidget {
   final List<String> genres;
@@ -36,7 +37,7 @@ class BooksByGenreScreen extends StatelessWidget {
           title: Text(
             AppLocalizations.of(context)!.genre,
             style: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 20,
               fontWeight: FontWeight.w600,
               color: _kPrimary,
@@ -62,7 +63,7 @@ class BooksByGenreScreen extends StatelessWidget {
           title: Text(
             genres.first,
             style: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 20,
               fontWeight: FontWeight.w600,
               color: _kPrimary,
@@ -72,7 +73,7 @@ class BooksByGenreScreen extends StatelessWidget {
           centerTitle: true,
           bottom: const PreferredSize(
             preferredSize: Size.fromHeight(1),
-            child: Divider(height: 1, thickness: 1, color: Color(0xFFD5C2C7)),
+            child: Divider(height: 1, thickness: 1, color: V2Colors.border),
           ),
         ),
         body: _GenreContent(genreName: genres.first),
@@ -113,7 +114,7 @@ class _MultiGenreScreenState extends State<_MultiGenreScreen> {
             title: Text(
               AppLocalizations.of(context)!.genres,
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
                 color: _kPrimary,
@@ -122,7 +123,7 @@ class _MultiGenreScreenState extends State<_MultiGenreScreen> {
             ),
             centerTitle: true,
           ),
-          const Divider(height: 1, color: Color(0xFFD5C2C7)),
+          const Divider(height: 1, color: V2Colors.border),
           const SizedBox(height: 8),
           SizedBox(
             height: 52,
@@ -148,7 +149,7 @@ class _MultiGenreScreenState extends State<_MultiGenreScreen> {
                     child: Text(
                       widget.genres[i],
                       style: TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: sel ? Colors.white : _kSub,
@@ -229,7 +230,7 @@ class _GenreContent extends StatelessWidget {
         child: Text(
           AppLocalizations.of(context)!.no_books_for_genre,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 16,
             color: _kSub,
           ),
@@ -326,7 +327,7 @@ Widget _statChip({
         Text(
           value,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 15,
             fontWeight: FontWeight.w700,
             color: _kPrimary,
@@ -336,7 +337,7 @@ Widget _statChip({
         Text(
           label,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 11,
             fontWeight: FontWeight.w500,
             color: _kText,
@@ -367,7 +368,7 @@ Widget _bookCard({
     child: Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: isRead ? const Color(0xFFF5F3F2) : Colors.white,
+        color: isRead ? V2Colors.surfaceMuted : Colors.white,
         border: Border.all(color: _kBorder),
         borderRadius: BorderRadius.circular(8),
         boxShadow: [

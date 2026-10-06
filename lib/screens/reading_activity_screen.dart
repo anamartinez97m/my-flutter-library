@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
@@ -32,16 +33,16 @@ class ReadingActivityScreen extends StatefulWidget {
   final int booksSlowerThanAverage;
   final List<Book> books;
 
-  static const kBg = Color(0xFFFDF8F6);
-  static const kPrimary = Color(0xFF43102B);
-  static const kSecondary = Color(0xFF894B67);
-  static const kTertiary = Color(0xFFBC92A6);
-  static const kMuted = Color(0xFFD5C2C7);
-  static const kText = Color(0xFF1C1B1A);
-  static const kSub = Color(0xFF514348);
-  static const kBorder = Color(0x4DD5C2C7);
-  static const kDivider = Color(0xFFE6E2DF);
-  static const kBarBg = Color(0xFFE6E2DF);
+  static const kBg = V2Colors.background;
+  static const kPrimary = V2Colors.primary;
+  static const kSecondary = V2Colors.secondary;
+  static const kTertiary = Color(0xFFBC92A6); // Not represented in V2Colors.
+  static const kMuted = V2Colors.border;
+  static const kText = V2Colors.textPrimary;
+  static const kSub = V2Colors.textSecondary;
+  static const kBorder = Color(0x4DD5C2C7); // Exact alpha variant.
+  static const kDivider = V2Colors.divider;
+  static const kBarBg = V2Colors.divider;
 
   const ReadingActivityScreen({
     super.key,
@@ -180,7 +181,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
         title: Text(
           l10n.section_reading_activity,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
             color: _kPrimary,
@@ -190,7 +191,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
         centerTitle: true,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: const Color(0xFFD5C2C7)),
+          child: Container(height: 1, color: V2Colors.border),
         ),
       ),
       body: SingleChildScrollView(
@@ -245,7 +246,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                             child: Text(
                               l10n.best_past_books,
                               style: const TextStyle(
-                                fontFamily: 'Manrope',
+                                fontFamily: V2Typography.family,
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 color: _kPrimary,
@@ -274,16 +275,16 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                                       vertical: 4,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFF2EDEB),
+                                      color: V2Colors.chip,
                                       borderRadius: BorderRadius.circular(6),
                                       border: Border.all(
-                                        color: const Color(0xFFD5C2C7),
+                                        color: V2Colors.border,
                                       ),
                                     ),
                                     child: Text(
                                       '${winner.year}',
                                       style: const TextStyle(
-                                        fontFamily: 'Manrope',
+                                        fontFamily: V2Typography.family,
                                         fontSize: 12,
                                         fontWeight: FontWeight.bold,
                                         color: _kPrimary,
@@ -295,7 +296,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                                     child: Text(
                                       winner.bookName,
                                       style: const TextStyle(
-                                        fontFamily: 'Manrope',
+                                        fontFamily: V2Typography.family,
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
                                         color: _kPrimary,
@@ -406,7 +407,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                   child: Text(
                     title,
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
                       color: _kPrimary,
@@ -480,7 +481,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                     child: Text(
                       '${entry.key}',
                       style: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: _kSub,
@@ -519,7 +520,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
               Text(
                 'View more',
                 style: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: _kPrimary,
@@ -566,7 +567,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                     child: Text(
                       '${entry.key}',
                       style: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: _kSub,
@@ -902,7 +903,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
               child: Text(
                 l10n.reading_goals,
                 style: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                   color: _kPrimary,
@@ -934,7 +935,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
             Text(
               l10n.all_label,
               style: TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
                 color: !_showReadBooks ? _kPrimary : _kSub,
@@ -952,7 +953,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
             Text(
               l10n.read_label,
               style: TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
                 color: _showReadBooks ? _kPrimary : _kSub,
@@ -1001,7 +1002,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                       child: Text(
                         entry.key,
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: _kSub,
@@ -1043,7 +1044,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                 Text(
                   'View more',
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: _kPrimary,
@@ -1152,7 +1153,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
         isDense: true,
         dropdownColor: Colors.white,
         style: const TextStyle(
-          fontFamily: 'Manrope',
+          fontFamily: V2Typography.family,
           fontSize: 13,
           color: _kText,
         ),

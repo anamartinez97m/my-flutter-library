@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/repositories/reading_club_repository.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
-const _kBg = Color(0xFFFDF8F6);
-const _kPrimary = Color(0xFF43102B);
-const _kSub = Color(0xFF514348);
-const _kText = Color(0xFF1C1B1A);
-const _kBorder = Color(0xFFD5C2C7);
-const _kSecondary = Color(0xFF5D2641);
+const _kBg = V2Colors.background;
+const _kPrimary = V2Colors.primary;
+const _kSub = V2Colors.textSecondary;
+const _kText = V2Colors.textPrimary;
+const _kBorder = V2Colors.border;
+const _kSecondary = V2Colors.primaryAlt;
 
 class ManageClubNamesScreen extends StatefulWidget {
   const ManageClubNamesScreen({super.key});
@@ -167,7 +168,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                           Text(
                             l10n.rename_club,
                             style: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
                               color: _kPrimary,
@@ -180,7 +181,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                         controller: controller,
                         autofocus: true,
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 18,
                           color: _kText,
                         ),
@@ -202,7 +203,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                             ),
                           ),
                           labelStyle: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 12,
                             color: _kPrimary,
                           ),
@@ -240,7 +241,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                         child: Text(
                           l10n.cancel,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -269,7 +270,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                         child: Text(
                           l10n.rename,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -355,7 +356,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                           Text(
                             l10n.delete_club,
                             style: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFFB3261E),
@@ -367,7 +368,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                       Text(
                         l10n.confirm_delete_club(clubName, bookCount),
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 16,
                           color: _kText,
                           height: 1.4,
@@ -404,7 +405,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                         child: Text(
                           l10n.cancel,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -428,7 +429,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                         child: Text(
                           l10n.delete,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -464,7 +465,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                   child: Text(
                     l10n.new_club,
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
                       color: _kPrimary,
@@ -488,7 +489,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                 child: Text(
                   l10n.cancel,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -502,7 +503,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                 child: Text(
                   l10n.add,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -557,7 +558,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
         title: Text(
           l10n.manage_club_names,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
             color: _kPrimary,
@@ -584,7 +585,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
         label: Text(
           l10n.new_club,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -605,7 +606,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
             Text(
               l10n.no_clubs_yet,
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
                 color: _kSub,
@@ -615,7 +616,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
             Text(
               l10n.add_books_to_clubs_hint,
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 14,
                 color: _kSub,
                 fontStyle: FontStyle.italic,
@@ -641,7 +642,9 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0x1A27231E)),
+            border: Border.all(
+              color: V2Colors.borderStrong.withValues(alpha: 0.1),
+            ),
             boxShadow: const [
               BoxShadow(
                 color: Color(0x0A000000),
@@ -677,7 +680,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                     Text(
                       clubName,
                       style: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: _kText,
@@ -687,7 +690,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                     Text(
                       l10n.book_count_label(bookCount),
                       style: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 13,
                         color: _kSub,
                       ),
@@ -702,7 +705,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                               child: LinearProgressIndicator(
                                 value: avgProgress / 100,
                                 minHeight: 6,
-                                backgroundColor: const Color(0xFFF2EDEB),
+                                backgroundColor: V2Colors.chip,
                                 valueColor: const AlwaysStoppedAnimation<Color>(
                                   _kSecondary,
                                 ),
@@ -713,7 +716,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                           Text(
                             '${avgProgress.toStringAsFixed(0)}%',
                             style: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                               color: _kSecondary,

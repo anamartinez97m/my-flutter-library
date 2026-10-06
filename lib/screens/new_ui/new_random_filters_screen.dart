@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/model/book.dart';
@@ -13,14 +14,14 @@ import 'package:myrandomlibrary/utils/saga_order_filter.dart';
 import 'package:myrandomlibrary/widgets/random_pick_scaffold.dart';
 import 'package:provider/provider.dart';
 
-const _kPrimary = Color(0xFF43102B);
-const _kSub = Color(0xFF514348);
-const _kBorder = Color(0xFFD5C2C7);
-const _kCardBg = Color(0xB3FDF8F6);
-const _kCardBorder = Color(0x4DD5C2C7);
-const _kChipBg = Color(0x80F2EDEB);
-const _kChipBorder = Color(0x80D5C2C7);
-const _kChipSelected = Color(0xE643102B);
+const _kPrimary = V2Colors.primary;
+const _kSub = V2Colors.textSecondary;
+const _kBorder = V2Colors.border;
+final _kCardBg = V2Colors.background.withValues(alpha: 0.7);
+final _kCardBorder = V2Colors.border.withValues(alpha: 0.3);
+final _kChipBg = V2Colors.chip.withValues(alpha: 0.5);
+final _kChipBorder = V2Colors.border.withValues(alpha: 0.5);
+final _kChipSelected = V2Colors.primary.withValues(alpha: 0.9);
 const _kAvoid = Color(0xFF8B4A3C);
 const _kAvoidBg = Color(0xFFFFF0EC);
 const _kAvoidBorder = Color(0xFFE3A99C);
@@ -424,11 +425,11 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
           border: selected ? null : Border.all(color: _kChipBorder),
           boxShadow:
               selected
-                  ? const [
+                  ? [
                     BoxShadow(
-                      color: Color(0x0D000000),
+                      color: Colors.black.withValues(alpha: 0.05),
                       blurRadius: 2,
-                      offset: Offset(0, 1),
+                      offset: const Offset(0, 1),
                     ),
                   ]
                   : null,
@@ -439,7 +440,7 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
             fontSize: 11,
             fontWeight: FontWeight.w500,
             letterSpacing: 0.55,
-            color: selected ? Colors.white : _kSub,
+            color: selected ? V2Colors.surface : _kSub,
           ),
         ),
       ),

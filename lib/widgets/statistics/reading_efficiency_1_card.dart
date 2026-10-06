@@ -1,5 +1,6 @@
 import 'dart:math' show pi;
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
 /// Reading Efficiency 1 — Hero score ring.
@@ -8,11 +9,11 @@ import 'package:myrandomlibrary/l10n/app_localizations.dart';
 /// than the user's average pace. Three compact chips below surface the
 /// supporting velocity metrics.
 class ReadingEfficiency1Card extends StatelessWidget {
-  static const _kPrimary = Color(0xFF43102B);
-  static const _kSecondary = Color(0xFF894B67);
-  static const _kTertiary = Color(0xFFBC92A6);
-  static const _kSub = Color(0xFF514348);
-  static const _kDivider = Color(0xFFE6E2DF);
+  static const _kPrimary = V2Colors.primary;
+  static const _kSecondary = V2Colors.secondary;
+  static const _kTertiary = Color(0xFFBC92A6); // Not represented in V2Colors.
+  static const _kSub = V2Colors.textSecondary;
+  static const _kDivider = V2Colors.divider;
 
   final double efficiencyPercentage;
   final int booksFasterThanAverage;
@@ -56,7 +57,7 @@ class ReadingEfficiency1Card extends StatelessWidget {
           Text(
             l10n.reading_efficiency_1,
             style: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: _kPrimary,
@@ -72,7 +73,7 @@ class ReadingEfficiency1Card extends StatelessWidget {
               '$totalBooksWithData',
             ),
             style: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 12,
               color: _kSub,
             ),
@@ -137,7 +138,7 @@ class ReadingEfficiency1Card extends StatelessWidget {
               Text(
                 '${efficiencyPercentage.toStringAsFixed(1)}%',
                 style: TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 40,
                   fontWeight: FontWeight.bold,
                   color: color,
@@ -146,7 +147,7 @@ class ReadingEfficiency1Card extends StatelessWidget {
               Text(
                 'efficiency',
                 style: TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 12,
                   color: _kSub.withValues(alpha: 0.8),
                 ),
@@ -178,7 +179,7 @@ class ReadingEfficiency1Card extends StatelessWidget {
         Text(
           value,
           style: TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 16,
             fontWeight: FontWeight.bold,
             color: color,
@@ -188,7 +189,7 @@ class ReadingEfficiency1Card extends StatelessWidget {
         Text(
           label,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 10,
             color: _kSub,
           ),

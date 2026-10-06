@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
@@ -16,13 +17,13 @@ class FillEmptyWizardScreen extends StatefulWidget {
 }
 
 class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
-  static const _kBg = Color(0xFFFDF8F6);
-  static const _kPrimary = Color(0xFF43102B);
-  static const _kSecondary = Color(0xFF894B67);
-  static const _kText = Color(0xFF1C1B1A);
-  static const _kSubText = Color(0xFF5F5E5C);
-  static const _kIconBg = Color(0xFFF2EDEB);
-  static const _kBorder = Color(0xFFD5C2C7);
+  static const _kBg = V2Colors.background;
+  static const _kPrimary = V2Colors.primary;
+  static const _kSecondary = V2Colors.secondary;
+  static const _kText = V2Colors.textPrimary;
+  static const _kSubText = V2Colors.textSubtle;
+  static const _kIconBg = V2Colors.chip;
+  static const _kBorder = V2Colors.border;
 
   String? _selectedField;
   bool _isLoading = false;
@@ -308,7 +309,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
         title: Text(
           l10n.fill_empty_fields,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w700,
             color: _kText,
@@ -331,7 +332,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
         Text(
           l10n.select_field_to_fill,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 16,
             fontWeight: FontWeight.w700,
             color: _kText,
@@ -341,7 +342,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
         Text(
           l10n.fill_empty_fields_hint,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 13,
             color: _kSubText,
             height: 1.4,
@@ -392,7 +393,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                       child: Text(
                         _getFieldLabel(key),
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: _kText,
@@ -430,7 +431,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
             Text(
               l10n.fill_empty_fields_hint,
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 14,
                 color: _kSubText,
               ),
@@ -465,7 +466,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
               Text(
                 l10n.no_books_with_empty_field,
                 style: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   color: _kText,
@@ -491,7 +492,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                 label: Text(
                   l10n.back,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -540,7 +541,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                           _groups.length,
                         ),
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontWeight: FontWeight.w700,
                           fontSize: 14,
                           color: _kText,
@@ -553,7 +554,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                           _getFieldLabel(_selectedField!),
                         ),
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 11,
                           color: _kSubText,
                         ),
@@ -654,7 +655,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                             Text(
                               group.name,
                               style: const TextStyle(
-                                fontFamily: 'Manrope',
+                                fontFamily: V2Typography.family,
                                 fontWeight: FontWeight.w700,
                                 fontSize: 15,
                                 color: _kText,
@@ -664,7 +665,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                             Text(
                               l10n.books_in_group(group.books.length),
                               style: const TextStyle(
-                                fontFamily: 'Manrope',
+                                fontFamily: V2Typography.family,
                                 fontSize: 11,
                                 color: _kSubText,
                               ),
@@ -705,7 +706,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                                   group.suggestions.join(', '),
                                 ),
                                 style: const TextStyle(
-                                  fontFamily: 'Manrope',
+                                  fontFamily: V2Typography.family,
                                   fontSize: 12,
                                   color: _kText,
                                   height: 1.4,
@@ -724,7 +725,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                                 return ActionChip(
                                   label: Text(s),
                                   labelStyle: TextStyle(
-                                    fontFamily: 'Manrope',
+                                    fontFamily: V2Typography.family,
                                     fontSize: 11,
                                     fontWeight: FontWeight.w600,
                                     color: isSelected ? Colors.white : _kText,
@@ -755,7 +756,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                   key: ValueKey('$_currentGroupIndex-$_groupSelectedValue'),
                   initialValue: _groupSelectedValue,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 14,
                     color: _kText,
                   ),
@@ -764,7 +765,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                   decoration: InputDecoration(
                     labelText: l10n.select_value_to_apply,
                     labelStyle: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       color: _kSubText,
                     ),
                     prefixIcon: const Icon(
@@ -830,7 +831,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                       title: Text(
                         book.name ?? '',
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontWeight: FontWeight.w600,
                           fontSize: 13,
                           color: _kText,
@@ -841,7 +842,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                               ? Text(
                                 book.author!,
                                 style: const TextStyle(
-                                  fontFamily: 'Manrope',
+                                  fontFamily: V2Typography.family,
                                   fontSize: 11,
                                   color: _kSubText,
                                 ),
@@ -886,7 +887,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                       disabledForegroundColor: _kSubText,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       textStyle: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontWeight: FontWeight.w700,
                       ),
                       shape: RoundedRectangleBorder(

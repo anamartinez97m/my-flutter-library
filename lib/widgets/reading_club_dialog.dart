@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/reading_club.dart';
 import 'package:intl/intl.dart';
@@ -20,8 +21,8 @@ class ReadingClubDialog extends StatefulWidget {
 }
 
 class _ReadingClubDialogState extends State<ReadingClubDialog> {
-  static const _kPrimary = Color(0xFF43102B);
-  static const _kBg = Color(0xFFFDF8F6);
+  static const _kPrimary = V2Colors.primary;
+  static const _kBg = V2Colors.background;
 
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _clubNameController;
@@ -104,7 +105,7 @@ class _ReadingClubDialogState extends State<ReadingClubDialog> {
                   ? AppLocalizations.of(context)!.edit_club_membership
                   : AppLocalizations.of(context)!.add_to_reading_club,
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
                 color: _kPrimary,
@@ -139,7 +140,7 @@ class _ReadingClubDialogState extends State<ReadingClubDialog> {
                       child: Text(
                         AppLocalizations.of(context)!.no_clubs_yet,
                         style: TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
@@ -264,7 +265,7 @@ class _ReadingClubDialogState extends State<ReadingClubDialog> {
           child: Text(
             AppLocalizations.of(context)!.cancel,
             style: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 15,
               fontWeight: FontWeight.w600,
             ),
@@ -290,7 +291,7 @@ class _ReadingClubDialogState extends State<ReadingClubDialog> {
                 ? AppLocalizations.of(context)!.update
                 : AppLocalizations.of(context)!.add,
             style: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 15,
               fontWeight: FontWeight.w600,
             ),

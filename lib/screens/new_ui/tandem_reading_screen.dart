@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
@@ -20,17 +21,14 @@ class TandemReadingScreen extends StatefulWidget {
 }
 
 class _TandemReadingScreenState extends State<TandemReadingScreen> {
-  static const _kPrimary = Color(0xFF43102B);
-  static const _kSub = Color(0xFF514348);
-  static const _kBg = Color(0xFFFDF8F6);
-  static const _kMuted = Color(0xFFD5C2C7);
-  static const _kBorder = Color(0x4DD5C2C7);
-  static const _kText = Color(0xFF1C1B1A);
-  static const _kManrope = TextStyle(fontFamily: 'Manrope');
-  static const _kDialogTitleStyle = TextStyle(
-    fontFamily: 'Manrope',
-    fontSize: 20,
-    fontWeight: FontWeight.w700,
+  static const _kPrimary = V2Colors.primary;
+  static const _kSub = V2Colors.textSecondary;
+  static const _kBg = V2Colors.background;
+  static const _kMuted = V2Colors.border;
+  static final _kBorder = V2Colors.border.withValues(alpha: 0.3);
+  static const _kText = V2Colors.textPrimary;
+  static const _kManrope = TextStyle(fontFamily: V2Typography.family);
+  static final _kDialogTitleStyle = V2Typography.sectionTitle.copyWith(
     color: _kText,
   );
 
@@ -219,9 +217,7 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
     final db = await DatabaseHelper.instance.database;
     await TandemRepository(db).deleteChapter(id);
     if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.step_deleted, style: _kManrope)),
       );
     }
@@ -252,9 +248,7 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
     final db = await DatabaseHelper.instance.database;
     await TandemRepository(db).deleteTandem(widget.tandemId);
     if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.tandem_deleted, style: _kManrope)),
       );
       Navigator.pop(context, true);
@@ -276,7 +270,10 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
         body: Center(
           child: Text(
             _error ?? '',
-            style: const TextStyle(fontFamily: 'Manrope', color: _kSub),
+            style: const TextStyle(
+              fontFamily: V2Typography.family,
+              color: _kSub,
+            ),
           ),
         ),
       );
@@ -314,7 +311,7 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
                             l10n.no_steps_yet,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               color: _kSub,
                             ),
                           ),
@@ -354,7 +351,7 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               color: _kPrimary,
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 18,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
@@ -364,7 +361,7 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
             Text(
               l10n.tandem_reading,
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 color: _kSub,
                 fontSize: 10,
               ),
@@ -418,7 +415,7 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
               Text(
                 l10n.tandem_progress(completed, total),
                 style: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: _kSub,
@@ -427,7 +424,7 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
               Text(
                 l10n.tandem_progress_percent(percent),
                 style: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: _kPrimary,
@@ -509,7 +506,7 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
                               color: _kText,
@@ -519,7 +516,7 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
                           Text(
                             _chapterLabel(chapter, l10n),
                             style: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 12,
                               color: _kSub,
                             ),
@@ -607,10 +604,10 @@ class _HeaderBook extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF1C1B1A),
+              color: V2Colors.textPrimary,
             ),
           ),
         ),

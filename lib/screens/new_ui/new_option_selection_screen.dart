@@ -1,13 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
-
-const _kBg = Color(0xFFFDF8F6);
-const _kPrimary = Color(0xFF43102B);
-const _kSub = Color(0xFF514348);
-const _kBorder = Color(0xFFD5C2C7);
-const _kChipBg = Color(0xFFF2EDEB);
-const _kChipBorder = Color(0x80D5C2C7);
-const _kChipSelected = Color(0xE643102B);
 
 /// Result returned by [NewOptionSelectionScreen] when the user taps Apply.
 class OptionSelectionResult {
@@ -146,14 +139,14 @@ class _NewOptionSelectionScreenState extends State<NewOptionSelectionScreen> {
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: _kPrimary,
+              color: V2Colors.primary,
               letterSpacing: 0.65,
             ),
           ),
           Icon(
             collapsed ? Icons.keyboard_arrow_right : Icons.keyboard_arrow_down,
             size: 18,
-            color: _kPrimary,
+            color: V2Colors.primary,
           ),
         ],
       ),
@@ -167,9 +160,13 @@ class _NewOptionSelectionScreenState extends State<NewOptionSelectionScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? _kChipSelected : _kChipBg,
+          color:
+              selected ? V2Colors.primary.withValues(alpha: .9) : V2Colors.chip,
           borderRadius: BorderRadius.circular(9999),
-          border: selected ? null : Border.all(color: _kChipBorder),
+          border:
+              selected
+                  ? null
+                  : Border.all(color: V2Colors.border.withValues(alpha: .5)),
           boxShadow:
               selected
                   ? const [
@@ -190,7 +187,7 @@ class _NewOptionSelectionScreenState extends State<NewOptionSelectionScreen> {
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.26,
-                color: selected ? Colors.white : _kSub,
+                color: selected ? Colors.white : V2Colors.textSecondary,
               ),
             ),
             if (selected) ...[
@@ -213,7 +210,7 @@ class _NewOptionSelectionScreenState extends State<NewOptionSelectionScreen> {
       style: const TextStyle(
         fontSize: 20,
         fontWeight: FontWeight.w600,
-        color: _kPrimary,
+        color: V2Colors.primary,
       ),
     ),
   );
@@ -236,7 +233,7 @@ class _NewOptionSelectionScreenState extends State<NewOptionSelectionScreen> {
     final grouped = _groupedOptions(filteredAll);
 
     return Scaffold(
-      backgroundColor: _kBg,
+      backgroundColor: V2Colors.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -244,8 +241,8 @@ class _NewOptionSelectionScreenState extends State<NewOptionSelectionScreen> {
               height: 64,
               padding: const EdgeInsets.symmetric(horizontal: 8),
               decoration: const BoxDecoration(
-                color: _kBg,
-                border: Border(bottom: BorderSide(color: _kBorder)),
+                color: V2Colors.background,
+                border: Border(bottom: BorderSide(color: V2Colors.border)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -253,7 +250,7 @@ class _NewOptionSelectionScreenState extends State<NewOptionSelectionScreen> {
                   IconButton(
                     icon: const Icon(
                       Icons.arrow_back,
-                      color: _kPrimary,
+                      color: V2Colors.primary,
                       size: 18,
                     ),
                     onPressed: () => Navigator.pop(context),
@@ -266,7 +263,7 @@ class _NewOptionSelectionScreenState extends State<NewOptionSelectionScreen> {
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: _kPrimary,
+                        color: V2Colors.primary,
                       ),
                     ),
                   ),
@@ -281,7 +278,7 @@ class _NewOptionSelectionScreenState extends State<NewOptionSelectionScreen> {
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: _kPrimary,
+                        color: V2Colors.primary,
                         letterSpacing: 0.26,
                       ),
                     ),
@@ -298,10 +295,10 @@ class _NewOptionSelectionScreenState extends State<NewOptionSelectionScreen> {
                     onChanged: (v) => setState(() => _query = v),
                     decoration: InputDecoration(
                       hintText: widget.searchHint,
-                      hintStyle: const TextStyle(color: Color(0xFF5F5E5C)),
+                      hintStyle: const TextStyle(color: V2Colors.textSubtle),
                       prefixIcon: const Icon(
                         Icons.search,
-                        color: _kSub,
+                        color: V2Colors.textSecondary,
                         size: 18,
                       ),
                       suffixIcon:
@@ -310,7 +307,7 @@ class _NewOptionSelectionScreenState extends State<NewOptionSelectionScreen> {
                                 icon: const Icon(
                                   Icons.close,
                                   size: 16,
-                                  color: _kSub,
+                                  color: V2Colors.textSecondary,
                                 ),
                                 onPressed:
                                     () => setState(() {
@@ -342,12 +339,18 @@ class _NewOptionSelectionScreenState extends State<NewOptionSelectionScreen> {
                           ),
                           decoration: BoxDecoration(
                             color:
-                                _selected.isEmpty ? _kChipSelected : _kChipBg,
+                                _selected.isEmpty
+                                    ? V2Colors.primary.withValues(alpha: .9)
+                                    : V2Colors.chip,
                             borderRadius: BorderRadius.circular(9999),
                             border:
                                 _selected.isEmpty
                                     ? null
-                                    : Border.all(color: _kChipBorder),
+                                    : Border.all(
+                                      color: V2Colors.border.withValues(
+                                        alpha: .5,
+                                      ),
+                                    ),
                           ),
                           child: Text(
                             widget.anyLabel,
@@ -355,7 +358,10 @@ class _NewOptionSelectionScreenState extends State<NewOptionSelectionScreen> {
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                               letterSpacing: 0.26,
-                              color: _selected.isEmpty ? Colors.white : _kSub,
+                              color:
+                                  _selected.isEmpty
+                                      ? Colors.white
+                                      : V2Colors.textSecondary,
                             ),
                           ),
                         ),
@@ -395,7 +401,7 @@ class _NewOptionSelectionScreenState extends State<NewOptionSelectionScreen> {
                       child: Center(
                         child: Text(
                           l10n.no_books_match_filters,
-                          style: const TextStyle(color: _kSub),
+                          style: const TextStyle(color: V2Colors.textSecondary),
                         ),
                       ),
                     ),

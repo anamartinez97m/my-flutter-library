@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book_competition.dart';
@@ -6,17 +7,9 @@ import 'package:myrandomlibrary/repositories/book_competition_repository.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_book_competition_screen.dart';
 
-// ── v2 design tokens ─────────────────────────────────────────────────────────
-const _kBg = Color(0xFFFDF8F6);
-const _kPrimary = Color(0xFF43102B);
-const _kSecondary = Color(0xFF894B67);
-const _kSub = Color(0xFF514348);
-const _kText = Color(0xFF1C1B1A);
-const _kBorder = Color(0xFFD5C2C7);
+// Competition-specific colors not represented in the shared palette.
 const _kGold = Color(0xFFC98A2C);
 const _kGoldLight = Color(0xFFFEF7EA);
-const _kHeroGradientStart = Color(0xFF43102B);
-const _kHeroGradientMid = Color(0xFF5D2641);
 const _kHeroGradientEnd = Color(0xFF300A1E);
 
 enum _FilterChip { all, awarded, unresolved }
@@ -226,34 +219,36 @@ class _NewPastYearsCompetitionScreenState
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: _kBg,
+      backgroundColor: V2Colors.background,
       appBar: AppBar(
-        backgroundColor: _kBg,
+        backgroundColor: V2Colors.background,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: _kPrimary),
+          icon: const Icon(Icons.arrow_back, color: V2Colors.primary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           l10n.past_years_competitions,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
-            color: _kPrimary,
+            color: V2Colors.primary,
             letterSpacing: -0.5,
           ),
         ),
         centerTitle: true,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: _kBorder),
+          child: Container(height: 1, color: V2Colors.border),
         ),
       ),
       body:
           _isLoading
-              ? const Center(child: CircularProgressIndicator(color: _kPrimary))
+              ? const Center(
+                child: CircularProgressIndicator(color: V2Colors.primary),
+              )
               : _availableYears.isEmpty && _reigningChampion == null
               ? _buildEmptyState(l10n)
               : CustomScrollView(
@@ -333,11 +328,15 @@ class _NewPastYearsCompetitionScreenState
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.emoji_events_outlined, size: 64, color: _kBorder),
+          const Icon(
+            Icons.emoji_events_outlined,
+            size: 64,
+            color: V2Colors.border,
+          ),
           const SizedBox(height: 16),
           Text(
             l10n.no_past_competitions_found,
-            style: const TextStyle(fontSize: 16, color: _kSub),
+            style: const TextStyle(fontSize: 16, color: V2Colors.textSecondary),
           ),
         ],
       ),
@@ -370,15 +369,16 @@ class _NewPastYearsCompetitionScreenState
                   selected: isSelected,
                   onSelected: (_) => _onFilterSelected(chip.filter),
                   labelStyle: TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 12,
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                    color: isSelected ? Colors.white : _kSub,
+                    color: isSelected ? Colors.white : V2Colors.textSecondary,
                   ),
-                  selectedColor: _kPrimary,
+                  selectedColor: V2Colors.primary,
                   backgroundColor: Colors.white,
                   side: BorderSide(
-                    color: isSelected ? _kPrimary : const Color(0xFFF0E7E4),
+                    color:
+                        isSelected ? V2Colors.primary : const Color(0xFFF0E7E4),
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(9999),
@@ -415,10 +415,10 @@ class _NewPastYearsCompetitionScreenState
                 const Text(
                   'REIGNING CHAMPION',
                   style: TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
-                    color: _kSecondary,
+                    color: V2Colors.secondary,
                     letterSpacing: 1.1,
                   ),
                 ),
@@ -427,7 +427,7 @@ class _NewPastYearsCompetitionScreenState
             const Text(
               '★ Hall of Fame',
               style: TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: _kGold,
@@ -455,7 +455,7 @@ class _NewPastYearsCompetitionScreenState
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [_kHeroGradientStart, _kHeroGradientMid, _kHeroGradientEnd],
+            colors: [V2Colors.primary, V2Colors.primaryAlt, _kHeroGradientEnd],
             stops: [0.0, 0.5, 1.0],
           ),
           boxShadow: const [
@@ -515,7 +515,7 @@ class _NewPastYearsCompetitionScreenState
                           Text(
                             'BEST BOOK OF ${winner.year}',
                             style: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
                               color: _kGoldLight,
@@ -529,7 +529,7 @@ class _NewPastYearsCompetitionScreenState
                       child: Text(
                         'Completed in ${winner.year + 1}',
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                           color: Colors.white70,
@@ -572,7 +572,7 @@ class _NewPastYearsCompetitionScreenState
                           const Text(
                             'WINNER',
                             style: TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 9,
                               fontWeight: FontWeight.w700,
                               color: Color(0xFFFDE68A),
@@ -605,7 +605,7 @@ class _NewPastYearsCompetitionScreenState
                           const Text(
                             'GRAND PRIZE WINNER',
                             style: TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
                               color: _kGoldLight,
@@ -616,7 +616,7 @@ class _NewPastYearsCompetitionScreenState
                           Text(
                             winner.bookName,
                             style: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
@@ -629,7 +629,7 @@ class _NewPastYearsCompetitionScreenState
                           const Text(
                             'by Rebecca Yarros',
                             style: TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 12,
                               fontStyle: FontStyle.italic,
                               color: Colors.white70,
@@ -661,7 +661,7 @@ class _NewPastYearsCompetitionScreenState
                                           ? 'Not rated'
                                           : '${_reigningChampionRating!.toStringAsFixed(1)} Rating',
                                       style: const TextStyle(
-                                        fontFamily: 'Manrope',
+                                        fontFamily: V2Typography.family,
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
                                         color: _kGoldLight,
@@ -692,7 +692,7 @@ class _NewPastYearsCompetitionScreenState
                         child: Text(
                           'View full ${winner.year} ceremony recap',
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                             color: Colors.white70,
@@ -733,10 +733,10 @@ class _NewPastYearsCompetitionScreenState
             Text(
               title,
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
-                color: _kPrimary,
+                color: V2Colors.primary,
                 letterSpacing: -0.35,
               ),
             ),
@@ -750,10 +750,10 @@ class _NewPastYearsCompetitionScreenState
               child: Text(
                 badge,
                 style: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: _kPrimary,
+                  color: V2Colors.primary,
                   letterSpacing: -0.35,
                 ),
               ),
@@ -763,10 +763,10 @@ class _NewPastYearsCompetitionScreenState
         const Text(
           'Yearly Archives',
           style: TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 11,
             fontWeight: FontWeight.w500,
-            color: _kSub,
+            color: V2Colors.textSecondary,
           ),
         ),
       ],
@@ -816,10 +816,10 @@ class _NewPastYearsCompetitionScreenState
                         child: Text(
                           '$year',
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
-                            color: _kPrimary,
+                            color: V2Colors.primary,
                           ),
                         ),
                       ),
@@ -827,7 +827,7 @@ class _NewPastYearsCompetitionScreenState
                       const Text(
                         '1st Place',
                         style: TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                           color: _kGold,
@@ -839,10 +839,10 @@ class _NewPastYearsCompetitionScreenState
                   Text(
                     winner.bookName,
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
-                      color: _kText,
+                      color: V2Colors.textPrimary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -851,10 +851,10 @@ class _NewPastYearsCompetitionScreenState
                   const Text(
                     'Awarded Winner',
                     style: TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 11,
                       fontStyle: FontStyle.italic,
-                      color: _kSub,
+                      color: V2Colors.textSecondary,
                     ),
                   ),
                 ],
@@ -884,7 +884,7 @@ class _NewPastYearsCompetitionScreenState
                             Text(
                               'MORE INFO',
                               style: TextStyle(
-                                fontFamily: 'Manrope',
+                                fontFamily: V2Typography.family,
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,
                                 color: Color(0xFFB45309),
@@ -924,7 +924,7 @@ class _NewPastYearsCompetitionScreenState
                 child: Text(
                   '✦',
                   style: TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 12,
                     color: _kGold,
                   ),
@@ -948,7 +948,7 @@ class _NewPastYearsCompetitionScreenState
     return const Text(
       'PENDING RETROSPECTIVES (NO WINNER SET)',
       style: TextStyle(
-        fontFamily: 'Manrope',
+        fontFamily: V2Typography.family,
         fontSize: 12,
         fontWeight: FontWeight.w800,
         color: Color(0xFF9E919A),
@@ -983,7 +983,7 @@ class _NewPastYearsCompetitionScreenState
                 child: Text(
                   '$year',
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF9E919A),
@@ -999,10 +999,10 @@ class _NewPastYearsCompetitionScreenState
                   Text(
                     'Best Book of $year',
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: _kText,
+                      color: V2Colors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -1021,7 +1021,7 @@ class _NewPastYearsCompetitionScreenState
                         child: Text(
                           'No winner set • Retrospective open',
                           style: TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 11,
                             color: Color(0xFF9E919A),
                           ),
@@ -1042,10 +1042,10 @@ class _NewPastYearsCompetitionScreenState
               child: const Text(
                 'Nominate',
                 style: TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: _kPrimary,
+                  color: V2Colors.primary,
                 ),
               ),
             ),
@@ -1076,7 +1076,7 @@ class _YearRecapSheet extends StatelessWidget {
         maxHeight: MediaQuery.sizeOf(context).height * 0.86,
       ),
       decoration: const BoxDecoration(
-        color: _kBg,
+        color: V2Colors.background,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       child: FutureBuilder<Map<String, dynamic>>(
@@ -1085,7 +1085,9 @@ class _YearRecapSheet extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const SizedBox(
               height: 280,
-              child: Center(child: CircularProgressIndicator(color: _kPrimary)),
+              child: Center(
+                child: CircularProgressIndicator(color: V2Colors.primary),
+              ),
             );
           }
           if (snapshot.hasError) {
@@ -1094,7 +1096,10 @@ class _YearRecapSheet extends StatelessWidget {
               child: Center(
                 child: Text(
                   'Could not load the $year recap.',
-                  style: const TextStyle(fontFamily: 'Manrope', color: _kSub),
+                  style: const TextStyle(
+                    fontFamily: V2Typography.family,
+                    color: V2Colors.textSecondary,
+                  ),
                 ),
               ),
             );
@@ -1119,7 +1124,7 @@ class _YearRecapSheet extends StatelessWidget {
                       width: 40,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: _kBorder,
+                        color: V2Colors.border,
                         borderRadius: BorderRadius.circular(99),
                       ),
                     ),
@@ -1128,10 +1133,10 @@ class _YearRecapSheet extends StatelessWidget {
                   Text(
                     '$year Laureate Highlight',
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
-                      color: _kPrimary,
+                      color: V2Colors.primary,
                       letterSpacing: -0.5,
                     ),
                   ),
@@ -1139,9 +1144,9 @@ class _YearRecapSheet extends StatelessWidget {
                   const Text(
                     'A look back at the books that defined the year.',
                     style: TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 13,
-                      color: _kSub,
+                      color: V2Colors.textSecondary,
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -1150,7 +1155,7 @@ class _YearRecapSheet extends StatelessWidget {
                     padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [_kHeroGradientStart, _kHeroGradientMid],
+                        colors: [V2Colors.primary, V2Colors.primaryAlt],
                       ),
                       borderRadius: BorderRadius.circular(18),
                     ),
@@ -1177,7 +1182,7 @@ class _YearRecapSheet extends StatelessWidget {
                               const Text(
                                 'BOOK OF THE YEAR',
                                 style: TextStyle(
-                                  fontFamily: 'Manrope',
+                                  fontFamily: V2Typography.family,
                                   fontSize: 10,
                                   fontWeight: FontWeight.w800,
                                   color: _kGold,
@@ -1190,7 +1195,7 @@ class _YearRecapSheet extends StatelessWidget {
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
-                                  fontFamily: 'Manrope',
+                                  fontFamily: V2Typography.family,
                                   fontSize: 17,
                                   fontWeight: FontWeight.w800,
                                   color: Colors.white,
@@ -1256,11 +1261,11 @@ class _YearRecapSheet extends StatelessWidget {
                       icon: const Icon(Icons.open_in_new, size: 17),
                       label: const Text('Open full competition'),
                       style: FilledButton.styleFrom(
-                        backgroundColor: _kPrimary,
+                        backgroundColor: V2Colors.primary,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 13),
                         textStyle: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -1298,7 +1303,7 @@ class _RecapStat extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: _kPrimary),
+          Icon(icon, size: 20, color: V2Colors.primary),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -1307,10 +1312,10 @@ class _RecapStat extends StatelessWidget {
                 Text(
                   value,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
-                    color: _kText,
+                    color: V2Colors.textPrimary,
                   ),
                 ),
                 Text(
@@ -1318,9 +1323,9 @@ class _RecapStat extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 10,
-                    color: _kSub,
+                    color: V2Colors.textSecondary,
                   ),
                 ),
               ],
@@ -1342,10 +1347,10 @@ class _RecapSectionTitle extends StatelessWidget {
     return Text(
       title.toUpperCase(),
       style: const TextStyle(
-        fontFamily: 'Manrope',
+        fontFamily: V2Typography.family,
         fontSize: 12,
         fontWeight: FontWeight.w800,
-        color: _kSub,
+        color: V2Colors.textSecondary,
         letterSpacing: 0.8,
       ),
     );
@@ -1386,10 +1391,10 @@ class _RecapBookRow extends StatelessWidget {
               badge,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 10,
                 fontWeight: FontWeight.w800,
-                color: muted ? _kSub : _kGold,
+                color: muted ? V2Colors.textSecondary : _kGold,
               ),
             ),
           ),
@@ -1400,10 +1405,10 @@ class _RecapBookRow extends StatelessWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: _kText,
+                color: V2Colors.textPrimary,
               ),
             ),
           ),

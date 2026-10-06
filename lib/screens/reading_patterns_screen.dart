@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/screens/rereads_detail.dart';
 
@@ -37,15 +38,15 @@ class ReadingPatternsScreen extends StatefulWidget {
   final Map<String, String> topGenreBySeason;
   final Map<String, Map<String, dynamic>> readingTimeOfDay;
 
-  static const kBg = Color(0xFFFDF8F6);
-  static const kPrimary = Color(0xFF43102B);
-  static const kSecondary = Color(0xFF894B67);
-  static const kMuted = Color(0xFFD5C2C7);
-  static const kText = Color(0xFF1C1B1A);
-  static const kSub = Color(0xFF514348);
-  static const kBorder = Color(0x4DD5C2C7);
-  static const kDivider = Color(0xFFE6E2DF);
-  static const kBarBg = Color(0xFFE6E2DF);
+  static const kBg = V2Colors.background;
+  static const kPrimary = V2Colors.primary;
+  static const kSecondary = V2Colors.secondary;
+  static const kMuted = V2Colors.border;
+  static const kText = V2Colors.textPrimary;
+  static const kSub = V2Colors.textSecondary;
+  static const kBorder = Color(0x4DD5C2C7); // Exact alpha variant.
+  static const kDivider = V2Colors.divider;
+  static const kBarBg = V2Colors.divider;
 
   const ReadingPatternsScreen({
     super.key,
@@ -121,7 +122,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
         title: Text(
           l10n.section_reading_patterns,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
             color: _kPrimary,
@@ -131,7 +132,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
         centerTitle: true,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: const Color(0xFFD5C2C7)),
+          child: Container(height: 1, color: V2Colors.border),
         ),
       ),
       body: SingleChildScrollView(
@@ -200,7 +201,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
                   child: Text(
                     title,
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
                       color: _kPrimary,
@@ -429,7 +430,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
                   Text(
                     _getSeasonName(l10n, preferredSeason),
                     style: TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: _getSeasonColor(preferredSeason),
@@ -516,7 +517,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
                     Text(
                       mostAvgPerYear,
                       style: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
                         color: _kPrimary,
@@ -548,7 +549,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
                     Text(
                       leastAvgPerYear,
                       style: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
                         color: _kSecondary,

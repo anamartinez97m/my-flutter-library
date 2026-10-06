@@ -145,7 +145,10 @@ class TandemRepository {
 
   /// Reorder chapters within a tandem
   /// [orderedChapterIds] contains the chapter IDs in the desired new order
-  Future<void> reorderChapters(int tandemId, List<int> orderedChapterIds) async {
+  Future<void> reorderChapters(
+    int tandemId,
+    List<int> orderedChapterIds,
+  ) async {
     await db.transaction((txn) async {
       for (int i = 0; i < orderedChapterIds.length; i++) {
         await txn.update(
@@ -163,13 +166,16 @@ class TandemRepository {
   /// Get progress for a tandem reading
   /// Returns { 'completed': X, 'total': Y }
   Future<Map<String, int>> getTandemProgress(int tandemId) async {
-    final result = await db.rawQuery('''
+    final result = await db.rawQuery(
+      '''
       SELECT 
         COUNT(*) as total,
         SUM(CASE WHEN is_read = 1 THEN 1 ELSE 0 END) as completed
       FROM tandem_chapters
       WHERE tandem_id = ?
-    ''', [tandemId]);
+    ''',
+      [tandemId],
+    );
 
     if (result.isEmpty) {
       return {'completed': 0, 'total': 0};

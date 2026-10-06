@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
@@ -30,10 +31,10 @@ class TandemChapterForm extends StatefulWidget {
 }
 
 class _TandemChapterFormState extends State<TandemChapterForm> {
-  static const _kBg = Color(0xFFFDF8F6);
-  static const _kPrimary = Color(0xFF43102B);
-  static const _kSub = Color(0xFF514348);
-  static const _kText = Color(0xFF1C1B1A);
+  static const _kBg = V2Colors.background;
+  static const _kPrimary = V2Colors.primary;
+  static const _kSub = V2Colors.textSecondary;
+  static const _kText = V2Colors.textPrimary;
 
   late int _selectedBookId;
   late final TextEditingController _startController;
@@ -132,7 +133,7 @@ class _TandemChapterFormState extends State<TandemChapterForm> {
                 width: 48,
                 height: 6,
                 decoration: BoxDecoration(
-                  color: const Color(0x80D5C2C7),
+                  color: V2Colors.border.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(9999),
                 ),
               ),
@@ -152,7 +153,7 @@ class _TandemChapterFormState extends State<TandemChapterForm> {
                         Text(
                           _isEditing ? l10n.edit_step : l10n.add_step,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 22,
                             fontWeight: FontWeight.w700,
                             color: _kText,
@@ -228,7 +229,7 @@ class _TandemChapterFormState extends State<TandemChapterForm> {
                       child: Text(
                         l10n.end_chapter_hint,
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 10,
                           color: _kSub,
                         ),
@@ -260,7 +261,7 @@ class _TandemChapterFormState extends State<TandemChapterForm> {
                                 : Text(
                                   _isEditing ? l10n.edit_step : l10n.add_step,
                                   style: const TextStyle(
-                                    fontFamily: 'Manrope',
+                                    fontFamily: V2Typography.family,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -302,7 +303,7 @@ class _BookToggle extends StatelessWidget {
           color: isSelected ? color.withValues(alpha: 0.08) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? color : const Color(0xFFD5C2C7),
+            color: isSelected ? color : V2Colors.border,
             width: isSelected ? 1.5 : 1,
           ),
         ),
@@ -311,7 +312,7 @@ class _BookToggle extends StatelessWidget {
             Icon(
               isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
               size: 18,
-              color: isSelected ? color : const Color(0xFF514348),
+              color: isSelected ? color : V2Colors.textSecondary,
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -320,10 +321,10 @@ class _BookToggle extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 13,
                   fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                  color: isSelected ? color : const Color(0xFF1C1B1A),
+                  color: isSelected ? color : V2Colors.textPrimary,
                 ),
               ),
             ),
@@ -346,13 +347,13 @@ class _ChapterField extends StatelessWidget {
       controller: controller,
       keyboardType: TextInputType.number,
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-      style: const TextStyle(fontFamily: 'Manrope', fontSize: 15),
+      style: const TextStyle(fontFamily: V2Typography.family, fontSize: 15),
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(
-          fontFamily: 'Manrope',
+          fontFamily: V2Typography.family,
           fontSize: 12,
-          color: Color(0xFF514348),
+          color: V2Colors.textSecondary,
         ),
         filled: true,
         fillColor: Colors.white,
@@ -362,15 +363,15 @@ class _ChapterField extends StatelessWidget {
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFD5C2C7)),
+          borderSide: const BorderSide(color: V2Colors.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFD5C2C7)),
+          borderSide: const BorderSide(color: V2Colors.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF43102B), width: 1.5),
+          borderSide: const BorderSide(color: V2Colors.primary, width: 1.5),
         ),
       ),
     );

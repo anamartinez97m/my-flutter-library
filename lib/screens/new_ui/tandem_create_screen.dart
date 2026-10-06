@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
@@ -19,11 +20,11 @@ class TandemCreateScreen extends StatefulWidget {
 }
 
 class _TandemCreateScreenState extends State<TandemCreateScreen> {
-  static const _kPrimary = Color(0xFF43102B);
-  static const _kSub = Color(0xFF514348);
-  static const _kBg = Color(0xFFFDF8F6);
-  static const _kBorder = Color(0xFFD5C2C7);
-  static const _kText = Color(0xFF1C1B1A);
+  static const _kPrimary = V2Colors.primary;
+  static const _kSub = V2Colors.textSecondary;
+  static const _kBg = V2Colors.background;
+  static const _kBorder = V2Colors.border;
+  static const _kText = V2Colors.textPrimary;
 
   Book? _bookA;
   Book? _bookB;
@@ -171,7 +172,7 @@ class _TandemCreateScreenState extends State<TandemCreateScreen> {
           l10n.create_tandem,
           style: const TextStyle(
             color: _kPrimary,
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
@@ -221,14 +222,14 @@ class _TandemCreateScreenState extends State<TandemCreateScreen> {
                   controller: _titleController,
                   focusNode: _titleFocusNode,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 15,
                     color: _kText,
                   ),
                   decoration: InputDecoration(
                     labelText: l10n.tandem_title_optional,
                     labelStyle: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 12,
                       color: _kSub,
                     ),
@@ -261,7 +262,7 @@ class _TandemCreateScreenState extends State<TandemCreateScreen> {
                           : Text(
                             l10n.create_tandem,
                             style: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -298,7 +299,7 @@ class _BookSelector extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: book != null ? accent : const Color(0xFFD5C2C7),
+            color: book != null ? accent : V2Colors.border,
             width: book != null ? 1.5 : 1,
           ),
         ),
@@ -313,7 +314,7 @@ class _BookSelector extends StatelessWidget {
                   Text(
                     label.toUpperCase(),
                     style: TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.8,
@@ -326,14 +327,14 @@ class _BookSelector extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 14,
                       fontWeight:
                           book != null ? FontWeight.w700 : FontWeight.w500,
                       color:
                           book != null
-                              ? const Color(0xFF1C1B1A)
-                              : const Color(0xFF514348),
+                              ? V2Colors.textPrimary
+                              : V2Colors.textSecondary,
                     ),
                   ),
                   if (book?.author != null && book!.author!.isNotEmpty)
@@ -342,9 +343,9 @@ class _BookSelector extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 12,
-                        color: Color(0xFF514348),
+                        color: V2Colors.textSecondary,
                       ),
                     ),
                 ],
@@ -401,10 +402,10 @@ class _TandemBookPickerScreen extends StatefulWidget {
 }
 
 class _TandemBookPickerScreenState extends State<_TandemBookPickerScreen> {
-  static const _kPrimary = Color(0xFF43102B);
-  static const _kSub = Color(0xFF514348);
-  static const _kBg = Color(0xFFFDF8F6);
-  static const _kBorder = Color(0xFFD5C2C7);
+  static const _kPrimary = V2Colors.primary;
+  static const _kSub = V2Colors.textSecondary;
+  static const _kBg = V2Colors.background;
+  static const _kBorder = V2Colors.border;
 
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
@@ -463,7 +464,7 @@ class _TandemBookPickerScreenState extends State<_TandemBookPickerScreen> {
           widget.title,
           style: const TextStyle(
             color: _kPrimary,
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
@@ -493,11 +494,14 @@ class _TandemBookPickerScreenState extends State<_TandemBookPickerScreen> {
                 focusNode: _searchFocusNode,
                 autofocus: true,
                 onChanged: _search,
-                style: const TextStyle(fontFamily: 'Manrope', fontSize: 15),
+                style: const TextStyle(
+                  fontFamily: V2Typography.family,
+                  fontSize: 15,
+                ),
                 decoration: InputDecoration(
                   hintText: l10n.search_by_title,
                   hintStyle: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     color: _kSub,
                   ),
                   icon: const Icon(Icons.search, color: _kSub),
@@ -527,7 +531,7 @@ class _TandemBookPickerScreenState extends State<_TandemBookPickerScreen> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -538,7 +542,7 @@ class _TandemBookPickerScreenState extends State<_TandemBookPickerScreen> {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
-                                      fontFamily: 'Manrope',
+                                      fontFamily: V2Typography.family,
                                       fontSize: 12,
                                       color: _kSub,
                                     ),

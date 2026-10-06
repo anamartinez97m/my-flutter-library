@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/model/book.dart';
@@ -16,11 +17,11 @@ import 'package:sqflite/sqflite.dart';
 import '../config/app_theme.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
-const _kV2Bg = Color(0xFFFDF8F6);
-const _kV2Primary = Color(0xFF43102B);
-const _kV2Sub = Color(0xFF514348);
-const _kV2Text = Color(0xFF1C1B1A);
-const _kV2Border = Color(0xFFD5C2C7);
+const _kV2Bg = V2Colors.background;
+const _kV2Primary = V2Colors.primary;
+const _kV2Sub = V2Colors.textSecondary;
+const _kV2Text = V2Colors.textPrimary;
+const _kV2Border = V2Colors.border;
 
 class AdminCsvImportScreen extends StatefulWidget {
   final bool bundleImport;
@@ -1194,7 +1195,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                     child: Text(
                       AppLocalizations.of(context)!.ok,
                       style: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                       ),
@@ -1434,7 +1435,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
           child: Text(
             title,
             style: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 18,
               fontWeight: FontWeight.w600,
               color: _kV2Primary,
@@ -1449,7 +1450,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
     return Text(
       text,
       style: const TextStyle(
-        fontFamily: 'Manrope',
+        fontFamily: V2Typography.family,
         fontSize: 14,
         color: _kV2Sub,
       ),
@@ -1477,7 +1478,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         child: Text(
           label,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -1500,7 +1501,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         child: Text(
           label,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -1531,7 +1532,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               ? l10n.admin_bundle_csv_import
               : l10n.admin_csv_import,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
             color: _kV2Primary,
@@ -1550,7 +1551,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                   Text(
                     l10n.import_all,
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: _kV2Primary,
@@ -1601,7 +1602,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
             Text(
               l10n.no_csv_file_selected,
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
                 color: _kV2Text,
@@ -1612,7 +1613,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
             Text(
               'Select a CSV file to begin importing books into your library.',
               style: const TextStyle(
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 14,
                 color: _kV2Sub,
               ),
@@ -1627,7 +1628,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                 label: Text(
                   l10n.select_csv_file,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                   ),
@@ -1695,7 +1696,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                 label: Text(
                   l10n.clear_reviewed_books_cache,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                   ),
@@ -1725,7 +1726,9 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0x1A27231E)),
+            border: Border.all(
+              color: V2Colors.borderStrong.withValues(alpha: 0.1),
+            ),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1736,7 +1739,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                   _importItems.length.toString(),
                 ),
                 style: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                   color: _kV2Text,
@@ -1757,7 +1760,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                     _importItems.where((i) => i.shouldImport).length.toString(),
                   ),
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: _kV2Primary,
@@ -1846,7 +1849,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                       label: Text(
                         'Import Up To Here (${_importItems.take(_currentIndex + 1).where((item) => item.shouldImport).length} books)',
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 13,
                         ),
                       ),
@@ -1889,7 +1892,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                       child: Text(
                         l10n.previous,
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
@@ -1934,7 +1937,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                       child: Text(
                         l10n.ignore,
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
@@ -1973,7 +1976,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                       child: Text(
                         l10n.next_label,
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),

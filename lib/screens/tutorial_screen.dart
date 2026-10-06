@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
-const _kBg = Color(0xFFFDF8F6);
-const _kPrimary = Color(0xFF43102B);
-const _kSub = Color(0xFF514348);
-const _kText = Color(0xFF1C1B1A);
-const _kBorder = Color(0xFFD5C2C7);
+const _kBg = V2Colors.background;
+const _kPrimary = V2Colors.primary;
+const _kSub = V2Colors.textSecondary;
+const _kText = V2Colors.textPrimary;
+const _kBorder = V2Colors.border;
 
 class TutorialScreen extends StatefulWidget {
   const TutorialScreen({super.key});
@@ -152,7 +153,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
         title: Text(
           l10n.tutorial_title,
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
             color: _kPrimary,
@@ -320,7 +321,7 @@ class _TutorialSectionCard extends StatelessWidget {
           title: Text(
             title,
             style: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: _kText,
@@ -333,7 +334,7 @@ class _TutorialSectionCard extends StatelessWidget {
               child: Text(
                 description,
                 style: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 14,
                   color: _kSub,
                   height: 1.4,
@@ -361,7 +362,7 @@ class _TutorialSectionCard extends StatelessWidget {
                             fit: BoxFit.cover,
                             errorBuilder:
                                 (_, __, ___) => Container(
-                                  color: const Color(0xFFF2EDEB),
+                                  color: V2Colors.chip,
                                   child: const Icon(
                                     Icons.image_not_supported_outlined,
                                     color: _kSub,

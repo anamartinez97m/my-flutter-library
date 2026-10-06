@@ -21,9 +21,10 @@ class ReadingClub {
       bookId: map['book_id'] as int,
       clubName: map['club_name'] as String,
       targetDate: map['target_date'] as String?,
-      readingProgress: map['reading_progress'] is int
-          ? map['reading_progress'] as int
-          : int.tryParse(map['reading_progress']?.toString() ?? '0') ?? 0,
+      readingProgress:
+          map['reading_progress'] is int
+              ? map['reading_progress'] as int
+              : int.tryParse(map['reading_progress']?.toString() ?? '0') ?? 0,
       createdAt: map['created_at'] as String?,
     );
   }

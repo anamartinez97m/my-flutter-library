@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
@@ -8,16 +9,6 @@ import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
 import 'package:provider/provider.dart';
 import 'package:myrandomlibrary/widgets/shimmer_loading.dart';
 
-const _kBg = Color(0xFFFDF8F6);
-const _kDark = Color(0xFF5D2641);
-const _kPrimary = Color(0xFF43102B);
-const _kBorder = Color(0xFFD5C2C7);
-const _kActive = Color(0xFFECE7E5);
-const _kProgBg = Color(0xFFE6E2DF);
-const _kBadge = Color(0xFFF2EDEB);
-const _kSub = Color(0xFF514348);
-const _kLetter = Color(0xFFD68DAC);
-
 Widget _cover(dynamic book) {
   final letter =
       (book.name?.isNotEmpty ?? false) ? book.name![0].toUpperCase() : '?';
@@ -25,14 +16,14 @@ Widget _cover(dynamic book) {
     width: 64,
     height: 80,
     decoration: BoxDecoration(
-      color: _kDark,
+      color: V2Colors.primaryAlt,
       borderRadius: BorderRadius.circular(6),
     ),
     child: Center(
       child: Text(
         letter,
         style: const TextStyle(
-          color: _kLetter,
+          color: V2Colors.buttonText,
           fontSize: 16,
           fontWeight: FontWeight.bold,
         ),
@@ -73,13 +64,16 @@ Widget _prog(dynamic book) {
           child: LinearProgressIndicator(
             value: val,
             minHeight: 6,
-            backgroundColor: _kProgBg,
-            valueColor: const AlwaysStoppedAnimation<Color>(_kPrimary),
+            backgroundColor: V2Colors.divider,
+            valueColor: const AlwaysStoppedAnimation<Color>(V2Colors.primary),
           ),
         ),
       ),
       const SizedBox(width: 8),
-      Text(lbl, style: const TextStyle(fontSize: 12, color: _kSub)),
+      Text(
+        lbl,
+        style: const TextStyle(fontSize: 12, color: V2Colors.textSecondary),
+      ),
     ],
   );
 }
@@ -94,9 +88,9 @@ Widget _bookTile(BuildContext context, dynamic book, VoidCallback onTap) {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: _kBg,
+        color: V2Colors.background,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: _kBorder),
+        border: Border.all(color: V2Colors.border),
       ),
       child: Row(
         children: [
@@ -108,7 +102,7 @@ Widget _bookTile(BuildContext context, dynamic book, VoidCallback onTap) {
               children: [
                 Text(
                   book.name ?? AppLocalizations.of(context)!.unknown,
-                  style: const TextStyle(fontSize: 16, color: _kPrimary),
+                  style: const TextStyle(fontSize: 16, color: V2Colors.primary),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -117,7 +111,10 @@ Widget _bookTile(BuildContext context, dynamic book, VoidCallback onTap) {
                   const SizedBox(height: 2),
                   Text(
                     book.author as String,
-                    style: const TextStyle(fontSize: 12, color: _kSub),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: V2Colors.textSecondary,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -127,7 +124,11 @@ Widget _bookTile(BuildContext context, dynamic book, VoidCallback onTap) {
             ),
           ),
           const SizedBox(width: 8),
-          const Icon(Icons.arrow_forward_ios, size: 12, color: _kSub),
+          const Icon(
+            Icons.arrow_forward_ios,
+            size: 12,
+            color: V2Colors.textSecondary,
+          ),
         ],
       ),
     ),
@@ -150,7 +151,7 @@ class _NewMyBooksScreenState extends State<NewMyBooksScreen> {
     child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
-        color: active ? _kActive : _kBg,
+        color: active ? V2Colors.control : V2Colors.background,
         borderRadius: BorderRadius.circular(9999),
       ),
       child: Text(
@@ -158,7 +159,7 @@ class _NewMyBooksScreenState extends State<NewMyBooksScreen> {
         style: TextStyle(
           fontSize: 14,
           fontWeight: active ? FontWeight.w600 : FontWeight.normal,
-          color: active ? const Color(0xFF1C1B1A) : _kSub,
+          color: active ? V2Colors.textPrimary : V2Colors.textSecondary,
         ),
       ),
     ),
@@ -169,7 +170,10 @@ class _NewMyBooksScreenState extends State<NewMyBooksScreen> {
     final l10n = AppLocalizations.of(context)!;
     final provider = Provider.of<BookProvider?>(context);
     if (provider == null || provider.isLoading) {
-      return Scaffold(backgroundColor: _kBg, body: ShimmerLoading());
+      return Scaffold(
+        backgroundColor: V2Colors.background,
+        body: ShimmerLoading(),
+      );
     }
 
     final reading =
@@ -189,7 +193,7 @@ class _NewMyBooksScreenState extends State<NewMyBooksScreen> {
         _reading ? l10n.no_books_currently_reading : l10n.no_books_on_standby;
 
     return Scaffold(
-      backgroundColor: _kBg,
+      backgroundColor: V2Colors.background,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -205,13 +209,13 @@ class _NewMyBooksScreenState extends State<NewMyBooksScreen> {
                     children: [
                       const Icon(
                         Icons.bookmark_outline,
-                        color: _kDark,
+                        color: V2Colors.primaryAlt,
                         size: 20,
                       ),
                       Container(
                         padding: const EdgeInsets.all(1),
                         decoration: BoxDecoration(
-                          border: Border.all(color: _kBorder),
+                          border: Border.all(color: V2Colors.border),
                           borderRadius: BorderRadius.circular(9999),
                         ),
                         child: Row(
@@ -236,7 +240,7 @@ class _NewMyBooksScreenState extends State<NewMyBooksScreen> {
                           _exp
                               ? Icons.keyboard_arrow_up
                               : Icons.keyboard_arrow_down,
-                          color: _kSub,
+                          color: V2Colors.textSecondary,
                           size: 20,
                         ),
                       ),
@@ -255,10 +259,15 @@ class _NewMyBooksScreenState extends State<NewMyBooksScreen> {
                                     ? Icons.menu_book_outlined
                                     : Icons.pause_circle_outline,
                                 size: 48,
-                                color: _kSub,
+                                color: V2Colors.textSecondary,
                               ),
                               const SizedBox(height: 12),
-                              Text(empty, style: const TextStyle(color: _kSub)),
+                              Text(
+                                empty,
+                                style: const TextStyle(
+                                  color: V2Colors.textSecondary,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -287,7 +296,7 @@ class _NewMyBooksScreenState extends State<NewMyBooksScreen> {
               ),
             ),
             const Divider(
-              color: _kBorder,
+              color: V2Colors.border,
               height: 1,
               thickness: 1,
               indent: 40,
@@ -295,7 +304,7 @@ class _NewMyBooksScreenState extends State<NewMyBooksScreen> {
             ),
             _ClubsCard(key: _clubsKey),
             const Divider(
-              color: _kBorder,
+              color: V2Colors.border,
               height: 1,
               thickness: 1,
               indent: 40,
@@ -375,7 +384,7 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                 context,
               )!.books_removed_from_tbr(book.name ?? ''),
             ),
-            backgroundColor: _kPrimary,
+            backgroundColor: V2Colors.primary,
             duration: const Duration(seconds: 2),
           ),
         );
@@ -402,11 +411,18 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.bookmark_outline, color: _kDark, size: 20),
+                  const Icon(
+                    Icons.bookmark_outline,
+                    color: V2Colors.primaryAlt,
+                    size: 20,
+                  ),
                   const SizedBox(width: 12),
                   Text(
                     l10n.tbr_title,
-                    style: const TextStyle(fontSize: 18, color: _kPrimary),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      color: V2Colors.primary,
+                    ),
                   ),
                 ],
               ),
@@ -418,15 +434,15 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                       vertical: 5,
                     ),
                     decoration: BoxDecoration(
-                      color: _kBadge,
-                      border: Border.all(color: _kBorder),
+                      color: V2Colors.chip,
+                      border: Border.all(color: V2Colors.border),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
                       '${_books.length}',
                       style: const TextStyle(
                         fontSize: 16,
-                        color: Color(0xFF1C1B1A),
+                        color: V2Colors.textPrimary,
                       ),
                     ),
                   ),
@@ -437,7 +453,7 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                       _exp
                           ? Icons.keyboard_arrow_up
                           : Icons.keyboard_arrow_down,
-                      color: _kSub,
+                      color: V2Colors.textSecondary,
                       size: 20,
                     ),
                   ),
@@ -455,11 +471,15 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                 child: Center(
                   child: Column(
                     children: [
-                      const Icon(Icons.bookmark_border, size: 48, color: _kSub),
+                      const Icon(
+                        Icons.bookmark_border,
+                        size: 48,
+                        color: V2Colors.textSecondary,
+                      ),
                       const SizedBox(height: 12),
                       Text(
                         l10n.no_books_in_tbr,
-                        style: const TextStyle(color: _kSub),
+                        style: const TextStyle(color: V2Colors.textSecondary),
                       ),
                     ],
                   ),
@@ -474,9 +494,9 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                             margin: const EdgeInsets.only(bottom: 8),
                             padding: const EdgeInsets.all(13),
                             decoration: BoxDecoration(
-                              color: _kBg,
+                              color: V2Colors.background,
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: _kBorder),
+                              border: Border.all(color: V2Colors.border),
                             ),
                             child: Row(
                               children: [
@@ -517,7 +537,7 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                                           book.name ?? l10n.unknown,
                                           style: const TextStyle(
                                             fontSize: 16,
-                                            color: _kPrimary,
+                                            color: V2Colors.primary,
                                           ),
                                           maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
@@ -530,7 +550,7 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                                             book.author as String,
                                             style: const TextStyle(
                                               fontSize: 12,
-                                              color: _kSub,
+                                              color: V2Colors.textSecondary,
                                             ),
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
@@ -543,7 +563,7 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                                 IconButton(
                                   icon: const Icon(
                                     Icons.remove_circle_outline,
-                                    color: _kDark,
+                                    color: V2Colors.primaryAlt,
                                   ),
                                   onPressed: () => _remove(book),
                                   tooltip: l10n.remove_from_tbr,
@@ -637,11 +657,18 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.groups_outlined, color: _kPrimary, size: 20),
+                  const Icon(
+                    Icons.groups_outlined,
+                    color: V2Colors.primary,
+                    size: 20,
+                  ),
                   const SizedBox(width: 12),
                   Text(
                     l10n.clubs,
-                    style: const TextStyle(fontSize: 18, color: _kPrimary),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      color: V2Colors.primary,
+                    ),
                   ),
                 ],
               ),
@@ -649,7 +676,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                 onTap: () => setState(() => _exp = !_exp),
                 child: Icon(
                   _exp ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                  color: _kSub,
+                  color: V2Colors.textSecondary,
                   size: 20,
                 ),
               ),
@@ -665,19 +692,26 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                 child: Center(
                   child: Column(
                     children: [
-                      const Icon(Icons.groups_outlined, size: 48, color: _kSub),
+                      const Icon(
+                        Icons.groups_outlined,
+                        size: 48,
+                        color: V2Colors.textSecondary,
+                      ),
                       const SizedBox(height: 12),
                       Text(
                         l10n.no_clubs_yet,
                         style: const TextStyle(
                           fontSize: 16,
-                          color: Color(0xFF1C1B1A),
+                          color: V2Colors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         l10n.add_books_to_clubs,
-                        style: const TextStyle(fontSize: 14, color: _kSub),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: V2Colors.textSecondary,
+                        ),
                       ),
                     ],
                   ),
@@ -708,7 +742,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                         padding: const EdgeInsets.all(17),
                         decoration: BoxDecoration(
                           color: const Color(0xFFF7F3F0),
-                          border: Border.all(color: _kBorder),
+                          border: Border.all(color: V2Colors.border),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Column(
@@ -719,7 +753,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                               children: [
                                 const Icon(
                                   Icons.groups,
-                                  color: _kPrimary,
+                                  color: V2Colors.primary,
                                   size: 14,
                                 ),
                                 const SizedBox(width: 8),
@@ -728,7 +762,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                                     clubName,
                                     style: const TextStyle(
                                       fontSize: 14,
-                                      color: _kPrimary,
+                                      color: V2Colors.primary,
                                     ),
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -742,7 +776,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                                   bookName,
                                   style: const TextStyle(
                                     fontSize: 14,
-                                    color: Color(0xFF1C1B1A),
+                                    color: V2Colors.textPrimary,
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -753,7 +787,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                                     author,
                                     style: const TextStyle(
                                       fontSize: 12,
-                                      color: _kSub,
+                                      color: V2Colors.textSecondary,
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -769,14 +803,14 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                                       const Icon(
                                         Icons.calendar_today,
                                         size: 9,
-                                        color: _kSub,
+                                        color: V2Colors.textSecondary,
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
                                         target,
                                         style: const TextStyle(
                                           fontSize: 10,
-                                          color: _kSub,
+                                          color: V2Colors.textSecondary,
                                         ),
                                       ),
                                     ],
@@ -788,7 +822,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                                   style: const TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
-                                    color: _kPrimary,
+                                    color: V2Colors.primary,
                                   ),
                                 ),
                               ],

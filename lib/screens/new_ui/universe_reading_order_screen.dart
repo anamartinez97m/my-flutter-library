@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
@@ -31,18 +32,18 @@ class UniverseReadingOrderScreen extends StatefulWidget {
 
 class _UniverseReadingOrderScreenState
     extends State<UniverseReadingOrderScreen> {
-  static const _kPrimary = Color(0xFF43102B);
-  static const _kSecondary = Color(0xFF894B67);
-  static const _kSub = Color(0xFF514348);
-  static const _kBg = Color(0xFFFDF8F6);
-  static const _kMuted = Color(0xFFD5C2C7);
+  static const _kPrimary = V2Colors.primary;
+  static const _kSecondary = V2Colors.secondary;
+  static const _kSub = V2Colors.textSecondary;
+  static const _kBg = V2Colors.background;
+  static const _kMuted = V2Colors.border;
   static const _nodeSize = 84.0;
   static const _trackWidth = 220.0;
   static const _rowHeight = 140.0;
   static const _canvasPadding = 64.0;
   static const _firstNodeTop = 160.0;
   static const _sagaColors = [
-    Color(0xFF43102B),
+    V2Colors.primary,
     Color(0xFF894B67),
     Color(0xFF6E2947),
     Color(0xFFA45F78),
@@ -401,7 +402,7 @@ class _UniverseReadingOrderScreenState
                     title: Text(
                       l10n.edit_placeholder,
                       style: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontWeight: FontWeight.w600,
                         color: _kPrimary,
                       ),
@@ -430,7 +431,7 @@ class _UniverseReadingOrderScreenState
                     title: Text(
                       l10n.promote_to_library,
                       style: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontWeight: FontWeight.w600,
                         color: _kPrimary,
                       ),
@@ -465,7 +466,7 @@ class _UniverseReadingOrderScreenState
                     title: Text(
                       l10n.delete_placeholder,
                       style: const TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFFB3261E),
                       ),
@@ -555,7 +556,7 @@ class _UniverseReadingOrderScreenState
                                     l10n.reorder_books,
                                     style: const TextStyle(
                                       color: _kPrimary,
-                                      fontFamily: 'Manrope',
+                                      fontFamily: V2Typography.family,
                                       fontSize: 20,
                                       fontWeight: FontWeight.w700,
                                     ),
@@ -667,7 +668,7 @@ class _UniverseReadingOrderScreenState
                       l10n.delete_relation,
                       style: const TextStyle(
                         color: _kPrimary,
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
                       ),
@@ -793,7 +794,7 @@ class _UniverseReadingOrderScreenState
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 color: _kPrimary,
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.8,
@@ -991,7 +992,7 @@ class _UniverseReadingOrderScreenState
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: _sagaColors[index % _sagaColors.length],
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
                     ),
@@ -1065,7 +1066,7 @@ class _BookNode extends StatelessWidget {
               padding: EdgeInsets.all(selected ? 4 : 2.5),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFFFDF8F6),
+                color: V2Colors.background,
                 border: Border.all(
                   color: nodeColor,
                   width: selected ? 4 : (isPlaceholder ? 2.5 : 2),
@@ -1093,7 +1094,7 @@ class _BookNode extends StatelessWidget {
                                 displayTitle.characters.first.toUpperCase(),
                                 style: const TextStyle(
                                   color: Colors.white,
-                                  fontFamily: 'Manrope',
+                                  fontFamily: V2Typography.family,
                                   fontSize: 28,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -1124,7 +1125,7 @@ class _BookNode extends StatelessWidget {
             ),
             const SizedBox(height: 7),
             Container(
-              color: const Color(0xFFFDF8F6),
+              color: V2Colors.background,
               padding: const EdgeInsets.symmetric(horizontal: 2),
               child: Text(
                 displayTitle,
@@ -1132,8 +1133,8 @@ class _BookNode extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
-                  color: Color(0xFF514348),
-                  fontFamily: 'Manrope',
+                  color: V2Colors.textSecondary,
+                  fontFamily: V2Typography.family,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   height: 1.2,
@@ -1142,7 +1143,7 @@ class _BookNode extends StatelessWidget {
             ),
             if (isPlaceholder)
               Container(
-                color: const Color(0xFFFDF8F6),
+                color: V2Colors.background,
                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                 child: Text(
                   AppLocalizations.of(context)!.not_in_library,
@@ -1155,11 +1156,11 @@ class _BookNode extends StatelessWidget {
               ),
             if (book.orderWithinUniverse == null)
               ColoredBox(
-                color: const Color(0xFFFDF8F6),
+                color: V2Colors.background,
                 child: Text(
                   AppLocalizations.of(context)!.unordered,
                   style: const TextStyle(
-                    color: Color(0xFF894B67),
+                    color: V2Colors.secondary,
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                   ),
@@ -1202,7 +1203,7 @@ class _ReadingOrderPainter extends CustomPainter {
             ..color =
                 isSolid
                     ? colorForBook(fromBook)
-                    : const Color(0xFF894B67).withValues(alpha: 0.65)
+                    : V2Colors.secondary.withValues(alpha: 0.65)
             ..strokeWidth = isSolid ? 3.4 : 2.8
             ..style = PaintingStyle.stroke
             ..strokeCap = StrokeCap.round;

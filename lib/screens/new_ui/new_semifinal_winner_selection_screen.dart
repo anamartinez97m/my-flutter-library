@@ -1,16 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/repositories/book_competition_repository.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
-
-// ── v2 design tokens ─────────────────────────────────────────────────────────
-const _kBg = Color(0xFFFDF8F6);
-const _kPrimary = Color(0xFF43102B);
-const _kSub = Color(0xFF514348);
-const _kText = Color(0xFF1C1B1A);
-const _kBorder = Color(0xFFD5C2C7);
 
 class NewSemifinalWinnerSelectionScreen extends StatefulWidget {
   final int year;
@@ -131,13 +125,13 @@ class _NewSemifinalWinnerSelectionScreenState
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: _kBg,
+      backgroundColor: V2Colors.background,
       appBar: AppBar(
-        backgroundColor: _kBg,
+        backgroundColor: V2Colors.background,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: _kPrimary),
+          icon: const Icon(Icons.arrow_back, color: V2Colors.primary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -145,22 +139,24 @@ class _NewSemifinalWinnerSelectionScreenState
             '${_getSemifinalName(widget.roundNumber)} ${widget.year}',
           ),
           style: const TextStyle(
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 18,
             fontWeight: FontWeight.w600,
-            color: _kPrimary,
+            color: V2Colors.primary,
             letterSpacing: -0.5,
           ),
         ),
         centerTitle: true,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: _kBorder),
+          child: Container(height: 1, color: V2Colors.border),
         ),
       ),
       body:
           isLoading
-              ? const Center(child: CircularProgressIndicator(color: _kPrimary))
+              ? const Center(
+                child: CircularProgressIndicator(color: V2Colors.primary),
+              )
               : quarterlyWinnerBooks.isEmpty
               ? Center(
                 child: Column(
@@ -169,12 +165,15 @@ class _NewSemifinalWinnerSelectionScreenState
                     const Icon(
                       Icons.menu_book_outlined,
                       size: 64,
-                      color: _kBorder,
+                      color: V2Colors.border,
                     ),
                     const SizedBox(height: 16),
                     Text(
                       l10n.no_quarterly_winners,
-                      style: const TextStyle(fontSize: 16, color: _kSub),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: V2Colors.textSecondary,
+                      ),
                     ),
                   ],
                 ),
@@ -220,20 +219,22 @@ class _NewSemifinalWinnerSelectionScreenState
           constraints: const BoxConstraints(minHeight: 100),
           decoration: BoxDecoration(
             color:
-                isSelected ? _kPrimary.withValues(alpha: 0.06) : Colors.white,
+                isSelected
+                    ? V2Colors.primary.withValues(alpha: 0.06)
+                    : Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color:
                   isSelected
-                      ? _kPrimary.withValues(alpha: 0.3)
-                      : const Color(0x1A27231E),
+                      ? V2Colors.primary.withValues(alpha: 0.3)
+                      : V2Colors.borderStrong.withValues(alpha: .1),
               width: isSelected ? 1.5 : 1,
             ),
             boxShadow:
                 isSelected
                     ? [
                       BoxShadow(
-                        color: _kPrimary.withValues(alpha: 0.08),
+                        color: V2Colors.primary.withValues(alpha: 0.08),
                         blurRadius: 8,
                         offset: const Offset(0, 4),
                       ),
@@ -255,11 +256,14 @@ class _NewSemifinalWinnerSelectionScreenState
                     Text(
                       book.name ?? l10n.unknown,
                       style: TextStyle(
-                        fontFamily: 'Manrope',
+                        fontFamily: V2Typography.family,
                         fontSize: 18,
                         fontWeight:
                             isSelected ? FontWeight.w700 : FontWeight.w600,
-                        color: isSelected ? _kPrimary : _kText,
+                        color:
+                            isSelected
+                                ? V2Colors.primary
+                                : V2Colors.textPrimary,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -268,9 +272,9 @@ class _NewSemifinalWinnerSelectionScreenState
                       Text(
                         '${l10n.author}: ${book.author}',
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 14,
-                          color: _kSub,
+                          color: V2Colors.textSecondary,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -280,9 +284,9 @@ class _NewSemifinalWinnerSelectionScreenState
                       Text(
                         '${l10n.rating}: ${book.myRating!.toStringAsFixed(2)}/5',
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 14,
-                          color: _kSub,
+                          color: V2Colors.textSecondary,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -296,10 +300,10 @@ class _NewSemifinalWinnerSelectionScreenState
                 width: 28,
                 height: 28,
                 decoration: BoxDecoration(
-                  color: isSelected ? _kPrimary : Colors.transparent,
+                  color: isSelected ? V2Colors.primary : Colors.transparent,
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: isSelected ? _kPrimary : _kBorder,
+                    color: isSelected ? V2Colors.primary : V2Colors.border,
                     width: isSelected ? 2 : 1.5,
                   ),
                 ),
@@ -323,7 +327,7 @@ class _NewSemifinalWinnerSelectionScreenState
         child: ElevatedButton(
           onPressed: _saveWinner,
           style: ElevatedButton.styleFrom(
-            backgroundColor: _kPrimary,
+            backgroundColor: V2Colors.primary,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(
@@ -334,7 +338,7 @@ class _NewSemifinalWinnerSelectionScreenState
           child: Text(
             l10n.select,
             style: const TextStyle(
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),

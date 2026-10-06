@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/config/app_theme.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
@@ -51,10 +52,10 @@ class NewBookDetailScreen extends StatefulWidget {
 
 class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
   // v2 design tokens - match the colors used across the new UI.
-  static const _kPrimary = Color(0xFF43102B);
-  static const _kSub = Color(0xFF514348);
-  static const _kBorder = Color(0xFF27231E);
-  static const _kBg = Color(0xFFFDF8F6);
+  static const _kPrimary = V2Colors.primary;
+  static const _kSub = V2Colors.textSecondary;
+  static const _kBorder = V2Colors.borderStrong;
+  static const _kBg = V2Colors.background;
 
   late Book _currentBook;
   List<ReadDate> _readDates = [];
@@ -99,7 +100,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
                 color: _kPrimary,
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
               ),
             ),
           ),
@@ -1094,7 +1095,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: _kPrimary,
@@ -1104,7 +1105,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                 Text(
                   subtitle,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 12,
                     color: _kSub,
                   ),
@@ -1156,7 +1157,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                         child: Text(
                           AppLocalizations.of(context)!.update_reading_progress,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
                             color: _kPrimary,
@@ -1256,7 +1257,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                               ),
                             ),
                             labelStyle: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               color: _kPrimary,
                             ),
                             hintText:
@@ -1272,7 +1273,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                     )!.pages_label_short
                                     : '/ ${_currentBook.pages}',
                             suffixStyle: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontWeight: FontWeight.w600,
                               color: _kSub,
                             ),
@@ -1316,7 +1317,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                     child: Text(
                                       '${(progress * 100).round()}%',
                                       style: const TextStyle(
-                                        fontFamily: 'Manrope',
+                                        fontFamily: V2Typography.family,
                                         fontSize: 13,
                                         fontWeight: FontWeight.w600,
                                         color: _kPrimary,
@@ -1347,7 +1348,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                       child: Text(
                         AppLocalizations.of(context)!.cancel,
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
                         ),
@@ -1424,7 +1425,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                       child: Text(
                         AppLocalizations.of(context)!.save,
                         style: const TextStyle(
-                          fontFamily: 'Manrope',
+                          fontFamily: V2Typography.family,
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
                         ),
@@ -1948,7 +1949,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
               child: Text(
                 text,
                 style: const TextStyle(
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 14,
                   color: _kSub,
                 ),
@@ -1978,7 +1979,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                   child: Text(
                     l10n.reading_time_details,
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                       color: _kPrimary,
@@ -2007,7 +2008,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                       days == 1 ? l10n.day_word : l10n.days_word,
                     ),
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                       color: _kPrimary,
@@ -2026,7 +2027,9 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0x1A27231E)),
+                    border: Border.all(
+                      color: V2Colors.borderStrong.withValues(alpha: 0.1),
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -2108,7 +2111,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                   child: Text(
                     l10n.close,
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                     ),
@@ -2225,7 +2228,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
               color: _kPrimary,
               fontSize: 28,
               fontWeight: FontWeight.w700,
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
             ),
           ),
           Text(
@@ -2234,7 +2237,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
               color: _kSub,
               fontSize: 12,
               fontWeight: FontWeight.w500,
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
             ),
           ),
         ],
@@ -2258,7 +2261,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
               color: _kPrimary,
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
             ),
           ),
           const SizedBox(height: 10),
@@ -2408,7 +2411,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
               fontWeight: FontWeight.bold,
               fontSize: 20,
               color: _kPrimary,
-              fontFamily: 'Manrope',
+              fontFamily: V2Typography.family,
             ),
           ),
           actions: [
@@ -2452,7 +2455,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                 // Book cover image with glassmorphism effect
                 Container(
                   height: 250,
-                  decoration: const BoxDecoration(color: Color(0xFFFDF8F6)),
+                  decoration: const BoxDecoration(color: V2Colors.background),
                   child:
                       _currentBook.coverUrl != null &&
                               _currentBook.coverUrl!.isNotEmpty
@@ -2899,7 +2902,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                           fontSize: 20,
                                           fontWeight: FontWeight.w600,
                                           color: _kPrimary,
-                                          fontFamily: 'Manrope',
+                                          fontFamily: V2Typography.family,
                                         ),
                                       ),
                                     ],
@@ -2910,7 +2913,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                     child: LinearProgressIndicator(
                                       value: progressValue,
                                       minHeight: 6,
-                                      backgroundColor: const Color(0xFFE6E2DF),
+                                      backgroundColor: V2Colors.divider,
                                       valueColor: const AlwaysStoppedAnimation(
                                         _kPrimary,
                                       ),
@@ -2924,7 +2927,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                     style: const TextStyle(
                                       color: _kSub,
                                       fontSize: 13,
-                                      fontFamily: 'Manrope',
+                                      fontFamily: V2Typography.family,
                                     ),
                                   ),
                                 ],
@@ -2978,7 +2981,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                     style: const TextStyle(
                                       color: _kSub,
                                       fontSize: 13,
-                                      fontFamily: 'Manrope',
+                                      fontFamily: V2Typography.family,
                                     ),
                                     maxLines: _isDescriptionExpanded ? null : 1,
                                     overflow:
@@ -2995,7 +2998,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                       color: _kSub,
                                       fontSize: 13,
                                       fontStyle: FontStyle.italic,
-                                      fontFamily: 'Manrope',
+                                      fontFamily: V2Typography.family,
                                     ),
                                   ),
                               ],
@@ -3497,7 +3500,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                     textAlign: TextAlign.center,
                                     style: const TextStyle(
                                       color: _kPrimary,
-                                      fontFamily: 'Manrope',
+                                      fontFamily: V2Typography.family,
                                       fontSize: 12,
                                       fontWeight: FontWeight.w700,
                                     ),
@@ -3775,7 +3778,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                             context,
                                           )!.book_n(bundleIndex + 1),
                                       style: const TextStyle(
-                                        fontFamily: 'Manrope',
+                                        fontFamily: V2Typography.family,
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
                                         color: _kPrimary,
@@ -3874,7 +3877,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                             context,
                                           )!.book_n(bundleIndex + 1),
                                       style: const TextStyle(
-                                        fontFamily: 'Manrope',
+                                        fontFamily: V2Typography.family,
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
                                         color: _kPrimary,
@@ -4045,7 +4048,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                   style: const TextStyle(
                                     color: _kSub,
                                     fontSize: 14,
-                                    fontFamily: 'Manrope',
+                                    fontFamily: V2Typography.family,
                                   ),
                                 ),
                                 const SizedBox(height: 16),
@@ -4551,9 +4554,9 @@ class _TandemBooksCard extends StatefulWidget {
 }
 
 class _TandemBooksCardState extends State<_TandemBooksCard> {
-  static const _kPrimary = Color(0xFF43102B);
-  static const _kSub = Color(0xFF514348);
-  static const _kBorder = Color(0xFF27231E);
+  static const _kPrimary = V2Colors.primary;
+  static const _kSub = V2Colors.textSecondary;
+  static const _kBorder = V2Colors.borderStrong;
 
   List<dynamic> _tandemBooks = [];
   bool _isLoading = true;
@@ -4616,7 +4619,7 @@ class _TandemBooksCardState extends State<_TandemBooksCard> {
               style: const TextStyle(
                 color: _kSub,
                 fontStyle: FontStyle.italic,
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
               ),
             ),
           )
@@ -4644,10 +4647,10 @@ class _TandemBooksCardState extends State<_TandemBooksCard> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF1C1B1A),
+                            color: V2Colors.textPrimary,
                           ),
                         ),
                         if (book.author != null && book.author!.isNotEmpty)
@@ -4656,7 +4659,7 @@ class _TandemBooksCardState extends State<_TandemBooksCard> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontSize: 12,
                               color: _kSub,
                             ),
@@ -4692,7 +4695,7 @@ class _TandemBooksCardState extends State<_TandemBooksCard> {
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
                 color: _kPrimary,
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
               ),
             ),
           ),
@@ -4732,9 +4735,9 @@ class _NewBookClubsCard extends StatefulWidget {
 }
 
 class _NewBookClubsCardState extends State<_NewBookClubsCard> {
-  static const _kPrimary = Color(0xFF43102B);
-  static const _kSub = Color(0xFF514348);
-  static const _kBorder = Color(0xFF27231E);
+  static const _kPrimary = V2Colors.primary;
+  static const _kSub = V2Colors.textSecondary;
+  static const _kBorder = V2Colors.borderStrong;
 
   List<ReadingClub> _clubs = [];
   bool _isLoading = true;
@@ -4958,7 +4961,7 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
                     color: _kPrimary,
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                   ),
                 ),
               ),
@@ -5013,7 +5016,7 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 0.2,
                                   color: _kPrimary,
-                                  fontFamily: 'Manrope',
+                                  fontFamily: V2Typography.family,
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -5069,7 +5072,7 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
                                 child: LinearProgressIndicator(
                                   value: club.readingProgress / 100,
                                   minHeight: 6,
-                                  backgroundColor: const Color(0xFFE6E2DF),
+                                  backgroundColor: V2Colors.divider,
                                   valueColor:
                                       const AlwaysStoppedAnimation<Color>(
                                         _kPrimary,
@@ -5212,7 +5215,9 @@ class _FinishBookDialogState extends State<_FinishBookDialog> {
                         );
                       }),
                     const SizedBox(height: 16),
-                    Divider(color: Color(0xFF27231E).withValues(alpha: 0.2)),
+                    Divider(
+                      color: V2Colors.borderStrong.withValues(alpha: 0.2),
+                    ),
                     const SizedBox(height: 8),
                     Text(
                       AppLocalizations.of(context)!.write_review_optional,
@@ -5266,13 +5271,13 @@ class _BundleBooksScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    const primary = Color(0xFF43102B);
-    const sub = Color(0xFF514348);
+    const primary = V2Colors.primary;
+    const sub = V2Colors.textSecondary;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFDF8F6),
+      backgroundColor: V2Colors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFDF8F6),
+        backgroundColor: V2Colors.background,
         foregroundColor: primary,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
@@ -5280,7 +5285,7 @@ class _BundleBooksScreen extends StatelessWidget {
           l10n.books_in_bundle,
           style: const TextStyle(
             color: primary,
-            fontFamily: 'Manrope',
+            fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w700,
           ),
@@ -5300,7 +5305,7 @@ class _BundleBooksScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: primary,
-                  fontFamily: 'Manrope',
+                  fontFamily: V2Typography.family,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                 ),
@@ -5362,7 +5367,7 @@ class _BundleBooksScreen extends StatelessWidget {
                             book.name ?? l10n.unknown_title,
                             style: const TextStyle(
                               color: primary,
-                              fontFamily: 'Manrope',
+                              fontFamily: V2Typography.family,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -5373,7 +5378,7 @@ class _BundleBooksScreen extends StatelessWidget {
                               book.author!,
                               style: const TextStyle(
                                 color: sub,
-                                fontFamily: 'Manrope',
+                                fontFamily: V2Typography.family,
                                 fontSize: 12,
                               ),
                             ),
@@ -5391,7 +5396,7 @@ class _BundleBooksScreen extends StatelessWidget {
                                     : l10n.no_status,
                                 style: TextStyle(
                                   color: statusColor,
-                                  fontFamily: 'Manrope',
+                                  fontFamily: V2Typography.family,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -5401,7 +5406,7 @@ class _BundleBooksScreen extends StatelessWidget {
                                   ' • ${l10n.pages_count(book.pages!)}',
                                   style: const TextStyle(
                                     color: sub,
-                                    fontFamily: 'Manrope',
+                                    fontFamily: V2Typography.family,
                                     fontSize: 12,
                                   ),
                                 ),
@@ -5410,7 +5415,7 @@ class _BundleBooksScreen extends StatelessWidget {
                                   ' • #${book.nSaga}',
                                   style: const TextStyle(
                                     color: sub,
-                                    fontFamily: 'Manrope',
+                                    fontFamily: V2Typography.family,
                                     fontSize: 12,
                                   ),
                                 ),
@@ -5464,9 +5469,9 @@ class _TandemReadingsCard extends StatefulWidget {
 }
 
 class _TandemReadingsCardState extends State<_TandemReadingsCard> {
-  static const _kPrimary = Color(0xFF43102B);
-  static const _kSub = Color(0xFF514348);
-  static const _kBorder = Color(0xFF27231E);
+  static const _kPrimary = V2Colors.primary;
+  static const _kSub = V2Colors.textSecondary;
+  static const _kBorder = V2Colors.borderStrong;
 
   List<TandemReading> _tandems = [];
   final Map<int, String> _otherBookNames = {};
@@ -5560,7 +5565,7 @@ class _TandemReadingsCardState extends State<_TandemReadingsCard> {
                 Text(
                   l10n.loading,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
+                    fontFamily: V2Typography.family,
                     fontSize: 13,
                     color: _kSub,
                   ),
@@ -5579,7 +5584,7 @@ class _TandemReadingsCardState extends State<_TandemReadingsCard> {
                   child: Text(
                     l10n.no_tandem_readings,
                     style: const TextStyle(
-                      fontFamily: 'Manrope',
+                      fontFamily: V2Typography.family,
                       fontSize: 14,
                       fontStyle: FontStyle.italic,
                       color: _kSub,
@@ -5623,10 +5628,10 @@ class _TandemReadingsCardState extends State<_TandemReadingsCard> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF1C1B1A),
+                            color: V2Colors.textPrimary,
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -5636,7 +5641,7 @@ class _TandemReadingsCardState extends State<_TandemReadingsCard> {
                             progress['total']!,
                           ),
                           style: const TextStyle(
-                            fontFamily: 'Manrope',
+                            fontFamily: V2Typography.family,
                             fontSize: 12,
                             color: _kSub,
                           ),
@@ -5676,7 +5681,7 @@ class _TandemReadingsCardState extends State<_TandemReadingsCard> {
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
                 color: _kPrimary,
-                fontFamily: 'Manrope',
+                fontFamily: V2Typography.family,
               ),
             ),
           ),
