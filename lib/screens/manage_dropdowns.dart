@@ -4,6 +4,7 @@ import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:sqflite/sqflite.dart';
 import '../config/app_theme.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
@@ -150,6 +151,12 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         } else if (_selectedTable == 'genre') {
           final result = await db.rawQuery(
             'SELECT COUNT(*) as count FROM books_by_genre WHERE genre_id = ?',
+            [id],
+          );
+          usageCount = result.first['count'] as int;
+        } else if (_selectedTable == 'place') {
+          final result = await db.rawQuery(
+            'SELECT COUNT(*) as count FROM books_by_place WHERE place_id = ?',
             [id],
           );
           usageCount = result.first['count'] as int;
@@ -1167,6 +1174,23 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     );
   }
 
+  Future<void> _replacePlaceInJunction(
+    Database db,
+    int oldId,
+    int newId,
+  ) async {
+    // Books may already have the new place, so ignore duplicate links.
+    await db.rawUpdate(
+      'UPDATE OR IGNORE books_by_place SET place_id = ? WHERE place_id = ?',
+      [newId, oldId],
+    );
+    await db.delete(
+      'books_by_place',
+      where: 'place_id = ?',
+      whereArgs: [oldId],
+    );
+  }
+
   Future<void> _deleteValue(int id, String value) async {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
@@ -1210,6 +1234,12 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       } else if (_selectedTable == 'genre') {
         final booksUsingValue = await db.rawQuery(
           'SELECT COUNT(*) as count FROM books_by_genre WHERE genre_id = ?',
+          [id],
+        );
+        usageCount = booksUsingValue.first['count'] as int;
+      } else if (_selectedTable == 'place') {
+        final booksUsingValue = await db.rawQuery(
+          'SELECT COUNT(*) as count FROM books_by_place WHERE place_id = ?',
           [id],
         );
         usageCount = booksUsingValue.first['count'] as int;
@@ -1271,6 +1301,12 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
               where: 'genre_id = ?',
               whereArgs: [id],
             );
+          } else if (_selectedTable == 'place') {
+            await db.delete(
+              'books_by_place',
+              where: 'place_id = ?',
+              whereArgs: [id],
+            );
           }
           await repository.deleteLookupValue(_selectedTable, id);
         } else if (action.startsWith('replace:')) {
@@ -1288,6 +1324,8 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
               'UPDATE books_by_genre SET genre_id = ? WHERE genre_id = ?',
               [newId, id],
             );
+          } else if (_selectedTable == 'place') {
+            await _replacePlaceInJunction(db, id, newId);
           } else if (_selectedTable == 'saga_universe' ||
               _selectedTable == 'saga') {
             // These are text fields, need special handling
@@ -1354,6 +1392,8 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                 'UPDATE books_by_genre SET genre_id = ? WHERE genre_id = ?',
                 [newId, id],
               );
+            } else if (_selectedTable == 'place') {
+              await _replacePlaceInJunction(db, id, newId);
             } else {
               // Update book table directly
               await db.rawUpdate(

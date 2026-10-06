@@ -2028,6 +2028,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get search_or_add_genre => 'Escribe para buscar o añadir género';
 
   @override
+  String get search_or_add_place => 'Escribe para buscar o añadir lugar';
+
+  @override
+  String get places => 'Lugares';
+
+  @override
   String get original_publication_date =>
       'Fecha de Publicación Original (para notificaciones)';
 

@@ -209,7 +209,7 @@ class BookProvider extends ChangeNotifier {
                     }
                     break;
                   case 'place':
-                    if (book.placeValue != filterValue) return false;
+                    if (!book.places.contains(filterValue)) return false;
                     break;
                   case 'status':
                     if (book.statusValue != filterValue) return false;

@@ -2006,6 +2006,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get search_or_add_genre => 'Type to search or add new genre';
 
   @override
+  String get search_or_add_place => 'Type to search or add new place';
+
+  @override
+  String get places => 'Places';
+
+  @override
   String get original_publication_date =>
       'Original Publication Date (for notifications)';
 

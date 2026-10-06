@@ -23,7 +23,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 45,
+      version: 46,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -121,7 +121,7 @@ class DatabaseHelper {
         original_publication_year INTEGER,
         loaned BOOLEAN,
         language_id VARCHAR(50),
-        place_id VARCHAR(50),
+        place_id VARCHAR(50), -- unused: places live in books_by_place
         format_id VARCHAR(50),
         created_at TEXT DEFAULT (datetime('now')),
         date_read_initial TEXT,
@@ -257,6 +257,8 @@ class DatabaseHelper {
         UNIQUE (genre_id, book_id)
       )
     ''');
+
+    await _createBooksByPlaceTable(db);
 
     await db.execute('''
       CREATE TABLE IF NOT EXISTS book_read_dates (
@@ -1509,6 +1511,37 @@ class DatabaseHelper {
         ON placeholder_placeholder_relations (to_placeholder_id)
       ''');
     }
+    if (oldVersion < 46) {
+      // A book can now have multiple places: move book.place_id into the
+      // books_by_place junction table. book.place_id is kept but unused.
+      await _createBooksByPlaceTable(db);
+      await db.execute('''
+        INSERT OR IGNORE INTO books_by_place (place_id, book_id)
+        SELECT CAST(b.place_id AS INTEGER), b.book_id
+        FROM book b
+        WHERE b.place_id IS NOT NULL AND b.place_id != ''
+          AND EXISTS (
+            SELECT 1 FROM place p WHERE p.place_id = CAST(b.place_id AS INTEGER)
+          )
+      ''');
+      await db.execute('UPDATE book SET place_id = NULL');
+    }
+  }
+
+  Future<void> _createBooksByPlaceTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS books_by_place (
+        books_by_place_id INTEGER PRIMARY KEY,
+        place_id INTEGER,
+        book_id INTEGER,
+        FOREIGN KEY (place_id) REFERENCES place (place_id),
+        FOREIGN KEY (book_id) REFERENCES book (book_id),
+        UNIQUE (place_id, book_id)
+      )
+    ''');
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_books_by_place_book_id ON books_by_place (book_id)
+    ''');
   }
 
   Future<void> closeDatabase() async {

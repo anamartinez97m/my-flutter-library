@@ -101,7 +101,6 @@ class _EditBookScreenState extends State<EditBookScreen> {
   int? _selectedStatusId;
   int? _selectedFormatSagaId;
   int? _selectedLanguageId;
-  int? _selectedPlaceId;
   int? _selectedFormatId;
   String? _selectedLoaned;
 
@@ -109,12 +108,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
   List<Map<String, dynamic>> _statusList = [];
   List<Map<String, dynamic>> _formatSagaList = [];
   List<Map<String, dynamic>> _languageList = [];
-  List<Map<String, dynamic>> _placeList = [];
   List<Map<String, dynamic>> _formatList = [];
 
   // Autocomplete suggestions
   List<String> _authorSuggestions = [];
   List<String> _genreSuggestions = [];
+  List<String> _placeSuggestions = [];
   List<String> _editorialSuggestions = [];
   List<String> _sagaSuggestions = [];
   List<String> _sagaUniverseSuggestions = [];
@@ -122,6 +121,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   // Multi-value fields
   List<String> _selectedAuthors = [];
   List<String> _selectedGenres = [];
+  List<String> _selectedPlaces = [];
   List<String> _selectedEditorial = []; // Single value but displayed as chip
 
   bool _isLoading = true;
@@ -307,6 +307,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
               .where((g) => g.isNotEmpty)
               .toList();
     }
+    _selectedPlaces = widget.book.places;
     if (widget.book.editorialValue != null &&
         widget.book.editorialValue!.isNotEmpty) {
       _selectedEditorial = [widget.book.editorialValue!];
@@ -413,11 +414,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
         _statusList = _deduplicateById(status, 'status_id');
         _formatSagaList = _deduplicateById(formatSaga, 'format_id');
         _languageList = _deduplicateById(language, 'language_id');
-        _placeList = _deduplicateById(place, 'place_id');
         _formatList = _deduplicateById(format, 'format_id');
 
         _authorSuggestions = authors.map((a) => a['name'] as String).toList();
         _genreSuggestions = genres.map((g) => g['name'] as String).toList();
+        _placeSuggestions = place.map((p) => p['name'] as String).toList();
         _editorialSuggestions =
             editorials.map((e) => e['name'] as String).toList();
         _sagaSuggestions = sagas;
@@ -461,17 +462,6 @@ class _EditBookScreenState extends State<EditBookScreen> {
         _selectedLanguageId =
             _languageList.any((l) => l['language_id'] == tempLanguageId)
                 ? tempLanguageId
-                : null;
-
-        final tempPlaceId = _findIdByValue(
-          _placeList,
-          'place_id',
-          'name',
-          widget.book.placeValue,
-        );
-        _selectedPlaceId =
-            _placeList.any((p) => p['place_id'] == tempPlaceId)
-                ? tempPlaceId
                 : null;
 
         final tempFormatId = _findIdByValue(
@@ -578,12 +568,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   as String?
               : null;
       String? placeValue =
-          _selectedPlaceId != null
-              ? _placeList.firstWhere(
-                    (p) => p['place_id'] == _selectedPlaceId,
-                  )['name']
-                  as String?
-              : null;
+          _selectedPlaces.isEmpty ? null : _selectedPlaces.join(', ');
       String? formatValue =
           _selectedFormatId != null
               ? _formatList.firstWhere(
@@ -861,10 +846,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     orElse: () => {},
                   )['name'];
               final placeValue =
-                  _placeList.firstWhere(
-                    (p) => p['place_id'] == _selectedPlaceId,
-                    orElse: () => {},
-                  )['name'];
+                  _selectedPlaces.isEmpty ? null : _selectedPlaces.join(', ');
               final formatValue =
                   _formatList.firstWhere(
                     (f) => f['format_id'] == _selectedFormatId,
@@ -2199,28 +2181,16 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Place dropdown
-                  DropdownButtonFormField<int>(
-                    value: _selectedPlaceId,
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.place,
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.place),
-                    ),
-                    style: const TextStyle(
-                      fontFamily: 'Manrope',
-                      color: Color(0xFF43102B),
-                    ),
-                    items:
-                        _placeList.map((place) {
-                          return DropdownMenuItem<int>(
-                            value: place['place_id'] as int,
-                            child: Text(place['name'] as String),
-                          );
-                        }).toList(),
-                    onChanged: (value) {
+                  // Places field
+                  ChipAutocompleteField(
+                    labelText: AppLocalizations.of(context)!.places,
+                    prefixIcon: Icons.place,
+                    suggestions: _placeSuggestions,
+                    initialValues: _selectedPlaces,
+                    hintText: AppLocalizations.of(context)!.search_or_add_place,
+                    onChanged: (values) {
                       setState(() {
-                        _selectedPlaceId = value;
+                        _selectedPlaces = values;
                       });
                     },
                   ),

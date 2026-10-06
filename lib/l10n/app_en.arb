@@ -927,6 +927,8 @@
   "select_publisher": "Select publisher",
   "genres": "Genre(s)",
   "search_or_add_genre": "Type to search or add new genre",
+  "search_or_add_place": "Type to search or add new place",
+  "places": "Places",
   "original_publication_date": "Original Publication Date (for notifications)",
   "release_date": "Release Date",
   "select_release_date": "Select release date",

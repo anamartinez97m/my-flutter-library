@@ -3423,7 +3423,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                               _DetailCard(
                                 icon: Icons.place,
                                 label: AppLocalizations.of(context)!.place,
-                                value: _currentBook.placeValue!,
+                                value: _currentBook.places.join('\n'),
                               ),
                             );
                           }
