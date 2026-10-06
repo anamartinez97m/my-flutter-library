@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
 import 'package:myrandomlibrary/widgets/random_shimmer.dart';
 import 'package:myrandomlibrary/widgets/shimmer_loading.dart';
 
-const _kBg = Color(0xFFFDF8F6);
-const _kPrimary = Color(0xFF43102B);
-const _kSub = Color(0xFF514348);
+const _kBg = V2Colors.background;
+const _kPrimary = V2Colors.primary;
+const _kSub = V2Colors.textSecondary;
 const _kCardShadow = [
   BoxShadow(color: Color(0x0A000000), blurRadius: 12, offset: Offset(0, 4)),
 ];
@@ -17,7 +18,9 @@ const _kCardShadow = [
 Widget withManrope(BuildContext context, Widget child) {
   final base = Theme.of(context);
   return Theme(
-    data: base.copyWith(textTheme: base.textTheme.apply(fontFamily: 'Manrope')),
+    data: base.copyWith(
+      textTheme: base.textTheme.apply(fontFamily: V2Typography.family),
+    ),
     child: child,
   );
 }
@@ -35,7 +38,7 @@ PreferredSizeWidget randomAppBar(BuildContext context, String title) {
     title: Text(
       title,
       style: const TextStyle(
-        fontFamily: 'Manrope',
+        fontFamily: V2Typography.family,
         fontSize: 20,
         fontWeight: FontWeight.bold,
         color: _kPrimary,
@@ -149,19 +152,23 @@ class RandomPickScaffold extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   decoration: BoxDecoration(
                     color: _kPrimary,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: const [
+                    borderRadius: BorderRadius.circular(V2Radii.card),
+                    boxShadow: [
                       BoxShadow(
-                        color: Color(0x33430E29),
+                        color: V2Colors.primary.withValues(alpha: 0.2),
                         blurRadius: 8,
-                        offset: Offset(0, 6),
+                        offset: const Offset(0, 6),
                       ),
                     ],
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.casino, color: Colors.white, size: 18),
+                      const Icon(
+                        Icons.casino,
+                        color: V2Colors.surface,
+                        size: 18,
+                      ),
                       const SizedBox(width: 8),
                       Flexible(
                         child: Text(
@@ -170,7 +177,7 @@ class RandomPickScaffold extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: V2Colors.surface,
                             letterSpacing: 0.26,
                           ),
                           overflow: TextOverflow.ellipsis,
@@ -225,9 +232,11 @@ class RandomResultCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0x4DCEC5BE)),
+          color: V2Colors.surface,
+          borderRadius: BorderRadius.circular(V2Radii.card),
+          border: Border.all(
+            color: V2Colors.borderNeutral.withValues(alpha: 0.3),
+          ),
           boxShadow: _kCardShadow,
         ),
         child: Column(
@@ -268,7 +277,7 @@ class RandomResultCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: V2Colors.surface,
                   ),
                 ),
               ),

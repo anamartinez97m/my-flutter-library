@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/discovery/book_discovery_service.dart';
 import 'package:myrandomlibrary/discovery/catalog/concept_catalog.dart';
 import 'package:myrandomlibrary/discovery/model/discovery_result.dart';
@@ -10,11 +11,11 @@ import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/widgets/discovery_result_card.dart';
 import 'package:provider/provider.dart';
 
-const _kPrimary = Color(0xFF43102B);
-const _kSub = Color(0xFF514348);
-const _kBorder = Color(0xFFD5C2C7);
-const _kChipBg = Color(0x80F2EDEB);
-const _kChipBorder = Color(0x80D5C2C7);
+const _kPrimary = V2Colors.primary;
+const _kSub = V2Colors.textSecondary;
+const _kBorder = V2Colors.border;
+final _kChipBg = V2Colors.chip.withValues(alpha: 0.5);
+final _kChipBorder = V2Colors.border.withValues(alpha: 0.5);
 
 /// "What are you in the mood for?" — free-text theme search over the user's
 /// own library, rendered inline as a card.
@@ -180,7 +181,7 @@ class _ThemeDiscoveryCardState extends State<ThemeDiscoveryCard> {
                   onPressed: () => _fill(''),
                 ),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: V2Colors.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: const BorderSide(color: _kBorder),
@@ -220,9 +221,9 @@ class _ThemeDiscoveryCardState extends State<ThemeDiscoveryCard> {
                   style: const TextStyle(fontSize: 13, color: _kPrimary),
                 ),
                 backgroundColor: _kChipBg,
-                side: const BorderSide(color: _kChipBorder),
+                side: BorderSide(color: _kChipBorder),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(V2Radii.cardLarge),
                 ),
                 onPressed: () => _fill(concept.localizedName(languageCode)),
               ),

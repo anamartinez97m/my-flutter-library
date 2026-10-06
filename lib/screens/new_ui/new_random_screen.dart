@@ -9,7 +9,6 @@ import 'package:provider/provider.dart';
 
 const _kBg = V2Colors.background;
 const _kPrimary = V2Colors.primary;
-const _kSub = V2Colors.textSecondary;
 
 /// Random tab: one card per way of getting a recommendation (mood, specific
 /// books, filters), each opening its own screen.
