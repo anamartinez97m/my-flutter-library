@@ -35,14 +35,7 @@ class BackupService {
   static const List<String> _settingsKeys = [
     // Theme
     'theme_mode',
-    'light_theme_variant',
-    'dark_theme_variant',
-    'custom_light_primary',
-    'custom_light_secondary',
-    'custom_light_tertiary',
-    'custom_dark_primary',
-    'custom_dark_secondary',
-    'custom_dark_tertiary',
+    'theme_family',
     // Language
     'language_code',
     // Sort

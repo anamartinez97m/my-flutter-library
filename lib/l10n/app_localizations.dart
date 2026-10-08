@@ -1886,6 +1886,24 @@ abstract class AppLocalizations {
   /// **'Rename or delete reading clubs'**
   String get manage_club_names_subtitle;
 
+  /// No description provided for @theme_main.
+  ///
+  /// In en, this message translates to:
+  /// **'Main'**
+  String get theme_main;
+
+  /// No description provided for @theme_ocean.
+  ///
+  /// In en, this message translates to:
+  /// **'Ocean'**
+  String get theme_ocean;
+
+  /// No description provided for @theme_royal.
+  ///
+  /// In en, this message translates to:
+  /// **'Royal'**
+  String get theme_royal;
+
   /// No description provided for @warm_earth.
   ///
   /// In en, this message translates to:

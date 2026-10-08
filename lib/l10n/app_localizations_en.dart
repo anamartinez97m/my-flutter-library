@@ -1016,6 +1016,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manage_club_names_subtitle => 'Rename or delete reading clubs';
 
   @override
+  String get theme_main => 'Main';
+
+  @override
+  String get theme_ocean => 'Ocean';
+
+  @override
+  String get theme_royal => 'Royal';
+
+  @override
   String get warm_earth => 'Warm Earth';
 
   @override
