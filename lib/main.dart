@@ -13,12 +13,18 @@ import 'package:myrandomlibrary/screens/get_started_screen.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_navigation_screen.dart';
 import 'package:myrandomlibrary/services/backup_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:myrandomlibrary/services/google_auth_service.dart';
 import 'package:myrandomlibrary/services/notification_service.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  if (kIsWeb) {
+    databaseFactory = databaseFactoryFfiWeb;
+  }
 
   // Initialize Firebase
   try {
@@ -32,15 +38,17 @@ void main() async {
   }
 
   // Initialize notification service
-  try {
-    final notificationService = NotificationService();
-    await notificationService.initialize();
-    await notificationService.requestPermissions();
-    // Reschedule reading reminders (in case books changed, app updated, or device rebooted)
-    await notificationService.scheduleReadingReminders();
-    await notificationService.scheduleChampionshipReminder();
-  } catch (e) {
-    debugPrint('Error initializing notifications: $e');
+  if (!kIsWeb) {
+    try {
+      final notificationService = NotificationService();
+      await notificationService.initialize();
+      await notificationService.requestPermissions();
+      // Reschedule reading reminders (in case books changed, app updated, or device rebooted)
+      await notificationService.scheduleReadingReminders();
+      await notificationService.scheduleChampionshipReminder();
+    } catch (e) {
+      debugPrint('Error initializing notifications: $e');
+    }
   }
 
   // Auto backup is triggered after the app is fully loaded (see _AutoBackupRunner)
@@ -198,6 +206,7 @@ class _AutoBackupRunnerState extends State<_AutoBackupRunner> {
   }
 
   Future<void> _runAutoBackup() async {
+    if (kIsWeb) return;
     try {
       // Give Firebase App Check time to fully initialize its token
       await Future.delayed(const Duration(seconds: 5));

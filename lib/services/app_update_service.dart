@@ -1,13 +1,14 @@
-import 'dart:io' show Platform;
-
 import 'package:flutter/foundation.dart';
 import 'package:in_app_update/in_app_update.dart';
 
 class AppUpdateService {
+  bool get _isAndroid =>
+      !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+
   /// Checks if an update is available on the Play Store.
   /// Returns the [AppUpdateInfo] if an update is available, null otherwise.
   Future<AppUpdateInfo?> checkForUpdate() async {
-    if (!Platform.isAndroid) return null;
+    if (!_isAndroid) return null;
     try {
       final updateInfo = await InAppUpdate.checkForUpdate();
       if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable) {
@@ -23,7 +24,7 @@ class AppUpdateService {
   /// Starts an immediate (full-screen) update flow.
   /// The Play Store handles the entire UX.
   Future<void> performImmediateUpdate() async {
-    if (!Platform.isAndroid) return;
+    if (!_isAndroid) return;
     try {
       await InAppUpdate.performImmediateUpdate();
     } catch (e) {
@@ -33,7 +34,7 @@ class AppUpdateService {
 
   /// Starts a flexible (background download) update flow.
   Future<void> startFlexibleUpdate() async {
-    if (!Platform.isAndroid) return;
+    if (!_isAndroid) return;
     try {
       await InAppUpdate.startFlexibleUpdate();
     } catch (e) {
@@ -43,7 +44,7 @@ class AppUpdateService {
 
   /// Completes a flexible update (installs after download).
   Future<void> completeFlexibleUpdate() async {
-    if (!Platform.isAndroid) return;
+    if (!_isAndroid) return;
     try {
       await InAppUpdate.completeFlexibleUpdate();
     } catch (e) {
