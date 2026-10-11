@@ -544,9 +544,9 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: kPrimary,
-                                foregroundColor: Colors.white,
+                                foregroundColor: V2Colors.onPrimary,
                                 elevation: 4,
-                                shadowColor: const Color(0x1A000000),
+                                shadowColor: V2Colors.filterFabShadow,
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 24,
                                   vertical: 10,
@@ -585,14 +585,14 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
           color: const Color(0xFF2563EB),
           shape: BoxShape.circle,
         ),
-        child: const Icon(Icons.check, size: 12, color: Colors.white),
+        child: Icon(Icons.check, size: 12, color: V2Colors.onPrimary),
       );
     }
     return Container(
       width: 16,
       height: 16,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         shape: BoxShape.circle,
         border: Border.all(color: V2Colors.borderInput),
       ),
@@ -740,10 +740,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(
-                              color: _kPrimary,
-                              width: 2,
-                            ),
+                            borderSide: BorderSide(color: _kPrimary, width: 2),
                           ),
                           labelStyle: TextStyle(
                             fontFamily: V2Typography.family,
@@ -774,10 +771,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(
-                              color: _kPrimary,
-                              width: 2,
-                            ),
+                            borderSide: BorderSide(color: _kPrimary, width: 2),
                           ),
                           labelStyle: TextStyle(
                             fontFamily: V2Typography.family,
@@ -839,7 +833,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: _kPrimary,
-                          foregroundColor: Colors.white,
+                          foregroundColor: V2Colors.onPrimary,
                           elevation: 4,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 24,
@@ -1140,7 +1134,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: _kPrimary,
-                          foregroundColor: Colors.white,
+                          foregroundColor: V2Colors.onPrimary,
                           elevation: 4,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 24,
@@ -1423,11 +1417,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                 children: [
                   Row(
                     children: [
-                      Icon(
-                        Icons.info_outline,
-                        color: _kPrimary,
-                        size: 24,
-                      ),
+                      Icon(Icons.info_outline, color: _kPrimary, size: 24),
                       const SizedBox(width: 12),
                       Text(
                         l10n.cannot_delete,
@@ -1457,7 +1447,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                       onPressed: () => Navigator.pop(context),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _kPrimary,
-                        foregroundColor: Colors.white,
+                        foregroundColor: V2Colors.onPrimary,
                         elevation: 4,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 24,
@@ -1581,7 +1571,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                         onPressed: () => Navigator.pop(context, true),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFB3261E),
-                          foregroundColor: Colors.white,
+                          foregroundColor: V2Colors.onPrimary,
                           elevation: 4,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 24,
@@ -1627,7 +1617,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: _addValue,
         backgroundColor: _kPrimary,
-        foregroundColor: Colors.white,
+        foregroundColor: V2Colors.onPrimary,
         elevation: 4,
         shape: const CircleBorder(),
         child: const Icon(Icons.add),
@@ -1782,10 +1772,10 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
               fontFamily: V2Typography.family,
               fontSize: 12,
               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-              color: isSelected ? Colors.white : const Color(0xFF57534E),
+              color: isSelected ? V2Colors.onPrimary : const Color(0xFF57534E),
             ),
             selectedColor: V2Colors.primaryAlt,
-            backgroundColor: Colors.white,
+            backgroundColor: V2Colors.surface,
             side: BorderSide(
               color: isSelected ? V2Colors.primaryAlt : const Color(0xFFE8DEDA),
             ),
@@ -1858,7 +1848,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
             ),
             prefixIcon: Icon(Icons.search, color: _kSub, size: 20),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: V2Colors.surface,
             contentPadding: const EdgeInsets.symmetric(vertical: 12),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -1883,7 +1873,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     return Container(
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFFF1E8E6)),
         boxShadow: [
@@ -1968,7 +1958,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     required VoidCallback? onPressed,
   }) {
     return Material(
-      color: Colors.white,
+      color: V2Colors.surface,
       borderRadius: BorderRadius.circular(6),
       clipBehavior: Clip.antiAlias,
       child: IconButton(
@@ -2242,10 +2232,7 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
                               fontSize: 15,
                               color: _kText,
                             ),
-                            icon: Icon(
-                              Icons.expand_more,
-                              color: _kPrimary,
-                            ),
+                            icon: Icon(Icons.expand_more, color: _kPrimary),
                             items:
                                 otherValues.map((v) {
                                   return DropdownMenuItem<int>(
@@ -2363,7 +2350,7 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
                     onPressed: () => _onProceed(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFB3261E),
-                      foregroundColor: Colors.white,
+                      foregroundColor: V2Colors.onPrimary,
                       elevation: 4,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 24,
@@ -2409,14 +2396,14 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
               width: selected ? 18 : 16,
               height: selected ? 18 : 16,
               decoration: BoxDecoration(
-                color: selected ? _kPrimary : Colors.white,
+                color: selected ? _kPrimary : V2Colors.surface,
                 shape: BoxShape.circle,
                 border:
                     selected ? null : Border.all(color: V2Colors.borderInput),
               ),
               child:
                   selected
-                      ? const Icon(Icons.check, size: 12, color: Colors.white)
+                      ? Icon(Icons.check, size: 12, color: V2Colors.onPrimary)
                       : null,
             ),
           ),

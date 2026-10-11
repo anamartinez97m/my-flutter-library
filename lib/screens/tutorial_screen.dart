@@ -289,9 +289,9 @@ class _TutorialSectionCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0x1A27231E)),
+        border: Border.all(color: V2Colors.borderStrong.withValues(alpha: .1)),
         boxShadow: const [
           BoxShadow(
             color: Color(0x0A000000),
@@ -305,8 +305,8 @@ class _TutorialSectionCard extends StatelessWidget {
         child: ExpansionTile(
           controller: controller,
           onExpansionChanged: onExpansionChanged,
-          collapsedBackgroundColor: Colors.white,
-          backgroundColor: Colors.white,
+          collapsedBackgroundColor: V2Colors.surface,
+          backgroundColor: V2Colors.surface,
           iconColor: _kPrimary,
           collapsedIconColor: _kSub,
           leading: Container(
@@ -437,10 +437,10 @@ class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
+        foregroundColor: V2Colors.onPrimary,
         title: Text(
           '${_currentIndex + 1} / ${widget.images.length}',
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: V2Colors.onPrimary),
         ),
       ),
       body: Stack(
@@ -486,7 +486,7 @@ class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
                     width: isActive ? 16 : 6,
                     height: 6,
                     decoration: BoxDecoration(
-                      color: isActive ? Colors.white : Colors.white38,
+                      color: isActive ? V2Colors.surface : Colors.white38,
                       borderRadius: BorderRadius.circular(3),
                     ),
                   );

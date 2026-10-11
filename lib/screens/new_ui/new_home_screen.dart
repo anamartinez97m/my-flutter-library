@@ -23,9 +23,9 @@ Color get _kDivider => V2Colors.divider;
 Color get _kText => V2Colors.textSubtle;
 Color get _kInactiveText => V2Colors.textSecondary;
 Color get _kFabSmall => V2Colors.control;
-const _kChipBg = Color(0x80F2EDEB);
-const _kChipBorder = Color(0x80D5C2C7);
-const _kChipSelected = Color(0xE643102B);
+Color get _kChipBg => V2Colors.chip.withValues(alpha: .5);
+Color get _kChipBorder => V2Colors.border.withValues(alpha: .5);
+Color get _kChipSelected => V2Colors.chipSelected;
 
 class NewHomeScreen extends StatefulWidget {
   final void Function(VoidCallback)? onRegisterClearSearch;
@@ -294,7 +294,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
             fontSize: 11,
             fontWeight: FontWeight.w500,
             letterSpacing: 0.55,
-            color: selected ? Colors.white : _kInactiveText,
+            color: selected ? V2Colors.onPrimary : _kInactiveText,
           ),
         ),
       ),
@@ -1039,7 +1039,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                         onPressed: () => Navigator.pop(ctx),
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: _kPrimary,
-                                          foregroundColor: Colors.white,
+                                          foregroundColor: V2Colors.onPrimary,
                                           shape: const StadiumBorder(),
                                           elevation: 3,
                                           shadowColor: Colors.black.withValues(
@@ -1130,7 +1130,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                               vertical: 8,
                             ),
                             decoration: BoxDecoration(
-                              color: sel ? _kPrimary : Colors.white,
+                              color: sel ? _kPrimary : V2Colors.surface,
                               border: Border.all(
                                 color: sel ? _kPrimary : _kBorder,
                               ),
@@ -1141,7 +1141,8 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
-                                color: sel ? Colors.white : _kInactiveText,
+                                color:
+                                    sel ? V2Colors.onPrimary : _kInactiveText,
                                 letterSpacing: 0.26,
                               ),
                             ),
@@ -1157,7 +1158,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                   child: Container(
                     height: 50,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: V2Colors.surface,
                       border: Border.all(color: V2Colors.borderStrong),
                       borderRadius: BorderRadius.circular(8),
                       boxShadow: [
@@ -1185,10 +1186,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                               border: InputBorder.none,
                               focusedBorder: InputBorder.none,
                               hintText: l10n.search_hint,
-                              hintStyle: TextStyle(
-                                color: _kText,
-                                fontSize: 14,
-                              ),
+                              hintStyle: TextStyle(color: _kText, fontSize: 14),
                               isDense: true,
                               contentPadding: EdgeInsets.zero,
                             ),
@@ -1204,11 +1202,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                             minWidth: 36,
                             minHeight: 36,
                           ),
-                          icon: Icon(
-                            Icons.close,
-                            size: 14,
-                            color: _kText,
-                          ),
+                          icon: Icon(Icons.close, size: 14, color: _kText),
                           onPressed: () {
                             _searchController.clear();
                             provider.searchBooks(
@@ -1281,10 +1275,10 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
             child: FloatingActionButton(
               heroTag: 'new_filters',
               onPressed: () => _showFilterSortSheet(context, provider),
-              backgroundColor: _kFabSmall,
+              backgroundColor: V2Colors.filterFabBackground,
               elevation: 3,
               shape: const CircleBorder(),
-              child: Icon(Icons.tune, color: _kInactiveText, size: 17),
+              child: Icon(Icons.tune, color: V2Colors.filterFabIcon, size: 17),
             ),
           ),
           const SizedBox(height: 12),
@@ -1298,7 +1292,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
             backgroundColor: _kPrimary,
             elevation: 6,
             shape: const CircleBorder(),
-            child: const Icon(Icons.add, color: Colors.white),
+            child: Icon(Icons.add, color: V2Colors.onPrimary),
           ),
         ],
       ),

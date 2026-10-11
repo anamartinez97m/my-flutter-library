@@ -505,9 +505,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     final kBadgeBorder = V2Colors.border;
 
     BoxDecoration cardDeco({double radius = 12}) => BoxDecoration(
-      color: Colors.white,
+      color: V2Colors.surface,
       borderRadius: BorderRadius.circular(radius),
-      border: Border.all(color: const Color(0x1A27231E)),
+      border: Border.all(color: V2Colors.borderStrong.withValues(alpha: .1)),
       boxShadow: const [
         BoxShadow(
           color: Color(0x0A000000),
@@ -544,11 +544,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.library_books,
-                            size: 30,
-                            color: kPrimary,
-                          ),
+                          Icon(Icons.library_books, size: 30, color: kPrimary),
                           const SizedBox(height: 8),
                           Text(
                             l10n.total_books,
@@ -582,11 +578,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.new_releases,
-                            size: 32,
-                            color: kPrimary,
-                          ),
+                          Icon(Icons.new_releases, size: 32, color: kPrimary),
                           const SizedBox(height: 8),
                           Text(
                             l10n.latest_book_added,
@@ -645,11 +637,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     children: [
                       Row(
                         children: [
-                          Icon(
-                            Icons.emoji_events,
-                            color: kPrimary,
-                            size: 22,
-                          ),
+                          Icon(Icons.emoji_events, color: kPrimary, size: 22),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
@@ -662,11 +650,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          Icon(
-                            Icons.arrow_forward_ios,
-                            size: 12,
-                            color: kSub,
-                          ),
+                          Icon(Icons.arrow_forward_ios, size: 12, color: kSub),
                         ],
                       ),
                       const SizedBox(height: 12),
@@ -795,11 +779,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             style: TextStyle(fontSize: 16, color: kText),
                           ),
                         ),
-                        Icon(
-                          Icons.arrow_forward_ios,
-                          size: 12,
-                          color: kSub,
-                        ),
+                        Icon(Icons.arrow_forward_ios, size: 12, color: kSub),
                       ],
                     ),
                   ),

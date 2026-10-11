@@ -328,11 +328,7 @@ class _NewPastYearsCompetitionScreenState
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.emoji_events_outlined,
-            size: 64,
-            color: V2Colors.border,
-          ),
+          Icon(Icons.emoji_events_outlined, size: 64, color: V2Colors.border),
           const SizedBox(height: 16),
           Text(
             l10n.no_past_competitions_found,
@@ -372,10 +368,13 @@ class _NewPastYearsCompetitionScreenState
                     fontFamily: V2Typography.family,
                     fontSize: 12,
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                    color: isSelected ? Colors.white : V2Colors.textSecondary,
+                    color:
+                        isSelected
+                            ? V2Colors.onPrimary
+                            : V2Colors.textSecondary,
                   ),
                   selectedColor: V2Colors.primary,
-                  backgroundColor: Colors.white,
+                  backgroundColor: V2Colors.surface,
                   side: BorderSide(
                     color:
                         isSelected ? V2Colors.primary : const Color(0xFFF0E7E4),
@@ -579,10 +578,10 @@ class _NewPastYearsCompetitionScreenState
                               letterSpacing: 0.45,
                             ),
                           ),
-                          const Icon(
+                          Icon(
                             Icons.menu_book,
                             size: 24,
-                            color: Colors.white,
+                            color: V2Colors.onPrimary,
                           ),
                           Container(
                             height: 2,
@@ -615,11 +614,11 @@ class _NewPastYearsCompetitionScreenState
                           const SizedBox(height: 2),
                           Text(
                             winner.bookName,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: V2Typography.family,
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                              color: V2Colors.onPrimary,
                               letterSpacing: -0.6,
                             ),
                             maxLines: 1,
@@ -707,10 +706,10 @@ class _NewPastYearsCompetitionScreenState
                           color: Colors.white.withValues(alpha: 0.15),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.arrow_forward_ios,
                           size: 12,
-                          color: Colors.white,
+                          color: V2Colors.onPrimary,
                         ),
                       ),
                     ],
@@ -777,7 +776,7 @@ class _NewPastYearsCompetitionScreenState
     return Container(
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFF0E7E4)),
         boxShadow: const [
@@ -1194,11 +1193,11 @@ class _YearRecapSheet extends StatelessWidget {
                                 winner.bookName,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontFamily: V2Typography.family,
                                   fontSize: 17,
                                   fontWeight: FontWeight.w800,
-                                  color: Colors.white,
+                                  color: V2Colors.onPrimary,
                                 ),
                               ),
                             ],
@@ -1262,7 +1261,7 @@ class _YearRecapSheet extends StatelessWidget {
                       label: const Text('Open full competition'),
                       style: FilledButton.styleFrom(
                         backgroundColor: V2Colors.primary,
-                        foregroundColor: Colors.white,
+                        foregroundColor: V2Colors.onPrimary,
                         padding: const EdgeInsets.symmetric(vertical: 13),
                         textStyle: const TextStyle(
                           fontFamily: V2Typography.family,
@@ -1297,7 +1296,7 @@ class _RecapStat extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: const Color(0xFFF0E7E4)),
       ),
@@ -1374,7 +1373,7 @@ class _RecapBookRow extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFFF0E7E4)),
       ),
@@ -1384,7 +1383,7 @@ class _RecapBookRow extends StatelessWidget {
             width: 34,
             padding: const EdgeInsets.symmetric(vertical: 4),
             decoration: BoxDecoration(
-              color: muted ? const Color(0xFFF2EDEB) : _kGoldLight,
+              color: muted ? V2Colors.chip : _kGoldLight,
               borderRadius: BorderRadius.circular(7),
             ),
             child: Text(

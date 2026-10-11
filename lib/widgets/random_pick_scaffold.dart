@@ -164,11 +164,7 @@ class RandomPickScaffold extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.casino,
-                        color: V2Colors.surface,
-                        size: 18,
-                      ),
+                      Icon(Icons.casino, color: V2Colors.surface, size: 18),
                       const SizedBox(width: 8),
                       Flexible(
                         child: Text(

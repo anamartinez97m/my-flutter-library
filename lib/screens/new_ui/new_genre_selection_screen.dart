@@ -167,12 +167,12 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.26,
-                color: selected ? Colors.white : V2Colors.textSecondary,
+                color: selected ? V2Colors.onPrimary : V2Colors.textSecondary,
               ),
             ),
             if (selected) ...[
               const SizedBox(width: 4),
-              const Icon(Icons.check, size: 12, color: Colors.white),
+              Icon(Icons.check, size: 12, color: V2Colors.onPrimary),
             ],
           ],
         ),
@@ -182,8 +182,10 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
 
   Widget _sectionHeading(String text) => Container(
     padding: const EdgeInsets.only(bottom: 9),
-    decoration: const BoxDecoration(
-      border: Border(bottom: BorderSide(color: Color(0x1A27231E))),
+    decoration: BoxDecoration(
+      border: Border(
+        bottom: BorderSide(color: V2Colors.borderStrong.withValues(alpha: .1)),
+      ),
     ),
     child: Text(
       text,

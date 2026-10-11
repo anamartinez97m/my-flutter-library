@@ -23,7 +23,8 @@ class PriceStatisticsScreen extends StatefulWidget {
   static Color get kMuted => V2Colors.border;
   static Color get kText => V2Colors.textPrimary;
   static Color get kSub => V2Colors.textSecondary;
-  static const kBorder = Color(0x4DD5C2C7); // Exact alpha variant.
+  static Color get kBorder =>
+      V2Colors.border.withValues(alpha: .3); // Exact alpha variant.
   static Color get kDivider => V2Colors.divider;
   static Color get kBarBg => V2Colors.divider;
 
@@ -190,7 +191,7 @@ class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(17),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: _kBorder),
         boxShadow: const [
@@ -450,11 +451,7 @@ class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
           ),
           child: Row(
             children: [
-              Icon(
-                Icons.account_balance_wallet,
-                color: _kSecondary,
-                size: 28,
-              ),
+              Icon(Icons.account_balance_wallet, color: _kSecondary, size: 28),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(

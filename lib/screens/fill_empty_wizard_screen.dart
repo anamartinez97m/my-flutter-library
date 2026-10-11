@@ -456,11 +456,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                   color: _kIconBg,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  Icons.check_rounded,
-                  size: 36,
-                  color: _kPrimary,
-                ),
+                child: Icon(Icons.check_rounded, size: 36, color: _kPrimary),
               ),
               const SizedBox(height: 20),
               Text(
@@ -728,9 +724,12 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                                     fontFamily: V2Typography.family,
                                     fontSize: 11,
                                     fontWeight: FontWeight.w600,
-                                    color: isSelected ? Colors.white : _kText,
+                                    color:
+                                        isSelected
+                                            ? V2Colors.onPrimary
+                                            : _kText,
                                   ),
-                                  backgroundColor: Colors.white,
+                                  backgroundColor: V2Colors.surface,
                                   color: WidgetStatePropertyAll(
                                     isSelected ? _kPrimary : Colors.white,
                                   ),
@@ -768,22 +767,16 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                       fontFamily: V2Typography.family,
                       color: _kSubText,
                     ),
-                    prefixIcon: Icon(
-                      Icons.label_outline,
-                      color: _kSecondary,
-                    ),
+                    prefixIcon: Icon(Icons.label_outline, color: _kSecondary),
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor: V2Colors.surface,
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(color: _kBorder),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: _kPrimary,
-                        width: 1.5,
-                      ),
+                      borderSide: BorderSide(color: _kPrimary, width: 1.5),
                     ),
                   ),
                   items:
@@ -851,7 +844,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                       dense: true,
                       controlAffinity: ListTileControlAffinity.leading,
                       activeColor: _kPrimary,
-                      checkColor: Colors.white,
+                      checkColor: V2Colors.onPrimary,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                     ),
                   );
@@ -870,19 +863,19 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                             : null,
                     icon:
                         _isApplying
-                            ? const SizedBox(
+                            ? SizedBox(
                               width: 16,
                               height: 16,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: Colors.white,
+                                color: V2Colors.onPrimary,
                               ),
                             )
                             : const Icon(Icons.check, size: 18),
                     label: Text(l10n.apply_to_group),
                     style: FilledButton.styleFrom(
                       backgroundColor: _kPrimary,
-                      foregroundColor: Colors.white,
+                      foregroundColor: V2Colors.onPrimary,
                       disabledBackgroundColor: _kBorder,
                       disabledForegroundColor: _kSubText,
                       padding: const EdgeInsets.symmetric(vertical: 14),

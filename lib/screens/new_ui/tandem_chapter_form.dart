@@ -104,9 +104,7 @@ class _TandemChapterFormState extends State<TandemChapterForm> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message, style: const TextStyle(fontFamily: 'Manrope')),
       ),
@@ -161,11 +159,7 @@ class _TandemChapterFormState extends State<TandemChapterForm> {
                         ),
                         GestureDetector(
                           onTap: () => Navigator.pop(context),
-                          child: Icon(
-                            Icons.close,
-                            size: 24,
-                            color: _kText,
-                          ),
+                          child: Icon(Icons.close, size: 24, color: _kText),
                         ),
                       ],
                     ),
@@ -243,19 +237,19 @@ class _TandemChapterFormState extends State<TandemChapterForm> {
                         onPressed: _isSaving ? null : _save,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: _kPrimary,
-                          foregroundColor: Colors.white,
+                          foregroundColor: V2Colors.onPrimary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                         child:
                             _isSaving
-                                ? const SizedBox(
+                                ? SizedBox(
                                   width: 20,
                                   height: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    color: Colors.white,
+                                    color: V2Colors.onPrimary,
                                   ),
                                 )
                                 : Text(
@@ -300,7 +294,7 @@ class _BookToggle extends StatelessWidget {
         height: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha: 0.08) : Colors.white,
+          color: isSelected ? color.withValues(alpha: 0.08) : V2Colors.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? color : V2Colors.border,
@@ -356,7 +350,7 @@ class _ChapterField extends StatelessWidget {
           color: V2Colors.textSecondary,
         ),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: V2Colors.surface,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 12,
           vertical: 10,

@@ -279,7 +279,7 @@ class _ReadingClubDialogState extends State<ReadingClubDialog> {
                   : _save,
           style: ElevatedButton.styleFrom(
             backgroundColor: _kPrimary,
-            foregroundColor: Colors.white,
+            foregroundColor: V2Colors.onPrimary,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),

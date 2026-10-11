@@ -429,11 +429,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                       ),
                     ),
                     if (isSelected)
-                      Icon(
-                        Icons.check_circle,
-                        color: _kPrimary,
-                        size: 20,
-                      ),
+                      Icon(Icons.check_circle, color: _kPrimary, size: 20),
                   ],
                 ),
               ),
@@ -498,7 +494,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
             ),
             prefixIcon: Icon(Icons.label_outline, color: _kSecondary),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: V2Colors.surface,
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: _kBorder),
@@ -551,11 +547,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                     color: _kIconBg,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    Icons.check_rounded,
-                    size: 36,
-                    color: _kPrimary,
-                  ),
+                  child: Icon(Icons.check_rounded, size: 36, color: _kPrimary),
                 ),
                 const SizedBox(height: 20),
                 Text(
@@ -603,7 +595,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                     ),
                     prefixIcon: const Icon(Icons.search, size: 20),
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor: V2Colors.surface,
                     isDense: true,
                     contentPadding: const EdgeInsets.symmetric(
                       vertical: 10,
@@ -615,10 +607,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: _kPrimary,
-                        width: 1.5,
-                      ),
+                      borderSide: BorderSide(color: _kPrimary, width: 1.5),
                     ),
                   ),
                   onChanged: (value) {
@@ -748,7 +737,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                   ),
                   dense: true,
                   activeColor: _kPrimary,
-                  checkColor: Colors.white,
+                  checkColor: V2Colors.onPrimary,
                   controlAffinity: ListTileControlAffinity.leading,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                 ),
@@ -767,19 +756,19 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                       : null,
               icon:
                   _isApplying
-                      ? const SizedBox(
+                      ? SizedBox(
                         width: 16,
                         height: 16,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Colors.white,
+                          color: V2Colors.onPrimary,
                         ),
                       )
                       : const Icon(Icons.check, size: 18),
               label: Text(l10n.apply_to_n_books(_selectedBookIds.length)),
               style: FilledButton.styleFrom(
                 backgroundColor: _kPrimary,
-                foregroundColor: Colors.white,
+                foregroundColor: V2Colors.onPrimary,
                 disabledBackgroundColor: _kBorder,
                 disabledForegroundColor: _kSubText,
                 padding: const EdgeInsets.symmetric(vertical: 14),
@@ -842,7 +831,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
         label: Text(l10n.continue_label),
         style: FilledButton.styleFrom(
           backgroundColor: _kPrimary,
-          foregroundColor: Colors.white,
+          foregroundColor: V2Colors.onPrimary,
           disabledBackgroundColor: _kBorder,
           disabledForegroundColor: _kSubText,
           padding: const EdgeInsets.symmetric(vertical: 14),

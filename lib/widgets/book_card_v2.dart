@@ -266,7 +266,7 @@ class BookCardV2 extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
-          color: isRead ? const Color(0xFFF5F3F2) : Colors.white,
+          color: isRead ? V2Colors.surfaceMuted : V2Colors.surface,
           border: Border.all(color: _kBorder),
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
@@ -300,23 +300,11 @@ class BookCardV2 extends StatelessWidget {
                         ),
                       ),
                       if (book.tbr == true)
-                        Icon(
-                          Icons.bookmark_add,
-                          size: 16,
-                          color: _kPrimary,
-                        ),
+                        Icon(Icons.bookmark_add, size: 16, color: _kPrimary),
                       if (book.isBundle == true)
-                        Icon(
-                          Icons.library_books,
-                          size: 16,
-                          color: _kPrimary,
-                        ),
+                        Icon(Icons.library_books, size: 16, color: _kPrimary),
                       if (book.isTandem == true)
-                        Icon(
-                          Icons.swap_horiz,
-                          size: 16,
-                          color: _kPrimary,
-                        ),
+                        Icon(Icons.swap_horiz, size: 16, color: _kPrimary),
                     ],
                   ),
 

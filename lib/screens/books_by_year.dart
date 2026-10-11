@@ -16,7 +16,8 @@ class BooksByYearScreen extends StatefulWidget {
   static const kTertiary = Color(0xFFBC92A6); // Not represented in V2Colors.
   static Color get kText => V2Colors.textPrimary;
   static Color get kSub => V2Colors.textSecondary;
-  static const kBorder = Color(0x4DD5C2C7); // Exact alpha variant.
+  static Color get kBorder =>
+      V2Colors.border.withValues(alpha: .3); // Exact alpha variant.
   static Color get kDivider => V2Colors.divider;
 
   const BooksByYearScreen({super.key, required this.initialYear});
@@ -262,9 +263,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
         future: _loadYears(),
         builder: (context, yearsSnapshot) {
           if (!yearsSnapshot.hasData) {
-            return Center(
-              child: CircularProgressIndicator(color: _kPrimary),
-            );
+            return Center(child: CircularProgressIndicator(color: _kPrimary));
           }
 
           _availableYears = yearsSnapshot.data!;
@@ -295,7 +294,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
                       vertical: 12,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: V2Colors.surface,
                       border: Border(
                         bottom: BorderSide(color: _kDivider, width: 1),
                       ),
@@ -323,7 +322,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
                               value: _selectedYear,
                               isExpanded: true,
                               underline: const SizedBox.shrink(),
-                              dropdownColor: Colors.white,
+                              dropdownColor: V2Colors.surface,
                               style: TextStyle(
                                 fontFamily: V2Typography.family,
                                 fontSize: 14,
@@ -359,10 +358,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
                             ? Center(
                               child: Text(
                                 l10n.no_books_in_year,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: _kSub,
-                                ),
+                                style: TextStyle(fontSize: 14, color: _kSub),
                               ),
                             )
                             : ListView.builder(
@@ -414,7 +410,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: _kBorder),
         boxShadow: const [

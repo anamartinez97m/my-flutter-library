@@ -104,11 +104,7 @@ class _NewRandomBooksScreenState extends State<NewRandomBooksScreen> {
                 color: _kPrimary.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                Icons.library_books,
-                color: _kPrimary,
-                size: 34,
-              ),
+              child: Icon(Icons.library_books, color: _kPrimary, size: 34),
             ),
           ),
           const SizedBox(height: 20),

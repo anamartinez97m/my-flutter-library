@@ -150,14 +150,11 @@ class _UniversePlaceholdersScreenState
   InputDecoration _fieldDecoration(String label, {IconData? icon}) {
     return InputDecoration(
       labelText: label,
-      labelStyle: TextStyle(
-        fontFamily: V2Typography.family,
-        color: _kSub,
-      ),
+      labelStyle: TextStyle(fontFamily: V2Typography.family, color: _kSub),
       prefixIcon:
           icon == null ? null : Icon(icon, color: _kSecondary, size: 20),
       filled: true,
-      fillColor: Colors.white,
+      fillColor: V2Colors.surface,
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(color: _kBorder),
@@ -484,7 +481,7 @@ class _UniversePlaceholdersScreenState
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: _kPrimary,
-                                  foregroundColor: Colors.white,
+                                  foregroundColor: V2Colors.onPrimary,
                                   elevation: 0,
                                   padding: const EdgeInsets.symmetric(
                                     vertical: 14,
@@ -638,7 +635,7 @@ class _UniversePlaceholdersScreenState
         floatingActionButton: FloatingActionButton.extended(
           onPressed: _showPlaceholderForm,
           backgroundColor: _kPrimary,
-          foregroundColor: Colors.white,
+          foregroundColor: V2Colors.onPrimary,
           elevation: 2,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -654,9 +651,7 @@ class _UniversePlaceholdersScreenState
         ),
         body:
             _loading
-                ? Center(
-                  child: CircularProgressIndicator(color: _kPrimary),
-                )
+                ? Center(child: CircularProgressIndicator(color: _kPrimary))
                 : SafeArea(
                   top: false,
                   child: CustomScrollView(

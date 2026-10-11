@@ -196,7 +196,7 @@ Widget _statChip({
   return Container(
     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: V2Colors.surface,
       borderRadius: BorderRadius.circular(8),
       border: Border.all(color: _kBorder),
       boxShadow: [
@@ -256,7 +256,7 @@ Widget _bookCard({
     child: Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: isRead ? V2Colors.surfaceMuted : Colors.white,
+        color: isRead ? V2Colors.surfaceMuted : V2Colors.surface,
         border: Border.all(color: _kBorder),
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
@@ -285,11 +285,7 @@ Widget _bookCard({
               const SizedBox(height: 5),
               Text(
                 subtitle,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: _kText,
-                  height: 1.43,
-                ),
+                style: TextStyle(fontSize: 13, color: _kText, height: 1.43),
               ),
             ],
             if (year != null || isRead) ...[

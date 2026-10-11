@@ -16,7 +16,8 @@ class BooksByDecadeScreen extends StatefulWidget {
   static const kTertiary = Color(0xFFBC92A6); // Not represented in V2Colors.
   static Color get kText => V2Colors.textPrimary;
   static Color get kSub => V2Colors.textSecondary;
-  static const kBorder = Color(0x4DD5C2C7); // Exact alpha variant.
+  static Color get kBorder =>
+      V2Colors.border.withValues(alpha: .3); // Exact alpha variant.
   static Color get kDivider => V2Colors.divider;
 
   const BooksByDecadeScreen({
@@ -164,7 +165,7 @@ class _BooksByDecadeScreenState extends State<BooksByDecadeScreen> {
                   vertical: 12,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: V2Colors.surface,
                   border: Border(
                     bottom: BorderSide(color: _kDivider, width: 1),
                   ),
@@ -192,7 +193,7 @@ class _BooksByDecadeScreenState extends State<BooksByDecadeScreen> {
                           value: _selectedDecade,
                           isExpanded: true,
                           underline: const SizedBox.shrink(),
-                          dropdownColor: Colors.white,
+                          dropdownColor: V2Colors.surface,
                           style: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 14,
@@ -304,7 +305,7 @@ class _BooksByDecadeScreenState extends State<BooksByDecadeScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: _kBorder),
         boxShadow: const [

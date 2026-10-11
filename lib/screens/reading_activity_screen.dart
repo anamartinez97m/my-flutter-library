@@ -40,7 +40,8 @@ class ReadingActivityScreen extends StatefulWidget {
   static Color get kMuted => V2Colors.border;
   static Color get kText => V2Colors.textPrimary;
   static Color get kSub => V2Colors.textSecondary;
-  static const kBorder = Color(0x4DD5C2C7); // Exact alpha variant.
+  static Color get kBorder =>
+      V2Colors.border.withValues(alpha: .3); // Exact alpha variant.
   static Color get kDivider => V2Colors.divider;
   static Color get kBarBg => V2Colors.divider;
 
@@ -220,9 +221,11 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: V2Colors.surface,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0x1A27231E)),
+                    border: Border.all(
+                      color: V2Colors.borderStrong.withValues(alpha: .1),
+                    ),
                     boxShadow: const [
                       BoxShadow(
                         color: Color(0x0A000000),
@@ -236,11 +239,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                     children: [
                       Row(
                         children: [
-                          Icon(
-                            Icons.emoji_events,
-                            color: _kPrimary,
-                            size: 22,
-                          ),
+                          Icon(Icons.emoji_events, color: _kPrimary, size: 22),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
@@ -254,11 +253,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          Icon(
-                            Icons.arrow_forward_ios,
-                            size: 12,
-                            color: _kSub,
-                          ),
+                          Icon(Icons.arrow_forward_ios, size: 12, color: _kSub),
                         ],
                       ),
                       const SizedBox(height: 12),
@@ -385,7 +380,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
       width: double.infinity,
       padding: const EdgeInsets.all(17),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: _kBorder),
         boxShadow: const [
@@ -699,7 +694,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                       style: TextStyle(
                         fontSize: 9,
                         fontWeight: FontWeight.bold,
-                        color: intensity > 0.5 ? Colors.white : _kText,
+                        color: intensity > 0.5 ? V2Colors.onPrimary : _kText,
                       ),
                     ),
                     if (count > 0)
@@ -708,7 +703,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
-                          color: intensity > 0.5 ? Colors.white : _kText,
+                          color: intensity > 0.5 ? V2Colors.onPrimary : _kText,
                         ),
                       ),
                   ],
@@ -884,7 +879,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
         width: double.infinity,
         padding: const EdgeInsets.all(17),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: V2Colors.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: _kBorder),
           boxShadow: const [
@@ -1151,7 +1146,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
         value: selectedYear,
         underline: const SizedBox.shrink(),
         isDense: true,
-        dropdownColor: Colors.white,
+        dropdownColor: V2Colors.surface,
         style: TextStyle(
           fontFamily: V2Typography.family,
           fontSize: 13,
@@ -1172,10 +1167,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Text(
-          l10n.no_data,
-          style: TextStyle(fontSize: 14, color: _kSub),
-        ),
+        child: Text(l10n.no_data, style: TextStyle(fontSize: 14, color: _kSub)),
       ),
     );
   }

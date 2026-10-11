@@ -44,7 +44,7 @@ class _UniverseReadingOrderScreenState
   static const _firstNodeTop = 160.0;
   static List<Color> get _sagaColors => [
     V2Colors.primary,
-    Color(0xFF894B67),
+    V2Colors.secondary,
     Color(0xFF6E2947),
     Color(0xFFA45F78),
     Color(0xFF5C3A4A),
@@ -424,10 +424,7 @@ class _UniverseReadingOrderScreenState
                     },
                   ),
                   ListTile(
-                    leading: Icon(
-                      Icons.library_add_outlined,
-                      color: _kPrimary,
-                    ),
+                    leading: Icon(Icons.library_add_outlined, color: _kPrimary),
                     title: Text(
                       l10n.promote_to_library,
                       style: TextStyle(
@@ -495,10 +492,7 @@ class _UniverseReadingOrderScreenState
               mainAxisSize: MainAxisSize.min,
               children: [
                 ListTile(
-                  leading: Icon(
-                    Icons.menu_book_outlined,
-                    color: _kPrimary,
-                  ),
+                  leading: Icon(Icons.menu_book_outlined, color: _kPrimary),
                   title: Text(book.name ?? l10n.unknown_title),
                   subtitle: Text(book.saga ?? l10n.standalone_books),
                   onTap: () async {
@@ -596,7 +590,7 @@ class _UniverseReadingOrderScreenState
                             final book = reordered[index];
                             return Card(
                               key: ValueKey(book.bookId),
-                              color: Colors.white,
+                              color: V2Colors.surface,
                               child: ListTile(
                                 leading: CircleAvatar(
                                   backgroundColor: _kPrimary,
@@ -607,10 +601,7 @@ class _UniverseReadingOrderScreenState
                                 subtitle: Text(
                                   book.saga ?? l10n.standalone_books,
                                 ),
-                                trailing: Icon(
-                                  Icons.drag_handle,
-                                  color: _kSub,
-                                ),
+                                trailing: Icon(Icons.drag_handle, color: _kSub),
                               ),
                             );
                           },
@@ -833,10 +824,7 @@ class _UniverseReadingOrderScreenState
                     ? l10n.select_first_book
                     : l10n.select_second_book,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: _kPrimary,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(color: _kPrimary, fontWeight: FontWeight.w600),
               ),
             ),
           Expanded(child: _buildBody(l10n)),
@@ -1092,8 +1080,8 @@ class _BookNode extends StatelessWidget {
                             child: Center(
                               child: Text(
                                 displayTitle.characters.first.toUpperCase(),
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: V2Colors.onPrimary,
                                   fontFamily: V2Typography.family,
                                   fontSize: 28,
                                   fontWeight: FontWeight.w700,
@@ -1111,8 +1099,8 @@ class _BookNode extends StatelessWidget {
                                     child: Text(
                                       displayTitle.characters.first
                                           .toUpperCase(),
-                                      style: const TextStyle(
-                                        color: Colors.white,
+                                      style: TextStyle(
+                                        color: V2Colors.onPrimary,
                                         fontSize: 28,
                                         fontWeight: FontWeight.w700,
                                       ),

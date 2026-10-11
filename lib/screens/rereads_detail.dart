@@ -16,7 +16,8 @@ class RereadsDetailScreen extends StatelessWidget {
   static Color get kMuted => V2Colors.border;
   static Color get kText => V2Colors.textPrimary;
   static Color get kSub => V2Colors.textSecondary;
-  static const kBorder = Color(0x4DD5C2C7); // Exact alpha variant.
+  static Color get kBorder =>
+      V2Colors.border.withValues(alpha: .3); // Exact alpha variant.
 
   const RereadsDetailScreen({super.key});
 
@@ -122,7 +123,7 @@ class RereadsDetailScreen extends StatelessWidget {
                       vertical: 14,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: V2Colors.surface,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: kBorder),
                       boxShadow: const [
@@ -140,8 +141,8 @@ class RereadsDetailScreen extends StatelessWidget {
                           backgroundColor: kSecondary,
                           child: Text(
                             '${readCount}x',
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: V2Colors.onPrimary,
                               fontWeight: FontWeight.bold,
                               fontSize: 13,
                             ),
@@ -166,10 +167,7 @@ class RereadsDetailScreen extends StatelessWidget {
                                 const SizedBox(height: 4),
                                 Text(
                                   book.author!,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: kSub,
-                                  ),
+                                  style: TextStyle(fontSize: 13, color: kSub),
                                 ),
                               ],
                               const SizedBox(height: 6),

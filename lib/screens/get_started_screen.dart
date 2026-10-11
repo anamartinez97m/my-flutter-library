@@ -104,9 +104,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
         body: SafeArea(
           child:
               _isLoading
-                  ? Center(
-                    child: CircularProgressIndicator(color: _kPrimary),
-                  )
+                  ? Center(child: CircularProgressIndicator(color: _kPrimary))
                   : _loadFailed || _imagePaths.isEmpty
                   ? _buildFallback(l10n)
                   : LayoutBuilder(
@@ -131,9 +129,9 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                                     color: _kPrimary,
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: const Icon(
+                                  child: Icon(
                                     Icons.auto_stories_rounded,
-                                    color: Colors.white,
+                                    color: V2Colors.onPrimary,
                                     size: 21,
                                   ),
                                 ),
@@ -268,7 +266,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                                         54,
                                       ),
                                       backgroundColor: _kPrimary,
-                                      foregroundColor: Colors.white,
+                                      foregroundColor: V2Colors.onPrimary,
                                       textStyle: const TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w700,
@@ -315,10 +313,10 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                     color: _kPrimary,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.auto_stories_rounded,
                     size: 34,
-                    color: Colors.white,
+                    color: V2Colors.onPrimary,
                   ),
                 ),
                 const SizedBox(height: 22),
@@ -340,7 +338,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                   style: FilledButton.styleFrom(
                     minimumSize: const Size(double.infinity, 54),
                     backgroundColor: _kPrimary,
-                    foregroundColor: Colors.white,
+                    foregroundColor: V2Colors.onPrimary,
                     textStyle: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,

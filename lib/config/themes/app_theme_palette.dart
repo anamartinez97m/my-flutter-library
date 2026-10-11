@@ -56,6 +56,7 @@ class AppThemePalette {
     required this.navActiveIcon,
     required this.navInactiveIcon,
     required this.filterFabIcon,
+    required this.filterFabBackground,
     required this.rating,
     required this.saga,
     required this.fabShadow,
@@ -107,6 +108,7 @@ class AppThemePalette {
   final Color navActiveIcon;
   final Color navInactiveIcon;
   final Color filterFabIcon;
+  final Color filterFabBackground;
   final Color rating;
   final Color saga;
   final Color fabShadow;
@@ -158,6 +160,7 @@ class AppThemePalette {
     navActiveIcon: V2MainLightColors.navActiveIcon,
     navInactiveIcon: V2MainLightColors.navInactiveIcon,
     filterFabIcon: V2MainLightColors.filterFabIcon,
+    filterFabBackground: V2MainLightColors.control,
     rating: V2MainLightColors.rating,
     saga: V2MainLightColors.saga,
     fabShadow: V2MainLightColors.fabShadow,
@@ -210,6 +213,7 @@ class AppThemePalette {
     navActiveIcon: V2MainDarkColors.navActiveIcon,
     navInactiveIcon: V2MainDarkColors.navInactiveIcon,
     filterFabIcon: V2MainDarkColors.filterFabIcon,
+    filterFabBackground: V2MainDarkColors.surfaceMuted,
     rating: V2MainDarkColors.rating,
     saga: V2MainDarkColors.saga,
     fabShadow: V2MainDarkColors.fabShadow,
@@ -262,6 +266,7 @@ class AppThemePalette {
     navActiveIcon: V2OceanLightColors.navActiveIcon,
     navInactiveIcon: V2OceanLightColors.navInactiveIcon,
     filterFabIcon: V2OceanLightColors.filterFabIcon,
+    filterFabBackground: V2OceanLightColors.surfaceMuted,
     rating: V2OceanLightColors.rating,
     saga: V2OceanLightColors.saga,
     fabShadow: V2OceanLightColors.fabShadow,
@@ -314,6 +319,7 @@ class AppThemePalette {
     navActiveIcon: V2OceanDarkColors.navActiveIcon,
     navInactiveIcon: V2OceanDarkColors.navInactiveIcon,
     filterFabIcon: V2OceanDarkColors.filterFabIcon,
+    filterFabBackground: V2OceanDarkColors.surfaceMuted,
     rating: V2OceanDarkColors.rating,
     saga: V2OceanDarkColors.saga,
     fabShadow: V2OceanDarkColors.fabShadow,
@@ -366,6 +372,7 @@ class AppThemePalette {
     navActiveIcon: V2WarmEarthLightColors.navActiveIcon,
     navInactiveIcon: V2WarmEarthLightColors.navInactiveIcon,
     filterFabIcon: V2WarmEarthLightColors.filterFabIcon,
+    filterFabBackground: V2WarmEarthLightColors.surfaceMuted,
     rating: V2WarmEarthLightColors.rating,
     saga: V2WarmEarthLightColors.saga,
     fabShadow: V2WarmEarthLightColors.fabShadow,
@@ -418,6 +425,7 @@ class AppThemePalette {
     navActiveIcon: V2WarmEarthDarkColors.navActiveIcon,
     navInactiveIcon: V2WarmEarthDarkColors.navInactiveIcon,
     filterFabIcon: V2WarmEarthDarkColors.filterFabIcon,
+    filterFabBackground: V2WarmEarthDarkColors.surfaceMuted,
     rating: V2WarmEarthDarkColors.rating,
     saga: V2WarmEarthDarkColors.saga,
     fabShadow: V2WarmEarthDarkColors.fabShadow,
@@ -470,6 +478,7 @@ class AppThemePalette {
     navActiveIcon: V2RoyalLightColors.navActiveIcon,
     navInactiveIcon: V2RoyalLightColors.navInactiveIcon,
     filterFabIcon: V2RoyalLightColors.filterFabIcon,
+    filterFabBackground: V2RoyalLightColors.surfaceMuted,
     rating: V2RoyalLightColors.rating,
     saga: V2RoyalLightColors.saga,
     fabShadow: V2RoyalLightColors.fabShadow,
@@ -522,6 +531,7 @@ class AppThemePalette {
     navActiveIcon: V2RoyalDarkColors.navActiveIcon,
     navInactiveIcon: V2RoyalDarkColors.navInactiveIcon,
     filterFabIcon: V2RoyalDarkColors.filterFabIcon,
+    filterFabBackground: V2RoyalDarkColors.surfaceMuted,
     rating: V2RoyalDarkColors.rating,
     saga: V2RoyalDarkColors.saga,
     fabShadow: V2RoyalDarkColors.fabShadow,

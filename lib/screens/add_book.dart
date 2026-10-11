@@ -318,9 +318,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
                           color: kPrimary,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.check,
-                          color: Colors.white,
+                          color: V2Colors.onPrimary,
                           size: 36,
                         ),
                       ),
@@ -412,9 +412,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: kPrimary,
-                        foregroundColor: Colors.white,
+                        foregroundColor: V2Colors.onPrimary,
                         elevation: 4,
-                        shadowColor: const Color(0x1A000000),
+                        shadowColor: V2Colors.filterFabShadow,
                         padding: const EdgeInsets.symmetric(
                           vertical: 16,
                           horizontal: 32,
@@ -426,15 +426,15 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.home, size: 18, color: Colors.white),
+                          Icon(Icons.home, size: 18, color: V2Colors.onPrimary),
                           const SizedBox(width: 8),
                           Text(
                             AppLocalizations.of(context)!.go_to_home,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: V2Typography.family,
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                              color: V2Colors.onPrimary,
                             ),
                           ),
                         ],
@@ -1218,7 +1218,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
     return InputDecoration(
       labelText: label,
       filled: true,
-      fillColor: Colors.white,
+      fillColor: V2Colors.surface,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(color: borderColor),
@@ -1440,7 +1440,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
               data: Theme.of(context).copyWith(
                 colorScheme: Theme.of(context).colorScheme.copyWith(
                   primary: _kPrimary,
-                  onPrimary: Colors.white,
+                  onPrimary: V2Colors.onPrimary,
                   primaryContainer: V2Colors.chip,
                   onPrimaryContainer: _kPrimary,
                   onSurfaceVariant: _kLabel,
@@ -1455,13 +1455,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 ),
                 inputDecorationTheme: InputDecorationTheme(
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: V2Colors.surface,
                   labelStyle: _labelStyle(),
                   hintStyle: _labelStyle(),
-                  floatingLabelStyle: TextStyle(
-                    color: _kPrimary,
-                    fontSize: 12,
-                  ),
+                  floatingLabelStyle: TextStyle(color: _kPrimary, fontSize: 12),
                   prefixIconColor: _kPrimary,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -1523,11 +1520,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
           '${l10n.reading_status} *',
           Icons.check_circle_outline,
         ),
-        dropdownColor: Colors.white,
-        style: TextStyle(
-          fontFamily: V2Typography.family,
-          color: _kPrimary,
-        ),
+        dropdownColor: V2Colors.surface,
+        style: TextStyle(fontFamily: V2Typography.family, color: _kPrimary),
         items:
             _statusList
                 .map(
@@ -1904,11 +1898,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
       DropdownButtonFormField<int>(
         value: _selectedFormatId,
         decoration: _v2Deco(l10n.format, Icons.import_contacts),
-        dropdownColor: Colors.white,
-        style: TextStyle(
-          fontFamily: V2Typography.family,
-          color: _kPrimary,
-        ),
+        dropdownColor: V2Colors.surface,
+        style: TextStyle(fontFamily: V2Typography.family, color: _kPrimary),
         items:
             _formatList
                 .map(
@@ -1927,11 +1918,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
       DropdownButtonFormField<int>(
         value: _selectedFormatSagaId,
         decoration: _v2Deco(l10n.format_saga, Icons.format_shapes),
-        dropdownColor: Colors.white,
-        style: TextStyle(
-          fontFamily: V2Typography.family,
-          color: _kPrimary,
-        ),
+        dropdownColor: V2Colors.surface,
+        style: TextStyle(fontFamily: V2Typography.family, color: _kPrimary),
         items:
             _formatSagaList
                 .map(
@@ -1974,11 +1962,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
       DropdownButtonFormField<int>(
         value: _selectedLanguageId,
         decoration: _v2Deco(l10n.language, Icons.language),
-        dropdownColor: Colors.white,
-        style: TextStyle(
-          fontFamily: V2Typography.family,
-          color: _kPrimary,
-        ),
+        dropdownColor: V2Colors.surface,
+        style: TextStyle(fontFamily: V2Typography.family, color: _kPrimary),
         items:
             _languageList
                 .map(
@@ -2030,11 +2015,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
       DropdownButtonFormField<int>(
         value: _selectedPlaceId,
         decoration: _v2Deco(l10n.place, Icons.place),
-        dropdownColor: Colors.white,
-        style: TextStyle(
-          fontFamily: V2Typography.family,
-          color: _kPrimary,
-        ),
+        dropdownColor: V2Colors.surface,
+        style: TextStyle(fontFamily: V2Typography.family, color: _kPrimary),
         items:
             _placeList
                 .map(
@@ -2053,11 +2035,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
       DropdownButtonFormField<String>(
         value: _selectedLoaned,
         decoration: _v2Deco(l10n.loaned, Icons.swap_horiz),
-        dropdownColor: Colors.white,
-        style: TextStyle(
-          fontFamily: V2Typography.family,
-          color: _kPrimary,
-        ),
+        dropdownColor: V2Colors.surface,
+        style: TextStyle(fontFamily: V2Typography.family, color: _kPrimary),
         items: [
           DropdownMenuItem(value: 'yes', child: Text(l10n.yes)),
           DropdownMenuItem(value: 'no', child: Text(l10n.no)),
@@ -2074,7 +2053,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
     return [
       _v2SectionHeading('Classification'),
       Material(
-        color: Colors.white,
+        color: V2Colors.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
           side: BorderSide(color: _kInputBorder),
@@ -2297,7 +2276,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 icon: const Icon(Icons.add),
                 style: IconButton.styleFrom(
                   backgroundColor: _kPrimary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: V2Colors.onPrimary,
                 ),
               ),
             ],
@@ -2332,7 +2311,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
     return [
       _v2SectionHeading(l10n.book_lists),
       Material(
-        color: Colors.white,
+        color: V2Colors.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
           side: BorderSide(color: _kNotesBorder),
@@ -2494,7 +2473,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
             onPressed: _saveBook,
             style: ElevatedButton.styleFrom(
               backgroundColor: _kPrimary,
-              foregroundColor: Colors.white,
+              foregroundColor: V2Colors.onPrimary,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: const StadiumBorder(),
               elevation: 0,

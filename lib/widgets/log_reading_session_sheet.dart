@@ -261,11 +261,7 @@ class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
                                 color: _kBorder.withValues(alpha: 0.5),
                               ),
                             ),
-                            child: Icon(
-                              Icons.close,
-                              size: 16,
-                              color: _kText,
-                            ),
+                            child: Icon(Icons.close, size: 16, color: _kText),
                           ),
                         ),
                       ],
@@ -446,7 +442,7 @@ class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
                                           decoration: BoxDecoration(
                                             color:
                                                 _isCustomMode
-                                                    ? Colors.white
+                                                    ? V2Colors.surface
                                                     : _kCardBg,
                                             borderRadius: BorderRadius.circular(
                                               12,
@@ -534,7 +530,7 @@ class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
                             onPressed: _isSaving ? null : _logSession,
                             style: FilledButton.styleFrom(
                               backgroundColor: _kPrimary,
-                              foregroundColor: Colors.white,
+                              foregroundColor: V2Colors.onPrimary,
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
@@ -549,12 +545,12 @@ class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 if (_isSaving)
-                                  const SizedBox(
+                                  SizedBox(
                                     width: 16,
                                     height: 16,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
-                                      color: Colors.white,
+                                      color: V2Colors.onPrimary,
                                     ),
                                   )
                                 else
@@ -679,7 +675,7 @@ class _DurationChip extends StatelessWidget {
             fontFamily: V2Typography.family,
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: isSelected ? Colors.white : V2Colors.primaryAlt,
+            color: isSelected ? V2Colors.onPrimary : V2Colors.primaryAlt,
           ),
         ),
       ),

@@ -38,7 +38,9 @@ class SagasSeriesScreen extends StatelessWidget {
     final kMuted = V2Colors.border;
     final kText = V2Colors.textPrimary;
     final kSub = V2Colors.textSecondary;
-    const kBorder = Color(0x4DD5C2C7); // Exact alpha variant.
+    final kBorder = V2Colors.border.withValues(
+      alpha: .3,
+    ); // Exact alpha variant.
 
     return Scaffold(
       backgroundColor: kBg,
@@ -75,7 +77,7 @@ class SagasSeriesScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: V2Colors.surface,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: kBorder),
                 boxShadow: const [
@@ -140,7 +142,7 @@ class SagasSeriesScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(17),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: V2Colors.surface,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: kBorder),
                 boxShadow: const [

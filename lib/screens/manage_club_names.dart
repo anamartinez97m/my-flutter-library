@@ -159,11 +159,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                     children: [
                       Row(
                         children: [
-                          Icon(
-                            Icons.edit_outlined,
-                            color: _kPrimary,
-                            size: 24,
-                          ),
+                          Icon(Icons.edit_outlined, color: _kPrimary, size: 24),
                           const SizedBox(width: 12),
                           Text(
                             l10n.rename_club,
@@ -197,10 +193,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(
-                              color: _kPrimary,
-                              width: 2,
-                            ),
+                            borderSide: BorderSide(color: _kPrimary, width: 2),
                           ),
                           labelStyle: TextStyle(
                             fontFamily: V2Typography.family,
@@ -257,7 +250,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: _kPrimary,
-                          foregroundColor: Colors.white,
+                          foregroundColor: V2Colors.onPrimary,
                           elevation: 4,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 24,
@@ -416,7 +409,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                         onPressed: () => Navigator.of(context).pop(true),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFB3261E),
-                          foregroundColor: Colors.white,
+                          foregroundColor: V2Colors.onPrimary,
                           elevation: 4,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 24,
@@ -578,7 +571,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _showAddClubNameDialog,
         backgroundColor: _kPrimary,
-        foregroundColor: Colors.white,
+        foregroundColor: V2Colors.onPrimary,
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         icon: const Icon(Icons.add),
@@ -640,7 +633,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: V2Colors.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: V2Colors.borderStrong.withValues(alpha: 0.1),
@@ -666,11 +659,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                     color: _kSecondary.withValues(alpha: 0.12),
                   ),
                 ),
-                child: Icon(
-                  Icons.group_outlined,
-                  color: _kSecondary,
-                  size: 24,
-                ),
+                child: Icon(Icons.group_outlined, color: _kSecondary, size: 24),
               ),
               const SizedBox(width: 16),
               Expanded(

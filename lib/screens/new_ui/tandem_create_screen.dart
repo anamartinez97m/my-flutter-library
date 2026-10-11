@@ -120,9 +120,7 @@ class _TandemCreateScreenState extends State<TandemCreateScreen> {
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
               l10n.tandem_created,
@@ -145,9 +143,7 @@ class _TandemCreateScreenState extends State<TandemCreateScreen> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message, style: const TextStyle(fontFamily: 'Manrope')),
       ),
@@ -211,7 +207,7 @@ class _TandemCreateScreenState extends State<TandemCreateScreen> {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: V2Colors.surface,
                   borderRadius: BorderRadius.circular(12),
                   border:
                       _titleFocusNode.hasFocus
@@ -244,19 +240,19 @@ class _TandemCreateScreenState extends State<TandemCreateScreen> {
                   onPressed: _isCreating ? null : _create,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _kPrimary,
-                    foregroundColor: Colors.white,
+                    foregroundColor: V2Colors.onPrimary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                   child:
                       _isCreating
-                          ? const SizedBox(
+                          ? SizedBox(
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: Colors.white,
+                              color: V2Colors.onPrimary,
                             ),
                           )
                           : Text(
@@ -296,7 +292,7 @@ class _BookSelector extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: V2Colors.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: book != null ? accent : V2Colors.border,
@@ -482,7 +478,7 @@ class _TandemBookPickerScreenState extends State<_TandemBookPickerScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: V2Colors.surface,
                 borderRadius: BorderRadius.circular(12),
                 border:
                     _searchFocusNode.hasFocus
@@ -513,9 +509,7 @@ class _TandemBookPickerScreenState extends State<_TandemBookPickerScreen> {
           Expanded(
             child:
                 _loading
-                    ? Center(
-                      child: CircularProgressIndicator(color: _kPrimary),
-                    )
+                    ? Center(child: CircularProgressIndicator(color: _kPrimary))
                     : ListView.builder(
                       itemCount: _results.length,
                       itemBuilder: (context, index) {

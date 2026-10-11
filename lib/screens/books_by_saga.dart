@@ -77,7 +77,7 @@ class BooksBySagaScreen extends StatelessWidget {
         backgroundColor: _kPrimary,
         elevation: 6,
         shape: const CircleBorder(),
-        child: const Icon(Icons.add, color: Colors.white),
+        child: Icon(Icons.add, color: V2Colors.onPrimary),
       ),
       body:
           filteredBooks.isEmpty
@@ -150,7 +150,7 @@ class BooksBySagaScreen extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(20, 16, 20, 8),
       padding: const EdgeInsets.all(17),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         border: Border.all(color: _kBorder),
         borderRadius: BorderRadius.circular(12),
         boxShadow: _kCardShadow,

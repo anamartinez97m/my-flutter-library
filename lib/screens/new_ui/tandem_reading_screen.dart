@@ -270,10 +270,7 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
         body: Center(
           child: Text(
             _error ?? '',
-            style: TextStyle(
-              fontFamily: V2Typography.family,
-              color: _kSub,
-            ),
+            style: TextStyle(fontFamily: V2Typography.family, color: _kSub),
           ),
         ),
       );
@@ -291,7 +288,7 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: _addStep,
         backgroundColor: _kPrimary,
-        foregroundColor: Colors.white,
+        foregroundColor: V2Colors.onPrimary,
         elevation: 6,
         shape: const CircleBorder(),
         child: const Icon(Icons.add),
@@ -458,7 +455,7 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
       key: ValueKey(chapter.tandemChapterId),
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: _kBorder),
       ),
@@ -544,11 +541,7 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
                     ),
                     ReorderableDragStartListener(
                       index: index,
-                      child: Icon(
-                        Icons.drag_handle,
-                        color: _kSub,
-                        size: 20,
-                      ),
+                      child: Icon(Icons.drag_handle, color: _kSub, size: 20),
                     ),
                   ],
                 ),

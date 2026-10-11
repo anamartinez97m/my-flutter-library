@@ -70,10 +70,7 @@ Widget _prog(dynamic book) {
         ),
       ),
       const SizedBox(width: 8),
-      Text(
-        lbl,
-        style: TextStyle(fontSize: 12, color: V2Colors.textSecondary),
-      ),
+      Text(lbl, style: TextStyle(fontSize: 12, color: V2Colors.textSecondary)),
     ],
   );
 }
@@ -264,9 +261,7 @@ class _NewMyBooksScreenState extends State<NewMyBooksScreen> {
                               const SizedBox(height: 12),
                               Text(
                                 empty,
-                                style: TextStyle(
-                                  color: V2Colors.textSecondary,
-                                ),
+                                style: TextStyle(color: V2Colors.textSecondary),
                               ),
                             ],
                           ),
@@ -419,10 +414,7 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                   const SizedBox(width: 12),
                   Text(
                     l10n.tbr_title,
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: V2Colors.primary,
-                    ),
+                    style: TextStyle(fontSize: 18, color: V2Colors.primary),
                   ),
                 ],
               ),
@@ -665,10 +657,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                   const SizedBox(width: 12),
                   Text(
                     l10n.clubs,
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: V2Colors.primary,
-                    ),
+                    style: TextStyle(fontSize: 18, color: V2Colors.primary),
                   ),
                 ],
               ),
@@ -741,7 +730,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                         width: 256,
                         padding: const EdgeInsets.all(17),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF7F3F0),
+                          color: V2Colors.surfaceTimer,
                           border: Border.all(color: V2Colors.border),
                           borderRadius: BorderRadius.circular(12),
                         ),

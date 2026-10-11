@@ -36,9 +36,9 @@ class ReadingEfficiency3Card extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0x1A27231E)),
+        border: Border.all(color: V2Colors.borderStrong.withValues(alpha: .1)),
         boxShadow: const [
           BoxShadow(
             color: Color(0x0A000000),
@@ -84,11 +84,11 @@ class ReadingEfficiency3Card extends StatelessWidget {
                         alignment: Alignment.center,
                         child: Text(
                           '${(fasterPct * 100).round()}%',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: V2Colors.onPrimary,
                           ),
                         ),
                       ),
@@ -169,7 +169,9 @@ class ReadingEfficiency3Card extends StatelessWidget {
             decoration: BoxDecoration(
               color: V2Colors.background,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0x1A27231E)),
+              border: Border.all(
+                color: V2Colors.borderStrong.withValues(alpha: .1),
+              ),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,

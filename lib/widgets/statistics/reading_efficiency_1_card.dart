@@ -41,9 +41,9 @@ class ReadingEfficiency1Card extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0x1A27231E)),
+        border: Border.all(color: V2Colors.borderStrong.withValues(alpha: .1)),
         boxShadow: const [
           BoxShadow(
             color: Color(0x0A000000),

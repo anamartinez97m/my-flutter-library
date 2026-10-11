@@ -1140,299 +1140,329 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                 (context, progressController) => StatefulBuilder(
                   builder:
                       (context, setDialogState) => AlertDialog(
-                  backgroundColor: _kBg,
-                  elevation: 25,
-                  constraints: const BoxConstraints(maxWidth: 384),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-                  contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-                  actionsPadding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
-                  title: Row(
-                    children: [
-                      Icon(Icons.trending_up, color: _kPrimary, size: 24),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          AppLocalizations.of(context)!.update_reading_progress,
-                          style: TextStyle(
-                            fontFamily: V2Typography.family,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                            color: _kPrimary,
-                          ),
+                        backgroundColor: _kBg,
+                        elevation: 25,
+                        constraints: const BoxConstraints(maxWidth: 384),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
                         ),
-                      ),
-                    ],
-                  ),
-                  content: SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IntrinsicHeight(
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                        titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+                        contentPadding: const EdgeInsets.fromLTRB(
+                          24,
+                          24,
+                          24,
+                          0,
+                        ),
+                        actionsPadding: const EdgeInsets.fromLTRB(
+                          16,
+                          24,
+                          16,
+                          16,
+                        ),
+                        title: Row(
+                          children: [
+                            Icon(Icons.trending_up, color: _kPrimary, size: 24),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.update_reading_progress,
+                                style: TextStyle(
+                                  fontFamily: V2Typography.family,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                  color: _kPrimary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        content: SingleChildScrollView(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              _buildProgressTypeCard(
-                                selected: usePercentage,
-                                icon: Icons.percent,
-                                title: AppLocalizations.of(context)!.percentage,
-                                subtitle: '0–100%',
-                                onTap: () {
-                                  if (usePercentage) return;
-                                  pagesDraft = progressController.text;
-                                  setDialogState(() {
-                                    usePercentage = true;
-                                    progressController.value = TextEditingValue(
-                                      text: percentageDraft,
-                                      selection: TextSelection.collapsed(
-                                        offset: percentageDraft.length,
-                                      ),
-                                    );
-                                  });
-                                },
+                              IntrinsicHeight(
+                                child: Row(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    _buildProgressTypeCard(
+                                      selected: usePercentage,
+                                      icon: Icons.percent,
+                                      title:
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.percentage,
+                                      subtitle: '0–100%',
+                                      onTap: () {
+                                        if (usePercentage) return;
+                                        pagesDraft = progressController.text;
+                                        setDialogState(() {
+                                          usePercentage = true;
+                                          progressController
+                                              .value = TextEditingValue(
+                                            text: percentageDraft,
+                                            selection: TextSelection.collapsed(
+                                              offset: percentageDraft.length,
+                                            ),
+                                          );
+                                        });
+                                      },
+                                    ),
+                                    const SizedBox(width: 12),
+                                    _buildProgressTypeCard(
+                                      selected: !usePercentage,
+                                      icon: Icons.menu_book_outlined,
+                                      title:
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.pages_label_short,
+                                      subtitle:
+                                          _currentBook.pages == null
+                                              ? AppLocalizations.of(
+                                                context,
+                                              )!.pages_label_short
+                                              : AppLocalizations.of(
+                                                context,
+                                              )!.total_pages(
+                                                _currentBook.pages!,
+                                              ),
+                                      onTap: () {
+                                        if (!usePercentage) return;
+                                        percentageDraft =
+                                            progressController.text;
+                                        setDialogState(() {
+                                          usePercentage = false;
+                                          progressController
+                                              .value = TextEditingValue(
+                                            text: pagesDraft,
+                                            selection: TextSelection.collapsed(
+                                              offset: pagesDraft.length,
+                                            ),
+                                          );
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
                               ),
-                              const SizedBox(width: 12),
-                              _buildProgressTypeCard(
-                                selected: !usePercentage,
-                                icon: Icons.menu_book_outlined,
-                                title:
-                                    AppLocalizations.of(
-                                      context,
-                                    )!.pages_label_short,
-                                subtitle:
-                                    _currentBook.pages == null
-                                        ? AppLocalizations.of(
-                                          context,
-                                        )!.pages_label_short
-                                        : AppLocalizations.of(
-                                          context,
-                                        )!.total_pages(_currentBook.pages!),
-                                onTap: () {
-                                  if (!usePercentage) return;
-                                  percentageDraft = progressController.text;
-                                  setDialogState(() {
-                                    usePercentage = false;
-                                    progressController.value = TextEditingValue(
-                                      text: pagesDraft,
-                                      selection: TextSelection.collapsed(
-                                        offset: pagesDraft.length,
-                                      ),
-                                    );
-                                  });
-                                },
+                              const SizedBox(height: 20),
+                              TextField(
+                                controller: progressController,
+                                decoration: InputDecoration(
+                                  labelText:
+                                      usePercentage
+                                          ? AppLocalizations.of(
+                                            context,
+                                          )!.progress_percentage
+                                          : AppLocalizations.of(
+                                            context,
+                                          )!.current_page,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 17,
+                                    vertical: 15,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(color: _kSub),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: _kPrimary,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  labelStyle: TextStyle(
+                                    fontFamily: V2Typography.family,
+                                    color: _kPrimary,
+                                  ),
+                                  hintText:
+                                      usePercentage
+                                          ? '0-100'
+                                          : '1-${_currentBook.pages ?? 0}',
+                                  suffixText:
+                                      usePercentage
+                                          ? '%'
+                                          : _currentBook.pages == null
+                                          ? AppLocalizations.of(
+                                            context,
+                                          )!.pages_label_short
+                                          : '/ ${_currentBook.pages}',
+                                  suffixStyle: TextStyle(
+                                    fontFamily: V2Typography.family,
+                                    fontWeight: FontWeight.w600,
+                                    color: _kSub,
+                                  ),
+                                ),
+                                keyboardType: TextInputType.number,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                ],
                               ),
+                              if (usePercentage ||
+                                  _currentBook.pages != null) ...[
+                                const SizedBox(height: 16),
+                                ValueListenableBuilder<TextEditingValue>(
+                                  valueListenable: progressController,
+                                  builder: (context, textValue, _) {
+                                    final value =
+                                        int.tryParse(textValue.text) ?? 0;
+                                    final maximum =
+                                        usePercentage
+                                            ? 100
+                                            : _currentBook.pages!;
+                                    final progress =
+                                        maximum <= 0
+                                            ? 0.0
+                                            : (value / maximum).clamp(0.0, 1.0);
+                                    return Column(
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            6,
+                                          ),
+                                          child: LinearProgressIndicator(
+                                            value: progress,
+                                            minHeight: 8,
+                                            backgroundColor: _kPrimary
+                                                .withValues(alpha: 0.1),
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                  _kPrimary,
+                                                ),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Align(
+                                          alignment: Alignment.centerRight,
+                                          child: Text(
+                                            '${(progress * 100).round()}%',
+                                            style: TextStyle(
+                                              fontFamily: V2Typography.family,
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w600,
+                                              color: _kPrimary,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ],
                             ],
                           ),
                         ),
-                        const SizedBox(height: 20),
-                        TextField(
-                          controller: progressController,
-                          decoration: InputDecoration(
-                            labelText:
-                                usePercentage
-                                    ? AppLocalizations.of(
-                                      context,
-                                    )!.progress_percentage
-                                    : AppLocalizations.of(
-                                      context,
-                                    )!.current_page,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 17,
-                              vertical: 15,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(color: _kSub),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(
-                                color: _kPrimary,
-                                width: 2,
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: TextButton.styleFrom(
+                              foregroundColor: _kPrimary,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 10,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            labelStyle: TextStyle(
-                              fontFamily: V2Typography.family,
-                              color: _kPrimary,
-                            ),
-                            hintText:
-                                usePercentage
-                                    ? '0-100'
-                                    : '1-${_currentBook.pages ?? 0}',
-                            suffixText:
-                                usePercentage
-                                    ? '%'
-                                    : _currentBook.pages == null
-                                    ? AppLocalizations.of(
-                                      context,
-                                    )!.pages_label_short
-                                    : '/ ${_currentBook.pages}',
-                            suffixStyle: TextStyle(
-                              fontFamily: V2Typography.family,
-                              fontWeight: FontWeight.w600,
-                              color: _kSub,
+                            child: Text(
+                              AppLocalizations.of(context)!.cancel,
+                              style: const TextStyle(
+                                fontFamily: V2Typography.family,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                          ],
-                        ),
-                        if (usePercentage || _currentBook.pages != null) ...[
-                          const SizedBox(height: 16),
-                          ValueListenableBuilder<TextEditingValue>(
-                            valueListenable: progressController,
-                            builder: (context, textValue, _) {
-                              final value = int.tryParse(textValue.text) ?? 0;
-                              final maximum =
-                                  usePercentage ? 100 : _currentBook.pages!;
-                              final progress =
-                                  maximum <= 0
-                                      ? 0.0
-                                      : (value / maximum).clamp(0.0, 1.0);
-                              return Column(
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(6),
-                                    child: LinearProgressIndicator(
-                                      value: progress,
-                                      minHeight: 8,
-                                      backgroundColor: _kPrimary.withValues(
-                                        alpha: 0.1,
-                                      ),
-                                      valueColor:
-                                          AlwaysStoppedAnimation<Color>(
-                                            _kPrimary,
-                                          ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Align(
-                                    alignment: Alignment.centerRight,
-                                    child: Text(
-                                      '${(progress * 100).round()}%',
-                                      style: TextStyle(
-                                        fontFamily: V2Typography.family,
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                        color: _kPrimary,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                          ElevatedButton(
+                            onPressed: () {
+                              final value = int.tryParse(
+                                progressController.text,
                               );
+                              if (value == null || value < 0) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.enter_valid_number,
+                                    ),
+                                    backgroundColor:
+                                        Theme.of(context).colorScheme.error,
+                                  ),
+                                );
+                                return;
+                              }
+
+                              if (usePercentage && value > 100) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.percentage_cannot_exceed_100,
+                                    ),
+                                    backgroundColor:
+                                        Theme.of(context).colorScheme.error,
+                                  ),
+                                );
+                                return;
+                              }
+
+                              if (!usePercentage &&
+                                  _currentBook.pages != null &&
+                                  value > _currentBook.pages!) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.page_cannot_exceed(
+                                        _currentBook.pages!,
+                                      ),
+                                    ),
+                                    backgroundColor:
+                                        Theme.of(context).colorScheme.error,
+                                  ),
+                                );
+                                return;
+                              }
+
+                              Navigator.pop(context, {
+                                'progress': value,
+                                'type': usePercentage ? 'percentage' : 'pages',
+                              });
                             },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _kPrimary,
+                              foregroundColor: V2Colors.onPrimary,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 10,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 4,
+                              shadowColor: V2Colors.filterFabShadow,
+                            ),
+                            child: Text(
+                              AppLocalizations.of(context)!.save,
+                              style: const TextStyle(
+                                fontFamily: V2Typography.family,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                         ],
-                      ],
-                    ),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: TextButton.styleFrom(
-                        foregroundColor: _kPrimary,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 10,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
                       ),
-                      child: Text(
-                        AppLocalizations.of(context)!.cancel,
-                        style: const TextStyle(
-                          fontFamily: V2Typography.family,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        final value = int.tryParse(progressController.text);
-                        if (value == null || value < 0) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                AppLocalizations.of(
-                                  context,
-                                )!.enter_valid_number,
-                              ),
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.error,
-                            ),
-                          );
-                          return;
-                        }
-
-                        if (usePercentage && value > 100) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                AppLocalizations.of(
-                                  context,
-                                )!.percentage_cannot_exceed_100,
-                              ),
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.error,
-                            ),
-                          );
-                          return;
-                        }
-
-                        if (!usePercentage &&
-                            _currentBook.pages != null &&
-                            value > _currentBook.pages!) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                AppLocalizations.of(
-                                  context,
-                                )!.page_cannot_exceed(_currentBook.pages!),
-                              ),
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.error,
-                            ),
-                          );
-                          return;
-                        }
-
-                        Navigator.pop(context, {
-                          'progress': value,
-                          'type': usePercentage ? 'percentage' : 'pages',
-                        });
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _kPrimary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 10,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 4,
-                        shadowColor: const Color(0x1A000000),
-                      ),
-                      child: Text(
-                        AppLocalizations.of(context)!.save,
-                        style: const TextStyle(
-                          fontFamily: V2Typography.family,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
                 ),
           ),
     );
@@ -2025,7 +2055,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: V2Colors.surface,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: V2Colors.borderStrong.withValues(alpha: 0.1),
@@ -2101,7 +2131,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                   onPressed: () => Navigator.of(context).pop(),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _kPrimary,
-                    foregroundColor: Colors.white,
+                    foregroundColor: V2Colors.onPrimary,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -2612,11 +2642,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
-                                  Icons.book,
-                                  size: 60,
-                                  color: _kPrimary,
-                                ),
+                                Icon(Icons.book, size: 60, color: _kPrimary),
                                 const SizedBox(height: 6),
                                 Text(
                                   AppLocalizations.of(context)!.no_cover_image,
@@ -4352,7 +4378,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
           backgroundColor: _kPrimary,
           elevation: 6,
           shape: const CircleBorder(),
-          child: const Icon(Icons.timer, color: Colors.white),
+          child: Icon(Icons.timer, color: V2Colors.onPrimary),
         ),
       ),
     );
@@ -5055,10 +5081,7 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
                               const SizedBox(width: 4),
                               Text(
                                 '${AppLocalizations.of(context)!.target}: ${club.targetDate}',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: _kSub,
-                                ),
+                                style: TextStyle(fontSize: 14, color: _kSub),
                               ),
                             ],
                           ),
@@ -5073,10 +5096,9 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
                                   value: club.readingProgress / 100,
                                   minHeight: 6,
                                   backgroundColor: V2Colors.divider,
-                                  valueColor:
-                                      AlwaysStoppedAnimation<Color>(
-                                        _kPrimary,
-                                      ),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    _kPrimary,
+                                  ),
                                 ),
                               ),
                             ),

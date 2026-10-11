@@ -108,7 +108,7 @@ class _PlaceholderBox extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(borderRadius),
       ),
     );

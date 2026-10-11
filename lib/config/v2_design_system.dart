@@ -65,6 +65,7 @@ abstract final class V2Colors {
   static Color get navActiveIcon => _active.navActiveIcon;
   static Color get navInactiveIcon => _active.navInactiveIcon;
   static Color get filterFabIcon => _active.filterFabIcon;
+  static Color get filterFabBackground => _active.filterFabBackground;
   static Color get rating => _active.rating;
   static Color get saga => _active.saga;
   static Color get fabShadow => _active.fabShadow;
@@ -141,11 +142,8 @@ abstract final class V2Typography {
     fontWeight: FontWeight.w700,
     color: V2Colors.textPrimary,
   );
-  static TextStyle get body => TextStyle(
-    fontFamily: family,
-    fontSize: 14,
-    color: V2Colors.textPrimary,
-  );
+  static TextStyle get body =>
+      TextStyle(fontFamily: family, fontSize: 14, color: V2Colors.textPrimary);
   static TextStyle get bodySmall => TextStyle(
     fontFamily: family,
     fontSize: 13,
@@ -157,11 +155,8 @@ abstract final class V2Typography {
     fontWeight: FontWeight.w500,
     color: V2Colors.textSecondary,
   );
-  static TextStyle get caption => TextStyle(
-    fontFamily: family,
-    fontSize: 12,
-    color: V2Colors.textMuted,
-  );
+  static TextStyle get caption =>
+      TextStyle(fontFamily: family, fontSize: 12, color: V2Colors.textMuted);
   static TextStyle get metadata => TextStyle(
     fontFamily: family,
     fontSize: 11,
@@ -169,11 +164,8 @@ abstract final class V2Typography {
     letterSpacing: .5,
     color: V2Colors.textSubtle,
   );
-  static TextStyle get button => TextStyle(
-    fontFamily: family,
-    fontSize: 14,
-    fontWeight: FontWeight.w600,
-  );
+  static TextStyle get button =>
+      TextStyle(fontFamily: family, fontSize: 14, fontWeight: FontWeight.w600);
   static TextStyle get overline => TextStyle(
     fontFamily: family,
     fontSize: 11,

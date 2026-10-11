@@ -739,7 +739,7 @@ class _MultiAuthorScreenState extends State<_MultiAuthorScreen> {
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: sel ? _kV2AppBar : Colors.white,
+                      color: sel ? _kV2AppBar : V2Colors.surface,
                       border: Border.all(color: sel ? _kV2AppBar : _kV2Border),
                       borderRadius: BorderRadius.circular(9999),
                     ),
@@ -749,7 +749,7 @@ class _MultiAuthorScreenState extends State<_MultiAuthorScreen> {
                         fontFamily: V2Typography.family,
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: sel ? Colors.white : _kV2Sub,
+                        color: sel ? V2Colors.onPrimary : _kV2Sub,
                         letterSpacing: 0.26,
                       ),
                     ),
@@ -1031,7 +1031,7 @@ Widget _v2StatChip({
   return Container(
     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: V2Colors.surface,
       borderRadius: BorderRadius.circular(8),
       border: Border.all(color: _kV2Border),
       boxShadow: [
@@ -1093,7 +1093,7 @@ Widget _v2BookCard({
     child: Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: isRead ? V2Colors.surfaceMuted : Colors.white,
+        color: isRead ? V2Colors.surfaceMuted : V2Colors.surface,
         border: Border.all(color: _kV2Border),
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
@@ -1145,11 +1145,7 @@ Widget _v2BookCard({
               const SizedBox(height: 5),
               Text(
                 subtitle,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: _kV2Text,
-                  height: 1.43,
-                ),
+                style: TextStyle(fontSize: 13, color: _kV2Text, height: 1.43),
               ),
             ],
             if (year != null || isRead) ...[

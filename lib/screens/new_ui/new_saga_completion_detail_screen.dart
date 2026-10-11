@@ -214,7 +214,7 @@ class _NewSagaCompletionDetailScreenState
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha: 0.08) : Colors.white,
+          color: isSelected ? color.withValues(alpha: 0.08) : V2Colors.surface,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isSelected ? color : V2Colors.border,
@@ -286,10 +286,7 @@ class _NewSagaCompletionDetailScreenState
             const SizedBox(height: 16),
             Text(
               emptyMessage,
-              style: TextStyle(
-                fontSize: 16,
-                color: V2Colors.textSecondary,
-              ),
+              style: TextStyle(fontSize: 16, color: V2Colors.textSecondary),
             ),
           ],
         ),
@@ -330,7 +327,7 @@ class _NewSagaCompletionDetailScreenState
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: V2Colors.surface,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: V2Colors.borderStrong.withValues(alpha: .1),

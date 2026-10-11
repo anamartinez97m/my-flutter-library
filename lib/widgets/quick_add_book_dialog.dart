@@ -232,11 +232,7 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                   ),
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.check_circle,
-                        color: _kPrimary,
-                        size: 20,
-                      ),
+                      Icon(Icons.check_circle, color: _kPrimary, size: 20),
                       const SizedBox(width: 8),
                       Text(
                         AppLocalizations.of(
@@ -308,7 +304,7 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                             return CheckboxListTile(
                               value: isSelected,
                               activeColor: _kPrimary,
-                              checkColor: Colors.white,
+                              checkColor: V2Colors.onPrimary,
                               checkboxShape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(4),
                               ),
@@ -436,7 +432,7 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                           _selectedBooks.isEmpty ? null : _addSelectedBooks,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _kPrimary,
-                        foregroundColor: Colors.white,
+                        foregroundColor: V2Colors.onPrimary,
                         disabledBackgroundColor: _kBorder,
                         disabledForegroundColor: _kSub,
                         elevation: _selectedBooks.isEmpty ? 0 : 4,

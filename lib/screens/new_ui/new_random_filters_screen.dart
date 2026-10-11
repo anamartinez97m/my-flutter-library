@@ -920,11 +920,7 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
           const SizedBox(height: 16),
           Row(
             children: [
-              Icon(
-                Icons.location_on_outlined,
-                size: 15,
-                color: _kPrimary,
-              ),
+              Icon(Icons.location_on_outlined, size: 15, color: _kPrimary),
               const SizedBox(width: 8),
               Text(
                 l10n.place,
@@ -1300,10 +1296,7 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
                   ),
                 ),
               ),
-              Text(
-                l10n.optional,
-                style: TextStyle(fontSize: 11, color: _kSub),
-              ),
+              Text(l10n.optional, style: TextStyle(fontSize: 11, color: _kSub)),
             ],
           ),
           const SizedBox(height: 8),

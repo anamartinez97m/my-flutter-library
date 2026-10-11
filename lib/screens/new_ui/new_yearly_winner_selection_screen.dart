@@ -221,7 +221,7 @@ class _NewYearlyWinnerSelectionScreenState
             color:
                 isSelected
                     ? V2Colors.primary.withValues(alpha: 0.06)
-                    : Colors.white,
+                    : V2Colors.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color:
@@ -309,7 +309,7 @@ class _NewYearlyWinnerSelectionScreenState
                 ),
                 child:
                     isSelected
-                        ? const Icon(Icons.check, color: Colors.white, size: 18)
+                        ? Icon(Icons.check, color: V2Colors.onPrimary, size: 18)
                         : null,
               ),
             ],
@@ -328,7 +328,7 @@ class _NewYearlyWinnerSelectionScreenState
           onPressed: _saveWinner,
           style: ElevatedButton.styleFrom(
             backgroundColor: V2Colors.primary,
-            foregroundColor: Colors.white,
+            foregroundColor: V2Colors.onPrimary,
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),

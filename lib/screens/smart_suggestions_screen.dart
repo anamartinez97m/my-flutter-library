@@ -286,11 +286,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                 color: _kIconBg,
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                Icons.check_rounded,
-                size: 36,
-                color: _kPrimary,
-              ),
+              child: Icon(Icons.check_rounded, size: 36, color: _kPrimary),
             ),
             const SizedBox(height: 20),
             Text(
@@ -336,11 +332,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                     color: _kIconBg,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    Icons.auto_fix_high,
-                    color: _kPrimary,
-                    size: 20,
-                  ),
+                  child: Icon(Icons.auto_fix_high, color: _kPrimary, size: 20),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -614,7 +606,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                     label: Text(l10n.accept),
                     style: FilledButton.styleFrom(
                       backgroundColor: _kPrimary,
-                      foregroundColor: Colors.white,
+                      foregroundColor: V2Colors.onPrimary,
                       textStyle: const TextStyle(
                         fontFamily: V2Typography.family,
                         fontWeight: FontWeight.w700,

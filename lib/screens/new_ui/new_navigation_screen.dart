@@ -174,15 +174,9 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
                 ),
                 iconTheme: WidgetStateProperty.resolveWith((states) {
                   if (states.contains(WidgetState.selected)) {
-                    return IconThemeData(
-                      color: V2Colors.primary,
-                      size: 22,
-                    );
+                    return IconThemeData(color: V2Colors.primary, size: 22);
                   }
-                  return IconThemeData(
-                    color: V2Colors.textSecondary,
-                    size: 22,
-                  );
+                  return IconThemeData(color: V2Colors.textSecondary, size: 22);
                 }),
                 labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
               ),

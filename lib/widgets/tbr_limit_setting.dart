@@ -93,11 +93,7 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
                 actionsPadding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
                 title: Row(
                   children: [
-                    Icon(
-                      Icons.bookmark_add,
-                      color: _kV2Primary,
-                      size: 24,
-                    ),
+                    Icon(Icons.bookmark_add, color: _kV2Primary, size: 24),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
@@ -140,7 +136,7 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
                       ),
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: Colors.white,
+                        fillColor: V2Colors.surface,
                         labelText: AppLocalizations.of(context)!.tbr_limit,
                         suffixText: AppLocalizations.of(context)!.books,
                         helperText:
@@ -232,7 +228,7 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
                                   : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: _kV2Primary,
-                            foregroundColor: Colors.white,
+                            foregroundColor: V2Colors.onPrimary,
                             disabledBackgroundColor: _kV2Primary.withValues(
                               alpha: 0.3,
                             ),
@@ -277,7 +273,7 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
         width: double.infinity,
         padding: const EdgeInsets.all(17),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: V2Colors.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: V2Colors.borderStrong.withValues(alpha: 0.1),
@@ -300,11 +296,7 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: _kV2Primary.withValues(alpha: 0.1)),
               ),
-              child: Icon(
-                Icons.bookmark_add,
-                color: _kV2Primary,
-                size: 20,
-              ),
+              child: Icon(Icons.bookmark_add, color: _kV2Primary, size: 20),
             ),
             const SizedBox(width: 14),
             Expanded(

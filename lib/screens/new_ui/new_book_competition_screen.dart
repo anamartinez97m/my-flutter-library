@@ -429,12 +429,12 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
                   winner.bookName,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: V2Typography.family,
                     fontSize: 14,
                     height: 1.35,
                     fontWeight: FontWeight.w800,
-                    color: Colors.white,
+                    color: V2Colors.onPrimary,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -526,14 +526,14 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
                     color: const Color(0xFF522238),
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Champion Title',
                     style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontSize: 11,
                       height: 1.5,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      color: V2Colors.onPrimary,
                     ),
                   ),
                 ),
@@ -628,9 +628,9 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
               color: V2Colors.primaryAlt,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.how_to_vote_outlined,
-              color: Colors.white,
+              color: V2Colors.onPrimary,
               size: 20,
             ),
           ),
@@ -665,7 +665,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
               onPressed: action,
               style: TextButton.styleFrom(
                 backgroundColor: V2Colors.primaryAlt,
-                foregroundColor: Colors.white,
+                foregroundColor: V2Colors.onPrimary,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 14,
                   vertical: 6,
@@ -696,7 +696,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
     return Container(
       padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: _kBorder),
         boxShadow: const [
@@ -727,7 +727,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
                     Icon(
                       tabs[index].$1,
                       size: 14,
-                      color: selected ? Colors.white : _kSub,
+                      color: selected ? V2Colors.onPrimary : _kSub,
                     ),
                     const SizedBox(width: 6),
                     Flexible(
@@ -739,7 +739,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
                           fontSize: 12,
                           fontWeight:
                               selected ? FontWeight.w700 : FontWeight.w600,
-                          color: selected ? Colors.white : _kSub,
+                          color: selected ? V2Colors.onPrimary : _kSub,
                         ),
                       ),
                     ),
@@ -920,11 +920,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.flag_outlined,
-                  size: 14,
-                  color: V2Colors.primaryAlt,
-                ),
+                Icon(Icons.flag_outlined, size: 14, color: V2Colors.primaryAlt),
                 const SizedBox(width: 6),
                 Text(
                   'Semifinal $round',
@@ -1321,7 +1317,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
   );
 
   BoxDecoration _cardDecoration({required double radius}) => BoxDecoration(
-    color: Colors.white,
+    color: V2Colors.surface,
     borderRadius: BorderRadius.circular(radius),
     border: Border.all(color: _kBorder.withValues(alpha: .7)),
     boxShadow: const [

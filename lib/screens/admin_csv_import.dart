@@ -1186,7 +1186,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _kV2Primary,
-                      foregroundColor: Colors.white,
+                      foregroundColor: V2Colors.onPrimary,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -1468,7 +1468,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor ?? _kV2Primary,
-          foregroundColor: Colors.white,
+          foregroundColor: V2Colors.onPrimary,
           disabledBackgroundColor: _kV2Primary.withValues(alpha: 0.3),
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(
@@ -1569,9 +1569,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
       ),
       body:
           _isLoading
-              ? Center(
-                child: CircularProgressIndicator(color: _kV2Primary),
-              )
+              ? Center(child: CircularProgressIndicator(color: _kV2Primary))
               : _importItems.isEmpty
               ? _buildEmptyState(context, l10n)
               : _buildReviewBody(context, l10n),
@@ -1593,11 +1591,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: _kV2Primary.withValues(alpha: 0.1)),
               ),
-              child: Icon(
-                Icons.upload_file,
-                size: 40,
-                color: _kV2Primary,
-              ),
+              child: Icon(Icons.upload_file, size: 40, color: _kV2Primary),
             ),
             const SizedBox(height: 24),
             Text(
@@ -1636,7 +1630,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _kV2Primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: V2Colors.onPrimary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -1725,7 +1719,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
           margin: const EdgeInsets.fromLTRB(20, 16, 20, 0),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: V2Colors.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: V2Colors.borderStrong.withValues(alpha: 0.1),
@@ -1791,7 +1785,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
             16 + MediaQuery.of(context).viewPadding.bottom,
           ),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: V2Colors.surface,
             border: Border(
               top: BorderSide(color: _kV2Border.withValues(alpha: 0.5)),
             ),
@@ -1964,7 +1958,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                               : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _kV2Primary,
-                        foregroundColor: Colors.white,
+                        foregroundColor: V2Colors.onPrimary,
                         disabledBackgroundColor: _kV2Primary.withValues(
                           alpha: 0.3,
                         ),

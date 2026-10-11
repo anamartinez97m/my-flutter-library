@@ -1353,7 +1353,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
   Widget _v2BookListsSection(BuildContext context, AppLocalizations l10n) =>
       Material(
-        color: Colors.white,
+        color: V2Colors.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
           side: BorderSide(color: _kNotesBorder),
@@ -1461,7 +1461,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
           onPressed: _updateBook,
           style: ElevatedButton.styleFrom(
             backgroundColor: _kPrimary,
-            foregroundColor: Colors.white,
+            foregroundColor: V2Colors.onPrimary,
             padding: const EdgeInsets.symmetric(vertical: 14),
             shape: const StadiumBorder(),
           ),
@@ -1483,7 +1483,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
     return theme.copyWith(
       colorScheme: theme.colorScheme.copyWith(
         primary: _kPrimary,
-        onPrimary: Colors.white,
+        onPrimary: V2Colors.onPrimary,
         primaryContainer: V2Colors.chip,
         onPrimaryContainer: _kPrimary,
         onSurfaceVariant: _kLabel,
@@ -1498,7 +1498,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.white,
+        fillColor: V2Colors.surface,
         labelStyle: const TextStyle(color: _kLabel, fontSize: 14),
         hintStyle: const TextStyle(color: _kLabel, fontSize: 14),
         floatingLabelStyle: TextStyle(color: _kPrimary, fontSize: 12),

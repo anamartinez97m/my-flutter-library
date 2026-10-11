@@ -227,7 +227,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
           child: Container(
             padding: const EdgeInsets.all(17),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: V2Colors.surface,
               border: Border.all(color: border),
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
@@ -292,7 +292,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
           Container(
             padding: const EdgeInsets.all(17),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: V2Colors.surface,
               border: Border.all(color: border),
               borderRadius: BorderRadius.circular(16),
             ),
@@ -467,12 +467,10 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
         onPressed: onPressed,
         icon: Icon(icon, size: 20),
         style: IconButton.styleFrom(
-          backgroundColor: filled ? V2Colors.primaryAlt : Colors.white,
-          foregroundColor: filled ? Colors.white : V2Colors.textStrong,
+          backgroundColor: filled ? V2Colors.primaryAlt : V2Colors.onPrimary,
+          foregroundColor: filled ? V2Colors.onPrimary : V2Colors.textStrong,
           side:
-              filled
-                  ? BorderSide.none
-                  : BorderSide(color: V2Colors.borderSoft),
+              filled ? BorderSide.none : BorderSide(color: V2Colors.borderSoft),
           shape: const CircleBorder(),
         ),
       ),
@@ -494,7 +492,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(17),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         border: Border.all(color: V2Colors.borderSoft),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
@@ -520,8 +518,8 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                 ),
                 child: Text(
                   'Vol. ${index + 1}',
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: V2Colors.onPrimary,
                     fontFamily: V2Typography.family,
                     fontSize: 12,
                     fontWeight: FontWeight.w700,

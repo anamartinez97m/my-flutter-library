@@ -26,7 +26,8 @@ class LibraryBreakdownScreen extends StatefulWidget {
   static Color get kMuted => V2Colors.border;
   static Color get kText => V2Colors.textPrimary;
   static Color get kSub => V2Colors.textSecondary;
-  static const kBorder = Color(0x4DD5C2C7); // Exact alpha variant.
+  static Color get kBorder =>
+      V2Colors.border.withValues(alpha: .3); // Exact alpha variant.
   static Color get kDivider => V2Colors.divider;
   static Color get kBarBg => V2Colors.divider;
 
@@ -154,7 +155,7 @@ class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(17),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: _kBorder),
         boxShadow: const [
@@ -306,7 +307,7 @@ class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
             value: _selectedField,
             isExpanded: true,
             underline: const SizedBox.shrink(),
-            dropdownColor: Colors.white,
+            dropdownColor: V2Colors.surface,
             style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 14,
@@ -354,7 +355,7 @@ class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
                                       ? Container(
                                         padding: const EdgeInsets.all(4),
                                         decoration: BoxDecoration(
-                                          color: Colors.white,
+                                          color: V2Colors.surface,
                                           borderRadius: BorderRadius.circular(
                                             4,
                                           ),
@@ -536,7 +537,8 @@ class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: intensity > 0.5 ? Colors.white : _kText,
+                            color:
+                                intensity > 0.5 ? V2Colors.onPrimary : _kText,
                           ),
                         ),
                       );
@@ -683,7 +685,8 @@ class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: intensity > 0.5 ? Colors.white : _kText,
+                            color:
+                                intensity > 0.5 ? V2Colors.onPrimary : _kText,
                           ),
                         ),
                       );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 
 class RandomShimmer extends StatelessWidget {
   const RandomShimmer({super.key});
@@ -58,7 +59,7 @@ class RandomShimmer extends StatelessWidget {
         // Action bar
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          decoration: const BoxDecoration(color: Colors.white),
+          decoration: BoxDecoration(color: V2Colors.surface),
           child: Row(
             children: [
               Expanded(
@@ -94,7 +95,7 @@ class RandomShimmer extends StatelessWidget {
       width: fullWidth ? double.infinity : width,
       height: height,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(borderRadius),
       ),
     );

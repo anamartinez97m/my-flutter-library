@@ -164,10 +164,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(
-                              color: _kPrimary,
-                              width: 2,
-                            ),
+                            borderSide: BorderSide(color: _kPrimary, width: 2),
                           ),
                           labelStyle: TextStyle(
                             fontFamily: V2Typography.family,
@@ -224,7 +221,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: _kPrimary,
-                          foregroundColor: Colors.white,
+                          foregroundColor: V2Colors.onPrimary,
                           elevation: 4,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 24,
@@ -364,10 +361,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(
-                              color: _kPrimary,
-                              width: 2,
-                            ),
+                            borderSide: BorderSide(color: _kPrimary, width: 2),
                           ),
                           labelStyle: TextStyle(
                             fontFamily: V2Typography.family,
@@ -424,7 +418,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: _kPrimary,
-                          foregroundColor: Colors.white,
+                          foregroundColor: V2Colors.onPrimary,
                           elevation: 4,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 24,
@@ -524,11 +518,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                     children: [
                       Row(
                         children: [
-                          Icon(
-                            Icons.edit_outlined,
-                            color: _kPrimary,
-                            size: 24,
-                          ),
+                          Icon(Icons.edit_outlined, color: _kPrimary, size: 24),
                           const SizedBox(width: 12),
                           Text(
                             l10n.edit_rating_field_name,
@@ -563,10 +553,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(
-                              color: _kPrimary,
-                              width: 2,
-                            ),
+                            borderSide: BorderSide(color: _kPrimary, width: 2),
                           ),
                           labelStyle: TextStyle(
                             fontFamily: V2Typography.family,
@@ -623,7 +610,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: _kPrimary,
-                          foregroundColor: Colors.white,
+                          foregroundColor: V2Colors.onPrimary,
                           elevation: 4,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 24,
@@ -825,7 +812,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                         onPressed: () => Navigator.pop(context, true),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFB3261E),
-                          foregroundColor: Colors.white,
+                          foregroundColor: V2Colors.onPrimary,
                           elevation: 4,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 24,
@@ -907,7 +894,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
               ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: _kPrimary,
-        foregroundColor: Colors.white,
+        foregroundColor: V2Colors.onPrimary,
         elevation: 4,
         shape: const CircleBorder(),
         tooltip: l10n.add_field_name,
@@ -923,7 +910,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: V2Colors.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: V2Colors.borderStrong.withValues(alpha: 0.1),
@@ -948,11 +935,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                     color: _kPrimary.withValues(alpha: 0.06),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    Icons.info_outline,
-                    color: _kPrimary,
-                    size: 16,
-                  ),
+                  child: Icon(Icons.info_outline, color: _kPrimary, size: 16),
                 ),
                 const SizedBox(width: 12),
                 Text(
@@ -1117,7 +1100,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: V2Colors.surface,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: V2Colors.borderStrong.withValues(alpha: 0.1),

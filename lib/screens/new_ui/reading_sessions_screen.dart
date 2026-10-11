@@ -321,7 +321,7 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
                           onPressed: () => Navigator.pop(context, true),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFB3261E),
-                            foregroundColor: Colors.white,
+                            foregroundColor: V2Colors.onPrimary,
                             elevation: 4,
                             padding: const EdgeInsets.symmetric(
                               horizontal: 24,
@@ -804,7 +804,7 @@ class _SessionCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: V2Colors.border.withValues(alpha: 0.2)),
       ),
@@ -859,20 +859,12 @@ class _SessionCard extends StatelessWidget {
               const Spacer(),
               GestureDetector(
                 onTap: onEdit,
-                child: Icon(
-                  Icons.edit_outlined,
-                  size: 18,
-                  color: _kPrimary,
-                ),
+                child: Icon(Icons.edit_outlined, size: 18, color: _kPrimary),
               ),
               const SizedBox(width: 14),
               GestureDetector(
                 onTap: onDelete,
-                child: Icon(
-                  Icons.delete_outline,
-                  size: 18,
-                  color: _kPrimary,
-                ),
+                child: Icon(Icons.delete_outline, size: 18, color: _kPrimary),
               ),
             ],
           ),
@@ -957,7 +949,7 @@ class _EditingSessionCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: _kPrimary, width: 1.5),
       ),
@@ -1094,11 +1086,7 @@ class _EditingSessionCard extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
-                              Icons.access_time,
-                              size: 15,
-                              color: _kPrimary,
-                            ),
+                            Icon(Icons.access_time, size: 15, color: _kPrimary),
                             const SizedBox(width: 8),
                             Text(
                               editTime.format(context),

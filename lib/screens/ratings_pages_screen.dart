@@ -29,7 +29,8 @@ class RatingsPagesScreen extends StatefulWidget {
   static Color get kMuted => V2Colors.border;
   static Color get kText => V2Colors.textPrimary;
   static Color get kSub => V2Colors.textSecondary;
-  static const kBorder = Color(0x4DD5C2C7); // Exact alpha variant.
+  static Color get kBorder =>
+      V2Colors.border.withValues(alpha: .3); // Exact alpha variant.
   static Color get kDivider => V2Colors.divider;
   static Color get kBarBg => V2Colors.divider;
 
@@ -129,10 +130,8 @@ class _RatingsPagesScreenState extends State<RatingsPagesScreen> {
                 distribution: widget.pageDistribution,
                 barColor: _kTertiary,
                 labelBuilder:
-                    (key) => Text(
-                      key,
-                      style: TextStyle(fontSize: 12, color: _kSub),
-                    ),
+                    (key) =>
+                        Text(key, style: TextStyle(fontSize: 12, color: _kSub)),
               ),
             ),
             const SizedBox(height: 16),
@@ -168,7 +167,7 @@ class _RatingsPagesScreenState extends State<RatingsPagesScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(17),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: _kBorder),
         boxShadow: const [
@@ -260,10 +259,7 @@ class _RatingsPagesScreenState extends State<RatingsPagesScreen> {
   /// "Unrated" bucket as plain text since it has no numeric rating.
   Widget _buildRatingLabel(String key) {
     if (key == 'Unrated') {
-      return Text(
-        'Unrated',
-        style: TextStyle(fontSize: 12, color: _kSub),
-      );
+      return Text('Unrated', style: TextStyle(fontSize: 12, color: _kSub));
     }
     final stars = key.split('.').first;
     return Row(
