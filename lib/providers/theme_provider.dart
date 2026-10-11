@@ -67,7 +67,7 @@ class ThemeProvider with ChangeNotifier {
       orElse: () => AppThemeFamily.main,
     );
 
-    notifyListeners();
+    _applyPalette();
   }
 
   AppThemeMode _platformThemeMode() =>
@@ -78,7 +78,7 @@ class ThemeProvider with ChangeNotifier {
 
   Future<void> setThemeMode(AppThemeMode mode) async {
     _themeMode = mode;
-    notifyListeners();
+    _applyPalette();
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('theme_mode', mode.name);
@@ -86,10 +86,23 @@ class ThemeProvider with ChangeNotifier {
 
   Future<void> setThemeFamily(AppThemeFamily family) async {
     _themeFamily = family;
-    notifyListeners();
+    _applyPalette();
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('theme_family', family.name);
+  }
+
+  /// Points [V2Colors] at the active palette and rebuilds every widget, since
+  /// screens read the tokens directly instead of through [Theme.of].
+  void _applyPalette() {
+    V2Colors.use(palette);
+    notifyListeners();
+    void rebuild(Element element) {
+      element.markNeedsBuild();
+      element.visitChildren(rebuild);
+    }
+
+    WidgetsBinding.instance.rootElement?.visitChildren(rebuild);
   }
 
   ColorScheme _colorScheme(AppThemePalette palette, Brightness brightness) {
@@ -99,8 +112,8 @@ class ThemeProvider with ChangeNotifier {
     ).copyWith(
       primary: palette.primary,
       onPrimary: palette.onPrimary,
-      secondary: palette.cardMetaText,
-      secondaryContainer: palette.navActiveIndicator,
+      secondary: palette.cardMeta,
+      secondaryContainer: palette.control,
       onSecondaryContainer: palette.navActiveIcon,
       surface: palette.background,
       onSurface: palette.cardTitle,
@@ -108,13 +121,23 @@ class ThemeProvider with ChangeNotifier {
       surfaceContainerLowest: palette.surface,
       surfaceContainerLow: palette.surface,
       surfaceContainer: palette.surface,
-      outline: palette.cardBorder,
+      outline: palette.borderNeutral,
       outlineVariant: palette.divider,
-      shadow: palette.cardShadow,
+      shadow: const Color(0x0A000000),
     );
   }
 
   ThemeData _theme(AppThemePalette palette, Brightness brightness) {
+    final previous = V2Colors.active;
+    V2Colors.use(palette);
+    try {
+      return _buildTheme(palette, brightness);
+    } finally {
+      V2Colors.use(previous);
+    }
+  }
+
+  ThemeData _buildTheme(AppThemePalette palette, Brightness brightness) {
     final colorScheme = _colorScheme(palette, brightness);
     final theme = V2DesignSystem.theme(colorScheme, brightness: brightness);
     return theme.copyWith(

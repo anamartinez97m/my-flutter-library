@@ -3,6 +3,7 @@ import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/config/themes/app_theme_palette.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
@@ -30,10 +31,10 @@ import 'package:myrandomlibrary/widgets/status_mapping_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const _kChipBg = Color(0xFFF2EDEB);
-const _kChipBorder = Color(0x80D5C2C7);
-const _kChipSelected = Color(0xE643102B);
-const _kSub = Color(0xFF514348);
+Color get _kChipBg => V2Colors.chip;
+Color get _kChipBorder => V2Colors.border.withValues(alpha: .5);
+Color get _kChipSelected => V2Colors.chipSelected;
+Color get _kSub => V2Colors.textSecondary;
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -676,7 +677,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.26,
-                      color: selected ? Colors.white : _kSub,
+                      color: selected ? V2Colors.onPrimary : _kSub,
                     ),
                     softWrap: true,
                     maxLines: 2,
@@ -685,7 +686,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 if (selected) ...[
                   const SizedBox(width: 4),
-                  const Icon(Icons.check, size: 12, color: Colors.white),
+                  Icon(Icons.check, size: 12, color: V2Colors.onPrimary),
                 ],
               ],
             ),
@@ -712,12 +713,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
           (context) => StatefulBuilder(
             builder:
                 (context, setDialogState) => Dialog(
-                  backgroundColor: Colors.white,
+                  backgroundColor: V2Colors.surface,
                   clipBehavior: Clip.antiAlias,
                   elevation: 8,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
-                    side: const BorderSide(color: Color(0x4DD5C2C7)),
+                    side: BorderSide(
+                      color: V2Colors.border.withValues(alpha: .3),
+                    ),
                   ),
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 420),
@@ -731,7 +734,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               Expanded(
                                 child: Text(
                                   title,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontFamily: 'Manrope',
                                     fontSize: 20,
                                     fontWeight: FontWeight.w600,
@@ -740,7 +743,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ),
                               ),
                               IconButton(
-                                icon: const Icon(
+                                icon: Icon(
                                   Icons.close,
                                   color: _kV2Text,
                                   size: 20,
@@ -750,7 +753,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ],
                           ),
                         ),
-                        const Divider(color: Color(0x4DD5C2C7), height: 1),
+                        Divider(
+                          color: V2Colors.border.withValues(alpha: .3),
+                          height: 1,
+                        ),
                         ConstrainedBox(
                           constraints: BoxConstraints(
                             maxHeight:
@@ -765,7 +771,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   if (advancedKeys.isNotEmpty) ...[
                                     Text(
                                       l10n.normal_filters,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontFamily: 'Manrope',
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
@@ -797,7 +803,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     const SizedBox(height: 20),
                                     Text(
                                       l10n.advanced_filters,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontFamily: 'Manrope',
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
@@ -828,10 +834,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ),
                         Container(
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFF7F3F0),
+                          decoration: BoxDecoration(
+                            color: V2Colors.surfaceTimer,
                             border: Border(
-                              top: BorderSide(color: Color(0x4DD5C2C7)),
+                              top: BorderSide(
+                                color: V2Colors.border.withValues(alpha: .3),
+                              ),
                             ),
                           ),
                           padding: const EdgeInsets.symmetric(
@@ -868,7 +876,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: _kV2Primary,
-                                      foregroundColor: Colors.white,
+                                      foregroundColor: V2Colors.onPrimary,
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 16,
                                         vertical: 8,
@@ -2012,18 +2020,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     bool isSelected,
     VoidCallback onTap,
   ) {
-    final colors = [
-      palette.background,
-      palette.primary,
-      palette.navActiveIndicator,
-    ];
+    final colors = [palette.background, palette.primary, palette.control];
     return GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? palette.primary : palette.cardBorder,
+            color: isSelected ? palette.primary : palette.borderNeutral,
             width: isSelected ? 3 : 1,
           ),
         ),
@@ -2097,12 +2101,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // ─────────────────────────────────────────────────────────────────────────
   // V2 DESIGN
   // ─────────────────────────────────────────────────────────────────────────
-  static const _kV2Bg = Color(0xFFFDF8F6);
-  static const _kV2Primary = Color(0xFF43102B);
-  static const _kV2Text = Color(0xFF1C1B1A);
-  static const _kV2SubText = Color(0xFF5F5E5C);
-  static const _kV2IconBg = Color(0xFFF2EDEB);
-  static const _kV2Border = Color(0xFF27231E);
+  static Color get _kV2Bg => V2Colors.background;
+  static Color get _kV2Primary => V2Colors.primary;
+  static Color get _kV2Text => V2Colors.textPrimary;
+  static Color get _kV2SubText => V2Colors.textSubtle;
+  static Color get _kV2IconBg => V2Colors.chip;
+  static Color get _kV2Border => V2Colors.borderStrong;
 
   Widget _buildV2Scaffold(BuildContext context, {required bool isAdmin}) {
     final l10n = AppLocalizations.of(context)!;
@@ -2279,9 +2283,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     padding: const EdgeInsets.only(top: 16, bottom: 32),
                     child: Container(
                       padding: const EdgeInsets.only(top: 25),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         border: Border(
-                          top: BorderSide(color: Color(0xFFCEC5BE)),
+                          top: BorderSide(color: V2Colors.borderNeutral),
                         ),
                       ),
                       child: GestureDetector(
@@ -2303,7 +2307,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         },
                         child: Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.info_outline,
                               size: 17,
                               color: _kV2SubText,
@@ -2311,7 +2315,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             const SizedBox(width: 12),
                             Text(
                               'About ${l10n.application_name}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: 'Manrope',
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
@@ -2344,7 +2348,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.7),
+          color: V2Colors.surface.withValues(alpha: 0.7),
           borderRadius: BorderRadius.circular(12),
           boxShadow: const [
             BoxShadow(
@@ -2359,7 +2363,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Container(
               width: 40,
               height: 40,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: _kV2IconBg,
                 shape: BoxShape.circle,
               ),
@@ -2372,7 +2376,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Manrope',
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -2383,14 +2387,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: const TextStyle(fontSize: 14, color: _kV2SubText),
+                    style: TextStyle(fontSize: 14, color: _kV2SubText),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: _kV2SubText, size: 16),
+            Icon(Icons.chevron_right, color: _kV2SubText, size: 16),
           ],
         ),
       ),
@@ -2420,7 +2424,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.7),
+              color: V2Colors.surface.withValues(alpha: 0.7),
               borderRadius: BorderRadius.circular(12),
               boxShadow: const [
                 BoxShadow(
@@ -2435,7 +2439,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Container(
                   width: 40,
                   height: 40,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: _kV2IconBg,
                     shape: BoxShape.circle,
                   ),
@@ -2448,7 +2452,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: 'Manrope',
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -2459,10 +2463,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const SizedBox(height: 2),
                       Text(
                         subtitle,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: _kV2SubText,
-                        ),
+                        style: TextStyle(fontSize: 14, color: _kV2SubText),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -2483,7 +2484,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             margin: const EdgeInsets.only(top: 8),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.5),
+              color: V2Colors.surface.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: _kV2Border.withValues(alpha: 0.1)),
             ),
@@ -2515,7 +2516,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ? const EdgeInsets.symmetric(horizontal: 8, vertical: 5)
                 : const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.7),
+          color: V2Colors.surface.withValues(alpha: 0.7),
           borderRadius: BorderRadius.circular(12),
           boxShadow: const [
             BoxShadow(
@@ -2567,7 +2568,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Text(
                       subtitle,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 14, color: _kV2SubText),
+                      style: TextStyle(fontSize: 14, color: _kV2SubText),
                     ),
                   ],
                 ),
@@ -2595,7 +2596,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 Text(
                   l10n.theme_mode,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'Manrope',
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -2628,7 +2629,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 16),
                 Text(
                   l10n.theme,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'Manrope',
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -2645,7 +2646,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         // Language
         Text(
           l10n.language,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: 'Manrope',
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -2776,7 +2777,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onPressed: _signInWithGoogle,
             style: ElevatedButton.styleFrom(
               backgroundColor: _kV2Primary,
-              foregroundColor: Colors.white,
+              foregroundColor: V2Colors.onPrimary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -2785,12 +2786,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
         else ...[
           Row(
             children: [
-              const Icon(Icons.account_circle, color: _kV2Primary, size: 20),
+              Icon(Icons.account_circle, color: _kV2Primary, size: 20),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   _currentUser!.email ?? '',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'Manrope',
                     fontSize: 14,
                     color: _kV2Text,
@@ -2817,7 +2818,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     onPressed: _uploadBackup,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _kV2Primary,
-                      foregroundColor: Colors.white,
+                      foregroundColor: V2Colors.onPrimary,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
                         vertical: 14,
@@ -2852,7 +2853,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         fontFamily: 'Manrope',
                         fontSize: 14,
                       ),
-                      side: const BorderSide(color: _kV2Primary),
+                      side: BorderSide(color: _kV2Primary),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -2865,7 +2866,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(height: 12),
               Text(
                 l10n.last_backup(_formatTimestamp(lastTs)),
-                style: const TextStyle(fontSize: 12, color: _kV2SubText),
+                style: TextStyle(fontSize: 12, color: _kV2SubText),
               ),
             ],
           ],
@@ -2958,7 +2959,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           Text(
             l10n.reminder_books_option,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'Manrope',
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -3181,7 +3182,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'Manrope',
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -3189,7 +3190,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
             ),
-            const Icon(Icons.chevron_right, color: _kV2SubText, size: 16),
+            Icon(Icons.chevron_right, color: _kV2SubText, size: 16),
           ],
         ),
       ),

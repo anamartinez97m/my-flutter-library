@@ -120,9 +120,9 @@ class _ReadDatesWidgetState extends State<ReadDatesWidget> {
   }
 
   Widget _buildV2(BuildContext context) {
-    const primary = V2Colors.primary;
-    const border = V2Colors.border;
-    const label = V2Colors.textMuted;
+    final primary = V2Colors.primary;
+    final border = V2Colors.border;
+    final label = V2Colors.textMuted;
     final l10n = AppLocalizations.of(context)!;
 
     Widget dateField({
@@ -145,7 +145,7 @@ class _ReadDatesWidgetState extends State<ReadDatesWidget> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: V2Typography.family,
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -155,7 +155,7 @@ class _ReadDatesWidgetState extends State<ReadDatesWidget> {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.calendar_today_outlined,
                       size: 15,
                       color: primary,
@@ -190,7 +190,7 @@ class _ReadDatesWidgetState extends State<ReadDatesWidget> {
             Expanded(
               child: Text(
                 '${l10n.reading_sessions} (${_readDates.length})',
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: V2Typography.family,
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
@@ -200,7 +200,7 @@ class _ReadDatesWidgetState extends State<ReadDatesWidget> {
             ),
             IconButton(
               onPressed: _addReadDate,
-              icon: const Icon(Icons.add, color: primary, size: 20),
+              icon: Icon(Icons.add, color: primary, size: 20),
               tooltip: l10n.add_session,
               visualDensity: VisualDensity.compact,
             ),
@@ -217,12 +217,12 @@ class _ReadDatesWidgetState extends State<ReadDatesWidget> {
             ),
             child: Column(
               children: [
-                const Icon(Icons.event_note_outlined, color: label, size: 24),
+                Icon(Icons.event_note_outlined, color: label, size: 24),
                 const SizedBox(height: 8),
                 Text(
                   l10n.no_reading_sessions,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: V2Typography.family,
                     fontSize: 13,
                     color: label,
@@ -251,7 +251,7 @@ class _ReadDatesWidgetState extends State<ReadDatesWidget> {
                         ),
                         child: Text(
                           '${index + 1}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
@@ -263,7 +263,7 @@ class _ReadDatesWidgetState extends State<ReadDatesWidget> {
                       Expanded(
                         child: Text(
                           '${l10n.session} ${index + 1}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 14,
                             fontWeight: FontWeight.w700,

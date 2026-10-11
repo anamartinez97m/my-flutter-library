@@ -14,14 +14,14 @@ import 'package:myrandomlibrary/utils/saga_order_filter.dart';
 import 'package:myrandomlibrary/widgets/random_pick_scaffold.dart';
 import 'package:provider/provider.dart';
 
-const _kPrimary = V2Colors.primary;
-const _kSub = V2Colors.textSecondary;
-const _kBorder = V2Colors.border;
-final _kCardBg = V2Colors.background.withValues(alpha: 0.7);
-final _kCardBorder = V2Colors.border.withValues(alpha: 0.3);
-final _kChipBg = V2Colors.chip.withValues(alpha: 0.5);
-final _kChipBorder = V2Colors.border.withValues(alpha: 0.5);
-final _kChipSelected = V2Colors.primary.withValues(alpha: 0.9);
+Color get _kPrimary => V2Colors.primary;
+Color get _kSub => V2Colors.textSecondary;
+Color get _kBorder => V2Colors.border;
+Color get _kCardBg => V2Colors.background.withValues(alpha: 0.7);
+Color get _kCardBorder => V2Colors.border.withValues(alpha: 0.3);
+Color get _kChipBg => V2Colors.chip.withValues(alpha: 0.5);
+Color get _kChipBorder => V2Colors.border.withValues(alpha: 0.5);
+Color get _kChipSelected => V2Colors.primary.withValues(alpha: 0.9);
 const _kAvoid = Color(0xFF8B4A3C);
 const _kAvoidBg = Color(0xFFFFF0EC);
 const _kAvoidBorder = Color(0xFFE3A99C);
@@ -395,7 +395,7 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
               const SizedBox(width: 8),
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: _kPrimary,
@@ -459,7 +459,7 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
         Expanded(
           child: Text(
             useAndLogic ? andLabel : orLabel,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
               color: _kSub,
               fontStyle: FontStyle.italic,
@@ -763,7 +763,7 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
               children: [
                 Text(
                   l10n.see_all_count(allOptions.length.toString()),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
                     color: _kPrimary,
@@ -771,7 +771,7 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
                   ),
                 ),
                 const SizedBox(width: 4),
-                const Icon(Icons.chevron_right, size: 12, color: _kPrimary),
+                Icon(Icons.chevron_right, size: 12, color: _kPrimary),
               ],
             ),
           ),
@@ -853,7 +853,7 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
                 children: [
                   Text(
                     l10n.see_all_count(allGenreNames.length.toString()),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
                       color: _kPrimary,
@@ -861,7 +861,7 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
                     ),
                   ),
                   const SizedBox(width: 4),
-                  const Icon(Icons.chevron_right, size: 12, color: _kPrimary),
+                  Icon(Icons.chevron_right, size: 12, color: _kPrimary),
                 ],
               ),
             ),
@@ -886,11 +886,11 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.flag_outlined, size: 15, color: _kPrimary),
+              Icon(Icons.flag_outlined, size: 15, color: _kPrimary),
               const SizedBox(width: 8),
               Text(
                 l10n.status,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: _kPrimary,
@@ -916,19 +916,15 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
             ),
           ],
           const SizedBox(height: 16),
-          const Divider(color: _kBorder, height: 1),
+          Divider(color: _kBorder, height: 1),
           const SizedBox(height: 16),
           Row(
             children: [
-              const Icon(
-                Icons.location_on_outlined,
-                size: 15,
-                color: _kPrimary,
-              ),
+              Icon(Icons.location_on_outlined, size: 15, color: _kPrimary),
               const SizedBox(width: 8),
               Text(
                 l10n.place,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: _kPrimary,
@@ -1192,7 +1188,7 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: _kPrimary,
@@ -1217,7 +1213,7 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
                 ),
               ),
             const SizedBox(width: 8),
-            const Icon(Icons.chevron_right, size: 18, color: _kPrimary),
+            Icon(Icons.chevron_right, size: 18, color: _kPrimary),
           ],
         ),
       ),
@@ -1292,7 +1288,7 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
               Expanded(
                 child: Text(
                   l10n.avoid_from_recommendation,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: _kPrimary,
@@ -1300,16 +1296,13 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
                   ),
                 ),
               ),
-              Text(
-                l10n.optional,
-                style: const TextStyle(fontSize: 11, color: _kSub),
-              ),
+              Text(l10n.optional, style: TextStyle(fontSize: 11, color: _kSub)),
             ],
           ),
           const SizedBox(height: 8),
           Text(
             l10n.avoid_recommendation_description,
-            style: const TextStyle(fontSize: 12, color: _kSub, height: 1.35),
+            style: TextStyle(fontSize: 12, color: _kSub, height: 1.35),
           ),
           if (hasExclusions) ...[
             const SizedBox(height: 12),
@@ -1339,7 +1332,7 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
             ),
           ],
           const SizedBox(height: 10),
-          const Divider(height: 1, color: _kBorder),
+          Divider(height: 1, color: _kBorder),
           _avoidSelectionRow(
             label: l10n.genre,
             selected: _f.excludedGenres,
@@ -1353,7 +1346,7 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
                       (values) => setState(() => _f.excludedGenres = values),
                 ),
           ),
-          const Divider(height: 1, color: _kBorder),
+          Divider(height: 1, color: _kBorder),
           _avoidSelectionRow(
             label: l10n.format,
             selected: _f.excludedFormats,
@@ -1367,7 +1360,7 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
                       (values) => setState(() => _f.excludedFormats = values),
                 ),
           ),
-          const Divider(height: 1, color: _kBorder),
+          Divider(height: 1, color: _kBorder),
           _avoidSelectionRow(
             label: l10n.author,
             selected: _f.excludedAuthors,

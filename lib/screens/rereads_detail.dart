@@ -10,13 +10,14 @@ import 'package:provider/provider.dart';
 /// Lists all books that have been read more than once, sorted by re-read
 /// count. Tapping a book opens the v2 book detail.
 class RereadsDetailScreen extends StatelessWidget {
-  static const kBg = V2Colors.background;
-  static const kPrimary = V2Colors.primary;
-  static const kSecondary = V2Colors.secondary;
-  static const kMuted = V2Colors.border;
-  static const kText = V2Colors.textPrimary;
-  static const kSub = V2Colors.textSecondary;
-  static const kBorder = Color(0x4DD5C2C7); // Exact alpha variant.
+  static Color get kBg => V2Colors.background;
+  static Color get kPrimary => V2Colors.primary;
+  static Color get kSecondary => V2Colors.secondary;
+  static Color get kMuted => V2Colors.border;
+  static Color get kText => V2Colors.textPrimary;
+  static Color get kSub => V2Colors.textSecondary;
+  static Color get kBorder =>
+      V2Colors.border.withValues(alpha: .3); // Exact alpha variant.
 
   const RereadsDetailScreen({super.key});
 
@@ -31,12 +32,12 @@ class RereadsDetailScreen extends StatelessWidget {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: kPrimary),
+          icon: Icon(Icons.arrow_back, color: kPrimary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           l10n.re_read_books,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -72,11 +73,11 @@ class RereadsDetailScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.replay, size: 64, color: kMuted),
+                  Icon(Icons.replay, size: 64, color: kMuted),
                   const SizedBox(height: 16),
                   Text(
                     l10n.no_re_read_books_yet,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                       color: kSub,
@@ -122,7 +123,7 @@ class RereadsDetailScreen extends StatelessWidget {
                       vertical: 14,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: V2Colors.surface,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: kBorder),
                       boxShadow: const [
@@ -140,8 +141,8 @@ class RereadsDetailScreen extends StatelessWidget {
                           backgroundColor: kSecondary,
                           child: Text(
                             '${readCount}x',
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: V2Colors.onPrimary,
                               fontWeight: FontWeight.bold,
                               fontSize: 13,
                             ),
@@ -154,7 +155,7 @@ class RereadsDetailScreen extends StatelessWidget {
                             children: [
                               Text(
                                 book.name ?? l10n.unknown,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontFamily: V2Typography.family,
                                   fontSize: 15,
                                   fontWeight: FontWeight.w600,
@@ -166,16 +167,13 @@ class RereadsDetailScreen extends StatelessWidget {
                                 const SizedBox(height: 4),
                                 Text(
                                   book.author!,
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    color: kSub,
-                                  ),
+                                  style: TextStyle(fontSize: 13, color: kSub),
                                 ),
                               ],
                               const SizedBox(height: 6),
                               Text(
                                 l10n.read_n_times(readCount.toString()),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: kSecondary,
                                   fontWeight: FontWeight.w600,
                                   fontSize: 12,
@@ -184,7 +182,7 @@ class RereadsDetailScreen extends StatelessWidget {
                             ],
                           ),
                         ),
-                        const Icon(Icons.chevron_right, color: kPrimary),
+                        Icon(Icons.chevron_right, color: kPrimary),
                       ],
                     ),
                   ),

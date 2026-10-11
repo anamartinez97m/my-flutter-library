@@ -32,19 +32,19 @@ class UniverseReadingOrderScreen extends StatefulWidget {
 
 class _UniverseReadingOrderScreenState
     extends State<UniverseReadingOrderScreen> {
-  static const _kPrimary = V2Colors.primary;
-  static const _kSecondary = V2Colors.secondary;
-  static const _kSub = V2Colors.textSecondary;
-  static const _kBg = V2Colors.background;
-  static const _kMuted = V2Colors.border;
+  static Color get _kPrimary => V2Colors.primary;
+  static Color get _kSecondary => V2Colors.secondary;
+  static Color get _kSub => V2Colors.textSecondary;
+  static Color get _kBg => V2Colors.background;
+  static Color get _kMuted => V2Colors.border;
   static const _nodeSize = 84.0;
   static const _trackWidth = 220.0;
   static const _rowHeight = 140.0;
   static const _canvasPadding = 64.0;
   static const _firstNodeTop = 160.0;
-  static const _sagaColors = [
+  static List<Color> get _sagaColors => [
     V2Colors.primary,
-    Color(0xFF894B67),
+    V2Colors.secondary,
     Color(0xFF6E2947),
     Color(0xFFA45F78),
     Color(0xFF5C3A4A),
@@ -347,17 +347,17 @@ class _UniverseReadingOrderScreenState
               mainAxisSize: MainAxisSize.min,
               children: [
                 ListTile(
-                  leading: const Icon(Icons.arrow_downward, color: _kPrimary),
+                  leading: Icon(Icons.arrow_downward, color: _kPrimary),
                   title: Text(l10n.relation_next),
                   onTap: () => Navigator.pop(context, 'next'),
                 ),
                 ListTile(
-                  leading: const Icon(Icons.link, color: _kSecondary),
+                  leading: Icon(Icons.link, color: _kSecondary),
                   title: Text(l10n.relation_related),
                   onTap: () => Navigator.pop(context, 'related'),
                 ),
                 ListTile(
-                  leading: const Icon(Icons.alt_route, color: _kSecondary),
+                  leading: Icon(Icons.alt_route, color: _kSecondary),
                   title: Text(l10n.relation_optional),
                   onTap: () => Navigator.pop(context, 'optional'),
                 ),
@@ -398,10 +398,10 @@ class _UniverseReadingOrderScreenState
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   ListTile(
-                    leading: const Icon(Icons.edit_outlined, color: _kPrimary),
+                    leading: Icon(Icons.edit_outlined, color: _kPrimary),
                     title: Text(
                       l10n.edit_placeholder,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: V2Typography.family,
                         fontWeight: FontWeight.w600,
                         color: _kPrimary,
@@ -424,13 +424,10 @@ class _UniverseReadingOrderScreenState
                     },
                   ),
                   ListTile(
-                    leading: const Icon(
-                      Icons.library_add_outlined,
-                      color: _kPrimary,
-                    ),
+                    leading: Icon(Icons.library_add_outlined, color: _kPrimary),
                     title: Text(
                       l10n.promote_to_library,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: V2Typography.family,
                         fontWeight: FontWeight.w600,
                         color: _kPrimary,
@@ -495,10 +492,7 @@ class _UniverseReadingOrderScreenState
               mainAxisSize: MainAxisSize.min,
               children: [
                 ListTile(
-                  leading: const Icon(
-                    Icons.menu_book_outlined,
-                    color: _kPrimary,
-                  ),
+                  leading: Icon(Icons.menu_book_outlined, color: _kPrimary),
                   title: Text(book.name ?? l10n.unknown_title),
                   subtitle: Text(book.saga ?? l10n.standalone_books),
                   onTap: () async {
@@ -514,7 +508,7 @@ class _UniverseReadingOrderScreenState
                 ),
                 if (_editMode)
                   ListTile(
-                    leading: const Icon(Icons.add_link, color: _kPrimary),
+                    leading: Icon(Icons.add_link, color: _kPrimary),
                     title: Text(l10n.add_relation),
                     onTap: () {
                       Navigator.pop(context);
@@ -554,7 +548,7 @@ class _UniverseReadingOrderScreenState
                                 children: [
                                   Text(
                                     l10n.reorder_books,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       color: _kPrimary,
                                       fontFamily: V2Typography.family,
                                       fontSize: 20,
@@ -563,7 +557,7 @@ class _UniverseReadingOrderScreenState
                                   ),
                                   Text(
                                     l10n.drag_to_reorder,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       color: _kSub,
                                       fontSize: 13,
                                     ),
@@ -596,7 +590,7 @@ class _UniverseReadingOrderScreenState
                             final book = reordered[index];
                             return Card(
                               key: ValueKey(book.bookId),
-                              color: Colors.white,
+                              color: V2Colors.surface,
                               child: ListTile(
                                 leading: CircleAvatar(
                                   backgroundColor: _kPrimary,
@@ -607,10 +601,7 @@ class _UniverseReadingOrderScreenState
                                 subtitle: Text(
                                   book.saga ?? l10n.standalone_books,
                                 ),
-                                trailing: const Icon(
-                                  Icons.drag_handle,
-                                  color: _kSub,
-                                ),
+                                trailing: Icon(Icons.drag_handle, color: _kSub),
                               ),
                             );
                           },
@@ -666,7 +657,7 @@ class _UniverseReadingOrderScreenState
                     padding: const EdgeInsets.all(18),
                     child: Text(
                       l10n.delete_relation,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: _kPrimary,
                         fontFamily: V2Typography.family,
                         fontSize: 20,
@@ -772,7 +763,7 @@ class _UniverseReadingOrderScreenState
   @override
   Widget build(BuildContext context) {
     if (!context.watch<RoleProvider>().isAdmin) {
-      return const Scaffold(backgroundColor: _kBg);
+      return Scaffold(backgroundColor: _kBg);
     }
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
@@ -782,7 +773,7 @@ class _UniverseReadingOrderScreenState
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: _kPrimary),
+          icon: Icon(Icons.arrow_back, color: _kPrimary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Column(
@@ -792,7 +783,7 @@ class _UniverseReadingOrderScreenState
               widget.universe.toUpperCase(),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 color: _kPrimary,
                 fontFamily: V2Typography.family,
                 fontSize: 18,
@@ -802,7 +793,7 @@ class _UniverseReadingOrderScreenState
             ),
             Text(
               l10n.universe_reading_order,
-              style: const TextStyle(color: _kSub, fontSize: 10),
+              style: TextStyle(color: _kSub, fontSize: 10),
             ),
           ],
         ),
@@ -815,7 +806,7 @@ class _UniverseReadingOrderScreenState
             onPressed: _toggleEditMode,
           ),
         ],
-        bottom: const PreferredSize(
+        bottom: PreferredSize(
           preferredSize: Size.fromHeight(1),
           child: Divider(height: 1, color: _kMuted),
         ),
@@ -833,10 +824,7 @@ class _UniverseReadingOrderScreenState
                     ? l10n.select_first_book
                     : l10n.select_second_book,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: _kPrimary,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(color: _kPrimary, fontWeight: FontWeight.w600),
               ),
             ),
           Expanded(child: _buildBody(l10n)),
@@ -900,7 +888,7 @@ class _UniverseReadingOrderScreenState
 
   Widget _buildBody(AppLocalizations l10n) {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator(color: _kPrimary));
+      return Center(child: CircularProgressIndicator(color: _kPrimary));
     }
     if (_error != null) {
       return Center(
@@ -909,7 +897,7 @@ class _UniverseReadingOrderScreenState
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.error_outline, color: _kSecondary, size: 40),
+              Icon(Icons.error_outline, color: _kSecondary, size: 40),
               const SizedBox(height: 12),
               Text(l10n.error_loading_reading_order),
               const SizedBox(height: 8),
@@ -1092,8 +1080,8 @@ class _BookNode extends StatelessWidget {
                             child: Center(
                               child: Text(
                                 displayTitle.characters.first.toUpperCase(),
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: V2Colors.onPrimary,
                                   fontFamily: V2Typography.family,
                                   fontSize: 28,
                                   fontWeight: FontWeight.w700,
@@ -1111,8 +1099,8 @@ class _BookNode extends StatelessWidget {
                                     child: Text(
                                       displayTitle.characters.first
                                           .toUpperCase(),
-                                      style: const TextStyle(
-                                        color: Colors.white,
+                                      style: TextStyle(
+                                        color: V2Colors.onPrimary,
                                         fontSize: 28,
                                         fontWeight: FontWeight.w700,
                                       ),
@@ -1132,7 +1120,7 @@ class _BookNode extends StatelessWidget {
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   color: V2Colors.textSecondary,
                   fontFamily: V2Typography.family,
                   fontSize: 12,
@@ -1159,7 +1147,7 @@ class _BookNode extends StatelessWidget {
                 color: V2Colors.background,
                 child: Text(
                   AppLocalizations.of(context)!.unordered,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: V2Colors.secondary,
                     fontSize: 10,
                     fontWeight: FontWeight.w600,

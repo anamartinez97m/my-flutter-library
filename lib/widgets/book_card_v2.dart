@@ -7,10 +7,10 @@ import 'package:myrandomlibrary/utils/format_saga_helper.dart';
 import 'package:myrandomlibrary/utils/status_helper.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
-const _kPrimary = V2Colors.primary;
-const _kText = V2Colors.textSubtle;
-const _kBorder = V2Colors.borderNeutral;
-const _kDivider = V2Colors.divider;
+Color get _kPrimary => V2Colors.primary;
+Color get _kText => V2Colors.textSubtle;
+Color get _kBorder => V2Colors.borderNeutral;
+Color get _kDivider => V2Colors.divider;
 
 DateTime? _parsePublicationDate(String? value) {
   if (value == null || value.isEmpty) return null;
@@ -266,7 +266,7 @@ class BookCardV2 extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
-          color: isRead ? const Color(0xFFF5F3F2) : Colors.white,
+          color: isRead ? V2Colors.surfaceMuted : V2Colors.surface,
           border: Border.all(color: _kBorder),
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
@@ -291,7 +291,7 @@ class BookCardV2 extends StatelessWidget {
                       Expanded(
                         child: Text(
                           book.name ?? '',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 19,
                             fontWeight: FontWeight.w600,
                             color: _kPrimary,
@@ -300,23 +300,11 @@ class BookCardV2 extends StatelessWidget {
                         ),
                       ),
                       if (book.tbr == true)
-                        const Icon(
-                          Icons.bookmark_add,
-                          size: 16,
-                          color: _kPrimary,
-                        ),
+                        Icon(Icons.bookmark_add, size: 16, color: _kPrimary),
                       if (book.isBundle == true)
-                        const Icon(
-                          Icons.library_books,
-                          size: 16,
-                          color: _kPrimary,
-                        ),
+                        Icon(Icons.library_books, size: 16, color: _kPrimary),
                       if (book.isTandem == true)
-                        const Icon(
-                          Icons.swap_horiz,
-                          size: 16,
-                          color: _kPrimary,
-                        ),
+                        Icon(Icons.swap_horiz, size: 16, color: _kPrimary),
                     ],
                   ),
 
@@ -329,14 +317,14 @@ class BookCardV2 extends StatelessWidget {
                       book.author!,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         color: _kText,
                         height: 1.43,
                       ),
                     ),
                     const SizedBox(height: 10),
-                    const Divider(height: 1, thickness: 1, color: _kDivider),
+                    Divider(height: 1, thickness: 1, color: _kDivider),
                   ],
 
                   // Metadata grid
@@ -368,7 +356,7 @@ class BookCardV2 extends StatelessWidget {
                                               child: Text(
                                                 m.text,
                                                 overflow: TextOverflow.ellipsis,
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                   fontSize: 11,
                                                   color: _kText,
                                                   fontWeight: FontWeight.w500,
@@ -399,7 +387,7 @@ class BookCardV2 extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: progressFraction,
                   backgroundColor: _kDivider,
-                  valueColor: const AlwaysStoppedAnimation(_kPrimary),
+                  valueColor: AlwaysStoppedAnimation(_kPrimary),
                   minHeight: 4,
                 ),
               ),

@@ -116,7 +116,7 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
         children: [
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
               color: V2Colors.primary,
@@ -167,12 +167,12 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.26,
-                color: selected ? Colors.white : V2Colors.textSecondary,
+                color: selected ? V2Colors.onPrimary : V2Colors.textSecondary,
               ),
             ),
             if (selected) ...[
               const SizedBox(width: 4),
-              const Icon(Icons.check, size: 12, color: Colors.white),
+              Icon(Icons.check, size: 12, color: V2Colors.onPrimary),
             ],
           ],
         ),
@@ -182,12 +182,14 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
 
   Widget _sectionHeading(String text) => Container(
     padding: const EdgeInsets.only(bottom: 9),
-    decoration: const BoxDecoration(
-      border: Border(bottom: BorderSide(color: Color(0x1A27231E))),
+    decoration: BoxDecoration(
+      border: Border(
+        bottom: BorderSide(color: V2Colors.borderStrong.withValues(alpha: .1)),
+      ),
     ),
     child: Text(
       text,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 20,
         fontWeight: FontWeight.w600,
         color: V2Colors.primary,
@@ -216,7 +218,7 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
             Container(
               height: 64,
               padding: const EdgeInsets.symmetric(horizontal: 8),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: V2Colors.background,
                 border: Border(bottom: BorderSide(color: V2Colors.border)),
               ),
@@ -224,7 +226,7 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.arrow_back,
                       color: V2Colors.primary,
                       size: 18,
@@ -236,7 +238,7 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
                       l10n.select_genres,
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: V2Colors.primary,
@@ -254,7 +256,7 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
                         ),
                     child: Text(
                       l10n.apply,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: V2Colors.primary,
@@ -274,8 +276,8 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
                     onChanged: (v) => setState(() => _query = v),
                     decoration: InputDecoration(
                       hintText: l10n.search_genres,
-                      hintStyle: const TextStyle(color: V2Colors.textSubtle),
-                      prefixIcon: const Icon(
+                      hintStyle: TextStyle(color: V2Colors.textSubtle),
+                      prefixIcon: Icon(
                         Icons.search,
                         color: V2Colors.textSecondary,
                         size: 18,
@@ -283,7 +285,7 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
                       suffixIcon:
                           _query.isNotEmpty
                               ? IconButton(
-                                icon: const Icon(
+                                icon: Icon(
                                   Icons.close,
                                   size: 16,
                                   color: V2Colors.textSecondary,
@@ -337,7 +339,7 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
                       child: Center(
                         child: Text(
                           l10n.no_books_match_filters,
-                          style: const TextStyle(color: V2Colors.textSecondary),
+                          style: TextStyle(color: V2Colors.textSecondary),
                         ),
                       ),
                     ),
@@ -350,7 +352,7 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
                             _useAndLogic
                                 ? l10n.and_all_genres
                                 : l10n.or_any_genre,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 11,
                               color: V2Colors.textSecondary,
                               fontStyle: FontStyle.italic,

@@ -5,12 +5,12 @@ import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/repositories/reading_club_repository.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
-const _kBg = V2Colors.background;
-const _kPrimary = V2Colors.primary;
-const _kSub = V2Colors.textSecondary;
-const _kText = V2Colors.textPrimary;
-const _kBorder = V2Colors.border;
-const _kSecondary = V2Colors.primaryAlt;
+Color get _kBg => V2Colors.background;
+Color get _kPrimary => V2Colors.primary;
+Color get _kSub => V2Colors.textSecondary;
+Color get _kText => V2Colors.textPrimary;
+Color get _kBorder => V2Colors.border;
+Color get _kSecondary => V2Colors.primaryAlt;
 
 class ManageClubNamesScreen extends StatefulWidget {
   const ManageClubNamesScreen({super.key});
@@ -159,15 +159,11 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                     children: [
                       Row(
                         children: [
-                          const Icon(
-                            Icons.edit_outlined,
-                            color: _kPrimary,
-                            size: 24,
-                          ),
+                          Icon(Icons.edit_outlined, color: _kPrimary, size: 24),
                           const SizedBox(width: 12),
                           Text(
                             l10n.rename_club,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: V2Typography.family,
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
@@ -180,7 +176,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                       TextField(
                         controller: controller,
                         autofocus: true,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontSize: 18,
                           color: _kText,
@@ -189,20 +185,17 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                           labelText: l10n.club_name,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(color: _kSub),
+                            borderSide: BorderSide(color: _kSub),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(color: _kSub),
+                            borderSide: BorderSide(color: _kSub),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
-                              color: _kPrimary,
-                              width: 2,
-                            ),
+                            borderSide: BorderSide(color: _kPrimary, width: 2),
                           ),
-                          labelStyle: const TextStyle(
+                          labelStyle: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 12,
                             color: _kPrimary,
@@ -219,7 +212,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                     horizontal: 16,
                     vertical: 16,
                   ),
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: _kBg,
                     border: Border(top: BorderSide(color: _kBorder)),
                   ),
@@ -257,7 +250,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: _kPrimary,
-                          foregroundColor: Colors.white,
+                          foregroundColor: V2Colors.onPrimary,
                           elevation: 4,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 24,
@@ -367,7 +360,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                       const SizedBox(height: 24),
                       Text(
                         l10n.confirm_delete_club(clubName, bookCount),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontSize: 16,
                           color: _kText,
@@ -383,7 +376,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                     horizontal: 16,
                     vertical: 16,
                   ),
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: _kBg,
                     border: Border(top: BorderSide(color: _kBorder)),
                   ),
@@ -416,7 +409,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                         onPressed: () => Navigator.of(context).pop(true),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFB3261E),
-                          foregroundColor: Colors.white,
+                          foregroundColor: V2Colors.onPrimary,
                           elevation: 4,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 24,
@@ -459,12 +452,12 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
             ),
             title: Row(
               children: [
-                const Icon(Icons.group_add, color: _kPrimary),
+                Icon(Icons.group_add, color: _kPrimary),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     l10n.new_club,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
@@ -552,12 +545,12 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: _kPrimary),
+          icon: Icon(Icons.arrow_back, color: _kPrimary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           l10n.manage_club_names,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -573,12 +566,12 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
       ),
       body:
           _isLoading
-              ? const Center(child: CircularProgressIndicator(color: _kPrimary))
+              ? Center(child: CircularProgressIndicator(color: _kPrimary))
               : _buildBody(context),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _showAddClubNameDialog,
         backgroundColor: _kPrimary,
-        foregroundColor: Colors.white,
+        foregroundColor: V2Colors.onPrimary,
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         icon: const Icon(Icons.add),
@@ -605,7 +598,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
             const SizedBox(height: 16),
             Text(
               l10n.no_clubs_yet,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: V2Typography.family,
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
@@ -615,7 +608,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
             const SizedBox(height: 8),
             Text(
               l10n.add_books_to_clubs_hint,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: V2Typography.family,
                 fontSize: 14,
                 color: _kSub,
@@ -640,7 +633,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: V2Colors.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: V2Colors.borderStrong.withValues(alpha: 0.1),
@@ -666,11 +659,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                     color: _kSecondary.withValues(alpha: 0.12),
                   ),
                 ),
-                child: const Icon(
-                  Icons.group_outlined,
-                  color: _kSecondary,
-                  size: 24,
-                ),
+                child: Icon(Icons.group_outlined, color: _kSecondary, size: 24),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -679,7 +668,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                   children: [
                     Text(
                       clubName,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: V2Typography.family,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -689,7 +678,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                     const SizedBox(height: 6),
                     Text(
                       l10n.book_count_label(bookCount),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: V2Typography.family,
                         fontSize: 13,
                         color: _kSub,
@@ -706,7 +695,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                                 value: avgProgress / 100,
                                 minHeight: 6,
                                 backgroundColor: V2Colors.chip,
-                                valueColor: const AlwaysStoppedAnimation<Color>(
+                                valueColor: AlwaysStoppedAnimation<Color>(
                                   _kSecondary,
                                 ),
                               ),
@@ -715,7 +704,7 @@ class _ManageClubNamesScreenState extends State<ManageClubNamesScreen> {
                           const SizedBox(width: 8),
                           Text(
                             '${avgProgress.toStringAsFixed(0)}%',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: V2Typography.family,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,

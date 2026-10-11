@@ -19,16 +19,17 @@ class LibraryBreakdownScreen extends StatefulWidget {
   final Map<String, Map<String, int>> formatByLanguageCounts;
   final Map<String, Map<String, double>> avgDaysByFormatLanguage;
 
-  static const kBg = V2Colors.background;
-  static const kPrimary = V2Colors.primary;
-  static const kSecondary = V2Colors.secondary;
+  static Color get kBg => V2Colors.background;
+  static Color get kPrimary => V2Colors.primary;
+  static Color get kSecondary => V2Colors.secondary;
   static const kTertiary = Color(0xFFBC92A6); // Not represented in V2Colors.
-  static const kMuted = V2Colors.border;
-  static const kText = V2Colors.textPrimary;
-  static const kSub = V2Colors.textSecondary;
-  static const kBorder = Color(0x4DD5C2C7); // Exact alpha variant.
-  static const kDivider = V2Colors.divider;
-  static const kBarBg = V2Colors.divider;
+  static Color get kMuted => V2Colors.border;
+  static Color get kText => V2Colors.textPrimary;
+  static Color get kSub => V2Colors.textSecondary;
+  static Color get kBorder =>
+      V2Colors.border.withValues(alpha: .3); // Exact alpha variant.
+  static Color get kDivider => V2Colors.divider;
+  static Color get kBarBg => V2Colors.divider;
 
   const LibraryBreakdownScreen({
     super.key,
@@ -47,15 +48,15 @@ class LibraryBreakdownScreen extends StatefulWidget {
 }
 
 class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
-  static const _kBg = LibraryBreakdownScreen.kBg;
-  static const _kPrimary = LibraryBreakdownScreen.kPrimary;
-  static const _kSecondary = LibraryBreakdownScreen.kSecondary;
-  static const _kTertiary = LibraryBreakdownScreen.kTertiary;
-  static const _kMuted = LibraryBreakdownScreen.kMuted;
-  static const _kText = LibraryBreakdownScreen.kText;
-  static const _kSub = LibraryBreakdownScreen.kSub;
-  static const _kBorder = LibraryBreakdownScreen.kBorder;
-  static const _kBarBg = LibraryBreakdownScreen.kBarBg;
+  static Color get _kBg => LibraryBreakdownScreen.kBg;
+  static Color get _kPrimary => LibraryBreakdownScreen.kPrimary;
+  static Color get _kSecondary => LibraryBreakdownScreen.kSecondary;
+  static Color get _kTertiary => LibraryBreakdownScreen.kTertiary;
+  static Color get _kMuted => LibraryBreakdownScreen.kMuted;
+  static Color get _kText => LibraryBreakdownScreen.kText;
+  static Color get _kSub => LibraryBreakdownScreen.kSub;
+  static Color get _kBorder => LibraryBreakdownScreen.kBorder;
+  static Color get _kBarBg => LibraryBreakdownScreen.kBarBg;
 
   final Set<String> _collapsedSections = {};
 
@@ -83,12 +84,12 @@ class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: _kPrimary),
+          icon: Icon(Icons.arrow_back, color: _kPrimary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           l10n.section_library_breakdown,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -154,7 +155,7 @@ class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(17),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: _kBorder),
         boxShadow: const [
@@ -175,7 +176,7 @@ class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
                 Expanded(
                   child: Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
@@ -186,7 +187,7 @@ class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
                 AnimatedRotation(
                   turns: isCollapsed ? -0.25 : 0,
                   duration: const Duration(milliseconds: 200),
-                  child: const Icon(Icons.expand_more, color: _kPrimary),
+                  child: Icon(Icons.expand_more, color: _kPrimary),
                 ),
               ],
             ),
@@ -306,8 +307,8 @@ class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
             value: _selectedField,
             isExpanded: true,
             underline: const SizedBox.shrink(),
-            dropdownColor: Colors.white,
-            style: const TextStyle(
+            dropdownColor: V2Colors.surface,
+            style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 14,
               color: _kText,
@@ -333,7 +334,7 @@ class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
                   ? Center(
                     child: Text(
                       l10n.no_data,
-                      style: const TextStyle(fontSize: 14, color: _kSub),
+                      style: TextStyle(fontSize: 14, color: _kSub),
                     ),
                   )
                   : PieChart(
@@ -354,7 +355,7 @@ class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
                                       ? Container(
                                         padding: const EdgeInsets.all(4),
                                         decoration: BoxDecoration(
-                                          color: Colors.white,
+                                          color: V2Colors.surface,
                                           borderRadius: BorderRadius.circular(
                                             4,
                                           ),
@@ -406,7 +407,7 @@ class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
                         Expanded(
                           child: Text(
                             entry.key,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: V2Typography.family,
                               fontSize: 13,
                               color: _kText,
@@ -416,7 +417,7 @@ class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
                         ),
                         Text(
                           '${entry.value}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -477,7 +478,7 @@ class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
                       alignment: Alignment.center,
                       child: Text(
                         language,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                           color: _kPrimary,
@@ -500,7 +501,7 @@ class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
                       padding: const EdgeInsets.only(right: 8),
                       child: Text(
                         format,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           color: _kSub,
@@ -536,7 +537,8 @@ class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: intensity > 0.5 ? Colors.white : _kText,
+                            color:
+                                intensity > 0.5 ? V2Colors.onPrimary : _kText,
                           ),
                         ),
                       );
@@ -552,7 +554,7 @@ class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('Low', style: TextStyle(fontSize: 11, color: _kSub)),
+            Text('Low', style: TextStyle(fontSize: 11, color: _kSub)),
             const SizedBox(width: 8),
             ...List.generate(5, (index) {
               final intensity = (index + 1) / 5;
@@ -571,7 +573,7 @@ class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
               );
             }),
             const SizedBox(width: 8),
-            const Text('High', style: TextStyle(fontSize: 11, color: _kSub)),
+            Text('High', style: TextStyle(fontSize: 11, color: _kSub)),
           ],
         ),
       ],
@@ -623,7 +625,7 @@ class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
                       alignment: Alignment.center,
                       child: Text(
                         language,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                           color: _kTertiary,
@@ -646,7 +648,7 @@ class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
                       padding: const EdgeInsets.only(right: 8),
                       child: Text(
                         format,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           color: _kSub,
@@ -683,7 +685,8 @@ class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: intensity > 0.5 ? Colors.white : _kText,
+                            color:
+                                intensity > 0.5 ? V2Colors.onPrimary : _kText,
                           ),
                         ),
                       );
@@ -699,7 +702,7 @@ class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('Fast', style: TextStyle(fontSize: 11, color: _kSub)),
+            Text('Fast', style: TextStyle(fontSize: 11, color: _kSub)),
             const SizedBox(width: 8),
             ...List.generate(5, (index) {
               final intensity = (index + 1) / 5;
@@ -718,7 +721,7 @@ class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
               );
             }),
             const SizedBox(width: 8),
-            const Text('Slow', style: TextStyle(fontSize: 11, color: _kSub)),
+            Text('Slow', style: TextStyle(fontSize: 11, color: _kSub)),
           ],
         ),
       ],

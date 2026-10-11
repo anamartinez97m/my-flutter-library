@@ -7,12 +7,12 @@ import 'package:myrandomlibrary/widgets/quick_add_book_dialog.dart';
 import 'package:provider/provider.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
-const _kPrimary = V2Colors.primary;
-const _kBg = V2Colors.background;
-const _kBorder = V2Colors.borderNeutral;
-const _kDivider = V2Colors.divider;
-const _kText = V2Colors.textSubtle;
-const _kSub = V2Colors.textSecondary;
+Color get _kPrimary => V2Colors.primary;
+Color get _kBg => V2Colors.background;
+Color get _kBorder => V2Colors.borderNeutral;
+Color get _kDivider => V2Colors.divider;
+Color get _kText => V2Colors.textSubtle;
+Color get _kSub => V2Colors.textSecondary;
 const _kCardShadow = [
   BoxShadow(color: Color(0x0A000000), blurRadius: 12, offset: Offset(0, 4)),
 ];
@@ -37,7 +37,7 @@ class BooksBySagaScreen extends StatelessWidget {
       return Scaffold(
         backgroundColor: _kBg,
         appBar: _buildAppBar(context),
-        body: const Center(child: CircularProgressIndicator(color: _kPrimary)),
+        body: Center(child: CircularProgressIndicator(color: _kPrimary)),
       );
     }
 
@@ -77,7 +77,7 @@ class BooksBySagaScreen extends StatelessWidget {
         backgroundColor: _kPrimary,
         elevation: 6,
         shape: const CircleBorder(),
-        child: const Icon(Icons.add, color: Colors.white),
+        child: Icon(Icons.add, color: V2Colors.onPrimary),
       ),
       body:
           filteredBooks.isEmpty
@@ -121,14 +121,14 @@ class BooksBySagaScreen extends StatelessWidget {
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: _kPrimary),
+        icon: Icon(Icons.arrow_back, color: _kPrimary),
         onPressed: () => Navigator.pop(context),
       ),
       title: Text(
         isSagaUniverse
             ? '${AppLocalizations.of(context)!.saga_universe}: $sagaName'
             : '${AppLocalizations.of(context)!.saga}: $sagaName',
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: V2Typography.family,
           fontSize: 20,
           fontWeight: FontWeight.w600,
@@ -137,7 +137,7 @@ class BooksBySagaScreen extends StatelessWidget {
         ),
       ),
       centerTitle: true,
-      bottom: const PreferredSize(
+      bottom: PreferredSize(
         preferredSize: Size.fromHeight(1),
         child: Divider(height: 1, thickness: 1, color: _kBorder),
       ),
@@ -150,7 +150,7 @@ class BooksBySagaScreen extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(20, 16, 20, 8),
       padding: const EdgeInsets.all(17),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         border: Border.all(color: _kBorder),
         borderRadius: BorderRadius.circular(12),
         boxShadow: _kCardShadow,
@@ -160,7 +160,7 @@ class BooksBySagaScreen extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.collections_bookmark_outlined,
                 size: 18,
                 color: _kPrimary,
@@ -168,7 +168,7 @@ class BooksBySagaScreen extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 AppLocalizations.of(context)!.total_books,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: _kPrimary,
@@ -184,7 +184,7 @@ class BooksBySagaScreen extends StatelessWidget {
             children: [
               Text(
                 '$totalBooks',
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: V2Typography.family,
                   fontSize: 34,
                   fontWeight: FontWeight.bold,
@@ -194,22 +194,22 @@ class BooksBySagaScreen extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 AppLocalizations.of(context)!.books_word,
-                style: const TextStyle(fontSize: 14, color: _kSub),
+                style: TextStyle(fontSize: 14, color: _kSub),
               ),
             ],
           ),
           if (!isSagaUniverse && sagaUniverse != null) ...[
             const SizedBox(height: 12),
-            const Divider(height: 1, thickness: 1, color: _kDivider),
+            Divider(height: 1, thickness: 1, color: _kDivider),
             const SizedBox(height: 12),
             Row(
               children: [
-                const Icon(Icons.public_outlined, size: 16, color: _kText),
+                Icon(Icons.public_outlined, size: 16, color: _kText),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     '${AppLocalizations.of(context)!.saga_universe}: $sagaUniverse',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       color: _kText,
                       fontWeight: FontWeight.w500,
@@ -244,7 +244,7 @@ class BooksBySagaScreen extends StatelessWidget {
                     : AppLocalizations.of(context)!.saga,
               ),
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: _kPrimary,

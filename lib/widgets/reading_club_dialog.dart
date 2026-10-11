@@ -21,8 +21,8 @@ class ReadingClubDialog extends StatefulWidget {
 }
 
 class _ReadingClubDialogState extends State<ReadingClubDialog> {
-  static const _kPrimary = V2Colors.primary;
-  static const _kBg = V2Colors.background;
+  static Color get _kPrimary => V2Colors.primary;
+  static Color get _kBg => V2Colors.background;
 
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _clubNameController;
@@ -104,7 +104,7 @@ class _ReadingClubDialogState extends State<ReadingClubDialog> {
               _isEditing
                   ? AppLocalizations.of(context)!.edit_club_membership
                   : AppLocalizations.of(context)!.add_to_reading_club,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: V2Typography.family,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -279,7 +279,7 @@ class _ReadingClubDialogState extends State<ReadingClubDialog> {
                   : _save,
           style: ElevatedButton.styleFrom(
             backgroundColor: _kPrimary,
-            foregroundColor: Colors.white,
+            foregroundColor: V2Colors.onPrimary,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),

@@ -6,12 +6,12 @@ import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
 import 'package:provider/provider.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
-const _kPrimary = V2Colors.primary;
-const _kBg = V2Colors.background;
-const _kBorder = V2Colors.borderNeutral;
-const _kDivider = V2Colors.divider;
-const _kText = V2Colors.textSubtle;
-const _kSub = V2Colors.textSecondary;
+Color get _kPrimary => V2Colors.primary;
+Color get _kBg => V2Colors.background;
+Color get _kBorder => V2Colors.borderNeutral;
+Color get _kDivider => V2Colors.divider;
+Color get _kText => V2Colors.textSubtle;
+Color get _kSub => V2Colors.textSecondary;
 
 class BooksByEditorialScreen extends StatelessWidget {
   final String editorialName;
@@ -28,7 +28,7 @@ class BooksByEditorialScreen extends StatelessWidget {
         body: CustomScrollView(
           slivers: [
             _buildAppBar(context),
-            const SliverFillRemaining(
+            SliverFillRemaining(
               child: Center(child: CircularProgressIndicator(color: _kPrimary)),
             ),
           ],
@@ -80,7 +80,7 @@ class BooksByEditorialScreen extends StatelessWidget {
               child: Center(
                 child: Text(
                   AppLocalizations.of(context)!.no_books_for_editorial,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: V2Typography.family,
                     fontSize: 16,
                     color: _kSub,
@@ -164,12 +164,12 @@ class BooksByEditorialScreen extends StatelessWidget {
       elevation: 0,
       pinned: true,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: _kPrimary),
+        icon: Icon(Icons.arrow_back, color: _kPrimary),
         onPressed: () => Navigator.pop(context),
       ),
       title: Text(
         editorialName,
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: V2Typography.family,
           fontSize: 20,
           fontWeight: FontWeight.w600,
@@ -178,7 +178,7 @@ class BooksByEditorialScreen extends StatelessWidget {
         ),
       ),
       centerTitle: true,
-      bottom: const PreferredSize(
+      bottom: PreferredSize(
         preferredSize: Size.fromHeight(1),
         child: Divider(height: 1, color: V2Colors.border),
       ),
@@ -196,7 +196,7 @@ Widget _statChip({
   return Container(
     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: V2Colors.surface,
       borderRadius: BorderRadius.circular(8),
       border: Border.all(color: _kBorder),
       boxShadow: [
@@ -214,7 +214,7 @@ Widget _statChip({
         const SizedBox(width: 6),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 15,
             fontWeight: FontWeight.w700,
@@ -224,7 +224,7 @@ Widget _statChip({
         const SizedBox(width: 4),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 11,
             fontWeight: FontWeight.w500,
@@ -256,7 +256,7 @@ Widget _bookCard({
     child: Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: isRead ? V2Colors.surfaceMuted : Colors.white,
+        color: isRead ? V2Colors.surfaceMuted : V2Colors.surface,
         border: Border.all(color: _kBorder),
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
@@ -274,7 +274,7 @@ Widget _bookCard({
           children: [
             Text(
               book.name ?? AppLocalizations.of(context)!.unknown,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 19,
                 fontWeight: FontWeight.w600,
                 color: _kPrimary,
@@ -285,16 +285,12 @@ Widget _bookCard({
               const SizedBox(height: 5),
               Text(
                 subtitle,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: _kText,
-                  height: 1.43,
-                ),
+                style: TextStyle(fontSize: 13, color: _kText, height: 1.43),
               ),
             ],
             if (year != null || isRead) ...[
               if (subtitle != null)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.only(top: 10, bottom: 10),
                   child: Divider(height: 1, thickness: 1, color: _kDivider),
                 )
@@ -311,7 +307,7 @@ Widget _bookCard({
                     const SizedBox(width: 5),
                     Text(
                       '$year',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         color: _kText,
                         fontWeight: FontWeight.w500,
@@ -325,7 +321,7 @@ Widget _bookCard({
                     const SizedBox(width: 5),
                     Text(
                       AppLocalizations.of(context)!.read_label,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         color: _kText,
                         fontWeight: FontWeight.w500,

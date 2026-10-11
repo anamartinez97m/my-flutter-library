@@ -21,12 +21,12 @@ class TandemReadingScreen extends StatefulWidget {
 }
 
 class _TandemReadingScreenState extends State<TandemReadingScreen> {
-  static const _kPrimary = V2Colors.primary;
-  static const _kSub = V2Colors.textSecondary;
-  static const _kBg = V2Colors.background;
-  static const _kMuted = V2Colors.border;
+  static Color get _kPrimary => V2Colors.primary;
+  static Color get _kSub => V2Colors.textSecondary;
+  static Color get _kBg => V2Colors.background;
+  static Color get _kMuted => V2Colors.border;
   static final _kBorder = V2Colors.border.withValues(alpha: 0.3);
-  static const _kText = V2Colors.textPrimary;
+  static Color get _kText => V2Colors.textPrimary;
   static const _kManrope = TextStyle(fontFamily: V2Typography.family);
   static final _kDialogTitleStyle = V2Typography.sectionTitle.copyWith(
     color: _kText,
@@ -258,7 +258,7 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: _kBg,
         body: Center(child: CircularProgressIndicator(color: _kPrimary)),
       );
@@ -270,10 +270,7 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
         body: Center(
           child: Text(
             _error ?? '',
-            style: const TextStyle(
-              fontFamily: V2Typography.family,
-              color: _kSub,
-            ),
+            style: TextStyle(fontFamily: V2Typography.family, color: _kSub),
           ),
         ),
       );
@@ -291,7 +288,7 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: _addStep,
         backgroundColor: _kPrimary,
-        foregroundColor: Colors.white,
+        foregroundColor: V2Colors.onPrimary,
         elevation: 6,
         shape: const CircleBorder(),
         child: const Icon(Icons.add),
@@ -310,7 +307,7 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
                           child: Text(
                             l10n.no_steps_yet,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: V2Typography.family,
                               color: _kSub,
                             ),
@@ -339,7 +336,7 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: _kPrimary),
+        icon: Icon(Icons.arrow_back, color: _kPrimary),
         onPressed: () => Navigator.pop(context),
       ),
       title: Column(
@@ -349,7 +346,7 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
             title.toUpperCase(),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               color: _kPrimary,
               fontFamily: V2Typography.family,
               fontSize: 18,
@@ -360,7 +357,7 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
           if (l10n != null && _tandem?.title?.isNotEmpty == true)
             Text(
               l10n.tandem_reading,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: V2Typography.family,
                 color: _kSub,
                 fontSize: 10,
@@ -372,11 +369,11 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
       actions: [
         IconButton(
           tooltip: l10n?.delete_tandem,
-          icon: const Icon(Icons.delete_outline, color: _kPrimary),
+          icon: Icon(Icons.delete_outline, color: _kPrimary),
           onPressed: _deleteTandem,
         ),
       ],
-      bottom: const PreferredSize(
+      bottom: PreferredSize(
         preferredSize: Size.fromHeight(1),
         child: Divider(height: 1, color: _kMuted),
       ),
@@ -390,7 +387,7 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           _HeaderBook(book: _bookA, accent: _kPrimary, l10n: l10n),
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: 12),
             child: Icon(Icons.swap_horiz, color: _kPrimary, size: 28),
           ),
@@ -414,7 +411,7 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
             children: [
               Text(
                 l10n.tandem_progress(completed, total),
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: V2Typography.family,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -423,7 +420,7 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
               ),
               Text(
                 l10n.tandem_progress_percent(percent),
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: V2Typography.family,
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -439,7 +436,7 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
               value: total == 0 ? 0 : completed / total,
               minHeight: 8,
               backgroundColor: _kMuted.withValues(alpha: 0.4),
-              valueColor: const AlwaysStoppedAnimation<Color>(_kPrimary),
+              valueColor: AlwaysStoppedAnimation<Color>(_kPrimary),
             ),
           ),
         ],
@@ -452,13 +449,13 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
     AppLocalizations l10n,
     int index,
   ) {
-    const accent = _kPrimary;
+    final accent = _kPrimary;
 
     return Container(
       key: ValueKey(chapter.tandemChapterId),
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: _kBorder),
       ),
@@ -505,7 +502,7 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
                             _bookNameFor(chapter, l10n),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: V2Typography.family,
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
@@ -515,7 +512,7 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
                           const SizedBox(height: 2),
                           Text(
                             _chapterLabel(chapter, l10n),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: V2Typography.family,
                               fontSize: 12,
                               color: _kSub,
@@ -525,7 +522,7 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
                       ),
                     ),
                     PopupMenuButton<String>(
-                      icon: const Icon(Icons.more_vert, color: _kSub, size: 20),
+                      icon: Icon(Icons.more_vert, color: _kSub, size: 20),
                       onSelected: (value) {
                         if (value == 'edit') _editStep(chapter);
                         if (value == 'delete') _deleteStep(chapter);
@@ -544,11 +541,7 @@ class _TandemReadingScreenState extends State<TandemReadingScreen> {
                     ),
                     ReorderableDragStartListener(
                       index: index,
-                      child: const Icon(
-                        Icons.drag_handle,
-                        color: _kSub,
-                        size: 20,
-                      ),
+                      child: Icon(Icons.drag_handle, color: _kSub, size: 20),
                     ),
                   ],
                 ),
@@ -603,7 +596,7 @@ class _HeaderBook extends StatelessWidget {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 11,
               fontWeight: FontWeight.w600,

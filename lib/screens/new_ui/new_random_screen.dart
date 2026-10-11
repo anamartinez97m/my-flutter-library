@@ -7,8 +7,8 @@ import 'package:myrandomlibrary/screens/new_ui/new_random_filters_screen.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_random_mood_screen.dart';
 import 'package:provider/provider.dart';
 
-const _kBg = V2Colors.background;
-const _kPrimary = V2Colors.primary;
+Color get _kBg => V2Colors.background;
+Color get _kPrimary => V2Colors.primary;
 
 /// Random tab: one card per way of getting a recommendation (mood, specific
 /// books, filters), each opening its own screen.

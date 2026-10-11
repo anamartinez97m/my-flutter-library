@@ -16,16 +16,17 @@ class PriceStatisticsScreen extends StatefulWidget {
   final PriceStatsData? priceStats;
   final String currencySymbol;
 
-  static const kBg = V2Colors.background;
-  static const kPrimary = V2Colors.primary;
-  static const kSecondary = V2Colors.secondary;
+  static Color get kBg => V2Colors.background;
+  static Color get kPrimary => V2Colors.primary;
+  static Color get kSecondary => V2Colors.secondary;
   static const kTertiary = Color(0xFFBC92A6); // Not represented in V2Colors.
-  static const kMuted = V2Colors.border;
-  static const kText = V2Colors.textPrimary;
-  static const kSub = V2Colors.textSecondary;
-  static const kBorder = Color(0x4DD5C2C7); // Exact alpha variant.
-  static const kDivider = V2Colors.divider;
-  static const kBarBg = V2Colors.divider;
+  static Color get kMuted => V2Colors.border;
+  static Color get kText => V2Colors.textPrimary;
+  static Color get kSub => V2Colors.textSecondary;
+  static Color get kBorder =>
+      V2Colors.border.withValues(alpha: .3); // Exact alpha variant.
+  static Color get kDivider => V2Colors.divider;
+  static Color get kBarBg => V2Colors.divider;
 
   const PriceStatisticsScreen({
     super.key,
@@ -38,15 +39,15 @@ class PriceStatisticsScreen extends StatefulWidget {
 }
 
 class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
-  static const _kBg = PriceStatisticsScreen.kBg;
-  static const _kPrimary = PriceStatisticsScreen.kPrimary;
-  static const _kSecondary = PriceStatisticsScreen.kSecondary;
-  static const _kTertiary = PriceStatisticsScreen.kTertiary;
-  static const _kText = PriceStatisticsScreen.kText;
-  static const _kSub = PriceStatisticsScreen.kSub;
-  static const _kBorder = PriceStatisticsScreen.kBorder;
-  static const _kDivider = PriceStatisticsScreen.kDivider;
-  static const _kBarBg = PriceStatisticsScreen.kBarBg;
+  static Color get _kBg => PriceStatisticsScreen.kBg;
+  static Color get _kPrimary => PriceStatisticsScreen.kPrimary;
+  static Color get _kSecondary => PriceStatisticsScreen.kSecondary;
+  static Color get _kTertiary => PriceStatisticsScreen.kTertiary;
+  static Color get _kText => PriceStatisticsScreen.kText;
+  static Color get _kSub => PriceStatisticsScreen.kSub;
+  static Color get _kBorder => PriceStatisticsScreen.kBorder;
+  static Color get _kDivider => PriceStatisticsScreen.kDivider;
+  static Color get _kBarBg => PriceStatisticsScreen.kBarBg;
 
   final Set<String> _collapsedSections = {};
   int _selectedYear = DateTime.now().year;
@@ -90,12 +91,12 @@ class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: _kPrimary),
+          icon: Icon(Icons.arrow_back, color: _kPrimary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           l10n.section_price_statistics,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -136,7 +137,7 @@ class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
             child: Text(
               l10n.no_price_data,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 14, color: _kSub),
+              style: TextStyle(fontSize: 14, color: _kSub),
             ),
           ),
         ),
@@ -190,7 +191,7 @@ class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(17),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: _kBorder),
         boxShadow: const [
@@ -211,7 +212,7 @@ class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
                 Expanded(
                   child: Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
@@ -222,7 +223,7 @@ class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
                 AnimatedRotation(
                   turns: isCollapsed ? -0.25 : 0,
                   duration: const Duration(milliseconds: 200),
-                  child: const Icon(Icons.expand_more, color: _kPrimary),
+                  child: Icon(Icons.expand_more, color: _kPrimary),
                 ),
               ],
             ),
@@ -270,7 +271,7 @@ class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
                       children: [
                         Text(
                           entry.key,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             color: _kSub,
                             fontWeight: FontWeight.w500,
@@ -279,7 +280,7 @@ class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
                         ),
                         Text(
                           '$count books',
-                          style: const TextStyle(fontSize: 10, color: _kSub),
+                          style: TextStyle(fontSize: 10, color: _kSub),
                         ),
                       ],
                     ),
@@ -322,7 +323,7 @@ class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
                     width: 50,
                     child: Text(
                       '$year',
-                      style: const TextStyle(fontSize: 12, color: _kSub),
+                      style: TextStyle(fontSize: 12, color: _kSub),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -382,14 +383,14 @@ class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
                 value: _selectedYear,
                 underline: const SizedBox.shrink(),
                 isDense: true,
-                style: const TextStyle(fontSize: 13, color: _kText),
+                style: TextStyle(fontSize: 13, color: _kText),
                 items:
                     sortedYears.map((year) {
                       return DropdownMenuItem<int>(
                         value: year,
                         child: Text(
                           '$year',
-                          style: const TextStyle(fontSize: 13, color: _kText),
+                          style: TextStyle(fontSize: 13, color: _kText),
                         ),
                       );
                     }).toList(),
@@ -413,7 +414,7 @@ class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
                   width: 40,
                   child: Text(
                     monthAbbrs[index],
-                    style: const TextStyle(fontSize: 12, color: _kSub),
+                    style: TextStyle(fontSize: 12, color: _kSub),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -450,11 +451,7 @@ class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
           ),
           child: Row(
             children: [
-              const Icon(
-                Icons.account_balance_wallet,
-                color: _kSecondary,
-                size: 28,
-              ),
+              Icon(Icons.account_balance_wallet, color: _kSecondary, size: 28),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -462,14 +459,14 @@ class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
                   children: [
                     Text(
                       l10n.total_spent,
-                      style: const TextStyle(fontSize: 12, color: _kSub),
+                      style: TextStyle(fontSize: 12, color: _kSub),
                     ),
                     ClipRect(
                       child: Stack(
                         children: [
                           Text(
                             '${widget.currencySymbol}${stats.totalSpent.toStringAsFixed(2)}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: V2Typography.family,
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
@@ -511,7 +508,7 @@ class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
                 '${widget.currencySymbol}${stats.mostExpensivePrice?.toStringAsFixed(2) ?? ''}',
           ),
         if (stats.mostExpensiveName != null && stats.leastExpensiveName != null)
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(vertical: 12),
             child: Divider(height: 1, thickness: 1, color: _kDivider),
           ),
@@ -545,10 +542,10 @@ class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: const TextStyle(fontSize: 12, color: _kSub)),
+              Text(label, style: TextStyle(fontSize: 12, color: _kSub)),
               Text(
                 name,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: _kText,
@@ -732,7 +729,7 @@ class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 4),
-        Text(label, style: const TextStyle(fontSize: 11, color: _kSub)),
+        Text(label, style: TextStyle(fontSize: 11, color: _kSub)),
       ],
     );
   }
@@ -790,7 +787,7 @@ class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
         padding: const EdgeInsets.all(24),
         child: Text(
           AppLocalizations.of(context)!.no_data,
-          style: const TextStyle(fontSize: 14, color: _kSub),
+          style: TextStyle(fontSize: 14, color: _kSub),
         ),
       ),
     );

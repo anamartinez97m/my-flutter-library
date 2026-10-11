@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/v2_design_system.dart';
 
 class StatisticsShimmer extends StatelessWidget {
   const StatisticsShimmer({super.key});
@@ -58,7 +59,7 @@ class StatisticsShimmer extends StatelessWidget {
       width: fullWidth ? double.infinity : width,
       height: height,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(borderRadius),
       ),
     );

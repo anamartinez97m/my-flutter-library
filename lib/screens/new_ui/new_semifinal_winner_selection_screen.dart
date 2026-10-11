@@ -131,14 +131,14 @@ class _NewSemifinalWinnerSelectionScreenState
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: V2Colors.primary),
+          icon: Icon(Icons.arrow_back, color: V2Colors.primary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           l10n.select_winner_title(
             '${_getSemifinalName(widget.roundNumber)} ${widget.year}',
           ),
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -154,7 +154,7 @@ class _NewSemifinalWinnerSelectionScreenState
       ),
       body:
           isLoading
-              ? const Center(
+              ? Center(
                 child: CircularProgressIndicator(color: V2Colors.primary),
               )
               : quarterlyWinnerBooks.isEmpty
@@ -162,7 +162,7 @@ class _NewSemifinalWinnerSelectionScreenState
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.menu_book_outlined,
                       size: 64,
                       color: V2Colors.border,
@@ -170,7 +170,7 @@ class _NewSemifinalWinnerSelectionScreenState
                     const SizedBox(height: 16),
                     Text(
                       l10n.no_quarterly_winners,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         color: V2Colors.textSecondary,
                       ),
@@ -221,7 +221,7 @@ class _NewSemifinalWinnerSelectionScreenState
             color:
                 isSelected
                     ? V2Colors.primary.withValues(alpha: 0.06)
-                    : Colors.white,
+                    : V2Colors.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color:
@@ -271,7 +271,7 @@ class _NewSemifinalWinnerSelectionScreenState
                       const SizedBox(height: 6),
                       Text(
                         '${l10n.author}: ${book.author}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontSize: 14,
                           color: V2Colors.textSecondary,
@@ -283,7 +283,7 @@ class _NewSemifinalWinnerSelectionScreenState
                       const SizedBox(height: 4),
                       Text(
                         '${l10n.rating}: ${book.myRating!.toStringAsFixed(2)}/5',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontSize: 14,
                           color: V2Colors.textSecondary,
@@ -309,7 +309,7 @@ class _NewSemifinalWinnerSelectionScreenState
                 ),
                 child:
                     isSelected
-                        ? const Icon(Icons.check, color: Colors.white, size: 18)
+                        ? Icon(Icons.check, color: V2Colors.onPrimary, size: 18)
                         : null,
               ),
             ],
@@ -328,7 +328,7 @@ class _NewSemifinalWinnerSelectionScreenState
           onPressed: _saveWinner,
           style: ElevatedButton.styleFrom(
             backgroundColor: V2Colors.primary,
-            foregroundColor: Colors.white,
+            foregroundColor: V2Colors.onPrimary,
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),

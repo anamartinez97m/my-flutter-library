@@ -34,14 +34,14 @@ class EditBookScreen extends StatefulWidget {
 }
 
 class _EditBookScreenState extends State<EditBookScreen> {
-  static const _kBg = V2Colors.background;
-  static const _kPrimary = V2Colors.primary;
-  static const _kSub = V2Colors.textSecondary;
+  static Color get _kBg => V2Colors.background;
+  static Color get _kPrimary => V2Colors.primary;
+  static Color get _kSub => V2Colors.textSecondary;
   static const _kLabel = Color(
     0xCC43102B,
   ); // V2Colors.primary at 80% alpha (const-safe).
-  static const _kInputBorder = V2Colors.borderInput;
-  static const _kNotesBorder = V2Colors.border;
+  static Color get _kInputBorder => V2Colors.borderInput;
+  static Color get _kNotesBorder => V2Colors.border;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -1337,7 +1337,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
     padding: const EdgeInsets.only(bottom: 10),
     child: Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         fontFamily: V2Typography.family,
         fontSize: 20,
         fontWeight: FontWeight.w600,
@@ -1353,10 +1353,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
   Widget _v2BookListsSection(BuildContext context, AppLocalizations l10n) =>
       Material(
-        color: Colors.white,
+        color: V2Colors.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
-          side: const BorderSide(color: _kNotesBorder),
+          side: BorderSide(color: _kNotesBorder),
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
@@ -1364,7 +1364,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
             CheckboxListTile(
               title: Text(
                 l10n.add_to_tbr,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: _kPrimary,
@@ -1375,7 +1375,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 style: const TextStyle(fontSize: 11, color: _kLabel),
               ),
               value: _tbr,
-              secondary: const Icon(Icons.bookmark_add, color: _kPrimary),
+              secondary: Icon(Icons.bookmark_add, color: _kPrimary),
               onChanged: (value) async {
                 if (value == true && !_tbr) {
                   final db = await DatabaseHelper.instance.database;
@@ -1420,7 +1420,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
             CheckboxListTile(
               title: Text(
                 l10n.mark_as_tandem,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: _kPrimary,
@@ -1431,7 +1431,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 style: const TextStyle(fontSize: 11, color: _kLabel),
               ),
               value: _isTandem,
-              secondary: const Icon(
+              secondary: Icon(
                 Icons.swap_horizontal_circle_outlined,
                 color: _kPrimary,
               ),
@@ -1461,7 +1461,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
           onPressed: _updateBook,
           style: ElevatedButton.styleFrom(
             backgroundColor: _kPrimary,
-            foregroundColor: Colors.white,
+            foregroundColor: V2Colors.onPrimary,
             padding: const EdgeInsets.symmetric(vertical: 14),
             shape: const StadiumBorder(),
           ),
@@ -1483,12 +1483,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
     return theme.copyWith(
       colorScheme: theme.colorScheme.copyWith(
         primary: _kPrimary,
-        onPrimary: Colors.white,
+        onPrimary: V2Colors.onPrimary,
         primaryContainer: V2Colors.chip,
         onPrimaryContainer: _kPrimary,
         onSurfaceVariant: _kLabel,
       ),
-      chipTheme: const ChipThemeData(
+      chipTheme: ChipThemeData(
         backgroundColor: V2Colors.chip,
         labelStyle: TextStyle(color: _kPrimary, fontSize: 12),
         deleteIconColor: _kSub,
@@ -1498,22 +1498,22 @@ class _EditBookScreenState extends State<EditBookScreen> {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.white,
+        fillColor: V2Colors.surface,
         labelStyle: const TextStyle(color: _kLabel, fontSize: 14),
         hintStyle: const TextStyle(color: _kLabel, fontSize: 14),
-        floatingLabelStyle: const TextStyle(color: _kPrimary, fontSize: 12),
+        floatingLabelStyle: TextStyle(color: _kPrimary, fontSize: 12),
         prefixIconColor: _kPrimary,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: _kInputBorder),
+          borderSide: BorderSide(color: _kInputBorder),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: _kInputBorder),
+          borderSide: BorderSide(color: _kInputBorder),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: _kPrimary, width: 1.5),
+          borderSide: BorderSide(color: _kPrimary, width: 1.5),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
@@ -1550,7 +1550,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
             l10n.edit_book,
             style:
                 widget.useNewUi
-                    ? const TextStyle(
+                    ? TextStyle(
                       fontFamily: V2Typography.family,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -1601,7 +1601,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       border: const OutlineInputBorder(),
                       prefixIcon: const Icon(Icons.check_circle),
                     ),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       color: V2Colors.primary,
                     ),
@@ -2153,7 +2153,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.format_shapes),
                     ),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       color: V2Colors.primary,
                     ),
@@ -2185,7 +2185,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       border: const OutlineInputBorder(),
                       prefixIcon: const Icon(Icons.language),
                     ),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       color: V2Colors.primary,
                     ),
@@ -2212,7 +2212,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       border: const OutlineInputBorder(),
                       prefixIcon: const Icon(Icons.place),
                     ),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       color: V2Colors.primary,
                     ),
@@ -2239,7 +2239,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       border: const OutlineInputBorder(),
                       prefixIcon: const Icon(Icons.import_contacts),
                     ),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       color: V2Colors.primary,
                     ),
@@ -2318,7 +2318,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       border: const OutlineInputBorder(),
                       prefixIcon: const Icon(Icons.swap_horiz),
                     ),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       color: V2Colors.primary,
                     ),
@@ -2558,7 +2558,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                                                   border:
                                                       const OutlineInputBorder(),
                                                 ),
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                   fontFamily:
                                                       V2Typography.family,
                                                   color: V2Colors.primary,

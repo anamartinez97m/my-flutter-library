@@ -4,11 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
-const _kBg = V2Colors.background;
-const _kPrimary = V2Colors.primary;
-const _kSub = V2Colors.textSecondary;
-const _kText = V2Colors.textPrimary;
-const _kBorder = V2Colors.border;
+Color get _kBg => V2Colors.background;
+Color get _kPrimary => V2Colors.primary;
+Color get _kSub => V2Colors.textSecondary;
+Color get _kText => V2Colors.textPrimary;
+Color get _kBorder => V2Colors.border;
 
 class TutorialScreen extends StatefulWidget {
   const TutorialScreen({super.key});
@@ -147,12 +147,12 @@ class _TutorialScreenState extends State<TutorialScreen> {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: _kPrimary),
+          icon: Icon(Icons.arrow_back, color: _kPrimary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           l10n.tutorial_title,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -289,9 +289,9 @@ class _TutorialSectionCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0x1A27231E)),
+        border: Border.all(color: V2Colors.borderStrong.withValues(alpha: .1)),
         boxShadow: const [
           BoxShadow(
             color: Color(0x0A000000),
@@ -305,8 +305,8 @@ class _TutorialSectionCard extends StatelessWidget {
         child: ExpansionTile(
           controller: controller,
           onExpansionChanged: onExpansionChanged,
-          collapsedBackgroundColor: Colors.white,
-          backgroundColor: Colors.white,
+          collapsedBackgroundColor: V2Colors.surface,
+          backgroundColor: V2Colors.surface,
           iconColor: _kPrimary,
           collapsedIconColor: _kSub,
           leading: Container(
@@ -320,7 +320,7 @@ class _TutorialSectionCard extends StatelessWidget {
           ),
           title: Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -333,7 +333,7 @@ class _TutorialSectionCard extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Text(
                 description,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: V2Typography.family,
                   fontSize: 14,
                   color: _kSub,
@@ -363,7 +363,7 @@ class _TutorialSectionCard extends StatelessWidget {
                             errorBuilder:
                                 (_, __, ___) => Container(
                                   color: V2Colors.chip,
-                                  child: const Icon(
+                                  child: Icon(
                                     Icons.image_not_supported_outlined,
                                     color: _kSub,
                                   ),
@@ -437,10 +437,10 @@ class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
+        foregroundColor: V2Colors.onPrimary,
         title: Text(
           '${_currentIndex + 1} / ${widget.images.length}',
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: V2Colors.onPrimary),
         ),
       ),
       body: Stack(
@@ -486,7 +486,7 @@ class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
                     width: isActive ? 16 : 6,
                     height: 6,
                     decoration: BoxDecoration(
-                      color: isActive ? Colors.white : Colors.white38,
+                      color: isActive ? V2Colors.surface : Colors.white38,
                       borderRadius: BorderRadius.circular(3),
                     ),
                   );

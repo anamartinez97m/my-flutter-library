@@ -290,9 +290,11 @@ class _QuickStatsRowState extends State<QuickStatsRow> {
                   horizontal: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: V2Colors.surface,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0x1A27231E)),
+                  border: Border.all(
+                    color: V2Colors.borderStrong.withValues(alpha: .1),
+                  ),
                   boxShadow: const [
                     BoxShadow(
                       color: Color(0x0A000000),
@@ -308,7 +310,7 @@ class _QuickStatsRowState extends State<QuickStatsRow> {
                     const SizedBox(height: 4),
                     Text(
                       value,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: V2Colors.primary,
@@ -318,7 +320,7 @@ class _QuickStatsRowState extends State<QuickStatsRow> {
                     const SizedBox(height: 2),
                     Text(
                       label,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 10,
                         color: V2Colors.textSecondary,
                       ),

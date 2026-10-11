@@ -151,18 +151,18 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
   InputDecoration _v2InputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(color: V2Colors.textMutedAlt, fontSize: 14),
+      hintStyle: TextStyle(color: V2Colors.textMutedAlt, fontSize: 14),
       filled: true,
       fillColor: V2Colors.background.withValues(alpha: 0.4),
       isDense: true,
       contentPadding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: V2Colors.borderSoft),
+        borderSide: BorderSide(color: V2Colors.borderSoft),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: V2Colors.primaryAlt, width: 1.5),
+        borderSide: BorderSide(color: V2Colors.primaryAlt, width: 1.5),
       ),
     );
   }
@@ -181,7 +181,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
       children: [
         Text(
           label.toUpperCase(),
-          style: const TextStyle(
+          style: TextStyle(
             color: V2Colors.textMutedAlt,
             fontFamily: V2Typography.family,
             fontSize: 10,
@@ -196,7 +196,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
           decoration: _v2InputDecoration(hint),
           keyboardType: keyboardType,
           inputFormatters: inputFormatters,
-          style: const TextStyle(
+          style: TextStyle(
             color: V2Colors.textStrong,
             fontFamily: V2Typography.family,
             fontSize: 14,
@@ -210,10 +210,10 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
 
   Widget _buildV2(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    const primary = V2Colors.primaryAlt;
-    const text = V2Colors.textStrong;
-    const secondary = V2Colors.textMutedAlt;
-    const border = V2Colors.borderSoft;
+    final primary = V2Colors.primaryAlt;
+    final text = V2Colors.textStrong;
+    final secondary = V2Colors.textMutedAlt;
+    final border = V2Colors.borderSoft;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -227,7 +227,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
           child: Container(
             padding: const EdgeInsets.all(17),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: V2Colors.surface,
               border: Border.all(color: border),
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
@@ -263,7 +263,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                     children: [
                       Text(
                         l10n.this_is_a_bundle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: text,
                           fontFamily: V2Typography.family,
                           fontSize: 16,
@@ -273,7 +273,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                       const SizedBox(height: 4),
                       Text(
                         l10n.bundle_description,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: secondary,
                           fontFamily: V2Typography.family,
                           fontSize: 12,
@@ -292,7 +292,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
           Container(
             padding: const EdgeInsets.all(17),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: V2Colors.surface,
               border: Border.all(color: border),
               borderRadius: BorderRadius.circular(16),
             ),
@@ -307,7 +307,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                         color: primary.withValues(alpha: .08),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.library_books_outlined,
                         color: primary,
                         size: 14,
@@ -320,7 +320,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                         children: [
                           Text(
                             l10n.number_of_books_in_bundle.toUpperCase(),
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: secondary,
                               fontFamily: V2Typography.family,
                               fontSize: 11,
@@ -331,7 +331,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                           const SizedBox(height: 3),
                           Text(
                             l10n.bundle_count_input_hint,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: secondary,
                               fontFamily: V2Typography.family,
                               fontSize: 11,
@@ -368,13 +368,13 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                             FilteringTextInputFormatter.digitsOnly,
                           ],
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: text,
                             fontFamily: V2Typography.family,
                             fontSize: 24,
                             fontWeight: FontWeight.w800,
                           ),
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             isDense: true,
                             filled: true,
                             fillColor: Colors.transparent,
@@ -404,7 +404,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
           ),
           if (_bundleBooks.isNotEmpty) ...[
             const SizedBox(height: 16),
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(horizontal: 4),
               child: Text(
                 'VOLUMES IN THIS BUNDLE',
@@ -445,7 +445,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                   ),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: primary,
-                    side: const BorderSide(color: border),
+                    side: BorderSide(color: border),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -467,12 +467,10 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
         onPressed: onPressed,
         icon: Icon(icon, size: 20),
         style: IconButton.styleFrom(
-          backgroundColor: filled ? V2Colors.primaryAlt : Colors.white,
-          foregroundColor: filled ? Colors.white : V2Colors.textStrong,
+          backgroundColor: filled ? V2Colors.primaryAlt : V2Colors.onPrimary,
+          foregroundColor: filled ? V2Colors.onPrimary : V2Colors.textStrong,
           side:
-              filled
-                  ? BorderSide.none
-                  : const BorderSide(color: V2Colors.borderSoft),
+              filled ? BorderSide.none : BorderSide(color: V2Colors.borderSoft),
           shape: const CircleBorder(),
         ),
       ),
@@ -494,7 +492,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(17),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         border: Border.all(color: V2Colors.borderSoft),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
@@ -520,8 +518,8 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                 ),
                 child: Text(
                   'Vol. ${index + 1}',
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: V2Colors.onPrimary,
                     fontFamily: V2Typography.family,
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -543,8 +541,8 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                         update(() => book.status = selected ? 'Yes' : 'No'),
                 selectedColor: V2Colors.background.withValues(alpha: 0.4),
                 backgroundColor: V2Colors.background.withValues(alpha: 0.4),
-                side: const BorderSide(color: V2Colors.borderSoft),
-                labelStyle: const TextStyle(
+                side: BorderSide(color: V2Colors.borderSoft),
+                labelStyle: TextStyle(
                   color: V2Colors.textMutedAlt,
                   fontFamily: V2Typography.family,
                   fontSize: 12,

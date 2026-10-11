@@ -21,11 +21,11 @@ class AppTheme {
   static const double iconSizeLarge = 36.0;
 
   // Colors
-  static const Color primaryColor = V2Colors.primary;
-  static const Color accentColor = V2Colors.secondary;
-  static const Color errorColor = V2Colors.error;
-  static const Color successColor = V2Colors.success;
-  static const Color notificationColor = V2Colors.primary;
+  static Color get primaryColor => V2Colors.primary;
+  static Color get accentColor => V2Colors.secondary;
+  static Color get errorColor => V2Colors.error;
+  static Color get successColor => V2Colors.success;
+  static Color get notificationColor => V2Colors.primary;
 
   // Text styles
   static TextStyle? headlineLarge(BuildContext context) =>

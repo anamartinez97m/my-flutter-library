@@ -388,12 +388,12 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
   }
 
   Widget _buildV2(BuildContext context) {
-    const kBg = V2Colors.background;
-    const kPrimary = V2Colors.primary;
-    const kText = V2Colors.textPrimary;
-    const kTimerBg = V2Colors.surfaceTimer;
+    final kBg = V2Colors.background;
+    final kPrimary = V2Colors.primary;
+    final kText = V2Colors.textPrimary;
+    final kTimerBg = V2Colors.surfaceTimer;
     final kTimerBorder = V2Colors.border.withValues(alpha: 0.2);
-    const kButtonText = V2Colors.buttonText;
+    final kButtonText = V2Colors.buttonText;
 
     return PopScope(
       canPop: false,
@@ -447,7 +447,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
                       children: [
                         Text(
                           AppLocalizations.of(context)!.reading_timer,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
@@ -508,7 +508,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
                               Navigator.pop(context);
                             }
                           },
-                          child: const Padding(
+                          child: Padding(
                             padding: EdgeInsets.all(8),
                             child: Icon(Icons.close, size: 14, color: kText),
                           ),
@@ -531,7 +531,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
                       child: Center(
                         child: Text(
                           _formatDuration(_elapsedSeconds),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 56,
                             fontWeight: FontWeight.bold,
@@ -580,7 +580,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
           icon: Icons.play_arrow,
           label: l10n.start,
           bgColor: kPrimary,
-          textColor: Colors.white,
+          textColor: V2Colors.onPrimary,
         ),
       ];
     }
@@ -593,7 +593,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
           icon: Icons.pause,
           label: l10n.pause,
           bgColor: kPrimary,
-          textColor: Colors.white,
+          textColor: V2Colors.onPrimary,
         ),
         const SizedBox(width: 12),
         _buildV2Button(
@@ -601,7 +601,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
           icon: Icons.stop,
           label: l10n.stop_and_save,
           bgColor: const Color(0xFF8B1A1A),
-          textColor: Colors.white,
+          textColor: V2Colors.onPrimary,
         ),
       ];
     }
@@ -613,7 +613,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
         icon: Icons.play_arrow,
         label: l10n.resume,
         bgColor: kPrimary,
-        textColor: Colors.white,
+        textColor: V2Colors.onPrimary,
       ),
       const SizedBox(width: 12),
       _buildV2Button(
@@ -621,7 +621,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
         icon: Icons.stop,
         label: l10n.stop_and_save,
         bgColor: const Color(0xFF8B1A1A),
-        textColor: Colors.white,
+        textColor: V2Colors.onPrimary,
       ),
     ];
   }

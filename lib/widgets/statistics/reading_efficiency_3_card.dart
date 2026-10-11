@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
-const _kPrimary = V2Colors.primary;
+Color get _kPrimary => V2Colors.primary;
 const _kTertiary = Color(0xFFBC92A6); // Not represented in V2Colors.
-const _kSub = V2Colors.textSecondary;
-const _kMuted = V2Colors.border;
+Color get _kSub => V2Colors.textSecondary;
+Color get _kMuted => V2Colors.border;
 
 /// Reading Efficiency 3 — Pace profile mini-chart.
 ///
@@ -36,9 +36,9 @@ class ReadingEfficiency3Card extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0x1A27231E)),
+        border: Border.all(color: V2Colors.borderStrong.withValues(alpha: .1)),
         boxShadow: const [
           BoxShadow(
             color: Color(0x0A000000),
@@ -52,7 +52,7 @@ class ReadingEfficiency3Card extends StatelessWidget {
         children: [
           Text(
             l10n.reading_efficiency_3,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -62,7 +62,7 @@ class ReadingEfficiency3Card extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             l10n.based_on_n_books('$totalBooksWithData'),
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 12,
               color: _kSub,
@@ -84,11 +84,11 @@ class ReadingEfficiency3Card extends StatelessWidget {
                         alignment: Alignment.center,
                         child: Text(
                           '${(fasterPct * 100).round()}%',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: V2Colors.onPrimary,
                           ),
                         ),
                       ),
@@ -101,7 +101,7 @@ class ReadingEfficiency3Card extends StatelessWidget {
                         alignment: Alignment.center,
                         child: Text(
                           '${(slowerPct * 100).round()}%',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
@@ -111,7 +111,7 @@ class ReadingEfficiency3Card extends StatelessWidget {
                       ),
                     ),
                   if (total == 0)
-                    const Expanded(
+                    Expanded(
                       child: ColoredBox(
                         color: _kMuted,
                         child: Center(
@@ -140,7 +140,7 @@ class ReadingEfficiency3Card extends StatelessWidget {
               Expanded(
                 child: Text(
                   l10n.n_books_faster_than_average('$booksFasterThanAverage'),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: V2Typography.family,
                     fontSize: 12,
                     color: _kSub,
@@ -152,7 +152,7 @@ class ReadingEfficiency3Card extends StatelessWidget {
               Expanded(
                 child: Text(
                   l10n.n_books_slower_than_average('$booksSlowerThanAverage'),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: V2Typography.family,
                     fontSize: 12,
                     color: _kSub,
@@ -169,7 +169,9 @@ class ReadingEfficiency3Card extends StatelessWidget {
             decoration: BoxDecoration(
               color: V2Colors.background,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0x1A27231E)),
+              border: Border.all(
+                color: V2Colors.borderStrong.withValues(alpha: .1),
+              ),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -178,7 +180,7 @@ class ReadingEfficiency3Card extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   '${efficiencyPercentage.toStringAsFixed(1)}%',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: V2Typography.family,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -189,7 +191,7 @@ class ReadingEfficiency3Card extends StatelessWidget {
                 Flexible(
                   child: Text(
                     l10n.books_faster_than_average,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontSize: 12,
                       color: _kSub,

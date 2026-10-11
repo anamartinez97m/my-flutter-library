@@ -6,9 +6,9 @@ import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
 import 'package:myrandomlibrary/widgets/random_shimmer.dart';
 import 'package:myrandomlibrary/widgets/shimmer_loading.dart';
 
-const _kBg = V2Colors.background;
-const _kPrimary = V2Colors.primary;
-const _kSub = V2Colors.textSecondary;
+Color get _kBg => V2Colors.background;
+Color get _kPrimary => V2Colors.primary;
+Color get _kSub => V2Colors.textSecondary;
 const _kCardShadow = [
   BoxShadow(color: Color(0x0A000000), blurRadius: 12, offset: Offset(0, 4)),
 ];
@@ -32,12 +32,12 @@ PreferredSizeWidget randomAppBar(BuildContext context, String title) {
     surfaceTintColor: Colors.transparent,
     elevation: 0,
     leading: IconButton(
-      icon: const Icon(Icons.arrow_back, color: _kPrimary),
+      icon: Icon(Icons.arrow_back, color: _kPrimary),
       onPressed: () => Navigator.pop(context),
     ),
     title: Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         fontFamily: V2Typography.family,
         fontSize: 20,
         fontWeight: FontWeight.bold,
@@ -127,7 +127,7 @@ class RandomPickScaffold extends StatelessWidget {
 
   Widget _buildActionButtons(AppLocalizations l10n) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: _kBg,
         boxShadow: [
           BoxShadow(
@@ -164,17 +164,13 @@ class RandomPickScaffold extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(
-                        Icons.casino,
-                        color: V2Colors.surface,
-                        size: 18,
-                      ),
+                      Icon(Icons.casino, color: V2Colors.surface, size: 18),
                       const SizedBox(width: 8),
                       Flexible(
                         child: Text(
                           pickLabel,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
                             color: V2Colors.surface,
@@ -196,7 +192,7 @@ class RandomPickScaffold extends StatelessWidget {
                 child: Center(
                   child: Text(
                     clearLabel ?? l10n.clear_filters,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: _kPrimary,
@@ -241,12 +237,12 @@ class RandomResultCard extends StatelessWidget {
         ),
         child: Column(
           children: [
-            const Icon(Icons.auto_stories, size: 48, color: _kPrimary),
+            Icon(Icons.auto_stories, size: 48, color: _kPrimary),
             const SizedBox(height: 16),
             Text(
               book.name ?? l10n.unknown,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: _kPrimary,
@@ -257,7 +253,7 @@ class RandomResultCard extends StatelessWidget {
               Text(
                 'by ${book.author}',
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 14, color: _kSub),
+                style: TextStyle(fontSize: 14, color: _kSub),
               ),
             ],
             const SizedBox(height: 16),
@@ -274,7 +270,7 @@ class RandomResultCard extends StatelessWidget {
                 ),
                 child: Text(
                   l10n.try_another,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: V2Colors.surface,
@@ -285,7 +281,7 @@ class RandomResultCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               l10n.tap_to_view_details,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 color: _kSub,
                 fontStyle: FontStyle.italic,

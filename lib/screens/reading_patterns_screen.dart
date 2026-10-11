@@ -38,15 +38,16 @@ class ReadingPatternsScreen extends StatefulWidget {
   final Map<String, String> topGenreBySeason;
   final Map<String, Map<String, dynamic>> readingTimeOfDay;
 
-  static const kBg = V2Colors.background;
-  static const kPrimary = V2Colors.primary;
-  static const kSecondary = V2Colors.secondary;
-  static const kMuted = V2Colors.border;
-  static const kText = V2Colors.textPrimary;
-  static const kSub = V2Colors.textSecondary;
-  static const kBorder = Color(0x4DD5C2C7); // Exact alpha variant.
-  static const kDivider = V2Colors.divider;
-  static const kBarBg = V2Colors.divider;
+  static Color get kBg => V2Colors.background;
+  static Color get kPrimary => V2Colors.primary;
+  static Color get kSecondary => V2Colors.secondary;
+  static Color get kMuted => V2Colors.border;
+  static Color get kText => V2Colors.textPrimary;
+  static Color get kSub => V2Colors.textSecondary;
+  static Color get kBorder =>
+      V2Colors.border.withValues(alpha: .3); // Exact alpha variant.
+  static Color get kDivider => V2Colors.divider;
+  static Color get kBarBg => V2Colors.divider;
 
   const ReadingPatternsScreen({
     super.key,
@@ -83,15 +84,15 @@ class ReadingPatternsScreen extends StatefulWidget {
 }
 
 class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
-  static const _kBg = ReadingPatternsScreen.kBg;
-  static const _kPrimary = ReadingPatternsScreen.kPrimary;
-  static const _kSecondary = ReadingPatternsScreen.kSecondary;
-  static const _kMuted = ReadingPatternsScreen.kMuted;
-  static const _kText = ReadingPatternsScreen.kText;
-  static const _kSub = ReadingPatternsScreen.kSub;
-  static const _kBorder = ReadingPatternsScreen.kBorder;
-  static const _kDivider = ReadingPatternsScreen.kDivider;
-  static const _kBarBg = ReadingPatternsScreen.kBarBg;
+  static Color get _kBg => ReadingPatternsScreen.kBg;
+  static Color get _kPrimary => ReadingPatternsScreen.kPrimary;
+  static Color get _kSecondary => ReadingPatternsScreen.kSecondary;
+  static Color get _kMuted => ReadingPatternsScreen.kMuted;
+  static Color get _kText => ReadingPatternsScreen.kText;
+  static Color get _kSub => ReadingPatternsScreen.kSub;
+  static Color get _kBorder => ReadingPatternsScreen.kBorder;
+  static Color get _kDivider => ReadingPatternsScreen.kDivider;
+  static Color get _kBarBg => ReadingPatternsScreen.kBarBg;
 
   final Set<String> _collapsedSections = {};
 
@@ -116,12 +117,12 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: _kPrimary),
+          icon: Icon(Icons.arrow_back, color: _kPrimary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           l10n.section_reading_patterns,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -179,7 +180,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(17),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: _kBorder),
         boxShadow: const [
@@ -200,7 +201,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
                 Expanded(
                   child: Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
@@ -211,7 +212,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
                 AnimatedRotation(
                   turns: isCollapsed ? -0.25 : 0,
                   duration: const Duration(milliseconds: 200),
-                  child: const Icon(Icons.expand_more, color: _kPrimary),
+                  child: Icon(Icons.expand_more, color: _kPrimary),
                 ),
               ],
             ),
@@ -243,7 +244,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
           value:
               '${l10n.current_label}: ${widget.currentStreak} ${l10n.days} | ${l10n.best}: ${widget.longestStreak} ${l10n.days}',
         ),
-        const Divider(height: 24, thickness: 1, color: _kDivider),
+        Divider(height: 24, thickness: 1, color: _kDivider),
         _buildInsightRow(
           icon: Icons.close,
           color: _kPrimary,
@@ -252,7 +253,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
               '${widget.dnfCount} ${l10n.books} (${widget.dnfRate.toStringAsFixed(1)}%)',
         ),
         if (widget.rereadCount > 0) ...[
-          const Divider(height: 24, thickness: 1, color: _kDivider),
+          Divider(height: 24, thickness: 1, color: _kDivider),
           InkWell(
             onTap: () {
               Navigator.push(
@@ -276,7 +277,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
             ),
           ),
         ],
-        const Divider(height: 24, thickness: 1, color: _kDivider),
+        Divider(height: 24, thickness: 1, color: _kDivider),
         _buildInsightRow(
           icon: Icons.collections_bookmark,
           color: _kPrimary,
@@ -286,7 +287,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
           subtitle:
               '${l10n.read_label}: ${widget.seriesBooksRead} ${l10n.series} + ${widget.standaloneBooksRead} ${l10n.standalone}',
         ),
-        const Divider(height: 24, thickness: 1, color: _kDivider),
+        Divider(height: 24, thickness: 1, color: _kDivider),
         _buildInsightRow(
           icon: Icons.emoji_events,
           color: _kSecondary,
@@ -298,7 +299,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
                   ? '${l10n.fastest}: ${widget.fastestDays} ${l10n.days} (${widget.fastestBookName})'
                   : null,
         ),
-        const Divider(height: 24, thickness: 1, color: _kDivider),
+        Divider(height: 24, thickness: 1, color: _kDivider),
         _buildInsightRow(
           icon: Icons.flag,
           color: _kPrimary,
@@ -306,7 +307,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
           value:
               '${widget.nextMilestoneOwned} ${l10n.books} (${widget.booksToMilestoneOwned} ${l10n.to_go})',
         ),
-        const Divider(height: 24, thickness: 1, color: _kDivider),
+        Divider(height: 24, thickness: 1, color: _kDivider),
         _buildInsightRow(
           icon: Icons.menu_book,
           color: _kPrimary,
@@ -314,7 +315,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
           value:
               '${widget.nextMilestoneRead} ${l10n.books} (${widget.booksToMilestoneRead} ${l10n.to_go})',
         ),
-        const Divider(height: 24, thickness: 1, color: _kDivider),
+        Divider(height: 24, thickness: 1, color: _kDivider),
         _buildInsightRow(
           icon: Icons.fast_forward,
           color: _kSecondary,
@@ -345,19 +346,19 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: _kText,
                 ),
               ),
               const SizedBox(height: 4),
-              Text(value, style: const TextStyle(fontSize: 14, color: _kSub)),
+              Text(value, style: TextStyle(fontSize: 14, color: _kSub)),
               if (subtitle != null) ...[
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     color: _kSub,
                     fontStyle: FontStyle.italic,
@@ -368,7 +369,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
           ),
         ),
         if (showNavigationIcon)
-          const Icon(Icons.chevron_right, color: _kPrimary, size: 24),
+          Icon(Icons.chevron_right, color: _kPrimary, size: 24),
       ],
     );
   }
@@ -425,7 +426,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
                 children: [
                   Text(
                     l10n.you_read_most_in,
-                    style: const TextStyle(fontSize: 12, color: _kSub),
+                    style: TextStyle(fontSize: 12, color: _kSub),
                   ),
                   Text(
                     _getSeasonName(l10n, preferredSeason),
@@ -471,7 +472,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
                     ),
                     Text(
                       l10n.n_books_percentage(entry.value, pctString),
-                      style: const TextStyle(fontSize: 12, color: _kSub),
+                      style: TextStyle(fontSize: 12, color: _kSub),
                     ),
                   ],
                 ),
@@ -492,7 +493,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
           );
         }),
         const SizedBox(height: 8),
-        const Divider(height: 1, thickness: 1, color: _kDivider),
+        Divider(height: 1, thickness: 1, color: _kDivider),
         const SizedBox(height: 16),
         if (mostProductive != null &&
             leastProductive != null &&
@@ -504,7 +505,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
                   children: [
                     Text(
                       l10n.most,
-                      style: const TextStyle(fontSize: 11, color: _kSub),
+                      style: TextStyle(fontSize: 11, color: _kSub),
                     ),
                     const SizedBox(height: 2),
                     Text(
@@ -516,7 +517,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
                     ),
                     Text(
                       mostAvgPerYear,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: V2Typography.family,
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
@@ -525,7 +526,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
                     ),
                     Text(
                       l10n.per_year,
-                      style: const TextStyle(fontSize: 10, color: _kSub),
+                      style: TextStyle(fontSize: 10, color: _kSub),
                     ),
                   ],
                 ),
@@ -536,7 +537,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
                   children: [
                     Text(
                       l10n.least,
-                      style: const TextStyle(fontSize: 11, color: _kSub),
+                      style: TextStyle(fontSize: 11, color: _kSub),
                     ),
                     const SizedBox(height: 2),
                     Text(
@@ -548,7 +549,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
                     ),
                     Text(
                       leastAvgPerYear,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: V2Typography.family,
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
@@ -557,7 +558,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
                     ),
                     Text(
                       l10n.per_year,
-                      style: const TextStyle(fontSize: 10, color: _kSub),
+                      style: TextStyle(fontSize: 10, color: _kSub),
                     ),
                   ],
                 ),
@@ -566,11 +567,11 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
           ),
         if (widget.topGenreBySeason.isNotEmpty) ...[
           const SizedBox(height: 16),
-          const Divider(height: 1, thickness: 1, color: _kDivider),
+          Divider(height: 1, thickness: 1, color: _kDivider),
           const SizedBox(height: 16),
           Row(
             children: [
-              const Icon(Icons.auto_stories, color: _kSecondary, size: 20),
+              Icon(Icons.auto_stories, color: _kSecondary, size: 20),
               const SizedBox(width: 8),
               Text(
                 l10n.seasonal_reading_preferences,
@@ -592,7 +593,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 2),
                       child: Text(
                         '${_getSeasonEmoji(entry.key)} ${_getSeasonName(l10n, entry.key)}: ${entry.value}',
-                        style: const TextStyle(fontSize: 12, color: _kSub),
+                        style: TextStyle(fontSize: 12, color: _kSub),
                       ),
                     );
                   }).toList(),
@@ -627,12 +628,12 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
     if (totalSessions == 0) {
       return Column(
         children: [
-          const Icon(Icons.access_time, size: 48, color: _kMuted),
+          Icon(Icons.access_time, size: 48, color: _kMuted),
           const SizedBox(height: 12),
           Text(
             l10n.no_session_data,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 14, color: _kSub),
+            style: TextStyle(fontSize: 14, color: _kSub),
           ),
         ],
       );
@@ -670,7 +671,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
               const SizedBox(width: 8),
               Text(
                 l10n.favorite_reading_time(_getSlotLabel(l10n, favoriteSlot)),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
                   color: _kText,
@@ -712,7 +713,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
                         const SizedBox(width: 6),
                         Text(
                           slotRanges[slot] ?? '',
-                          style: const TextStyle(fontSize: 10, color: _kSub),
+                          style: TextStyle(fontSize: 10, color: _kSub),
                         ),
                       ],
                     ),
@@ -720,7 +721,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
                       count > 0
                           ? '$count${totalMinutes > 0 ? ' (${_formatMinutes(totalMinutes)})' : ''}'
                           : '0',
-                      style: const TextStyle(fontSize: 12, color: _kSub),
+                      style: TextStyle(fontSize: 12, color: _kSub),
                     ),
                   ],
                 ),
@@ -756,7 +757,7 @@ class _ReadingPatternsScreenState extends State<ReadingPatternsScreen> {
         padding: const EdgeInsets.all(16),
         child: Text(
           AppLocalizations.of(context)!.no_data,
-          style: const TextStyle(fontSize: 14, color: _kSub),
+          style: TextStyle(fontSize: 14, color: _kSub),
         ),
       ),
     );

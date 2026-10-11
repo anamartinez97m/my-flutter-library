@@ -10,14 +10,15 @@ import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
 class BooksByYearScreen extends StatefulWidget {
   final int initialYear;
 
-  static const kBg = V2Colors.background;
-  static const kPrimary = V2Colors.primary;
-  static const kSecondary = V2Colors.secondary;
+  static Color get kBg => V2Colors.background;
+  static Color get kPrimary => V2Colors.primary;
+  static Color get kSecondary => V2Colors.secondary;
   static const kTertiary = Color(0xFFBC92A6); // Not represented in V2Colors.
-  static const kText = V2Colors.textPrimary;
-  static const kSub = V2Colors.textSecondary;
-  static const kBorder = Color(0x4DD5C2C7); // Exact alpha variant.
-  static const kDivider = V2Colors.divider;
+  static Color get kText => V2Colors.textPrimary;
+  static Color get kSub => V2Colors.textSecondary;
+  static Color get kBorder =>
+      V2Colors.border.withValues(alpha: .3); // Exact alpha variant.
+  static Color get kDivider => V2Colors.divider;
 
   const BooksByYearScreen({super.key, required this.initialYear});
 
@@ -26,13 +27,13 @@ class BooksByYearScreen extends StatefulWidget {
 }
 
 class _BooksByYearScreenState extends State<BooksByYearScreen> {
-  static const _kBg = BooksByYearScreen.kBg;
-  static const _kPrimary = BooksByYearScreen.kPrimary;
-  static const _kSecondary = BooksByYearScreen.kSecondary;
-  static const _kText = BooksByYearScreen.kText;
-  static const _kSub = BooksByYearScreen.kSub;
-  static const _kBorder = BooksByYearScreen.kBorder;
-  static const _kDivider = BooksByYearScreen.kDivider;
+  static Color get _kBg => BooksByYearScreen.kBg;
+  static Color get _kPrimary => BooksByYearScreen.kPrimary;
+  static Color get _kSecondary => BooksByYearScreen.kSecondary;
+  static Color get _kText => BooksByYearScreen.kText;
+  static Color get _kSub => BooksByYearScreen.kSub;
+  static Color get _kBorder => BooksByYearScreen.kBorder;
+  static Color get _kDivider => BooksByYearScreen.kDivider;
 
   late int _selectedYear;
   List<int> _availableYears = [];
@@ -204,7 +205,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
               ),
               child: Text(
                 _getMonthName(date.month),
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: V2Typography.family,
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -239,12 +240,12 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: _kPrimary),
+          icon: Icon(Icons.arrow_back, color: _kPrimary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           l10n.books_by_year,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -262,9 +263,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
         future: _loadYears(),
         builder: (context, yearsSnapshot) {
           if (!yearsSnapshot.hasData) {
-            return const Center(
-              child: CircularProgressIndicator(color: _kPrimary),
-            );
+            return Center(child: CircularProgressIndicator(color: _kPrimary));
           }
 
           _availableYears = yearsSnapshot.data!;
@@ -279,7 +278,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
             future: _loadBooksForYear(_selectedYear),
             builder: (context, booksSnapshot) {
               if (!booksSnapshot.hasData) {
-                return const Center(
+                return Center(
                   child: CircularProgressIndicator(color: _kPrimary),
                 );
               }
@@ -294,8 +293,8 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
                       horizontal: 20,
                       vertical: 12,
                     ),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
+                    decoration: BoxDecoration(
+                      color: V2Colors.surface,
                       border: Border(
                         bottom: BorderSide(color: _kDivider, width: 1),
                       ),
@@ -304,7 +303,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
                       children: [
                         Text(
                           '${l10n.year}: ',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -323,8 +322,8 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
                               value: _selectedYear,
                               isExpanded: true,
                               underline: const SizedBox.shrink(),
-                              dropdownColor: Colors.white,
-                              style: const TextStyle(
+                              dropdownColor: V2Colors.surface,
+                              style: TextStyle(
                                 fontFamily: V2Typography.family,
                                 fontSize: 14,
                                 color: _kText,
@@ -359,10 +358,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
                             ? Center(
                               child: Text(
                                 l10n.no_books_in_year,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: _kSub,
-                                ),
+                                style: TextStyle(fontSize: 14, color: _kSub),
                               ),
                             )
                             : ListView.builder(
@@ -414,7 +410,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: _kBorder),
         boxShadow: const [
@@ -445,7 +441,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
                   children: [
                     Text(
                       _getDisplayName(bookData),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: V2Typography.family,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -456,7 +452,7 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
                       const SizedBox(height: 4),
                       Text(
                         subtitleParts.join(' \u2022 '),
-                        style: const TextStyle(fontSize: 12, color: _kSub),
+                        style: TextStyle(fontSize: 12, color: _kSub),
                       ),
                     ],
                   ],
@@ -467,11 +463,11 @@ class _BooksByYearScreenState extends State<BooksByYearScreen> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.favorite, color: _kSecondary, size: 14),
+                    Icon(Icons.favorite, color: _kSecondary, size: 14),
                     const SizedBox(width: 4),
                     Text(
                       book.myRating!.toStringAsFixed(1),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: V2Typography.family,
                         fontSize: 13,
                         fontWeight: FontWeight.bold,

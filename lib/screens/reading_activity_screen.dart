@@ -33,16 +33,17 @@ class ReadingActivityScreen extends StatefulWidget {
   final int booksSlowerThanAverage;
   final List<Book> books;
 
-  static const kBg = V2Colors.background;
-  static const kPrimary = V2Colors.primary;
-  static const kSecondary = V2Colors.secondary;
+  static Color get kBg => V2Colors.background;
+  static Color get kPrimary => V2Colors.primary;
+  static Color get kSecondary => V2Colors.secondary;
   static const kTertiary = Color(0xFFBC92A6); // Not represented in V2Colors.
-  static const kMuted = V2Colors.border;
-  static const kText = V2Colors.textPrimary;
-  static const kSub = V2Colors.textSecondary;
-  static const kBorder = Color(0x4DD5C2C7); // Exact alpha variant.
-  static const kDivider = V2Colors.divider;
-  static const kBarBg = V2Colors.divider;
+  static Color get kMuted => V2Colors.border;
+  static Color get kText => V2Colors.textPrimary;
+  static Color get kSub => V2Colors.textSecondary;
+  static Color get kBorder =>
+      V2Colors.border.withValues(alpha: .3); // Exact alpha variant.
+  static Color get kDivider => V2Colors.divider;
+  static Color get kBarBg => V2Colors.divider;
 
   const ReadingActivityScreen({
     super.key,
@@ -68,14 +69,14 @@ class ReadingActivityScreen extends StatefulWidget {
 
 class _ReadingActivityScreenState extends State<ReadingActivityScreen>
     with WidgetsBindingObserver {
-  static const _kBg = ReadingActivityScreen.kBg;
-  static const _kPrimary = ReadingActivityScreen.kPrimary;
-  static const _kSecondary = ReadingActivityScreen.kSecondary;
-  static const _kTertiary = ReadingActivityScreen.kTertiary;
-  static const _kText = ReadingActivityScreen.kText;
-  static const _kSub = ReadingActivityScreen.kSub;
-  static const _kBorder = ReadingActivityScreen.kBorder;
-  static const _kBarBg = ReadingActivityScreen.kBarBg;
+  static Color get _kBg => ReadingActivityScreen.kBg;
+  static Color get _kPrimary => ReadingActivityScreen.kPrimary;
+  static Color get _kSecondary => ReadingActivityScreen.kSecondary;
+  static Color get _kTertiary => ReadingActivityScreen.kTertiary;
+  static Color get _kText => ReadingActivityScreen.kText;
+  static Color get _kSub => ReadingActivityScreen.kSub;
+  static Color get _kBorder => ReadingActivityScreen.kBorder;
+  static Color get _kBarBg => ReadingActivityScreen.kBarBg;
 
   final Set<String> _collapsedSections = {};
 
@@ -175,12 +176,12 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: _kPrimary),
+          icon: Icon(Icons.arrow_back, color: _kPrimary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           l10n.section_reading_activity,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -220,9 +221,11 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: V2Colors.surface,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0x1A27231E)),
+                    border: Border.all(
+                      color: V2Colors.borderStrong.withValues(alpha: .1),
+                    ),
                     boxShadow: const [
                       BoxShadow(
                         color: Color(0x0A000000),
@@ -236,16 +239,12 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                     children: [
                       Row(
                         children: [
-                          const Icon(
-                            Icons.emoji_events,
-                            color: _kPrimary,
-                            size: 22,
-                          ),
+                          Icon(Icons.emoji_events, color: _kPrimary, size: 22),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               l10n.best_past_books,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: V2Typography.family,
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -254,11 +253,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          const Icon(
-                            Icons.arrow_forward_ios,
-                            size: 12,
-                            color: _kSub,
-                          ),
+                          Icon(Icons.arrow_forward_ios, size: 12, color: _kSub),
                         ],
                       ),
                       const SizedBox(height: 12),
@@ -283,7 +278,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                                     ),
                                     child: Text(
                                       '${winner.year}',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontFamily: V2Typography.family,
                                         fontSize: 12,
                                         fontWeight: FontWeight.bold,
@@ -295,7 +290,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                                   Expanded(
                                     child: Text(
                                       winner.bookName,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontFamily: V2Typography.family,
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
@@ -385,7 +380,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
       width: double.infinity,
       padding: const EdgeInsets.all(17),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: _kBorder),
         boxShadow: const [
@@ -406,7 +401,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                 Expanded(
                   child: Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
@@ -417,7 +412,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                 AnimatedRotation(
                   turns: isCollapsed ? -0.25 : 0,
                   duration: const Duration(milliseconds: 200),
-                  child: const Icon(Icons.expand_more, color: _kPrimary),
+                  child: Icon(Icons.expand_more, color: _kPrimary),
                 ),
               ],
             ),
@@ -480,7 +475,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                     width: 52,
                     child: Text(
                       '${entry.key}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: V2Typography.family,
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -519,7 +514,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
             children: [
               Text(
                 'View more',
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: V2Typography.family,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -527,7 +522,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                 ),
               ),
               const SizedBox(width: 4),
-              const Icon(Icons.chevron_right, color: _kPrimary, size: 18),
+              Icon(Icons.chevron_right, color: _kPrimary, size: 18),
             ],
           ),
         ),
@@ -566,7 +561,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                     width: 52,
                     child: Text(
                       '${entry.key}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: V2Typography.family,
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -618,7 +613,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
           children: [
             Text(
               l10n.books_finished_per_month,
-              style: const TextStyle(fontSize: 13, color: _kSub),
+              style: TextStyle(fontSize: 13, color: _kSub),
             ),
             _buildYearDropdown(
               sortedYears,
@@ -632,7 +627,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(l10n.less, style: const TextStyle(fontSize: 11, color: _kSub)),
+            Text(l10n.less, style: TextStyle(fontSize: 11, color: _kSub)),
             const SizedBox(width: 4),
             ...List.generate(5, (index) {
               final intensity = (index + 1) * 0.2;
@@ -653,7 +648,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
               );
             }),
             const SizedBox(width: 4),
-            Text(l10n.more, style: const TextStyle(fontSize: 11, color: _kSub)),
+            Text(l10n.more, style: TextStyle(fontSize: 11, color: _kSub)),
           ],
         ),
         const SizedBox(height: 16),
@@ -699,7 +694,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                       style: TextStyle(
                         fontSize: 9,
                         fontWeight: FontWeight.bold,
-                        color: intensity > 0.5 ? Colors.white : _kText,
+                        color: intensity > 0.5 ? V2Colors.onPrimary : _kText,
                       ),
                     ),
                     if (count > 0)
@@ -708,7 +703,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
-                          color: intensity > 0.5 ? Colors.white : _kText,
+                          color: intensity > 0.5 ? V2Colors.onPrimary : _kText,
                         ),
                       ),
                   ],
@@ -772,7 +767,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                   totalDaysInYear.toString(),
                   percentage,
                 ),
-                style: const TextStyle(fontSize: 13, color: _kSub),
+                style: TextStyle(fontSize: 13, color: _kSub),
               ),
             ),
             _buildYearDropdown(
@@ -803,7 +798,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                         child: Center(
                           child: Text(
                             monthAbbrs[monthIndex],
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 8,
                               fontWeight: FontWeight.w600,
                               color: _kSub,
@@ -824,7 +819,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                         width: dayLabelWidth,
                         child: Text(
                           '$day',
-                          style: const TextStyle(fontSize: 7, color: _kSub),
+                          style: TextStyle(fontSize: 7, color: _kSub),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -884,7 +879,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
         width: double.infinity,
         padding: const EdgeInsets.all(17),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: V2Colors.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: _kBorder),
           boxShadow: const [
@@ -897,12 +892,12 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
         ),
         child: Row(
           children: [
-            const Icon(Icons.flag, color: _kSecondary, size: 20),
+            Icon(Icons.flag, color: _kSecondary, size: 20),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 l10n.reading_goals,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: V2Typography.family,
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -910,7 +905,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                 ),
               ),
             ),
-            const Icon(Icons.chevron_right, color: _kPrimary, size: 22),
+            Icon(Icons.chevron_right, color: _kPrimary, size: 22),
           ],
         ),
       ),
@@ -963,7 +958,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
         ),
         Text(
           '(${l10n.based_on_publication_year})',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
             color: _kSub,
             fontStyle: FontStyle.italic,
@@ -1001,7 +996,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                       width: 60,
                       child: Text(
                         entry.key,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -1043,7 +1038,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
               children: [
                 Text(
                   'View more',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: V2Typography.family,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -1051,7 +1046,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
                   ),
                 ),
                 const SizedBox(width: 4),
-                const Icon(Icons.chevron_right, color: _kPrimary, size: 18),
+                Icon(Icons.chevron_right, color: _kPrimary, size: 18),
               ],
             ),
           ),
@@ -1151,8 +1146,8 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
         value: selectedYear,
         underline: const SizedBox.shrink(),
         isDense: true,
-        dropdownColor: Colors.white,
-        style: const TextStyle(
+        dropdownColor: V2Colors.surface,
+        style: TextStyle(
           fontFamily: V2Typography.family,
           fontSize: 13,
           color: _kText,
@@ -1172,10 +1167,7 @@ class _ReadingActivityScreenState extends State<ReadingActivityScreen>
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Text(
-          l10n.no_data,
-          style: const TextStyle(fontSize: 14, color: _kSub),
-        ),
+        child: Text(l10n.no_data, style: TextStyle(fontSize: 14, color: _kSub)),
       ),
     );
   }

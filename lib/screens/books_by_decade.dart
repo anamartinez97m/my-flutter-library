@@ -10,14 +10,15 @@ class BooksByDecadeScreen extends StatefulWidget {
   final String initialDecade;
   final bool showReadOnly;
 
-  static const kBg = V2Colors.background;
-  static const kPrimary = V2Colors.primary;
-  static const kSecondary = V2Colors.secondary;
+  static Color get kBg => V2Colors.background;
+  static Color get kPrimary => V2Colors.primary;
+  static Color get kSecondary => V2Colors.secondary;
   static const kTertiary = Color(0xFFBC92A6); // Not represented in V2Colors.
-  static const kText = V2Colors.textPrimary;
-  static const kSub = V2Colors.textSecondary;
-  static const kBorder = Color(0x4DD5C2C7); // Exact alpha variant.
-  static const kDivider = V2Colors.divider;
+  static Color get kText => V2Colors.textPrimary;
+  static Color get kSub => V2Colors.textSecondary;
+  static Color get kBorder =>
+      V2Colors.border.withValues(alpha: .3); // Exact alpha variant.
+  static Color get kDivider => V2Colors.divider;
 
   const BooksByDecadeScreen({
     super.key,
@@ -30,13 +31,13 @@ class BooksByDecadeScreen extends StatefulWidget {
 }
 
 class _BooksByDecadeScreenState extends State<BooksByDecadeScreen> {
-  static const _kBg = BooksByDecadeScreen.kBg;
-  static const _kPrimary = BooksByDecadeScreen.kPrimary;
-  static const _kSecondary = BooksByDecadeScreen.kSecondary;
-  static const _kText = BooksByDecadeScreen.kText;
-  static const _kSub = BooksByDecadeScreen.kSub;
-  static const _kBorder = BooksByDecadeScreen.kBorder;
-  static const _kDivider = BooksByDecadeScreen.kDivider;
+  static Color get _kBg => BooksByDecadeScreen.kBg;
+  static Color get _kPrimary => BooksByDecadeScreen.kPrimary;
+  static Color get _kSecondary => BooksByDecadeScreen.kSecondary;
+  static Color get _kText => BooksByDecadeScreen.kText;
+  static Color get _kSub => BooksByDecadeScreen.kSub;
+  static Color get _kBorder => BooksByDecadeScreen.kBorder;
+  static Color get _kDivider => BooksByDecadeScreen.kDivider;
 
   late String _selectedDecade;
   List<String> _availableDecades = [];
@@ -58,12 +59,12 @@ class _BooksByDecadeScreenState extends State<BooksByDecadeScreen> {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: _kPrimary),
+          icon: Icon(Icons.arrow_back, color: _kPrimary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           l10n.books_by_decade,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -163,8 +164,8 @@ class _BooksByDecadeScreenState extends State<BooksByDecadeScreen> {
                   horizontal: 20,
                   vertical: 12,
                 ),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
+                decoration: BoxDecoration(
+                  color: V2Colors.surface,
                   border: Border(
                     bottom: BorderSide(color: _kDivider, width: 1),
                   ),
@@ -173,7 +174,7 @@ class _BooksByDecadeScreenState extends State<BooksByDecadeScreen> {
                   children: [
                     Text(
                       '${l10n.decade}: ',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: V2Typography.family,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -192,8 +193,8 @@ class _BooksByDecadeScreenState extends State<BooksByDecadeScreen> {
                           value: _selectedDecade,
                           isExpanded: true,
                           underline: const SizedBox.shrink(),
-                          dropdownColor: Colors.white,
-                          style: const TextStyle(
+                          dropdownColor: V2Colors.surface,
+                          style: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 14,
                             color: _kText,
@@ -261,7 +262,7 @@ class _BooksByDecadeScreenState extends State<BooksByDecadeScreen> {
                         ? Center(
                           child: Text(
                             l10n.no_books_from_decade,
-                            style: const TextStyle(fontSize: 14, color: _kSub),
+                            style: TextStyle(fontSize: 14, color: _kSub),
                           ),
                         )
                         : ListView.builder(
@@ -304,7 +305,7 @@ class _BooksByDecadeScreenState extends State<BooksByDecadeScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: V2Colors.surface,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: _kBorder),
         boxShadow: const [
@@ -335,7 +336,7 @@ class _BooksByDecadeScreenState extends State<BooksByDecadeScreen> {
                   children: [
                     Text(
                       book.name ?? l10n.unknown,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: V2Typography.family,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -346,7 +347,7 @@ class _BooksByDecadeScreenState extends State<BooksByDecadeScreen> {
                       const SizedBox(height: 4),
                       Text(
                         subtitleParts.join(' \u2022 '),
-                        style: const TextStyle(fontSize: 12, color: _kSub),
+                        style: TextStyle(fontSize: 12, color: _kSub),
                       ),
                     ],
                   ],
@@ -356,7 +357,7 @@ class _BooksByDecadeScreenState extends State<BooksByDecadeScreen> {
                 const SizedBox(width: 8),
                 Text(
                   pubYearStr,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: V2Typography.family,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

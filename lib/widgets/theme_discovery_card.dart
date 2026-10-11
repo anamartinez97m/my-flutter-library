@@ -11,11 +11,11 @@ import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/widgets/discovery_result_card.dart';
 import 'package:provider/provider.dart';
 
-const _kPrimary = V2Colors.primary;
-const _kSub = V2Colors.textSecondary;
-const _kBorder = V2Colors.border;
-final _kChipBg = V2Colors.chip.withValues(alpha: 0.5);
-final _kChipBorder = V2Colors.border.withValues(alpha: 0.5);
+Color get _kPrimary => V2Colors.primary;
+Color get _kSub => V2Colors.textSecondary;
+Color get _kBorder => V2Colors.border;
+Color get _kChipBg => V2Colors.chip.withValues(alpha: 0.5);
+Color get _kChipBorder => V2Colors.border.withValues(alpha: 0.5);
 
 /// "What are you in the mood for?" — free-text theme search over the user's
 /// own library, rendered inline as a card.
@@ -111,14 +111,14 @@ class _ThemeDiscoveryCardState extends State<ThemeDiscoveryCard> {
                 color: _kPrimary.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.auto_awesome, color: _kPrimary, size: 34),
+              child: Icon(Icons.auto_awesome, color: _kPrimary, size: 34),
             ),
           ),
           const SizedBox(height: 20),
           Text(
             l10n.theme_discovery_title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
               color: _kPrimary,
@@ -130,7 +130,7 @@ class _ThemeDiscoveryCardState extends State<ThemeDiscoveryCard> {
             child: Text(
               l10n.theme_discovery_subtitle,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 13, color: _kSub, height: 1.4),
+              style: TextStyle(fontSize: 13, color: _kSub, height: 1.4),
             ),
           ),
           const SizedBox(height: 28),
@@ -140,14 +140,14 @@ class _ThemeDiscoveryCardState extends State<ThemeDiscoveryCard> {
             Text(
               l10n.theme_discovery_helper,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 12, color: _kSub),
+              style: TextStyle(fontSize: 12, color: _kSub),
             ),
             const SizedBox(height: 12),
             _buildSuggestions(l10n),
           ] else if (results.isEmpty) ...[
             Text(
               l10n.theme_discovery_no_results(_query),
-              style: const TextStyle(fontSize: 14, color: _kPrimary),
+              style: TextStyle(fontSize: 14, color: _kPrimary),
             ),
             const SizedBox(height: 12),
             _buildSuggestions(l10n),
@@ -170,12 +170,12 @@ class _ThemeDiscoveryCardState extends State<ThemeDiscoveryCard> {
       decoration: InputDecoration(
         labelText: l10n.theme_discovery_title,
         hintText: l10n.theme_discovery_hint,
-        prefixIcon: const Icon(Icons.search, color: _kPrimary),
+        prefixIcon: Icon(Icons.search, color: _kPrimary),
         suffixIcon:
             _controller.text.isEmpty
                 ? null
                 : IconButton(
-                  icon: const Icon(Icons.clear, color: _kPrimary),
+                  icon: Icon(Icons.clear, color: _kPrimary),
                   tooltip:
                       MaterialLocalizations.of(context).deleteButtonTooltip,
                   onPressed: () => _fill(''),
@@ -184,15 +184,15 @@ class _ThemeDiscoveryCardState extends State<ThemeDiscoveryCard> {
         fillColor: V2Colors.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: _kBorder),
+          borderSide: BorderSide(color: _kBorder),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: _kBorder),
+          borderSide: BorderSide(color: _kBorder),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: _kPrimary),
+          borderSide: BorderSide(color: _kPrimary),
         ),
       ),
     );
@@ -206,7 +206,7 @@ class _ThemeDiscoveryCardState extends State<ThemeDiscoveryCard> {
         Text(
           l10n.theme_discovery_suggestions,
           textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 12, color: _kSub),
+          style: TextStyle(fontSize: 12, color: _kSub),
         ),
         const SizedBox(height: 8),
         Wrap(
@@ -218,7 +218,7 @@ class _ThemeDiscoveryCardState extends State<ThemeDiscoveryCard> {
               ActionChip(
                 label: Text(
                   '${concept.emoji} ${concept.localizedName(languageCode)}',
-                  style: const TextStyle(fontSize: 13, color: _kPrimary),
+                  style: TextStyle(fontSize: 13, color: _kPrimary),
                 ),
                 backgroundColor: _kChipBg,
                 side: BorderSide(color: _kChipBorder),
@@ -239,7 +239,7 @@ class _ThemeDiscoveryCardState extends State<ThemeDiscoveryCard> {
       if (results.main.isNotEmpty) ...[
         Text(
           l10n.theme_discovery_results_count(results.main.length),
-          style: const TextStyle(fontSize: 12, color: _kSub),
+          style: TextStyle(fontSize: 12, color: _kSub),
         ),
         const SizedBox(height: 12),
         for (final result in visible) DiscoveryResultCard(result: result),
@@ -249,7 +249,7 @@ class _ThemeDiscoveryCardState extends State<ThemeDiscoveryCard> {
               onPressed: () => setState(() => _visibleCount += _pageSize),
               child: Text(
                 l10n.theme_discovery_show_more,
-                style: const TextStyle(color: _kPrimary),
+                style: TextStyle(color: _kPrimary),
               ),
             ),
           ),
@@ -267,7 +267,7 @@ class _ThemeDiscoveryCardState extends State<ThemeDiscoveryCard> {
                     l10n.theme_discovery_loosely_related(
                       results.looselyRelated.length,
                     ),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: _kPrimary,

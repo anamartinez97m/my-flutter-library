@@ -27,12 +27,12 @@ class LogReadingSessionSheet extends StatefulWidget {
 }
 
 class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
-  static const _kBg = V2Colors.background;
-  static const _kPrimary = V2Colors.primaryAlt;
-  static const _kText = V2Colors.textPrimary;
-  static const _kSub = V2Colors.textSecondary;
-  static const _kCardBg = V2Colors.surfaceTimer;
-  static const _kBorder = V2Colors.border;
+  static Color get _kBg => V2Colors.background;
+  static Color get _kPrimary => V2Colors.primaryAlt;
+  static Color get _kText => V2Colors.textPrimary;
+  static Color get _kSub => V2Colors.textSecondary;
+  static Color get _kCardBg => V2Colors.surfaceTimer;
+  static Color get _kBorder => V2Colors.border;
 
   late DateTime _selectedDate;
   late TimeOfDay _selectedTime;
@@ -190,7 +190,7 @@ class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: _kBg,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -229,7 +229,7 @@ class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
                           children: [
                             Text(
                               l10n.reading_log.toUpperCase(),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: V2Typography.family,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
@@ -240,7 +240,7 @@ class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
                             const SizedBox(height: 4),
                             Text(
                               l10n.log_reading_session,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: V2Typography.family,
                                 fontSize: 22,
                                 fontWeight: FontWeight.w700,
@@ -261,11 +261,7 @@ class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
                                 color: _kBorder.withValues(alpha: 0.5),
                               ),
                             ),
-                            child: const Icon(
-                              Icons.close,
-                              size: 16,
-                              color: _kText,
-                            ),
+                            child: Icon(Icons.close, size: 16, color: _kText),
                           ),
                         ),
                       ],
@@ -307,7 +303,7 @@ class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
                         children: [
                           Text(
                             '${_durationMinutes}m',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: V2Typography.family,
                               fontSize: 40,
                               fontWeight: FontWeight.w700,
@@ -318,7 +314,7 @@ class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
                           const SizedBox(height: 4),
                           Text(
                             l10n.reading_duration.toUpperCase(),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: V2Typography.family,
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
@@ -446,7 +442,7 @@ class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
                                           decoration: BoxDecoration(
                                             color:
                                                 _isCustomMode
-                                                    ? Colors.white
+                                                    ? V2Colors.surface
                                                     : _kCardBg,
                                             borderRadius: BorderRadius.circular(
                                               12,
@@ -487,7 +483,7 @@ class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
                                                             ),
                                               ),
                                             ),
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontFamily: V2Typography.family,
                                               fontSize: 13,
                                               fontWeight: FontWeight.w600,
@@ -514,7 +510,7 @@ class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
                             onPressed: _isSaving ? null : _discard,
                             style: OutlinedButton.styleFrom(
                               foregroundColor: _kText,
-                              side: const BorderSide(color: _kBorder),
+                              side: BorderSide(color: _kBorder),
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
@@ -534,7 +530,7 @@ class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
                             onPressed: _isSaving ? null : _logSession,
                             style: FilledButton.styleFrom(
                               backgroundColor: _kPrimary,
-                              foregroundColor: Colors.white,
+                              foregroundColor: V2Colors.onPrimary,
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
@@ -549,12 +545,12 @@ class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 if (_isSaving)
-                                  const SizedBox(
+                                  SizedBox(
                                     width: 16,
                                     height: 16,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
-                                      color: Colors.white,
+                                      color: V2Colors.onPrimary,
                                     ),
                                   )
                                 else
@@ -607,7 +603,7 @@ class _PickerButton extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: V2Typography.family,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -616,7 +612,7 @@ class _PickerButton extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            const Icon(
+            Icon(
               Icons.keyboard_arrow_down,
               size: 18,
               color: V2Colors.textSecondary,
@@ -637,7 +633,7 @@ class _DurationLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       label,
-      style: const TextStyle(
+      style: TextStyle(
         fontFamily: V2Typography.family,
         fontSize: 11,
         fontWeight: FontWeight.w500,
@@ -679,7 +675,7 @@ class _DurationChip extends StatelessWidget {
             fontFamily: V2Typography.family,
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: isSelected ? Colors.white : V2Colors.primaryAlt,
+            color: isSelected ? V2Colors.onPrimary : V2Colors.primaryAlt,
           ),
         ),
       ),
