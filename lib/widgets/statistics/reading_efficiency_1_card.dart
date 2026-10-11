@@ -9,11 +9,11 @@ import 'package:myrandomlibrary/l10n/app_localizations.dart';
 /// than the user's average pace. Three compact chips below surface the
 /// supporting velocity metrics.
 class ReadingEfficiency1Card extends StatelessWidget {
-  static const _kPrimary = V2Colors.primary;
-  static const _kSecondary = V2Colors.secondary;
+  static Color get _kPrimary => V2Colors.primary;
+  static Color get _kSecondary => V2Colors.secondary;
   static const _kTertiary = Color(0xFFBC92A6); // Not represented in V2Colors.
-  static const _kSub = V2Colors.textSecondary;
-  static const _kDivider = V2Colors.divider;
+  static Color get _kSub => V2Colors.textSecondary;
+  static Color get _kDivider => V2Colors.divider;
 
   final double efficiencyPercentage;
   final int booksFasterThanAverage;
@@ -56,7 +56,7 @@ class ReadingEfficiency1Card extends StatelessWidget {
         children: [
           Text(
             l10n.reading_efficiency_1,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -72,7 +72,7 @@ class ReadingEfficiency1Card extends StatelessWidget {
               '$booksSlowerThanAverage',
               '$totalBooksWithData',
             ),
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 12,
               color: _kSub,
@@ -80,7 +80,7 @@ class ReadingEfficiency1Card extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 20),
-          const Divider(height: 1, thickness: 1, color: _kDivider),
+          Divider(height: 1, thickness: 1, color: _kDivider),
           const SizedBox(height: 16),
           Row(
             children: [
@@ -188,7 +188,7 @@ class ReadingEfficiency1Card extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 10,
             color: _kSub,

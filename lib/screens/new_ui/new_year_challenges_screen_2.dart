@@ -8,16 +8,16 @@ import 'package:myrandomlibrary/model/year_challenge.dart';
 import 'package:myrandomlibrary/repositories/year_challenge_repository.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
-const _kBg = V2Colors.background;
-const _kPrimary = V2Colors.primaryAlt;
+Color get _kBg => V2Colors.background;
+Color get _kPrimary => V2Colors.primaryAlt;
 const _kPrimarySoft = Color(0xFFF9F1F4);
-const _kText = V2Colors.textPrimary;
+Color get _kText => V2Colors.textPrimary;
 const _kSub = Color(0xFF76666D);
 const _kBorder = Color(0xFFE8DED8);
 const _kTrack = Color(0xFFEDE6E1);
-const _kSuccess = V2Colors.success;
-const _kSuccessBg = V2Colors.successBackground;
-const _kSuccessBorder = V2Colors.successBorder;
+Color get _kSuccess => V2Colors.success;
+Color get _kSuccessBg => V2Colors.successBackground;
+Color get _kSuccessBorder => V2Colors.successBorder;
 
 class NewYearChallengesScreen2 extends StatefulWidget {
   const NewYearChallengesScreen2({super.key});
@@ -563,12 +563,12 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: _kPrimary),
+          icon: Icon(Icons.arrow_back, color: _kPrimary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           l10n.year_challenges,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w700,
@@ -588,7 +588,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
           Expanded(
             child:
                 _isLoading
-                    ? const Center(
+                    ? Center(
                       child: CircularProgressIndicator(color: _kPrimary),
                     )
                     : _challenges.isEmpty && _currentYearChallenge == null
@@ -615,7 +615,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                 color: _kTrack,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.flag_outlined,
                 size: 40,
                 color: _kPrimary,
@@ -625,7 +625,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
             Text(
               l10n.no_challenges_yet,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: V2Typography.family,
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
@@ -693,7 +693,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                         ),
                         child: Text(
                           '${_previousChallenges.length} Years',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -927,7 +927,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                           value: booksProgress.clamp(0.0, 1.0),
                           strokeWidth: 10,
                           backgroundColor: _kTrack,
-                          valueColor: const AlwaysStoppedAnimation<Color>(
+                          valueColor: AlwaysStoppedAnimation<Color>(
                             _kPrimary,
                           ),
                         ),
@@ -936,7 +936,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                           children: [
                             Text(
                               '$percentage%',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: V2Typography.family,
                                 fontSize: 24,
                                 fontWeight: FontWeight.w900,
@@ -969,7 +969,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                           children: [
                             Text(
                               '$booksRead',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: V2Typography.family,
                                 fontSize: 30,
                                 fontWeight: FontWeight.w800,
@@ -992,7 +992,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                         const SizedBox(height: 2),
                         Text(
                           '$booksLeft books left to conquer this goal',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
@@ -1051,7 +1051,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
         children: [
           Text(
             '${DateTime.now().year} ${l10n.reading_goals}',
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -1093,7 +1093,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
           const SizedBox(width: 6),
           Text(
             text,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 11,
               fontWeight: FontWeight.w500,
@@ -1201,14 +1201,14 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                 child: Center(
                   child:
                       isComplete
-                          ? const Icon(
+                          ? Icon(
                             Icons.emoji_events,
                             size: 16,
                             color: _kSuccess,
                           )
                           : Text(
                             '${challenge.year % 100}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: V2Typography.family,
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
@@ -1226,7 +1226,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                       children: [
                         Text(
                           '${challenge.year} Challenge',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
@@ -1373,7 +1373,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                       color: _kPrimary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.calendar_today,
                       size: 16,
                       color: _kPrimary,
@@ -1383,7 +1383,7 @@ class _NewYearChallengesScreen2State extends State<NewYearChallengesScreen2> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Plan Ahead',
                         style: TextStyle(
                           fontFamily: V2Typography.family,

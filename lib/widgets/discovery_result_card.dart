@@ -5,11 +5,11 @@ import 'package:myrandomlibrary/discovery/model/discovery_result.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/widgets/book_card_v2.dart';
 
-const _kPrimary = V2Colors.primary;
-const _kSub = V2Colors.textSecondary;
-final _kChipBg = V2Colors.chip.withValues(alpha: 0.5);
-final _kChipBorder = V2Colors.border.withValues(alpha: 0.5);
-const _kTrack = V2Colors.divider;
+Color get _kPrimary => V2Colors.primary;
+Color get _kSub => V2Colors.textSecondary;
+Color get _kChipBg => V2Colors.chip.withValues(alpha: 0.5);
+Color get _kChipBorder => V2Colors.border.withValues(alpha: 0.5);
+Color get _kTrack => V2Colors.divider;
 
 /// A [BookCardV2] plus how well the book matches the discovery query:
 /// relevance (percentage and bar), matched concepts and a short "why".
@@ -51,7 +51,7 @@ class DiscoveryResultCard extends StatelessWidget {
                       l10n.theme_discovery_match_percent(
                         result.relevancePercent,
                       ),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: _kPrimary,
@@ -65,7 +65,7 @@ class DiscoveryResultCard extends StatelessWidget {
                           value: result.relevance,
                           minHeight: 4,
                           backgroundColor: _kTrack,
-                          valueColor: const AlwaysStoppedAnimation(_kPrimary),
+                          valueColor: AlwaysStoppedAnimation(_kPrimary),
                         ),
                       ),
                     ),
@@ -95,7 +95,7 @@ class DiscoveryResultCard extends StatelessWidget {
                     why,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 12, color: _kSub),
+                    style: TextStyle(fontSize: 12, color: _kSub),
                   ),
                 ],
               ],

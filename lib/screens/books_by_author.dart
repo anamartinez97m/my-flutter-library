@@ -635,12 +635,12 @@ class _CatalogViewState extends State<_CatalogView> {
 // V2 DESIGN
 // ─────────────────────────────────────────────────────────────────────────────
 
-const _kV2Bg = V2Colors.background;
-const _kV2AppBar = V2Colors.primary;
-const _kV2Text = V2Colors.textSubtle;
-const _kV2Sub = V2Colors.textSubtle;
-const _kV2Border = V2Colors.borderNeutral;
-const _kV2Divider = V2Colors.divider;
+Color get _kV2Bg => V2Colors.background;
+Color get _kV2AppBar => V2Colors.primary;
+Color get _kV2Text => V2Colors.textSubtle;
+Color get _kV2Sub => V2Colors.textSubtle;
+Color get _kV2Border => V2Colors.borderNeutral;
+Color get _kV2Divider => V2Colors.divider;
 
 class _SingleAuthorScreen extends StatelessWidget {
   final String author;
@@ -685,12 +685,12 @@ class _MultiAuthorScreenState extends State<_MultiAuthorScreen> {
             surfaceTintColor: Colors.transparent,
             elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: _kV2AppBar),
+              icon: Icon(Icons.arrow_back, color: _kV2AppBar),
               onPressed: () => Navigator.pop(context),
             ),
             title: Text(
               AppLocalizations.of(context)!.authors,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: V2Typography.family,
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
@@ -713,7 +713,7 @@ class _MultiAuthorScreenState extends State<_MultiAuthorScreen> {
               ),
             ],
           ),
-          const Divider(height: 1, color: V2Colors.border),
+          Divider(height: 1, color: V2Colors.border),
           const SizedBox(height: 8),
           SizedBox(
             height: 52,
@@ -886,7 +886,7 @@ class _AuthorContentViewState extends State<_AuthorContentView> {
             child: Center(
               child: Text(
                 AppLocalizations.of(context)!.no_books_for_author,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: V2Typography.family,
                   fontSize: 16,
                   color: _kV2Sub,
@@ -973,12 +973,12 @@ class _AuthorContentViewState extends State<_AuthorContentView> {
       elevation: 0,
       pinned: true,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: _kV2AppBar),
+        icon: Icon(Icons.arrow_back, color: _kV2AppBar),
         onPressed: () => Navigator.pop(context),
       ),
       title: Text(
         author,
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: V2Typography.family,
           fontSize: 20,
           fontWeight: FontWeight.w600,
@@ -997,7 +997,7 @@ class _AuthorContentViewState extends State<_AuthorContentView> {
           onPressed: toggleCatalogView,
         ),
       ],
-      bottom: const PreferredSize(
+      bottom: PreferredSize(
         preferredSize: Size.fromHeight(1),
         child: Divider(height: 1, color: V2Colors.border),
       ),
@@ -1049,7 +1049,7 @@ Widget _v2StatChip({
         const SizedBox(width: 6),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 15,
             fontWeight: FontWeight.w700,
@@ -1059,7 +1059,7 @@ Widget _v2StatChip({
         const SizedBox(width: 4),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 11,
             fontWeight: FontWeight.w500,
@@ -1111,7 +1111,7 @@ Widget _v2BookCard({
           children: [
             Text(
               book.name ?? AppLocalizations.of(context)!.unknown,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 19,
                 fontWeight: FontWeight.w600,
                 color: _kV2AppBar,
@@ -1145,7 +1145,7 @@ Widget _v2BookCard({
               const SizedBox(height: 5),
               Text(
                 subtitle,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   color: _kV2Text,
                   height: 1.43,
@@ -1154,7 +1154,7 @@ Widget _v2BookCard({
             ],
             if (year != null || isRead) ...[
               if (subtitle != null)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.only(top: 10, bottom: 10),
                   child: Divider(height: 1, thickness: 1, color: _kV2Divider),
                 )
@@ -1171,7 +1171,7 @@ Widget _v2BookCard({
                     const SizedBox(width: 5),
                     Text(
                       '$year',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         color: _kV2Text,
                         fontWeight: FontWeight.w500,
@@ -1185,7 +1185,7 @@ Widget _v2BookCard({
                     const SizedBox(width: 5),
                     Text(
                       AppLocalizations.of(context)!.read_label,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         color: _kV2Text,
                         fontWeight: FontWeight.w500,

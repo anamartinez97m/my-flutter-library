@@ -6,12 +6,12 @@ import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
 import 'package:provider/provider.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
-const _kPrimary = V2Colors.primary;
-const _kBg = V2Colors.background;
-const _kBorder = V2Colors.borderNeutral;
-const _kDivider = V2Colors.divider;
-const _kText = V2Colors.textSubtle;
-const _kSub = V2Colors.textSecondary;
+Color get _kPrimary => V2Colors.primary;
+Color get _kBg => V2Colors.background;
+Color get _kBorder => V2Colors.borderNeutral;
+Color get _kDivider => V2Colors.divider;
+Color get _kText => V2Colors.textSubtle;
+Color get _kSub => V2Colors.textSecondary;
 
 class BooksByGenreScreen extends StatelessWidget {
   final List<String> genres;
@@ -31,12 +31,12 @@ class BooksByGenreScreen extends StatelessWidget {
           surfaceTintColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: _kPrimary),
+            icon: Icon(Icons.arrow_back, color: _kPrimary),
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
             AppLocalizations.of(context)!.genre,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -45,7 +45,7 @@ class BooksByGenreScreen extends StatelessWidget {
           ),
           centerTitle: true,
         ),
-        body: const Center(child: CircularProgressIndicator(color: _kPrimary)),
+        body: Center(child: CircularProgressIndicator(color: _kPrimary)),
       );
     }
 
@@ -57,12 +57,12 @@ class BooksByGenreScreen extends StatelessWidget {
           surfaceTintColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: _kPrimary),
+            icon: Icon(Icons.arrow_back, color: _kPrimary),
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
             genres.first,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -71,7 +71,7 @@ class BooksByGenreScreen extends StatelessWidget {
             ),
           ),
           centerTitle: true,
-          bottom: const PreferredSize(
+          bottom: PreferredSize(
             preferredSize: Size.fromHeight(1),
             child: Divider(height: 1, thickness: 1, color: V2Colors.border),
           ),
@@ -108,12 +108,12 @@ class _MultiGenreScreenState extends State<_MultiGenreScreen> {
             surfaceTintColor: Colors.transparent,
             elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: _kPrimary),
+              icon: Icon(Icons.arrow_back, color: _kPrimary),
               onPressed: () => Navigator.pop(context),
             ),
             title: Text(
               AppLocalizations.of(context)!.genres,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: V2Typography.family,
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
@@ -123,7 +123,7 @@ class _MultiGenreScreenState extends State<_MultiGenreScreen> {
             ),
             centerTitle: true,
           ),
-          const Divider(height: 1, color: V2Colors.border),
+          Divider(height: 1, color: V2Colors.border),
           const SizedBox(height: 8),
           SizedBox(
             height: 52,
@@ -183,7 +183,7 @@ class _GenreContent extends StatelessWidget {
     final provider = Provider.of<BookProvider?>(context);
 
     if (provider == null || provider.isLoading) {
-      return const Center(child: CircularProgressIndicator(color: _kPrimary));
+      return Center(child: CircularProgressIndicator(color: _kPrimary));
     }
 
     // Filter books that contain this genre (comma-separated, case-insensitive)
@@ -229,7 +229,7 @@ class _GenreContent extends StatelessWidget {
       return Center(
         child: Text(
           AppLocalizations.of(context)!.no_books_for_genre,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 16,
             color: _kSub,
@@ -326,7 +326,7 @@ Widget _statChip({
         const SizedBox(width: 6),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 15,
             fontWeight: FontWeight.w700,
@@ -336,7 +336,7 @@ Widget _statChip({
         const SizedBox(width: 4),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 11,
             fontWeight: FontWeight.w500,
@@ -387,7 +387,7 @@ Widget _bookCard({
             // Title
             Text(
               book.name ?? AppLocalizations.of(context)!.unknown,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 19,
                 fontWeight: FontWeight.w600,
                 color: _kPrimary,
@@ -399,7 +399,7 @@ Widget _bookCard({
               const SizedBox(height: 5),
               Text(
                 subtitle,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   color: _kText,
                   height: 1.43,
@@ -409,7 +409,7 @@ Widget _bookCard({
             // Metadata row
             if (year != null || isRead) ...[
               if (subtitle != null)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.only(top: 10, bottom: 10),
                   child: Divider(height: 1, thickness: 1, color: _kDivider),
                 )
@@ -426,7 +426,7 @@ Widget _bookCard({
                     const SizedBox(width: 5),
                     Text(
                       '$year',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         color: _kText,
                         fontWeight: FontWeight.w500,
@@ -440,7 +440,7 @@ Widget _bookCard({
                     const SizedBox(width: 5),
                     Text(
                       AppLocalizations.of(context)!.read_label,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         color: _kText,
                         fontWeight: FontWeight.w500,

@@ -225,12 +225,12 @@ class _NewPastYearsCompetitionScreenState
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: V2Colors.primary),
+          icon: Icon(Icons.arrow_back, color: V2Colors.primary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           l10n.past_years_competitions,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -246,7 +246,7 @@ class _NewPastYearsCompetitionScreenState
       ),
       body:
           _isLoading
-              ? const Center(
+              ? Center(
                 child: CircularProgressIndicator(color: V2Colors.primary),
               )
               : _availableYears.isEmpty && _reigningChampion == null
@@ -328,7 +328,7 @@ class _NewPastYearsCompetitionScreenState
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
+          Icon(
             Icons.emoji_events_outlined,
             size: 64,
             color: V2Colors.border,
@@ -336,7 +336,7 @@ class _NewPastYearsCompetitionScreenState
           const SizedBox(height: 16),
           Text(
             l10n.no_past_competitions_found,
-            style: const TextStyle(fontSize: 16, color: V2Colors.textSecondary),
+            style: TextStyle(fontSize: 16, color: V2Colors.textSecondary),
           ),
         ],
       ),
@@ -412,7 +412,7 @@ class _NewPastYearsCompetitionScreenState
                   ),
                 ),
                 const SizedBox(width: 6),
-                const Text(
+                Text(
                   'REIGNING CHAMPION',
                   style: TextStyle(
                     fontFamily: V2Typography.family,
@@ -452,7 +452,7 @@ class _NewPastYearsCompetitionScreenState
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: _kGold.withValues(alpha: 0.3)),
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [V2Colors.primary, V2Colors.primaryAlt, _kHeroGradientEnd],
@@ -732,7 +732,7 @@ class _NewPastYearsCompetitionScreenState
           children: [
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: V2Typography.family,
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
@@ -749,7 +749,7 @@ class _NewPastYearsCompetitionScreenState
               ),
               child: Text(
                 badge,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: V2Typography.family,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -760,7 +760,7 @@ class _NewPastYearsCompetitionScreenState
             ),
           ],
         ),
-        const Text(
+        Text(
           'Yearly Archives',
           style: TextStyle(
             fontFamily: V2Typography.family,
@@ -815,7 +815,7 @@ class _NewPastYearsCompetitionScreenState
                         ),
                         child: Text(
                           '$year',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
@@ -838,7 +838,7 @@ class _NewPastYearsCompetitionScreenState
                   const SizedBox(height: 8),
                   Text(
                     winner.bookName,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -848,7 +848,7 @@ class _NewPastYearsCompetitionScreenState
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 2),
-                  const Text(
+                  Text(
                     'Awarded Winner',
                     style: TextStyle(
                       fontFamily: V2Typography.family,
@@ -998,7 +998,7 @@ class _NewPastYearsCompetitionScreenState
                 children: [
                   Text(
                     'Best Book of $year',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -1039,7 +1039,7 @@ class _NewPastYearsCompetitionScreenState
                 color: const Color(0xFFF7EDF2),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Text(
+              child: Text(
                 'Nominate',
                 style: TextStyle(
                   fontFamily: V2Typography.family,
@@ -1075,7 +1075,7 @@ class _YearRecapSheet extends StatelessWidget {
       constraints: BoxConstraints(
         maxHeight: MediaQuery.sizeOf(context).height * 0.86,
       ),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: V2Colors.background,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
@@ -1083,7 +1083,7 @@ class _YearRecapSheet extends StatelessWidget {
         future: recap,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const SizedBox(
+            return SizedBox(
               height: 280,
               child: Center(
                 child: CircularProgressIndicator(color: V2Colors.primary),
@@ -1096,7 +1096,7 @@ class _YearRecapSheet extends StatelessWidget {
               child: Center(
                 child: Text(
                   'Could not load the $year recap.',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: V2Typography.family,
                     color: V2Colors.textSecondary,
                   ),
@@ -1132,7 +1132,7 @@ class _YearRecapSheet extends StatelessWidget {
                   const SizedBox(height: 20),
                   Text(
                     '$year Laureate Highlight',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
@@ -1141,7 +1141,7 @@ class _YearRecapSheet extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
+                  Text(
                     'A look back at the books that defined the year.',
                     style: TextStyle(
                       fontFamily: V2Typography.family,
@@ -1154,7 +1154,7 @@ class _YearRecapSheet extends StatelessWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
+                      gradient: LinearGradient(
                         colors: [V2Colors.primary, V2Colors.primaryAlt],
                       ),
                       borderRadius: BorderRadius.circular(18),
@@ -1311,7 +1311,7 @@ class _RecapStat extends StatelessWidget {
               children: [
                 Text(
                   value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: V2Typography.family,
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
@@ -1322,7 +1322,7 @@ class _RecapStat extends StatelessWidget {
                   label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: V2Typography.family,
                     fontSize: 10,
                     color: V2Colors.textSecondary,
@@ -1346,7 +1346,7 @@ class _RecapSectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title.toUpperCase(),
-      style: const TextStyle(
+      style: TextStyle(
         fontFamily: V2Typography.family,
         fontSize: 12,
         fontWeight: FontWeight.w800,
@@ -1404,7 +1404,7 @@ class _RecapBookRow extends StatelessWidget {
               title,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: V2Typography.family,
                 fontSize: 13,
                 fontWeight: FontWeight.w700,

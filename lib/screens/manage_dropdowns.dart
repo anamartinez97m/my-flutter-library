@@ -8,11 +8,11 @@ import 'package:provider/provider.dart';
 import '../config/app_theme.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
-const _kBg = V2Colors.background;
-const _kPrimary = V2Colors.primary;
-const _kSub = V2Colors.textSecondary;
-const _kText = V2Colors.textPrimary;
-const _kBorder = V2Colors.border;
+Color get _kBg => V2Colors.background;
+Color get _kPrimary => V2Colors.primary;
+Color get _kSub => V2Colors.textSecondary;
+Color get _kText => V2Colors.textPrimary;
+Color get _kBorder => V2Colors.border;
 
 class ManageDropdownsScreen extends StatefulWidget {
   const ManageDropdownsScreen({super.key});
@@ -199,11 +199,11 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     final controller = TextEditingController();
     String? selectedOption = 'number';
 
-    const kBg = V2Colors.background;
-    const kPrimary = V2Colors.primaryAlt;
+    final kBg = V2Colors.background;
+    final kPrimary = V2Colors.primaryAlt;
     const kText = Color(0xFF1C1B1B);
     const kSub = Color(0xFF49454F);
-    const kBorder = V2Colors.borderDialog;
+    final kBorder = V2Colors.borderDialog;
     final kInfoBg = V2Colors.primaryAlt.withValues(alpha: 0.1);
     final kInfoBorder = V2Colors.primaryAlt.withValues(alpha: 0.2);
 
@@ -243,7 +243,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                                   Expanded(
                                     child: Text(
                                       l10n.saga_completion_setup,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontFamily: V2Typography.family,
                                         fontSize: 20,
                                         fontWeight: FontWeight.w600,
@@ -279,7 +279,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                                   children: [
                                     Text(
                                       l10n.how_many_books_saga,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontFamily: V2Typography.family,
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
@@ -381,14 +381,14 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                                                                 8,
                                                               ),
                                                           borderSide:
-                                                              const BorderSide(
+                                                              BorderSide(
                                                                 color: kPrimary,
                                                                 width: 2,
                                                               ),
                                                         ),
                                                     labelText:
                                                         l10n.number_of_books,
-                                                    labelStyle: const TextStyle(
+                                                    labelStyle: TextStyle(
                                                       fontFamily:
                                                           V2Typography.family,
                                                       fontSize: 12,
@@ -491,7 +491,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                           horizontal: 16,
                           vertical: 16,
                         ),
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           color: kBg,
                           border: Border(top: BorderSide(color: kBorder)),
                         ),
@@ -702,7 +702,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                     children: [
                       Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.add_circle_outline,
                             color: _kPrimary,
                             size: 24,
@@ -710,7 +710,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                           const SizedBox(width: 12),
                           Text(
                             '${l10n.add} ${_getTableLabel(context, _selectedTable)}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: V2Typography.family,
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
@@ -723,7 +723,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                       TextField(
                         controller: valueController,
                         autofocus: true,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontSize: 18,
                           color: _kText,
@@ -732,20 +732,20 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                           labelText: l10n.value_label,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(color: _kSub),
+                            borderSide: BorderSide(color: _kSub),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(color: _kSub),
+                            borderSide: BorderSide(color: _kSub),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
+                            borderSide: BorderSide(
                               color: _kPrimary,
                               width: 2,
                             ),
                           ),
-                          labelStyle: const TextStyle(
+                          labelStyle: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 12,
                             color: _kPrimary,
@@ -756,7 +756,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                       const SizedBox(height: 16),
                       TextField(
                         controller: subtitleController,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontSize: 16,
                           color: _kText,
@@ -766,20 +766,20 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                           hintText: l10n.optional,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(color: _kSub),
+                            borderSide: BorderSide(color: _kSub),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(color: _kSub),
+                            borderSide: BorderSide(color: _kSub),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
+                            borderSide: BorderSide(
                               color: _kPrimary,
                               width: 2,
                             ),
                           ),
-                          labelStyle: const TextStyle(
+                          labelStyle: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 12,
                             color: _kPrimary,
@@ -796,7 +796,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                     horizontal: 16,
                     vertical: 16,
                   ),
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: _kBg,
                     border: Border(top: BorderSide(color: _kBorder)),
                   ),
@@ -966,7 +966,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                       children: [
                         Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.edit_outlined,
                               color: _kPrimary,
                               size: 24,
@@ -974,7 +974,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                             const SizedBox(width: 12),
                             Text(
                               '${l10n.edit} ${_getTableLabel(context, _selectedTable)}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: V2Typography.family,
                                 fontSize: 20,
                                 fontWeight: FontWeight.w600,
@@ -1023,7 +1023,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                         TextField(
                           controller: valueController,
                           autofocus: true,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 18,
                             color: _kText,
@@ -1032,20 +1032,20 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                             labelText: l10n.value_label,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: _kSub),
+                              borderSide: BorderSide(color: _kSub),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: _kSub),
+                              borderSide: BorderSide(color: _kSub),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(
+                              borderSide: BorderSide(
                                 color: _kPrimary,
                                 width: 2,
                               ),
                             ),
-                            labelStyle: const TextStyle(
+                            labelStyle: TextStyle(
                               fontFamily: V2Typography.family,
                               fontSize: 12,
                               color: _kPrimary,
@@ -1056,7 +1056,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                         const SizedBox(height: 16),
                         TextField(
                           controller: subtitleController,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 16,
                             color: _kText,
@@ -1066,20 +1066,20 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                             hintText: l10n.optional,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: _kSub),
+                              borderSide: BorderSide(color: _kSub),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: _kSub),
+                              borderSide: BorderSide(color: _kSub),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(
+                              borderSide: BorderSide(
                                 color: _kPrimary,
                                 width: 2,
                               ),
                             ),
-                            labelStyle: const TextStyle(
+                            labelStyle: TextStyle(
                               fontFamily: V2Typography.family,
                               fontSize: 12,
                               color: _kPrimary,
@@ -1097,7 +1097,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                     horizontal: 16,
                     vertical: 16,
                   ),
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: _kBg,
                     border: Border(top: BorderSide(color: _kBorder)),
                   ),
@@ -1423,7 +1423,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                 children: [
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.info_outline,
                         color: _kPrimary,
                         size: 24,
@@ -1431,7 +1431,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                       const SizedBox(width: 12),
                       Text(
                         l10n.cannot_delete,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
@@ -1443,7 +1443,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                   const SizedBox(height: 16),
                   Text(
                     message,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontSize: 16,
                       color: _kText,
@@ -1532,7 +1532,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                       const SizedBox(height: 24),
                       Text(
                         l10n.confirm_delete_value(value),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontSize: 16,
                           color: _kText,
@@ -1548,7 +1548,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                     horizontal: 16,
                     vertical: 16,
                   ),
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: _kBg,
                     border: Border(top: BorderSide(color: _kBorder)),
                   ),
@@ -1650,7 +1650,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
           children: [
             IconButton(
               onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.arrow_back, color: _kPrimary, size: 20),
+              icon: Icon(Icons.arrow_back, color: _kPrimary, size: 20),
               style: IconButton.styleFrom(
                 backgroundColor: Colors.transparent,
                 shape: const CircleBorder(),
@@ -1729,7 +1729,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
           ),
         ),
         if (_isLoading)
-          const Expanded(
+          Expanded(
             child: Center(child: CircularProgressIndicator(color: _kPrimary)),
           )
         else
@@ -1844,19 +1844,19 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         TextField(
           controller: _searchController,
           onChanged: (value) => setState(() => _searchQuery = value),
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 16,
             color: _kText,
           ),
           decoration: InputDecoration(
             hintText: l10n.search,
-            hintStyle: const TextStyle(
+            hintStyle: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 14,
               color: _kSub,
             ),
-            prefixIcon: const Icon(Icons.search, color: _kSub, size: 20),
+            prefixIcon: Icon(Icons.search, color: _kSub, size: 20),
             filled: true,
             fillColor: Colors.white,
             contentPadding: const EdgeInsets.symmetric(vertical: 12),
@@ -2177,7 +2177,7 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
                     const SizedBox(height: 24),
                     Text(
                       l10n.value_in_use(widget.value, widget.usageCount),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: V2Typography.family,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -2187,7 +2187,7 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
                     const SizedBox(height: 12),
                     Text(
                       l10n.what_would_you_like_to_do,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: V2Typography.family,
                         fontSize: 14,
                         color: _kSub,
@@ -2214,22 +2214,22 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
                             value: _selectedReplacement,
                             decoration: InputDecoration(
                               labelText: l10n.select_replacement,
-                              labelStyle: const TextStyle(
+                              labelStyle: TextStyle(
                                 fontFamily: V2Typography.family,
                                 fontSize: 12,
                                 color: _kPrimary,
                               ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(color: _kSub),
+                                borderSide: BorderSide(color: _kSub),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(color: _kSub),
+                                borderSide: BorderSide(color: _kSub),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(
+                                borderSide: BorderSide(
                                   color: _kPrimary,
                                   width: 2,
                                 ),
@@ -2237,12 +2237,12 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
                               isDense: true,
                             ),
                             isExpanded: true,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: V2Typography.family,
                               fontSize: 15,
                               color: _kText,
                             ),
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.expand_more,
                               color: _kPrimary,
                             ),
@@ -2283,7 +2283,7 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
                         child: TextField(
                           controller: _newValueController,
                           textCapitalization: TextCapitalization.words,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 16,
                             color: _kText,
@@ -2292,20 +2292,20 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
                             labelText: l10n.new_value,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: _kSub),
+                              borderSide: BorderSide(color: _kSub),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: _kSub),
+                              borderSide: BorderSide(color: _kSub),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(
+                              borderSide: BorderSide(
                                 color: _kPrimary,
                                 width: 2,
                               ),
                             ),
-                            labelStyle: const TextStyle(
+                            labelStyle: TextStyle(
                               fontFamily: V2Typography.family,
                               fontSize: 12,
                               color: _kPrimary,
@@ -2330,7 +2330,7 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: _kBg,
                 border: Border(top: BorderSide(color: _kBorder)),
               ),
@@ -2427,7 +2427,7 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: V2Typography.family,
                     fontSize: 16,
                     color: _kText,
@@ -2436,7 +2436,7 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
                 if (subtitle != null)
                   Text(
                     subtitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontSize: 12,
                       color: _kSub,

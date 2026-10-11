@@ -5,14 +5,14 @@ import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 
-const _kBg = V2Colors.background;
-const _kPrimary = V2Colors.primaryAlt;
-const _kText = V2Colors.textPrimary;
-const _kSub = V2Colors.textSecondary;
-const _kBorder = V2Colors.borderDialog;
-const _kWarning = V2Colors.warning;
-const _kWarningBg = V2Colors.warningBackground;
-const _kWarningBorder = V2Colors.warningBorder;
+Color get _kBg => V2Colors.background;
+Color get _kPrimary => V2Colors.primaryAlt;
+Color get _kText => V2Colors.textPrimary;
+Color get _kSub => V2Colors.textSecondary;
+Color get _kBorder => V2Colors.borderDialog;
+Color get _kWarning => V2Colors.warning;
+Color get _kWarningBg => V2Colors.warningBackground;
+Color get _kWarningBorder => V2Colors.warningBorder;
 
 /// Dialog for quickly searching and adding books to a saga or universe
 class QuickAddBookDialog extends StatefulWidget {
@@ -143,12 +143,12 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                 padding: const EdgeInsets.fromLTRB(24, 20, 16, 0),
                 child: Row(
                   children: [
-                    const Icon(Icons.playlist_add, color: _kPrimary, size: 24),
+                    Icon(Icons.playlist_add, color: _kPrimary, size: 24),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         '${AppLocalizations.of(context)!.add_books_to} ${widget.sagaName ?? widget.sagaUniverse}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
@@ -157,7 +157,7 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close, color: _kSub),
+                      icon: Icon(Icons.close, color: _kSub),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ],
@@ -172,18 +172,18 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                   controller: _searchController,
                   autofocus: true,
                   textInputAction: TextInputAction.search,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: V2Typography.family,
                     color: _kText,
                   ),
                   decoration: InputDecoration(
                     labelText:
                         AppLocalizations.of(context)!.search_books_by_title,
-                    labelStyle: const TextStyle(
+                    labelStyle: TextStyle(
                       fontFamily: V2Typography.family,
                       color: _kPrimary,
                     ),
-                    prefixIcon: const Icon(Icons.search, color: _kPrimary),
+                    prefixIcon: Icon(Icons.search, color: _kPrimary),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 17,
                       vertical: 15,
@@ -193,16 +193,16 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: _kSub),
+                      borderSide: BorderSide(color: _kSub),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: _kPrimary, width: 2),
+                      borderSide: BorderSide(color: _kPrimary, width: 2),
                     ),
                     suffixIcon:
                         _searchController.text.isNotEmpty
                             ? IconButton(
-                              icon: const Icon(Icons.clear, color: _kSub),
+                              icon: Icon(Icons.clear, color: _kSub),
                               onPressed: () {
                                 _searchController.clear();
                                 _searchBooks('');
@@ -232,7 +232,7 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.check_circle,
                         color: _kPrimary,
                         size: 20,
@@ -242,7 +242,7 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                         AppLocalizations.of(
                           context,
                         )!.books_selected(_selectedBooks.length),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           color: _kPrimary,
                           fontWeight: FontWeight.w600,
@@ -280,7 +280,7 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                                       context,
                                     )!.no_books_found,
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontFamily: V2Typography.family,
                                   color: _kSub,
                                 ),
@@ -331,7 +331,7 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                               title: Text(
                                 book.name ??
                                     AppLocalizations.of(context)!.unknown,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontFamily: V2Typography.family,
                                   fontWeight: FontWeight.w600,
                                   color: _kText,
@@ -343,7 +343,7 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                                   if (book.author != null)
                                     Text(
                                       'by ${book.author}',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontFamily: V2Typography.family,
                                         fontSize: 13,
                                         color: _kSub,
@@ -366,7 +366,7 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                                       ),
                                       child: Row(
                                         children: [
-                                          const Icon(
+                                          Icon(
                                             Icons.warning_amber_rounded,
                                             color: _kWarning,
                                             size: 15,
@@ -375,7 +375,7 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                                           Flexible(
                                             child: Text(
                                               '$assignmentLabel: $currentAssignment',
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 fontFamily: V2Typography.family,
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.w600,
@@ -401,7 +401,7 @@ class _QuickAddBookDialogState extends State<QuickAddBookDialog> {
                   horizontal: 16,
                   vertical: 16,
                 ),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: _kBg,
                   border: Border(top: BorderSide(color: _kBorder)),
                 ),

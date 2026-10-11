@@ -22,7 +22,7 @@ Widget _cover(dynamic book) {
     child: Center(
       child: Text(
         letter,
-        style: const TextStyle(
+        style: TextStyle(
           color: V2Colors.buttonText,
           fontSize: 16,
           fontWeight: FontWeight.bold,
@@ -65,14 +65,14 @@ Widget _prog(dynamic book) {
             value: val,
             minHeight: 6,
             backgroundColor: V2Colors.divider,
-            valueColor: const AlwaysStoppedAnimation<Color>(V2Colors.primary),
+            valueColor: AlwaysStoppedAnimation<Color>(V2Colors.primary),
           ),
         ),
       ),
       const SizedBox(width: 8),
       Text(
         lbl,
-        style: const TextStyle(fontSize: 12, color: V2Colors.textSecondary),
+        style: TextStyle(fontSize: 12, color: V2Colors.textSecondary),
       ),
     ],
   );
@@ -102,7 +102,7 @@ Widget _bookTile(BuildContext context, dynamic book, VoidCallback onTap) {
               children: [
                 Text(
                   book.name ?? AppLocalizations.of(context)!.unknown,
-                  style: const TextStyle(fontSize: 16, color: V2Colors.primary),
+                  style: TextStyle(fontSize: 16, color: V2Colors.primary),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -111,7 +111,7 @@ Widget _bookTile(BuildContext context, dynamic book, VoidCallback onTap) {
                   const SizedBox(height: 2),
                   Text(
                     book.author as String,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       color: V2Colors.textSecondary,
                     ),
@@ -124,7 +124,7 @@ Widget _bookTile(BuildContext context, dynamic book, VoidCallback onTap) {
             ),
           ),
           const SizedBox(width: 8),
-          const Icon(
+          Icon(
             Icons.arrow_forward_ios,
             size: 12,
             color: V2Colors.textSecondary,
@@ -207,7 +207,7 @@ class _NewMyBooksScreenState extends State<NewMyBooksScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.bookmark_outline,
                         color: V2Colors.primaryAlt,
                         size: 20,
@@ -264,7 +264,7 @@ class _NewMyBooksScreenState extends State<NewMyBooksScreen> {
                               const SizedBox(height: 12),
                               Text(
                                 empty,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: V2Colors.textSecondary,
                                 ),
                               ),
@@ -295,7 +295,7 @@ class _NewMyBooksScreenState extends State<NewMyBooksScreen> {
                 ],
               ),
             ),
-            const Divider(
+            Divider(
               color: V2Colors.border,
               height: 1,
               thickness: 1,
@@ -303,7 +303,7 @@ class _NewMyBooksScreenState extends State<NewMyBooksScreen> {
               endIndent: 40,
             ),
             _ClubsCard(key: _clubsKey),
-            const Divider(
+            Divider(
               color: V2Colors.border,
               height: 1,
               thickness: 1,
@@ -411,7 +411,7 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
             children: [
               Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.bookmark_outline,
                     color: V2Colors.primaryAlt,
                     size: 20,
@@ -419,7 +419,7 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                   const SizedBox(width: 12),
                   Text(
                     l10n.tbr_title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       color: V2Colors.primary,
                     ),
@@ -440,7 +440,7 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                     ),
                     child: Text(
                       '${_books.length}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         color: V2Colors.textPrimary,
                       ),
@@ -471,7 +471,7 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                 child: Center(
                   child: Column(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.bookmark_border,
                         size: 48,
                         color: V2Colors.textSecondary,
@@ -479,7 +479,7 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                       const SizedBox(height: 12),
                       Text(
                         l10n.no_books_in_tbr,
-                        style: const TextStyle(color: V2Colors.textSecondary),
+                        style: TextStyle(color: V2Colors.textSecondary),
                       ),
                     ],
                   ),
@@ -535,7 +535,7 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                                       children: [
                                         Text(
                                           book.name ?? l10n.unknown,
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontSize: 16,
                                             color: V2Colors.primary,
                                           ),
@@ -548,7 +548,7 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                                           const SizedBox(height: 2),
                                           Text(
                                             book.author as String,
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontSize: 12,
                                               color: V2Colors.textSecondary,
                                             ),
@@ -561,7 +561,7 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
                                   ),
                                 ),
                                 IconButton(
-                                  icon: const Icon(
+                                  icon: Icon(
                                     Icons.remove_circle_outline,
                                     color: V2Colors.primaryAlt,
                                   ),
@@ -657,7 +657,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
             children: [
               Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.groups_outlined,
                     color: V2Colors.primary,
                     size: 20,
@@ -665,7 +665,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                   const SizedBox(width: 12),
                   Text(
                     l10n.clubs,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       color: V2Colors.primary,
                     ),
@@ -692,7 +692,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                 child: Center(
                   child: Column(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.groups_outlined,
                         size: 48,
                         color: V2Colors.textSecondary,
@@ -700,7 +700,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                       const SizedBox(height: 12),
                       Text(
                         l10n.no_clubs_yet,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           color: V2Colors.textPrimary,
                         ),
@@ -708,7 +708,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                       const SizedBox(height: 4),
                       Text(
                         l10n.add_books_to_clubs,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           color: V2Colors.textSecondary,
                         ),
@@ -751,7 +751,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                           children: [
                             Row(
                               children: [
-                                const Icon(
+                                Icon(
                                   Icons.groups,
                                   color: V2Colors.primary,
                                   size: 14,
@@ -760,7 +760,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                                 Expanded(
                                   child: Text(
                                     clubName,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 14,
                                       color: V2Colors.primary,
                                     ),
@@ -774,7 +774,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                               children: [
                                 Text(
                                   bookName,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 14,
                                     color: V2Colors.textPrimary,
                                   ),
@@ -785,7 +785,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                                 if (author != null && author.isNotEmpty)
                                   Text(
                                     author,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 12,
                                       color: V2Colors.textSecondary,
                                     ),
@@ -800,7 +800,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                                 if (target != null)
                                   Row(
                                     children: [
-                                      const Icon(
+                                      Icon(
                                         Icons.calendar_today,
                                         size: 9,
                                         color: V2Colors.textSecondary,
@@ -808,7 +808,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                                       const SizedBox(width: 4),
                                       Text(
                                         target,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 10,
                                           color: V2Colors.textSecondary,
                                         ),
@@ -819,7 +819,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                                   const SizedBox.shrink(),
                                 Text(
                                   '$prog%',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
                                     color: V2Colors.primary,

@@ -16,13 +16,13 @@ import 'package:myrandomlibrary/widgets/book_card_v2.dart';
 import 'package:myrandomlibrary/widgets/shimmer_loading.dart';
 
 // ── Figma design tokens ────────────────────────────────────────────────────────
-const _kPrimary = V2Colors.primary;
-const _kBg = V2Colors.background;
-const _kBorder = V2Colors.borderNeutral;
-const _kDivider = V2Colors.divider;
-const _kText = V2Colors.textSubtle;
-const _kInactiveText = V2Colors.textSecondary;
-const _kFabSmall = V2Colors.control;
+Color get _kPrimary => V2Colors.primary;
+Color get _kBg => V2Colors.background;
+Color get _kBorder => V2Colors.borderNeutral;
+Color get _kDivider => V2Colors.divider;
+Color get _kText => V2Colors.textSubtle;
+Color get _kInactiveText => V2Colors.textSecondary;
+Color get _kFabSmall => V2Colors.control;
 const _kChipBg = Color(0x80F2EDEB);
 const _kChipBorder = Color(0x80D5C2C7);
 const _kChipSelected = Color(0xE643102B);
@@ -250,15 +250,15 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
       fillColor: _kBg,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: V2Colors.borderStrong),
+        borderSide: BorderSide(color: V2Colors.borderStrong),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: V2Colors.borderStrong),
+        borderSide: BorderSide(color: V2Colors.borderStrong),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: V2Colors.borderStrong),
+        borderSide: BorderSide(color: V2Colors.borderStrong),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 17, vertical: 17),
     );
@@ -329,7 +329,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
         children: [
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
               color: _kPrimary,
@@ -466,7 +466,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                 horizontal: 20,
                                 vertical: 16,
                               ),
-                              decoration: const BoxDecoration(
+                              decoration: BoxDecoration(
                                 color: _kBg,
                                 border: Border(
                                   bottom: BorderSide(color: _kDivider),
@@ -478,7 +478,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                 children: [
                                   Text(
                                     l10n.sort_and_filter,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.w700,
                                       color: V2Colors.textPrimary,
@@ -488,7 +488,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                     onTap: () => Navigator.pop(ctx),
                                     child: Container(
                                       padding: const EdgeInsets.all(8),
-                                      child: const Icon(
+                                      child: Icon(
                                         Icons.close,
                                         size: 18,
                                         color: V2Colors.textPrimary,
@@ -512,7 +512,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                   // Sort section
                                   Row(
                                     children: [
-                                      const Icon(
+                                      Icon(
                                         Icons.sort,
                                         size: 18,
                                         color: V2Colors.textPrimary,
@@ -520,7 +520,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                       const SizedBox(width: 12),
                                       Text(
                                         l10n.sort_by,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.w600,
                                           color: V2Colors.textPrimary,
@@ -548,11 +548,11 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                             child: DropdownButton<String>(
                                               value: _sortBy,
                                               isExpanded: true,
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 fontSize: 16,
                                                 color: V2Colors.textPrimary,
                                               ),
-                                              icon: const Icon(
+                                              icon: Icon(
                                                 Icons.keyboard_arrow_down,
                                                 color: V2Colors.textPrimary,
                                               ),
@@ -620,7 +620,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                     ),
                                   ),
                                   const SizedBox(height: 24),
-                                  const Divider(
+                                  Divider(
                                     color: _kDivider,
                                     height: 1,
                                     thickness: 1,
@@ -629,7 +629,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                   // Filters heading
                                   Text(
                                     l10n.filters,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.w600,
                                       color: V2Colors.textPrimary,
@@ -975,7 +975,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                 20,
                                 20 + MediaQuery.of(ctx).viewPadding.bottom,
                               ),
-                              decoration: const BoxDecoration(
+                              decoration: BoxDecoration(
                                 color: _kBg,
                                 border: Border(
                                   top: BorderSide(color: _kDivider),
@@ -1016,7 +1016,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                           Navigator.pop(ctx);
                                         },
                                         style: OutlinedButton.styleFrom(
-                                          side: const BorderSide(
+                                          side: BorderSide(
                                             color: V2Colors.textMuted,
                                           ),
                                           shape: const StadiumBorder(),
@@ -1171,7 +1171,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                     child: Row(
                       children: [
                         const SizedBox(width: 16),
-                        const Icon(Icons.search, color: _kText, size: 18),
+                        Icon(Icons.search, color: _kText, size: 18),
                         const SizedBox(width: 10),
                         Expanded(
                           child: TextField(
@@ -1185,14 +1185,14 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                               border: InputBorder.none,
                               focusedBorder: InputBorder.none,
                               hintText: l10n.search_hint,
-                              hintStyle: const TextStyle(
+                              hintStyle: TextStyle(
                                 color: _kText,
                                 fontSize: 14,
                               ),
                               isDense: true,
                               contentPadding: EdgeInsets.zero,
                             ),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               color: V2Colors.borderStrong,
                             ),
@@ -1204,7 +1204,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                             minWidth: 36,
                             minHeight: 36,
                           ),
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.close,
                             size: 14,
                             color: _kText,
@@ -1284,7 +1284,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
               backgroundColor: _kFabSmall,
               elevation: 3,
               shape: const CircleBorder(),
-              child: const Icon(Icons.tune, color: _kInactiveText, size: 17),
+              child: Icon(Icons.tune, color: _kInactiveText, size: 17),
             ),
           ),
           const SizedBox(height: 12),

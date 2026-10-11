@@ -8,11 +8,11 @@ import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/model/reading_session.dart';
 import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
 
-const _kText = V2Colors.textPrimary;
-const _kSub = V2Colors.textSecondary;
-const _kBg = V2Colors.background;
-const _kPrimary = V2Colors.primaryAlt;
-const _kBorder = V2Colors.borderDialog;
+Color get _kText => V2Colors.textPrimary;
+Color get _kSub => V2Colors.textSecondary;
+Color get _kBg => V2Colors.background;
+Color get _kPrimary => V2Colors.primaryAlt;
+Color get _kBorder => V2Colors.borderDialog;
 
 /// v2 full-screen list of all reading sessions for a single book.
 ///
@@ -272,7 +272,7 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
                         const SizedBox(height: 24),
                         Text(
                           l10n.confirm_delete_session,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 16,
                             color: _kText,
@@ -288,7 +288,7 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
                       horizontal: 16,
                       vertical: 16,
                     ),
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       color: _kBg,
                       border: Border(top: BorderSide(color: _kBorder)),
                     ),
@@ -472,14 +472,14 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back, color: _kPrimary),
+          icon: Icon(Icons.arrow_back, color: _kPrimary),
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               l10n.reading_sessions_title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: V2Typography.family,
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -491,7 +491,7 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
                 _sessions.length.toString(),
                 _formatDuration(_totalSeconds),
               ),
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: V2Typography.family,
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
@@ -573,7 +573,7 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
                             children: [
                               Text(
                                 l10n.recent_sessions.toUpperCase(),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontFamily: V2Typography.family,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
@@ -603,7 +603,7 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
                                   padding: const EdgeInsets.all(32),
                                   child: Text(
                                     l10n.no_reading_sessions,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontFamily: V2Typography.family,
                                       fontSize: 14,
                                       color: _kSub,
@@ -693,7 +693,7 @@ class _StatCell extends StatelessWidget {
       children: [
         Text(
           label.toUpperCase(),
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 10,
             fontWeight: FontWeight.w600,
@@ -705,7 +705,7 @@ class _StatCell extends StatelessWidget {
         const SizedBox(height: 6),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -731,7 +731,7 @@ class _TimelineItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const dotColor = V2Colors.primaryAlt;
+    final dotColor = V2Colors.primaryAlt;
 
     return IntrinsicHeight(
       child: Row(
@@ -838,7 +838,7 @@ class _SessionCard extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.timer_outlined,
                       size: 14,
                       color: V2Colors.primaryAlt,
@@ -846,7 +846,7 @@ class _SessionCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       formatDuration(duration),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: V2Typography.family,
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
@@ -859,7 +859,7 @@ class _SessionCard extends StatelessWidget {
               const Spacer(),
               GestureDetector(
                 onTap: onEdit,
-                child: const Icon(
+                child: Icon(
                   Icons.edit_outlined,
                   size: 18,
                   color: _kPrimary,
@@ -868,7 +868,7 @@ class _SessionCard extends StatelessWidget {
               const SizedBox(width: 14),
               GestureDetector(
                 onTap: onDelete,
-                child: const Icon(
+                child: Icon(
                   Icons.delete_outline,
                   size: 18,
                   color: _kPrimary,
@@ -880,11 +880,11 @@ class _SessionCard extends StatelessWidget {
           // Second row: date · time
           Row(
             children: [
-              const Icon(Icons.calendar_today_outlined, size: 13, color: _kSub),
+              Icon(Icons.calendar_today_outlined, size: 13, color: _kSub),
               const SizedBox(width: 5),
               Text(
                 formatDate(date),
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: V2Typography.family,
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
@@ -903,11 +903,11 @@ class _SessionCard extends StatelessWidget {
                   ),
                 ),
               ),
-              const Icon(Icons.access_time, size: 13, color: _kSub),
+              Icon(Icons.access_time, size: 13, color: _kSub),
               const SizedBox(width: 5),
               Text(
                 formatTime(time),
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: V2Typography.family,
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
@@ -970,7 +970,7 @@ class _EditingSessionCard extends StatelessWidget {
               Container(
                 width: 8,
                 height: 8,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: _kPrimary,
                   shape: BoxShape.circle,
                 ),
@@ -978,7 +978,7 @@ class _EditingSessionCard extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 l10n.editing_session,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: V2Typography.family,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -999,7 +999,7 @@ class _EditingSessionCard extends StatelessWidget {
               const SizedBox(width: 14),
               GestureDetector(
                 onTap: onDone,
-                child: const Icon(Icons.check, size: 18, color: _kPrimary),
+                child: Icon(Icons.check, size: 18, color: _kPrimary),
               ),
             ],
           ),
@@ -1013,7 +1013,7 @@ class _EditingSessionCard extends StatelessWidget {
                   children: [
                     Text(
                       l10n.date_label.toUpperCase(),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: V2Typography.family,
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
@@ -1039,7 +1039,7 @@ class _EditingSessionCard extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.calendar_today_outlined,
                               size: 15,
                               color: _kPrimary,
@@ -1047,7 +1047,7 @@ class _EditingSessionCard extends StatelessWidget {
                             const SizedBox(width: 8),
                             Text(
                               DateFormat('yyyy-MM-dd').format(editDate),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: V2Typography.family,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
@@ -1068,7 +1068,7 @@ class _EditingSessionCard extends StatelessWidget {
                   children: [
                     Text(
                       l10n.start_time.toUpperCase(),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: V2Typography.family,
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
@@ -1094,7 +1094,7 @@ class _EditingSessionCard extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.access_time,
                               size: 15,
                               color: _kPrimary,
@@ -1102,7 +1102,7 @@ class _EditingSessionCard extends StatelessWidget {
                             const SizedBox(width: 8),
                             Text(
                               editTime.format(context),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: V2Typography.family,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
@@ -1122,7 +1122,7 @@ class _EditingSessionCard extends StatelessWidget {
           // Duration
           Text(
             l10n.duration_label.toUpperCase(),
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 10,
               fontWeight: FontWeight.w600,
@@ -1142,7 +1142,7 @@ class _EditingSessionCard extends StatelessWidget {
             ),
             child: Row(
               children: [
-                const Icon(Icons.timer_outlined, size: 16, color: _kPrimary),
+                Icon(Icons.timer_outlined, size: 16, color: _kPrimary),
                 const SizedBox(width: 8),
                 Expanded(
                   child: TextField(
@@ -1160,7 +1160,7 @@ class _EditingSessionCard extends StatelessWidget {
                       isDense: true,
                       contentPadding: EdgeInsets.zero,
                     ),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,

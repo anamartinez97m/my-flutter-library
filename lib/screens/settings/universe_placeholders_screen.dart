@@ -13,13 +13,13 @@ import 'package:myrandomlibrary/widgets/autocomplete_text_field.dart';
 import 'package:myrandomlibrary/widgets/chip_autocomplete_field.dart';
 import 'package:provider/provider.dart';
 
-const _kBg = V2Colors.background;
-const _kPrimary = V2Colors.primary;
-const _kSecondary = V2Colors.secondary;
-const _kText = V2Colors.textPrimary;
-const _kSub = V2Colors.textSecondary;
-const _kBorder = V2Colors.border;
-const _kSurface = V2Colors.surfaceAlt;
+Color get _kBg => V2Colors.background;
+Color get _kPrimary => V2Colors.primary;
+Color get _kSecondary => V2Colors.secondary;
+Color get _kText => V2Colors.textPrimary;
+Color get _kSub => V2Colors.textSecondary;
+Color get _kBorder => V2Colors.border;
+Color get _kSurface => V2Colors.surfaceAlt;
 
 class UniversePlaceholdersScreen extends StatefulWidget {
   final String? initialUniverse;
@@ -150,7 +150,7 @@ class _UniversePlaceholdersScreenState
   InputDecoration _fieldDecoration(String label, {IconData? icon}) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(
+      labelStyle: TextStyle(
         fontFamily: V2Typography.family,
         color: _kSub,
       ),
@@ -160,11 +160,11 @@ class _UniversePlaceholdersScreenState
       fillColor: Colors.white,
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: _kBorder),
+        borderSide: BorderSide(color: _kBorder),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: _kPrimary, width: 1.5),
+        borderSide: BorderSide(color: _kPrimary, width: 1.5),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -186,7 +186,7 @@ class _UniversePlaceholdersScreenState
           const SizedBox(width: 8),
           Text(
             label.toUpperCase(),
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 11,
               fontWeight: FontWeight.w700,
@@ -273,7 +273,7 @@ class _UniversePlaceholdersScreenState
                                     placeholder == null
                                         ? l10n.add_placeholder
                                         : l10n.edit_placeholder,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontFamily: V2Typography.family,
                                       fontSize: 20,
                                       fontWeight: FontWeight.w700,
@@ -285,7 +285,7 @@ class _UniversePlaceholdersScreenState
                                     l10n.universe_placeholders_subtitle,
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontFamily: V2Typography.family,
                                       fontSize: 12,
                                       color: _kSub,
@@ -296,12 +296,12 @@ class _UniversePlaceholdersScreenState
                             ),
                             IconButton(
                               onPressed: () => Navigator.pop(context, false),
-                              icon: const Icon(Icons.close, color: _kSub),
+                              icon: Icon(Icons.close, color: _kSub),
                             ),
                           ],
                         ),
                       ),
-                      const Divider(height: 1, color: _kBorder),
+                      Divider(height: 1, color: _kBorder),
                       Expanded(
                         child: Form(
                           key: formKey,
@@ -447,7 +447,7 @@ class _UniversePlaceholdersScreenState
                           20,
                           14 + MediaQuery.paddingOf(context).bottom,
                         ),
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           color: _kSurface,
                           border: Border(top: BorderSide(color: _kBorder)),
                         ),
@@ -587,7 +587,7 @@ class _UniversePlaceholdersScreenState
   @override
   Widget build(BuildContext context) {
     if (!context.watch<RoleProvider>().isAdmin) {
-      return const Scaffold(backgroundColor: _kBg);
+      return Scaffold(backgroundColor: _kBg);
     }
     final l10n = AppLocalizations.of(context)!;
     final entries = <({int? order, String title, String? saga, Object value})>[
@@ -616,12 +616,12 @@ class _UniversePlaceholdersScreenState
           surfaceTintColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: _kPrimary),
+            icon: Icon(Icons.arrow_back, color: _kPrimary),
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
             l10n.universe_placeholders,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -630,7 +630,7 @@ class _UniversePlaceholdersScreenState
             ),
           ),
           centerTitle: true,
-          bottom: const PreferredSize(
+          bottom: PreferredSize(
             preferredSize: Size.fromHeight(1),
             child: Divider(height: 1, color: _kBorder),
           ),
@@ -654,7 +654,7 @@ class _UniversePlaceholdersScreenState
         ),
         body:
             _loading
-                ? const Center(
+                ? Center(
                   child: CircularProgressIndicator(color: _kPrimary),
                 )
                 : SafeArea(
@@ -669,7 +669,7 @@ class _UniversePlaceholdersScreenState
                             children: [
                               Text(
                                 l10n.universe_placeholders_subtitle,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontFamily: V2Typography.family,
                                   fontSize: 14,
                                   color: _kSub,
@@ -684,11 +684,11 @@ class _UniversePlaceholdersScreenState
                                         : null,
                                 isExpanded: true,
                                 dropdownColor: _kSurface,
-                                icon: const Icon(
+                                icon: Icon(
                                   Icons.keyboard_arrow_down,
                                   color: _kPrimary,
                                 ),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontFamily: V2Typography.family,
                                   fontSize: 15,
                                   fontWeight: FontWeight.w600,
@@ -722,7 +722,7 @@ class _UniversePlaceholdersScreenState
                               const SizedBox(height: 24),
                               Text(
                                 _selectedUniverse ?? l10n.saga_universe,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontFamily: V2Typography.family,
                                   fontSize: 18,
                                   fontWeight: FontWeight.w700,
@@ -788,7 +788,7 @@ class _UniversePlaceholdersScreenState
         children: [
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 22,
               fontWeight: FontWeight.w700,
@@ -799,7 +799,7 @@ class _UniversePlaceholdersScreenState
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 12,
               color: _kSub,
@@ -856,7 +856,7 @@ class _UniversePlaceholdersScreenState
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: _kPrimary.withValues(alpha: 0.1)),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.auto_stories_outlined,
                 size: 36,
                 color: _kPrimary,
@@ -866,7 +866,7 @@ class _UniversePlaceholdersScreenState
             Text(
               l10n.no_books_in_universe,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: V2Typography.family,
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
@@ -877,7 +877,7 @@ class _UniversePlaceholdersScreenState
             Text(
               l10n.universe_placeholders_subtitle,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: V2Typography.family,
                 fontSize: 13,
                 color: _kSub,
@@ -946,7 +946,7 @@ class _UniversePlaceholdersScreenState
             entry.title,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 15,
               fontWeight: FontWeight.w700,
@@ -963,7 +963,7 @@ class _UniversePlaceholdersScreenState
                 if (entry.saga?.isNotEmpty == true)
                   Text(
                     entry.saga!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontSize: 12,
                       color: _kSub,
@@ -996,7 +996,7 @@ class _UniversePlaceholdersScreenState
           ),
           trailing:
               isOwned
-                  ? const Padding(
+                  ? Padding(
                     padding: EdgeInsets.only(right: 10),
                     child: Icon(Icons.check_circle_outline, color: _kSub),
                   )
@@ -1048,7 +1048,8 @@ class _UniversePlaceholdersScreenState
     );
   }
 
-  Widget _menuItem(IconData icon, String label, {Color color = _kText}) {
+  Widget _menuItem(IconData icon, String label, {Color? color}) {
+    color ??= _kText;
     return Row(
       children: [
         Icon(icon, size: 20, color: color),

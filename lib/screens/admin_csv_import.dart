@@ -17,11 +17,11 @@ import 'package:sqflite/sqflite.dart';
 import '../config/app_theme.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
-const _kV2Bg = V2Colors.background;
-const _kV2Primary = V2Colors.primary;
-const _kV2Sub = V2Colors.textSecondary;
-const _kV2Text = V2Colors.textPrimary;
-const _kV2Border = V2Colors.border;
+Color get _kV2Bg => V2Colors.background;
+Color get _kV2Primary => V2Colors.primary;
+Color get _kV2Sub => V2Colors.textSecondary;
+Color get _kV2Text => V2Colors.textPrimary;
+Color get _kV2Border => V2Colors.border;
 
 class AdminCsvImportScreen extends StatefulWidget {
   final bool bundleImport;
@@ -1435,7 +1435,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         Expanded(
           child: Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -1450,7 +1450,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
   Widget _v2DialogContent(String text) {
     return Text(
       text,
-      style: const TextStyle(
+      style: TextStyle(
         fontFamily: V2Typography.family,
         fontSize: 14,
         color: _kV2Sub,
@@ -1525,14 +1525,14 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: _kV2Primary),
+          icon: Icon(Icons.arrow_back, color: _kV2Primary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           widget.bundleImport
               ? l10n.admin_bundle_csv_import
               : l10n.admin_csv_import,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -1547,11 +1547,11 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               onPressed: _processImports,
               child: Row(
                 children: [
-                  const Icon(Icons.check, color: _kV2Primary, size: 20),
+                  Icon(Icons.check, color: _kV2Primary, size: 20),
                   const SizedBox(width: 6),
                   Text(
                     l10n.import_all,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -1569,7 +1569,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
       ),
       body:
           _isLoading
-              ? const Center(
+              ? Center(
                 child: CircularProgressIndicator(color: _kV2Primary),
               )
               : _importItems.isEmpty
@@ -1593,7 +1593,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: _kV2Primary.withValues(alpha: 0.1)),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.upload_file,
                 size: 40,
                 color: _kV2Primary,
@@ -1602,7 +1602,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
             const SizedBox(height: 24),
             Text(
               l10n.no_csv_file_selected,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: V2Typography.family,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -1613,7 +1613,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
             const SizedBox(height: 8),
             Text(
               'Select a CSV file to begin importing books into your library.',
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: V2Typography.family,
                 fontSize: 14,
                 color: _kV2Sub,
@@ -1739,7 +1739,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                   (_currentIndex + 1).toString(),
                   _importItems.length.toString(),
                 ),
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: V2Typography.family,
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
@@ -1760,7 +1760,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                   l10n.n_to_import(
                     _importItems.where((i) => i.shouldImport).length.toString(),
                   ),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: V2Typography.family,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,

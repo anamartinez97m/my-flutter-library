@@ -280,8 +280,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
   }
 
   void _showSuccessDialogV2() {
-    const kBg = V2Colors.background;
-    const kPrimary = V2Colors.primaryAlt;
+    final kBg = V2Colors.background;
+    final kPrimary = V2Colors.primaryAlt;
     const kIconBgOuter = Color(0xFFEFE8EB);
     const kText = Color(0xFF201A1C);
     const kSub = Color(0xFF4F4449);
@@ -314,7 +314,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       child: Container(
                         width: 80,
                         height: 80,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           color: kPrimary,
                           shape: BoxShape.circle,
                         ),
@@ -378,7 +378,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
+                          Text(
                             '+',
                             style: TextStyle(
                               fontSize: 16,
@@ -389,7 +389,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                           const SizedBox(width: 8),
                           Text(
                             AppLocalizations.of(context)!.add_another,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: V2Typography.family,
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -1194,14 +1194,14 @@ class _AddBookScreenState extends State<AddBookScreen> {
   }
 
   // ─── v2 design tokens ───────────────────────────────────────────────────
-  static const _kBg = V2Colors.background;
-  static const _kPrimary = V2Colors.primary;
-  static const _kSub = V2Colors.textSecondary;
+  static Color get _kBg => V2Colors.background;
+  static Color get _kPrimary => V2Colors.primary;
+  static Color get _kSub => V2Colors.textSecondary;
   static const _kLabel = Color(
     0xCC43102B,
   ); // V2Colors.primary at 80% alpha (const-safe).
-  static const _kInputBorder = V2Colors.borderInput;
-  static const _kNotesBorder = V2Colors.border;
+  static Color get _kInputBorder => V2Colors.borderInput;
+  static Color get _kNotesBorder => V2Colors.border;
 
   static TextStyle _labelStyle() => V2Typography.label.copyWith(color: _kLabel);
   static TextStyle _floatingLabelStyle() =>
@@ -1229,7 +1229,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: _kPrimary, width: 1.5),
+        borderSide: BorderSide(color: _kPrimary, width: 1.5),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
@@ -1415,7 +1415,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         elevation: 0,
         title: Text(
           l10n.add_book,
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 20,
             color: _kPrimary,
@@ -1423,12 +1423,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: _kPrimary),
+          icon: Icon(Icons.arrow_back, color: _kPrimary),
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.check, color: _kPrimary),
+            icon: Icon(Icons.check, color: _kPrimary),
             onPressed: _saveBook,
           ),
         ],
@@ -1445,7 +1445,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   onPrimaryContainer: _kPrimary,
                   onSurfaceVariant: _kLabel,
                 ),
-                chipTheme: const ChipThemeData(
+                chipTheme: ChipThemeData(
                   backgroundColor: V2Colors.chip,
                   labelStyle: TextStyle(color: _kPrimary, fontSize: 12),
                   deleteIconColor: _kSub,
@@ -1458,22 +1458,22 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   fillColor: Colors.white,
                   labelStyle: _labelStyle(),
                   hintStyle: _labelStyle(),
-                  floatingLabelStyle: const TextStyle(
+                  floatingLabelStyle: TextStyle(
                     color: _kPrimary,
                     fontSize: 12,
                   ),
                   prefixIconColor: _kPrimary,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: _kInputBorder),
+                    borderSide: BorderSide(color: _kInputBorder),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: _kInputBorder),
+                    borderSide: BorderSide(color: _kInputBorder),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: _kPrimary, width: 1.5),
+                    borderSide: BorderSide(color: _kPrimary, width: 1.5),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -1524,7 +1524,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
           Icons.check_circle_outline,
         ),
         dropdownColor: Colors.white,
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: V2Typography.family,
           color: _kPrimary,
         ),
@@ -1780,7 +1780,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         const SizedBox(height: 10),
         Text(
           l10n.original_publication_date,
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 14,
             color: _kPrimary,
@@ -1816,7 +1816,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         CheckboxListTile(
           title: Text(
             l10n.enable_release_notification,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,
               color: _kPrimary,
@@ -1905,7 +1905,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         value: _selectedFormatId,
         decoration: _v2Deco(l10n.format, Icons.import_contacts),
         dropdownColor: Colors.white,
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: V2Typography.family,
           color: _kPrimary,
         ),
@@ -1928,7 +1928,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         value: _selectedFormatSagaId,
         decoration: _v2Deco(l10n.format_saga, Icons.format_shapes),
         dropdownColor: Colors.white,
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: V2Typography.family,
           color: _kPrimary,
         ),
@@ -1975,7 +1975,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         value: _selectedLanguageId,
         decoration: _v2Deco(l10n.language, Icons.language),
         dropdownColor: Colors.white,
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: V2Typography.family,
           color: _kPrimary,
         ),
@@ -2031,7 +2031,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         value: _selectedPlaceId,
         decoration: _v2Deco(l10n.place, Icons.place),
         dropdownColor: Colors.white,
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: V2Typography.family,
           color: _kPrimary,
         ),
@@ -2054,7 +2054,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         value: _selectedLoaned,
         decoration: _v2Deco(l10n.loaned, Icons.swap_horiz),
         dropdownColor: Colors.white,
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: V2Typography.family,
           color: _kPrimary,
         ),
@@ -2077,12 +2077,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
         color: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
-          side: const BorderSide(color: _kInputBorder),
+          side: BorderSide(color: _kInputBorder),
         ),
         clipBehavior: Clip.antiAlias,
         child: ExpansionTile(
-          leading: const Icon(Icons.star_rate, color: _kPrimary),
-          title: Text(l10n.rating, style: const TextStyle(color: _kPrimary)),
+          leading: Icon(Icons.star_rate, color: _kPrimary),
+          title: Text(l10n.rating, style: TextStyle(color: _kPrimary)),
           subtitle: Text(
             _ratingFields.isEmpty
                 ? l10n.no_ratings_yet
@@ -2116,7 +2116,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                                       labelText: l10n.criterion,
                                       border: const OutlineInputBorder(),
                                     ),
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontFamily: V2Typography.family,
                                       color: _kPrimary,
                                     ),
@@ -2243,7 +2243,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         children: [
           Text(
             l10n.times_read,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: _kPrimary,
@@ -2280,7 +2280,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 ),
                 child: Text(
                   '$_readCount',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: V2Colors.textPrimary,
@@ -2335,7 +2335,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         color: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
-          side: const BorderSide(color: _kNotesBorder),
+          side: BorderSide(color: _kNotesBorder),
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
@@ -2343,7 +2343,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
             CheckboxListTile(
               title: Text(
                 l10n.add_to_tbr,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: _kPrimary,
@@ -2354,7 +2354,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 style: const TextStyle(fontSize: 11, color: _kLabel),
               ),
               value: _tbr,
-              secondary: const Icon(Icons.bookmark_add, color: _kPrimary),
+              secondary: Icon(Icons.bookmark_add, color: _kPrimary),
               onChanged: (value) async {
                 if (value == true) {
                   final db = await DatabaseHelper.instance.database;
@@ -2399,7 +2399,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
             CheckboxListTile(
               title: Text(
                 l10n.mark_as_tandem,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: _kPrimary,
@@ -2410,7 +2410,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 style: const TextStyle(fontSize: 11, color: _kLabel),
               ),
               value: _isTandem,
-              secondary: const Icon(
+              secondary: Icon(
                 Icons.swap_horizontal_circle_outlined,
                 color: _kPrimary,
               ),

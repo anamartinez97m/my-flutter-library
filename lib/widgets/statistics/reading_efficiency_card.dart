@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
-const _kPrimary = V2Colors.primary;
-const _kSecondary = V2Colors.secondary;
+Color get _kPrimary => V2Colors.primary;
+Color get _kSecondary => V2Colors.secondary;
 const _kTertiary = Color(0xFFBC92A6); // Not represented in V2Colors.
-const _kSub = V2Colors.textSecondary;
-const _kDivider = V2Colors.divider;
+Color get _kSub => V2Colors.textSecondary;
+Color get _kDivider => V2Colors.divider;
 
 /// Reading Efficiency — Insight-first card.
 ///
@@ -49,7 +49,7 @@ class ReadingEfficiencyCard extends StatelessWidget {
           caption: l10n.based_on_books_with_data(booksUsedInAverageDays),
         ),
         const SizedBox(height: 16),
-        const Divider(height: 1, thickness: 1, color: _kDivider),
+        Divider(height: 1, thickness: 1, color: _kDivider),
         const SizedBox(height: 16),
         // Secondary insight
         _InsightRow(
@@ -64,7 +64,7 @@ class ReadingEfficiencyCard extends StatelessWidget {
           caption: l10n.based_on_years_of_data(yearsWithBooks),
         ),
         const SizedBox(height: 16),
-        const Divider(height: 1, thickness: 1, color: _kDivider),
+        Divider(height: 1, thickness: 1, color: _kDivider),
         const SizedBox(height: 16),
         // Supporting metrics row
         Row(
@@ -127,7 +127,7 @@ class _InsightRow extends StatelessWidget {
             children: [
               Text(
                 headline,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: V2Typography.family,
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
@@ -138,7 +138,7 @@ class _InsightRow extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 caption,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: V2Typography.family,
                   fontSize: 11,
                   color: _kSub,
@@ -186,7 +186,7 @@ class _SupportStat extends StatelessWidget {
               ),
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: V2Typography.family,
                   fontSize: 10,
                   color: _kSub,

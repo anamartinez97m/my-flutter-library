@@ -17,13 +17,13 @@ class FillEmptyWizardScreen extends StatefulWidget {
 }
 
 class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
-  static const _kBg = V2Colors.background;
-  static const _kPrimary = V2Colors.primary;
-  static const _kSecondary = V2Colors.secondary;
-  static const _kText = V2Colors.textPrimary;
-  static const _kSubText = V2Colors.textSubtle;
-  static const _kIconBg = V2Colors.chip;
-  static const _kBorder = V2Colors.border;
+  static Color get _kBg => V2Colors.background;
+  static Color get _kPrimary => V2Colors.primary;
+  static Color get _kSecondary => V2Colors.secondary;
+  static Color get _kText => V2Colors.textPrimary;
+  static Color get _kSubText => V2Colors.textSubtle;
+  static Color get _kIconBg => V2Colors.chip;
+  static Color get _kBorder => V2Colors.border;
 
   String? _selectedField;
   bool _isLoading = false;
@@ -308,7 +308,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
         elevation: 0,
         title: Text(
           l10n.fill_empty_fields,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w700,
@@ -331,7 +331,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
       children: [
         Text(
           l10n.select_field_to_fill,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -341,7 +341,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
         const SizedBox(height: 6),
         Text(
           l10n.fill_empty_fields_hint,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 13,
             color: _kSubText,
@@ -378,7 +378,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                     Container(
                       width: 40,
                       height: 40,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: _kIconBg,
                         shape: BoxShape.circle,
                       ),
@@ -392,7 +392,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                     Expanded(
                       child: Text(
                         _getFieldLabel(key),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -400,7 +400,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                         ),
                       ),
                     ),
-                    const Icon(Icons.chevron_right, color: _kSubText, size: 18),
+                    Icon(Icons.chevron_right, color: _kSubText, size: 18),
                   ],
                 ),
               ),
@@ -419,7 +419,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(
+            SizedBox(
               width: 32,
               height: 32,
               child: CircularProgressIndicator(
@@ -430,7 +430,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
             const SizedBox(height: 20),
             Text(
               l10n.fill_empty_fields_hint,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: V2Typography.family,
                 fontSize: 14,
                 color: _kSubText,
@@ -452,11 +452,11 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
               Container(
                 width: 72,
                 height: 72,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: _kIconBg,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.check_rounded,
                   size: 36,
                   color: _kPrimary,
@@ -465,7 +465,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
               const SizedBox(height: 20),
               Text(
                 l10n.no_books_with_empty_field,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: V2Typography.family,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -483,7 +483,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                 },
                 style: OutlinedButton.styleFrom(
                   foregroundColor: _kPrimary,
-                  side: const BorderSide(color: _kBorder),
+                  side: BorderSide(color: _kBorder),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -540,7 +540,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                           _currentGroupIndex + 1,
                           _groups.length,
                         ),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontWeight: FontWeight.w700,
                           fontSize: 14,
@@ -553,7 +553,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                           totalEmpty,
                           _getFieldLabel(_selectedField!),
                         ),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontSize: 11,
                           color: _kSubText,
@@ -606,7 +606,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                       ? 0
                       : (_currentGroupIndex + 1) / _groups.length,
               backgroundColor: _kIconBg,
-              valueColor: const AlwaysStoppedAnimation<Color>(_kPrimary),
+              valueColor: AlwaysStoppedAnimation<Color>(_kPrimary),
             ),
           ),
         ),
@@ -637,11 +637,11 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                       Container(
                         width: 40,
                         height: 40,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           color: _kIconBg,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.person_outline,
                           color: _kPrimary,
                           size: 20,
@@ -654,7 +654,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                           children: [
                             Text(
                               group.name,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: V2Typography.family,
                                 fontWeight: FontWeight.w700,
                                 fontSize: 15,
@@ -664,7 +664,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                             const SizedBox(height: 2),
                             Text(
                               l10n.books_in_group(group.books.length),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: V2Typography.family,
                                 fontSize: 11,
                                 color: _kSubText,
@@ -694,7 +694,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                       children: [
                         Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.lightbulb_outline,
                               color: _kSecondary,
                               size: 18,
@@ -705,7 +705,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                                 l10n.other_books_have(
                                   group.suggestions.join(', '),
                                 ),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontFamily: V2Typography.family,
                                   fontSize: 12,
                                   color: _kText,
@@ -755,7 +755,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                 DropdownButtonFormField<String>(
                   key: ValueKey('$_currentGroupIndex-$_groupSelectedValue'),
                   initialValue: _groupSelectedValue,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: V2Typography.family,
                     fontSize: 14,
                     color: _kText,
@@ -764,11 +764,11 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                   iconEnabledColor: _kPrimary,
                   decoration: InputDecoration(
                     labelText: l10n.select_value_to_apply,
-                    labelStyle: const TextStyle(
+                    labelStyle: TextStyle(
                       fontFamily: V2Typography.family,
                       color: _kSubText,
                     ),
-                    prefixIcon: const Icon(
+                    prefixIcon: Icon(
                       Icons.label_outline,
                       color: _kSecondary,
                     ),
@@ -776,11 +776,11 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                     fillColor: Colors.white,
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: _kBorder),
+                      borderSide: BorderSide(color: _kBorder),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
+                      borderSide: BorderSide(
                         color: _kPrimary,
                         width: 1.5,
                       ),
@@ -830,7 +830,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                       },
                       title: Text(
                         book.name ?? '',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontWeight: FontWeight.w600,
                           fontSize: 13,
@@ -841,7 +841,7 @@ class _FillEmptyWizardScreenState extends State<FillEmptyWizardScreen> {
                           book.author != null
                               ? Text(
                                 book.author!,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontFamily: V2Typography.family,
                                   fontSize: 11,
                                   color: _kSubText,

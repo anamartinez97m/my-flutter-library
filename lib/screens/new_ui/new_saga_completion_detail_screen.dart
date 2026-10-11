@@ -124,12 +124,12 @@ class _NewSagaCompletionDetailScreenState
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: V2Colors.primary),
+          icon: Icon(Icons.arrow_back, color: V2Colors.primary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           l10n.saga_completion,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -191,7 +191,7 @@ class _NewSagaCompletionDetailScreenState
               ],
             ),
           ),
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: Divider(height: 1, thickness: 1, color: V2Colors.divider),
           ),
@@ -286,7 +286,7 @@ class _NewSagaCompletionDetailScreenState
             const SizedBox(height: 16),
             Text(
               emptyMessage,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 color: V2Colors.textSecondary,
               ),
@@ -351,7 +351,7 @@ class _NewSagaCompletionDetailScreenState
                     Expanded(
                       child: Text(
                         sagaName,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -396,7 +396,7 @@ class _NewSagaCompletionDetailScreenState
                   isUnknownTotal
                       ? '${AppLocalizations.of(context)!.format}: ${FormatSagaHelper.getLocalizedLabel(formatSaga, AppLocalizations.of(context)!)}'
                       : '${(progress * 100).toStringAsFixed(0)}% ${AppLocalizations.of(context)!.complete_label}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: V2Typography.family,
                     fontSize: 12,
                     color: V2Colors.textSecondary,

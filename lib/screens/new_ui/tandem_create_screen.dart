@@ -20,11 +20,11 @@ class TandemCreateScreen extends StatefulWidget {
 }
 
 class _TandemCreateScreenState extends State<TandemCreateScreen> {
-  static const _kPrimary = V2Colors.primary;
-  static const _kSub = V2Colors.textSecondary;
-  static const _kBg = V2Colors.background;
-  static const _kBorder = V2Colors.border;
-  static const _kText = V2Colors.textPrimary;
+  static Color get _kPrimary => V2Colors.primary;
+  static Color get _kSub => V2Colors.textSecondary;
+  static Color get _kBg => V2Colors.background;
+  static Color get _kBorder => V2Colors.border;
+  static Color get _kText => V2Colors.textPrimary;
 
   Book? _bookA;
   Book? _bookB;
@@ -165,12 +165,12 @@ class _TandemCreateScreenState extends State<TandemCreateScreen> {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: _kPrimary),
+          icon: Icon(Icons.arrow_back, color: _kPrimary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           l10n.create_tandem,
-          style: const TextStyle(
+          style: TextStyle(
             color: _kPrimary,
             fontFamily: V2Typography.family,
             fontSize: 18,
@@ -178,7 +178,7 @@ class _TandemCreateScreenState extends State<TandemCreateScreen> {
           ),
         ),
         centerTitle: true,
-        bottom: const PreferredSize(
+        bottom: PreferredSize(
           preferredSize: Size.fromHeight(1),
           child: Divider(height: 1, color: _kBorder),
         ),
@@ -196,7 +196,7 @@ class _TandemCreateScreenState extends State<TandemCreateScreen> {
                 onTap: () => _pickBook(true),
               ),
               const SizedBox(height: 8),
-              const Icon(Icons.swap_vert, color: _kPrimary),
+              Icon(Icons.swap_vert, color: _kPrimary),
               const SizedBox(height: 8),
               _BookSelector(
                 label: l10n.select_book_b,
@@ -221,14 +221,14 @@ class _TandemCreateScreenState extends State<TandemCreateScreen> {
                 child: TextField(
                   controller: _titleController,
                   focusNode: _titleFocusNode,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: V2Typography.family,
                     fontSize: 15,
                     color: _kText,
                   ),
                   decoration: InputDecoration(
                     labelText: l10n.tandem_title_optional,
-                    labelStyle: const TextStyle(
+                    labelStyle: TextStyle(
                       fontFamily: V2Typography.family,
                       fontSize: 12,
                       color: _kSub,
@@ -342,7 +342,7 @@ class _BookSelector extends StatelessWidget {
                       book!.author!,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: V2Typography.family,
                         fontSize: 12,
                         color: V2Colors.textSecondary,
@@ -402,10 +402,10 @@ class _TandemBookPickerScreen extends StatefulWidget {
 }
 
 class _TandemBookPickerScreenState extends State<_TandemBookPickerScreen> {
-  static const _kPrimary = V2Colors.primary;
-  static const _kSub = V2Colors.textSecondary;
-  static const _kBg = V2Colors.background;
-  static const _kBorder = V2Colors.border;
+  static Color get _kPrimary => V2Colors.primary;
+  static Color get _kSub => V2Colors.textSecondary;
+  static Color get _kBg => V2Colors.background;
+  static Color get _kBorder => V2Colors.border;
 
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
@@ -457,12 +457,12 @@ class _TandemBookPickerScreenState extends State<_TandemBookPickerScreen> {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: _kPrimary),
+          icon: Icon(Icons.arrow_back, color: _kPrimary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           widget.title,
-          style: const TextStyle(
+          style: TextStyle(
             color: _kPrimary,
             fontFamily: V2Typography.family,
             fontSize: 18,
@@ -470,7 +470,7 @@ class _TandemBookPickerScreenState extends State<_TandemBookPickerScreen> {
           ),
         ),
         centerTitle: true,
-        bottom: const PreferredSize(
+        bottom: PreferredSize(
           preferredSize: Size.fromHeight(1),
           child: Divider(height: 1, color: _kBorder),
         ),
@@ -500,11 +500,11 @@ class _TandemBookPickerScreenState extends State<_TandemBookPickerScreen> {
                 ),
                 decoration: InputDecoration(
                   hintText: l10n.search_by_title,
-                  hintStyle: const TextStyle(
+                  hintStyle: TextStyle(
                     fontFamily: V2Typography.family,
                     color: _kSub,
                   ),
-                  icon: const Icon(Icons.search, color: _kSub),
+                  icon: Icon(Icons.search, color: _kSub),
                   border: InputBorder.none,
                 ),
               ),
@@ -513,7 +513,7 @@ class _TandemBookPickerScreenState extends State<_TandemBookPickerScreen> {
           Expanded(
             child:
                 _loading
-                    ? const Center(
+                    ? Center(
                       child: CircularProgressIndicator(color: _kPrimary),
                     )
                     : ListView.builder(
@@ -541,7 +541,7 @@ class _TandemBookPickerScreenState extends State<_TandemBookPickerScreen> {
                                     book.author!,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontFamily: V2Typography.family,
                                       fontSize: 12,
                                       color: _kSub,

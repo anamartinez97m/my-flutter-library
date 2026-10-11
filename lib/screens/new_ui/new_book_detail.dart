@@ -52,10 +52,10 @@ class NewBookDetailScreen extends StatefulWidget {
 
 class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
   // v2 design tokens - match the colors used across the new UI.
-  static const _kPrimary = V2Colors.primary;
-  static const _kSub = V2Colors.textSecondary;
-  static const _kBorder = V2Colors.borderStrong;
-  static const _kBg = V2Colors.background;
+  static Color get _kPrimary => V2Colors.primary;
+  static Color get _kSub => V2Colors.textSecondary;
+  static Color get _kBorder => V2Colors.borderStrong;
+  static Color get _kBg => V2Colors.background;
 
   late Book _currentBook;
   List<ReadDate> _readDates = [];
@@ -96,7 +96,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
                 color: _kPrimary,
@@ -1094,7 +1094,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                 const SizedBox(height: 10),
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: V2Typography.family,
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -1104,7 +1104,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                 const SizedBox(height: 3),
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: V2Typography.family,
                     fontSize: 12,
                     color: _kSub,
@@ -1151,12 +1151,12 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                   actionsPadding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
                   title: Row(
                     children: [
-                      const Icon(Icons.trending_up, color: _kPrimary, size: 24),
+                      Icon(Icons.trending_up, color: _kPrimary, size: 24),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           AppLocalizations.of(context)!.update_reading_progress,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
@@ -1247,16 +1247,16 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: _kSub),
+                              borderSide: BorderSide(color: _kSub),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(
+                              borderSide: BorderSide(
                                 color: _kPrimary,
                                 width: 2,
                               ),
                             ),
-                            labelStyle: const TextStyle(
+                            labelStyle: TextStyle(
                               fontFamily: V2Typography.family,
                               color: _kPrimary,
                             ),
@@ -1272,7 +1272,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                       context,
                                     )!.pages_label_short
                                     : '/ ${_currentBook.pages}',
-                            suffixStyle: const TextStyle(
+                            suffixStyle: TextStyle(
                               fontFamily: V2Typography.family,
                               fontWeight: FontWeight.w600,
                               color: _kSub,
@@ -1306,7 +1306,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                         alpha: 0.1,
                                       ),
                                       valueColor:
-                                          const AlwaysStoppedAnimation<Color>(
+                                          AlwaysStoppedAnimation<Color>(
                                             _kPrimary,
                                           ),
                                     ),
@@ -1316,7 +1316,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                     alignment: Alignment.centerRight,
                                     child: Text(
                                       '${(progress * 100).round()}%',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontFamily: V2Typography.family,
                                         fontSize: 13,
                                         fontWeight: FontWeight.w600,
@@ -1922,7 +1922,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                   ),
                 ),
               ),
-              const Icon(Icons.info_outline, size: 16, color: _kSub),
+              Icon(Icons.info_outline, size: 16, color: _kSub),
             ],
           ),
         ),
@@ -1948,7 +1948,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
             Expanded(
               child: Text(
                 text,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: V2Typography.family,
                   fontSize: 14,
                   color: _kSub,
@@ -1973,12 +1973,12 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
             actionsPadding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
             title: Row(
               children: [
-                const Icon(Icons.timer_outlined, color: _kPrimary, size: 24),
+                Icon(Icons.timer_outlined, color: _kPrimary, size: 24),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     l10n.reading_time_details,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -2007,7 +2007,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                       days,
                       days == 1 ? l10n.day_word : l10n.days_word,
                     ),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -2224,7 +2224,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
         children: [
           Text(
             value.toString().padLeft(2, '0'),
-            style: const TextStyle(
+            style: TextStyle(
               color: _kPrimary,
               fontSize: 28,
               fontWeight: FontWeight.w700,
@@ -2233,7 +2233,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
           ),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               color: _kSub,
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -2257,7 +2257,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
         children: [
           Text(
             l10n.release_countdown,
-            style: const TextStyle(
+            style: TextStyle(
               color: _kPrimary,
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -2268,11 +2268,11 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
           Row(
             children: [
               unit(days, l10n.release_countdown_days),
-              const Text(':', style: TextStyle(color: _kPrimary, fontSize: 24)),
+              Text(':', style: TextStyle(color: _kPrimary, fontSize: 24)),
               unit(hours, l10n.release_countdown_hours),
-              const Text(':', style: TextStyle(color: _kPrimary, fontSize: 24)),
+              Text(':', style: TextStyle(color: _kPrimary, fontSize: 24)),
               unit(minutes, l10n.release_countdown_minutes),
-              const Text(':', style: TextStyle(color: _kPrimary, fontSize: 24)),
+              Text(':', style: TextStyle(color: _kPrimary, fontSize: 24)),
               unit(seconds, l10n.release_countdown_seconds),
             ],
           ),
@@ -2399,15 +2399,15 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
         appBar: AppBar(
           backgroundColor: _kBg,
           foregroundColor: _kPrimary,
-          iconTheme: const IconThemeData(color: _kPrimary),
-          actionsIconTheme: const IconThemeData(color: _kPrimary),
+          iconTheme: IconThemeData(color: _kPrimary),
+          actionsIconTheme: IconThemeData(color: _kPrimary),
           elevation: 0,
           scrolledUnderElevation: 0,
           surfaceTintColor: Colors.transparent,
           centerTitle: false,
           title: Text(
             AppLocalizations.of(context)!.book_details,
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 20,
               color: _kPrimary,
@@ -2455,7 +2455,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                 // Book cover image with glassmorphism effect
                 Container(
                   height: 250,
-                  decoration: const BoxDecoration(color: V2Colors.background),
+                  decoration: BoxDecoration(color: V2Colors.background),
                   child:
                       _currentBook.coverUrl != null &&
                               _currentBook.coverUrl!.isNotEmpty
@@ -2612,7 +2612,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(
+                                Icon(
                                   Icons.book,
                                   size: 60,
                                   color: _kPrimary,
@@ -2898,7 +2898,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                     trailing: [
                                       Text(
                                         percentage,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.w600,
                                           color: _kPrimary,
@@ -2914,7 +2914,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                       value: progressValue,
                                       minHeight: 6,
                                       backgroundColor: V2Colors.divider,
-                                      valueColor: const AlwaysStoppedAnimation(
+                                      valueColor: AlwaysStoppedAnimation(
                                         _kPrimary,
                                       ),
                                     ),
@@ -2924,7 +2924,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                     AppLocalizations.of(
                                       context,
                                     )!.tap_to_update_progress,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       color: _kSub,
                                       fontSize: 13,
                                       fontFamily: V2Typography.family,
@@ -2978,7 +2978,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                       '. ',
                                       '.\n',
                                     ),
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       color: _kSub,
                                       fontSize: 13,
                                       fontFamily: V2Typography.family,
@@ -2994,7 +2994,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                     AppLocalizations.of(
                                       context,
                                     )!.no_description_available,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       color: _kSub,
                                       fontSize: 13,
                                       fontStyle: FontStyle.italic,
@@ -3498,7 +3498,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                   child: Text(
                                     '${_currentBook.bundleCount ?? 0}',
                                     textAlign: TextAlign.center,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       color: _kPrimary,
                                       fontFamily: V2Typography.family,
                                       fontSize: 12,
@@ -3777,7 +3777,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                           AppLocalizations.of(
                                             context,
                                           )!.book_n(bundleIndex + 1),
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontFamily: V2Typography.family,
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
@@ -3876,7 +3876,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                           AppLocalizations.of(
                                             context,
                                           )!.book_n(bundleIndex + 1),
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontFamily: V2Typography.family,
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
@@ -4045,7 +4045,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                       : AppLocalizations.of(
                                         context,
                                       )!.auto_calculated,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: _kSub,
                                     fontSize: 14,
                                     fontFamily: V2Typography.family,
@@ -4179,7 +4179,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                 IconButton(
                                   onPressed:
                                       () => _showLogReadingSessionSheet(),
-                                  icon: const Icon(
+                                  icon: Icon(
                                     Icons.add,
                                     color: _kPrimary,
                                     size: 20,
@@ -4554,9 +4554,9 @@ class _TandemBooksCard extends StatefulWidget {
 }
 
 class _TandemBooksCardState extends State<_TandemBooksCard> {
-  static const _kPrimary = V2Colors.primary;
-  static const _kSub = V2Colors.textSecondary;
-  static const _kBorder = V2Colors.borderStrong;
+  static Color get _kPrimary => V2Colors.primary;
+  static Color get _kSub => V2Colors.textSecondary;
+  static Color get _kBorder => V2Colors.borderStrong;
 
   List<dynamic> _tandemBooks = [];
   bool _isLoading = true;
@@ -4616,7 +4616,7 @@ class _TandemBooksCardState extends State<_TandemBooksCard> {
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Text(
               l10n.no_tandem_books,
-              style: const TextStyle(
+              style: TextStyle(
                 color: _kSub,
                 fontStyle: FontStyle.italic,
                 fontFamily: V2Typography.family,
@@ -4636,7 +4636,7 @@ class _TandemBooksCardState extends State<_TandemBooksCard> {
               },
               child: Row(
                 children: [
-                  const Icon(Icons.menu_book, size: 20, color: _kPrimary),
+                  Icon(Icons.menu_book, size: 20, color: _kPrimary),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -4646,7 +4646,7 @@ class _TandemBooksCardState extends State<_TandemBooksCard> {
                           book.name ?? l10n.unknown_title,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -4658,7 +4658,7 @@ class _TandemBooksCardState extends State<_TandemBooksCard> {
                             book.author!,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: V2Typography.family,
                               fontSize: 12,
                               color: _kSub,
@@ -4667,7 +4667,7 @@ class _TandemBooksCardState extends State<_TandemBooksCard> {
                       ],
                     ),
                   ),
-                  const Icon(Icons.arrow_forward_ios, size: 16, color: _kSub),
+                  Icon(Icons.arrow_forward_ios, size: 16, color: _kSub),
                 ],
               ),
             );
@@ -4691,7 +4691,7 @@ class _TandemBooksCardState extends State<_TandemBooksCard> {
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
                 color: _kPrimary,
@@ -4735,9 +4735,9 @@ class _NewBookClubsCard extends StatefulWidget {
 }
 
 class _NewBookClubsCardState extends State<_NewBookClubsCard> {
-  static const _kPrimary = V2Colors.primary;
-  static const _kSub = V2Colors.textSecondary;
-  static const _kBorder = V2Colors.borderStrong;
+  static Color get _kPrimary => V2Colors.primary;
+  static Color get _kSub => V2Colors.textSecondary;
+  static Color get _kBorder => V2Colors.borderStrong;
 
   List<ReadingClub> _clubs = [];
   bool _isLoading = true;
@@ -4957,7 +4957,7 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
               Expanded(
                 child: Text(
                   AppLocalizations.of(context)!.reading_clubs,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
                     color: _kPrimary,
@@ -4966,7 +4966,7 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.add, color: _kPrimary, size: 20),
+                icon: Icon(Icons.add, color: _kPrimary, size: 20),
                 onPressed: _showAddClubDialog,
                 tooltip: AppLocalizations.of(context)!.add_to_club,
               ),
@@ -4984,7 +4984,7 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Text(
               AppLocalizations.of(context)!.not_in_any_clubs,
-              style: const TextStyle(color: _kSub, fontStyle: FontStyle.italic),
+              style: TextStyle(color: _kSub, fontStyle: FontStyle.italic),
             ),
           )
         else
@@ -5006,12 +5006,12 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.group, color: _kPrimary, size: 15),
+                            Icon(Icons.group, color: _kPrimary, size: 15),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 club.clubName,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 0.2,
@@ -5047,7 +5047,7 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
                           const SizedBox(height: 4),
                           Row(
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.calendar_today,
                                 size: 12,
                                 color: _kSub,
@@ -5055,7 +5055,7 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
                               const SizedBox(width: 4),
                               Text(
                                 '${AppLocalizations.of(context)!.target}: ${club.targetDate}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14,
                                   color: _kSub,
                                 ),
@@ -5074,7 +5074,7 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
                                   minHeight: 6,
                                   backgroundColor: V2Colors.divider,
                                   valueColor:
-                                      const AlwaysStoppedAnimation<Color>(
+                                      AlwaysStoppedAnimation<Color>(
                                         _kPrimary,
                                       ),
                                 ),
@@ -5083,7 +5083,7 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
                             const SizedBox(width: 8),
                             Text(
                               '${club.readingProgress}%',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
                                 color: _kPrimary,
@@ -5271,8 +5271,8 @@ class _BundleBooksScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    const primary = V2Colors.primary;
-    const sub = V2Colors.textSecondary;
+    final primary = V2Colors.primary;
+    final sub = V2Colors.textSecondary;
 
     return Scaffold(
       backgroundColor: V2Colors.background,
@@ -5283,7 +5283,7 @@ class _BundleBooksScreen extends StatelessWidget {
         elevation: 0,
         title: Text(
           l10n.books_in_bundle,
-          style: const TextStyle(
+          style: TextStyle(
             color: primary,
             fontFamily: V2Typography.family,
             fontSize: 20,
@@ -5303,7 +5303,7 @@ class _BundleBooksScreen extends StatelessWidget {
               child: Text(
                 '${books.length}',
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   color: primary,
                   fontFamily: V2Typography.family,
                   fontSize: 12,
@@ -5365,7 +5365,7 @@ class _BundleBooksScreen extends StatelessWidget {
                         children: [
                           Text(
                             book.name ?? l10n.unknown_title,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: primary,
                               fontFamily: V2Typography.family,
                               fontWeight: FontWeight.w500,
@@ -5376,7 +5376,7 @@ class _BundleBooksScreen extends StatelessWidget {
                             const SizedBox(height: 2),
                             Text(
                               book.author!,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: sub,
                                 fontFamily: V2Typography.family,
                                 fontSize: 12,
@@ -5404,7 +5404,7 @@ class _BundleBooksScreen extends StatelessWidget {
                               if (book.pages != null)
                                 Text(
                                   ' • ${l10n.pages_count(book.pages!)}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: sub,
                                     fontFamily: V2Typography.family,
                                     fontSize: 12,
@@ -5413,7 +5413,7 @@ class _BundleBooksScreen extends StatelessWidget {
                               if (book.nSaga != null && book.nSaga!.isNotEmpty)
                                 Text(
                                   ' • #${book.nSaga}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: sub,
                                     fontFamily: V2Typography.family,
                                     fontSize: 12,
@@ -5425,7 +5425,7 @@ class _BundleBooksScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Icon(Icons.arrow_forward_ios, size: 16, color: sub),
+                    Icon(Icons.arrow_forward_ios, size: 16, color: sub),
                   ],
                 ),
               ),
@@ -5469,9 +5469,9 @@ class _TandemReadingsCard extends StatefulWidget {
 }
 
 class _TandemReadingsCardState extends State<_TandemReadingsCard> {
-  static const _kPrimary = V2Colors.primary;
-  static const _kSub = V2Colors.textSecondary;
-  static const _kBorder = V2Colors.borderStrong;
+  static Color get _kPrimary => V2Colors.primary;
+  static Color get _kSub => V2Colors.textSecondary;
+  static Color get _kBorder => V2Colors.borderStrong;
 
   List<TandemReading> _tandems = [];
   final Map<int, String> _otherBookNames = {};
@@ -5543,7 +5543,7 @@ class _TandemReadingsCardState extends State<_TandemReadingsCard> {
           trailing: [
             IconButton(
               tooltip: l10n.create_tandem,
-              icon: const Icon(Icons.add, color: _kPrimary, size: 20),
+              icon: Icon(Icons.add, color: _kPrimary, size: 20),
               onPressed: _createTandem,
             ),
           ],
@@ -5553,7 +5553,7 @@ class _TandemReadingsCardState extends State<_TandemReadingsCard> {
           _buildSectionItem(
             child: Row(
               children: [
-                const SizedBox(
+                SizedBox(
                   width: 18,
                   height: 18,
                   child: CircularProgressIndicator(
@@ -5564,7 +5564,7 @@ class _TandemReadingsCardState extends State<_TandemReadingsCard> {
                 const SizedBox(width: 12),
                 Text(
                   l10n.loading,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: V2Typography.family,
                     fontSize: 13,
                     color: _kSub,
@@ -5578,12 +5578,12 @@ class _TandemReadingsCardState extends State<_TandemReadingsCard> {
             onTap: _createTandem,
             child: Row(
               children: [
-                const Icon(Icons.add, color: _kPrimary, size: 20),
+                Icon(Icons.add, color: _kPrimary, size: 20),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     l10n.no_tandem_readings,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontSize: 14,
                       fontStyle: FontStyle.italic,
@@ -5617,7 +5617,7 @@ class _TandemReadingsCardState extends State<_TandemReadingsCard> {
               },
               child: Row(
                 children: [
-                  const Icon(Icons.swap_horiz, color: _kPrimary, size: 20),
+                  Icon(Icons.swap_horiz, color: _kPrimary, size: 20),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -5627,7 +5627,7 @@ class _TandemReadingsCardState extends State<_TandemReadingsCard> {
                           title,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -5640,7 +5640,7 @@ class _TandemReadingsCardState extends State<_TandemReadingsCard> {
                             progress['completed']!,
                             progress['total']!,
                           ),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 12,
                             color: _kSub,
@@ -5649,7 +5649,7 @@ class _TandemReadingsCardState extends State<_TandemReadingsCard> {
                       ],
                     ),
                   ),
-                  const Icon(Icons.arrow_forward_ios, size: 16, color: _kSub),
+                  Icon(Icons.arrow_forward_ios, size: 16, color: _kSub),
                 ],
               ),
             );
@@ -5677,7 +5677,7 @@ class _TandemReadingsCardState extends State<_TandemReadingsCard> {
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
                 color: _kPrimary,

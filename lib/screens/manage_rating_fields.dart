@@ -5,11 +5,11 @@ import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/repositories/book_rating_field_repository.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
-const _kBg = V2Colors.background;
-const _kPrimary = V2Colors.primary;
-const _kSub = V2Colors.textSecondary;
-const _kText = V2Colors.textPrimary;
-const _kBorder = V2Colors.border;
+Color get _kBg => V2Colors.background;
+Color get _kPrimary => V2Colors.primary;
+Color get _kSub => V2Colors.textSecondary;
+Color get _kText => V2Colors.textPrimary;
+Color get _kBorder => V2Colors.border;
 
 class ManageRatingFieldsScreen extends StatefulWidget {
   const ManageRatingFieldsScreen({super.key});
@@ -117,11 +117,11 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.scale, color: _kPrimary, size: 24),
+                          Icon(Icons.scale, color: _kPrimary, size: 24),
                           const SizedBox(width: 12),
                           Text(
                             l10n.edit_weight,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: V2Typography.family,
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
@@ -133,7 +133,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                       const SizedBox(height: 20),
                       Text(
                         name,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -145,7 +145,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                         controller: controller,
                         keyboardType: TextInputType.number,
                         autofocus: true,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontSize: 18,
                           color: _kText,
@@ -156,20 +156,20 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                           helperText: l10n.weight_range_hint,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(color: _kSub),
+                            borderSide: BorderSide(color: _kSub),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(color: _kSub),
+                            borderSide: BorderSide(color: _kSub),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
+                            borderSide: BorderSide(
                               color: _kPrimary,
                               width: 2,
                             ),
                           ),
-                          labelStyle: const TextStyle(
+                          labelStyle: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 12,
                             color: _kPrimary,
@@ -186,7 +186,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                     horizontal: 16,
                     vertical: 16,
                   ),
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: _kBg,
                     border: Border(top: BorderSide(color: _kBorder)),
                   ),
@@ -324,7 +324,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                     children: [
                       Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.add_circle_outline,
                             color: _kPrimary,
                             size: 24,
@@ -332,7 +332,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                           const SizedBox(width: 12),
                           Text(
                             l10n.add_rating_field_name,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: V2Typography.family,
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
@@ -346,7 +346,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                         controller: controller,
                         textCapitalization: TextCapitalization.words,
                         autofocus: true,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontSize: 18,
                           color: _kText,
@@ -356,20 +356,20 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                           hintText: l10n.field_name_hint,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(color: _kSub),
+                            borderSide: BorderSide(color: _kSub),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(color: _kSub),
+                            borderSide: BorderSide(color: _kSub),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
+                            borderSide: BorderSide(
                               color: _kPrimary,
                               width: 2,
                             ),
                           ),
-                          labelStyle: const TextStyle(
+                          labelStyle: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 12,
                             color: _kPrimary,
@@ -386,7 +386,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                     horizontal: 16,
                     vertical: 16,
                   ),
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: _kBg,
                     border: Border(top: BorderSide(color: _kBorder)),
                   ),
@@ -524,7 +524,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                     children: [
                       Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.edit_outlined,
                             color: _kPrimary,
                             size: 24,
@@ -532,7 +532,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                           const SizedBox(width: 12),
                           Text(
                             l10n.edit_rating_field_name,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: V2Typography.family,
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
@@ -546,7 +546,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                         controller: controller,
                         textCapitalization: TextCapitalization.words,
                         autofocus: true,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontSize: 18,
                           color: _kText,
@@ -555,20 +555,20 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                           labelText: l10n.field_name,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(color: _kSub),
+                            borderSide: BorderSide(color: _kSub),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(color: _kSub),
+                            borderSide: BorderSide(color: _kSub),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
+                            borderSide: BorderSide(
                               color: _kPrimary,
                               width: 2,
                             ),
                           ),
-                          labelStyle: const TextStyle(
+                          labelStyle: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 12,
                             color: _kPrimary,
@@ -585,7 +585,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                     horizontal: 16,
                     vertical: 16,
                   ),
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: _kBg,
                     border: Border(top: BorderSide(color: _kBorder)),
                   ),
@@ -744,7 +744,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                       const SizedBox(height: 24),
                       Text(
                         l10n.confirm_delete_value(name),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontSize: 16,
                           color: _kText,
@@ -792,7 +792,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                     horizontal: 16,
                     vertical: 16,
                   ),
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: _kBg,
                     border: Border(top: BorderSide(color: _kBorder)),
                   ),
@@ -869,12 +869,12 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: _kPrimary),
+          icon: Icon(Icons.arrow_back, color: _kPrimary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           l10n.manage_rating_field_names,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -890,7 +890,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
       ),
       body:
           _isLoading
-              ? const Center(child: CircularProgressIndicator(color: _kPrimary))
+              ? Center(child: CircularProgressIndicator(color: _kPrimary))
               : Column(
                 children: [
                   Padding(
@@ -948,7 +948,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                     color: _kPrimary.withValues(alpha: 0.06),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.info_outline,
                     color: _kPrimary,
                     size: 16,
@@ -957,7 +957,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                 const SizedBox(width: 12),
                 Text(
                   l10n.about_rating_fields,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: V2Typography.family,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -969,7 +969,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
             const SizedBox(height: 12),
             Text(
               l10n.about_rating_fields_description,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: V2Typography.family,
                 fontSize: 14,
                 color: _kSub,
@@ -1152,7 +1152,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                     children: [
                       Text(
                         name,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
@@ -1162,7 +1162,7 @@ class _ManageRatingFieldsScreenState extends State<ManageRatingFieldsScreen> {
                       if (isDefault)
                         Text(
                           l10n.default_suggestion,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 12,
                             color: _kSub,

@@ -19,13 +19,13 @@ class SmartSuggestionsScreen extends StatefulWidget {
 
 class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
   static const _rejectedSuggestionsKey = 'rejected_smart_suggestions';
-  static const _kBg = V2Colors.background;
-  static const _kPrimary = V2Colors.primary;
-  static const _kSecondary = V2Colors.secondary;
-  static const _kText = V2Colors.textPrimary;
-  static const _kSubText = V2Colors.textSubtle;
-  static const _kIconBg = V2Colors.chip;
-  static const _kBorder = V2Colors.border;
+  static Color get _kBg => V2Colors.background;
+  static Color get _kPrimary => V2Colors.primary;
+  static Color get _kSecondary => V2Colors.secondary;
+  static Color get _kText => V2Colors.textPrimary;
+  static Color get _kSubText => V2Colors.textSubtle;
+  static Color get _kIconBg => V2Colors.chip;
+  static Color get _kBorder => V2Colors.border;
 
   List<Suggestion> _suggestions = [];
   bool _isLoading = true;
@@ -207,7 +207,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
         elevation: 0,
         title: Text(
           l10n.smart_suggestions,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w700,
@@ -250,7 +250,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(
+          SizedBox(
             width: 32,
             height: 32,
             child: CircularProgressIndicator(
@@ -261,7 +261,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
           const SizedBox(height: 20),
           Text(
             l10n.generating_suggestions,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 14,
               color: _kSubText,
@@ -282,11 +282,11 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
             Container(
               width: 72,
               height: 72,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: _kIconBg,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.check_rounded,
                 size: 36,
                 color: _kPrimary,
@@ -295,7 +295,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
             const SizedBox(height: 20),
             Text(
               l10n.no_suggestions,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: V2Typography.family,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -332,11 +332,11 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                 Container(
                   width: 40,
                   height: 40,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: _kIconBg,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.auto_fix_high,
                     color: _kPrimary,
                     size: 20,
@@ -346,7 +346,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                 Expanded(
                   child: Text(
                     l10n.n_suggestions_found(_suggestions.length),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
@@ -366,7 +366,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                     ),
                     child: Text(
                       l10n.all_suggestions_processed,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: V2Typography.family,
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
@@ -465,7 +465,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                           _getFieldLabel(suggestion.field),
                           suggestion.bookIds.length,
                         ),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
@@ -522,7 +522,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
               suggestion.description,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: V2Typography.family,
                 fontSize: 12,
                 color: _kSubText,
@@ -545,7 +545,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                 children: [
                   Text(
                     l10n.affected_books.toUpperCase(),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontWeight: FontWeight.w700,
                       fontSize: 10,
@@ -559,7 +559,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                       padding: const EdgeInsets.only(bottom: 6),
                       child: Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.menu_book_outlined,
                             size: 14,
                             color: _kSecondary,
@@ -568,7 +568,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                           Expanded(
                             child: Text(
                               name,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: V2Typography.family,
                                 fontSize: 12,
                                 color: _kText,
@@ -594,7 +594,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                     onPressed: () => _rejectSuggestion(index),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: _kSecondary,
-                      side: const BorderSide(color: _kBorder),
+                      side: BorderSide(color: _kBorder),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -633,11 +633,11 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
               child: Row(
                 children: [
-                  const Icon(Icons.check_circle, color: _kPrimary, size: 16),
+                  Icon(Icons.check_circle, color: _kPrimary, size: 16),
                   const SizedBox(width: 6),
                   Text(
                     l10n.suggestion_applied,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontSize: 12,
                       color: _kPrimary,

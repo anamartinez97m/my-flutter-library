@@ -5,12 +5,12 @@ import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_navigation_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const _kPrimary = V2Colors.primary;
-const _kBackground = V2Colors.background;
-const _kSurface = V2Colors.surfaceWarm;
-const _kBorder = V2Colors.border;
-const _kMuted = V2Colors.textMuted;
-const _kText = V2Colors.textPrimary;
+Color get _kPrimary => V2Colors.primary;
+Color get _kBackground => V2Colors.background;
+Color get _kSurface => V2Colors.surfaceWarm;
+Color get _kBorder => V2Colors.border;
+Color get _kMuted => V2Colors.textMuted;
+Color get _kText => V2Colors.textPrimary;
 
 class GetStartedScreen extends StatefulWidget {
   const GetStartedScreen({super.key});
@@ -104,7 +104,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
         body: SafeArea(
           child:
               _isLoading
-                  ? const Center(
+                  ? Center(
                     child: CircularProgressIndicator(color: _kPrimary),
                   )
                   : _loadFailed || _imagePaths.isEmpty
@@ -141,7 +141,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                                 Expanded(
                                   child: Text(
                                     l10n.app_title,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       color: _kPrimary,
                                       fontSize: 20,
                                       fontWeight: FontWeight.w700,
@@ -151,7 +151,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                                 ),
                                 Text(
                                   '${_currentPage + 1}/${_imagePaths.length}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: _kMuted,
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
@@ -196,7 +196,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                                           _imagePaths[index],
                                           fit: BoxFit.contain,
                                           errorBuilder:
-                                              (_, __, ___) => const Center(
+                                              (_, __, ___) => Center(
                                                 child: Icon(
                                                   Icons
                                                       .image_not_supported_outlined,
@@ -311,7 +311,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                 Container(
                   width: 72,
                   height: 72,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: _kPrimary,
                     shape: BoxShape.circle,
                   ),
@@ -325,7 +325,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                 Text(
                   l10n.app_title,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: _kText,
                     fontSize: 28,
                     fontWeight: FontWeight.w700,

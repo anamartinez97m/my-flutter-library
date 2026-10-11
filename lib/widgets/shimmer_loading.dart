@@ -1,23 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/config/v2_design_system.dart';
 
-const _kDefaultLoadingBackground = V2Colors.background;
-const _kDefaultShimmerBase = V2Colors.shimmerBase;
-const _kDefaultShimmerHighlight = V2Colors.surface;
+Color get _kDefaultLoadingBackground => V2Colors.background;
+Color get _kDefaultShimmerBase => V2Colors.shimmerBase;
+Color get _kDefaultShimmerHighlight => V2Colors.surface;
 
 class ShimmerLoading extends StatefulWidget {
   const ShimmerLoading({
     super.key,
     this.child,
-    this.backgroundColor = _kDefaultLoadingBackground,
-    this.baseColor = _kDefaultShimmerBase,
-    this.highlightColor = _kDefaultShimmerHighlight,
-  });
+    Color? backgroundColor,
+    Color? baseColor,
+    Color? highlightColor,
+  }) : _backgroundColor = backgroundColor,
+       _baseColor = baseColor,
+       _highlightColor = highlightColor;
 
   final Widget? child;
-  final Color backgroundColor;
-  final Color baseColor;
-  final Color highlightColor;
+  final Color? _backgroundColor;
+  final Color? _baseColor;
+  final Color? _highlightColor;
+
+  Color get backgroundColor => _backgroundColor ?? _kDefaultLoadingBackground;
+  Color get baseColor => _baseColor ?? _kDefaultShimmerBase;
+  Color get highlightColor => _highlightColor ?? _kDefaultShimmerHighlight;
 
   @override
   State<ShimmerLoading> createState() => _ShimmerLoadingState();

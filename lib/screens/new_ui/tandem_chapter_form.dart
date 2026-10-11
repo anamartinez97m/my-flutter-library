@@ -31,10 +31,10 @@ class TandemChapterForm extends StatefulWidget {
 }
 
 class _TandemChapterFormState extends State<TandemChapterForm> {
-  static const _kBg = V2Colors.background;
-  static const _kPrimary = V2Colors.primary;
-  static const _kSub = V2Colors.textSecondary;
-  static const _kText = V2Colors.textPrimary;
+  static Color get _kBg => V2Colors.background;
+  static Color get _kPrimary => V2Colors.primary;
+  static Color get _kSub => V2Colors.textSecondary;
+  static Color get _kText => V2Colors.textPrimary;
 
   late int _selectedBookId;
   late final TextEditingController _startController;
@@ -119,7 +119,7 @@ class _TandemChapterFormState extends State<TandemChapterForm> {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: _kBg,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -152,7 +152,7 @@ class _TandemChapterFormState extends State<TandemChapterForm> {
                       children: [
                         Text(
                           _isEditing ? l10n.edit_step : l10n.add_step,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 22,
                             fontWeight: FontWeight.w700,
@@ -161,7 +161,7 @@ class _TandemChapterFormState extends State<TandemChapterForm> {
                         ),
                         GestureDetector(
                           onTap: () => Navigator.pop(context),
-                          child: const Icon(
+                          child: Icon(
                             Icons.close,
                             size: 24,
                             color: _kText,
@@ -228,7 +228,7 @@ class _TandemChapterFormState extends State<TandemChapterForm> {
                     Center(
                       child: Text(
                         l10n.end_chapter_hint,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontSize: 10,
                           color: _kSub,
@@ -350,7 +350,7 @@ class _ChapterField extends StatelessWidget {
       style: const TextStyle(fontFamily: V2Typography.family, fontSize: 15),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(
+        labelStyle: TextStyle(
           fontFamily: V2Typography.family,
           fontSize: 12,
           color: V2Colors.textSecondary,
@@ -363,15 +363,15 @@ class _ChapterField extends StatelessWidget {
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: V2Colors.border),
+          borderSide: BorderSide(color: V2Colors.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: V2Colors.border),
+          borderSide: BorderSide(color: V2Colors.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: V2Colors.primary, width: 1.5),
+          borderSide: BorderSide(color: V2Colors.primary, width: 1.5),
         ),
       ),
     );

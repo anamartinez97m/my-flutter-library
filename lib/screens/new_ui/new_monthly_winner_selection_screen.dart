@@ -135,14 +135,14 @@ class _NewMonthlyWinnerSelectionScreenState
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: V2Colors.primary),
+          icon: Icon(Icons.arrow_back, color: V2Colors.primary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           l10n.select_winner_title(
             '${_getMonthName(widget.month)} ${widget.year}',
           ),
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -158,7 +158,7 @@ class _NewMonthlyWinnerSelectionScreenState
       ),
       body:
           isLoading
-              ? const Center(
+              ? Center(
                 child: CircularProgressIndicator(color: V2Colors.primary),
               )
               : books.isEmpty
@@ -166,7 +166,7 @@ class _NewMonthlyWinnerSelectionScreenState
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.menu_book_outlined,
                       size: 64,
                       color: V2Colors.border,
@@ -174,7 +174,7 @@ class _NewMonthlyWinnerSelectionScreenState
                     const SizedBox(height: 16),
                     Text(
                       l10n.no_books_this_month,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         color: V2Colors.textSecondary,
                       ),
@@ -270,7 +270,7 @@ class _NewMonthlyWinnerSelectionScreenState
                       const SizedBox(height: 4),
                       Text(
                         '${l10n.author}: ${book.author}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontSize: 13,
                           color: V2Colors.textSecondary,
@@ -281,7 +281,7 @@ class _NewMonthlyWinnerSelectionScreenState
                       const SizedBox(height: 4),
                       Text(
                         '${l10n.rating}: ${book.myRating!.toStringAsFixed(2)}/5',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontSize: 13,
                           color: V2Colors.textSecondary,

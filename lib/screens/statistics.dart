@@ -497,12 +497,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     int currentYear,
     AppLocalizations l10n,
   ) {
-    const kBg = V2Colors.background;
-    const kPrimary = V2Colors.primary;
-    const kSub = V2Colors.textSecondary;
-    const kText = V2Colors.textPrimary;
-    const kBadgeBg = V2Colors.chip;
-    const kBadgeBorder = V2Colors.border;
+    final kBg = V2Colors.background;
+    final kPrimary = V2Colors.primary;
+    final kSub = V2Colors.textSecondary;
+    final kText = V2Colors.textPrimary;
+    final kBadgeBg = V2Colors.chip;
+    final kBadgeBorder = V2Colors.border;
 
     BoxDecoration cardDeco({double radius = 12}) => BoxDecoration(
       color: Colors.white,
@@ -544,7 +544,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.library_books,
                             size: 30,
                             color: kPrimary,
@@ -553,7 +553,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           Text(
                             l10n.total_books,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                               color: kSub,
@@ -564,7 +564,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           Text(
                             '${stats.totalCount}',
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                               color: kPrimary,
@@ -582,7 +582,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.new_releases,
                             size: 32,
                             color: kPrimary,
@@ -591,7 +591,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           Text(
                             l10n.latest_book_added,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                               color: kSub,
@@ -605,7 +605,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             latestBookName != null && latestBookName.isNotEmpty
                                 ? latestBookName
                                 : l10n.no_books_in_database,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                               color: kPrimary,
@@ -645,7 +645,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     children: [
                       Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.emoji_events,
                             color: kPrimary,
                             size: 22,
@@ -654,7 +654,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           Expanded(
                             child: Text(
                               l10n.best_book_of_year(currentYear.toString()),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 color: kPrimary,
@@ -662,7 +662,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          const Icon(
+                          Icon(
                             Icons.arrow_forward_ios,
                             size: 12,
                             color: kSub,
@@ -673,7 +673,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       if (_yearlyWinner != null) ...[
                         Text(
                           '${l10n.winner}:',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                             color: kSub,
@@ -693,7 +693,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           ),
                           child: Text(
                             _yearlyWinner!.bookName,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                               color: kPrimary,
@@ -706,7 +706,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       ] else if (_nominees.isNotEmpty) ...[
                         Text(
                           '${l10n.nominees}:',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                             color: kSub,
@@ -734,7 +734,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                       ),
                                       child: Text(
                                         n.bookName,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 13,
                                           color: kPrimary,
                                         ),
@@ -750,13 +750,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             padding: const EdgeInsets.only(top: 4),
                             child: Text(
                               '... ${l10n.and_n_more((_nominees.length - 6).toString())}',
-                              style: const TextStyle(fontSize: 12, color: kSub),
+                              style: TextStyle(fontSize: 12, color: kSub),
                             ),
                           ),
                       ] else
                         Text(
                           l10n.no_books_read_in_year(currentYear.toString()),
-                          style: const TextStyle(fontSize: 13, color: kSub),
+                          style: TextStyle(fontSize: 13, color: kSub),
                         ),
                     ],
                   ),
@@ -770,7 +770,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             Center(
               child: Text(
                 l10n.quick_stat_long_press_hint,
-                style: const TextStyle(fontSize: 12, color: kSub),
+                style: TextStyle(fontSize: 12, color: kSub),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -792,10 +792,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         Expanded(
                           child: Text(
                             section.title,
-                            style: const TextStyle(fontSize: 16, color: kText),
+                            style: TextStyle(fontSize: 16, color: kText),
                           ),
                         ),
-                        const Icon(
+                        Icon(
                           Icons.arrow_forward_ios,
                           size: 12,
                           color: kSub,

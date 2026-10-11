@@ -32,12 +32,12 @@ class SagasSeriesScreen extends StatelessWidget {
     final completionPercentage =
         total > 0 ? (completedSagas / total * 100).round() : 0;
 
-    const kBg = V2Colors.background;
-    const kPrimary = V2Colors.primary;
-    const kSecondary = V2Colors.secondary;
-    const kMuted = V2Colors.border;
-    const kText = V2Colors.textPrimary;
-    const kSub = V2Colors.textSecondary;
+    final kBg = V2Colors.background;
+    final kPrimary = V2Colors.primary;
+    final kSecondary = V2Colors.secondary;
+    final kMuted = V2Colors.border;
+    final kText = V2Colors.textPrimary;
+    final kSub = V2Colors.textSecondary;
     const kBorder = Color(0x4DD5C2C7); // Exact alpha variant.
 
     return Scaffold(
@@ -47,12 +47,12 @@ class SagasSeriesScreen extends StatelessWidget {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: kPrimary),
+          icon: Icon(Icons.arrow_back, color: kPrimary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           l10n.section_sagas_series,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -91,7 +91,7 @@ class SagasSeriesScreen extends StatelessWidget {
                 children: [
                   Text(
                     l10n.completion_rate,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
@@ -112,7 +112,7 @@ class SagasSeriesScreen extends StatelessWidget {
                         child: Center(
                           child: Text(
                             '$completionPercentage%',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: V2Typography.family,
                               fontSize: 34,
                               fontWeight: FontWeight.bold,
@@ -127,7 +127,7 @@ class SagasSeriesScreen extends StatelessWidget {
                   Center(
                     child: Text(
                       l10n.n_series_completed(completedSagas.toString()),
-                      style: const TextStyle(fontSize: 14, color: kSub),
+                      style: TextStyle(fontSize: 14, color: kSub),
                     ),
                   ),
                 ],
@@ -158,7 +158,7 @@ class SagasSeriesScreen extends StatelessWidget {
                     padding: const EdgeInsets.only(bottom: 24),
                     child: Text(
                       l10n.status_breakdown,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: V2Typography.family,
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
@@ -204,7 +204,7 @@ class SagasSeriesScreen extends StatelessWidget {
                 children: [
                   Text(
                     'View more',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -212,7 +212,7 @@ class SagasSeriesScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 4),
-                  const Icon(Icons.chevron_right, color: kPrimary, size: 18),
+                  Icon(Icons.chevron_right, color: kPrimary, size: 18),
                 ],
               ),
             ),
@@ -245,8 +245,8 @@ class SagasSeriesScreen extends StatelessWidget {
     VoidCallback? onTap,
   }) {
     final fraction = total > 0 ? count / total : 0.0;
-    const kText = V2Colors.textPrimary;
-    const kBarBg = V2Colors.divider;
+    final kText = V2Colors.textPrimary;
+    final kBarBg = V2Colors.divider;
 
     return GestureDetector(
       onTap: onTap,
@@ -283,7 +283,7 @@ class SagasSeriesScreen extends StatelessWidget {
               const Spacer(),
               Text(
                 '$count',
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: V2Typography.family,
                   fontSize: 20,
                   fontWeight: FontWeight.w600,

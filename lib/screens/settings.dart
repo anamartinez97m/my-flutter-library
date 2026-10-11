@@ -2015,7 +2015,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final colors = [
       palette.background,
       palette.primary,
-      palette.navActiveIndicator,
+      palette.control,
     ];
     return GestureDetector(
       onTap: onTap,
@@ -2023,7 +2023,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? palette.primary : palette.cardBorder,
+            color: isSelected ? palette.primary : palette.borderNeutral,
             width: isSelected ? 3 : 1,
           ),
         ),

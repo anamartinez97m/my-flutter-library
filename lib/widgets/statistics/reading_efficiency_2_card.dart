@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
-const _kPrimary = V2Colors.primary;
-const _kSecondary = V2Colors.secondary;
+Color get _kPrimary => V2Colors.primary;
+Color get _kSecondary => V2Colors.secondary;
 const _kTertiary = Color(0xFFBC92A6); // Not represented in V2Colors.
-const _kSub = V2Colors.textSecondary;
+Color get _kSub => V2Colors.textSecondary;
 
 /// Reading Efficiency 2 — Compact 3-column metric row.
 ///
@@ -73,7 +73,7 @@ class ReadingEfficiency2Card extends StatelessWidget {
         children: [
           Text(
             l10n.reading_efficiency_2,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -151,7 +151,7 @@ class _MetricTile extends StatelessWidget {
             Flexible(
               child: Text(
                 metric.unit,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: V2Typography.family,
                   fontSize: 10,
                   color: _kSub,
@@ -166,7 +166,7 @@ class _MetricTile extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 6),
           child: Text(
             metric.subtitle,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 10,
               color: _kSub,

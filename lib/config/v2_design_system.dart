@@ -1,49 +1,74 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:myrandomlibrary/config/themes/app_theme_palette.dart';
 
 // Color palette
 abstract final class V2Colors {
+  static AppThemePalette _active = AppThemePalette.mainLight;
+
+  /// Palette every token below resolves to.
+  static AppThemePalette get active => _active;
+
+  static void use(AppThemePalette palette) => _active = palette;
+
   // Backgrounds and surfaces
-  static const background = Color(0xFFFDF8F6);
-  static const surface = Colors.white;
-  static const surfaceWarm = Color(0xFFFFFCFA);
-  static const surfaceAlt = Color(0xFFFFFBFA);
-  static const surfaceMuted = Color(0xFFF5F3F2);
-  static const surfaceTimer = Color(0xFFF7F3F0);
-  static const shimmerBase = Color(0xFFF2E8E3);
-  static const borderDialog = Color(0xFFDDD9D7);
-  static const buttonText = Color(0xFFD68DAC);
+  static Color get background => _active.background;
+  static Color get surface => _active.surface;
+  static Color get surfaceWarm => _active.surfaceWarm;
+  static Color get surfaceAlt => _active.surfaceAlt;
+  static Color get surfaceMuted => _active.surfaceMuted;
+  static Color get surfaceTimer => _active.surfaceTimer;
+  static Color get shimmerBase => _active.shimmerBase;
+  static Color get borderDialog => _active.borderDialog;
+  static Color get buttonText => _active.buttonText;
 
   // Brand colors
-  static const primary = Color(0xFF43102B);
-  static const primaryAlt = Color(0xFF5D2641);
-  static const secondary = Color(0xFF894B67);
+  static Color get primary => _active.primary;
+  static Color get primaryAlt => _active.primaryAlt;
+  static Color get secondary => _active.secondary;
 
   // Text colors
-  static const textPrimary = Color(0xFF1C1B1A);
-  static const textStrong = Color(0xFF270008);
-  static const textSecondary = Color(0xFF514348);
-  static const textSubtle = Color(0xFF5F5E5C);
-  static const textMuted = Color(0xFF76656B);
-  static const textMutedAlt = Color(0xFF7A6A71);
+  static Color get textPrimary => _active.textPrimary;
+  static Color get textStrong => _active.textStrong;
+  static Color get textSecondary => _active.textSecondary;
+  static Color get textSubtle => _active.textSubtle;
+  static Color get textMuted => _active.textMuted;
+  static Color get textMutedAlt => _active.textMutedAlt;
 
   // Borders, dividers, and controls
-  static const border = Color(0xFFD5C2C7);
-  static const borderStrong = Color(0xFF27231E);
-  static const borderNeutral = Color(0xFFCEC5BE);
-  static const borderInput = Color(0xFF6B7280);
-  static const borderSoft = Color(0xFFE8E2DE);
-  static const divider = Color(0xFFE6E2DF);
-  static const chip = Color(0xFFF2EDEB);
-  static const control = Color(0xFFECE7E5);
-  static const error = Color(0xFFBA1A1A);
-  static const success = Color(0xFF059669);
-  static const successBackground = Color(0xFFECFDF5);
-  static const successBorder = Color(0xFFA7F3D0);
-  static const warning = Color(0xFF7A4D00);
-  static const warningBackground = Color(0xFFFFF4D9);
-  static const warningBorder = Color(0xFFE5C46B);
-  static const disabled = Color(0xFFB8B0B3);
+  static Color get border => _active.border;
+  static Color get borderStrong => _active.borderStrong;
+  static Color get borderNeutral => _active.borderNeutral;
+  static Color get borderInput => _active.borderInput;
+  static Color get borderSoft => _active.borderSoft;
+  static Color get divider => _active.divider;
+  static Color get chip => _active.chip;
+  static Color get control => _active.control;
+  static Color get error => _active.error;
+  static Color get success => _active.success;
+  static Color get successBackground => _active.successBackground;
+  static Color get successBorder => _active.successBorder;
+  static Color get warning => _active.warning;
+  static Color get warningBackground => _active.warningBackground;
+  static Color get warningBorder => _active.warningBorder;
+  static Color get disabled => _active.disabled;
+
+  // Theme-only tokens
+  static Color get onPrimary => _active.onPrimary;
+  static Color get navBarBackground => _active.navBarBackground;
+  static Color get searchBackground => _active.searchBackground;
+  static Color get chipSelected => _active.chipSelected;
+  static Color get chipText => _active.chipText;
+  static Color get chipTextSelected => _active.chipTextSelected;
+  static Color get cardTitle => _active.cardTitle;
+  static Color get cardMeta => _active.cardMeta;
+  static Color get navActiveIcon => _active.navActiveIcon;
+  static Color get navInactiveIcon => _active.navInactiveIcon;
+  static Color get filterFabIcon => _active.filterFabIcon;
+  static Color get rating => _active.rating;
+  static Color get saga => _active.saga;
+  static Color get fabShadow => _active.fabShadow;
+  static Color get filterFabShadow => _active.filterFabShadow;
 }
 
 // Spacing scale
@@ -91,65 +116,65 @@ abstract final class V2Motion {
 // Typography styles
 abstract final class V2Typography {
   static const family = 'Manrope';
-  static const pageTitle = TextStyle(
+  static TextStyle get pageTitle => TextStyle(
     fontFamily: family,
     fontSize: 24,
     fontWeight: FontWeight.w700,
     color: V2Colors.primary,
   );
-  static const sectionTitle = TextStyle(
+  static TextStyle get sectionTitle => TextStyle(
     fontFamily: family,
     fontSize: 20,
     fontWeight: FontWeight.w600,
     color: V2Colors.primary,
   );
-  static const cardTitle = TextStyle(
+  static TextStyle get cardTitle => TextStyle(
     fontFamily: family,
     fontSize: 19,
     fontWeight: FontWeight.w600,
     color: V2Colors.primary,
     height: 1.25,
   );
-  static const title = TextStyle(
+  static TextStyle get title => TextStyle(
     fontFamily: family,
     fontSize: 16,
     fontWeight: FontWeight.w700,
     color: V2Colors.textPrimary,
   );
-  static const body = TextStyle(
+  static TextStyle get body => TextStyle(
     fontFamily: family,
     fontSize: 14,
     color: V2Colors.textPrimary,
   );
-  static const bodySmall = TextStyle(
+  static TextStyle get bodySmall => TextStyle(
     fontFamily: family,
     fontSize: 13,
     color: V2Colors.textSecondary,
   );
-  static const label = TextStyle(
+  static TextStyle get label => TextStyle(
     fontFamily: family,
     fontSize: 14,
     fontWeight: FontWeight.w500,
     color: V2Colors.textSecondary,
   );
-  static const caption = TextStyle(
+  static TextStyle get caption => TextStyle(
     fontFamily: family,
     fontSize: 12,
     color: V2Colors.textMuted,
   );
-  static const metadata = TextStyle(
+  static TextStyle get metadata => TextStyle(
     fontFamily: family,
     fontSize: 11,
     fontWeight: FontWeight.w500,
     letterSpacing: .5,
     color: V2Colors.textSubtle,
   );
-  static const button = TextStyle(
+  static TextStyle get button => TextStyle(
     fontFamily: family,
     fontSize: 14,
     fontWeight: FontWeight.w600,
   );
-  static const overline = TextStyle(
+  static TextStyle get overline => TextStyle(
     fontFamily: family,
     fontSize: 11,
     fontWeight: FontWeight.w800,
@@ -205,7 +230,7 @@ abstract final class V2Shadows {
 
 // Reusable component styles and decorations
 abstract final class V2Components {
-  static const systemOverlay = SystemUiOverlayStyle(
+  static SystemUiOverlayStyle get systemOverlay => SystemUiOverlayStyle(
     statusBarColor: V2Colors.background,
     statusBarIconBrightness: Brightness.dark,
     statusBarBrightness: Brightness.light,
@@ -237,15 +262,15 @@ abstract final class V2Components {
       enabledBorder: border,
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(V2Radii.input),
-        borderSide: const BorderSide(color: V2Colors.primary, width: 1.5),
+        borderSide: BorderSide(color: V2Colors.primary, width: 1.5),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(V2Radii.input),
-        borderSide: const BorderSide(color: V2Colors.error),
+        borderSide: BorderSide(color: V2Colors.error),
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(V2Radii.input),
-        borderSide: const BorderSide(color: V2Colors.error, width: 1.5),
+        borderSide: BorderSide(color: V2Colors.error, width: 1.5),
       ),
       labelStyle: V2Typography.label.copyWith(color: V2Colors.primary),
       hintStyle: V2Typography.label.copyWith(color: V2Colors.primary),
@@ -259,7 +284,7 @@ abstract final class V2Components {
     );
   }
 
-  static const chipTheme = ChipThemeData(
+  static ChipThemeData get chipTheme => ChipThemeData(
     backgroundColor: V2Colors.chip,
     labelStyle: TextStyle(
       fontFamily: V2Typography.family,
@@ -284,7 +309,7 @@ abstract final class V2Components {
     ),
   );
 
-  static const bannerTheme = MaterialBannerThemeData(
+  static MaterialBannerThemeData get bannerTheme => MaterialBannerThemeData(
     backgroundColor: V2Colors.primary,
     contentTextStyle: TextStyle(
       fontFamily: V2Typography.family,
@@ -321,7 +346,7 @@ abstract final class V2DesignSystem {
         foregroundColor: V2Colors.primary,
         surfaceTintColor: Colors.transparent,
         systemOverlayStyle: V2Components.systemOverlay,
-        iconTheme: const IconThemeData(color: V2Colors.primary),
+        iconTheme: IconThemeData(color: V2Colors.primary),
         titleTextStyle: V2Typography.sectionTitle,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -342,11 +367,11 @@ abstract final class V2DesignSystem {
           textStyle: V2Typography.button,
         ),
       ),
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: V2Colors.primary,
         foregroundColor: Colors.white,
       ),
-      iconTheme: const IconThemeData(color: V2Colors.primary),
+      iconTheme: IconThemeData(color: V2Colors.primary),
       cardTheme: CardThemeData(
         elevation: 2,
         color: V2Colors.surface,
@@ -362,7 +387,7 @@ abstract final class V2DesignSystem {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(V2Radii.input),
-          borderSide: const BorderSide(color: V2Colors.primary, width: 1.5),
+          borderSide: BorderSide(color: V2Colors.primary, width: 1.5),
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
@@ -377,7 +402,7 @@ abstract final class V2DesignSystem {
           borderRadius: BorderRadius.circular(V2Radii.dialog),
         ),
       ),
-      dividerTheme: const DividerThemeData(
+      dividerTheme: DividerThemeData(
         color: V2Colors.divider,
         thickness: 1,
         space: 1,

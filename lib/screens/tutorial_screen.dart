@@ -4,11 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
-const _kBg = V2Colors.background;
-const _kPrimary = V2Colors.primary;
-const _kSub = V2Colors.textSecondary;
-const _kText = V2Colors.textPrimary;
-const _kBorder = V2Colors.border;
+Color get _kBg => V2Colors.background;
+Color get _kPrimary => V2Colors.primary;
+Color get _kSub => V2Colors.textSecondary;
+Color get _kText => V2Colors.textPrimary;
+Color get _kBorder => V2Colors.border;
 
 class TutorialScreen extends StatefulWidget {
   const TutorialScreen({super.key});
@@ -147,12 +147,12 @@ class _TutorialScreenState extends State<TutorialScreen> {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: _kPrimary),
+          icon: Icon(Icons.arrow_back, color: _kPrimary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           l10n.tutorial_title,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -320,7 +320,7 @@ class _TutorialSectionCard extends StatelessWidget {
           ),
           title: Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -333,7 +333,7 @@ class _TutorialSectionCard extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Text(
                 description,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: V2Typography.family,
                   fontSize: 14,
                   color: _kSub,
@@ -363,7 +363,7 @@ class _TutorialSectionCard extends StatelessWidget {
                             errorBuilder:
                                 (_, __, ___) => Container(
                                   color: V2Colors.chip,
-                                  child: const Icon(
+                                  child: Icon(
                                     Icons.image_not_supported_outlined,
                                     color: _kSub,
                                   ),

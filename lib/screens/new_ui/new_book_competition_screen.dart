@@ -193,12 +193,12 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
           surfaceTintColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: V2Colors.primaryAlt),
+            icon: Icon(Icons.arrow_back, color: V2Colors.primaryAlt),
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
             l10n.best_book_of_year(widget.year.toString()),
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -214,7 +214,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
         ),
         body:
             isLoading
-                ? const Center(
+                ? Center(
                   child: CircularProgressIndicator(color: V2Colors.primaryAlt),
                 )
                 : competitionResult == null
@@ -338,7 +338,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(999),
-                    gradient: const LinearGradient(
+                    gradient: LinearGradient(
                       colors: [
                         V2Colors.primaryAlt,
                         V2Colors.primaryAlt,
@@ -920,7 +920,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
           children: [
             Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.flag_outlined,
                   size: 14,
                   color: V2Colors.primaryAlt,
@@ -928,7 +928,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
                 const SizedBox(width: 6),
                 Text(
                   'Semifinal $round',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: V2Colors.primaryAlt,
@@ -969,7 +969,7 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
                   height: 32,
                   margin: const EdgeInsets.symmetric(horizontal: 8),
                   alignment: Alignment.center,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: V2Colors.primaryAlt,
                     shape: BoxShape.circle,
                   ),
@@ -1182,11 +1182,11 @@ class _NewBookCompetitionScreenState extends State<NewBookCompetitionScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.circle, size: 8, color: V2Colors.primaryAlt),
+              Icon(Icons.circle, size: 8, color: V2Colors.primaryAlt),
               const SizedBox(width: 6),
               Text(
                 'Q$quarter Feeder (${_monthName(firstMonth)} - ${_monthName(firstMonth + 2)})',
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: V2Typography.family,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,

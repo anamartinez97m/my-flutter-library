@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
-const _kPrimary = V2Colors.primary;
-const _kSecondary = V2Colors.secondary;
+Color get _kPrimary => V2Colors.primary;
+Color get _kSecondary => V2Colors.secondary;
 const _kTertiary = Color(0xFFBC92A6); // Not represented in V2Colors.
-const _kSub = V2Colors.textSecondary;
-const _kDivider = V2Colors.divider;
+Color get _kSub => V2Colors.textSecondary;
+Color get _kDivider => V2Colors.divider;
 
 /// Reading Efficiency 4 — Speedometer gauge.
 ///
@@ -45,7 +45,7 @@ class ReadingEfficiency4Card extends StatelessWidget {
         children: [
           Text(
             l10n.reading_efficiency_4,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -55,7 +55,7 @@ class ReadingEfficiency4Card extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             l10n.reading_velocity,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 12,
               color: _kSub,
@@ -85,7 +85,7 @@ class ReadingEfficiency4Card extends StatelessWidget {
             children: [
               Text(
                 readingVelocity.toStringAsFixed(1),
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: V2Typography.family,
                   fontSize: 36,
                   fontWeight: FontWeight.bold,
@@ -95,7 +95,7 @@ class ReadingEfficiency4Card extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 l10n.pages_per_day,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: V2Typography.family,
                   fontSize: 14,
                   color: _kSub,
@@ -146,7 +146,7 @@ class _ZoneLabel extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 11,
             color: _kSub,

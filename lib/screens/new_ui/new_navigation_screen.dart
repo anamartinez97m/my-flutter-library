@@ -126,7 +126,7 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
           Expanded(
             child: Text(
               AppLocalizations.of(context)!.app_title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: V2Typography.family,
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
@@ -174,12 +174,12 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
                 ),
                 iconTheme: WidgetStateProperty.resolveWith((states) {
                   if (states.contains(WidgetState.selected)) {
-                    return const IconThemeData(
+                    return IconThemeData(
                       color: V2Colors.primary,
                       size: 22,
                     );
                   }
-                  return const IconThemeData(
+                  return IconThemeData(
                     color: V2Colors.textSecondary,
                     size: 22,
                   );

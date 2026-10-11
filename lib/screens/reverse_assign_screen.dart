@@ -17,13 +17,13 @@ class ReverseAssignScreen extends StatefulWidget {
 }
 
 class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
-  static const _kBg = V2Colors.background;
-  static const _kPrimary = V2Colors.primary;
-  static const _kSecondary = V2Colors.secondary;
-  static const _kText = V2Colors.textPrimary;
-  static const _kSubText = V2Colors.textSubtle;
-  static const _kIconBg = V2Colors.chip;
-  static const _kBorder = V2Colors.border;
+  static Color get _kBg => V2Colors.background;
+  static Color get _kPrimary => V2Colors.primary;
+  static Color get _kSecondary => V2Colors.secondary;
+  static Color get _kText => V2Colors.textPrimary;
+  static Color get _kSubText => V2Colors.textSubtle;
+  static Color get _kIconBg => V2Colors.chip;
+  static Color get _kBorder => V2Colors.border;
 
   int _currentStep = 0;
   String? _selectedField;
@@ -230,7 +230,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
         elevation: 0,
         title: Text(
           l10n.assign_books_to_value,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w700,
@@ -279,7 +279,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                 Expanded(
                   child: Text(
                     labels[_currentStep],
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
@@ -289,7 +289,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                 ),
                 Text(
                   '${_currentStep + 1} / 3',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: V2Typography.family,
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -305,7 +305,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                 minHeight: 5,
                 value: (_currentStep + 1) / 3,
                 backgroundColor: _kIconBg,
-                valueColor: const AlwaysStoppedAnimation<Color>(_kPrimary),
+                valueColor: AlwaysStoppedAnimation<Color>(_kPrimary),
               ),
             ),
           ],
@@ -319,7 +319,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(
+          SizedBox(
             width: 32,
             height: 32,
             child: CircularProgressIndicator(
@@ -330,7 +330,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
           const SizedBox(height: 20),
           Text(
             l10n.loading,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 14,
               color: _kSubText,
@@ -347,7 +347,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
       children: [
         Text(
           l10n.select_field,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -429,7 +429,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                       ),
                     ),
                     if (isSelected)
-                      const Icon(
+                      Icon(
                         Icons.check_circle,
                         color: _kPrimary,
                         size: 20,
@@ -453,7 +453,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
         children: [
           Text(
             l10n.no_values_available,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -472,7 +472,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
       children: [
         Text(
           l10n.select_value,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -483,7 +483,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
         DropdownButtonFormField<String>(
           key: ValueKey('selected_value_$_selectedValue'),
           initialValue: _selectedValue,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 14,
             color: _kText,
@@ -492,20 +492,20 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
           iconEnabledColor: _kPrimary,
           decoration: InputDecoration(
             labelText: l10n.select_value,
-            labelStyle: const TextStyle(
+            labelStyle: TextStyle(
               fontFamily: V2Typography.family,
               color: _kSubText,
             ),
-            prefixIcon: const Icon(Icons.label_outline, color: _kSecondary),
+            prefixIcon: Icon(Icons.label_outline, color: _kSecondary),
             filled: true,
             fillColor: Colors.white,
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: _kBorder),
+              borderSide: BorderSide(color: _kBorder),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: _kPrimary, width: 1.5),
+              borderSide: BorderSide(color: _kPrimary, width: 1.5),
             ),
           ),
           items:
@@ -547,11 +547,11 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                 Container(
                   width: 72,
                   height: 72,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: _kIconBg,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.check_rounded,
                     size: 36,
                     color: _kPrimary,
@@ -560,7 +560,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                 const SizedBox(height: 20),
                 Text(
                   l10n.all_books_already_have_value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: V2Typography.family,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -590,14 +590,14 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
               Expanded(
                 child: TextField(
                   controller: _searchController,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: V2Typography.family,
                     fontSize: 14,
                     color: _kText,
                   ),
                   decoration: InputDecoration(
                     hintText: l10n.search_books_by_title,
-                    hintStyle: const TextStyle(
+                    hintStyle: TextStyle(
                       fontFamily: V2Typography.family,
                       color: _kSubText,
                     ),
@@ -611,11 +611,11 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: _kBorder),
+                      borderSide: BorderSide(color: _kBorder),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
+                      borderSide: BorderSide(
                         color: _kPrimary,
                         width: 1.5,
                       ),
@@ -653,7 +653,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                   _selectedBookIds.length == books.length
                       ? l10n.deselect_all
                       : l10n.select_all,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: V2Typography.family,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -670,7 +670,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
             alignment: Alignment.centerLeft,
             child: Text(
               '${books.length} ${l10n.books_available}',
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: V2Typography.family,
                 fontSize: 12,
                 color: _kSubText,
@@ -715,7 +715,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                   },
                   title: Text(
                     book.name ?? '',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
@@ -728,7 +728,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                       if (book.author != null && book.author!.isNotEmpty)
                         Text(
                           book.author!,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 12,
                             color: _kSubText,
@@ -812,7 +812,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
       ),
       child: Row(
         children: [
-          const Icon(Icons.info_outline, color: _kPrimary, size: 20),
+          Icon(Icons.info_outline, color: _kPrimary, size: 20),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -820,7 +820,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
                 _selectedValue ?? '',
                 _getFieldLabel(_selectedField ?? ''),
               ),
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: V2Typography.family,
                 fontSize: 13,
                 color: _kText,
@@ -863,7 +863,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
         onPressed: _onStepCancel,
         style: OutlinedButton.styleFrom(
           foregroundColor: _kSecondary,
-          side: const BorderSide(color: _kBorder),
+          side: BorderSide(color: _kBorder),
           padding: const EdgeInsets.symmetric(vertical: 14),
           textStyle: const TextStyle(
             fontFamily: V2Typography.family,

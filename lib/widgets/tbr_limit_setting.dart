@@ -6,11 +6,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../config/app_theme.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
-const _kV2Bg = V2Colors.background;
-const _kV2Primary = V2Colors.primary;
-const _kV2Sub = V2Colors.textSecondary;
-const _kV2Text = V2Colors.textPrimary;
-const _kV2InputBorder = V2Colors.borderInput;
+Color get _kV2Bg => V2Colors.background;
+Color get _kV2Primary => V2Colors.primary;
+Color get _kV2Sub => V2Colors.textSecondary;
+Color get _kV2Text => V2Colors.textPrimary;
+Color get _kV2InputBorder => V2Colors.borderInput;
 
 class TBRLimitSetting extends StatefulWidget {
   const TBRLimitSetting({super.key});
@@ -93,7 +93,7 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
                 actionsPadding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
                 title: Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.bookmark_add,
                       color: _kV2Primary,
                       size: 24,
@@ -102,7 +102,7 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
                     Expanded(
                       child: Text(
                         AppLocalizations.of(context)!.set_tbr_limit,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
@@ -118,7 +118,7 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
                   children: [
                     Text(
                       AppLocalizations.of(context)!.max_tbr_books_description,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: V2Typography.family,
                         fontSize: 14,
                         color: _kV2Sub,
@@ -133,7 +133,7 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
                       onChanged: (value) {
                         setState(() {});
                       },
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: V2Typography.family,
                         fontSize: 15,
                         color: _kV2Text,
@@ -146,37 +146,37 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
                         helperText:
                             AppLocalizations.of(context)!.range_1_200_books,
                         errorText: errorText,
-                        helperStyle: const TextStyle(
+                        helperStyle: TextStyle(
                           fontFamily: V2Typography.family,
                           fontSize: 12,
                           color: _kV2Sub,
                         ),
-                        labelStyle: const TextStyle(
+                        labelStyle: TextStyle(
                           fontFamily: V2Typography.family,
                           fontSize: 14,
                           color: _kV2Primary,
                         ),
-                        floatingLabelStyle: const TextStyle(
+                        floatingLabelStyle: TextStyle(
                           fontFamily: V2Typography.family,
                           fontSize: 12,
                           color: _kV2Primary,
                         ),
-                        prefixIcon: const Icon(
+                        prefixIcon: Icon(
                           Icons.format_list_numbered,
                           color: _kV2Primary,
                           size: 20,
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(color: _kV2InputBorder),
+                          borderSide: BorderSide(color: _kV2InputBorder),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(color: _kV2InputBorder),
+                          borderSide: BorderSide(color: _kV2InputBorder),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(
+                          borderSide: BorderSide(
                             color: _kV2Primary,
                             width: 1.5,
                           ),
@@ -300,7 +300,7 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: _kV2Primary.withValues(alpha: 0.1)),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.bookmark_add,
                 color: _kV2Primary,
                 size: 20,
@@ -313,7 +313,7 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
                 children: [
                   Text(
                     l10n.tbr_limit,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -323,7 +323,7 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
                   const SizedBox(height: 2),
                   Text(
                     l10n.max_tbr_books_subtitle(_tbrLimit.toString()),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontSize: 13,
                       color: _kV2Sub,
@@ -332,7 +332,7 @@ class _TBRLimitSettingState extends State<TBRLimitSetting> {
                 ],
               ),
             ),
-            const Icon(Icons.edit, color: _kV2Primary, size: 20),
+            Icon(Icons.edit, color: _kV2Primary, size: 20),
           ],
         ),
       ),

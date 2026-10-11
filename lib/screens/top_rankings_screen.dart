@@ -12,16 +12,16 @@ import 'package:myrandomlibrary/model/book.dart';
 class TopRankingsScreen extends StatefulWidget {
   final List<Book> books;
 
-  static const kBg = V2Colors.background;
-  static const kPrimary = V2Colors.primary;
-  static const kSecondary = V2Colors.secondary;
+  static Color get kBg => V2Colors.background;
+  static Color get kPrimary => V2Colors.primary;
+  static Color get kSecondary => V2Colors.secondary;
   static const kTertiary = Color(0xFFBC92A6); // Not represented in V2Colors.
-  static const kMuted = V2Colors.border;
-  static const kText = V2Colors.textPrimary;
-  static const kSub = V2Colors.textSecondary;
+  static Color get kMuted => V2Colors.border;
+  static Color get kText => V2Colors.textPrimary;
+  static Color get kSub => V2Colors.textSecondary;
   static const kBorder = Color(0x4DD5C2C7); // Exact alpha variant.
-  static const kDivider = V2Colors.divider;
-  static const kBarBg = V2Colors.divider;
+  static Color get kDivider => V2Colors.divider;
+  static Color get kBarBg => V2Colors.divider;
 
   const TopRankingsScreen({super.key, required this.books});
 
@@ -30,14 +30,14 @@ class TopRankingsScreen extends StatefulWidget {
 }
 
 class _TopRankingsScreenState extends State<TopRankingsScreen> {
-  static const _kBg = TopRankingsScreen.kBg;
-  static const _kPrimary = TopRankingsScreen.kPrimary;
-  static const _kSecondary = TopRankingsScreen.kSecondary;
-  static const _kTertiary = TopRankingsScreen.kTertiary;
-  static const _kText = TopRankingsScreen.kText;
-  static const _kSub = TopRankingsScreen.kSub;
-  static const _kBorder = TopRankingsScreen.kBorder;
-  static const _kBarBg = TopRankingsScreen.kBarBg;
+  static Color get _kBg => TopRankingsScreen.kBg;
+  static Color get _kPrimary => TopRankingsScreen.kPrimary;
+  static Color get _kSecondary => TopRankingsScreen.kSecondary;
+  static Color get _kTertiary => TopRankingsScreen.kTertiary;
+  static Color get _kText => TopRankingsScreen.kText;
+  static Color get _kSub => TopRankingsScreen.kSub;
+  static Color get _kBorder => TopRankingsScreen.kBorder;
+  static Color get _kBarBg => TopRankingsScreen.kBarBg;
 
   bool _showReadBooks = false;
   final Set<String> _collapsedSections = {};
@@ -131,12 +131,12 @@ class _TopRankingsScreenState extends State<TopRankingsScreen> {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: _kPrimary),
+          icon: Icon(Icons.arrow_back, color: _kPrimary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           l10n.section_top_rankings,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -251,7 +251,7 @@ class _TopRankingsScreenState extends State<TopRankingsScreen> {
                 Expanded(
                   child: Text(
                     section.title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
@@ -262,7 +262,7 @@ class _TopRankingsScreenState extends State<TopRankingsScreen> {
                 AnimatedRotation(
                   turns: isCollapsed ? -0.25 : 0,
                   duration: const Duration(milliseconds: 200),
-                  child: const Icon(Icons.expand_more, color: _kPrimary),
+                  child: Icon(Icons.expand_more, color: _kPrimary),
                 ),
               ],
             ),
@@ -283,7 +283,7 @@ class _TopRankingsScreenState extends State<TopRankingsScreen> {
                                   padding: const EdgeInsets.all(16),
                                   child: Text(
                                     AppLocalizations.of(context)!.no_data,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 14,
                                       color: _kSub,
                                     ),
@@ -309,7 +309,7 @@ class _TopRankingsScreenState extends State<TopRankingsScreen> {
                                                 children: [
                                                   Text(
                                                     entry.name,
-                                                    style: const TextStyle(
+                                                    style: TextStyle(
                                                       fontSize: 12,
                                                       color: _kSub,
                                                       fontWeight:
@@ -321,7 +321,7 @@ class _TopRankingsScreenState extends State<TopRankingsScreen> {
                                                   if (entry.avgRating > 0)
                                                     Text(
                                                       '★ ${entry.avgRating.toStringAsFixed(1)}',
-                                                      style: const TextStyle(
+                                                      style: TextStyle(
                                                         fontSize: 10,
                                                         color: _kSecondary,
                                                         fontWeight:

@@ -143,14 +143,14 @@ class _NewQuarterlyWinnerSelectionScreenState
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: V2Colors.primary),
+          icon: Icon(Icons.arrow_back, color: V2Colors.primary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           l10n.select_winner_title(
             '${_getQuarterName(widget.quarter)} ${widget.year}',
           ),
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -166,7 +166,7 @@ class _NewQuarterlyWinnerSelectionScreenState
       ),
       body:
           isLoading
-              ? const Center(
+              ? Center(
                 child: CircularProgressIndicator(color: V2Colors.primary),
               )
               : monthlyWinnerBooks.isEmpty
@@ -174,7 +174,7 @@ class _NewQuarterlyWinnerSelectionScreenState
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.menu_book_outlined,
                       size: 64,
                       color: V2Colors.border,
@@ -182,7 +182,7 @@ class _NewQuarterlyWinnerSelectionScreenState
                     const SizedBox(height: 16),
                     Text(
                       l10n.no_monthly_winners_quarter,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         color: V2Colors.textSecondary,
                       ),
@@ -283,7 +283,7 @@ class _NewQuarterlyWinnerSelectionScreenState
                       const SizedBox(height: 6),
                       Text(
                         '${l10n.author}: ${book.author}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontSize: 14,
                           color: V2Colors.textSecondary,
@@ -295,7 +295,7 @@ class _NewQuarterlyWinnerSelectionScreenState
                       const SizedBox(height: 4),
                       Text(
                         '${l10n.rating}: ${book.myRating!.toStringAsFixed(2)}/5',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontSize: 14,
                           color: V2Colors.textSecondary,

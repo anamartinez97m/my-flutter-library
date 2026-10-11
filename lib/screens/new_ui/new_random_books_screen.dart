@@ -10,8 +10,8 @@ import 'package:myrandomlibrary/widgets/chip_autocomplete_field.dart';
 import 'package:myrandomlibrary/widgets/random_pick_scaffold.dart';
 import 'package:provider/provider.dart';
 
-const _kPrimary = V2Colors.primary;
-const _kSub = V2Colors.textSecondary;
+Color get _kPrimary => V2Colors.primary;
+Color get _kSub => V2Colors.textSecondary;
 
 /// Book titles picked on [NewRandomBooksScreen], kept by the random tab so
 /// they survive closing and reopening the screen.
@@ -104,7 +104,7 @@ class _NewRandomBooksScreenState extends State<NewRandomBooksScreen> {
                 color: _kPrimary.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.library_books,
                 color: _kPrimary,
                 size: 34,
@@ -117,7 +117,7 @@ class _NewRandomBooksScreenState extends State<NewRandomBooksScreen> {
             child: Text(
               l10n.search_select_books_description,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 13, color: _kSub, height: 1.4),
+              style: TextStyle(fontSize: 13, color: _kSub, height: 1.4),
             ),
           ),
           const SizedBox(height: 28),
@@ -179,12 +179,12 @@ class _SelectedBookTile extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.menu_book, size: 18, color: _kPrimary),
+          Icon(Icons.menu_book, size: 18, color: _kPrimary),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: _kPrimary,
@@ -194,7 +194,7 @@ class _SelectedBookTile extends StatelessWidget {
           ),
           GestureDetector(
             onTap: onRemove,
-            child: const Icon(Icons.close, size: 18, color: _kSub),
+            child: Icon(Icons.close, size: 18, color: _kSub),
           ),
         ],
       ),

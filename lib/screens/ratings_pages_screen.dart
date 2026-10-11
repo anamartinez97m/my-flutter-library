@@ -22,16 +22,16 @@ class RatingsPagesScreen extends StatefulWidget {
   final int? longestPages;
   final String? longestBookName;
 
-  static const kBg = V2Colors.background;
-  static const kPrimary = V2Colors.primary;
-  static const kSecondary = V2Colors.secondary;
+  static Color get kBg => V2Colors.background;
+  static Color get kPrimary => V2Colors.primary;
+  static Color get kSecondary => V2Colors.secondary;
   static const kTertiary = Color(0xFFBC92A6); // Not represented in V2Colors.
-  static const kMuted = V2Colors.border;
-  static const kText = V2Colors.textPrimary;
-  static const kSub = V2Colors.textSecondary;
+  static Color get kMuted => V2Colors.border;
+  static Color get kText => V2Colors.textPrimary;
+  static Color get kSub => V2Colors.textSecondary;
   static const kBorder = Color(0x4DD5C2C7); // Exact alpha variant.
-  static const kDivider = V2Colors.divider;
-  static const kBarBg = V2Colors.divider;
+  static Color get kDivider => V2Colors.divider;
+  static Color get kBarBg => V2Colors.divider;
 
   const RatingsPagesScreen({
     super.key,
@@ -54,15 +54,15 @@ class RatingsPagesScreen extends StatefulWidget {
 }
 
 class _RatingsPagesScreenState extends State<RatingsPagesScreen> {
-  static const _kBg = RatingsPagesScreen.kBg;
-  static const _kPrimary = RatingsPagesScreen.kPrimary;
-  static const _kSecondary = RatingsPagesScreen.kSecondary;
-  static const _kTertiary = RatingsPagesScreen.kTertiary;
-  static const _kText = RatingsPagesScreen.kText;
-  static const _kSub = RatingsPagesScreen.kSub;
-  static const _kBorder = RatingsPagesScreen.kBorder;
-  static const _kDivider = RatingsPagesScreen.kDivider;
-  static const _kBarBg = RatingsPagesScreen.kBarBg;
+  static Color get _kBg => RatingsPagesScreen.kBg;
+  static Color get _kPrimary => RatingsPagesScreen.kPrimary;
+  static Color get _kSecondary => RatingsPagesScreen.kSecondary;
+  static Color get _kTertiary => RatingsPagesScreen.kTertiary;
+  static Color get _kText => RatingsPagesScreen.kText;
+  static Color get _kSub => RatingsPagesScreen.kSub;
+  static Color get _kBorder => RatingsPagesScreen.kBorder;
+  static Color get _kDivider => RatingsPagesScreen.kDivider;
+  static Color get _kBarBg => RatingsPagesScreen.kBarBg;
 
   final Set<String> _collapsedSections = {};
 
@@ -87,12 +87,12 @@ class _RatingsPagesScreenState extends State<RatingsPagesScreen> {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: _kPrimary),
+          icon: Icon(Icons.arrow_back, color: _kPrimary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           l10n.section_ratings_pages,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: V2Typography.family,
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -131,7 +131,7 @@ class _RatingsPagesScreenState extends State<RatingsPagesScreen> {
                 labelBuilder:
                     (key) => Text(
                       key,
-                      style: const TextStyle(fontSize: 12, color: _kSub),
+                      style: TextStyle(fontSize: 12, color: _kSub),
                     ),
               ),
             ),
@@ -189,7 +189,7 @@ class _RatingsPagesScreenState extends State<RatingsPagesScreen> {
                 Expanded(
                   child: Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: V2Typography.family,
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
@@ -200,7 +200,7 @@ class _RatingsPagesScreenState extends State<RatingsPagesScreen> {
                 AnimatedRotation(
                   turns: isCollapsed ? -0.25 : 0,
                   duration: const Duration(milliseconds: 200),
-                  child: const Icon(Icons.expand_more, color: _kPrimary),
+                  child: Icon(Icons.expand_more, color: _kPrimary),
                 ),
               ],
             ),
@@ -235,7 +235,7 @@ class _RatingsPagesScreenState extends State<RatingsPagesScreen> {
           children: [
             Text(
               widget.averageRating.toStringAsFixed(2),
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: V2Typography.family,
                 fontSize: 40,
                 fontWeight: FontWeight.bold,
@@ -243,13 +243,13 @@ class _RatingsPagesScreenState extends State<RatingsPagesScreen> {
               ),
             ),
             const SizedBox(width: 8),
-            const Icon(Icons.star, color: _kSecondary, size: 34),
+            Icon(Icons.star, color: _kSecondary, size: 34),
           ],
         ),
         const SizedBox(height: 8),
         Text(
           l10n.based_on_rated_books(widget.ratedBooksCount.toString()),
-          style: const TextStyle(fontSize: 13, color: _kSub),
+          style: TextStyle(fontSize: 13, color: _kSub),
         ),
       ],
     );
@@ -260,7 +260,7 @@ class _RatingsPagesScreenState extends State<RatingsPagesScreen> {
   /// "Unrated" bucket as plain text since it has no numeric rating.
   Widget _buildRatingLabel(String key) {
     if (key == 'Unrated') {
-      return const Text(
+      return Text(
         'Unrated',
         style: TextStyle(fontSize: 12, color: _kSub),
       );
@@ -271,14 +271,14 @@ class _RatingsPagesScreenState extends State<RatingsPagesScreen> {
       children: [
         Text(
           stars,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
             color: _kSub,
             fontWeight: FontWeight.w600,
           ),
         ),
         const SizedBox(width: 2),
-        const Icon(Icons.auto_awesome, size: 12, color: _kSub),
+        Icon(Icons.auto_awesome, size: 12, color: _kSub),
       ],
     );
   }
@@ -374,7 +374,7 @@ class _RatingsPagesScreenState extends State<RatingsPagesScreen> {
           value2: widget.newestYear != null ? '${widget.newestYear}' : 'N/A',
           book2: widget.newestBookName,
         ),
-        const Padding(
+        Padding(
           padding: EdgeInsets.symmetric(vertical: 16),
           child: Divider(height: 1, thickness: 1, color: _kDivider),
         ),
@@ -447,7 +447,7 @@ class _RatingsPagesScreenState extends State<RatingsPagesScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 12, color: _kSub)),
+        Text(label, style: TextStyle(fontSize: 12, color: _kSub)),
         Text(
           value,
           style: TextStyle(
@@ -460,7 +460,7 @@ class _RatingsPagesScreenState extends State<RatingsPagesScreen> {
         if (book != null)
           Text(
             book,
-            style: const TextStyle(fontSize: 12, color: _kSub),
+            style: TextStyle(fontSize: 12, color: _kSub),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
