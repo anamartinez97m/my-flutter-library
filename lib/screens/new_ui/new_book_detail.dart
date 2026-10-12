@@ -4287,8 +4287,8 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                             if (_chronometerSessions.isNotEmpty)
                               Center(
                                 child: TextButton(
-                                  onPressed: () {
-                                    Navigator.push(
+                                  onPressed: () async {
+                                    await Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder:
@@ -4297,6 +4297,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                                             ),
                                       ),
                                     );
+                                    if (mounted) await _loadReadDates();
                                   },
                                   child: Text(
                                     AppLocalizations.of(context)!.view_more,

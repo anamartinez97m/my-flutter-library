@@ -51,12 +51,6 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
       final db = await DatabaseHelper.instance.database;
       final repository = ReadingSessionRepository(db);
       final sessions = await repository.getSessionsForBook(widget.book.bookId!);
-      sessions.sort((a, b) {
-        final aTime = a.clickedAt ?? a.startTime;
-        final bTime = b.clickedAt ?? b.startTime;
-        if (aTime == null || bTime == null) return 0;
-        return bTime.compareTo(aTime);
-      });
       if (mounted) {
         setState(() {
           _sessions = sessions;
