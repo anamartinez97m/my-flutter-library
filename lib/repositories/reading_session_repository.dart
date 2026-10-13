@@ -6,6 +6,12 @@ class ReadingSessionRepository {
 
   ReadingSessionRepository(this.db);
 
+  /// Newest first: by day, then by time within the day (manual and edited
+  /// sessions store midnight in start_time and the real time in clicked_at).
+  static const _newestFirst =
+      'substr(start_time, 1, 10) DESC, '
+      'COALESCE(clicked_at, start_time) DESC, session_id DESC';
+
   /// Create a new reading session
   Future<int> createSession(ReadingSession session) async {
     return await db.insert('reading_sessions', session.toMap());
@@ -31,7 +37,7 @@ class ReadingSessionRepository {
       'reading_sessions',
       where: 'book_id = ?',
       whereArgs: [bookId],
-      orderBy: 'start_time DESC',
+      orderBy: _newestFirst,
     );
 
     return results.map((map) => ReadingSession.fromMap(map)).toList();
@@ -43,7 +49,7 @@ class ReadingSessionRepository {
       'reading_sessions',
       where: 'book_id = ? AND (duration_seconds > 0 OR did_read = 1)',
       whereArgs: [bookId],
-      orderBy: 'start_time DESC',
+      orderBy: _newestFirst,
     );
 
     return results.map((map) => ReadingSession.fromMap(map)).toList();
