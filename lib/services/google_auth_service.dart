@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -6,12 +7,15 @@ class GoogleAuthService {
   static final GoogleAuthService instance = GoogleAuthService._internal();
   GoogleAuthService._internal();
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseAuth get _auth => FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
-  User? get currentUser => _auth.currentUser;
-  bool get isSignedIn => _auth.currentUser != null;
-  Stream<User?> get authStateChanges => _auth.authStateChanges();
+  bool get _isFirebaseReady => Firebase.apps.isNotEmpty;
+
+  User? get currentUser => _isFirebaseReady ? _auth.currentUser : null;
+  bool get isSignedIn => currentUser != null;
+  Stream<User?> get authStateChanges =>
+      _isFirebaseReady ? _auth.authStateChanges() : Stream.value(null);
 
   Future<User?> signInWithGoogle() async {
     try {

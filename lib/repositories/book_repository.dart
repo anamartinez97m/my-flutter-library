@@ -140,7 +140,7 @@ class BookRepository {
       left join place p on b.place_id = p.place_id  
       left join format f on b.format_id = f.format_id
       left join format_saga fs on b.format_saga_id = fs.format_id
-      where b.name <> ""
+      where b.name <> ''
       group by b.book_id
       order by b.name;
       ''');
@@ -1324,7 +1324,7 @@ class BookRepository {
   /// Get the count of read sessions for a book
   Future<int> getReadCountForBook(int bookId) async {
     final result = await db.rawQuery(
-      'SELECT COUNT(*) as count FROM book_read_dates WHERE book_id = ? AND date_finished IS NOT NULL AND date_finished != ""',
+      "SELECT COUNT(*) as count FROM book_read_dates WHERE book_id = ? AND date_finished IS NOT NULL AND date_finished != ''",
       [bookId],
     );
     return result.first['count'] as int;
@@ -1352,7 +1352,7 @@ class BookRepository {
     final result = await db.rawQuery('''
       SELECT DISTINCT CAST(substr(date_finished, 1, 4) AS INTEGER) as year
       FROM book_read_dates
-      WHERE date_finished IS NOT NULL AND date_finished != ""
+      WHERE date_finished IS NOT NULL AND date_finished != ''
       ORDER BY year DESC
     ''');
     return result.map((row) => row['year'] as int).toList();
@@ -1381,7 +1381,7 @@ class BookRepository {
       LEFT JOIN status s ON b.status_id = s.status_id
       LEFT JOIN book orig ON b.original_book_id = orig.book_id AND LOWER(s.value) = 'repeated'
       WHERE rd.date_finished IS NOT NULL 
-        AND rd.date_finished != ""
+        AND rd.date_finished != ''
         -- Exclude whole bundle books (only include individual bundle books or non-bundle books)
         AND NOT (COALESCE(orig.is_bundle, b.is_bundle, 0) = 1 AND rd.bundle_book_index IS NULL)
     ''');
@@ -1565,7 +1565,7 @@ class BookRepository {
       
       WHERE CAST(substr(rd.date_finished, 1, 4) AS INTEGER) = ?
         AND rd.date_finished IS NOT NULL 
-        AND rd.date_finished != ""
+        AND rd.date_finished != ''
         -- Exclude whole bundle books (only include individual bundle books or non-bundle books)
         AND NOT (COALESCE(orig.is_bundle, b.is_bundle, 0) = 1 AND rd.bundle_book_index IS NULL)
       GROUP BY COALESCE(orig.book_id, b.book_id), rd.bundle_book_index
@@ -1937,7 +1937,7 @@ class BookRepository {
       LEFT JOIN place p ON b.place_id = p.place_id  
       LEFT JOIN format f ON b.format_id = f.format_id
       LEFT JOIN format_saga fs ON b.format_saga_id = fs.format_id
-      WHERE b.name <> "" AND b.bundle_parent_id IS NULL
+      WHERE b.name <> '' AND b.bundle_parent_id IS NULL
         AND $whereCondition
       GROUP BY b.book_id
       ORDER BY b.name
@@ -1980,7 +1980,7 @@ class BookRepository {
       LEFT JOIN place p ON b.place_id = p.place_id  
       LEFT JOIN format f ON b.format_id = f.format_id
       LEFT JOIN format_saga fs ON b.format_saga_id = fs.format_id
-      WHERE b.name <> "" AND b.bundle_parent_id IS NULL
+      WHERE b.name <> '' AND b.bundle_parent_id IS NULL
         AND b.book_id NOT IN (SELECT book_id FROM $junctionTable)
       GROUP BY b.book_id
       ORDER BY b.name
@@ -2078,7 +2078,7 @@ class BookRepository {
       LEFT JOIN place p ON b.place_id = p.place_id  
       LEFT JOIN format f ON b.format_id = f.format_id
       LEFT JOIN format_saga fs ON b.format_saga_id = fs.format_id
-      WHERE b.name <> "" AND b.bundle_parent_id IS NULL
+      WHERE b.name <> '' AND b.bundle_parent_id IS NULL
         AND $whereCondition
       GROUP BY b.book_id
       ORDER BY b.name

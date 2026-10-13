@@ -100,7 +100,7 @@ class YearChallengeRepository {
       LEFT JOIN book orig ON b.original_book_id = orig.book_id
       WHERE CAST(substr(rd.date_finished, 1, 4) AS INTEGER) = ?
         AND rd.date_finished IS NOT NULL 
-        AND rd.date_finished != ""
+        AND rd.date_finished != ''
     ''',
       [year],
     );

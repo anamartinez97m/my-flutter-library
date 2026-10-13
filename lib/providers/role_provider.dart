@@ -1,21 +1,29 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 
 enum UserRole { basic, premium, admin }
 
 class RoleProvider extends ChangeNotifier {
-  final FirebaseAuth _auth;
-  late final StreamSubscription<User?> _subscription;
+  final FirebaseAuth? _auth;
+  StreamSubscription<User?>? _subscription;
 
   UserRole _role = UserRole.basic;
   bool _isLoading = true;
   int _loadGeneration = 0;
 
-  RoleProvider({FirebaseAuth? auth}) : _auth = auth ?? FirebaseAuth.instance {
-    _subscription = _auth.idTokenChanges().listen(_loadRole);
-    _loadRole(_auth.currentUser);
+  RoleProvider({FirebaseAuth? auth})
+    : _auth =
+          auth ?? (Firebase.apps.isNotEmpty ? FirebaseAuth.instance : null) {
+    final firebaseAuth = _auth;
+    if (firebaseAuth == null) {
+      _setRole(UserRole.basic);
+      return;
+    }
+    _subscription = firebaseAuth.idTokenChanges().listen(_loadRole);
+    _loadRole(firebaseAuth.currentUser);
   }
 
   UserRole get role => _role;
@@ -24,7 +32,7 @@ class RoleProvider extends ChangeNotifier {
   bool get isPremium => _role == UserRole.premium || isAdmin;
 
   Future<void> forceRefresh() async {
-    final user = _auth.currentUser;
+    final user = _auth?.currentUser;
     if (user == null) {
       _setRole(UserRole.basic);
       return;
@@ -41,7 +49,8 @@ class RoleProvider extends ChangeNotifier {
 
     try {
       final token = await user.getIdTokenResult(forceRefresh);
-      if (generation != _loadGeneration || _auth.currentUser?.uid != user.uid) {
+      if (generation != _loadGeneration ||
+          _auth?.currentUser?.uid != user.uid) {
         return;
       }
       _setRole(_parseRole(token.claims?['role']));
@@ -67,7 +76,7 @@ class RoleProvider extends ChangeNotifier {
 
   @override
   void dispose() {
-    _subscription.cancel();
+    _subscription?.cancel();
     super.dispose();
   }
 }
