@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
+import 'package:myrandomlibrary/providers/role_provider.dart';
 import 'package:myrandomlibrary/model/book_metadata.dart';
 import 'package:myrandomlibrary/model/author_catalog_item.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
@@ -700,17 +701,21 @@ class _MultiAuthorScreenState extends State<_MultiAuthorScreen> {
             ),
             centerTitle: true,
             actions: [
-              IconButton(
-                icon: Icon(
-                  _showFullCatalog ? Icons.library_books : Icons.travel_explore,
-                  color: _kV2AppBar,
-                ),
-                tooltip:
+              if (context.watch<RoleProvider>().isAdmin)
+                IconButton(
+                  icon: Icon(
                     _showFullCatalog
-                        ? AppLocalizations.of(context)!.my_library_view
-                        : AppLocalizations.of(context)!.full_catalog,
-                onPressed: () => _contentKey.currentState?.toggleCatalogView(),
-              ),
+                        ? Icons.library_books
+                        : Icons.travel_explore,
+                    color: _kV2AppBar,
+                  ),
+                  tooltip:
+                      _showFullCatalog
+                          ? AppLocalizations.of(context)!.my_library_view
+                          : AppLocalizations.of(context)!.full_catalog,
+                  onPressed:
+                      () => _contentKey.currentState?.toggleCatalogView(),
+                ),
             ],
           ),
           Divider(height: 1, color: V2Colors.border),
@@ -988,14 +993,16 @@ class _AuthorContentViewState extends State<_AuthorContentView> {
       ),
       centerTitle: true,
       actions: [
-        IconButton(
-          icon: Icon(
-            _showFullCatalog ? Icons.library_books : Icons.travel_explore,
-            color: _kV2AppBar,
+        if (context.watch<RoleProvider>().isAdmin)
+          IconButton(
+            icon: Icon(
+              _showFullCatalog ? Icons.library_books : Icons.travel_explore,
+              color: _kV2AppBar,
+            ),
+            tooltip:
+                _showFullCatalog ? l10n.my_library_view : l10n.full_catalog,
+            onPressed: toggleCatalogView,
           ),
-          tooltip: _showFullCatalog ? l10n.my_library_view : l10n.full_catalog,
-          onPressed: toggleCatalogView,
-        ),
       ],
       bottom: PreferredSize(
         preferredSize: Size.fromHeight(1),
