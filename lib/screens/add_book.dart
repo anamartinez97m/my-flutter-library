@@ -126,6 +126,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
   String? _fetchedCoverUrl;
   String? _fetchedMetadataSource;
 
+  late String _initialFormSnapshot;
+
   /// Capitalize only the first letter, rest lowercase
   String _capitalizeFirstWord(String text) {
     if (text.isEmpty) return text;
@@ -185,8 +187,120 @@ class _AddBookScreenState extends State<AddBookScreen> {
       _notesController.text = placeholder.notes ?? '';
       _fetchedCoverUrl = placeholder.coverUrl;
     }
+    _initialFormSnapshot = _formSnapshot();
     _loadDropdownData();
     _loadRatingFieldSuggestions();
+  }
+
+  String _formSnapshot() {
+    final controllers = [
+      _nameController,
+      _isbnController,
+      _asinController,
+      _authorController,
+      _sagaController,
+      _nSagaController,
+      _sagaUniverseController,
+      _universeReadingPositionController,
+      _pagesController,
+      _publicationYearController,
+      _genreController,
+      _myReviewController,
+      _notesController,
+      _priceController,
+      _acquiredYearController,
+    ];
+    return [
+      ...controllers.map((c) => c.text.trim()),
+      _releaseDate,
+      _myRating,
+      _readCount,
+      _ratingFields.map((f) => '${f.fieldName}=${f.ratingValue}').join(';'),
+      _ratingOverride,
+      _readDates.map((d) => d.toMap().toString()).join(';'),
+      _isBundle,
+      if (_isBundle) _bundleCount,
+      if (_isBundle) _bundleBooks?.map((b) => b.toMap().toString()).join(';'),
+      _tbr,
+      _isTandem,
+      _notificationEnabled,
+      _notificationDateTime,
+      _notificationTime,
+      _selectedStatusId,
+      _selectedOriginalBookId,
+      _selectedFormatSagaId,
+      _selectedLanguageId,
+      _selectedPlaceId,
+      _selectedFormatId,
+      _selectedLoaned,
+      _selectedAuthors.join(','),
+      _selectedGenres.join(','),
+      _selectedEditorial.join(','),
+      _fetchedDescription,
+      _fetchedCoverUrl,
+    ].join('\u0000');
+  }
+
+  bool get _hasUnsavedChanges => _formSnapshot() != _initialFormSnapshot;
+
+  Future<void> _handlePopRequest() async {
+    if (!_hasUnsavedChanges) {
+      Navigator.of(context).pop();
+      return;
+    }
+    final l10n = AppLocalizations.of(context)!;
+    final leave = await showDialog<bool>(
+      context: context,
+      builder:
+          (dialogContext) => AlertDialog(
+            backgroundColor: V2Colors.background,
+            icon: Icon(
+              Icons.warning_amber_rounded,
+              color: V2Colors.primary,
+              size: 40,
+            ),
+            title: Text(
+              l10n.unsaved_changes_title,
+              style: TextStyle(
+                fontFamily: V2Typography.family,
+                fontWeight: FontWeight.bold,
+                color: V2Colors.primary,
+              ),
+            ),
+            content: Text(
+              l10n.unsaved_changes_message,
+              style: TextStyle(
+                fontFamily: V2Typography.family,
+                color: V2Colors.textSecondary,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, false),
+                style: TextButton.styleFrom(foregroundColor: V2Colors.primary),
+                child: Text(
+                  l10n.keep_editing,
+                  style: TextStyle(fontFamily: V2Typography.family),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(dialogContext, true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: V2Colors.primary,
+                  foregroundColor: V2Colors.onPrimary,
+                  elevation: 0,
+                ),
+                child: Text(
+                  l10n.discard,
+                  style: TextStyle(fontFamily: V2Typography.family),
+                ),
+              ),
+            ],
+          ),
+    );
+    if (leave == true && mounted) {
+      Navigator.of(context).pop();
+    }
   }
 
   Future<void> _loadRatingFieldSuggestions() async {
@@ -887,6 +1001,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         _fetchedMetadataSource = null;
         _pagesFetchedFromApi = false;
       });
+      _initialFormSnapshot = _formSnapshot();
 
       debugPrint('✅ Form cleared. Controllers reset:');
       debugPrint('   - Name: "${_nameController.text}"');
@@ -1404,109 +1519,118 @@ class _AddBookScreenState extends State<AddBookScreen> {
     }
   }
 
-  Scaffold _buildV2Scaffold(BuildContext context) {
+  Widget _buildV2Scaffold(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Scaffold(
-      backgroundColor: _kBg,
-      appBar: AppBar(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _handlePopRequest();
+      },
+      child: Scaffold(
         backgroundColor: _kBg,
-        foregroundColor: _kPrimary,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        title: Text(
-          l10n.add_book,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-            color: _kPrimary,
-            fontFamily: V2Typography.family,
+        appBar: AppBar(
+          backgroundColor: _kBg,
+          foregroundColor: _kPrimary,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          title: Text(
+            l10n.add_book,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+              color: _kPrimary,
+              fontFamily: V2Typography.family,
+            ),
           ),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: _kPrimary),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.check, color: _kPrimary),
-            onPressed: _saveBook,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: _kPrimary),
+            onPressed: () => Navigator.of(context).maybePop(),
           ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Theme(
-              data: Theme.of(context).copyWith(
-                colorScheme: Theme.of(context).colorScheme.copyWith(
-                  primary: _kPrimary,
-                  onPrimary: V2Colors.onPrimary,
-                  primaryContainer: V2Colors.chip,
-                  onPrimaryContainer: _kPrimary,
-                  onSurfaceVariant: _kLabel,
+          actions: [
+            IconButton(
+              icon: Icon(Icons.check, color: _kPrimary),
+              onPressed: _saveBook,
+            ),
+          ],
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: Theme(
+                data: Theme.of(context).copyWith(
+                  colorScheme: Theme.of(context).colorScheme.copyWith(
+                    primary: _kPrimary,
+                    onPrimary: V2Colors.onPrimary,
+                    primaryContainer: V2Colors.chip,
+                    onPrimaryContainer: _kPrimary,
+                    onSurfaceVariant: _kLabel,
+                  ),
+                  chipTheme: ChipThemeData(
+                    backgroundColor: V2Colors.chip,
+                    labelStyle: TextStyle(color: _kPrimary, fontSize: 12),
+                    deleteIconColor: _kSub,
+                    side: BorderSide(color: _kNotesBorder),
+                    shape: StadiumBorder(),
+                    padding: EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+                  ),
+                  inputDecorationTheme: InputDecorationTheme(
+                    filled: true,
+                    fillColor: V2Colors.surface,
+                    labelStyle: _labelStyle(),
+                    hintStyle: _labelStyle(),
+                    floatingLabelStyle: TextStyle(
+                      color: _kPrimary,
+                      fontSize: 12,
+                    ),
+                    prefixIconColor: _kPrimary,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: _kInputBorder),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: _kInputBorder),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: _kPrimary, width: 1.5),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                  ),
                 ),
-                chipTheme: ChipThemeData(
-                  backgroundColor: V2Colors.chip,
-                  labelStyle: TextStyle(color: _kPrimary, fontSize: 12),
-                  deleteIconColor: _kSub,
-                  side: BorderSide(color: _kNotesBorder),
-                  shape: StadiumBorder(),
-                  padding: EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-                ),
-                inputDecorationTheme: InputDecorationTheme(
-                  filled: true,
-                  fillColor: V2Colors.surface,
-                  labelStyle: _labelStyle(),
-                  hintStyle: _labelStyle(),
-                  floatingLabelStyle: TextStyle(color: _kPrimary, fontSize: 12),
-                  prefixIconColor: _kPrimary,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: _kInputBorder),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: _kInputBorder),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: _kPrimary, width: 1.5),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
-                ),
-              ),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      ..._v2PrimaryInfo(context, l10n),
-                      _v2Divider(),
-                      ..._v2Identification(context, l10n),
-                      _v2Divider(),
-                      ..._v2FormatSection(context, l10n),
-                      _v2Divider(),
-                      ..._v2Acquisition(context, l10n),
-                      _v2Divider(),
-                      ..._v2Classification(context, l10n),
-                      _v2Divider(),
-                      ..._v2BookListsSection(context, l10n),
-                      _v2Divider(),
-                      ..._v2Notes(context, l10n),
-                      const SizedBox(height: 16),
-                    ],
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        ..._v2PrimaryInfo(context, l10n),
+                        _v2Divider(),
+                        ..._v2Identification(context, l10n),
+                        _v2Divider(),
+                        ..._v2FormatSection(context, l10n),
+                        _v2Divider(),
+                        ..._v2Acquisition(context, l10n),
+                        _v2Divider(),
+                        ..._v2Classification(context, l10n),
+                        _v2Divider(),
+                        ..._v2BookListsSection(context, l10n),
+                        _v2Divider(),
+                        ..._v2Notes(context, l10n),
+                        const SizedBox(height: 16),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          _v2FooterButton(context, l10n),
-        ],
+            _v2FooterButton(context, l10n),
+          ],
+        ),
       ),
     );
   }

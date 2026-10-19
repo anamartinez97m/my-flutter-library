@@ -4277,4 +4277,14 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get random_filters_card_subtitle =>
       'Filtra tu biblioteca por formato, género, páginas y más';
+
+  @override
+  String get unsaved_changes_title => 'Cambios sin guardar';
+
+  @override
+  String get unsaved_changes_message =>
+      'Tienes cambios sin guardar, ¿seguro que quieres volver atrás?';
+
+  @override
+  String get keep_editing => 'Seguir editando';
 }
