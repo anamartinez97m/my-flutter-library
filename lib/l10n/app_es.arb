@@ -1875,5 +1875,8 @@
   "discovery_field_notes": "tus notas",
   "random_mood": "Estado de ánimo",
   "random_books_card_subtitle": "Obtén un libro al azar de una lista que tú eliges",
-  "random_filters_card_subtitle": "Filtra tu biblioteca por formato, género, páginas y más"
+  "random_filters_card_subtitle": "Filtra tu biblioteca por formato, género, páginas y más",
+  "unsaved_changes_title": "Cambios sin guardar",
+  "unsaved_changes_message": "Tienes cambios sin guardar, ¿seguro que quieres volver atrás?",
+  "keep_editing": "Seguir editando"
 }

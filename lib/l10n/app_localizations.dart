@@ -7615,6 +7615,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Filter your library by format, genre, pages and more'**
   String get random_filters_card_subtitle;
+
+  /// No description provided for @unsaved_changes_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsaved changes'**
+  String get unsaved_changes_title;
+
+  /// No description provided for @unsaved_changes_message.
+  ///
+  /// In en, this message translates to:
+  /// **'You have unsaved changes, are you sure you want to go back?'**
+  String get unsaved_changes_message;
+
+  /// No description provided for @keep_editing.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep editing'**
+  String get keep_editing;
 }
 
 class _AppLocalizationsDelegate
