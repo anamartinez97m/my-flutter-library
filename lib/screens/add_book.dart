@@ -395,7 +395,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
   void _showSuccessDialogV2() {
     final kBg = V2Colors.background;
-    final kPrimary = V2Colors.primaryAlt;
+    final kPrimary = V2Colors.primary;
     const kIconBgOuter = Color(0xFFEFE8EB);
     const kText = Color(0xFF201A1C);
     const kSub = Color(0xFF4F4449);
