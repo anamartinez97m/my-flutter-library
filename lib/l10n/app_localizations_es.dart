@@ -4318,4 +4318,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String contact_me_no_email_app(Object email) {
     return 'No se encontró ninguna app de correo. Puedes escribirme directamente a $email.';
   }
+
+  @override
+  String get collapse_menu => 'Contraer menú';
+
+  @override
+  String get expand_menu => 'Expandir menú';
 }

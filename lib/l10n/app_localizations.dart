@@ -7687,6 +7687,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No email app found. You can write to {email} directly.'**
   String contact_me_no_email_app(Object email);
+
+  /// No description provided for @collapse_menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Collapse menu'**
+  String get collapse_menu;
+
+  /// No description provided for @expand_menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Expand menu'**
+  String get expand_menu;
 }
 
 class _AppLocalizationsDelegate

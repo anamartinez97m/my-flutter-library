@@ -1899,5 +1899,7 @@
   "contact_me_no_email_app": "No email app found. You can write to {email} directly.",
   "@contact_me_no_email_app": {
     "placeholders": { "email": {} }
-  }
+  },
+  "collapse_menu": "Collapse menu",
+  "expand_menu": "Expand menu"
 }
