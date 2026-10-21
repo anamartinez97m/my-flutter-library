@@ -5897,7 +5897,7 @@ abstract class AppLocalizations {
   /// No description provided for @free_books_count.
   ///
   /// In en, this message translates to:
-  /// **'{count} of {total} books with a price'**
+  /// **'{count} of {total} books'**
   String free_books_count(int count, int total);
 
   /// No description provided for @time_slot_morning.

@@ -1422,7 +1422,7 @@
   "price_range_evolution": "Price Range Evolution",
   "total_spent_all_time": "Total Spent (All Time)",
   "free_books": "Free Books",
-  "free_books_count": "{count} of {total} books with a price",
+  "free_books_count": "{count} of {total} books",
   "@free_books_count": {
     "placeholders": {
       "count": {"type": "int"},

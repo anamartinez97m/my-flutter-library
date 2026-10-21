@@ -3293,7 +3293,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String free_books_count(int count, int total) {
-    return '$count de $total libros con precio';
+    return '$count de $total libros';
   }
 
   @override

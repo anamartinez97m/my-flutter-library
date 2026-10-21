@@ -484,11 +484,11 @@ class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
           label: l10n.free_books,
           name: l10n.free_books_count(
             stats.freeBooksCount,
-            stats.booksWithPriceCount,
+            stats.totalBooksCount,
           ),
           price: _formatPercent(
-            stats.booksWithPriceCount > 0
-                ? stats.freeBooksCount / stats.booksWithPriceCount * 100
+            stats.totalBooksCount > 0
+                ? stats.freeBooksCount / stats.totalBooksCount * 100
                 : 0,
           ),
         ),
