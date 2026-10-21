@@ -4,6 +4,7 @@ import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_home_screen.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_my_books_screen.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_random_screen.dart';
+import 'package:myrandomlibrary/screens/new_ui/web_navigation_shell.dart';
 import 'package:myrandomlibrary/screens/settings.dart';
 import 'package:myrandomlibrary/screens/statistics.dart';
 import 'package:myrandomlibrary/services/app_update_service.dart';
@@ -29,16 +30,35 @@ class NewNavigationScreen extends StatefulWidget {
 }
 
 class _NewNavigationScreenState extends State<NewNavigationScreen> {
-  int _selectedIndex = 0;
+  final AppNavigationController _navigation = AppNavigationController.instance;
   VoidCallback? _clearHomeSearch;
   final AppUpdateService _appUpdateService = AppUpdateService();
+
+  int get _selectedIndex => _navigation.selectedIndex;
 
   @override
   void initState() {
     super.initState();
+    _navigation.addListener(_onNavigationChanged);
+    _navigation.onLeaveHome = () => _clearHomeSearch?.call();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _navigation.setShellActive(true);
       _checkForAppUpdate();
     });
+  }
+
+  @override
+  void dispose() {
+    _navigation.removeListener(_onNavigationChanged);
+    _navigation.onLeaveHome = null;
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _navigation.setShellActive(false),
+    );
+    super.dispose();
+  }
+
+  void _onNavigationChanged() {
+    if (mounted) setState(() {});
   }
 
   Future<void> _checkForAppUpdate() async {
@@ -84,11 +104,7 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
     );
   }
 
-  void switchToTab(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
+  void switchToTab(int index) => _navigation.selectTab(index);
 
   void _registerClearSearch(VoidCallback callback) {
     _clearHomeSearch = callback;
@@ -145,9 +161,7 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
       canPop: _selectedIndex == 0,
       onPopInvokedWithResult: (bool didPop, dynamic result) {
         if (!didPop && _selectedIndex != 0) {
-          setState(() {
-            _selectedIndex = 0;
-          });
+          _navigation.selectTab(0);
         }
       },
       child: Scaffold(
@@ -160,68 +174,47 @@ class _NewNavigationScreenState extends State<NewNavigationScreen> {
             ],
           ),
         ),
-        bottomNavigationBar: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(height: 1, color: V2Colors.primary),
-            NavigationBarTheme(
-              data: NavigationBarThemeData(
-                height: 64,
-                backgroundColor: V2Colors.background,
-                indicatorColor: V2Colors.control,
-                indicatorShape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                ),
-                iconTheme: WidgetStateProperty.resolveWith((states) {
-                  if (states.contains(WidgetState.selected)) {
-                    return IconThemeData(color: V2Colors.primary, size: 22);
-                  }
-                  return IconThemeData(color: V2Colors.textSecondary, size: 22);
-                }),
-                labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-              ),
-              child: NavigationBar(
-                onDestinationSelected: (int index) {
-                  if (_selectedIndex == 0 && index != 0) {
-                    _clearHomeSearch?.call();
-                  }
-                  setState(() {
-                    _selectedIndex = index;
-                  });
-                },
-                selectedIndex: _selectedIndex,
-                destinations: <Widget>[
-                  NavigationDestination(
-                    icon: const Icon(Icons.cottage_outlined),
-                    label: AppLocalizations.of(context)!.home,
-                    tooltip: AppLocalizations.of(context)!.home,
-                  ),
-                  NavigationDestination(
-                    icon: const Icon(Icons.bar_chart_outlined),
-                    label: AppLocalizations.of(context)!.statistics,
-                    tooltip: AppLocalizations.of(context)!.statistics,
-                  ),
-                  NavigationDestination(
-                    icon: const Icon(Icons.bookmark_outline_outlined),
-                    label: AppLocalizations.of(context)!.my_books,
-                    tooltip: AppLocalizations.of(context)!.my_books,
-                  ),
-                  NavigationDestination(
-                    icon: const Icon(Icons.shuffle_outlined),
-                    label: AppLocalizations.of(context)!.random,
-                    tooltip: AppLocalizations.of(context)!.random,
-                  ),
-                  NavigationDestination(
-                    icon: const Icon(Icons.settings_outlined),
-                    label: AppLocalizations.of(context)!.settings,
-                    tooltip: AppLocalizations.of(context)!.settings,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+        bottomNavigationBar:
+            useWebRail(context) ? null : _buildBottomBar(context),
       ),
+    );
+  }
+
+  Widget _buildBottomBar(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(height: 1, color: V2Colors.primary),
+        NavigationBarTheme(
+          data: NavigationBarThemeData(
+            height: 64,
+            backgroundColor: V2Colors.background,
+            indicatorColor: V2Colors.control,
+            indicatorShape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(12)),
+            ),
+            iconTheme: WidgetStateProperty.resolveWith((states) {
+              if (states.contains(WidgetState.selected)) {
+                return IconThemeData(color: V2Colors.primary, size: 22);
+              }
+              return IconThemeData(color: V2Colors.textSecondary, size: 22);
+            }),
+            labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+          ),
+          child: NavigationBar(
+            onDestinationSelected: _navigation.selectTab,
+            selectedIndex: _selectedIndex,
+            destinations: <Widget>[
+              for (final destination in appNavigationDestinations(context))
+                NavigationDestination(
+                  icon: Icon(destination.icon),
+                  label: destination.label,
+                  tooltip: destination.label,
+                ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

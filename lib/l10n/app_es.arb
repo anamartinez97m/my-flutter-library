@@ -1890,5 +1890,7 @@
   "contact_me_no_email_app": "No se encontró ninguna app de correo. Puedes escribirme directamente a {email}.",
   "@contact_me_no_email_app": {
     "placeholders": { "email": {} }
-  }
+  },
+  "collapse_menu": "Contraer menú",
+  "expand_menu": "Expandir menú"
 }

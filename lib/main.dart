@@ -11,6 +11,7 @@ import 'package:myrandomlibrary/providers/role_provider.dart';
 import 'package:myrandomlibrary/providers/theme_provider.dart';
 import 'package:myrandomlibrary/screens/get_started_screen.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_navigation_screen.dart';
+import 'package:myrandomlibrary/screens/new_ui/web_navigation_shell.dart';
 import 'package:myrandomlibrary/services/backup_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
@@ -111,6 +112,8 @@ class MyApp extends StatelessWidget {
 
     final app = MaterialApp(
       navigatorKey: NotificationService.navigatorKey,
+      navigatorObservers: [AppNavigationController.instance.observer],
+      builder: (context, child) => WebNavigationShell(child: child!),
       title: 'My Book Vault',
       localizationsDelegates: const [
         AppLocalizations.delegate,

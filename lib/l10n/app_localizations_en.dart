@@ -4266,4 +4266,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String contact_me_no_email_app(Object email) {
     return 'No email app found. You can write to $email directly.';
   }
+
+  @override
+  String get collapse_menu => 'Collapse menu';
+
+  @override
+  String get expand_menu => 'Expand menu';
 }
