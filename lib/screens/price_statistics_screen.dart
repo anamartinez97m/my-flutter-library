@@ -8,10 +8,10 @@ import 'package:myrandomlibrary/l10n/app_localizations.dart';
 
 /// New "Price Statistics" screen matching the redesigned UI.
 ///
-/// Preserves the original content (average price by format, spending by
-/// year, spending by month, price extremes and price range evolution)
-/// while adopting the v2 visual language used across the redesigned
-/// statistics screens. Each section is collapsible.
+/// Sections, in order: average price by format, price highlights (incl.
+/// free books), price range evolution, spending by year, spending by month
+/// and total spent (all time), in the v2 visual language used across the
+/// redesigned statistics screens. Each section is collapsible.
 class PriceStatisticsScreen extends StatefulWidget {
   final PriceStatsData? priceStats;
   final String currencySymbol;
@@ -154,6 +154,18 @@ class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
         ),
         const SizedBox(height: 16),
         _buildCollapsibleCard(
+          sectionKey: 'price_extremes',
+          title: l10n.price_extremes,
+          child: _buildPriceExtremesContent(priceStats, l10n),
+        ),
+        const SizedBox(height: 16),
+        _buildCollapsibleCard(
+          sectionKey: 'price_range_evolution',
+          title: l10n.price_range_evolution,
+          child: _buildPriceRangeEvolutionContent(priceStats),
+        ),
+        const SizedBox(height: 16),
+        _buildCollapsibleCard(
           sectionKey: 'price_by_year',
           title: l10n.price_by_year,
           child: _buildPriceByYearContent(priceStats),
@@ -166,15 +178,9 @@ class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
         ),
         const SizedBox(height: 16),
         _buildCollapsibleCard(
-          sectionKey: 'price_extremes',
-          title: l10n.price_extremes,
-          child: _buildPriceExtremesContent(priceStats, l10n),
-        ),
-        const SizedBox(height: 16),
-        _buildCollapsibleCard(
-          sectionKey: 'price_range_evolution',
-          title: l10n.price_range_evolution,
-          child: _buildPriceRangeEvolutionContent(priceStats),
+          sectionKey: 'total_spent_all_time',
+          title: l10n.total_spent_all_time,
+          child: _buildTotalSpentContent(priceStats, l10n),
         ),
       ],
     );
@@ -442,61 +448,6 @@ class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
   ) {
     return Column(
       children: [
-        // Total spent
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: _kSecondary.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.account_balance_wallet, color: _kSecondary, size: 28),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.total_spent,
-                      style: TextStyle(fontSize: 12, color: _kSub),
-                    ),
-                    ClipRect(
-                      child: Stack(
-                        children: [
-                          Text(
-                            '${widget.currencySymbol}${stats.totalSpent.toStringAsFixed(2)}',
-                            style: TextStyle(
-                              fontFamily: V2Typography.family,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: _kSecondary,
-                            ),
-                          ),
-                          if (!_totalVisible)
-                            Positioned.fill(
-                              child: BackdropFilter(
-                                filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-                                child: Container(color: Colors.transparent),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              IconButton(
-                icon: Icon(
-                  _totalVisible ? Icons.visibility_off : Icons.visibility,
-                  color: _kSecondary,
-                ),
-                onPressed: () => setState(() => _totalVisible = !_totalVisible),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
         // Most expensive
         if (stats.mostExpensiveName != null)
           _buildExtremeTile(
@@ -522,7 +473,87 @@ class _PriceStatisticsScreenState extends State<PriceStatisticsScreen> {
             price:
                 '${widget.currencySymbol}${stats.leastExpensivePrice?.toStringAsFixed(2) ?? ''}',
           ),
+        if (stats.mostExpensiveName != null || stats.leastExpensiveName != null)
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 12),
+            child: Divider(height: 1, thickness: 1, color: _kDivider),
+          ),
+        _buildExtremeTile(
+          icon: Icons.card_giftcard,
+          color: _kPrimary,
+          label: l10n.free_books,
+          name: l10n.free_books_count(
+            stats.freeBooksCount,
+            stats.booksWithPriceCount,
+          ),
+          price: _formatPercent(
+            stats.booksWithPriceCount > 0
+                ? stats.freeBooksCount / stats.booksWithPriceCount * 100
+                : 0,
+          ),
+        ),
       ],
+    );
+  }
+
+  String _formatPercent(double value) {
+    final rounded = value.toStringAsFixed(1);
+    return '${rounded.endsWith('.0') ? rounded.substring(0, rounded.length - 2) : rounded}%';
+  }
+
+  Widget _buildTotalSpentContent(PriceStatsData stats, AppLocalizations l10n) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: _kSecondary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.account_balance_wallet, color: _kSecondary, size: 28),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.total_spent,
+                  style: TextStyle(fontSize: 12, color: _kSub),
+                ),
+                ClipRect(
+                  child: Stack(
+                    children: [
+                      Text(
+                        '${widget.currencySymbol}${stats.totalSpent.toStringAsFixed(2)}',
+                        style: TextStyle(
+                          fontFamily: V2Typography.family,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: _kSecondary,
+                        ),
+                      ),
+                      if (!_totalVisible)
+                        Positioned.fill(
+                          child: BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+                            child: Container(color: Colors.transparent),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: Icon(
+              _totalVisible ? Icons.visibility_off : Icons.visibility,
+              color: _kSecondary,
+            ),
+            onPressed: () => setState(() => _totalVisible = !_totalVisible),
+          ),
+        ],
+      ),
     );
   }
 

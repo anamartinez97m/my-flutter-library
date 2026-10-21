@@ -1426,6 +1426,9 @@
   "most_expensive": "Más Caro",
   "least_expensive": "Más Barato",
   "price_range_evolution": "Evolución de Rangos de Precio",
+  "total_spent_all_time": "Total Gastado (Desde Siempre)",
+  "free_books": "Libros Gratis",
+  "free_books_count": "{count} de {total} libros con precio",
 
   "time_slot_morning": "Mañana",
   "time_slot_afternoon": "Tarde",

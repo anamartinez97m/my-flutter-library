@@ -3286,6 +3286,17 @@ class AppLocalizationsEs extends AppLocalizations {
   String get price_range_evolution => 'Evolución de Rangos de Precio';
 
   @override
+  String get total_spent_all_time => 'Total Gastado (Desde Siempre)';
+
+  @override
+  String get free_books => 'Libros Gratis';
+
+  @override
+  String free_books_count(int count, int total) {
+    return '$count de $total libros con precio';
+  }
+
+  @override
   String get time_slot_morning => 'Mañana';
 
   @override

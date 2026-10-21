@@ -162,6 +162,9 @@ class PriceStatsData {
   final String? leastExpensiveName;
   final double? leastExpensivePrice;
   final double totalSpent;
+  // Books with price exactly 0 (not empty) and books with any price set.
+  final int freeBooksCount;
+  final int booksWithPriceCount;
   // Price range evolution: year -> range label -> count
   final Map<int, Map<String, int>> priceRangesByYear;
   // Min/max price per year for line chart
@@ -179,6 +182,8 @@ class PriceStatsData {
     this.leastExpensiveName,
     this.leastExpensivePrice,
     required this.totalSpent,
+    required this.freeBooksCount,
+    required this.booksWithPriceCount,
     required this.priceRangesByYear,
     required this.minPriceByYear,
     required this.maxPriceByYear,
@@ -1178,9 +1183,10 @@ class StatisticsCalculator {
   ];
 
   PriceStatsData? _computePriceStats() {
-    final pricedBooks =
-        books.where((b) => b.price != null && b.price! > 0).toList();
-    if (pricedBooks.isEmpty) return null;
+    final booksWithPrice = books.where((b) => b.price != null).toList();
+    if (booksWithPrice.isEmpty) return null;
+    final freeBooksCount = booksWithPrice.where((b) => b.price! == 0).length;
+    final pricedBooks = booksWithPrice.where((b) => b.price! > 0).toList();
 
     // Totals
     double totalSpent = 0;
@@ -1336,6 +1342,8 @@ class StatisticsCalculator {
       leastExpensiveName: leastExpensiveName,
       leastExpensivePrice: leastExpensivePrice,
       totalSpent: totalSpent,
+      freeBooksCount: freeBooksCount,
+      booksWithPriceCount: booksWithPrice.length,
       priceRangesByYear: priceRangesByYear,
       minPriceByYear: minPriceByYear,
       maxPriceByYear: maxPriceByYear,
