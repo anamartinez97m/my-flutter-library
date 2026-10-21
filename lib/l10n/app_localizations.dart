@@ -5882,6 +5882,24 @@ abstract class AppLocalizations {
   /// **'Price Range Evolution'**
   String get price_range_evolution;
 
+  /// No description provided for @total_spent_all_time.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Spent (All Time)'**
+  String get total_spent_all_time;
+
+  /// No description provided for @free_books.
+  ///
+  /// In en, this message translates to:
+  /// **'Free Books'**
+  String get free_books;
+
+  /// No description provided for @free_books_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {total} books'**
+  String free_books_count(int count, int total);
+
   /// No description provided for @time_slot_morning.
   ///
   /// In en, this message translates to:

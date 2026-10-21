@@ -3240,6 +3240,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get price_range_evolution => 'Price Range Evolution';
 
   @override
+  String get total_spent_all_time => 'Total Spent (All Time)';
+
+  @override
+  String get free_books => 'Free Books';
+
+  @override
+  String free_books_count(int count, int total) {
+    return '$count of $total books';
+  }
+
+  @override
   String get time_slot_morning => 'Morning';
 
   @override

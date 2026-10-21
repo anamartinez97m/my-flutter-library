@@ -1420,6 +1420,15 @@
   "most_expensive": "Most Expensive",
   "least_expensive": "Least Expensive",
   "price_range_evolution": "Price Range Evolution",
+  "total_spent_all_time": "Total Spent (All Time)",
+  "free_books": "Free Books",
+  "free_books_count": "{count} of {total} books",
+  "@free_books_count": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
 
   "time_slot_morning": "Morning",
   "time_slot_afternoon": "Afternoon",
