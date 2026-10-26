@@ -1661,6 +1661,22 @@
   "release_countdown_hours": "Horas",
   "release_countdown_minutes": "Minutos",
   "release_countdown_seconds": "Segundos",
+  "release_countdown_card_days": "{count} {count, plural, =1{día} other{días}}",
+  "@release_countdown_card_days": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "release_countdown_card_until": "hasta la publicación",
+  "release_countdown_card_hours": "{count} {count, plural, =1{hora} other{horas}}",
+  "@release_countdown_card_hours": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "release_countdown_card_minutes": "{count} min",
+  "@release_countdown_card_minutes": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "release_countdown_card_out_today": "¡Sale hoy!",
+  "release_countdown_card_released": "Publicado",
+  "release_countdown_card_update_status": "¿actualizar estado?",
   "read_count_field_label": "Veces leído: {value}",
   "@read_count_field_label": {
     "placeholders": { "value": {} }

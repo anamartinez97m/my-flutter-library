@@ -6728,6 +6728,48 @@ abstract class AppLocalizations {
   /// **'Seconds'**
   String get release_countdown_seconds;
 
+  /// No description provided for @release_countdown_card_days.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} {count, plural, =1{day} other{days}}'**
+  String release_countdown_card_days(int count);
+
+  /// No description provided for @release_countdown_card_until.
+  ///
+  /// In en, this message translates to:
+  /// **'until release'**
+  String get release_countdown_card_until;
+
+  /// No description provided for @release_countdown_card_hours.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} {count, plural, =1{hour} other{hours}}'**
+  String release_countdown_card_hours(int count);
+
+  /// No description provided for @release_countdown_card_minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min'**
+  String release_countdown_card_minutes(int count);
+
+  /// No description provided for @release_countdown_card_out_today.
+  ///
+  /// In en, this message translates to:
+  /// **'Out today!'**
+  String get release_countdown_card_out_today;
+
+  /// No description provided for @release_countdown_card_released.
+  ///
+  /// In en, this message translates to:
+  /// **'Released'**
+  String get release_countdown_card_released;
+
+  /// No description provided for @release_countdown_card_update_status.
+  ///
+  /// In en, this message translates to:
+  /// **'update status?'**
+  String get release_countdown_card_update_status;
+
   /// No description provided for @read_count_field_label.
   ///
   /// In en, this message translates to:
