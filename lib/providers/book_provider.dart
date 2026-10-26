@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:myrandomlibrary/model/book.dart';
+import 'package:myrandomlibrary/utils/release_date_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../db/database_helper.dart';
 import '../repositories/book_repository.dart';
@@ -452,8 +453,8 @@ class BookProvider extends ChangeNotifier {
 
   int _compareBooks(Book a, Book b) {
     if (_currentSortBy == releaseDateSort) {
-      final aDate = DateTime.tryParse(a.releaseDate ?? '');
-      final bDate = DateTime.tryParse(b.releaseDate ?? '');
+      final aDate = bookReleaseDate(a);
+      final bDate = bookReleaseDate(b);
       // Books without a release date always go last.
       if (aDate == null || bDate == null) {
         if (aDate != null) return -1;

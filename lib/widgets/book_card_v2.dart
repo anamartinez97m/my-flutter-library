@@ -4,6 +4,7 @@ import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
 import 'package:myrandomlibrary/utils/format_saga_helper.dart';
+import 'package:myrandomlibrary/utils/release_date_helper.dart';
 import 'package:myrandomlibrary/utils/status_helper.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
@@ -11,18 +12,6 @@ Color get _kPrimary => V2Colors.primary;
 Color get _kText => V2Colors.textSubtle;
 Color get _kBorder => V2Colors.borderNeutral;
 Color get _kDivider => V2Colors.divider;
-
-DateTime? _parsePublicationDate(String? value) {
-  if (value == null || value.isEmpty) return null;
-  if (value.length == 8 && int.tryParse(value) != null) {
-    return DateTime(
-      int.parse(value.substring(0, 4)),
-      int.parse(value.substring(4, 6)),
-      int.parse(value.substring(6, 8)),
-    );
-  }
-  return DateTime.tryParse(value);
-}
 
 class _MetaItem {
   final IconData icon;
@@ -56,7 +45,7 @@ class BookCardV2 extends StatelessWidget {
     final isRead =
         book.statusValue?.toLowerCase() == 'yes' ||
         book.statusValue?.toLowerCase() == 'repeated';
-    final publicationDate = _parsePublicationDate(book.notificationDatetime);
+    final publicationDate = parseStoredDate(book.notificationDatetime);
 
     final meta = <_MetaItem>[];
     if (enabledCardFields.contains('saga') &&
