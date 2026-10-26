@@ -39,8 +39,6 @@ class NewHomeScreen extends StatefulWidget {
 class _NewHomeScreenState extends State<NewHomeScreen> {
   final TextEditingController _searchController = TextEditingController();
   int _selectedSearchButtonIndex = 0;
-  String _sortBy = 'name';
-  bool _ascending = true;
 
   List<Map<String, dynamic>> _formatList = [];
   List<Map<String, dynamic>> _languageList = [];
@@ -143,8 +141,6 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
               p.currentFilters['publication_year_empty'];
           _selectedRating = p.currentFilters['rating'];
           _selectedPrice = p.currentFilters['price'];
-          _sortBy = p.currentSortBy;
-          _ascending = p.currentSortAscending;
         });
       }
     });
@@ -546,8 +542,16 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                         Expanded(
                                           child: DropdownButtonHideUnderline(
                                             child: DropdownButton<String>(
-                                              value: _sortBy,
+                                              value: provider.currentSortBy,
                                               isExpanded: true,
+                                              disabledHint: Text(
+                                                l10n.release_date,
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: _kInactiveText,
+                                                ),
+                                              ),
+                                              iconDisabledColor: _kInactiveText,
                                               style: TextStyle(
                                                 fontSize: 16,
                                                 color: V2Colors.textPrimary,
@@ -571,29 +575,39 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                                     l10n.date_created,
                                                   ),
                                                 ),
+                                                if (provider
+                                                    .isReleaseDateSortLocked)
+                                                  DropdownMenuItem(
+                                                    value:
+                                                        BookProvider
+                                                            .releaseDateSort,
+                                                    child: Text(
+                                                      l10n.release_date,
+                                                    ),
+                                                  ),
                                               ],
-                                              onChanged: (v) {
-                                                if (v != null) {
-                                                  setState(() => _sortBy = v);
-                                                  provider.sortBooks(
-                                                    _sortBy,
-                                                    _ascending,
-                                                  );
-                                                  setModalState(() {});
-                                                }
-                                              },
+                                              onChanged:
+                                                  provider.isReleaseDateSortLocked
+                                                      ? null
+                                                      : (v) {
+                                                        if (v != null) {
+                                                          provider.sortBooks(
+                                                            v,
+                                                            provider
+                                                                .currentSortAscending,
+                                                          );
+                                                          setModalState(() {});
+                                                        }
+                                                      },
                                             ),
                                           ),
                                         ),
                                         const SizedBox(width: 16),
                                         GestureDetector(
                                           onTap: () {
-                                            setState(
-                                              () => _ascending = !_ascending,
-                                            );
                                             provider.sortBooks(
-                                              _sortBy,
-                                              _ascending,
+                                              provider.currentSortBy,
+                                              !provider.currentSortAscending,
                                             );
                                             setModalState(() {});
                                           },
@@ -608,7 +622,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                               shape: BoxShape.circle,
                                             ),
                                             child: Icon(
-                                              _ascending
+                                              provider.currentSortAscending
                                                   ? Icons.arrow_upward
                                                   : Icons.arrow_downward,
                                               size: 16,
