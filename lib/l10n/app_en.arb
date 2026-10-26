@@ -1666,6 +1666,17 @@
     "placeholders": { "count": { "type": "int" } }
   },
   "release_countdown_card_until": "until release",
+  "release_countdown_card_hours": "{count} {count, plural, =1{hour} other{hours}}",
+  "@release_countdown_card_hours": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "release_countdown_card_minutes": "{count} min",
+  "@release_countdown_card_minutes": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "release_countdown_card_out_today": "Out today!",
+  "release_countdown_card_released": "Released",
+  "release_countdown_card_update_status": "update status?",
   "read_count_field_label": "Read count: {value}",
   "@read_count_field_label": {
     "placeholders": { "value": {} }

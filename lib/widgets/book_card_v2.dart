@@ -137,23 +137,18 @@ class BookCardV2 extends StatelessWidget {
         ),
       );
     }
-    int? releaseDaysRemaining;
+    _ReleaseCountdown? releaseCountdown;
     if (enabledCardFields.contains('publication_date') &&
         book.notificationDatetime != null &&
         book.notificationDatetime!.isNotEmpty) {
       if (book.statusValue?.toLowerCase() == 'tbreleased' &&
           publicationDate != null) {
-        final now = DateTime.now();
-        final today = DateTime(now.year, now.month, now.day);
-        final releaseDate = DateTime(
-          publicationDate.year,
-          publicationDate.month,
-          publicationDate.day,
+        releaseCountdown = _ReleaseCountdown.from(
+          publicationDate,
+          DateTime.now(),
         );
-        final daysRemaining = releaseDate.difference(today).inDays;
-        if (daysRemaining >= 0) releaseDaysRemaining = daysRemaining;
       }
-      if (releaseDaysRemaining == null) {
+      if (releaseCountdown == null) {
         meta.add(
           _MetaItem(
             icon: Icons.notifications_none_outlined,
@@ -371,12 +366,9 @@ class BookCardV2 extends StatelessWidget {
               ),
             ),
 
-            if (releaseDaysRemaining != null) ...[
+            if (releaseCountdown != null) ...[
               const SizedBox(height: 12),
-              _ReleaseCountdownFooter(
-                daysRemaining: releaseDaysRemaining,
-                releaseDate: publicationDate!,
-              ),
+              _ReleaseCountdownFooter(countdown: releaseCountdown),
             ] else if (hasProgress) ...[
               const SizedBox(height: 10),
               ClipRRect(
@@ -400,22 +392,118 @@ class BookCardV2 extends StatelessWidget {
   }
 }
 
-class _ReleaseCountdownFooter extends StatelessWidget {
-  final int daysRemaining;
-  final DateTime releaseDate;
+enum _ReleaseState { upcoming, soon, today, overdue }
 
-  const _ReleaseCountdownFooter({
-    required this.daysRemaining,
+class _ReleaseCountdown {
+  final _ReleaseState state;
+  final DateTime releaseDate;
+  final int days;
+  final int hours;
+  final int minutes;
+
+  const _ReleaseCountdown({
+    required this.state,
     required this.releaseDate,
+    this.days = 0,
+    this.hours = 0,
+    this.minutes = 0,
   });
+
+  factory _ReleaseCountdown.from(DateTime release, DateTime now) {
+    final today = DateTime(now.year, now.month, now.day);
+    final releaseDay = DateTime(release.year, release.month, release.day);
+    final days = releaseDay.difference(today).inDays;
+    final remaining = release.difference(now);
+
+    if (days < 0) {
+      return _ReleaseCountdown(
+        state: _ReleaseState.overdue,
+        releaseDate: release,
+      );
+    }
+    if (remaining <= Duration.zero) {
+      return _ReleaseCountdown(
+        state: _ReleaseState.today,
+        releaseDate: release,
+      );
+    }
+    if (remaining < const Duration(days: 1)) {
+      return _ReleaseCountdown(
+        state: _ReleaseState.soon,
+        releaseDate: release,
+        hours: remaining.inHours,
+        minutes: remaining.inMinutes.clamp(1, 59),
+      );
+    }
+    return _ReleaseCountdown(
+      state: days <= 7 ? _ReleaseState.soon : _ReleaseState.upcoming,
+      releaseDate: release,
+      days: days,
+    );
+  }
+}
+
+class _ReleaseCountdownFooter extends StatelessWidget {
+  final _ReleaseCountdown countdown;
+
+  const _ReleaseCountdownFooter({required this.countdown});
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final releaseDate = countdown.releaseDate;
     final date =
         '${releaseDate.day.toString().padLeft(2, '0')}/'
         '${releaseDate.month.toString().padLeft(2, '0')}/'
         '${releaseDate.year}';
+
+    final (Color background, Color line, Color accent) = switch (countdown
+        .state) {
+      _ReleaseState.upcoming => (
+        _kPrimary.withValues(alpha: 0.06),
+        _kPrimary.withValues(alpha: 0.2),
+        _kPrimary,
+      ),
+      _ReleaseState.soon => (
+        V2Colors.warningBackground,
+        V2Colors.warningBorder,
+        V2Colors.warning,
+      ),
+      _ReleaseState.today => (
+        V2Colors.successBackground,
+        V2Colors.successBorder,
+        V2Colors.success,
+      ),
+      _ReleaseState.overdue => (
+        V2Colors.surfaceMuted,
+        _kBorder,
+        V2Colors.textMuted,
+      ),
+    };
+
+    final IconData icon;
+    final String headline;
+    final String detail;
+    switch (countdown.state) {
+      case _ReleaseState.upcoming:
+      case _ReleaseState.soon:
+        icon = Icons.hourglass_bottom;
+        headline =
+            countdown.days > 0
+                ? l10n.release_countdown_card_days(countdown.days)
+                : countdown.hours > 0
+                ? l10n.release_countdown_card_hours(countdown.hours)
+                : l10n.release_countdown_card_minutes(countdown.minutes);
+        detail = '${l10n.release_countdown_card_until} · $date';
+      case _ReleaseState.today:
+        icon = Icons.celebration_outlined;
+        headline = l10n.release_countdown_card_out_today;
+        detail = date;
+      case _ReleaseState.overdue:
+        icon = Icons.event_available_outlined;
+        headline = l10n.release_countdown_card_released;
+        detail = '${l10n.release_countdown_card_update_status} · $date';
+    }
 
     return ClipRRect(
       borderRadius: const BorderRadius.only(
@@ -426,27 +514,25 @@ class _ReleaseCountdownFooter extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.fromLTRB(17, 9, 17, 10),
         decoration: BoxDecoration(
-          color: _kPrimary.withValues(alpha: 0.06),
-          border: Border(
-            top: BorderSide(color: _kPrimary.withValues(alpha: 0.2)),
-          ),
+          color: background,
+          border: Border(top: BorderSide(color: line)),
         ),
         child: Row(
           children: [
-            Icon(Icons.hourglass_bottom, size: 16, color: _kPrimary),
+            Icon(icon, size: 16, color: accent),
             const SizedBox(width: 8),
             Text(
-              l10n.release_countdown_card_days(daysRemaining),
+              headline,
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
-                color: _kPrimary,
+                color: accent,
               ),
             ),
             const SizedBox(width: 6),
             Expanded(
               child: Text(
-                '${l10n.release_countdown_card_until} · $date',
+                detail,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 12,
