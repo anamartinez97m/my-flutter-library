@@ -19,6 +19,12 @@ class BookProvider extends ChangeNotifier {
   String _currentSortBy = 'name';
   bool _currentSortAscending = true;
 
+  /// Sort forced while the status filter is TBReleased; the previous sort is
+  /// kept in [_sortByBeforeReleaseDate] so it can be restored afterwards.
+  static const String releaseDateSort = 'release_date';
+  String? _sortByBeforeReleaseDate;
+  bool _sortAscendingBeforeReleaseDate = true;
+
   List<Book> get books => _displayBooks;
   List<Book> get allBooks => _books; // Unfiltered list for statistics
   String? get latestBookAdded => _latestBookAdded;
@@ -26,6 +32,7 @@ class BookProvider extends ChangeNotifier {
   Map<String, String> get currentFilters => Map.unmodifiable(_currentFilters);
   String get currentSortBy => _currentSortBy;
   bool get currentSortAscending => _currentSortAscending;
+  bool get isReleaseDateSortLocked => _sortByBeforeReleaseDate != null;
 
   static Future<BookProvider> create() async {
     final db = await DatabaseHelper.instance.database;
@@ -414,31 +421,7 @@ class BookProvider extends ChangeNotifier {
     }
 
     // Re-apply sorting after search
-    _displayBooks.sort((a, b) {
-      int comparison = 0;
-
-      switch (_currentSortBy) {
-        case 'name':
-          final aName = _removeAccents((a.name ?? '').toLowerCase());
-          final bName = _removeAccents((b.name ?? '').toLowerCase());
-          comparison = aName.compareTo(bName);
-          break;
-        case 'author':
-          final aAuthor = _removeAccents((a.author ?? '').toLowerCase());
-          final bAuthor = _removeAccents((b.author ?? '').toLowerCase());
-          comparison = aAuthor.compareTo(bAuthor);
-          break;
-        case 'created_at':
-          comparison = (a.createdAt ?? '').compareTo(b.createdAt ?? '');
-          break;
-        default:
-          final aName = _removeAccents((a.name ?? '').toLowerCase());
-          final bName = _removeAccents((b.name ?? '').toLowerCase());
-          comparison = aName.compareTo(bName);
-      }
-
-      return _currentSortAscending ? comparison : -comparison;
-    });
+    _displayBooks.sort(_compareBooks);
   }
 
   Future<void> searchBooks(String query, {required int searchIndex}) async {
@@ -452,42 +435,71 @@ class BookProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('default_sort_by', sortBy);
     await prefs.setBool('default_sort_ascending', ascending);
-    _currentSortBy = sortBy;
-    _currentSortAscending = ascending;
+    if (isReleaseDateSortLocked) {
+      _sortByBeforeReleaseDate = sortBy;
+      _sortAscendingBeforeReleaseDate = ascending;
+      return;
+    }
     sortBooks(sortBy, ascending);
   }
 
   void sortBooks(String sortBy, bool ascending) {
-    _currentSortBy = sortBy;
+    _currentSortBy = isReleaseDateSortLocked ? releaseDateSort : sortBy;
     _currentSortAscending = ascending;
-
-    _displayBooks.sort((a, b) {
-      int comparison = 0;
-
-      switch (sortBy) {
-        case 'name':
-          final aName = _removeAccents((a.name ?? '').toLowerCase());
-          final bName = _removeAccents((b.name ?? '').toLowerCase());
-          comparison = aName.compareTo(bName);
-          break;
-        case 'author':
-          final aAuthor = _removeAccents((a.author ?? '').toLowerCase());
-          final bAuthor = _removeAccents((b.author ?? '').toLowerCase());
-          comparison = aAuthor.compareTo(bAuthor);
-          break;
-        case 'created_at':
-          comparison = (a.createdAt ?? '').compareTo(b.createdAt ?? '');
-          break;
-        default:
-          final aName = _removeAccents((a.name ?? '').toLowerCase());
-          final bName = _removeAccents((b.name ?? '').toLowerCase());
-          comparison = aName.compareTo(bName);
-      }
-
-      return ascending ? comparison : -comparison;
-    });
-
+    _displayBooks.sort(_compareBooks);
     notifyListeners();
+  }
+
+  int _compareBooks(Book a, Book b) {
+    if (_currentSortBy == releaseDateSort) {
+      final aDate = DateTime.tryParse(a.releaseDate ?? '');
+      final bDate = DateTime.tryParse(b.releaseDate ?? '');
+      // Books without a release date always go last.
+      if (aDate == null || bDate == null) {
+        if (aDate != null) return -1;
+        if (bDate != null) return 1;
+        return _compareText(a.name, b.name);
+      }
+      final comparison = aDate.compareTo(bDate);
+      if (comparison == 0) return _compareText(a.name, b.name);
+      return _currentSortAscending ? comparison : -comparison;
+    }
+
+    final int comparison;
+    switch (_currentSortBy) {
+      case 'author':
+        comparison = _compareText(a.author, b.author);
+        break;
+      case 'created_at':
+        comparison = (a.createdAt ?? '').compareTo(b.createdAt ?? '');
+        break;
+      case 'name':
+      default:
+        comparison = _compareText(a.name, b.name);
+    }
+    return _currentSortAscending ? comparison : -comparison;
+  }
+
+  int _compareText(String? a, String? b) => _removeAccents(
+    (a ?? '').toLowerCase(),
+  ).compareTo(_removeAccents((b ?? '').toLowerCase()));
+
+  bool get _isTBReleasedFilterActive =>
+      _currentFilters['status']?.toLowerCase() == 'tbreleased';
+
+  /// Switches to release date ASC when the TBReleased status filter is
+  /// applied, and restores the previous sort when it is removed.
+  void _syncReleaseDateSort() {
+    if (_isTBReleasedFilterActive && !isReleaseDateSortLocked) {
+      _sortByBeforeReleaseDate = _currentSortBy;
+      _sortAscendingBeforeReleaseDate = _currentSortAscending;
+      _currentSortBy = releaseDateSort;
+      _currentSortAscending = true;
+    } else if (!_isTBReleasedFilterActive && isReleaseDateSortLocked) {
+      _currentSortBy = _sortByBeforeReleaseDate!;
+      _currentSortAscending = _sortAscendingBeforeReleaseDate;
+      _sortByBeforeReleaseDate = null;
+    }
   }
 
   void filterBooks(String filterType, String? filterValue) {
@@ -498,6 +510,7 @@ class BookProvider extends ChangeNotifier {
       // Add or update this filter type
       _currentFilters[filterType] = filterValue;
     }
+    _syncReleaseDateSort();
 
     // Reapply all filters
     _applyAllFilters();
@@ -510,6 +523,7 @@ class BookProvider extends ChangeNotifier {
   void clearFilters(Iterable<String> filterTypes) {
     if (!filterTypes.any(_currentFilters.containsKey)) return;
     _currentFilters.removeWhere((key, _) => filterTypes.contains(key));
+    _syncReleaseDateSort();
     _applyAllFilters();
     _applySearch();
     notifyListeners();
@@ -517,6 +531,7 @@ class BookProvider extends ChangeNotifier {
 
   void clearAllFilters() {
     _currentFilters.clear();
+    _syncReleaseDateSort();
     _applyAllFilters();
     _applySearch();
     notifyListeners();
