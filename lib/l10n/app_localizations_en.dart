@@ -3719,6 +3719,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get release_countdown_seconds => 'Seconds';
 
   @override
+  String release_countdown_card_days(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'days',
+      one: 'day',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String get release_countdown_card_until => 'until release';
+
+  @override
   String read_count_field_label(Object value) {
     return 'Read count: $value';
   }

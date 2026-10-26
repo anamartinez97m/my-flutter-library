@@ -137,15 +137,10 @@ class BookCardV2 extends StatelessWidget {
         ),
       );
     }
+    int? releaseDaysRemaining;
     if (enabledCardFields.contains('publication_date') &&
         book.notificationDatetime != null &&
         book.notificationDatetime!.isNotEmpty) {
-      meta.add(
-        _MetaItem(
-          icon: Icons.notifications_none_outlined,
-          text: book.notificationDatetime!.split('T')[0],
-        ),
-      );
       if (book.statusValue?.toLowerCase() == 'tbreleased' &&
           publicationDate != null) {
         final now = DateTime.now();
@@ -156,15 +151,15 @@ class BookCardV2 extends StatelessWidget {
           publicationDate.day,
         );
         final daysRemaining = releaseDate.difference(today).inDays;
-        if (daysRemaining >= 0) {
-          meta.add(
-            _MetaItem(
-              icon: Icons.hourglass_empty,
-              text: l10n.publication_days_remaining(daysRemaining),
-              fullWidth: true,
-            ),
-          );
-        }
+        if (daysRemaining >= 0) releaseDaysRemaining = daysRemaining;
+      }
+      if (releaseDaysRemaining == null) {
+        meta.add(
+          _MetaItem(
+            icon: Icons.notifications_none_outlined,
+            text: book.notificationDatetime!.split('T')[0],
+          ),
+        );
       }
     }
     if (enabledCardFields.contains('rating') && book.myRating != null) {
@@ -376,8 +371,13 @@ class BookCardV2 extends StatelessWidget {
               ),
             ),
 
-            // Progress bar
-            if (hasProgress) ...[
+            if (releaseDaysRemaining != null) ...[
+              const SizedBox(height: 12),
+              _ReleaseCountdownFooter(
+                daysRemaining: releaseDaysRemaining,
+                releaseDate: publicationDate!,
+              ),
+            ] else if (hasProgress) ...[
               const SizedBox(height: 10),
               ClipRRect(
                 borderRadius: const BorderRadius.only(
@@ -393,6 +393,68 @@ class BookCardV2 extends StatelessWidget {
               ),
             ] else
               const SizedBox(height: 15),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ReleaseCountdownFooter extends StatelessWidget {
+  final int daysRemaining;
+  final DateTime releaseDate;
+
+  const _ReleaseCountdownFooter({
+    required this.daysRemaining,
+    required this.releaseDate,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final date =
+        '${releaseDate.day.toString().padLeft(2, '0')}/'
+        '${releaseDate.month.toString().padLeft(2, '0')}/'
+        '${releaseDate.year}';
+
+    return ClipRRect(
+      borderRadius: const BorderRadius.only(
+        bottomLeft: Radius.circular(7),
+        bottomRight: Radius.circular(7),
+      ),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(17, 9, 17, 10),
+        decoration: BoxDecoration(
+          color: _kPrimary.withValues(alpha: 0.06),
+          border: Border(
+            top: BorderSide(color: _kPrimary.withValues(alpha: 0.2)),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.hourglass_bottom, size: 16, color: _kPrimary),
+            const SizedBox(width: 8),
+            Text(
+              l10n.release_countdown_card_days(daysRemaining),
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: _kPrimary,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                '${l10n.release_countdown_card_until} · $date',
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: _kText,
+                ),
+              ),
+            ),
           ],
         ),
       ),

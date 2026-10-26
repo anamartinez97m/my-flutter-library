@@ -1661,6 +1661,11 @@
   "release_countdown_hours": "Hours",
   "release_countdown_minutes": "Minutes",
   "release_countdown_seconds": "Seconds",
+  "release_countdown_card_days": "{count} {count, plural, =1{day} other{days}}",
+  "@release_countdown_card_days": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "release_countdown_card_until": "until release",
   "read_count_field_label": "Read count: {value}",
   "@read_count_field_label": {
     "placeholders": { "value": {} }

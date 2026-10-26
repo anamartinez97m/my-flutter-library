@@ -6728,6 +6728,18 @@ abstract class AppLocalizations {
   /// **'Seconds'**
   String get release_countdown_seconds;
 
+  /// No description provided for @release_countdown_card_days.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} {count, plural, =1{day} other{days}}'**
+  String release_countdown_card_days(int count);
+
+  /// No description provided for @release_countdown_card_until.
+  ///
+  /// In en, this message translates to:
+  /// **'until release'**
+  String get release_countdown_card_until;
+
   /// No description provided for @read_count_field_label.
   ///
   /// In en, this message translates to:
