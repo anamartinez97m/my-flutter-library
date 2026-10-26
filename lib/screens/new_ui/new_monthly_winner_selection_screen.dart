@@ -25,6 +25,7 @@ class _NewMonthlyWinnerSelectionScreenState
   List<Book> books = [];
   bool isLoading = true;
   int? selectedBookId;
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -60,6 +61,7 @@ class _NewMonthlyWinnerSelectionScreenState
   }
 
   Future<void> _saveWinner() async {
+    if (_isSaving) return;
     if (selectedBookId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -69,6 +71,7 @@ class _NewMonthlyWinnerSelectionScreenState
       return;
     }
 
+    setState(() => _isSaving = true);
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookCompetitionRepository(db);
@@ -84,20 +87,10 @@ class _NewMonthlyWinnerSelectionScreenState
         selectedBook.name!,
       );
 
-      if (mounted) {
-        Navigator.of(context).pop(true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(
-                context,
-              )!.selected_as_winner(selectedBook.name!),
-            ),
-          ),
-        );
-      }
+      if (mounted) Navigator.of(context).pop(true);
     } catch (e) {
       if (mounted) {
+        setState(() => _isSaving = false);
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Error saving winner: $e')));
@@ -321,7 +314,7 @@ class _NewMonthlyWinnerSelectionScreenState
       child: SizedBox(
         width: double.infinity,
         child: ElevatedButton(
-          onPressed: _saveWinner,
+          onPressed: _isSaving ? null : _saveWinner,
           style: ElevatedButton.styleFrom(
             backgroundColor: V2Colors.primary,
             foregroundColor: V2Colors.onPrimary,
