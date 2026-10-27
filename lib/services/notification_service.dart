@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -63,11 +64,17 @@ class NotificationService {
   /// Payload stored when navigation is attempted before navigator is ready (cold start)
   String? _pendingNavigationPayload;
 
-  // Notification ID range for reading reminders: 100000 + bookId
+  // Legacy repeating reading reminders: 100000 + bookId
   static const int _readingReminderBaseId = 100000;
 
-  // Stores the book IDs that currently have active reading reminders scheduled
+  // Daily one-shot reading reminders: 1000000 + bookId * 400 + day of year
+  static const int _readingReminderDailyBaseId = 1000000;
+
+  // Legacy: book IDs that had a repeating reading reminder scheduled
   static const String prefReadingReminderBookIds = 'reading_reminder_book_ids';
+
+  // Notification IDs of the currently scheduled daily reading reminders
+  static const String prefReadingReminderIds = 'reading_reminder_ids';
 
   // SharedPreferences keys
   static const String prefReadingReminderEnabled = 'reading_reminder_enabled';
@@ -481,9 +488,67 @@ class NotificationService {
 
   // ===== READING REMINDER METHODS =====
 
+  /// Days of one-shot reading reminders kept scheduled ahead. Reminders are
+  /// not OS-repeating so today's can be skipped once the book has been read;
+  /// the window is refilled every time the app opens or a session is saved.
+  static const int readingReminderWindowDays = 14;
+
+  // iOS keeps at most 64 pending notifications per app.
+  static const int _iosMaxReadingReminders = 48;
+
+  /// Times at which the daily reading reminder should fire, starting today.
+  /// Today is skipped when its time has passed or the book was read today.
+  static List<DateTime> readingReminderDates({
+    required DateTime now,
+    required int hour,
+    required int minute,
+    required bool readToday,
+    int days = readingReminderWindowDays,
+  }) {
+    final dates = <DateTime>[];
+    for (var offset = 0; offset < days; offset++) {
+      final date = DateTime(
+        now.year,
+        now.month,
+        now.day + offset,
+        hour,
+        minute,
+      );
+      if (offset == 0 && (readToday || !date.isAfter(now))) continue;
+      dates.add(date);
+    }
+    return dates;
+  }
+
+  Future<int> _readingRemindersQueue = Future.value(0);
+
+  /// Reschedules reading reminders after reading activity (chrono, "read
+  /// today", logged/edited sessions) or when the app comes back to the
+  /// foreground. Safe to call from any platform; errors are only logged.
+  Future<void> refreshReadingReminders() async {
+    if (kIsWeb ||
+        (defaultTargetPlatform != TargetPlatform.android &&
+            defaultTargetPlatform != TargetPlatform.iOS)) {
+      return;
+    }
+    try {
+      await scheduleReadingReminders();
+    } catch (e) {
+      debugPrint('❌ Error refreshing reading reminders: $e');
+    }
+  }
+
   /// Schedules daily reading reminder notifications.
   /// Returns the number of books for which reminders were scheduled (0 if disabled).
-  Future<int> scheduleReadingReminders() async {
+  Future<int> scheduleReadingReminders() {
+    final run = _readingRemindersQueue
+        .catchError((_) => 0)
+        .then((_) => _scheduleReadingReminders());
+    _readingRemindersQueue = run;
+    return run;
+  }
+
+  Future<int> _scheduleReadingReminders() async {
     if (!_initialized) await initialize();
 
     final prefs = await SharedPreferences.getInstance();
@@ -515,63 +580,87 @@ class NotificationService {
         return 0;
       }
 
-      final booksToRemind = allBooks ? startedBooks : [startedBooks.first];
+      final booksToRemind =
+          (allBooks ? startedBooks : [startedBooks.first])
+              .where((b) => b.bookId != null)
+              .toList();
+      if (booksToRemind.isEmpty) return 0;
 
-      int scheduledCount = 0;
-      for (final book in booksToRemind) {
-        if (book.bookId == null) continue;
-        await _scheduleDailyReadingReminder(
-          bookId: book.bookId!,
-          bookTitle: book.name ?? 'Unknown',
-          hour: hour,
-          minute: minute,
+      final now = tz.TZDateTime.now(tz.local);
+      final readToday = await ReadingSessionRepository(
+        db,
+      ).getBookIdsReadOn(DateTime(now.year, now.month, now.day));
+
+      var days = readingReminderWindowDays;
+      if (defaultTargetPlatform == TargetPlatform.iOS) {
+        days = (_iosMaxReadingReminders ~/ booksToRemind.length).clamp(
+          1,
+          readingReminderWindowDays,
         );
-        scheduledCount++;
       }
 
-      // Store scheduled book IDs for reliable cancellation later
-      final scheduledIds =
-          booksToRemind
-              .where((b) => b.bookId != null)
-              .map((b) => b.bookId!.toString())
-              .toList();
-      await prefs.setStringList(prefReadingReminderBookIds, scheduledIds);
+      final hasExactAlarmPermission = await requestExactAlarmPermission();
+      final scheduledIds = <String>[];
+
+      for (final book in booksToRemind) {
+        final bookId = book.bookId!;
+        final dates = readingReminderDates(
+          now: now,
+          hour: hour,
+          minute: minute,
+          readToday: readToday.contains(bookId),
+          days: days,
+        );
+        for (final date in dates) {
+          final id = _readingReminderId(bookId, date);
+          await _scheduleReadingReminder(
+            notificationId: id,
+            bookId: bookId,
+            bookTitle: book.name ?? 'Unknown',
+            scheduledDate: tz.TZDateTime(
+              tz.local,
+              date.year,
+              date.month,
+              date.day,
+              date.hour,
+              date.minute,
+            ),
+            exact: hasExactAlarmPermission,
+          );
+          scheduledIds.add(id.toString());
+        }
+      }
+
+      // Store scheduled notification IDs for reliable cancellation later
+      await prefs.setStringList(prefReadingReminderIds, scheduledIds);
 
       debugPrint(
-        '📖 Scheduled reading reminders for $scheduledCount book(s) at $hour:${minute.toString().padLeft(2, '0')}',
+        '📖 Scheduled ${scheduledIds.length} reading reminder(s) for '
+        '${booksToRemind.length} book(s) at $hour:${minute.toString().padLeft(2, '0')}'
+        ' (already read today: ${readToday.length})',
       );
-      return scheduledCount;
+      return booksToRemind.length;
     } catch (e) {
       debugPrint('❌ Error scheduling reading reminders: $e');
       return 0;
     }
   }
 
-  /// Schedule a single daily reading reminder for a specific book
-  Future<void> _scheduleDailyReadingReminder({
+  /// Unique per book and calendar day, so rescheduling replaces rather than
+  /// duplicates. Stays below the championship ID range offset by bookId.
+  int _readingReminderId(int bookId, DateTime date) =>
+      _readingReminderDailyBaseId +
+      bookId * 400 +
+      (date.difference(DateTime(date.year)).inHours / 24).round();
+
+  /// Schedule a single one-shot reading reminder for a specific book
+  Future<void> _scheduleReadingReminder({
+    required int notificationId,
     required int bookId,
     required String bookTitle,
-    required int hour,
-    required int minute,
+    required tz.TZDateTime scheduledDate,
+    required bool exact,
   }) async {
-    final notificationId = _readingReminderBaseId + bookId;
-
-    // Calculate next occurrence of the specified time
-    final now = tz.TZDateTime.now(tz.local);
-    var scheduledDate = tz.TZDateTime(
-      tz.local,
-      now.year,
-      now.month,
-      now.day,
-      hour,
-      minute,
-    );
-
-    // If the time has already passed today, schedule for tomorrow
-    if (scheduledDate.isBefore(now)) {
-      scheduledDate = scheduledDate.add(const Duration(days: 1));
-    }
-
     final androidDetails = AndroidNotificationDetails(
       'reading_reminders',
       'Reading Reminders',
@@ -600,8 +689,6 @@ class NotificationService {
       iOS: iosDetails,
     );
 
-    final hasExactAlarmPermission = await requestExactAlarmPermission();
-
     try {
       await _notifications.zonedSchedule(
         notificationId,
@@ -611,16 +698,12 @@ class NotificationService {
         scheduledDate,
         notificationDetails,
         androidScheduleMode:
-            hasExactAlarmPermission
+            exact
                 ? AndroidScheduleMode.exactAllowWhileIdle
                 : AndroidScheduleMode.inexactAllowWhileIdle,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
-        matchDateTimeComponents: DateTimeComponents.time,
         payload: 'reading_reminder_$bookId',
-      );
-      debugPrint(
-        '📖 Scheduled daily reminder for "$bookTitle" (ID: $bookId) at $hour:${minute.toString().padLeft(2, '0')}',
       );
     } catch (e) {
       debugPrint('❌ Error scheduling reading reminder for book $bookId: $e');
@@ -631,10 +714,16 @@ class NotificationService {
   Future<void> cancelAllReadingReminders() async {
     if (!_initialized) await initialize();
 
-    // Cancel by stored book IDs (reliable on all Android versions)
+    // Cancel by stored IDs (reliable on all Android versions)
     final prefs = await SharedPreferences.getInstance();
-    final savedIds = prefs.getStringList(prefReadingReminderBookIds) ?? [];
-    for (final idStr in savedIds) {
+    for (final idStr in prefs.getStringList(prefReadingReminderIds) ?? []) {
+      final id = int.tryParse(idStr);
+      if (id != null) await _notifications.cancel(id);
+    }
+    await prefs.remove(prefReadingReminderIds);
+
+    // Legacy repeating reminders (one per book at 100000 + bookId)
+    for (final idStr in prefs.getStringList(prefReadingReminderBookIds) ?? []) {
       final bookId = int.tryParse(idStr);
       if (bookId != null) {
         await _notifications.cancel(_readingReminderBaseId + bookId);

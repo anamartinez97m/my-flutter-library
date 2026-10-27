@@ -205,4 +205,24 @@ class ReadingSessionRepository {
       return null;
     }
   }
+
+  /// Book IDs with reading activity on [day]: a chrono session (running or
+  /// saved), a logged session or a "read today" mark.
+  Future<Set<int>> getBookIdsReadOn(DateTime day) async {
+    final key =
+        '${day.year.toString().padLeft(4, '0')}-'
+        '${day.month.toString().padLeft(2, '0')}-'
+        '${day.day.toString().padLeft(2, '0')}';
+    final results = await db.rawQuery(
+      '''
+      SELECT DISTINCT book_id FROM reading_sessions
+      WHERE (did_read = 1 OR duration_seconds > 0 OR is_active = 1)
+        AND (substr(start_time, 1, 10) = ?
+          OR substr(clicked_at, 1, 10) = ?
+          OR substr(end_time, 1, 10) = ?)
+    ''',
+      [key, key, key],
+    );
+    return results.map((row) => row['book_id'] as int).toSet();
+  }
 }
