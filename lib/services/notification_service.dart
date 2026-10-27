@@ -491,9 +491,12 @@ class NotificationService {
   /// Days of one-shot reading reminders kept scheduled ahead. Reminders are
   /// not OS-repeating so today's can be skipped once the book has been read;
   /// the window is refilled every time the app opens or a session is saved.
-  static const int readingReminderWindowDays = 14;
+  static const int readingReminderWindowDays = 60;
 
-  // iOS keeps at most 64 pending notifications per app.
+  // Pending reminder budget across all books, leaving room for release and
+  // championship notifications: Android caps an app at 500 alarms, iOS keeps
+  // at most 64 pending notifications.
+  static const int _androidMaxReadingReminders = 400;
   static const int _iosMaxReadingReminders = 48;
 
   /// Times at which the daily reading reminder should fire, starting today.
@@ -591,13 +594,14 @@ class NotificationService {
         db,
       ).getBookIdsReadOn(DateTime(now.year, now.month, now.day));
 
-      var days = readingReminderWindowDays;
-      if (defaultTargetPlatform == TargetPlatform.iOS) {
-        days = (_iosMaxReadingReminders ~/ booksToRemind.length).clamp(
-          1,
-          readingReminderWindowDays,
-        );
-      }
+      final maxReminders =
+          defaultTargetPlatform == TargetPlatform.iOS
+              ? _iosMaxReadingReminders
+              : _androidMaxReadingReminders;
+      final days = (maxReminders ~/ booksToRemind.length).clamp(
+        1,
+        readingReminderWindowDays,
+      );
 
       final hasExactAlarmPermission = await requestExactAlarmPermission();
       final scheduledIds = <String>[];
