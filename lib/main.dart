@@ -178,7 +178,8 @@ class _AutoBackupRunner extends StatefulWidget {
   State<_AutoBackupRunner> createState() => _AutoBackupRunnerState();
 }
 
-class _AutoBackupRunnerState extends State<_AutoBackupRunner> {
+class _AutoBackupRunnerState extends State<_AutoBackupRunner>
+    with WidgetsBindingObserver {
   bool? _hasSeenOnboarding;
 
   static const String _onboardingKey = 'has_seen_onboarding';
@@ -186,6 +187,7 @@ class _AutoBackupRunnerState extends State<_AutoBackupRunner> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _checkOnboardingStatus();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       NotificationService.setReadingReminderTitleBuilder(
@@ -195,6 +197,20 @@ class _AutoBackupRunnerState extends State<_AutoBackupRunner> {
       _runAutoBackup();
       NotificationService().processPendingNavigation();
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Drop today's reminder if a book was read, and keep the window filled.
+    if (state == AppLifecycleState.resumed) {
+      NotificationService().refreshReadingReminders();
+    }
   }
 
   Future<void> _checkOnboardingStatus() async {

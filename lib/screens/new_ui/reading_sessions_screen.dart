@@ -7,6 +7,7 @@ import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/model/reading_session.dart';
 import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
+import 'package:myrandomlibrary/services/notification_service.dart';
 
 Color get _kText => V2Colors.textPrimary;
 Color get _kSub => V2Colors.textSecondary;
@@ -201,6 +202,7 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
       final db = await DatabaseHelper.instance.database;
       final repository = ReadingSessionRepository(db);
       await repository.updateSession(updated);
+      NotificationService().refreshReadingReminders();
       await _loadSessions();
       _cancelEditing();
       if (mounted) {
@@ -348,6 +350,7 @@ class _ReadingSessionsScreenState extends State<ReadingSessionsScreen> {
         final db = await DatabaseHelper.instance.database;
         final repository = ReadingSessionRepository(db);
         await repository.deleteSession(session.sessionId!);
+        NotificationService().refreshReadingReminders();
         await _loadSessions();
       } catch (e) {
         if (mounted) {

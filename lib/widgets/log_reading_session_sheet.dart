@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/repositories/reading_session_repository.dart';
+import 'package:myrandomlibrary/services/notification_service.dart';
 
 /// v2 bottom sheet for logging a reading session manually.
 ///
@@ -154,6 +155,7 @@ class _LogReadingSessionSheetState extends State<LogReadingSessionSheet> {
         didRead: true,
         durationSeconds: _durationMinutes * 60,
       );
+      NotificationService().refreshReadingReminders();
 
       if (mounted) {
         widget.onSessionComplete?.call();

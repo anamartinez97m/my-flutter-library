@@ -1520,6 +1520,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
       final sessionRepository = ReadingSessionRepository(db);
 
       await sessionRepository.createDidReadSession(_currentBook.bookId!, true);
+      NotificationService().refreshReadingReminders();
 
       await _loadReadDates();
 
