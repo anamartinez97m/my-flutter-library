@@ -45,8 +45,6 @@ class GoogleBooksService {
       }
       final url = Uri.parse(urlString);
       debugPrint('[GoogleBooks] Fetching by ISBN: $cleanIsbn');
-      debugPrint('[GoogleBooks] API KEY: $googleBooksApiKey');
-      debugPrint('[GoogleBooks] URI: $url');
 
       final response = await http.get(url).timeout(_timeout);
 
@@ -167,7 +165,6 @@ class GoogleBooksService {
         }
       }
       final url = Uri.parse(urlString);
-      debugPrint('[GoogleBooks] Full URL: $urlString');
       debugPrint(
         '[GoogleBooks] Fetching books by author: $author (startIndex: $startIndex, language: $language)',
       );
