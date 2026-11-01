@@ -411,7 +411,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
               borderRadius: BorderRadius.circular(24),
             ),
             elevation: 10,
-            child: Padding(
+            child: SingleChildScrollView(
               padding: const EdgeInsets.all(32),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -563,6 +563,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
   }
 
   Future<void> _saveBook() async {
+    // Close the keyboard so the dialogs shown below get the full height.
+    FocusManager.instance.primaryFocus?.unfocus();
+
     // Check for missing mandatory fields and show helpful message
     List<String> missingFields = [];
 
