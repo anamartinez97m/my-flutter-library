@@ -7817,6 +7817,216 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error importing CSV: {error}'**
   String prices_genres_import_error(Object error);
+
+  /// No description provided for @lists.
+  ///
+  /// In en, this message translates to:
+  /// **'Lists'**
+  String get lists;
+
+  /// No description provided for @no_lists_yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No lists yet'**
+  String get no_lists_yet;
+
+  /// No description provided for @lists_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Group books, authors, sagas or genres'**
+  String get lists_hint;
+
+  /// No description provided for @new_list.
+  ///
+  /// In en, this message translates to:
+  /// **'New list'**
+  String get new_list;
+
+  /// No description provided for @edit_list.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit list'**
+  String get edit_list;
+
+  /// No description provided for @list_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get list_name;
+
+  /// No description provided for @list_name_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name'**
+  String get list_name_required;
+
+  /// No description provided for @list_type.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get list_type;
+
+  /// No description provided for @list_icon.
+  ///
+  /// In en, this message translates to:
+  /// **'Icon'**
+  String get list_icon;
+
+  /// No description provided for @list_type_locked.
+  ///
+  /// In en, this message translates to:
+  /// **'The type can\'t be changed after the list is created'**
+  String get list_type_locked;
+
+  /// No description provided for @list_type_books.
+  ///
+  /// In en, this message translates to:
+  /// **'Books'**
+  String get list_type_books;
+
+  /// No description provided for @list_type_authors.
+  ///
+  /// In en, this message translates to:
+  /// **'Authors'**
+  String get list_type_authors;
+
+  /// No description provided for @list_type_sagas.
+  ///
+  /// In en, this message translates to:
+  /// **'Sagas'**
+  String get list_type_sagas;
+
+  /// No description provided for @list_type_genres.
+  ///
+  /// In en, this message translates to:
+  /// **'Genres'**
+  String get list_type_genres;
+
+  /// No description provided for @see_all_lists.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get see_all_lists;
+
+  /// No description provided for @delete_list.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete list'**
+  String get delete_list;
+
+  /// No description provided for @delete_list_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{name}\"? The books, authors, sagas and genres stay in your library.'**
+  String delete_list_confirm(String name);
+
+  /// No description provided for @remove_from_list.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from list'**
+  String get remove_from_list;
+
+  /// No description provided for @remove_from_list_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove \"{name}\" from this list?'**
+  String remove_from_list_confirm(String name);
+
+  /// No description provided for @list_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'This list is empty'**
+  String get list_empty;
+
+  /// No description provided for @list_empty_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap + to add items'**
+  String get list_empty_hint;
+
+  /// No description provided for @add_to_list.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to list'**
+  String get add_to_list;
+
+  /// No description provided for @add_selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Add ({count})'**
+  String add_selected(int count);
+
+  /// No description provided for @already_in_list.
+  ///
+  /// In en, this message translates to:
+  /// **'Already in this list'**
+  String get already_in_list;
+
+  /// No description provided for @nothing_to_add.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to add'**
+  String get nothing_to_add;
+
+  /// No description provided for @items_added.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 item added} other{{count} items added}}'**
+  String items_added(int count);
+
+  /// No description provided for @list_item_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Empty} =1{1 item} other{{count} items}}'**
+  String list_item_count(int count);
+
+  /// No description provided for @list_books_read.
+  ///
+  /// In en, this message translates to:
+  /// **'{read} of {total} read'**
+  String list_books_read(int read, int total);
+
+  /// No description provided for @list_sort_manual.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual (drag to reorder)'**
+  String get list_sort_manual;
+
+  /// No description provided for @list_sort_name_asc.
+  ///
+  /// In en, this message translates to:
+  /// **'Name A–Z'**
+  String get list_sort_name_asc;
+
+  /// No description provided for @list_sort_name_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Name Z–A'**
+  String get list_sort_name_desc;
+
+  /// No description provided for @list_sort_newest.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest added first'**
+  String get list_sort_newest;
+
+  /// No description provided for @list_sort_oldest.
+  ///
+  /// In en, this message translates to:
+  /// **'Oldest added first'**
+  String get list_sort_oldest;
+
+  /// No description provided for @list_saved.
+  ///
+  /// In en, this message translates to:
+  /// **'List saved'**
+  String get list_saved;
+
+  /// No description provided for @list_deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'List deleted'**
+  String get list_deleted;
 }
 
 class _AppLocalizationsDelegate

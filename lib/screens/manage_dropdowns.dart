@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
+import 'package:myrandomlibrary/model/user_list.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
+import 'package:myrandomlibrary/repositories/user_list_repository.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:provider/provider.dart';
 import '../config/app_theme.dart';
@@ -1279,12 +1281,18 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
               'UPDATE books_by_author SET author_id = ? WHERE author_id = ?',
               [newId, id],
             );
+            await UserListRepository(
+              db,
+            ).replaceRefId(UserListType.author, id, newId);
           } else if (_selectedTable == 'genre') {
             // Update junction table
             await db.rawUpdate(
               'UPDATE books_by_genre SET genre_id = ? WHERE genre_id = ?',
               [newId, id],
             );
+            await UserListRepository(
+              db,
+            ).replaceRefId(UserListType.genre, id, newId);
           } else if (_selectedTable == 'saga_universe' ||
               _selectedTable == 'saga') {
             // These are text fields, need special handling
@@ -1299,6 +1307,9 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
               'UPDATE book SET $_selectedTable = ? WHERE $_selectedTable = ?',
               [newValue, value],
             );
+            if (_selectedTable == 'saga') {
+              await UserListRepository(db).renameSaga(value, newValue);
+            }
           } else {
             // Update book table directly
             await db.rawUpdate(
@@ -1319,6 +1330,9 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
               'UPDATE book SET $_selectedTable = ? WHERE $_selectedTable = ?',
               [newValue, value],
             );
+            if (_selectedTable == 'saga') {
+              await UserListRepository(db).renameSaga(value, newValue);
+            }
           } else {
             int? expectedBooks;
 
@@ -1345,12 +1359,18 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
                 'UPDATE books_by_author SET author_id = ? WHERE author_id = ?',
                 [newId, id],
               );
+              await UserListRepository(
+                db,
+              ).replaceRefId(UserListType.author, id, newId);
             } else if (_selectedTable == 'genre') {
               // Update junction table
               await db.rawUpdate(
                 'UPDATE books_by_genre SET genre_id = ? WHERE genre_id = ?',
                 [newId, id],
               );
+              await UserListRepository(
+                db,
+              ).replaceRefId(UserListType.genre, id, newId);
             } else {
               // Update book table directly
               await db.rawUpdate(

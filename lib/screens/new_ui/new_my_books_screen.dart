@@ -5,7 +5,10 @@ import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/repositories/reading_club_repository.dart';
+import 'package:myrandomlibrary/model/user_list.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
+import 'package:myrandomlibrary/screens/new_ui/user_list_detail_screen.dart';
+import 'package:myrandomlibrary/screens/new_ui/user_lists_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:myrandomlibrary/widgets/shimmer_loading.dart';
 
@@ -297,7 +300,7 @@ class _NewMyBooksScreenState extends State<NewMyBooksScreen> {
               indent: 40,
               endIndent: 40,
             ),
-            _ClubsCard(key: _clubsKey),
+            _TBRCard(provider: provider),
             Divider(
               color: V2Colors.border,
               height: 1,
@@ -305,7 +308,15 @@ class _NewMyBooksScreenState extends State<NewMyBooksScreen> {
               indent: 40,
               endIndent: 40,
             ),
-            _TBRCard(provider: provider),
+            _ListsCard(library: provider.allBooks),
+            Divider(
+              color: V2Colors.border,
+              height: 1,
+              thickness: 1,
+              indent: 40,
+              endIndent: 40,
+            ),
+            _ClubsCard(key: _clubsKey),
             const SizedBox(height: 80),
           ],
         ),
@@ -823,6 +834,264 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                   },
                 ),
               ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _ListPreview {
+  final UserList list;
+  final List<UserListEntry> firstEntries;
+  const _ListPreview(this.list, this.firstEntries);
+}
+
+class _ListsCard extends StatefulWidget {
+  /// The provider's book list; a new instance means the library changed.
+  final Object library;
+  const _ListsCard({required this.library});
+  @override
+  State<_ListsCard> createState() => _ListsCardState();
+}
+
+class _ListsCardState extends State<_ListsCard> with WidgetsBindingObserver {
+  List<_ListPreview> _lists = [];
+  bool _loading = true, _exp = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _load();
+  }
+
+  @override
+  void didUpdateWidget(covariant _ListsCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.library, widget.library)) _load();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState s) {
+    if (s == AppLifecycleState.resumed) _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final repo = await userListRepository();
+      final lists = await repo.getLists();
+      final previews = <_ListPreview>[];
+      for (final l in lists) {
+        final entries = await repo.getEntries(l);
+        previews.add(_ListPreview(l, entries.take(4).toList()));
+      }
+      if (mounted) {
+        setState(() {
+          _lists = previews;
+          _loading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('lists card: $e');
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _create() async {
+    await createUserListAndOpen(context);
+    _load();
+  }
+
+  Future<void> _seeAll() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const UserListsScreen()),
+    );
+    _load();
+  }
+
+  Future<void> _open(UserList list) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => UserListDetailScreen(list: list)),
+    );
+    _load();
+  }
+
+  Widget _preview(_ListPreview p) {
+    if (p.firstEntries.isEmpty) return const SizedBox(height: 44);
+    if (p.list.type == UserListType.book) {
+      return SizedBox(
+        height: 44,
+        child: Row(
+          children: [
+            for (final e in p.firstEntries)
+              Padding(
+                padding: const EdgeInsets.only(right: 6),
+                child: UserListCover(
+                  title: e.title,
+                  url: e.coverUrl,
+                  width: 32,
+                  height: 44,
+                ),
+              ),
+          ],
+        ),
+      );
+    }
+    return SizedBox(
+      height: 44,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          for (final e in p.firstEntries.take(2))
+            Text(
+              e.title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 12, color: V2Colors.textSecondary),
+            ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              GestureDetector(
+                onTap: _seeAll,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.format_list_bulleted,
+                      color: V2Colors.primary,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      l10n.lists,
+                      style: TextStyle(fontSize: 18, color: V2Colors.primary),
+                    ),
+                  ],
+                ),
+              ),
+              Row(
+                children: [
+                  GestureDetector(
+                    onTap: _create,
+                    child: Tooltip(
+                      message: l10n.new_list,
+                      child: Icon(Icons.add, color: V2Colors.primary, size: 22),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  GestureDetector(
+                    onTap: () => setState(() => _exp = !_exp),
+                    child: Icon(
+                      _exp
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
+                      color: V2Colors.textSecondary,
+                      size: 20,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          if (_exp) ...[
+            const SizedBox(height: 16),
+            if (_loading)
+              const Center(child: CircularProgressIndicator())
+            else if (_lists.isEmpty)
+              UserListsEmptyState(onCreate: _create)
+            else ...[
+              SizedBox(
+                height: 132,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  clipBehavior: Clip.none,
+                  itemCount: _lists.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 16),
+                  itemBuilder: (ctx, i) {
+                    final p = _lists[i];
+                    return GestureDetector(
+                      onTap: () => _open(p.list),
+                      child: Container(
+                        width: 200,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: V2Colors.surfaceTimer,
+                          border: Border.all(color: V2Colors.border),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                UserListIconBadge(icon: p.list.icon, size: 28),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    p.list.name,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: V2Colors.primary,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Text(
+                              '${userListTypeLabel(l10n, p.list.type)} · '
+                              '${l10n.list_item_count(p.list.itemCount)}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: V2Colors.textSecondary,
+                              ),
+                            ),
+                            _preview(p),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: _seeAll,
+                  child: Text(
+                    l10n.see_all_lists,
+                    style: TextStyle(color: V2Colors.primary),
+                  ),
+                ),
+              ),
+            ],
           ],
         ],
       ),
