@@ -339,6 +339,12 @@ class NotificationService {
     // Convert to TZDateTime with local timezone
     final tzScheduledDate = tz.TZDateTime.from(scheduledDate, tz.local);
 
+    // zonedSchedule throws for past dates (e.g. a book already released).
+    if (!tzScheduledDate.isAfter(tz.TZDateTime.now(tz.local))) {
+      await _notifications.cancel(bookId);
+      return;
+    }
+
     // Calculate days remaining until release (compare calendar dates, not datetimes)
     String notificationBody;
     if (releaseDate != null) {

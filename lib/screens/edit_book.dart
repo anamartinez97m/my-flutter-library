@@ -1088,8 +1088,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
       // Return the updated book to the detail screen
       navigator.pop(bookToReturn);
 
-      // Schedule notification if enabled
-      if (_notificationEnabled && _notificationDateTime != null) {
+      // Schedule notification if enabled and still upcoming
+      if (_notificationEnabled &&
+          _notificationDateTime != null &&
+          _notificationDateTime!.isAfter(DateTime.now())) {
         try {
           debugPrint(
             '🔔 Scheduling notification for book: ${_nameController.text.trim()}',
@@ -1127,7 +1129,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
           );
         }
       } else {
-        // Cancel notification if disabled
+        // Cancel notification if disabled or its time has already passed
         try {
           final notificationService = NotificationService();
           await notificationService.cancelNotification(widget.book.bookId!);
