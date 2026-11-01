@@ -7747,6 +7747,76 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No email app found. You can write to {email} directly.'**
   String contact_me_no_email_app(Object email);
+
+  /// No description provided for @export_prices_genres.
+  ///
+  /// In en, this message translates to:
+  /// **'Export prices & genres'**
+  String get export_prices_genres;
+
+  /// No description provided for @import_prices_genres.
+  ///
+  /// In en, this message translates to:
+  /// **'Import prices & genres'**
+  String get import_prices_genres;
+
+  /// No description provided for @prices_genres_import_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Update books?'**
+  String get prices_genres_import_title;
+
+  /// No description provided for @prices_genres_import_summary.
+  ///
+  /// In en, this message translates to:
+  /// **'{changed} books will be updated.\n{unchanged} unchanged, {unknown} book IDs not found.'**
+  String prices_genres_import_summary(
+    Object changed,
+    Object unchanged,
+    Object unknown,
+  );
+
+  /// No description provided for @prices_genres_new_genres.
+  ///
+  /// In en, this message translates to:
+  /// **'New genres that will be created: {genres}'**
+  String prices_genres_new_genres(Object genres);
+
+  /// No description provided for @prices_genres_skipped_rows.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} rows skipped:'**
+  String prices_genres_skipped_rows(Object count);
+
+  /// No description provided for @prices_genres_import_note.
+  ///
+  /// In en, this message translates to:
+  /// **'Only genre, price and acquired date are updated. Empty cells are left as they are. Nothing is deleted.'**
+  String get prices_genres_import_note;
+
+  /// No description provided for @prices_genres_apply.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get prices_genres_apply;
+
+  /// No description provided for @prices_genres_updated.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated {count} books'**
+  String prices_genres_updated(Object count);
+
+  /// No description provided for @prices_genres_no_changes.
+  ///
+  /// In en, this message translates to:
+  /// **'No changes found in the file'**
+  String get prices_genres_no_changes;
+
+  /// No description provided for @prices_genres_import_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Error importing CSV: {error}'**
+  String prices_genres_import_error(Object error);
 }
 
 class _AppLocalizationsDelegate

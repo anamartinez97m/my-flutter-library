@@ -5,6 +5,7 @@ import 'package:myrandomlibrary/model/book_relation.dart';
 import 'package:myrandomlibrary/model/placeholder_relation.dart';
 import 'package:myrandomlibrary/model/read_date.dart';
 import 'package:myrandomlibrary/model/universe_placeholder.dart';
+import 'package:myrandomlibrary/utils/book_fields_csv.dart';
 import 'package:sqflite/sqflite.dart';
 
 class BookRepository {
@@ -1762,6 +1763,135 @@ class BookRepository {
   }
 
   // ==================== Bulk Edit Methods ====================
+
+  /// Compares imported price/genre/acquired-date rows with the stored books.
+  Future<BookFieldsUpdatePlan> planBookFieldsUpdate(
+    List<BookFieldsCsvRow> rows,
+  ) async {
+    String norm(String v) => _removeAccents(v.trim().toLowerCase());
+
+    final books = {
+      for (final r in await db.query(
+        'book',
+        columns: ['book_id', 'name', 'price', 'acquired_date'],
+      ))
+        r['book_id'] as int: r,
+    };
+    final genresByBook = <int, Set<String>>{};
+    for (final r in await db.rawQuery(
+      'SELECT bbg.book_id, g.name FROM books_by_genre bbg '
+      'JOIN genre g ON g.genre_id = bbg.genre_id',
+    )) {
+      final name = r['name'] as String?;
+      if (name == null) continue;
+      genresByBook.putIfAbsent(r['book_id'] as int, () => {}).add(norm(name));
+    }
+    final knownGenres = {
+      for (final r in await db.query('genre', columns: ['name']))
+        if (r['name'] != null) norm(r['name'] as String),
+    };
+
+    final changes = <BookFieldsChange>[];
+    final unknownIds = <int>[];
+    final newGenres = <String, String>{};
+    var unchanged = 0;
+
+    for (final row in rows) {
+      final book = books[row.bookId];
+      if (book == null) {
+        unknownIds.add(row.bookId);
+        continue;
+      }
+
+      List<String>? genres;
+      if (row.genres != null) {
+        final wanted = row.genres!.map(norm).toSet();
+        final current = genresByBook[row.bookId] ?? const <String>{};
+        if (wanted.length != current.length || !wanted.containsAll(current)) {
+          genres = row.genres;
+          for (final g in row.genres!) {
+            if (!knownGenres.contains(norm(g))) newGenres[norm(g)] = g;
+          }
+        }
+      }
+
+      final currentPrice = (book['price'] as num?)?.toDouble();
+      final price =
+          row.price != null &&
+                  (currentPrice == null ||
+                      (currentPrice - row.price!).abs() > 0.0001)
+              ? row.price
+              : null;
+
+      final acquired =
+          row.acquiredDate != null &&
+                  row.acquiredDate != (book['acquired_date'] as String?)
+              ? row.acquiredDate
+              : null;
+
+      if (genres == null && price == null && acquired == null) {
+        unchanged++;
+        continue;
+      }
+      changes.add(
+        BookFieldsChange(
+          bookId: row.bookId,
+          name: (book['name'] as String?) ?? '',
+          genres: genres,
+          price: price,
+          acquiredDate: acquired,
+        ),
+      );
+    }
+
+    return BookFieldsUpdatePlan(
+      changes: changes,
+      unknownIds: unknownIds,
+      unchanged: unchanged,
+      newGenres: newGenres.values.toList(),
+    );
+  }
+
+  /// Applies [plan] in place (UPDATE only, books are never deleted).
+  Future<void> applyBookFieldsUpdate(BookFieldsUpdatePlan plan) async {
+    await db.transaction((txn) async {
+      for (final change in plan.changes) {
+        final values = <String, Object?>{
+          if (change.price != null) 'price': change.price,
+          if (change.acquiredDate != null) 'acquired_date': change.acquiredDate,
+        };
+        if (values.isNotEmpty) {
+          await txn.update(
+            'book',
+            values,
+            where: 'book_id = ?',
+            whereArgs: [change.bookId],
+          );
+        }
+        if (change.genres != null) {
+          await txn.delete(
+            'books_by_genre',
+            where: 'book_id = ?',
+            whereArgs: [change.bookId],
+          );
+          for (final genre in change.genres!) {
+            final genreId = await _getOrInsertLookupIdTxn(
+              txn,
+              'genre',
+              'name',
+              genre,
+            );
+            if (genreId != null) {
+              await txn.insert('books_by_genre', {
+                'genre_id': genreId,
+                'book_id': change.bookId,
+              }, conflictAlgorithm: ConflictAlgorithm.ignore);
+            }
+          }
+        }
+      }
+    });
+  }
 
   /// Bulk update a field for multiple books
   /// [field] can be: genre, author, format, language, place, editorial, format_saga, saga, saga_universe
