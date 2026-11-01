@@ -1849,6 +1849,17 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
     return null;
   }
 
+  /// Formats a reading duration as "45 minutes", "2h" or "1h 24m".
+  String _formatReadingDuration(double totalHours) {
+    final totalMinutes = (totalHours * 60).round();
+    if (totalMinutes < 60) {
+      return '$totalMinutes ${totalMinutes == 1 ? 'minute' : 'minutes'}';
+    }
+    final hours = totalMinutes ~/ 60;
+    final minutes = totalMinutes % 60;
+    return minutes == 0 ? '${hours}h' : '${hours}h ${minutes}m';
+  }
+
   /// Build reading time card showing how long it took to read the book
   Widget _buildReadingTimeCard() {
     final readingTimeData = _calculateReadingTime();
@@ -1867,24 +1878,13 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
 
     // Build time text with hours or minutes if available
     if (method == 'Time-based' && details.containsKey('total_hours')) {
-      final totalHours = details['total_hours'] as double;
-
-      if (totalHours < 1.0) {
-        final totalMinutes = (totalHours * 60).round();
-        final minuteLabel = totalMinutes == 1 ? 'minute' : 'minutes';
-        if (days == 1) {
-          timeText = '$days day ($totalMinutes $minuteLabel)';
-        } else {
-          timeText = '$days days ($totalMinutes $minuteLabel)';
-        }
-      } else {
-        final hoursText = totalHours.toStringAsFixed(1);
-        if (days == 1) {
-          timeText = '$days day ($hoursText hours)';
-        } else {
-          timeText = '$days days ($hoursText hours)';
-        }
-      }
+      final durationText = _formatReadingDuration(
+        details['total_hours'] as double,
+      );
+      timeText =
+          days == 1
+              ? '$days day ($durationText)'
+              : '$days days ($durationText)';
     } else {
       // No hours data, show only days
       if (days == 1) {
@@ -2067,16 +2067,10 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                     children: [
                       if (method == 'Time-based' &&
                           details.containsKey('total_hours')) ...[
-                        _detailRow(Icons.schedule, () {
-                          final totalHours = details['total_hours'] as double;
-                          if (totalHours < 1.0) {
-                            final totalMinutes = (totalHours * 60).round();
-                            final minuteLabel =
-                                totalMinutes == 1 ? 'minute' : 'minutes';
-                            return 'Total reading time: $totalMinutes $minuteLabel';
-                          }
-                          return 'Total reading time: ${totalHours.toStringAsFixed(1)} hours';
-                        }()),
+                        _detailRow(
+                          Icons.schedule,
+                          'Total reading time: ${_formatReadingDuration(details['total_hours'] as double)}',
+                        ),
                         if (details['days_with_time'] > 0)
                           _detailRow(
                             Icons.timer,
