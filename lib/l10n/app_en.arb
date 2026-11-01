@@ -1924,5 +1924,31 @@
   "contact_me_no_email_app": "No email app found. You can write to {email} directly.",
   "@contact_me_no_email_app": {
     "placeholders": { "email": {} }
+  },
+  "export_prices_genres": "Export prices & genres",
+  "import_prices_genres": "Import prices & genres",
+  "prices_genres_import_title": "Update books?",
+  "prices_genres_import_summary": "{changed} books will be updated.\n{unchanged} unchanged, {unknown} book IDs not found.",
+  "@prices_genres_import_summary": {
+    "placeholders": { "changed": {}, "unchanged": {}, "unknown": {} }
+  },
+  "prices_genres_new_genres": "New genres that will be created: {genres}",
+  "@prices_genres_new_genres": {
+    "placeholders": { "genres": {} }
+  },
+  "prices_genres_skipped_rows": "{count} rows skipped:",
+  "@prices_genres_skipped_rows": {
+    "placeholders": { "count": {} }
+  },
+  "prices_genres_import_note": "Only genre, price and acquired date are updated. Empty cells are left as they are. Nothing is deleted.",
+  "prices_genres_apply": "Update",
+  "prices_genres_updated": "Updated {count} books",
+  "@prices_genres_updated": {
+    "placeholders": { "count": {} }
+  },
+  "prices_genres_no_changes": "No changes found in the file",
+  "prices_genres_import_error": "Error importing CSV: {error}",
+  "@prices_genres_import_error": {
+    "placeholders": { "error": {} }
   }
 }

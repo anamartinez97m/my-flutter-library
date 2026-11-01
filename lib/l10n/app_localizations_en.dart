@@ -4316,4 +4316,52 @@ class AppLocalizationsEn extends AppLocalizations {
   String contact_me_no_email_app(Object email) {
     return 'No email app found. You can write to $email directly.';
   }
+
+  @override
+  String get export_prices_genres => 'Export prices & genres';
+
+  @override
+  String get import_prices_genres => 'Import prices & genres';
+
+  @override
+  String get prices_genres_import_title => 'Update books?';
+
+  @override
+  String prices_genres_import_summary(
+    Object changed,
+    Object unchanged,
+    Object unknown,
+  ) {
+    return '$changed books will be updated.\n$unchanged unchanged, $unknown book IDs not found.';
+  }
+
+  @override
+  String prices_genres_new_genres(Object genres) {
+    return 'New genres that will be created: $genres';
+  }
+
+  @override
+  String prices_genres_skipped_rows(Object count) {
+    return '$count rows skipped:';
+  }
+
+  @override
+  String get prices_genres_import_note =>
+      'Only genre, price and acquired date are updated. Empty cells are left as they are. Nothing is deleted.';
+
+  @override
+  String get prices_genres_apply => 'Update';
+
+  @override
+  String prices_genres_updated(Object count) {
+    return 'Updated $count books';
+  }
+
+  @override
+  String get prices_genres_no_changes => 'No changes found in the file';
+
+  @override
+  String prices_genres_import_error(Object error) {
+    return 'Error importing CSV: $error';
+  }
 }

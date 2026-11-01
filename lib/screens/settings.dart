@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:myrandomlibrary/config/app_theme.dart';
 import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/config/themes/app_theme_palette.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
@@ -26,6 +28,7 @@ import 'package:myrandomlibrary/screens/settings/universe_placeholders_screen.da
 import 'package:myrandomlibrary/services/google_auth_service.dart';
 import 'package:myrandomlibrary/services/backup_service.dart';
 import 'package:myrandomlibrary/services/notification_service.dart';
+import 'package:myrandomlibrary/utils/book_fields_csv.dart';
 import 'package:myrandomlibrary/utils/csv_import_helper.dart';
 import 'package:myrandomlibrary/widgets/tbr_limit_setting.dart';
 import 'package:myrandomlibrary/widgets/status_mapping_dialog.dart';
@@ -3174,8 +3177,181 @@ class _SettingsScreenState extends State<SettingsScreen> {
             );
           },
         ),
+        const SizedBox(height: 12),
+        _buildV2SettingsButton(
+          icon: Icons.file_download_outlined,
+          label: l10n.export_prices_genres,
+          onTap: () => _exportPricesGenres(context),
+        ),
+        const SizedBox(height: 12),
+        _buildV2SettingsButton(
+          icon: Icons.file_upload_outlined,
+          label: l10n.import_prices_genres,
+          onTap: () => _importPricesGenres(context),
+        ),
       ],
     );
+  }
+
+  void _showV2SnackBar(
+    BuildContext context,
+    String text, {
+    bool error = false,
+  }) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(text),
+        backgroundColor:
+            error
+                ? Theme.of(context).colorScheme.error
+                : AppTheme.notificationColor,
+        duration: const Duration(seconds: 4),
+      ),
+    );
+  }
+
+  Future<void> _exportPricesGenres(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final books = await BookRepository(db).getAllBooks();
+      if (!context.mounted) return;
+      if (books.isEmpty) {
+        _showV2SnackBar(context, l10n.no_books_to_export);
+        return;
+      }
+
+      final directory = await FilePicker.platform.getDirectoryPath(
+        dialogTitle: l10n.select_folder_save_csv,
+      );
+      if (!context.mounted) return;
+      if (directory == null) {
+        _showV2SnackBar(context, l10n.export_canceled);
+        return;
+      }
+
+      final timestamp =
+          DateTime.now().toIso8601String().replaceAll(':', '-').split('.')[0];
+      final filePath = '$directory/prices_genres_$timestamp.csv';
+      await File(filePath).writeAsString(BookFieldsCsv.build(books));
+
+      if (!context.mounted) return;
+      _showV2SnackBar(context, l10n.exported_books(books.length, filePath));
+    } catch (e) {
+      debugPrint('Prices/genres export error: $e');
+      if (!context.mounted) return;
+      _showV2SnackBar(
+        context,
+        l10n.error_exporting_csv(e.toString()),
+        error: true,
+      );
+    }
+  }
+
+  Future<void> _importPricesGenres(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.any,
+        allowMultiple: false,
+        withData: true,
+      );
+      if (result == null || result.files.isEmpty) return;
+      final file = result.files.single;
+      final bytes =
+          file.bytes ??
+          (file.path != null ? await File(file.path!).readAsBytes() : null);
+      if (bytes == null) throw Exception('Could not read the file');
+
+      String text;
+      try {
+        text = utf8.decode(bytes);
+      } on FormatException {
+        // Excel's plain "CSV" format is Windows-1252, not UTF-8.
+        text = latin1.decode(bytes);
+      }
+
+      final parsed = BookFieldsCsv.parse(text);
+      final db = await DatabaseHelper.instance.database;
+      final repository = BookRepository(db);
+      final plan = await repository.planBookFieldsUpdate(parsed.rows);
+      if (!context.mounted) return;
+
+      if (plan.changes.isEmpty && parsed.errors.isEmpty) {
+        _showV2SnackBar(context, l10n.prices_genres_no_changes);
+        return;
+      }
+
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder:
+            (dialogContext) => AlertDialog(
+              title: Text(l10n.prices_genres_import_title),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.prices_genres_import_summary(
+                        plan.changes.length,
+                        plan.unchanged,
+                        plan.unknownIds.length,
+                      ),
+                    ),
+                    if (plan.newGenres.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        l10n.prices_genres_new_genres(
+                          plan.newGenres.join(', '),
+                        ),
+                      ),
+                    ],
+                    if (parsed.errors.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        l10n.prices_genres_skipped_rows(parsed.errors.length),
+                      ),
+                      ...parsed.errors.take(10).map(Text.new),
+                      if (parsed.errors.length > 10) const Text('…'),
+                    ],
+                    const SizedBox(height: 12),
+                    Text(
+                      l10n.prices_genres_import_note,
+                      style: TextStyle(color: _kV2SubText, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext, false),
+                  child: Text(l10n.cancel),
+                ),
+                if (plan.changes.isNotEmpty)
+                  TextButton(
+                    onPressed: () => Navigator.pop(dialogContext, true),
+                    child: Text(l10n.prices_genres_apply),
+                  ),
+              ],
+            ),
+      );
+      if (confirmed != true) return;
+
+      await repository.applyBookFieldsUpdate(plan);
+      if (!context.mounted) return;
+      await Provider.of<BookProvider?>(context, listen: false)?.loadBooks();
+      if (!context.mounted) return;
+      _showV2SnackBar(context, l10n.prices_genres_updated(plan.changes.length));
+    } catch (e) {
+      debugPrint('Prices/genres import error: $e');
+      if (!context.mounted) return;
+      _showV2SnackBar(
+        context,
+        l10n.prices_genres_import_error(e.toString()),
+        error: true,
+      );
+    }
   }
 
   Widget _buildV2SettingsButton({

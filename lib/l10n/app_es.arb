@@ -1909,5 +1909,31 @@
   "contact_me_no_email_app": "No se encontró ninguna app de correo. Puedes escribirme directamente a {email}.",
   "@contact_me_no_email_app": {
     "placeholders": { "email": {} }
+  },
+  "export_prices_genres": "Exportar precios y géneros",
+  "import_prices_genres": "Importar precios y géneros",
+  "prices_genres_import_title": "¿Actualizar libros?",
+  "prices_genres_import_summary": "Se actualizarán {changed} libros.\n{unchanged} sin cambios, {unknown} IDs de libro no encontrados.",
+  "@prices_genres_import_summary": {
+    "placeholders": { "changed": {}, "unchanged": {}, "unknown": {} }
+  },
+  "prices_genres_new_genres": "Géneros nuevos que se crearán: {genres}",
+  "@prices_genres_new_genres": {
+    "placeholders": { "genres": {} }
+  },
+  "prices_genres_skipped_rows": "{count} filas omitidas:",
+  "@prices_genres_skipped_rows": {
+    "placeholders": { "count": {} }
+  },
+  "prices_genres_import_note": "Solo se actualizan el género, el precio y la fecha de adquisición. Las celdas vacías se dejan como están. No se borra nada.",
+  "prices_genres_apply": "Actualizar",
+  "prices_genres_updated": "{count} libros actualizados",
+  "@prices_genres_updated": {
+    "placeholders": { "count": {} }
+  },
+  "prices_genres_no_changes": "No se encontraron cambios en el archivo",
+  "prices_genres_import_error": "Error al importar el CSV: {error}",
+  "@prices_genres_import_error": {
+    "placeholders": { "error": {} }
   }
 }

@@ -4368,4 +4368,53 @@ class AppLocalizationsEs extends AppLocalizations {
   String contact_me_no_email_app(Object email) {
     return 'No se encontró ninguna app de correo. Puedes escribirme directamente a $email.';
   }
+
+  @override
+  String get export_prices_genres => 'Exportar precios y géneros';
+
+  @override
+  String get import_prices_genres => 'Importar precios y géneros';
+
+  @override
+  String get prices_genres_import_title => '¿Actualizar libros?';
+
+  @override
+  String prices_genres_import_summary(
+    Object changed,
+    Object unchanged,
+    Object unknown,
+  ) {
+    return 'Se actualizarán $changed libros.\n$unchanged sin cambios, $unknown IDs de libro no encontrados.';
+  }
+
+  @override
+  String prices_genres_new_genres(Object genres) {
+    return 'Géneros nuevos que se crearán: $genres';
+  }
+
+  @override
+  String prices_genres_skipped_rows(Object count) {
+    return '$count filas omitidas:';
+  }
+
+  @override
+  String get prices_genres_import_note =>
+      'Solo se actualizan el género, el precio y la fecha de adquisición. Las celdas vacías se dejan como están. No se borra nada.';
+
+  @override
+  String get prices_genres_apply => 'Actualizar';
+
+  @override
+  String prices_genres_updated(Object count) {
+    return '$count libros actualizados';
+  }
+
+  @override
+  String get prices_genres_no_changes =>
+      'No se encontraron cambios en el archivo';
+
+  @override
+  String prices_genres_import_error(Object error) {
+    return 'Error al importar el CSV: $error';
+  }
 }
