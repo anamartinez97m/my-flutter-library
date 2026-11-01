@@ -18,6 +18,7 @@ import 'package:myrandomlibrary/widgets/tbr_limit_setting.dart';
 import 'package:myrandomlibrary/widgets/bundle_input_widget_v2.dart';
 import 'package:myrandomlibrary/widgets/read_dates_widget.dart';
 import 'package:myrandomlibrary/services/notification_service.dart';
+import 'package:myrandomlibrary/discovery/text/text_normalizer.dart';
 import 'package:provider/provider.dart';
 import 'package:myrandomlibrary/widgets/heart_rating_input.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -1707,10 +1708,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       : const TextEditingValue(),
               optionsBuilder: (tv) {
                 if (tv.text.isEmpty) return books;
+                final query = TextNormalizer.normalize(tv.text);
                 return books.where(
-                  (b) => '${b.name} ${b.author ?? ""}'.toLowerCase().contains(
-                    tv.text.toLowerCase(),
-                  ),
+                  (b) => TextNormalizer.normalize(
+                    '${b.name} ${b.author ?? ""}',
+                  ).contains(query),
                 );
               },
               displayStringForOption:
