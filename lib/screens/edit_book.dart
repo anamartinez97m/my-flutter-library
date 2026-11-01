@@ -18,6 +18,7 @@ import 'package:myrandomlibrary/widgets/heart_rating_input.dart';
 import 'package:myrandomlibrary/widgets/read_dates_widget.dart';
 import 'package:myrandomlibrary/widgets/tbr_limit_setting.dart';
 import 'package:myrandomlibrary/services/notification_service.dart';
+import 'package:myrandomlibrary/discovery/text/text_normalizer.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:myrandomlibrary/services/book_metadata_service.dart';
@@ -1679,12 +1680,13 @@ class _EditBookScreenState extends State<EditBookScreen> {
                             if (textEditingValue.text.isEmpty) {
                               return books;
                             }
+                            final searchText = TextNormalizer.normalize(
+                              textEditingValue.text,
+                            );
                             return books.where((book) {
-                              final searchText =
-                                  textEditingValue.text.toLowerCase();
-                              final bookText =
-                                  '${book.name} ${book.author ?? ""}'
-                                      .toLowerCase();
+                              final bookText = TextNormalizer.normalize(
+                                '${book.name} ${book.author ?? ""}',
+                              );
                               return bookText.contains(searchText);
                             });
                           },
