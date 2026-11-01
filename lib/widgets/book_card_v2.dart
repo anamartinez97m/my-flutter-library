@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
+import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
 import 'package:myrandomlibrary/utils/format_saga_helper.dart';
 import 'package:myrandomlibrary/utils/release_date_helper.dart';
 import 'package:myrandomlibrary/utils/status_helper.dart';
+import 'package:provider/provider.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
 Color get _kPrimary => V2Colors.primary;
@@ -39,12 +41,31 @@ class BookCardV2 extends StatelessWidget {
     this.bundleBooksTotal,
   });
 
+  /// Repeated books only count as read when the book they repeat is read.
+  bool _isReadForCard(BuildContext context) {
+    final status = book.statusValue?.toLowerCase();
+    if (status == 'yes') return true;
+    if (status != 'repeated') return false;
+    final allBooks = Provider.of<BookProvider?>(context)?.allBooks;
+    if (allBooks == null) return false;
+    final byId = {for (final b in allBooks) b.bookId: b};
+    final visited = <int>{};
+    var originalId = book.originalBookId;
+    while (originalId != null && visited.add(originalId)) {
+      final original = byId[originalId];
+      if (original == null) return false;
+      final originalStatus = original.statusValue?.toLowerCase();
+      if (originalStatus == 'yes') return true;
+      if (originalStatus != 'repeated') return false;
+      originalId = original.originalBookId;
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final isRead =
-        book.statusValue?.toLowerCase() == 'yes' ||
-        book.statusValue?.toLowerCase() == 'repeated';
+    final isRead = _isReadForCard(context);
     final publicationDate = parseStoredDate(book.notificationDatetime);
 
     final meta = <_MetaItem>[];
