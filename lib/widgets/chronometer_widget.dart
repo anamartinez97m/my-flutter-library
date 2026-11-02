@@ -33,7 +33,13 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
   ReadingSession? _activeSession;
   DateTime? _sessionStartTime;
   DateTime? _appPausedTime;
-  static const String _prefsKey = 'chronometer_session';
+  bool _isStopping = false;
+  static const String _legacyPrefsKey = 'chronometer_session';
+
+  String get _prefsKey => 'chronometer_session_${widget.bookId}';
+
+  bool get _hasSessionInProgress =>
+      _sessionStartTime != null || _elapsedSeconds > 0;
 
   @override
   void initState() {
@@ -46,6 +52,10 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
+    if (_hasSessionInProgress && !_isStopping) {
+      _saveSessionState();
+      _updateSessionInBackground();
+    }
     // Disable wakelock when widget is disposed
     WakelockPlus.disable();
     super.dispose();
@@ -106,6 +116,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
           'elapsedSeconds': _elapsedSeconds,
           'isRunning': _isRunning,
           'appPausedTime': _appPausedTime?.toIso8601String(),
+          'savedAt': DateTime.now().toIso8601String(),
         }),
       );
     } catch (e) {
@@ -117,36 +128,53 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(_prefsKey);
+      await prefs.remove(_legacyPrefsKey);
     } catch (e) {
       debugPrint('Failed to clear session state: $e');
     }
   }
 
-  Future<void> _restoreSessionState() async {
+  /// Restores the timer saved when the sheet was closed or the app went to
+  /// the background. Returns true if a saved state for this book was found.
+  Future<bool> _restoreSessionState() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final sessionData = prefs.getString(_prefsKey);
-
-      if (sessionData != null) {
-        final data = jsonDecode(sessionData) as Map<String, dynamic>;
-        final savedBookId = data['bookId'] as int?;
-        final startTimeStr = data['startTime'] as String?;
-        final elapsed = data['elapsedSeconds'] as int?;
-        final wasRunning = data['isRunning'] as bool?;
-
-        if (savedBookId == widget.bookId &&
-            startTimeStr != null &&
-            elapsed != null &&
-            wasRunning == true) {
-          setState(() {
-            _sessionStartTime = DateTime.parse(startTimeStr);
-            _elapsedSeconds = elapsed;
-            _isRunning = true;
-          });
+      var sessionData = prefs.getString(_prefsKey);
+      if (sessionData == null) {
+        final legacy = prefs.getString(_legacyPrefsKey);
+        if (legacy != null &&
+            (jsonDecode(legacy) as Map<String, dynamic>)['bookId'] ==
+                widget.bookId) {
+          sessionData = legacy;
+          await prefs.remove(_legacyPrefsKey);
         }
       }
+      if (sessionData == null) return false;
+
+      final data = jsonDecode(sessionData) as Map<String, dynamic>;
+      final startTimeStr = data['startTime'] as String?;
+      final elapsed = data['elapsedSeconds'] as int?;
+      final wasRunning = data['isRunning'] as bool? ?? false;
+      final savedAtStr = data['savedAt'] as String?;
+      if (data['bookId'] != widget.bookId || elapsed == null) return false;
+
+      var restoredSeconds = elapsed;
+      if (wasRunning && savedAtStr != null) {
+        final away = DateTime.now().difference(DateTime.parse(savedAtStr));
+        if (!away.isNegative) restoredSeconds += away.inSeconds;
+      }
+      if (!mounted) return true;
+      setState(() {
+        _sessionStartTime =
+            startTimeStr != null ? DateTime.parse(startTimeStr) : null;
+        _elapsedSeconds = restoredSeconds;
+        _isRunning = false;
+      });
+      if (wasRunning) _startTimer();
+      return true;
     } catch (e) {
       debugPrint('Failed to restore session state: $e');
+      return false;
     }
   }
 
@@ -169,14 +197,17 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
 
   Future<void> _loadActiveSession() async {
     try {
-      // First try to restore from background state
-      await _restoreSessionState();
+      final restored = await _restoreSessionState();
 
       final db = await DatabaseHelper.instance.database;
       final repository = ReadingSessionRepository(db);
       final session = await repository.getActiveSession(widget.bookId);
 
       if (session != null && mounted) {
+        if (restored) {
+          setState(() => _activeSession = session);
+          return;
+        }
         setState(() {
           _activeSession = session;
           if (_sessionStartTime == null) {
@@ -229,11 +260,12 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
     setState(() {
       _isRunning = false;
     });
-    // Clear session state when paused
-    _clearSessionState();
+    _saveSessionState();
+    _updateSessionInBackground();
   }
 
   Future<void> _stopAndSaveSession() async {
+    _isStopping = true;
     try {
       _timer?.cancel();
       // Disable wakelock when stopping
@@ -298,6 +330,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
         );
       }
     } catch (e) {
+      _isStopping = false;
       debugPrint('Error saving session: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -377,7 +410,7 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
       );
 
       if (shouldClose == true) {
-        _timer?.cancel();
+        _pauseTimer();
         return true;
       }
       return false;
