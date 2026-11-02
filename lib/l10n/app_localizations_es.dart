@@ -4548,4 +4548,13 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get list_deleted => 'Lista eliminada';
+
+  @override
+  String get share_list => 'Compartir lista';
+
+  @override
+  String get share_list_image => 'Compartir imagen';
+
+  @override
+  String get share_list_preparing => 'Preparando imagen…';
 }

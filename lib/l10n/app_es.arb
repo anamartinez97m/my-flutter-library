@@ -1988,5 +1988,8 @@
   "list_sort_newest": "Añadidos recientemente primero",
   "list_sort_oldest": "Añadidos hace más tiempo primero",
   "list_saved": "Lista guardada",
-  "list_deleted": "Lista eliminada"
+  "list_deleted": "Lista eliminada",
+  "share_list": "Compartir lista",
+  "share_list_image": "Compartir imagen",
+  "share_list_preparing": "Preparando imagen…"
 }

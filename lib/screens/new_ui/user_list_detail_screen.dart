@@ -9,6 +9,7 @@ import 'package:myrandomlibrary/screens/books_by_author.dart';
 import 'package:myrandomlibrary/screens/books_by_genre.dart';
 import 'package:myrandomlibrary/screens/books_by_saga.dart';
 import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
+import 'package:myrandomlibrary/screens/new_ui/user_list_share_screen.dart';
 import 'package:myrandomlibrary/screens/new_ui/user_lists_screen.dart';
 
 String userListSortLabel(AppLocalizations l10n, UserListSortMode mode) {
@@ -75,7 +76,7 @@ class UserListCover extends StatelessWidget {
   }
 }
 
-IconData _typeIcon(UserListType type) {
+IconData userListTypeIcon(UserListType type) {
   switch (type) {
     case UserListType.book:
       return Icons.menu_book_outlined;
@@ -92,7 +93,7 @@ Widget _typeAvatar(UserListType type) => Container(
   width: 40,
   height: 40,
   decoration: BoxDecoration(color: V2Colors.chip, shape: BoxShape.circle),
-  child: Icon(_typeIcon(type), size: 20, color: V2Colors.primary),
+  child: Icon(userListTypeIcon(type), size: 20, color: V2Colors.primary),
 );
 
 class UserListDetailScreen extends StatefulWidget {
@@ -381,6 +382,22 @@ class _UserListDetailScreenState extends State<UserListDetailScreen> {
           ],
         ),
         actions: [
+          if (!_loading && _entries.isNotEmpty)
+            IconButton(
+              tooltip: l10n.share_list,
+              icon: const Icon(Icons.ios_share),
+              onPressed:
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (_) => UserListShareScreen(
+                            list: _list,
+                            entries: List.of(_entries),
+                          ),
+                    ),
+                  ),
+            ),
           PopupMenuButton<UserListSortMode>(
             tooltip: l10n.sort_by,
             icon: const Icon(Icons.sort),
@@ -426,7 +443,7 @@ class _UserListDetailScreenState extends State<UserListDetailScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      _typeIcon(_list.type),
+                      userListTypeIcon(_list.type),
                       size: 48,
                       color: V2Colors.textSecondary,
                     ),

@@ -8027,6 +8027,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'List deleted'**
   String get list_deleted;
+
+  /// No description provided for @share_list.
+  ///
+  /// In en, this message translates to:
+  /// **'Share list'**
+  String get share_list;
+
+  /// No description provided for @share_list_image.
+  ///
+  /// In en, this message translates to:
+  /// **'Share image'**
+  String get share_list_image;
+
+  /// No description provided for @share_list_preparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing image…'**
+  String get share_list_preparing;
 }
 
 class _AppLocalizationsDelegate

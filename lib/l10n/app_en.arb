@@ -2003,5 +2003,8 @@
   "list_sort_newest": "Newest added first",
   "list_sort_oldest": "Oldest added first",
   "list_saved": "List saved",
-  "list_deleted": "List deleted"
+  "list_deleted": "List deleted",
+  "share_list": "Share list",
+  "share_list_image": "Share image",
+  "share_list_preparing": "Preparing image…"
 }
