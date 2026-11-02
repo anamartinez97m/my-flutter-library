@@ -1950,5 +1950,61 @@
   "prices_genres_import_error": "Error importing CSV: {error}",
   "@prices_genres_import_error": {
     "placeholders": { "error": {} }
-  }
+  },
+  "lists": "Lists",
+  "no_lists_yet": "No lists yet",
+  "lists_hint": "Group books, authors, sagas or genres",
+  "new_list": "New list",
+  "edit_list": "Edit list",
+  "list_name": "Name",
+  "list_name_required": "Enter a name",
+  "list_type": "Type",
+  "list_icon": "Icon",
+  "list_type_locked": "The type can't be changed after the list is created",
+  "list_type_books": "Books",
+  "list_type_authors": "Authors",
+  "list_type_sagas": "Sagas",
+  "list_type_genres": "Genres",
+  "see_all_lists": "See all",
+  "delete_list": "Delete list",
+  "delete_list_confirm": "Delete \"{name}\"? The books, authors, sagas and genres stay in your library.",
+  "@delete_list_confirm": {
+    "placeholders": {"name": {"type": "String"}}
+  },
+  "remove_from_list": "Remove from list",
+  "remove_from_list_confirm": "Remove \"{name}\" from this list?",
+  "@remove_from_list_confirm": {
+    "placeholders": {"name": {"type": "String"}}
+  },
+  "list_empty": "This list is empty",
+  "list_empty_hint": "Tap + to add items",
+  "add_to_list": "Add to list",
+  "add_selected": "Add ({count})",
+  "@add_selected": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "already_in_list": "Already in this list",
+  "nothing_to_add": "Nothing to add",
+  "items_added": "{count, plural, =1{1 item added} other{{count} items added}}",
+  "@items_added": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "list_item_count": "{count, plural, =0{Empty} =1{1 item} other{{count} items}}",
+  "@list_item_count": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "list_books_read": "{read} of {total} read",
+  "@list_books_read": {
+    "placeholders": {"read": {"type": "int"}, "total": {"type": "int"}}
+  },
+  "list_sort_manual": "Manual (drag to reorder)",
+  "list_sort_name_asc": "Name A–Z",
+  "list_sort_name_desc": "Name Z–A",
+  "list_sort_newest": "Newest added first",
+  "list_sort_oldest": "Oldest added first",
+  "list_saved": "List saved",
+  "list_deleted": "List deleted",
+  "share_list": "Share list",
+  "share_list_image": "Share image",
+  "share_list_preparing": "Preparing image…"
 }

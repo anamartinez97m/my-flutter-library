@@ -23,7 +23,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 45,
+      version: 46,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -391,6 +391,8 @@ class DatabaseHelper {
       )
     ''');
 
+    await createUserListTables(db);
+
     // Insert default status values if table is empty
     final statusCount = await db.rawQuery(
       'SELECT COUNT(*) as count FROM status',
@@ -428,6 +430,38 @@ class DatabaseHelper {
       });
       await db.insert('format_saga', {'value': 'Saga', 'expected_books': null});
     }
+  }
+
+  /// User-defined lists (books, authors, sagas, genres) shown in My Books.
+  /// Items point at `book_id`/`author_id`/`genre_id` via `ref_id`, or at a
+  /// saga name via `ref_text`.
+  static Future<void> createUserListTables(DatabaseExecutor db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS user_lists (
+        list_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name VARCHAR(100) NOT NULL,
+        list_type TEXT NOT NULL,
+        icon TEXT,
+        sort_mode TEXT NOT NULL DEFAULT 'manual',
+        position INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT DEFAULT (datetime('now'))
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS user_list_items (
+        item_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        list_id INTEGER NOT NULL,
+        ref_id INTEGER,
+        ref_text TEXT,
+        position INTEGER NOT NULL DEFAULT 0,
+        added_at TEXT DEFAULT (datetime('now')),
+        FOREIGN KEY (list_id) REFERENCES user_lists(list_id) ON DELETE CASCADE
+      )
+    ''');
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_user_list_items_list
+      ON user_list_items (list_id)
+    ''');
   }
 
   Future<void> _createUniversePlaceholderTables(Database db) async {
@@ -1508,6 +1542,9 @@ class DatabaseHelper {
         CREATE INDEX IF NOT EXISTS idx_placeholder_placeholder_relations_to
         ON placeholder_placeholder_relations (to_placeholder_id)
       ''');
+    }
+    if (oldVersion < 46) {
+      await createUserListTables(db);
     }
   }
 

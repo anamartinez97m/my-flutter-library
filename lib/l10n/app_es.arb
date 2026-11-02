@@ -1935,5 +1935,61 @@
   "prices_genres_import_error": "Error al importar el CSV: {error}",
   "@prices_genres_import_error": {
     "placeholders": { "error": {} }
-  }
+  },
+  "lists": "Listas",
+  "no_lists_yet": "Aún no hay listas",
+  "lists_hint": "Agrupa libros, autores, sagas o géneros",
+  "new_list": "Nueva lista",
+  "edit_list": "Editar lista",
+  "list_name": "Nombre",
+  "list_name_required": "Escribe un nombre",
+  "list_type": "Tipo",
+  "list_icon": "Icono",
+  "list_type_locked": "El tipo no se puede cambiar después de crear la lista",
+  "list_type_books": "Libros",
+  "list_type_authors": "Autores",
+  "list_type_sagas": "Sagas",
+  "list_type_genres": "Géneros",
+  "see_all_lists": "Ver todas",
+  "delete_list": "Eliminar lista",
+  "delete_list_confirm": "¿Eliminar \"{name}\"? Los libros, autores, sagas y géneros se quedan en tu biblioteca.",
+  "@delete_list_confirm": {
+    "placeholders": {"name": {"type": "String"}}
+  },
+  "remove_from_list": "Quitar de la lista",
+  "remove_from_list_confirm": "¿Quitar \"{name}\" de esta lista?",
+  "@remove_from_list_confirm": {
+    "placeholders": {"name": {"type": "String"}}
+  },
+  "list_empty": "Esta lista está vacía",
+  "list_empty_hint": "Pulsa + para añadir elementos",
+  "add_to_list": "Añadir a la lista",
+  "add_selected": "Añadir ({count})",
+  "@add_selected": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "already_in_list": "Ya está en esta lista",
+  "nothing_to_add": "No hay nada que añadir",
+  "items_added": "{count, plural, =1{1 elemento añadido} other{{count} elementos añadidos}}",
+  "@items_added": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "list_item_count": "{count, plural, =0{Vacía} =1{1 elemento} other{{count} elementos}}",
+  "@list_item_count": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "list_books_read": "{read} de {total} leídos",
+  "@list_books_read": {
+    "placeholders": {"read": {"type": "int"}, "total": {"type": "int"}}
+  },
+  "list_sort_manual": "Manual (arrastra para ordenar)",
+  "list_sort_name_asc": "Nombre A–Z",
+  "list_sort_name_desc": "Nombre Z–A",
+  "list_sort_newest": "Añadidos recientemente primero",
+  "list_sort_oldest": "Añadidos hace más tiempo primero",
+  "list_saved": "Lista guardada",
+  "list_deleted": "Lista eliminada",
+  "share_list": "Compartir lista",
+  "share_list_image": "Compartir imagen",
+  "share_list_preparing": "Preparando imagen…"
 }

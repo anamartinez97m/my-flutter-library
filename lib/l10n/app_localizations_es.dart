@@ -4417,4 +4417,144 @@ class AppLocalizationsEs extends AppLocalizations {
   String prices_genres_import_error(Object error) {
     return 'Error al importar el CSV: $error';
   }
+
+  @override
+  String get lists => 'Listas';
+
+  @override
+  String get no_lists_yet => 'Aún no hay listas';
+
+  @override
+  String get lists_hint => 'Agrupa libros, autores, sagas o géneros';
+
+  @override
+  String get new_list => 'Nueva lista';
+
+  @override
+  String get edit_list => 'Editar lista';
+
+  @override
+  String get list_name => 'Nombre';
+
+  @override
+  String get list_name_required => 'Escribe un nombre';
+
+  @override
+  String get list_type => 'Tipo';
+
+  @override
+  String get list_icon => 'Icono';
+
+  @override
+  String get list_type_locked =>
+      'El tipo no se puede cambiar después de crear la lista';
+
+  @override
+  String get list_type_books => 'Libros';
+
+  @override
+  String get list_type_authors => 'Autores';
+
+  @override
+  String get list_type_sagas => 'Sagas';
+
+  @override
+  String get list_type_genres => 'Géneros';
+
+  @override
+  String get see_all_lists => 'Ver todas';
+
+  @override
+  String get delete_list => 'Eliminar lista';
+
+  @override
+  String delete_list_confirm(String name) {
+    return '¿Eliminar \"$name\"? Los libros, autores, sagas y géneros se quedan en tu biblioteca.';
+  }
+
+  @override
+  String get remove_from_list => 'Quitar de la lista';
+
+  @override
+  String remove_from_list_confirm(String name) {
+    return '¿Quitar \"$name\" de esta lista?';
+  }
+
+  @override
+  String get list_empty => 'Esta lista está vacía';
+
+  @override
+  String get list_empty_hint => 'Pulsa + para añadir elementos';
+
+  @override
+  String get add_to_list => 'Añadir a la lista';
+
+  @override
+  String add_selected(int count) {
+    return 'Añadir ($count)';
+  }
+
+  @override
+  String get already_in_list => 'Ya está en esta lista';
+
+  @override
+  String get nothing_to_add => 'No hay nada que añadir';
+
+  @override
+  String items_added(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count elementos añadidos',
+      one: '1 elemento añadido',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String list_item_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count elementos',
+      one: '1 elemento',
+      zero: 'Vacía',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String list_books_read(int read, int total) {
+    return '$read de $total leídos';
+  }
+
+  @override
+  String get list_sort_manual => 'Manual (arrastra para ordenar)';
+
+  @override
+  String get list_sort_name_asc => 'Nombre A–Z';
+
+  @override
+  String get list_sort_name_desc => 'Nombre Z–A';
+
+  @override
+  String get list_sort_newest => 'Añadidos recientemente primero';
+
+  @override
+  String get list_sort_oldest => 'Añadidos hace más tiempo primero';
+
+  @override
+  String get list_saved => 'Lista guardada';
+
+  @override
+  String get list_deleted => 'Lista eliminada';
+
+  @override
+  String get share_list => 'Compartir lista';
+
+  @override
+  String get share_list_image => 'Compartir imagen';
+
+  @override
+  String get share_list_preparing => 'Preparando imagen…';
 }

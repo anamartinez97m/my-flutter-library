@@ -5,6 +5,7 @@ import 'package:myrandomlibrary/model/book_relation.dart';
 import 'package:myrandomlibrary/model/placeholder_relation.dart';
 import 'package:myrandomlibrary/model/read_date.dart';
 import 'package:myrandomlibrary/model/universe_placeholder.dart';
+import 'package:myrandomlibrary/repositories/user_list_repository.dart';
 import 'package:myrandomlibrary/utils/book_fields_csv.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -670,6 +671,9 @@ class BookRepository {
         );
 
         if (oldValue != newValue) {
+          if (tableName == 'saga') {
+            await UserListRepository(db).renameSaga(oldValue, newValue);
+          }
           // Move the metadata entry from old value to new value if possible.
           // If the new value is already registered, keep its metadata.
           await db.rawUpdate(
