@@ -159,7 +159,12 @@ class _NewMyBooksScreenState extends State<NewMyBooksScreen> {
         style: TextStyle(
           fontSize: 14,
           fontWeight: active ? FontWeight.w600 : FontWeight.normal,
-          color: active ? V2Colors.textPrimary : V2Colors.textSecondary,
+          color:
+              active
+                  ? (Theme.of(context).brightness == Brightness.dark
+                      ? V2Colors.chipTextSelected
+                      : V2Colors.textPrimary)
+                  : V2Colors.textSecondary,
         ),
       ),
     ),
