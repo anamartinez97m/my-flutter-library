@@ -554,6 +554,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
             formatValue: book.formatValue?.trim(),
             createdAt: book.createdAt,
             genre: book.genre?.trim(),
+            trope: book.trope?.trim(),
             dateReadInitial: book.dateReadInitial?.trim(),
             dateReadFinal: book.dateReadFinal?.trim(),
             readCount: book.readCount,
@@ -631,7 +632,8 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                 b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at,
                 b.acquired_date,
                 GROUP_CONCAT(DISTINCT a.name) as author,
-                GROUP_CONCAT(DISTINCT g.name) as genre
+                GROUP_CONCAT(DISTINCT g.name) as genre,
+                (SELECT GROUP_CONCAT(t.name) FROM books_by_trope bbt JOIN trope t ON bbt.trope_id = t.trope_id WHERE bbt.book_id = b.book_id) as trope
               from book b 
               left join books_by_author bba on b.book_id = bba.book_id 
               left join author a on bba.author_id = a.author_id
@@ -686,6 +688,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                     formatValue: existingBook.formatValue,
                     createdAt: existingBook.createdAt,
                     genre: existingBook.genre,
+                    trope: existingBook.trope,
                     dateReadInitial: firstReadDate['date_started'] as String?,
                     dateReadFinal: firstReadDate['date_finished'] as String?,
                     readCount: existingBook.readCount,
@@ -792,6 +795,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
                     bookWithMappedStatus.genre?.isNotEmpty == true
                         ? bookWithMappedStatus.genre
                         : existingBook.genre,
+                trope: existingBook.trope,
                 dateReadInitial:
                     bookWithMappedStatus.dateReadInitial?.isNotEmpty == true
                         ? bookWithMappedStatus.dateReadInitial
@@ -1093,6 +1097,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               placeValue: item.book.placeValue,
               formatValue: item.book.formatValue,
               genre: item.book.genre,
+              trope: item.book.trope,
               loaned: item.book.loaned,
               createdAt: item.book.createdAt,
               readCount: item.book.readCount,
@@ -1291,6 +1296,7 @@ class _AdminCsvImportScreenState extends State<AdminCsvImportScreen> {
               placeValue: item.book.placeValue,
               formatValue: item.book.formatValue,
               genre: item.book.genre,
+              trope: item.book.trope,
               loaned: item.book.loaned,
               createdAt: item.book.createdAt,
               readCount: item.book.readCount,
@@ -2223,6 +2229,7 @@ class _BookImportPreview extends StatelessWidget {
       formatValue: useFormatValue ? formatValue : book.formatValue,
       createdAt: book.createdAt,
       genre: useGenre ? genre : book.genre,
+      trope: book.trope,
       dateReadInitial:
           useDateReadInitial ? dateReadInitial : book.dateReadInitial,
       dateReadFinal: useDateReadFinal ? dateReadFinal : book.dateReadFinal,

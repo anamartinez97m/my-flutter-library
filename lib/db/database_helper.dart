@@ -23,7 +23,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       pathToDb,
-      version: 46,
+      version: 47,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -392,6 +392,7 @@ class DatabaseHelper {
     ''');
 
     await createUserListTables(db);
+    await createTropeTables(db);
 
     // Insert default status values if table is empty
     final statusCount = await db.rawQuery(
@@ -462,6 +463,69 @@ class DatabaseHelper {
       CREATE INDEX IF NOT EXISTS idx_user_list_items_list
       ON user_list_items (list_id)
     ''');
+  }
+
+  static const defaultTropes = <String>[
+    'Enemies to lovers',
+    'Friends to lovers',
+    'Slow burn',
+    'Forced proximity',
+    'Fake dating',
+    'Second chance',
+    'Grumpy x sunshine',
+    'Love triangle',
+    'Forbidden love',
+    'Only one bed',
+    'Marriage of convenience',
+    'Found family',
+    'Chosen one',
+    'Morally grey',
+    'Villain origin story',
+    'Redemption arc',
+    'Quest',
+    'Heist',
+    'Revenge',
+    'Hidden identity',
+    'Lost heir',
+    'Magic academy',
+    'Dark academia',
+    'Portal fantasy',
+    'Time travel',
+    'Unreliable narrator',
+    'Locked-room mystery',
+    'Small town',
+    'Coming of age',
+    'Retelling',
+  ];
+
+  /// Tropes and their book links. The default tropes are seeded only when
+  /// the table is first created, so tropes the user deletes stay deleted.
+  static Future<void> createTropeTables(DatabaseExecutor db) async {
+    final existing = await db.rawQuery(
+      "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'trope'",
+    );
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS trope (
+        trope_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name VARCHAR(50) NOT NULL,
+        subtitle TEXT
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS books_by_trope (
+        books_by_trope_id INTEGER PRIMARY KEY,
+        trope_id INTEGER,
+        book_id INTEGER,
+        FOREIGN KEY (trope_id) REFERENCES trope (trope_id),
+        FOREIGN KEY (book_id) REFERENCES book (book_id),
+        UNIQUE (trope_id, book_id)
+      )
+    ''');
+    if (existing.isEmpty) {
+      for (final name in defaultTropes) {
+        await db.insert('trope', {'name': name});
+      }
+    }
   }
 
   Future<void> _createUniversePlaceholderTables(Database db) async {
@@ -1545,6 +1609,9 @@ class DatabaseHelper {
     }
     if (oldVersion < 46) {
       await createUserListTables(db);
+    }
+    if (oldVersion < 47) {
+      await createTropeTables(db);
     }
   }
 
