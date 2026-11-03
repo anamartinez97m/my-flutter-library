@@ -11,6 +11,12 @@ extension UserListTypeDb on UserListType {
   );
 }
 
+extension UserListTypeCovers on UserListType {
+  /// Book lists show the book's cover; saga lists show one of the saga's.
+  bool get showsCovers =>
+      this == UserListType.book || this == UserListType.saga;
+}
+
 enum UserListSortMode { manual, nameAsc, nameDesc, newest, oldest }
 
 extension UserListSortModeDb on UserListSortMode {
@@ -118,6 +124,10 @@ class UserListEntry {
   /// Read books (status "Yes") for an author/genre/saga entry.
   final int readCount;
 
+  /// Up to `UserListRepository.maxEntryCovers` covers of an author's or
+  /// genre's books.
+  final List<String> covers;
+
   const UserListEntry({
     required this.itemId,
     this.refId,
@@ -129,7 +139,22 @@ class UserListEntry {
     this.addedAt,
     this.bookCount = 0,
     this.readCount = 0,
+    this.covers = const [],
   });
+
+  UserListEntry withCovers(List<String> covers) => UserListEntry(
+    itemId: itemId,
+    refId: refId,
+    refText: refText,
+    title: title,
+    subtitle: subtitle,
+    coverUrl: coverUrl,
+    position: position,
+    addedAt: addedAt,
+    bookCount: bookCount,
+    readCount: readCount,
+    covers: covers,
+  );
 }
 
 /// Something that can be added to a list of the matching type.

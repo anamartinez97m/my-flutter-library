@@ -47,7 +47,7 @@ class _UserListShareScreenState extends State<UserListShareScreen> {
     final urls =
         widget.entries
             .take(_maxShareItems)
-            .map((e) => e.coverUrl)
+            .expand((e) => [e.coverUrl, ...e.covers])
             .whereType<String>()
             .where((u) => u.isNotEmpty)
             .toSet();
@@ -143,7 +143,7 @@ class _UserListShareScreenState extends State<UserListShareScreen> {
                           },
                   icon:
                       _ready && !_sharing
-                          ? const Icon(Icons.ios_share)
+                          ? const Icon(Icons.share)
                           : SizedBox(
                             width: 18,
                             height: 18,
@@ -246,9 +246,13 @@ class UserListShareCard extends StatelessWidget {
                   SizedBox(
                     width: tileWidth,
                     child:
-                        list.type == UserListType.book
-                            ? _BookTile(entry: e, width: tileWidth)
-                            : _NameTile(
+                        list.type.showsCovers
+                            ? _BookTile(
+                              entry: e,
+                              width: tileWidth,
+                              showReadCount: list.type == UserListType.saga,
+                            )
+                            : _PictureTile(
                               entry: e,
                               type: list.type,
                               width: tileWidth,
@@ -258,9 +262,9 @@ class UserListShareCard extends StatelessWidget {
                   SizedBox(
                     width: tileWidth,
                     height:
-                        list.type == UserListType.book
+                        list.type.showsCovers
                             ? tileWidth * 1.5
-                            : tileWidth,
+                            : _PictureTile.pictureSize(list.type, tileWidth),
                     child: Container(
                       decoration: BoxDecoration(
                         color: V2Colors.chip,
@@ -312,8 +316,13 @@ class UserListShareCard extends StatelessWidget {
 class _BookTile extends StatelessWidget {
   final UserListEntry entry;
   final double width;
+  final bool showReadCount;
 
-  const _BookTile({required this.entry, required this.width});
+  const _BookTile({
+    required this.entry,
+    required this.width,
+    this.showReadCount = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -337,59 +346,73 @@ class _BookTile extends StatelessWidget {
             height: 1.2,
           ),
         ),
+        if (showReadCount)
+          Text(
+            AppLocalizations.of(
+              context,
+            )!.list_books_read(entry.readCount, entry.bookCount),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 9, color: V2Colors.textSecondary),
+          ),
       ],
     );
   }
 }
 
-class _NameTile extends StatelessWidget {
+/// Author avatar or genre collage with the name and read count below.
+class _PictureTile extends StatelessWidget {
   final UserListEntry entry;
   final UserListType type;
   final double width;
 
-  const _NameTile({
+  const _PictureTile({
     required this.entry,
     required this.type,
     required this.width,
   });
 
+  static double pictureSize(UserListType type, double width) =>
+      type == UserListType.author ? width * 0.8 : width;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Container(
-      width: width,
-      height: width,
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: V2Colors.chip,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(userListTypeIcon(type), size: 18, color: V2Colors.primary),
-          const SizedBox(height: 4),
-          Text(
-            entry.title,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              height: 1.2,
-              color: V2Colors.textPrimary,
+    final size = pictureSize(type, width);
+    return Column(
+      children: [
+        type == UserListType.author
+            ? UserListAuthorAvatar(
+              name: entry.title,
+              read: entry.readCount,
+              total: entry.bookCount,
+              size: size,
+            )
+            : UserListCoverCollage(
+              covers: entry.covers,
+              type: type,
+              size: size,
             ),
+        const SizedBox(height: 6),
+        Text(
+          entry.title,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            height: 1.2,
           ),
-          const SizedBox(height: 2),
-          Text(
-            l10n.list_books_read(entry.readCount, entry.bookCount),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 9, color: V2Colors.textSecondary),
-          ),
-        ],
-      ),
+        ),
+        Text(
+          l10n.list_books_read(entry.readCount, entry.bookCount),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 9, color: V2Colors.textSecondary),
+        ),
+      ],
     );
   }
 }

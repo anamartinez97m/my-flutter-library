@@ -13,6 +13,18 @@ class UserListRepository {
      INNER JOIN author a ON ba.author_id = a.author_id
      WHERE ba.book_id = b.book_id)''';
 
+  /// Cover of the earliest book in saga [sagaExpr] that has one: ordered by
+  /// `n_saga` (books without a number last), then name.
+  static String _sagaCover(String sagaExpr) => '''
+    (SELECT sb.cover_url FROM book sb
+     WHERE sb.saga = $sagaExpr
+       AND sb.cover_url IS NOT NULL AND sb.cover_url != ''
+     ORDER BY (sb.n_saga IS NULL OR TRIM(sb.n_saga) = ''),
+       CAST(sb.n_saga AS REAL), sb.name
+     LIMIT 1)''';
+
+  static const maxEntryCovers = 4;
+
   // ── Lists ────────────────────────────────────────────────────────────────
 
   Future<List<UserList>> getLists() async {
@@ -125,7 +137,37 @@ class UserListRepository {
               ),
             )
             .toList();
-    return sortEntries(entries, list.sortMode);
+    return sortEntries(await _withCovers(list.type, entries), list.sortMode);
+  }
+
+  /// Adds up to [maxEntryCovers] covers per author/genre, newest books first.
+  Future<List<UserListEntry>> _withCovers(
+    UserListType type,
+    List<UserListEntry> entries,
+  ) async {
+    if (type != UserListType.author && type != UserListType.genre) {
+      return entries;
+    }
+    final keys = entries.map((e) => e.refId).whereType<int>().toSet().toList();
+    if (keys.isEmpty) return entries;
+    final author = type == UserListType.author;
+    final table = author ? 'books_by_author' : 'books_by_genre';
+    final column = author ? 'author_id' : 'genre_id';
+    final rows = await db.rawQuery("""
+      SELECT x.$column AS ref_key, b.cover_url
+      FROM $table x
+      INNER JOIN book b ON b.book_id = x.book_id
+      WHERE x.$column IN (${List.filled(keys.length, '?').join(',')})
+        AND b.cover_url IS NOT NULL AND b.cover_url != ''
+      ORDER BY b.book_id DESC
+    """, keys);
+    final covers = <int, List<String>>{};
+    for (final r in rows) {
+      final list = covers.putIfAbsent(r['ref_key'] as int, () => []);
+      final url = r['cover_url'] as String;
+      if (list.length < maxEntryCovers && !list.contains(url)) list.add(url);
+    }
+    return [for (final e in entries) e.withCovers(covers[e.refId] ?? const [])];
   }
 
   static List<UserListEntry> sortEntries(
@@ -202,6 +244,7 @@ class UserListRepository {
       case UserListType.saga:
         return '''
           SELECT i.*, i.ref_text AS title,
+            ${_sagaCover('i.ref_text')} AS cover_url,
             (SELECT COUNT(*) FROM book b WHERE b.saga = i.ref_text)
               AS book_count,
             (SELECT COUNT(*) FROM book b
