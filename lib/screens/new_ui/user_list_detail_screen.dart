@@ -608,7 +608,7 @@ class _UserListDetailScreenState extends State<UserListDetailScreen> {
           if (!_loading && _entries.isNotEmpty)
             IconButton(
               tooltip: l10n.share_list,
-              icon: const Icon(Icons.ios_share),
+              icon: const Icon(Icons.share),
               onPressed:
                   () => Navigator.push(
                     context,

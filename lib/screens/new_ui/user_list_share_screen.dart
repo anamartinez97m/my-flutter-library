@@ -143,7 +143,7 @@ class _UserListShareScreenState extends State<UserListShareScreen> {
                           },
                   icon:
                       _ready && !_sharing
-                          ? const Icon(Icons.ios_share)
+                          ? const Icon(Icons.share)
                           : SizedBox(
                             width: 18,
                             height: 18,
