@@ -1,7 +1,7 @@
 # Tropes — Implementation Plan
 
 > Source: thread in `#devin-my-book-vault` ("what do you think about adding tropes to the books?").
-> Status: **plan only, no code yet**. Open questions are at the end (§7). New UI only (`lib/screens/new_ui/`, plus the shared Add/Edit Book screens in their new-UI mode).
+> Status: **plan only, no code yet**. All open questions answered (§7). New UI only (`lib/screens/new_ui/`, plus the shared Add/Edit Book screens in their new-UI mode).
 
 ---
 
@@ -20,6 +20,11 @@ Decided in the thread:
 - Start with ~30 common tropes. She can rename or delete them.
 - The Tropes field goes **right after Genres** (Primary Info) in both Add Book and Edit Book.
 - In the Home top-row search, **"Genre" searches genres and tropes together**. There is no separate "Trope" search option.
+- The Home filter sheet's Genre dropdown stays genres only (not in scope for now).
+- Seeded tropes are in English.
+- Stats: books per trope + top tropes by average rating.
+- Hardcover tags that don't match a trope are shown unchecked as "New trope".
+- Bulk Hardcover suggestions are a tool in the Library Tools section.
 
 ---
 
@@ -47,7 +52,7 @@ CREATE TABLE IF NOT EXISTS books_by_trope (
 - Backup/restore and Firebase sync copy the whole SQLite file, so the new tables are included automatically. Restoring an older backup runs `_onUpgrade`, which creates and seeds the tables.
 - `PRAGMA foreign_keys` is OFF, so child rows must be deleted manually: `deleteBook`, `deleteBundleBooks` and the "update = clear links + re-link" branch of `addBook` also clear `books_by_trope`. Deleting a trope in Manage Dropdowns also deletes its `books_by_trope` rows.
 
-Seed list (30, English, see §7 Q1):
+Seed list (30, English):
 
 | | | |
 |---|---|---|
@@ -93,7 +98,7 @@ Seed list (30, English, see §7 Q1):
 ### 1.6 Home (`new_home_screen.dart`, `BookProvider`)
 
 - Top-row search, option **"Genre"** (`case 4` in `BookProvider`): matches if the normalized query is in `genre` **or** `trope`. Same accent-insensitive normalization. The label stays "Genre".
-- Filter sheet "Genre" dropdown: see §7 Q2.
+- Filter sheet "Genre" dropdown: unchanged, genres only (decided: forget it for now).
 
 ### 1.7 Localization
 
@@ -118,7 +123,7 @@ EN/ES ARB strings for: Tropes, Search or add a trope, the Manage Dropdowns label
 
 ### 2.3 Statistics
 - Library breakdown (`library_breakdown_screen.dart`): new "Tropes" breakdown (books per trope), like `_computeGenreCounts`.
-- Top tropes by average rating (read books only, min. 3 books per trope), in Top rankings. See §7 Q3.
+- Top tropes by average rating (read books only, min. 3 books per trope), in Top rankings. (Decided: these two are enough for now.)
 
 ---
 
@@ -135,8 +140,9 @@ Steps:
 1. **Spike first.** She creates a token. I query ~10 of her books and report how many useful tropes Hardcover returns before building the UI.
 2. `lib/services/hardcover_service.dart` (uses the existing `http` package): look up by ISBN, else title + author; read `cached_tags`; return tag names.
 3. Matching: normalize with `TextNormalizer.normalize` (accents, case, `-`/`_` → space) and compare against her trope list plus a small alias map (e.g. `enemies-to-lovers`, `grumpy/sunshine`).
-4. UI: a "Suggest tropes" button next to the Tropes field in Add/Edit Book opens a bottom sheet. Matched tropes are preselected and she confirms. See §7 Q4 for tags that don't match.
-5. The token goes through `--dart-define=HARDCOVER_TOKEN=…` (she adds it herself, never committed). The button is hidden when no token is set, on web, or offline. Error SnackBars for 401 (token expired/reset) and 429 (limit).
+4. UI: a "Suggest tropes" button next to the Tropes field in Add/Edit Book opens a bottom sheet. Matched tropes are preselected and she confirms. Hardcover tags that don't match any of her tropes appear unchecked under "New tropes". Checking one creates the trope and adds it to the book.
+5. **Bulk tool in Library Tools** (`_buildV2LibraryToolsContent` in `settings.dart`): "Suggest tropes for books without tropes". It walks through the books that have no tropes one at a time, showing the same sheet (Apply / Skip / Stop). Requests are paced under the rate limit (60/min, burst 10), and it stops with a message on 429 (daily limit).
+6. The token goes through `--dart-define=HARDCOVER_TOKEN=…` (she adds it herself, never committed). The button is hidden when no token is set, on web, or offline. Error SnackBars for 401 (token expired/reset) and 429 (limit).
 
 ---
 
@@ -163,7 +169,7 @@ Each must still work and **must not drop tropes** when the CSV has no Tropes col
 |---|---|
 | 0 | `database_helper.dart`, `book.dart`, `book_repository.dart`, `book_provider.dart`, `add_book.dart`, `edit_book.dart`, `new_book_detail.dart`, `books_by_genre.dart`, `manage_dropdowns.dart`, `new_home_screen.dart`, `admin_csv_import.dart`, `csv_import_helper.dart`, `settings.dart`, ARB files |
 | 1 | `new_random_filters_screen.dart`, `new_genre_selection_screen.dart`, `searchable_text_builder.dart`, `user_list.dart`, `user_list_repository.dart`, list screens, `library_breakdown_screen.dart`, `top_rankings_screen.dart`, `statistics_calculator.dart` |
-| 1.5 | `hardcover_service.dart` (new), `add_book.dart`, `edit_book.dart`, new suggestion bottom sheet widget |
+| 1.5 | `hardcover_service.dart` (new), `add_book.dart`, `edit_book.dart`, new suggestion bottom sheet widget, `settings.dart` (Library Tools entry) + bulk suggestion screen (new) |
 | 2 | `settings.dart`, `csv_import_helper.dart`, `admin_csv_import.dart`, `book_fields_csv.dart`, `book_repository.dart` |
 
 One PR per phase.
@@ -177,10 +183,10 @@ One PR per phase.
 
 ---
 
-## 7. Open questions
+## 7. Answered questions
 
-1. **Seed language:** the 30 seeded tropes in English (the usual names on BookTok/Goodreads), or in Spanish?
-2. **Home filter sheet:** "genres and tropes in the same top-row filter under genre" is planned for the top-row search. Should the Genre dropdown in the filter sheet also list tropes (e.g. a "Tropes" section below the genres), or stay genres only?
-3. **Stats (Phase 1):** are "books per trope" + "top tropes by average rating" right, or do you want something else (e.g. tropes per year, a trope column in the seasonal card)?
-4. **Hardcover tags that don't match your tropes (Phase 1.5):** ignore them, or show them unchecked under "New tropes" so you can add them to your list in one tap?
-5. **Hardcover bulk (Phase 1.5):** besides the per-book button, do you want an admin tool "Suggest tropes for all books without tropes" (reviewed book by book, ~60 books/min)?
+1. Seed language: **English**.
+2. Home filter sheet Genre dropdown listing tropes: **not for now**. Only the top-row "Genre" search matches tropes.
+3. Stats: **books per trope + top tropes by average rating** are good for now.
+4. Unmatched Hardcover tags: **shown unchecked as "New trope"**, added in one tap.
+5. Bulk Hardcover suggestions: **yes, in the Library Tools section**.
