@@ -932,49 +932,48 @@ class _ListsCardState extends State<_ListsCard> with WidgetsBindingObserver {
 
   Widget _preview(_ListPreview p) {
     if (p.firstEntries.isEmpty) return const SizedBox(height: 44);
-    if (p.list.type.showsCovers) {
-      return SizedBox(
-        height: 44,
-        child: Row(
-          children: [
-            for (final e in p.firstEntries)
-              Padding(
-                padding: const EdgeInsets.only(right: 6),
-                child: UserListCover(
-                  title: e.title,
-                  url: e.coverUrl,
-                  width: 32,
-                  height: 44,
-                ),
-              ),
-          ],
-        ),
-      );
-    }
+    final covers = p.list.type.showsCovers;
+    final itemWidth = covers ? 32.0 : 44.0;
+    const gap = 6.0;
     return SizedBox(
       height: 44,
-      child: Row(
-        children: [
-          for (final e in p.firstEntries)
-            Padding(
-              padding: const EdgeInsets.only(right: 6),
-              child:
-                  p.list.type == UserListType.author
-                      ? UserListAuthorAvatar(
-                        name: e.title,
-                        read: e.readCount,
-                        total: e.bookCount,
-                        size: 44,
-                      )
-                      : UserListCoverCollage(
-                        covers: e.covers,
-                        type: p.list.type,
-                        size: 44,
-                      ),
-            ),
-        ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final fit = ((constraints.maxWidth + gap) / (itemWidth + gap))
+              .floor()
+              .clamp(0, p.firstEntries.length);
+          return Row(
+            children: [
+              for (final (i, e) in p.firstEntries.take(fit).indexed)
+                Padding(
+                  padding: EdgeInsets.only(left: i == 0 ? 0 : gap),
+                  child: _previewItem(p.list.type, e),
+                ),
+            ],
+          );
+        },
       ),
     );
+  }
+
+  Widget _previewItem(UserListType type, UserListEntry e) {
+    if (type.showsCovers) {
+      return UserListCover(
+        title: e.title,
+        url: e.coverUrl,
+        width: 32,
+        height: 44,
+      );
+    }
+    if (type == UserListType.author) {
+      return UserListAuthorAvatar(
+        name: e.title,
+        read: e.readCount,
+        total: e.bookCount,
+        size: 44,
+      );
+    }
+    return UserListCoverCollage(covers: e.covers, type: type, size: 44);
   }
 
   @override
