@@ -953,16 +953,24 @@ class _ListsCardState extends State<_ListsCard> with WidgetsBindingObserver {
     }
     return SizedBox(
       height: 44,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.end,
+      child: Row(
         children: [
-          for (final e in p.firstEntries.take(2))
-            Text(
-              e.title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 12, color: V2Colors.textSecondary),
+          for (final e in p.firstEntries)
+            Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child:
+                  p.list.type == UserListType.author
+                      ? UserListAuthorAvatar(
+                        name: e.title,
+                        read: e.readCount,
+                        total: e.bookCount,
+                        size: 44,
+                      )
+                      : UserListCoverCollage(
+                        covers: e.covers,
+                        type: p.list.type,
+                        size: 44,
+                      ),
             ),
         ],
       ),

@@ -76,6 +76,232 @@ class UserListCover extends StatelessWidget {
   }
 }
 
+/// Thin read/total bar used by genre entries.
+class UserListReadBar extends StatelessWidget {
+  final int read;
+  final int total;
+  final double width;
+
+  const UserListReadBar({
+    super.key,
+    required this.read,
+    required this.total,
+    this.width = 120,
+  });
+
+  @override
+  Widget build(BuildContext context) => ClipRRect(
+    borderRadius: BorderRadius.circular(2),
+    child: SizedBox(
+      width: width,
+      height: 4,
+      child: LinearProgressIndicator(
+        value: total == 0 ? 0 : read / total,
+        backgroundColor: V2Colors.chip,
+        color: V2Colors.primary,
+      ),
+    ),
+  );
+}
+
+/// Author initials inside a ring that fills with the share of books read.
+class UserListAuthorAvatar extends StatelessWidget {
+  final String name;
+  final int read;
+  final int total;
+  final double size;
+
+  const UserListAuthorAvatar({
+    super.key,
+    required this.name,
+    required this.read,
+    required this.total,
+    this.size = 48,
+  });
+
+  static String initials(String name) {
+    final parts =
+        name
+            .replaceAll('.', ' ')
+            .split(RegExp(r'\s+'))
+            .where((p) => p.isNotEmpty)
+            .toList();
+    if (parts.isEmpty) return '?';
+    final first = parts.first.characters.first;
+    final last = parts.length > 1 ? parts.last.characters.first : '';
+    return (first + last).toUpperCase();
+  }
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: size,
+    height: size,
+    child: Stack(
+      fit: StackFit.expand,
+      children: [
+        CircularProgressIndicator(
+          value: total == 0 ? 0 : read / total,
+          strokeWidth: size / 16,
+          backgroundColor: V2Colors.chip,
+          color: V2Colors.primary,
+        ),
+        Padding(
+          padding: EdgeInsets.all(size / 10),
+          child: Container(
+            decoration: BoxDecoration(
+              color: V2Colors.primaryAlt,
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Padding(
+                padding: const EdgeInsets.all(2),
+                child: Text(
+                  initials(name),
+                  style: TextStyle(
+                    color: V2Colors.buttonText,
+                    fontWeight: FontWeight.w700,
+                    fontSize: size * 0.3,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+/// Up to three small covers overlapping each other.
+class UserListCoverFan extends StatelessWidget {
+  final List<String> covers;
+  final String title;
+
+  const UserListCoverFan({
+    super.key,
+    required this.covers,
+    required this.title,
+  });
+
+  static const double _width = 26;
+  static const double _height = 38;
+  static const double _step = 14;
+
+  @override
+  Widget build(BuildContext context) {
+    final shown = covers.take(3).toList();
+    if (shown.isEmpty) return const SizedBox.shrink();
+    return SizedBox(
+      width: _width + _step * (shown.length - 1),
+      height: _height,
+      child: Stack(
+        children: [
+          for (var i = 0; i < shown.length; i++)
+            Positioned(
+              left: _step * i,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: V2Colors.background, width: 1.5),
+                ),
+                child: UserListCover(
+                  title: title,
+                  url: shown[i],
+                  width: _width - 3,
+                  height: _height - 3,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Square 2×2 collage of covers; one cover fills the square, none shows the
+/// type icon.
+class UserListCoverCollage extends StatelessWidget {
+  final List<String> covers;
+  final UserListType type;
+  final double size;
+
+  const UserListCoverCollage({
+    super.key,
+    required this.covers,
+    required this.type,
+    this.size = 48,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final radius = BorderRadius.circular(size / 6);
+    Widget empty(double s) =>
+        Container(width: s, height: s, color: V2Colors.chip);
+    Widget image(String url, double s) => Image.network(
+      url,
+      width: s,
+      height: s,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => empty(s),
+    );
+    if (covers.isEmpty) {
+      return Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(color: V2Colors.chip, borderRadius: radius),
+        child: Icon(
+          userListTypeIcon(type),
+          size: size * 0.42,
+          color: V2Colors.primary,
+        ),
+      );
+    }
+    if (covers.length == 1) {
+      return ClipRRect(borderRadius: radius, child: image(covers.first, size));
+    }
+    final gap = size / 24;
+    final cell = (size - gap) / 2;
+    Widget tile(int i) =>
+        i < covers.length ? image(covers[i], cell) : empty(cell);
+    return ClipRRect(
+      borderRadius: radius,
+      child: SizedBox(
+        width: size,
+        height: size,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            for (final row in const [0, 2])
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [tile(row), tile(row + 1)],
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Leading picture of a list entry: cover, author avatar or genre collage.
+Widget userListEntryLeading(UserListType type, UserListEntry e) {
+  switch (type) {
+    case UserListType.book:
+    case UserListType.saga:
+      return UserListCover(title: e.title, url: e.coverUrl);
+    case UserListType.author:
+      return UserListAuthorAvatar(
+        name: e.title,
+        read: e.readCount,
+        total: e.bookCount,
+      );
+    case UserListType.genre:
+      return UserListCoverCollage(covers: e.covers, type: type);
+  }
+}
+
 IconData userListTypeIcon(UserListType type) {
   switch (type) {
     case UserListType.book:
@@ -88,13 +314,6 @@ IconData userListTypeIcon(UserListType type) {
       return Icons.category_outlined;
   }
 }
-
-Widget _typeAvatar(UserListType type) => Container(
-  width: 40,
-  height: 40,
-  decoration: BoxDecoration(color: V2Colors.chip, shape: BoxShape.circle),
-  child: Icon(userListTypeIcon(type), size: 20, color: V2Colors.primary),
-);
 
 class UserListDetailScreen extends StatefulWidget {
   final UserList list;
@@ -290,10 +509,7 @@ class _UserListDetailScreenState extends State<UserListDetailScreen> {
           padding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
           child: Row(
             children: [
-              if (_list.type.showsCovers)
-                UserListCover(title: e.title, url: e.coverUrl)
-              else
-                _typeAvatar(_list.type),
+              userListEntryLeading(_list.type, e),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -317,9 +533,16 @@ class _UserListDetailScreenState extends State<UserListDetailScreen> {
                         ),
                       ),
                     ],
+                    if (_list.type == UserListType.genre ||
+                        _list.type == UserListType.saga) ...[
+                      const SizedBox(height: 6),
+                      UserListReadBar(read: e.readCount, total: e.bookCount),
+                    ],
                   ],
                 ),
               ),
+              if (_list.type == UserListType.author)
+                UserListCoverFan(covers: e.covers, title: e.title),
               IconButton(
                 tooltip: l10n.remove_from_list,
                 onPressed: () => _remove(e),
@@ -602,7 +825,7 @@ class _UserListItemPickerScreenState extends State<UserListItemPickerScreen> {
                       }),
             ),
             const SizedBox(width: 4),
-            if (widget.list.type.showsCovers) ...[
+            if (widget.list.type == UserListType.book) ...[
               UserListCover(
                 title: c.title,
                 url: c.coverUrl,

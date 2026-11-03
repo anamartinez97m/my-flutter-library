@@ -23,6 +23,8 @@ class UserListRepository {
        CAST(sb.n_saga AS REAL), sb.name
      LIMIT 1)''';
 
+  static const maxEntryCovers = 4;
+
   // ── Lists ────────────────────────────────────────────────────────────────
 
   Future<List<UserList>> getLists() async {
@@ -135,7 +137,37 @@ class UserListRepository {
               ),
             )
             .toList();
-    return sortEntries(entries, list.sortMode);
+    return sortEntries(await _withCovers(list.type, entries), list.sortMode);
+  }
+
+  /// Adds up to [maxEntryCovers] covers per author/genre, newest books first.
+  Future<List<UserListEntry>> _withCovers(
+    UserListType type,
+    List<UserListEntry> entries,
+  ) async {
+    if (type != UserListType.author && type != UserListType.genre) {
+      return entries;
+    }
+    final keys = entries.map((e) => e.refId).whereType<int>().toSet().toList();
+    if (keys.isEmpty) return entries;
+    final author = type == UserListType.author;
+    final table = author ? 'books_by_author' : 'books_by_genre';
+    final column = author ? 'author_id' : 'genre_id';
+    final rows = await db.rawQuery("""
+      SELECT x.$column AS ref_key, b.cover_url
+      FROM $table x
+      INNER JOIN book b ON b.book_id = x.book_id
+      WHERE x.$column IN (${List.filled(keys.length, '?').join(',')})
+        AND b.cover_url IS NOT NULL AND b.cover_url != ''
+      ORDER BY b.book_id DESC
+    """, keys);
+    final covers = <int, List<String>>{};
+    for (final r in rows) {
+      final list = covers.putIfAbsent(r['ref_key'] as int, () => []);
+      final url = r['cover_url'] as String;
+      if (list.length < maxEntryCovers && !list.contains(url)) list.add(url);
+    }
+    return [for (final e in entries) e.withCovers(covers[e.refId] ?? const [])];
   }
 
   static List<UserListEntry> sortEntries(
@@ -326,23 +358,20 @@ class UserListRepository {
         return _sortCandidates(rows.map(_idCandidate));
       case UserListType.saga:
         final rows = await db.rawQuery('''
-          SELECT t.name AS name, SUM(t.n) AS book_count,
-            ${_sagaCover('t.name')} AS cover_url
-          FROM (
+          SELECT name, SUM(n) AS book_count FROM (
             SELECT b.saga AS name, 1 AS n FROM book b
             WHERE b.saga IS NOT NULL AND b.saga != ''
             UNION ALL
             SELECT m.value AS name, 0 AS n FROM dropdown_subtitle_metadata m
             WHERE m.category = 'saga' AND m.value IS NOT NULL AND m.value != ''
-          ) t
-          GROUP BY t.name
+          )
+          GROUP BY name
         ''');
         return _sortCandidates(
           rows.map(
             (r) => UserListCandidate(
               refText: r['name'] as String,
               title: r['name'] as String,
-              coverUrl: r['cover_url'] as String?,
               bookCount: (r['book_count'] as num?)?.toInt() ?? 0,
             ),
           ),
