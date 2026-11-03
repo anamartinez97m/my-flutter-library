@@ -932,7 +932,7 @@ class _ListsCardState extends State<_ListsCard> with WidgetsBindingObserver {
 
   Widget _preview(_ListPreview p) {
     if (p.firstEntries.isEmpty) return const SizedBox(height: 44);
-    if (p.list.type == UserListType.book) {
+    if (p.list.type.showsCovers) {
       return SizedBox(
         height: 44,
         child: Row(

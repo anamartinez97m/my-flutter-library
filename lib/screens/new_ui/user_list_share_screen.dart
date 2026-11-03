@@ -246,8 +246,12 @@ class UserListShareCard extends StatelessWidget {
                   SizedBox(
                     width: tileWidth,
                     child:
-                        list.type == UserListType.book
-                            ? _BookTile(entry: e, width: tileWidth)
+                        list.type.showsCovers
+                            ? _BookTile(
+                              entry: e,
+                              width: tileWidth,
+                              showReadCount: list.type == UserListType.saga,
+                            )
                             : _NameTile(
                               entry: e,
                               type: list.type,
@@ -257,10 +261,7 @@ class UserListShareCard extends StatelessWidget {
                 if (hidden > 0)
                   SizedBox(
                     width: tileWidth,
-                    height:
-                        list.type == UserListType.book
-                            ? tileWidth * 1.5
-                            : tileWidth,
+                    height: list.type.showsCovers ? tileWidth * 1.5 : tileWidth,
                     child: Container(
                       decoration: BoxDecoration(
                         color: V2Colors.chip,
@@ -312,8 +313,13 @@ class UserListShareCard extends StatelessWidget {
 class _BookTile extends StatelessWidget {
   final UserListEntry entry;
   final double width;
+  final bool showReadCount;
 
-  const _BookTile({required this.entry, required this.width});
+  const _BookTile({
+    required this.entry,
+    required this.width,
+    this.showReadCount = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -337,6 +343,15 @@ class _BookTile extends StatelessWidget {
             height: 1.2,
           ),
         ),
+        if (showReadCount)
+          Text(
+            AppLocalizations.of(
+              context,
+            )!.list_books_read(entry.readCount, entry.bookCount),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 9, color: V2Colors.textSecondary),
+          ),
       ],
     );
   }

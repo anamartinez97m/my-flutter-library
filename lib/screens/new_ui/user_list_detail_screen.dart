@@ -290,7 +290,7 @@ class _UserListDetailScreenState extends State<UserListDetailScreen> {
           padding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
           child: Row(
             children: [
-              if (_list.type == UserListType.book)
+              if (_list.type.showsCovers)
                 UserListCover(title: e.title, url: e.coverUrl)
               else
                 _typeAvatar(_list.type),
@@ -602,7 +602,7 @@ class _UserListItemPickerScreenState extends State<UserListItemPickerScreen> {
                       }),
             ),
             const SizedBox(width: 4),
-            if (widget.list.type == UserListType.book) ...[
+            if (widget.list.type.showsCovers) ...[
               UserListCover(
                 title: c.title,
                 url: c.coverUrl,

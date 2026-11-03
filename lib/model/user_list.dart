@@ -11,6 +11,12 @@ extension UserListTypeDb on UserListType {
   );
 }
 
+extension UserListTypeCovers on UserListType {
+  /// Book lists show the book's cover; saga lists show one of the saga's.
+  bool get showsCovers =>
+      this == UserListType.book || this == UserListType.saga;
+}
+
 enum UserListSortMode { manual, nameAsc, nameDesc, newest, oldest }
 
 extension UserListSortModeDb on UserListSortMode {

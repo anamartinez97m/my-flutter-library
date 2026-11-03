@@ -13,6 +13,16 @@ class UserListRepository {
      INNER JOIN author a ON ba.author_id = a.author_id
      WHERE ba.book_id = b.book_id)''';
 
+  /// Cover of the earliest book in saga [sagaExpr] that has one: ordered by
+  /// `n_saga` (books without a number last), then name.
+  static String _sagaCover(String sagaExpr) => '''
+    (SELECT sb.cover_url FROM book sb
+     WHERE sb.saga = $sagaExpr
+       AND sb.cover_url IS NOT NULL AND sb.cover_url != ''
+     ORDER BY (sb.n_saga IS NULL OR TRIM(sb.n_saga) = ''),
+       CAST(sb.n_saga AS REAL), sb.name
+     LIMIT 1)''';
+
   // ── Lists ────────────────────────────────────────────────────────────────
 
   Future<List<UserList>> getLists() async {
@@ -202,6 +212,7 @@ class UserListRepository {
       case UserListType.saga:
         return '''
           SELECT i.*, i.ref_text AS title,
+            ${_sagaCover('i.ref_text')} AS cover_url,
             (SELECT COUNT(*) FROM book b WHERE b.saga = i.ref_text)
               AS book_count,
             (SELECT COUNT(*) FROM book b
@@ -315,20 +326,23 @@ class UserListRepository {
         return _sortCandidates(rows.map(_idCandidate));
       case UserListType.saga:
         final rows = await db.rawQuery('''
-          SELECT name, SUM(n) AS book_count FROM (
+          SELECT t.name AS name, SUM(t.n) AS book_count,
+            ${_sagaCover('t.name')} AS cover_url
+          FROM (
             SELECT b.saga AS name, 1 AS n FROM book b
             WHERE b.saga IS NOT NULL AND b.saga != ''
             UNION ALL
             SELECT m.value AS name, 0 AS n FROM dropdown_subtitle_metadata m
             WHERE m.category = 'saga' AND m.value IS NOT NULL AND m.value != ''
-          )
-          GROUP BY name
+          ) t
+          GROUP BY t.name
         ''');
         return _sortCandidates(
           rows.map(
             (r) => UserListCandidate(
               refText: r['name'] as String,
               title: r['name'] as String,
+              coverUrl: r['cover_url'] as String?,
               bookCount: (r['book_count'] as num?)?.toInt() ?? 0,
             ),
           ),
