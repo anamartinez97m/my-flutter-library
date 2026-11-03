@@ -1614,15 +1614,23 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       children: [
                         ..._v2PrimaryInfo(context, l10n),
                         _v2Divider(),
+                        ..._v2Saga(context, l10n),
+                        _v2Divider(),
+                        ..._v2BookDetails(context, l10n),
+                        _v2Divider(),
                         ..._v2Identification(context, l10n),
                         _v2Divider(),
                         ..._v2FormatSection(context, l10n),
                         _v2Divider(),
                         ..._v2Acquisition(context, l10n),
                         _v2Divider(),
+                        ..._v2Reading(context, l10n),
+                        _v2Divider(),
                         ..._v2Classification(context, l10n),
                         _v2Divider(),
                         ..._v2BookListsSection(context, l10n),
+                        _v2Divider(),
+                        ..._v2Bundle(context, l10n),
                         _v2Divider(),
                         ..._v2Notes(context, l10n),
                         const SizedBox(height: 16),
@@ -1679,6 +1687,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         },
         validator: (value) => value == null ? l10n.status_is_required : null,
       ),
+      const SizedBox(height: 10),
       if (_selectedStatusValue == 'Repeated') ...[
         const SizedBox(height: 10),
         FutureBuilder<List<Book>>(
@@ -1772,7 +1781,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
               _selectedGenres = v;
             }),
       ),
-      const SizedBox(height: 10),
+    ];
+  }
+
+  List<Widget> _v2Saga(BuildContext context, AppLocalizations l10n) {
+    return [
+      _v2SectionHeading(l10n.saga),
       AutocompleteTextField(
         controller: _sagaController,
         labelText: l10n.saga,
@@ -1833,47 +1847,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
     ];
   }
 
-  List<Widget> _v2Identification(BuildContext context, AppLocalizations l10n) {
+  List<Widget> _v2BookDetails(BuildContext context, AppLocalizations l10n) {
     return [
-      _v2SectionHeading('Identification'),
-      TextFormField(
-        controller: _isbnController,
-        decoration: _v2Deco(
-          l10n.isbn,
-          Icons.numbers,
-          suffix: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _isFetchingMetadata
-                  ? const Padding(
-                    padding: EdgeInsets.all(12),
-                    child: SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                  )
-                  : IconButton(
-                    icon: const Icon(Icons.search),
-                    onPressed: _fetchMetadataByIsbn,
-                    tooltip: l10n.fetch_book_info,
-                  ),
-              IconButton(
-                icon: const Icon(Icons.qr_code_scanner_outlined),
-                onPressed: _scanISBN,
-                tooltip: l10n.scan_isbn,
-              ),
-            ],
-          ),
-        ),
-        keyboardType: TextInputType.number,
-      ),
-      const SizedBox(height: 10),
-      TextFormField(
-        controller: _asinController,
-        decoration: _v2Deco(l10n.asin, Icons.qr_code),
-      ),
-      const SizedBox(height: 10),
+      _v2SectionHeading('Book Details'),
       ChipAutocompleteField(
         labelText: l10n.editorial,
         prefixIcon: Icons.business,
@@ -2018,6 +1994,88 @@ class _AddBookScreenState extends State<AddBookScreen> {
           ),
         ],
       ],
+      const SizedBox(height: 10),
+      TextFormField(
+        controller: _pagesController,
+        decoration: _v2Deco(l10n.pages, Icons.description),
+        keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      ),
+      if (_pagesFetchedFromApi)
+        Padding(
+          padding: const EdgeInsets.only(top: 4, left: 12),
+          child: Text(
+            l10n.review_pages_warning,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.red.shade400,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ),
+      const SizedBox(height: 10),
+      DropdownButtonFormField<int>(
+        value: _selectedLanguageId,
+        decoration: _v2Deco(l10n.language, Icons.language),
+        dropdownColor: V2Colors.surface,
+        style: TextStyle(fontFamily: V2Typography.family, color: _kPrimary),
+        items:
+            _languageList
+                .map(
+                  (lang) => DropdownMenuItem<int>(
+                    value: lang['language_id'] as int,
+                    child: Text(lang['name'] as String),
+                  ),
+                )
+                .toList(),
+        onChanged:
+            (v) => setState(() {
+              _selectedLanguageId = v;
+            }),
+      ),
+    ];
+  }
+
+  List<Widget> _v2Identification(BuildContext context, AppLocalizations l10n) {
+    return [
+      _v2SectionHeading('Identification'),
+      TextFormField(
+        controller: _isbnController,
+        decoration: _v2Deco(
+          l10n.isbn,
+          Icons.numbers,
+          suffix: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _isFetchingMetadata
+                  ? const Padding(
+                    padding: EdgeInsets.all(12),
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  )
+                  : IconButton(
+                    icon: const Icon(Icons.search),
+                    onPressed: _fetchMetadataByIsbn,
+                    tooltip: l10n.fetch_book_info,
+                  ),
+              IconButton(
+                icon: const Icon(Icons.qr_code_scanner_outlined),
+                onPressed: _scanISBN,
+                tooltip: l10n.scan_isbn,
+              ),
+            ],
+          ),
+        ),
+        keyboardType: TextInputType.number,
+      ),
+      const SizedBox(height: 10),
+      TextFormField(
+        controller: _asinController,
+        decoration: _v2Deco(l10n.asin, Icons.qr_code),
+      ),
     ];
   }
 
@@ -2068,46 +2126,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
               _selectedFormatSagaId = v;
             }),
       ),
-      const SizedBox(height: 10),
-      TextFormField(
-        controller: _pagesController,
-        decoration: _v2Deco(l10n.pages, Icons.description),
-        keyboardType: TextInputType.number,
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-      ),
-      if (_pagesFetchedFromApi)
-        Padding(
-          padding: const EdgeInsets.only(top: 4, left: 12),
-          child: Text(
-            l10n.review_pages_warning,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.red.shade400,
-              fontStyle: FontStyle.italic,
-            ),
-          ),
-        ),
-      const SizedBox(height: 10),
-      DropdownButtonFormField<int>(
-        value: _selectedLanguageId,
-        decoration: _v2Deco(l10n.language, Icons.language),
-        dropdownColor: V2Colors.surface,
-        style: TextStyle(fontFamily: V2Typography.family, color: _kPrimary),
-        items:
-            _languageList
-                .map(
-                  (lang) => DropdownMenuItem<int>(
-                    value: lang['language_id'] as int,
-                    child: Text(lang['name'] as String),
-                  ),
-                )
-                .toList(),
-        onChanged:
-            (v) => setState(() {
-              _selectedLanguageId = v;
-            }),
-      ),
-      const SizedBox(height: 10),
+    ];
+  }
+
+  List<Widget> _v2Acquisition(BuildContext context, AppLocalizations l10n) {
+    return [
+      _v2SectionHeading('Acquisition'),
       TextFormField(
         controller: _priceController,
         decoration: _v2Deco(
@@ -2120,12 +2144,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
           FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
         ],
       ),
-    ];
-  }
-
-  List<Widget> _v2Acquisition(BuildContext context, AppLocalizations l10n) {
-    return [
-      _v2SectionHeading('Acquisition'),
+      const SizedBox(height: 10),
       InkWell(
         onTap: _showAcquiredDatePicker,
         child: InputDecorator(
@@ -2175,6 +2194,98 @@ class _AddBookScreenState extends State<AddBookScreen> {
               _selectedLoaned = v;
             }),
       ),
+    ];
+  }
+
+  List<Widget> _v2Reading(BuildContext context, AppLocalizations l10n) {
+    return [
+      _v2SectionHeading('Reading'),
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.times_read,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: _kPrimary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              IconButton(
+                onPressed:
+                    _readCount > 0
+                        ? () {
+                          setState(() {
+                            _readCount--;
+                          });
+                        }
+                        : null,
+                icon: const Icon(Icons.remove),
+                style: IconButton.styleFrom(
+                  backgroundColor: V2Colors.primary.withValues(alpha: 0.1),
+                  foregroundColor: _kPrimary,
+                  disabledBackgroundColor: V2Colors.control,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  border: Border.all(color: _kNotesBorder),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '$_readCount',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: V2Colors.textPrimary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    _readCount++;
+                  });
+                },
+                icon: const Icon(Icons.add),
+                style: IconButton.styleFrom(
+                  backgroundColor: _kPrimary,
+                  foregroundColor: V2Colors.onPrimary,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      if (!_isBundle) ...[
+        const SizedBox(height: 10),
+        ReadDatesWidget(
+          bookId: 0,
+          initialReadDates: _readDates,
+          onChanged: (readDates) {
+            setState(() {
+              _readDates = readDates;
+              _readCount =
+                  readDates
+                      .where(
+                        (rd) =>
+                            rd.dateFinished != null &&
+                            rd.dateFinished!.isNotEmpty,
+                      )
+                      .length;
+            });
+          },
+        ),
+      ],
     ];
   }
 
@@ -2345,91 +2456,6 @@ class _AddBookScreenState extends State<AddBookScreen> {
           ],
         ),
       ),
-      const SizedBox(height: 10),
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.times_read,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: _kPrimary,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              IconButton(
-                onPressed:
-                    _readCount > 0
-                        ? () {
-                          setState(() {
-                            _readCount--;
-                          });
-                        }
-                        : null,
-                icon: const Icon(Icons.remove),
-                style: IconButton.styleFrom(
-                  backgroundColor: V2Colors.primary.withValues(alpha: 0.1),
-                  foregroundColor: _kPrimary,
-                  disabledBackgroundColor: V2Colors.control,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  border: Border.all(color: _kNotesBorder),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  '$_readCount',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: V2Colors.textPrimary,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    _readCount++;
-                  });
-                },
-                icon: const Icon(Icons.add),
-                style: IconButton.styleFrom(
-                  backgroundColor: _kPrimary,
-                  foregroundColor: V2Colors.onPrimary,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-      _v2Divider(),
-      _v2SectionHeading(l10n.bundle_book_details),
-      BundleInputWidgetV2(
-        initialIsBundle: _isBundle,
-        initialBundleCount: _bundleCount,
-        initialBundleBooks: _bundleBooks,
-        statusOptions: _statusList,
-        titleColor: _kPrimary,
-        showDetailsTitle: false,
-        useNewUi: true,
-        onChanged: (isBundle, count, books) {
-          setState(() {
-            _isBundle = isBundle;
-            _bundleCount = count;
-            _bundleBooks = books;
-          });
-        },
-      ),
     ];
   }
 
@@ -2534,29 +2560,31 @@ class _AddBookScreenState extends State<AddBookScreen> {
     ];
   }
 
+  List<Widget> _v2Bundle(BuildContext context, AppLocalizations l10n) {
+    return [
+      _v2SectionHeading(l10n.bundle_book_details),
+      BundleInputWidgetV2(
+        initialIsBundle: _isBundle,
+        initialBundleCount: _bundleCount,
+        initialBundleBooks: _bundleBooks,
+        statusOptions: _statusList,
+        titleColor: _kPrimary,
+        showDetailsTitle: false,
+        useNewUi: true,
+        onChanged: (isBundle, count, books) {
+          setState(() {
+            _isBundle = isBundle;
+            _bundleCount = count;
+            _bundleBooks = books;
+          });
+        },
+      ),
+    ];
+  }
+
   List<Widget> _v2Notes(BuildContext context, AppLocalizations l10n) {
     return [
       _v2SectionHeading(l10n.notes),
-      if (!_isBundle) ...[
-        ReadDatesWidget(
-          bookId: 0,
-          initialReadDates: _readDates,
-          onChanged: (readDates) {
-            setState(() {
-              _readDates = readDates;
-              _readCount =
-                  readDates
-                      .where(
-                        (rd) =>
-                            rd.dateFinished != null &&
-                            rd.dateFinished!.isNotEmpty,
-                      )
-                      .length;
-            });
-          },
-        ),
-        const SizedBox(height: 10),
-      ],
       TextFormField(
         controller: _myReviewController,
         decoration: _v2Deco(

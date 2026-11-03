@@ -1778,7 +1778,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       });
                     },
                   ),
-                  const SizedBox(height: 16),
+
+                  if (widget.useNewUi) ...[
+                    _v2Divider(),
+                    _v2SectionHeading(AppLocalizations.of(context)!.saga),
+                  ] else
+                    const SizedBox(height: 16),
 
                   // Saga field
                   AutocompleteTextField(
@@ -1860,61 +1865,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
                   if (widget.useNewUi) ...[
                     _v2Divider(),
-                    _v2SectionHeading('Identification'),
+                    _v2SectionHeading('Book Details'),
                   ] else
                     const SizedBox(height: 16),
-
-                  // ISBN field
-                  TextFormField(
-                    controller: _isbnController,
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.isbn,
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.numbers),
-                      suffixIcon: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _isFetchingMetadata
-                              ? const Padding(
-                                padding: EdgeInsets.all(12.0),
-                                child: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                ),
-                              )
-                              : IconButton(
-                                icon: const Icon(Icons.search),
-                                onPressed: _fetchMetadataByIsbn,
-                                tooltip:
-                                    AppLocalizations.of(
-                                      context,
-                                    )!.fetch_book_info,
-                              ),
-                          IconButton(
-                            icon: const Icon(Icons.qr_code_scanner_outlined),
-                            onPressed: () => _scanISBN(),
-                            tooltip: AppLocalizations.of(context)!.scan_isbn,
-                          ),
-                        ],
-                      ),
-                    ),
-                    keyboardType: TextInputType.number,
-                  ),
-                  const SizedBox(height: 16),
-
-                  // ASIN field
-                  TextFormField(
-                    controller: _asinController,
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.asin,
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.qr_code),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
 
                   // Editorial field (single selection displayed as chip)
                   ChipAutocompleteField(
@@ -2115,11 +2068,121 @@ class _EditBookScreenState extends State<EditBookScreen> {
                         ],
                       ],
                     ),
+                  const SizedBox(height: 16),
+
+                  // Pages field
+                  TextFormField(
+                    controller: _pagesController,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.pages,
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.description),
+                    ),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  ),
+                  if (_pagesFetchedFromApi)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, left: 12),
+                      child: Text(
+                        AppLocalizations.of(context)!.review_pages_warning,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.error,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: 16),
+
+                  // Language dropdown
+                  DropdownButtonFormField<int>(
+                    value: _selectedLanguageId,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.language,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.language),
+                    ),
+                    style: TextStyle(
+                      fontFamily: V2Typography.family,
+                      color: V2Colors.primary,
+                    ),
+                    items:
+                        _languageList.map((lang) {
+                          return DropdownMenuItem<int>(
+                            value: lang['language_id'] as int,
+                            child: Text(lang['name'] as String),
+                          );
+                        }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedLanguageId = value;
+                      });
+                    },
+                  ),
+
+                  if (widget.useNewUi) ...[
+                    _v2Divider(),
+                    _v2SectionHeading('Identification'),
+                  ] else
+                    const SizedBox(height: 16),
+
+                  // ISBN field
+                  TextFormField(
+                    controller: _isbnController,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.isbn,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.numbers),
+                      suffixIcon: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _isFetchingMetadata
+                              ? const Padding(
+                                padding: EdgeInsets.all(12.0),
+                                child: SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              )
+                              : IconButton(
+                                icon: const Icon(Icons.search),
+                                onPressed: _fetchMetadataByIsbn,
+                                tooltip:
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.fetch_book_info,
+                              ),
+                          IconButton(
+                            icon: const Icon(Icons.qr_code_scanner_outlined),
+                            onPressed: () => _scanISBN(),
+                            tooltip: AppLocalizations.of(context)!.scan_isbn,
+                          ),
+                        ],
+                      ),
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // ASIN field
+                  TextFormField(
+                    controller: _asinController,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.asin,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.qr_code),
+                    ),
+                  ),
 
                   if (widget.useNewUi) ...[
                     _v2Divider(),
                     _v2SectionHeading('Format'),
-                  ],
+                  ] else
+                    const SizedBox(height: 16),
 
                   // Format dropdown
                   DropdownButtonFormField<int>(
@@ -2178,59 +2241,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       });
                     },
                   ),
-                  const SizedBox(height: 16),
 
-                  // Pages field
-                  TextFormField(
-                    controller: _pagesController,
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.pages,
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.description),
-                    ),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  ),
-                  if (_pagesFetchedFromApi)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4, left: 12),
-                      child: Text(
-                        AppLocalizations.of(context)!.review_pages_warning,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Theme.of(context).colorScheme.error,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ),
-                  const SizedBox(height: 16),
-
-                  // Language dropdown
-                  DropdownButtonFormField<int>(
-                    value: _selectedLanguageId,
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.language,
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.language),
-                    ),
-                    style: TextStyle(
-                      fontFamily: V2Typography.family,
-                      color: V2Colors.primary,
-                    ),
-                    items:
-                        _languageList.map((lang) {
-                          return DropdownMenuItem<int>(
-                            value: lang['language_id'] as int,
-                            child: Text(lang['name'] as String),
-                          );
-                        }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedLanguageId = value;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 16),
+                  if (widget.useNewUi) ...[
+                    _v2Divider(),
+                    _v2SectionHeading('Acquisition'),
+                  ] else
+                    const SizedBox(height: 16),
 
                   // Price field
                   TextFormField(
@@ -2250,12 +2266,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       ),
                     ],
                   ),
-
-                  if (widget.useNewUi) ...[
-                    _v2Divider(),
-                    _v2SectionHeading('Acquisition'),
-                  ] else
-                    const SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
                   // Acquired Date field
                   InkWell(
@@ -2343,7 +2354,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
                   if (widget.useNewUi) ...[
                     _v2Divider(),
-                    _v2SectionHeading('Classification'),
+                    _v2SectionHeading('Reading'),
                   ] else ...[
                     const SizedBox(height: 32),
                     Text(
@@ -2355,6 +2366,118 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     ),
                     const SizedBox(height: 16),
                   ],
+
+                  // Read Count with - and + buttons
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.times_read,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          // Minus button
+                          IconButton(
+                            onPressed:
+                                _readCount > 0
+                                    ? () {
+                                      setState(() {
+                                        _readCount--;
+                                      });
+                                    }
+                                    : null,
+                            icon: const Icon(Icons.remove),
+                            style: IconButton.styleFrom(
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.primary.withValues(alpha: 0.1),
+                              foregroundColor:
+                                  Theme.of(context).colorScheme.primary,
+                              disabledBackgroundColor:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainerHighest,
+                              disabledForegroundColor:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.outlineVariant,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              '$_readCount',
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          // Plus button
+                          IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _readCount++;
+                              });
+                            },
+                            icon: const Icon(Icons.add),
+                            style: IconButton.styleFrom(
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.primary,
+                              foregroundColor:
+                                  Theme.of(context).colorScheme.onPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Reading Sessions (hidden for bundles)
+                  if (!_isBundle)
+                    ReadDatesWidget(
+                      bookId: widget.book.bookId!,
+                      initialReadDates: _readDates,
+                      onChanged: (readDates) {
+                        setState(() {
+                          _readDates = readDates;
+                          // Update read count based on finished sessions
+                          _readCount =
+                              readDates
+                                  .where(
+                                    (rd) =>
+                                        rd.dateFinished != null &&
+                                        rd.dateFinished!.isNotEmpty,
+                                  )
+                                  .length;
+                        });
+                      },
+                    ),
+                  if (!_isBundle) const SizedBox(height: 16),
+
+                  if (widget.useNewUi) ...[
+                    _v2Divider(),
+                    _v2SectionHeading('Classification'),
+                  ] else
+                    const SizedBox(height: 16),
 
                   // Custom Rating Fields Section
                   Card(
@@ -2568,118 +2691,6 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
-
-                  // Read Count with - and + buttons
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        AppLocalizations.of(context)!.times_read,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          // Minus button
-                          IconButton(
-                            onPressed:
-                                _readCount > 0
-                                    ? () {
-                                      setState(() {
-                                        _readCount--;
-                                      });
-                                    }
-                                    : null,
-                            icon: const Icon(Icons.remove),
-                            style: IconButton.styleFrom(
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.primary.withValues(alpha: 0.1),
-                              foregroundColor:
-                                  Theme.of(context).colorScheme.primary,
-                              disabledBackgroundColor:
-                                  Theme.of(
-                                    context,
-                                  ).colorScheme.surfaceContainerHighest,
-                              disabledForegroundColor:
-                                  Theme.of(
-                                    context,
-                                  ).colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 12,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color:
-                                    Theme.of(
-                                      context,
-                                    ).colorScheme.outlineVariant,
-                              ),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              '$_readCount',
-                              style: Theme.of(context).textTheme.titleLarge
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          // Plus button
-                          IconButton(
-                            onPressed: () {
-                              setState(() {
-                                _readCount++;
-                              });
-                            },
-                            icon: const Icon(Icons.add),
-                            style: IconButton.styleFrom(
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.primary,
-                              foregroundColor:
-                                  Theme.of(context).colorScheme.onPrimary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  if (widget.useNewUi) ...[
-                    _v2Divider(),
-                    _v2SectionHeading(
-                      AppLocalizations.of(context)!.bundle_book_details,
-                    ),
-                  ] else
-                    const SizedBox(height: 32),
-
-                  // Bundle section
-                  BundleInputWidgetV2(
-                    initialIsBundle: _isBundle,
-                    initialBundleCount: _bundleCount,
-                    initialBundleBooks: _bundleBooks,
-                    statusOptions: _statusList,
-                    editMode:
-                        widget.book.bookId !=
-                        null, // Edit mode when editing existing book
-                    showDetailsTitle: !widget.useNewUi,
-                    useNewUi: widget.useNewUi,
-                    onChanged: (isBundle, count, bundleBooks) {
-                      setState(() {
-                        _isBundle = isBundle;
-                        _bundleCount = count;
-                        _bundleBooks = bundleBooks;
-                      });
-                    },
-                  ),
 
                   if (widget.useNewUi) ...[
                     _v2Divider(),
@@ -2814,31 +2825,37 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
                   if (widget.useNewUi) ...[
                     _v2Divider(),
-                    _v2SectionHeading(l10n.notes),
+                    _v2SectionHeading(
+                      AppLocalizations.of(context)!.bundle_book_details,
+                    ),
                   ] else
                     const SizedBox(height: 16),
 
-                  // Reading Sessions (hidden for bundles)
-                  if (!_isBundle)
-                    ReadDatesWidget(
-                      bookId: widget.book.bookId!,
-                      initialReadDates: _readDates,
-                      onChanged: (readDates) {
-                        setState(() {
-                          _readDates = readDates;
-                          // Update read count based on finished sessions
-                          _readCount =
-                              readDates
-                                  .where(
-                                    (rd) =>
-                                        rd.dateFinished != null &&
-                                        rd.dateFinished!.isNotEmpty,
-                                  )
-                                  .length;
-                        });
-                      },
-                    ),
-                  if (!_isBundle) const SizedBox(height: 16),
+                  // Bundle section
+                  BundleInputWidgetV2(
+                    initialIsBundle: _isBundle,
+                    initialBundleCount: _bundleCount,
+                    initialBundleBooks: _bundleBooks,
+                    statusOptions: _statusList,
+                    editMode:
+                        widget.book.bookId !=
+                        null, // Edit mode when editing existing book
+                    showDetailsTitle: !widget.useNewUi,
+                    useNewUi: widget.useNewUi,
+                    onChanged: (isBundle, count, bundleBooks) {
+                      setState(() {
+                        _isBundle = isBundle;
+                        _bundleCount = count;
+                        _bundleBooks = bundleBooks;
+                      });
+                    },
+                  ),
+
+                  if (widget.useNewUi) ...[
+                    _v2Divider(),
+                    _v2SectionHeading(l10n.notes),
+                  ] else
+                    const SizedBox(height: 16),
 
                   // My Review field
                   TextFormField(
