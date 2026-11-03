@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -260,7 +261,7 @@ class UserListShareCard extends StatelessWidget {
                     height:
                         list.type == UserListType.book
                             ? tileWidth * 1.5
-                            : tileWidth,
+                            : tileWidth * _NameTile.heightRatio,
                     child: Container(
                       decoration: BoxDecoration(
                         color: V2Colors.chip,
@@ -347,6 +348,13 @@ class _NameTile extends StatelessWidget {
   final UserListType type;
   final double width;
 
+  static const double heightRatio = 1.2;
+  static const double _padding = 6;
+
+  // Narrower tiles lay out at this width and scale down, so names don't
+  // break mid-word.
+  static const double _minLayoutWidth = 72;
+
   const _NameTile({
     required this.entry,
     required this.type,
@@ -356,39 +364,54 @@ class _NameTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final layoutWidth = math.max(width - _padding * 2, _minLayoutWidth);
     return Container(
       width: width,
-      height: width,
-      padding: const EdgeInsets.all(8),
+      height: width * heightRatio,
+      padding: const EdgeInsets.all(_padding),
       decoration: BoxDecoration(
         color: V2Colors.chip,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(userListTypeIcon(type), size: 18, color: V2Colors.primary),
-          const SizedBox(height: 4),
-          Text(
-            entry.title,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              height: 1.2,
-              color: V2Colors.textPrimary,
+      // Shrinks the content instead of overflowing on large text scales.
+      child: Center(
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: SizedBox(
+            width: layoutWidth,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(userListTypeIcon(type), size: 18, color: V2Colors.primary),
+                const SizedBox(height: 4),
+                Text(
+                  entry.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    height: 1.2,
+                    color: V2Colors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    l10n.list_books_read(entry.readCount, entry.bookCount),
+                    maxLines: 1,
+                    style: TextStyle(
+                      fontSize: 9,
+                      color: V2Colors.textSecondary,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 2),
-          Text(
-            l10n.list_books_read(entry.readCount, entry.bookCount),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 9, color: V2Colors.textSecondary),
-          ),
-        ],
+        ),
       ),
     );
   }
