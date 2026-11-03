@@ -2006,5 +2006,10 @@
   "list_deleted": "List deleted",
   "share_list": "Share list",
   "share_list_image": "Share image",
-  "share_list_preparing": "Preparing image…"
+  "share_list_preparing": "Preparing image…",
+  "trope": "Trope",
+  "tropes": "Trope(s)",
+  "search_or_add_trope": "Type to search or add new trope",
+  "dropdown_tropes": "Tropes",
+  "trope_no_commas": "Trope names can't contain commas"
 }

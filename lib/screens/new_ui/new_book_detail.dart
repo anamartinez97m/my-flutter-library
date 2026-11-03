@@ -3219,6 +3219,43 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                             );
                           }
 
+                          // Tropes
+                          if (_currentBook.trope != null &&
+                              _currentBook.trope!.isNotEmpty) {
+                            final tropes =
+                                _currentBook.trope!
+                                    .split(',')
+                                    .map((t) => t.trim())
+                                    .where((t) => t.isNotEmpty)
+                                    .toList();
+                            addCell(
+                              InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => BooksByGenreScreen(
+                                            genres: tropes,
+                                            tropes: true,
+                                          ),
+                                    ),
+                                  );
+                                },
+                                child: _DetailCard(
+                                  icon: Icons.local_offer_outlined,
+                                  label:
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.dropdown_tropes,
+                                  value: tropes.join('\n'),
+                                  link: true,
+                                ),
+                              ),
+                              fullWidth: true,
+                            );
+                          }
+
                           // Saga
                           if (_currentBook.saga != null &&
                               _currentBook.saga!.isNotEmpty) {

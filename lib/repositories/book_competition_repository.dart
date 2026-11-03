@@ -33,7 +33,8 @@ class BookCompetitionRepository {
         b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
         b.order_within_universe,
         GROUP_CONCAT(DISTINCT a.name) as author,
-        GROUP_CONCAT(DISTINCT g.name) as genre
+        GROUP_CONCAT(DISTINCT g.name) as genre,
+        (SELECT GROUP_CONCAT(t.name) FROM books_by_trope bbt JOIN trope t ON bbt.trope_id = t.trope_id WHERE bbt.book_id = b.book_id) as trope
       FROM book b
       INNER JOIN book_read_dates brd ON b.book_id = brd.book_id
       LEFT JOIN books_by_author bba ON b.book_id = bba.book_id

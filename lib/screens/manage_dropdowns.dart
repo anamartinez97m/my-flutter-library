@@ -7,6 +7,7 @@ import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/repositories/user_list_repository.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:sqflite/sqflite.dart';
 import '../config/app_theme.dart';
 
 // ── v2 design tokens ─────────────────────────────────────────────────────────
@@ -40,6 +41,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
     'format',
     'author',
     'genre',
+    'trope',
     'editorial',
     'saga',
     'saga_universe',
@@ -62,6 +64,8 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         return l10n.dropdown_authors;
       case 'genre':
         return l10n.dropdown_genres;
+      case 'trope':
+        return l10n.dropdown_tropes;
       case 'editorial':
         return l10n.dropdown_editorials;
       case 'saga':
@@ -71,6 +75,36 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       default:
         return key;
     }
+  }
+
+  /// Tropes are stored comma-joined on books, so a name can't contain one.
+  bool _rejectTropeComma(String value) {
+    if (_selectedTable != 'trope' || !value.contains(',')) return false;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(AppLocalizations.of(context)!.trope_no_commas),
+        backgroundColor: Colors.red,
+      ),
+    );
+    return true;
+  }
+
+  /// Moves book links from trope [fromId] to [toId], skipping books that
+  /// already have [toId].
+  Future<void> _moveTropeLinks(
+    DatabaseExecutor db,
+    int fromId,
+    int toId,
+  ) async {
+    await db.rawUpdate(
+      'UPDATE OR IGNORE books_by_trope SET trope_id = ? WHERE trope_id = ?',
+      [toId, fromId],
+    );
+    await db.delete(
+      'books_by_trope',
+      where: 'trope_id = ?',
+      whereArgs: [fromId],
+    );
   }
 
   // Core status values that cannot be deleted (case-insensitive)
@@ -153,6 +187,12 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         } else if (_selectedTable == 'genre') {
           final result = await db.rawQuery(
             'SELECT COUNT(*) as count FROM books_by_genre WHERE genre_id = ?',
+            [id],
+          );
+          usageCount = result.first['count'] as int;
+        } else if (_selectedTable == 'trope') {
+          final result = await db.rawQuery(
+            'SELECT COUNT(*) as count FROM books_by_trope WHERE trope_id = ?',
             [id],
           );
           usageCount = result.first['count'] as int;
@@ -627,6 +667,8 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
 
     final result = await _showV2AddValueDialog();
 
+    if (result != null && _rejectTropeComma(result.value)) return;
+
     if (result != null && result.value.isNotEmpty) {
       int? expectedBooks;
 
@@ -887,6 +929,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
 
     final newValue = result?.value ?? '';
     final newSubtitle = result?.subtitle ?? '';
+    if (_rejectTropeComma(newValue)) return;
     final hasValueChange = newValue.isNotEmpty && newValue != currentValue;
     final hasSubtitleChange = newSubtitle != (currentSubtitle ?? '');
 
@@ -1212,6 +1255,12 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
           [id],
         );
         usageCount = booksUsingValue.first['count'] as int;
+      } else if (_selectedTable == 'trope') {
+        final booksUsingValue = await db.rawQuery(
+          'SELECT COUNT(*) as count FROM books_by_trope WHERE trope_id = ?',
+          [id],
+        );
+        usageCount = booksUsingValue.first['count'] as int;
       } else if (_selectedTable == 'saga_universe') {
         // saga_universe is a text field in book table
         final booksUsingValue = await db.rawQuery(
@@ -1293,6 +1342,8 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
             await UserListRepository(
               db,
             ).replaceRefId(UserListType.genre, id, newId);
+          } else if (_selectedTable == 'trope') {
+            await _moveTropeLinks(db, id, newId);
           } else if (_selectedTable == 'saga_universe' ||
               _selectedTable == 'saga') {
             // These are text fields, need special handling
@@ -1371,6 +1422,8 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
               await UserListRepository(
                 db,
               ).replaceRefId(UserListType.genre, id, newId);
+            } else if (_selectedTable == 'trope') {
+              await _moveTropeLinks(db, id, newId);
             } else {
               // Update book table directly
               await db.rawUpdate(
@@ -2004,6 +2057,8 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
         return 'Manages the authors linked to your books.';
       case 'genre':
         return 'Organizes books by literary genre and topic.';
+      case 'trope':
+        return 'Story tropes like enemies to lovers or found family.';
       case 'editorial':
         return 'Stores publishers and editorial imprints for your editions.';
       case 'saga':
@@ -2075,6 +2130,7 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
       'format',
       'author',
       'genre',
+      'trope',
       'editorial',
       'saga',
       'saga_universe',

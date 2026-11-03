@@ -8045,6 +8045,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Preparing image…'**
   String get share_list_preparing;
+
+  /// No description provided for @trope.
+  ///
+  /// In en, this message translates to:
+  /// **'Trope'**
+  String get trope;
+
+  /// No description provided for @tropes.
+  ///
+  /// In en, this message translates to:
+  /// **'Trope(s)'**
+  String get tropes;
+
+  /// No description provided for @search_or_add_trope.
+  ///
+  /// In en, this message translates to:
+  /// **'Type to search or add new trope'**
+  String get search_or_add_trope;
+
+  /// No description provided for @dropdown_tropes.
+  ///
+  /// In en, this message translates to:
+  /// **'Tropes'**
+  String get dropdown_tropes;
+
+  /// No description provided for @trope_no_commas.
+  ///
+  /// In en, this message translates to:
+  /// **'Trope names can\'t contain commas'**
+  String get trope_no_commas;
 }
 
 class _AppLocalizationsDelegate

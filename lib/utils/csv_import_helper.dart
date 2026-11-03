@@ -259,6 +259,7 @@ class CsvImportHelper {
       formatValue: book.formatValue,
       createdAt: book.createdAt,
       genre: book.genre,
+      trope: book.trope,
       dateReadInitial: book.dateReadInitial,
       dateReadFinal: book.dateReadFinal,
       readCount: book.readCount,

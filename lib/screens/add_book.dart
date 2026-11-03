@@ -109,6 +109,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   // Autocomplete suggestions
   List<String> _authorSuggestions = [];
   List<String> _genreSuggestions = [];
+  List<String> _tropeSuggestions = [];
   List<String> _editorialSuggestions = [];
   List<String> _sagaSuggestions = [];
   List<String> _sagaUniverseSuggestions = [];
@@ -116,6 +117,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   // Multi-value fields
   List<String> _selectedAuthors = [];
   List<String> _selectedGenres = [];
+  List<String> _selectedTropes = [];
   List<String> _selectedEditorial = []; // Single value but displayed as chip
 
   bool _isLoading = true;
@@ -236,6 +238,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       _selectedLoaned,
       _selectedAuthors.join(','),
       _selectedGenres.join(','),
+      _selectedTropes.join(','),
       _selectedEditorial.join(','),
       _fetchedDescription,
       _fetchedCoverUrl,
@@ -332,6 +335,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       final format = await repository.getLookupValues('format');
       final authors = await repository.getLookupValues('author');
       final genres = await repository.getLookupValues('genre');
+      final tropes = await repository.getLookupValues('trope');
       final editorials = await repository.getLookupValues('editorial');
       final sagas = await repository.getDistinctSagas();
       final sagaUniverses = await repository.getDistinctSagaUniverses();
@@ -345,6 +349,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         _formatList = _deduplicateById(format, 'format_id');
         _authorSuggestions = authors.map((a) => a['name'] as String).toList();
         _genreSuggestions = genres.map((g) => g['name'] as String).toList();
+        _tropeSuggestions = tropes.map((t) => t['name'] as String).toList();
         _editorialSuggestions =
             editorials.map((e) => e['name'] as String).toList();
         _sagaSuggestions = sagas;
@@ -750,6 +755,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         formatSagaValue: formatSagaValue,
         createdAt: DateTime.now().toIso8601String(),
         genre: _selectedGenres.isEmpty ? null : _selectedGenres.join(', '),
+        trope: _selectedTropes.isEmpty ? null : _selectedTropes.join(', '),
         dateReadInitial: null,
         dateReadFinal: null,
         readCount: _readCount,
@@ -848,6 +854,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 bundleBookData.author ??
                 (_selectedAuthors.isEmpty ? null : _selectedAuthors.join(', ')),
             genre: _selectedGenres.isEmpty ? null : _selectedGenres.join(', '),
+            trope: _selectedTropes.isEmpty ? null : _selectedTropes.join(', '),
             dateReadInitial: null,
             dateReadFinal: null,
             readCount: 0,
@@ -987,6 +994,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         _ratingOverride = false;
         _selectedAuthors = [];
         _selectedGenres = [];
+        _selectedTropes = [];
         _selectedStatusId = null;
         _selectedStatusValue = null;
         _selectedOriginalBookId = null;
@@ -1089,6 +1097,15 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   .split(',')
                   .map((g) => g.trim())
                   .where((g) => g.isNotEmpty)
+                  .toList()
+              : [];
+
+      _selectedTropes =
+          (book.trope != null && book.trope!.isNotEmpty)
+              ? book.trope!
+                  .split(',')
+                  .map((t) => t.trim())
+                  .where((t) => t.isNotEmpty)
                   .toList()
               : [];
 
@@ -1779,6 +1796,18 @@ class _AddBookScreenState extends State<AddBookScreen> {
         onChanged:
             (v) => setState(() {
               _selectedGenres = v;
+            }),
+      ),
+      const SizedBox(height: 10),
+      ChipAutocompleteField(
+        labelText: l10n.tropes,
+        prefixIcon: Icons.local_offer_outlined,
+        suggestions: _tropeSuggestions,
+        initialValues: _selectedTropes,
+        hintText: l10n.search_or_add_trope,
+        onChanged:
+            (v) => setState(() {
+              _selectedTropes = v;
             }),
       ),
     ];

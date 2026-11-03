@@ -4504,4 +4504,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get share_list_preparing => 'Preparing image…';
+
+  @override
+  String get trope => 'Trope';
+
+  @override
+  String get tropes => 'Trope(s)';
+
+  @override
+  String get search_or_add_trope => 'Type to search or add new trope';
+
+  @override
+  String get dropdown_tropes => 'Tropes';
+
+  @override
+  String get trope_no_commas => 'Trope names can\'t contain commas';
 }
