@@ -1747,67 +1747,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     ),
                     textCapitalization: TextCapitalization.sentences,
                   ),
-                  if (widget.useNewUi) ...[
-                    _v2Divider(),
-                    _v2SectionHeading('Identification'),
-                  ] else
-                    const SizedBox(height: 16),
-
-                  // ISBN field
-                  TextFormField(
-                    controller: _isbnController,
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.isbn,
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.numbers),
-                      suffixIcon: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _isFetchingMetadata
-                              ? const Padding(
-                                padding: EdgeInsets.all(12.0),
-                                child: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                ),
-                              )
-                              : IconButton(
-                                icon: const Icon(Icons.search),
-                                onPressed: _fetchMetadataByIsbn,
-                                tooltip:
-                                    AppLocalizations.of(
-                                      context,
-                                    )!.fetch_book_info,
-                              ),
-                          IconButton(
-                            icon: const Icon(Icons.qr_code_scanner_outlined),
-                            onPressed: () => _scanISBN(),
-                            tooltip: AppLocalizations.of(context)!.scan_isbn,
-                          ),
-                        ],
-                      ),
-                    ),
-                    keyboardType: TextInputType.number,
-                  ),
                   const SizedBox(height: 16),
-
-                  // ASIN field
-                  TextFormField(
-                    controller: _asinController,
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.asin,
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.qr_code),
-                    ),
-                  ),
-                  if (widget.useNewUi) ...[
-                    _v2Divider(),
-                    _v2SectionHeading('Book Details'),
-                  ] else
-                    const SizedBox(height: 16),
 
                   // Author field
                   ChipAutocompleteField(
@@ -1820,22 +1760,6 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     onChanged: (values) {
                       setState(() {
                         _selectedAuthors = values;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Editorial field (single selection displayed as chip)
-                  ChipAutocompleteField(
-                    labelText: AppLocalizations.of(context)!.editorial,
-                    prefixIcon: Icons.business,
-                    suggestions: _editorialSuggestions,
-                    initialValues: _selectedEditorial,
-                    maxSelections: 1, // Only allow one editorial
-                    hintText: AppLocalizations.of(context)!.select_publisher,
-                    onChanged: (values) {
-                      setState(() {
-                        _selectedEditorial = values;
                       });
                     },
                   ),
@@ -1854,7 +1778,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       });
                     },
                   ),
-                  const SizedBox(height: 16),
+
+                  if (widget.useNewUi) ...[
+                    _v2Divider(),
+                    _v2SectionHeading(AppLocalizations.of(context)!.saga),
+                  ] else
+                    const SizedBox(height: 16),
 
                   // Saga field
                   AutocompleteTextField(
@@ -1933,31 +1862,27 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       },
                     ),
                   ],
-                  const SizedBox(height: 16),
 
-                  // Pages field
-                  TextFormField(
-                    controller: _pagesController,
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.pages,
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.description),
-                    ),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  if (widget.useNewUi) ...[
+                    _v2Divider(),
+                    _v2SectionHeading('Book Details'),
+                  ] else
+                    const SizedBox(height: 16),
+
+                  // Editorial field (single selection displayed as chip)
+                  ChipAutocompleteField(
+                    labelText: AppLocalizations.of(context)!.editorial,
+                    prefixIcon: Icons.business,
+                    suggestions: _editorialSuggestions,
+                    initialValues: _selectedEditorial,
+                    maxSelections: 1, // Only allow one editorial
+                    hintText: AppLocalizations.of(context)!.select_publisher,
+                    onChanged: (values) {
+                      setState(() {
+                        _selectedEditorial = values;
+                      });
+                    },
                   ),
-                  if (_pagesFetchedFromApi)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4, left: 12),
-                      child: Text(
-                        AppLocalizations.of(context)!.review_pages_warning,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Theme.of(context).colorScheme.error,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ),
                   const SizedBox(height: 16),
 
                   // Publication Year field
@@ -2143,11 +2068,148 @@ class _EditBookScreenState extends State<EditBookScreen> {
                         ],
                       ],
                     ),
+                  const SizedBox(height: 16),
+
+                  // Pages field
+                  TextFormField(
+                    controller: _pagesController,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.pages,
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.description),
+                    ),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  ),
+                  if (_pagesFetchedFromApi)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, left: 12),
+                      child: Text(
+                        AppLocalizations.of(context)!.review_pages_warning,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.error,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: 16),
+
+                  // Language dropdown
+                  DropdownButtonFormField<int>(
+                    value: _selectedLanguageId,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.language,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.language),
+                    ),
+                    style: TextStyle(
+                      fontFamily: V2Typography.family,
+                      color: V2Colors.primary,
+                    ),
+                    items:
+                        _languageList.map((lang) {
+                          return DropdownMenuItem<int>(
+                            value: lang['language_id'] as int,
+                            child: Text(lang['name'] as String),
+                          );
+                        }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedLanguageId = value;
+                      });
+                    },
+                  ),
+
+                  if (widget.useNewUi) ...[
+                    _v2Divider(),
+                    _v2SectionHeading('Identification'),
+                  ] else
+                    const SizedBox(height: 16),
+
+                  // ISBN field
+                  TextFormField(
+                    controller: _isbnController,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.isbn,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.numbers),
+                      suffixIcon: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _isFetchingMetadata
+                              ? const Padding(
+                                padding: EdgeInsets.all(12.0),
+                                child: SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              )
+                              : IconButton(
+                                icon: const Icon(Icons.search),
+                                onPressed: _fetchMetadataByIsbn,
+                                tooltip:
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.fetch_book_info,
+                              ),
+                          IconButton(
+                            icon: const Icon(Icons.qr_code_scanner_outlined),
+                            onPressed: () => _scanISBN(),
+                            tooltip: AppLocalizations.of(context)!.scan_isbn,
+                          ),
+                        ],
+                      ),
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // ASIN field
+                  TextFormField(
+                    controller: _asinController,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.asin,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.qr_code),
+                    ),
+                  ),
 
                   if (widget.useNewUi) ...[
                     _v2Divider(),
                     _v2SectionHeading('Format'),
-                  ],
+                  ] else
+                    const SizedBox(height: 16),
+
+                  // Format dropdown
+                  DropdownButtonFormField<int>(
+                    value: _selectedFormatId,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.format,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.import_contacts),
+                    ),
+                    style: TextStyle(
+                      fontFamily: V2Typography.family,
+                      color: V2Colors.primary,
+                    ),
+                    items:
+                        _formatList.map((format) {
+                          return DropdownMenuItem<int>(
+                            value: format['format_id'] as int,
+                            child: Text(format['value'] as String),
+                          );
+                        }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedFormatId = value;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
 
                   // Format Saga dropdown
                   DropdownButtonFormField<int>(
@@ -2179,87 +2241,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       });
                     },
                   ),
-                  const SizedBox(height: 16),
 
-                  // Language dropdown
-                  DropdownButtonFormField<int>(
-                    value: _selectedLanguageId,
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.language,
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.language),
-                    ),
-                    style: TextStyle(
-                      fontFamily: V2Typography.family,
-                      color: V2Colors.primary,
-                    ),
-                    items:
-                        _languageList.map((lang) {
-                          return DropdownMenuItem<int>(
-                            value: lang['language_id'] as int,
-                            child: Text(lang['name'] as String),
-                          );
-                        }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedLanguageId = value;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Place dropdown
-                  DropdownButtonFormField<int>(
-                    value: _selectedPlaceId,
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.place,
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.place),
-                    ),
-                    style: TextStyle(
-                      fontFamily: V2Typography.family,
-                      color: V2Colors.primary,
-                    ),
-                    items:
-                        _placeList.map((place) {
-                          return DropdownMenuItem<int>(
-                            value: place['place_id'] as int,
-                            child: Text(place['name'] as String),
-                          );
-                        }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedPlaceId = value;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Format dropdown
-                  DropdownButtonFormField<int>(
-                    value: _selectedFormatId,
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.format,
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.import_contacts),
-                    ),
-                    style: TextStyle(
-                      fontFamily: V2Typography.family,
-                      color: V2Colors.primary,
-                    ),
-                    items:
-                        _formatList.map((format) {
-                          return DropdownMenuItem<int>(
-                            value: format['format_id'] as int,
-                            child: Text(format['value'] as String),
-                          );
-                        }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedFormatId = value;
-                      });
-                    },
-                  ),
                   if (widget.useNewUi) ...[
                     _v2Divider(),
                     _v2SectionHeading('Acquisition'),
@@ -2314,6 +2296,33 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   ),
                   const SizedBox(height: 16),
 
+                  // Place dropdown
+                  DropdownButtonFormField<int>(
+                    value: _selectedPlaceId,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.place,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.place),
+                    ),
+                    style: TextStyle(
+                      fontFamily: V2Typography.family,
+                      color: V2Colors.primary,
+                    ),
+                    items:
+                        _placeList.map((place) {
+                          return DropdownMenuItem<int>(
+                            value: place['place_id'] as int,
+                            child: Text(place['name'] as String),
+                          );
+                        }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedPlaceId = value;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
                   // Loaned dropdown
                   DropdownButtonFormField<String>(
                     value: _selectedLoaned,
@@ -2342,173 +2351,128 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       });
                     },
                   ),
+
                   if (widget.useNewUi) ...[
                     _v2Divider(),
-                    _v2SectionHeading(
-                      AppLocalizations.of(context)!.bundle_book_details,
-                    ),
-                  ] else
+                    _v2SectionHeading('Reading'),
+                  ] else ...[
                     const SizedBox(height: 32),
-
-                  // Bundle section
-                  BundleInputWidgetV2(
-                    initialIsBundle: _isBundle,
-                    initialBundleCount: _bundleCount,
-                    initialBundleBooks: _bundleBooks,
-                    statusOptions: _statusList,
-                    editMode:
-                        widget.book.bookId !=
-                        null, // Edit mode when editing existing book
-                    showDetailsTitle: !widget.useNewUi,
-                    useNewUi: widget.useNewUi,
-                    onChanged: (isBundle, count, bundleBooks) {
-                      setState(() {
-                        _isBundle = isBundle;
-                        _bundleCount = count;
-                        _bundleBooks = bundleBooks;
-                      });
-                    },
-                  ),
-                  if (widget.useNewUi) ...[
-                    _v2Divider(),
-                    _v2SectionHeading(AppLocalizations.of(context)!.book_lists),
-                  ] else
-                    const SizedBox(height: 16),
-
-                  // TBR and Tandem section
-                  if (widget.useNewUi)
-                    _v2BookListsSection(context, AppLocalizations.of(context)!)
-                  else
-                    Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                    Text(
+                      AppLocalizations.of(context)!.reading_information_optional,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (!widget.useNewUi) ...[
-                              Text(
-                                AppLocalizations.of(context)!.book_lists,
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                            ],
-                            CheckboxListTile(
-                              title: Text(
-                                AppLocalizations.of(context)!.add_to_tbr,
-                              ),
-                              subtitle: Text(
-                                AppLocalizations.of(
-                                  context,
-                                )!.mark_for_reading_list,
-                              ),
-                              value: _tbr,
-                              onChanged: (value) async {
-                                if (value == true && !_tbr) {
-                                  // Check TBR limit only when checking (not unchecking)
-                                  final db =
-                                      await DatabaseHelper.instance.database;
-                                  final repository = BookRepository(db);
-                                  final currentCount =
-                                      await repository.getTBRCount();
-                                  final limit = await getTBRLimit();
+                    ),
+                    const SizedBox(height: 16),
+                  ],
 
-                                  if (currentCount >= limit) {
-                                    if (context.mounted) {
-                                      showDialog(
-                                        context: context,
-                                        builder:
-                                            (context) => AlertDialog(
-                                              title: Row(
-                                                children: [
-                                                  Icon(
-                                                    Icons.warning_amber,
-                                                    color:
-                                                        Theme.of(
-                                                          context,
-                                                        ).colorScheme.secondary,
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  Text(
-                                                    AppLocalizations.of(
-                                                      context,
-                                                    )!.tbr_limit_reached,
-                                                  ),
-                                                ],
-                                              ),
-                                              content: Text(
-                                                AppLocalizations.of(
-                                                  context,
-                                                )!.tbr_limit_message(limit),
-                                              ),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed:
-                                                      () => Navigator.pop(
-                                                        context,
-                                                      ),
-                                                  child: Text(
-                                                    AppLocalizations.of(
-                                                      context,
-                                                    )!.ok,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                      );
-                                    }
-                                    return;
-                                  }
-                                }
-                                setState(() {
-                                  _tbr = value ?? false;
-                                });
-                              },
-                              secondary: const Icon(Icons.bookmark_add),
-                            ),
-                            if (_sagaController.text.isNotEmpty ||
-                                _sagaUniverseController.text.isNotEmpty)
-                              CheckboxListTile(
-                                title: Text(
-                                  AppLocalizations.of(context)!.mark_as_tandem,
-                                ),
-                                subtitle: Text(
-                                  AppLocalizations.of(
-                                    context,
-                                  )!.tandem_description,
-                                ),
-                                value: _isTandem,
-                                onChanged: (value) {
-                                  setState(() {
-                                    _isTandem = value ?? false;
-                                  });
-                                },
-                                secondary: const Icon(
-                                  Icons.swap_horizontal_circle_outlined,
-                                ),
-                              ),
-                          ],
+                  // Read Count with - and + buttons
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.times_read,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                    ),
-                  const SizedBox(height: 32),
-
-                  // New fields section
-                  Text(
-                    AppLocalizations.of(context)!.reading_information_optional,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          // Minus button
+                          IconButton(
+                            onPressed:
+                                _readCount > 0
+                                    ? () {
+                                      setState(() {
+                                        _readCount--;
+                                      });
+                                    }
+                                    : null,
+                            icon: const Icon(Icons.remove),
+                            style: IconButton.styleFrom(
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.primary.withValues(alpha: 0.1),
+                              foregroundColor:
+                                  Theme.of(context).colorScheme.primary,
+                              disabledBackgroundColor:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainerHighest,
+                              disabledForegroundColor:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.outlineVariant,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              '$_readCount',
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          // Plus button
+                          IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _readCount++;
+                              });
+                            },
+                            icon: const Icon(Icons.add),
+                            style: IconButton.styleFrom(
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.primary,
+                              foregroundColor:
+                                  Theme.of(context).colorScheme.onPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
+                  const SizedBox(height: 16),
+
+                  // Reading Sessions (hidden for bundles)
+                  if (!_isBundle)
+                    ReadDatesWidget(
+                      bookId: widget.book.bookId!,
+                      initialReadDates: _readDates,
+                      onChanged: (readDates) {
+                        setState(() {
+                          _readDates = readDates;
+                          // Update read count based on finished sessions
+                          _readCount =
+                              readDates
+                                  .where(
+                                    (rd) =>
+                                        rd.dateFinished != null &&
+                                        rd.dateFinished!.isNotEmpty,
+                                  )
+                                  .length;
+                        });
+                      },
+                    ),
+                  if (!_isBundle) const SizedBox(height: 16),
+
                   if (widget.useNewUi) ...[
                     _v2Divider(),
                     _v2SectionHeading('Classification'),
@@ -2727,122 +2691,171 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       ],
                     ),
                   ),
+
                   if (widget.useNewUi) ...[
                     _v2Divider(),
-                    _v2SectionHeading('Reading'),
+                    _v2SectionHeading(AppLocalizations.of(context)!.book_lists),
                   ] else
                     const SizedBox(height: 16),
 
-                  // Read Count with - and + buttons
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        AppLocalizations.of(context)!.times_read,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          fontWeight: FontWeight.w500,
+                  // TBR and Tandem section
+                  if (widget.useNewUi)
+                    _v2BookListsSection(context, AppLocalizations.of(context)!)
+                  else
+                    Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (!widget.useNewUi) ...[
+                              Text(
+                                AppLocalizations.of(context)!.book_lists,
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                            ],
+                            CheckboxListTile(
+                              title: Text(
+                                AppLocalizations.of(context)!.add_to_tbr,
+                              ),
+                              subtitle: Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.mark_for_reading_list,
+                              ),
+                              value: _tbr,
+                              onChanged: (value) async {
+                                if (value == true && !_tbr) {
+                                  // Check TBR limit only when checking (not unchecking)
+                                  final db =
+                                      await DatabaseHelper.instance.database;
+                                  final repository = BookRepository(db);
+                                  final currentCount =
+                                      await repository.getTBRCount();
+                                  final limit = await getTBRLimit();
+
+                                  if (currentCount >= limit) {
+                                    if (context.mounted) {
+                                      showDialog(
+                                        context: context,
+                                        builder:
+                                            (context) => AlertDialog(
+                                              title: Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.warning_amber,
+                                                    color:
+                                                        Theme.of(
+                                                          context,
+                                                        ).colorScheme.secondary,
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  Text(
+                                                    AppLocalizations.of(
+                                                      context,
+                                                    )!.tbr_limit_reached,
+                                                  ),
+                                                ],
+                                              ),
+                                              content: Text(
+                                                AppLocalizations.of(
+                                                  context,
+                                                )!.tbr_limit_message(limit),
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed:
+                                                      () => Navigator.pop(
+                                                        context,
+                                                      ),
+                                                  child: Text(
+                                                    AppLocalizations.of(
+                                                      context,
+                                                    )!.ok,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                      );
+                                    }
+                                    return;
+                                  }
+                                }
+                                setState(() {
+                                  _tbr = value ?? false;
+                                });
+                              },
+                              secondary: const Icon(Icons.bookmark_add),
+                            ),
+                            if (_sagaController.text.isNotEmpty ||
+                                _sagaUniverseController.text.isNotEmpty)
+                              CheckboxListTile(
+                                title: Text(
+                                  AppLocalizations.of(context)!.mark_as_tandem,
+                                ),
+                                subtitle: Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.tandem_description,
+                                ),
+                                value: _isTandem,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _isTandem = value ?? false;
+                                  });
+                                },
+                                secondary: const Icon(
+                                  Icons.swap_horizontal_circle_outlined,
+                                ),
+                              ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          // Minus button
-                          IconButton(
-                            onPressed:
-                                _readCount > 0
-                                    ? () {
-                                      setState(() {
-                                        _readCount--;
-                                      });
-                                    }
-                                    : null,
-                            icon: const Icon(Icons.remove),
-                            style: IconButton.styleFrom(
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.primary.withValues(alpha: 0.1),
-                              foregroundColor:
-                                  Theme.of(context).colorScheme.primary,
-                              disabledBackgroundColor:
-                                  Theme.of(
-                                    context,
-                                  ).colorScheme.surfaceContainerHighest,
-                              disabledForegroundColor:
-                                  Theme.of(
-                                    context,
-                                  ).colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 12,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color:
-                                    Theme.of(
-                                      context,
-                                    ).colorScheme.outlineVariant,
-                              ),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              '$_readCount',
-                              style: Theme.of(context).textTheme.titleLarge
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          // Plus button
-                          IconButton(
-                            onPressed: () {
-                              setState(() {
-                                _readCount++;
-                              });
-                            },
-                            icon: const Icon(Icons.add),
-                            style: IconButton.styleFrom(
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.primary,
-                              foregroundColor:
-                                  Theme.of(context).colorScheme.onPrimary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Reading Sessions (hidden for bundles)
-                  if (!_isBundle)
-                    ReadDatesWidget(
-                      bookId: widget.book.bookId!,
-                      initialReadDates: _readDates,
-                      onChanged: (readDates) {
-                        setState(() {
-                          _readDates = readDates;
-                          // Update read count based on finished sessions
-                          _readCount =
-                              readDates
-                                  .where(
-                                    (rd) =>
-                                        rd.dateFinished != null &&
-                                        rd.dateFinished!.isNotEmpty,
-                                  )
-                                  .length;
-                        });
-                      },
                     ),
-                  if (!_isBundle) const SizedBox(height: 16),
+
+                  if (widget.useNewUi) ...[
+                    _v2Divider(),
+                    _v2SectionHeading(
+                      AppLocalizations.of(context)!.bundle_book_details,
+                    ),
+                  ] else
+                    const SizedBox(height: 16),
+
+                  // Bundle section
+                  BundleInputWidgetV2(
+                    initialIsBundle: _isBundle,
+                    initialBundleCount: _bundleCount,
+                    initialBundleBooks: _bundleBooks,
+                    statusOptions: _statusList,
+                    editMode:
+                        widget.book.bookId !=
+                        null, // Edit mode when editing existing book
+                    showDetailsTitle: !widget.useNewUi,
+                    useNewUi: widget.useNewUi,
+                    onChanged: (isBundle, count, bundleBooks) {
+                      setState(() {
+                        _isBundle = isBundle;
+                        _bundleCount = count;
+                        _bundleBooks = bundleBooks;
+                      });
+                    },
+                  ),
 
                   if (widget.useNewUi) ...[
                     _v2Divider(),
                     _v2SectionHeading(l10n.notes),
-                  ],
+                  ] else
+                    const SizedBox(height: 16),
 
                   // My Review field
                   TextFormField(
