@@ -125,6 +125,7 @@ class DiscoveryResultCard extends StatelessWidget {
   static String _fieldLabel(DiscoveryField field, AppLocalizations l10n) =>
       switch (field) {
         DiscoveryField.title => l10n.discovery_field_title,
+        DiscoveryField.trope => l10n.discovery_field_trope,
         DiscoveryField.genre => l10n.discovery_field_genre,
         DiscoveryField.saga => l10n.discovery_field_saga,
         DiscoveryField.description => l10n.discovery_field_description,

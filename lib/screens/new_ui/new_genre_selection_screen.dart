@@ -18,12 +18,16 @@ class NewGenreSelectionScreen extends StatefulWidget {
   final List<String> initialSelected;
   final bool initialUseAndLogic;
 
+  /// Shows the trope wording instead of the genre one.
+  final bool tropes;
+
   const NewGenreSelectionScreen({
     super.key,
     required this.allGenres,
     required this.popularGenres,
     required this.initialSelected,
     required this.initialUseAndLogic,
+    this.tropes = false,
   });
 
   @override
@@ -200,6 +204,7 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final tropes = widget.tropes;
     final filteredPopular =
         widget.popularGenres
             .where((g) => g.toLowerCase().contains(_query.toLowerCase()))
@@ -235,7 +240,7 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
                   ),
                   Expanded(
                     child: Text(
-                      l10n.select_genres,
+                      tropes ? l10n.select_tropes : l10n.select_genres,
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -275,7 +280,8 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
                     controller: _searchController,
                     onChanged: (v) => setState(() => _query = v),
                     decoration: InputDecoration(
-                      hintText: l10n.search_genres,
+                      hintText:
+                          tropes ? l10n.search_tropes : l10n.search_genres,
                       hintStyle: TextStyle(color: V2Colors.textSubtle),
                       prefixIcon: Icon(
                         Icons.search,
@@ -308,7 +314,9 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
                   ),
                   if (filteredPopular.isNotEmpty) ...[
                     const SizedBox(height: 24),
-                    _sectionHeading(l10n.popular_genres),
+                    _sectionHeading(
+                      tropes ? l10n.popular_tropes : l10n.popular_genres,
+                    ),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
@@ -318,7 +326,7 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
                   ],
                   if (grouped.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    _sectionHeading(l10n.all_genres),
+                    _sectionHeading(tropes ? l10n.all_tropes : l10n.all_genres),
                     const SizedBox(height: 16),
                     for (final entry in grouped.entries) ...[
                       _groupHeader(entry.key),
@@ -349,9 +357,12 @@ class _NewGenreSelectionScreenState extends State<NewGenreSelectionScreen> {
                       children: [
                         Expanded(
                           child: Text(
-                            _useAndLogic
-                                ? l10n.and_all_genres
-                                : l10n.or_any_genre,
+                            switch ((_useAndLogic, tropes)) {
+                              (true, false) => l10n.and_all_genres,
+                              (false, false) => l10n.or_any_genre,
+                              (true, true) => l10n.and_all_tropes,
+                              (false, true) => l10n.or_any_trope,
+                            },
                             style: TextStyle(
                               fontSize: 11,
                               color: V2Colors.textSecondary,

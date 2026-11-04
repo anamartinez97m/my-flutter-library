@@ -140,19 +140,21 @@ class UserListRepository {
     return sortEntries(await _withCovers(list.type, entries), list.sortMode);
   }
 
-  /// Adds up to [maxEntryCovers] covers per author/genre, newest books first.
+  /// Adds up to [maxEntryCovers] covers per author/genre/trope, newest books
+  /// first.
   Future<List<UserListEntry>> _withCovers(
     UserListType type,
     List<UserListEntry> entries,
   ) async {
-    if (type != UserListType.author && type != UserListType.genre) {
-      return entries;
-    }
+    final (table, column) = switch (type) {
+      UserListType.author => ('books_by_author', 'author_id'),
+      UserListType.genre => ('books_by_genre', 'genre_id'),
+      UserListType.trope => ('books_by_trope', 'trope_id'),
+      UserListType.book || UserListType.saga => (null, null),
+    };
+    if (table == null) return entries;
     final keys = entries.map((e) => e.refId).whereType<int>().toSet().toList();
     if (keys.isEmpty) return entries;
-    final author = type == UserListType.author;
-    final table = author ? 'books_by_author' : 'books_by_genre';
-    final column = author ? 'author_id' : 'genre_id';
     final rows = await db.rawQuery("""
       SELECT x.$column AS ref_key, b.cover_url
       FROM $table x
@@ -239,6 +241,19 @@ class UserListRepository {
              WHERE bg.genre_id = g.genre_id AND s.value = 'Yes') AS read_count
           FROM user_list_items i
           INNER JOIN genre g ON g.genre_id = i.ref_id
+          WHERE i.list_id = ?
+        ''';
+      case UserListType.trope:
+        return '''
+          SELECT i.*, t.name AS title,
+            (SELECT COUNT(*) FROM books_by_trope bt
+             WHERE bt.trope_id = t.trope_id) AS book_count,
+            (SELECT COUNT(*) FROM books_by_trope bt
+             INNER JOIN book b ON b.book_id = bt.book_id
+             INNER JOIN status s ON s.status_id = b.status_id
+             WHERE bt.trope_id = t.trope_id AND s.value = 'Yes') AS read_count
+          FROM user_list_items i
+          INNER JOIN trope t ON t.trope_id = i.ref_id
           WHERE i.list_id = ?
         ''';
       case UserListType.saga:
@@ -356,6 +371,15 @@ class UserListRepository {
           WHERE g.name IS NOT NULL AND g.name != ''
         ''');
         return _sortCandidates(rows.map(_idCandidate));
+      case UserListType.trope:
+        final rows = await db.rawQuery('''
+          SELECT t.trope_id AS id, t.name,
+            (SELECT COUNT(*) FROM books_by_trope bt
+             WHERE bt.trope_id = t.trope_id) AS book_count
+          FROM trope t
+          WHERE t.name IS NOT NULL AND t.name != ''
+        ''');
+        return _sortCandidates(rows.map(_idCandidate));
       case UserListType.saga:
         final rows = await db.rawQuery('''
           SELECT name, SUM(n) AS book_count FROM (
@@ -399,7 +423,7 @@ class UserListRepository {
 
   // ── Keeping items in sync with the library ───────────────────────────────
 
-  /// Drops items whose book/author/genre/saga no longer exists. Deleting is
+  /// Drops items whose book/author/genre/trope/saga no longer exists. Deleting is
   /// done here rather than in `deleteBook`, because CSV import updates books
   /// by deleting and re-adding them with the same id.
   Future<void> removeOrphanItems() async {
@@ -412,6 +436,8 @@ class UserListRepository {
             AND ref_id NOT IN (SELECT author_id FROM author))
         OR (list_id IN (SELECT list_id FROM user_lists WHERE list_type = 'genre')
             AND ref_id NOT IN (SELECT genre_id FROM genre))
+        OR (list_id IN (SELECT list_id FROM user_lists WHERE list_type = 'trope')
+            AND ref_id NOT IN (SELECT trope_id FROM trope))
         OR (list_id IN (SELECT list_id FROM user_lists WHERE list_type = 'saga')
             AND ref_text NOT IN (
               SELECT saga FROM book WHERE saga IS NOT NULL
@@ -421,7 +447,8 @@ class UserListRepository {
     ''');
   }
 
-  /// Points author/genre items at [newId] after a lookup value is replaced.
+  /// Points author/genre/trope items at [newId] after a lookup value is
+  /// replaced.
   Future<void> replaceRefId(UserListType type, int oldId, int newId) async {
     await db.rawUpdate(
       '''

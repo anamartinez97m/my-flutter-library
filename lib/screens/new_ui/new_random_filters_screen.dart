@@ -35,6 +35,7 @@ class RandomFilters {
   List<String> format = [];
   String? language;
   List<String> genre = [];
+  List<String> trope = [];
   List<String> place = [];
   List<String> status = [];
   List<String> editorial = [];
@@ -43,16 +44,19 @@ class RandomFilters {
   List<String> year = [];
   List<String> author = [];
   List<String> excludedGenres = [];
+  List<String> excludedTropes = [];
   List<String> excludedFormats = [];
   List<String> excludedAuthors = [];
   bool? tbr;
   bool genreUseAndLogic = true;
+  bool tropeUseAndLogic = true;
   bool statusUseAndLogic = false;
 
   void clear() {
     format = [];
     language = null;
     genre = [];
+    trope = [];
     place = [];
     status = [];
     editorial = [];
@@ -61,6 +65,7 @@ class RandomFilters {
     year = [];
     author = [];
     excludedGenres = [];
+    excludedTropes = [];
     excludedFormats = [];
     excludedAuthors = [];
     tbr = null;
@@ -82,6 +87,7 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
   List<Map<String, dynamic>> _formatList = [];
   List<Map<String, dynamic>> _languageList = [];
   List<Map<String, dynamic>> _genreList = [];
+  List<Map<String, dynamic>> _tropeList = [];
   List<Map<String, dynamic>> _placeList = [];
   List<Map<String, dynamic>> _statusList = [];
   List<Map<String, dynamic>> _editorialList = [];
@@ -111,6 +117,7 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
       final format = await repo.getLookupValues('format');
       final language = await repo.getLookupValues('language');
       final genre = await repo.getLookupValues('genre');
+      final trope = await repo.getLookupValues('trope');
       final place = await repo.getLookupValues('place');
       final status = await repo.getLookupValues('status');
       final editorial = await repo.getLookupValues('editorial');
@@ -121,6 +128,7 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
           _formatList = format;
           _languageList = language;
           _genreList = genre;
+          _tropeList = trope;
           _placeList = place;
           _statusList = status;
           _editorialList = editorial;
@@ -156,18 +164,11 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
           if (_f.language != null && book.languageValue != _f.language) {
             return false;
           }
-          if (_f.genre.isNotEmpty) {
-            final bookGenres =
-                book.genre?.split(',').map((g) => g.trim()).toList() ?? [];
-            if (_f.genreUseAndLogic) {
-              if (!_f.genre.every((g) => bookGenres.contains(g))) {
-                return false;
-              }
-            } else {
-              if (!_f.genre.any((g) => bookGenres.contains(g))) {
-                return false;
-              }
-            }
+          if (!_matchesTags(_f.genre, book.genre, _f.genreUseAndLogic)) {
+            return false;
+          }
+          if (!_matchesTags(_f.trope, book.trope, _f.tropeUseAndLogic)) {
+            return false;
           }
           if (_f.place.isNotEmpty) {
             if (book.placeValue == null ||
@@ -241,19 +242,30 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
     scrollToRandomResult(_scrollController);
   }
 
+  static List<String> _splitTags(String? raw) =>
+      raw
+          ?.split(',')
+          .map((v) => v.trim())
+          .where((v) => v.isNotEmpty)
+          .toList() ??
+      const <String>[];
+
+  /// Whether a book's comma-joined [raw] tags contain all ([useAnd]) or any
+  /// of [selected]. No selection matches every book.
+  bool _matchesTags(List<String> selected, String? raw, bool useAnd) {
+    if (selected.isEmpty) return true;
+    final tags = _splitTags(raw);
+    return useAnd ? selected.every(tags.contains) : selected.any(tags.contains);
+  }
+
   bool _isExcluded(Book book) {
     if (book.formatValue != null &&
         _f.excludedFormats.contains(book.formatValue)) {
       return true;
     }
 
-    final genres =
-        book.genre
-            ?.split(',')
-            .map((genre) => genre.trim())
-            .where((genre) => genre.isNotEmpty) ??
-        const <String>[];
-    if (genres.any(_f.excludedGenres.contains)) return true;
+    if (_splitTags(book.genre).any(_f.excludedGenres.contains)) return true;
+    if (_splitTags(book.trope).any(_f.excludedTropes.contains)) return true;
 
     final authors =
         book.author
@@ -352,6 +364,8 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
         _buildLanguageCard(l10n),
         const SizedBox(height: 16),
         _buildGenreCard(l10n),
+        const SizedBox(height: 16),
+        _buildTropeCard(l10n),
         const SizedBox(height: 16),
         _buildStatusPlaceCard(l10n),
         const SizedBox(height: 16),
@@ -670,20 +684,6 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
     return sorted.where((o) => (counts[o] ?? 0) > 0).take(limit).toList();
   }
 
-  List<String> _mostReadGenres(List<String> allGenreNames, {int limit = 4}) {
-    return _mostUsedOptions(
-      allOptions: allGenreNames,
-      valuesOf:
-          (book) =>
-              book.genre
-                  ?.split(',')
-                  .map((g) => g.trim())
-                  .where((g) => g.isNotEmpty) ??
-              const <String>[],
-      limit: limit,
-    );
-  }
-
   /// Builds a compact filter section that only shows the most-used options
   /// (plus an "any"/clear chip) with a "See all (N)" link that opens the
   /// full [NewOptionSelectionScreen] picker. Used for filters that have
@@ -780,12 +780,65 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
     );
   }
 
-  Widget _buildGenreCard(AppLocalizations l10n) {
-    final allGenreNames = _genreList.map((g) => g['name'] as String).toList();
-    final popular = _mostReadGenres(allGenreNames);
+  Widget _buildGenreCard(AppLocalizations l10n) => _buildTagCard(
+    l10n: l10n,
+    icon: Icons.category_outlined,
+    title: l10n.genre,
+    options: _genreList,
+    valuesOf: (book) => book.genre,
+    selected: _f.genre,
+    useAndLogic: _f.genreUseAndLogic,
+    onChanged: (selected, useAnd) {
+      _f.genre = selected;
+      _f.genreUseAndLogic = useAnd;
+    },
+    andLabel: l10n.and_all_genres,
+    orLabel: l10n.or_any_genre,
+    tropes: false,
+  );
+
+  Widget _buildTropeCard(AppLocalizations l10n) => _buildTagCard(
+    l10n: l10n,
+    icon: Icons.local_offer_outlined,
+    title: l10n.trope,
+    options: _tropeList,
+    valuesOf: (book) => book.trope,
+    selected: _f.trope,
+    useAndLogic: _f.tropeUseAndLogic,
+    onChanged: (selected, useAnd) {
+      _f.trope = selected;
+      _f.tropeUseAndLogic = useAnd;
+    },
+    andLabel: l10n.and_all_tropes,
+    orLabel: l10n.or_any_trope,
+    tropes: true,
+  );
+
+  /// Genre/trope filter: the most-read values as chips, an AND/OR toggle and
+  /// a "See all" link to [NewGenreSelectionScreen].
+  Widget _buildTagCard({
+    required AppLocalizations l10n,
+    required IconData icon,
+    required String title,
+    required List<Map<String, dynamic>> options,
+    required String? Function(Book) valuesOf,
+    required List<String> selected,
+    required bool useAndLogic,
+    required void Function(List<String> selected, bool useAnd) onChanged,
+    required String andLabel,
+    required String orLabel,
+    required bool tropes,
+  }) {
+    final allNames = options.map((g) => g['name'] as String).toList();
+    final popular = _mostUsedOptions(
+      allOptions: allNames,
+      valuesOf: (book) => _splitTags(valuesOf(book)),
+    );
+    void update(List<String> next, bool useAnd) =>
+        setState(() => onChanged(next, useAnd));
     return _sectionCard(
-      icon: Icons.category_outlined,
-      title: l10n.genre,
+      icon: icon,
+      title: title,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -795,33 +848,33 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
             children: [
               _smallChip(
                 label: l10n.surprise_me,
-                selected: _f.genre.isEmpty,
-                onTap: () => setState(() => _f.genre = []),
+                selected: selected.isEmpty,
+                onTap: () => update([], useAndLogic),
               ),
               ...popular.map(
                 (g) => _smallChip(
                   label: g,
-                  selected: _f.genre.contains(g),
+                  selected: selected.contains(g),
                   onTap: () {
-                    final next = List<String>.from(_f.genre);
+                    final next = List<String>.from(selected);
                     if (next.contains(g)) {
                       next.remove(g);
                     } else {
                       next.add(g);
                     }
-                    setState(() => _f.genre = next);
+                    update(next, useAndLogic);
                   },
                 ),
               ),
             ],
           ),
-          if (_f.genre.length > 1) ...[
+          if (selected.length > 1) ...[
             const SizedBox(height: 8),
             _andOrToggle(
-              useAndLogic: _f.genreUseAndLogic,
-              onChanged: (v) => setState(() => _f.genreUseAndLogic = v),
-              andLabel: l10n.and_all_genres,
-              orLabel: l10n.or_any_genre,
+              useAndLogic: useAndLogic,
+              onChanged: (v) => update(selected, v),
+              andLabel: andLabel,
+              orLabel: orLabel,
             ),
           ],
           const SizedBox(height: 8),
@@ -834,25 +887,23 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
                   MaterialPageRoute(
                     builder:
                         (_) => NewGenreSelectionScreen(
-                          allGenres: allGenreNames,
+                          allGenres: allNames,
                           popularGenres: popular,
-                          initialSelected: _f.genre,
-                          initialUseAndLogic: _f.genreUseAndLogic,
+                          initialSelected: selected,
+                          initialUseAndLogic: useAndLogic,
+                          tropes: tropes,
                         ),
                   ),
                 );
                 if (result != null) {
-                  setState(() {
-                    _f.genre = result.selected;
-                    _f.genreUseAndLogic = result.useAndLogic;
-                  });
+                  update(result.selected, result.useAndLogic);
                 }
               },
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    l10n.see_all_count(allGenreNames.length.toString()),
+                    l10n.see_all_count(allNames.length.toString()),
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
@@ -1263,9 +1314,11 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
   Widget _buildAvoidCard(AppLocalizations l10n) {
     final formats = _formatList.map((item) => item['value'] as String).toList();
     final genres = _genreList.map((item) => item['name'] as String).toList();
+    final tropes = _tropeList.map((item) => item['name'] as String).toList();
     final authors = _authorList.map((item) => item['name'] as String).toList();
     final hasExclusions =
         _f.excludedGenres.isNotEmpty ||
+        _f.excludedTropes.isNotEmpty ||
         _f.excludedFormats.isNotEmpty ||
         _f.excludedAuthors.isNotEmpty;
 
@@ -1316,6 +1369,12 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
                     () => setState(() => _f.excludedGenres.remove(value)),
                   ),
                 ),
+                ..._f.excludedTropes.map(
+                  (value) => _avoidChip(
+                    value,
+                    () => setState(() => _f.excludedTropes.remove(value)),
+                  ),
+                ),
                 ..._f.excludedFormats.map(
                   (value) => _avoidChip(
                     value,
@@ -1344,6 +1403,20 @@ class _NewRandomFiltersScreenState extends State<NewRandomFiltersScreen> {
                   selected: _f.excludedGenres,
                   onChanged:
                       (values) => setState(() => _f.excludedGenres = values),
+                ),
+          ),
+          Divider(height: 1, color: _kBorder),
+          _avoidSelectionRow(
+            label: l10n.trope,
+            selected: _f.excludedTropes,
+            onTap:
+                () => _openAvoidPicker(
+                  l10n: l10n,
+                  fieldTitle: l10n.trope,
+                  options: tropes,
+                  selected: _f.excludedTropes,
+                  onChanged:
+                      (values) => setState(() => _f.excludedTropes = values),
                 ),
           ),
           Divider(height: 1, color: _kBorder),

@@ -30,11 +30,12 @@ class KeywordBookMatcher implements BookMatcher {
   /// hits can reach the main band, but never outrank a direct match.
   static const double relatedOnlyCeiling = 0.45;
 
-  /// Penalty for a negated concept/term found outside title and genre.
+  /// Penalty for a negated concept/term found outside title, trope and genre.
   static const double negationPenalty = 0.3;
 
   static const Set<DiscoveryField> _excludingFields = {
     DiscoveryField.title,
+    DiscoveryField.trope,
     DiscoveryField.genre,
   };
 

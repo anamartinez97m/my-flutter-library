@@ -3,12 +3,13 @@ import 'dart:convert';
 import 'package:myrandomlibrary/model/book.dart';
 
 /// Book fields the discovery engine searches, strongest signal first.
-enum DiscoveryField { title, genre, saga, description, author, notes }
+enum DiscoveryField { title, trope, genre, saga, description, author, notes }
 
 extension DiscoveryFieldWeight on DiscoveryField {
   /// How strongly a hit in this field signals relevance.
   double get weight => switch (this) {
     DiscoveryField.title => 1.00,
+    DiscoveryField.trope => 0.90,
     DiscoveryField.genre => 0.85,
     DiscoveryField.saga => 0.70,
     DiscoveryField.description => 0.55,
@@ -25,6 +26,7 @@ class SearchableTextBuilder {
   /// Raw (un-normalized) values per field.
   static Map<DiscoveryField, List<String>> fields(Book book) => {
     DiscoveryField.title: _nonEmpty([book.name, ..._bundleTitles(book)]),
+    DiscoveryField.trope: _nonEmpty(book.trope?.split(',') ?? const []),
     DiscoveryField.genre: _nonEmpty(book.genre?.split(',') ?? const []),
     DiscoveryField.saga: _nonEmpty([book.saga, book.sagaUniverse]),
     DiscoveryField.description: _nonEmpty([book.description]),
@@ -43,6 +45,8 @@ class SearchableTextBuilder {
         'Author: ${book.author!.trim()}',
       if (f[DiscoveryField.genre]!.isNotEmpty)
         'Genres: ${f[DiscoveryField.genre]!.join(', ')}',
+      if (f[DiscoveryField.trope]!.isNotEmpty)
+        'Tropes: ${f[DiscoveryField.trope]!.join(', ')}',
       if (book.saga?.trim().isNotEmpty ?? false) 'Saga: ${book.saga!.trim()}',
       if (book.sagaUniverse?.trim().isNotEmpty ?? false)
         'Universe: ${book.sagaUniverse!.trim()}',

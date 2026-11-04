@@ -221,6 +221,8 @@ class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
         return [_kSecondary, _kPrimary, _kTertiary, _kMuted];
       case 'genre':
         return [_kPrimary, _kSecondary, _kTertiary, _kMuted];
+      case 'trope':
+        return [_kTertiary, _kPrimary, _kSecondary, _kMuted];
       default: // status
         return [_kPrimary, _kSecondary, _kTertiary, _kMuted];
     }
@@ -237,16 +239,19 @@ class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
       case 'language':
         return widget.languageCounts;
       case 'genre':
-        return _computeGenreCounts();
+        return _computeTagCounts((book) => book.genre);
+      case 'trope':
+        return _computeTagCounts((book) => book.trope);
       default:
         return widget.statusCounts;
     }
   }
 
-  Map<String, int> _computeGenreCounts() {
+  /// Counts books per value of a comma-joined field (genres, tropes).
+  Map<String, int> _computeTagCounts(String? Function(Book) valuesOf) {
     final Map<String, int> counts = {};
     for (var book in widget.books) {
-      final raw = book.genre ?? '';
+      final raw = valuesOf(book) ?? '';
       if (raw.isEmpty) continue;
       final multiplier =
           (book.isBundle == true &&
@@ -279,6 +284,8 @@ class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
         return l10n.books_by_language;
       case 'genre':
         return l10n.books_by_genre;
+      case 'trope':
+        return l10n.breakdown_tropes;
       default:
         return key;
     }
@@ -291,7 +298,14 @@ class _LibraryBreakdownScreenState extends State<LibraryBreakdownScreen> {
     final data = _getDataForField();
     final total = data.values.fold<int>(0, (sum, v) => sum + v);
     final colors = _getPaletteColors(_selectedField);
-    final fieldOptions = ['status', 'format', 'place', 'language', 'genre'];
+    final fieldOptions = [
+      'status',
+      'format',
+      'place',
+      'language',
+      'genre',
+      'trope',
+    ];
 
     return Column(
       children: [
