@@ -8,7 +8,8 @@ import 'package:myrandomlibrary/model/book.dart';
 /// Shows the top genres, editorials and authors as horizontal fill-bar
 /// charts. A toggle lets the user switch between all owned books and only
 /// books already read. Each bar also shows the average rating of the
-/// matching books when available.
+/// matching books when available. "Top tropes by rating" always uses read,
+/// rated books and ranks tropes by their average rating.
 class TopRankingsScreen extends StatefulWidget {
   final List<Book> books;
 
@@ -97,6 +98,47 @@ class _TopRankingsScreenState extends State<TopRankingsScreen> {
     }).toList();
   }
 
+  static const int minBooksPerTrope = 3;
+  static const double maxRating = 5;
+
+  /// Tropes of read, rated books with at least [minBooksPerTrope] such books,
+  /// best average rating first.
+  List<_RankingEntry> _computeTopTropesByRating(int topN) {
+    final totals = <String, double>{};
+    final counts = <String, int>{};
+    for (final book in widget.books) {
+      final isRead = book.readCount != null && book.readCount! > 0;
+      final rating = book.myRating;
+      if (!isRead || rating == null || rating <= 0) continue;
+      final tropes =
+          (book.trope ?? '')
+              .split(',')
+              .map((t) => t.trim())
+              .where((t) => t.isNotEmpty)
+              .toSet();
+      for (final trope in tropes) {
+        totals[trope] = (totals[trope] ?? 0) + rating;
+        counts[trope] = (counts[trope] ?? 0) + 1;
+      }
+    }
+    final entries = [
+      for (final trope in counts.keys)
+        if (counts[trope]! >= minBooksPerTrope)
+          _RankingEntry(
+            name: trope,
+            count: counts[trope]!,
+            avgRating: totals[trope]! / counts[trope]!,
+          ),
+    ];
+    entries.sort((a, b) {
+      final byRating = b.avgRating.compareTo(a.avgRating);
+      if (byRating != 0) return byRating;
+      final byCount = b.count.compareTo(a.count);
+      return byCount != 0 ? byCount : a.name.compareTo(b.name);
+    });
+    return entries.take(topN).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -122,6 +164,15 @@ class _TopRankingsScreenState extends State<TopRankingsScreen> {
         color: _kSecondary,
         extractor: (book) => book.author ?? '',
         topN: 10,
+      ),
+      _RankingSection(
+        key: 'tropes_by_rating',
+        title: l10n.top_tropes_by_rating,
+        subtitle: l10n.top_tropes_by_rating_hint,
+        color: _kTertiary,
+        extractor: (book) => book.trope ?? '',
+        topN: 10,
+        compute: _computeTopTropesByRating,
       ),
     ];
 
@@ -223,7 +274,10 @@ class _TopRankingsScreenState extends State<TopRankingsScreen> {
   }
 
   Widget _buildRankingCard(_RankingSection section) {
-    final entries = _computeEntries(section.extractor, section.topN);
+    final byRating = section.compute != null;
+    final entries =
+        section.compute?.call(section.topN) ??
+        _computeEntries(section.extractor, section.topN);
     final isCollapsed = _collapsedSections.contains(section.key);
     final maxValue = entries.isNotEmpty ? entries.first.count : 1;
 
@@ -250,14 +304,26 @@ class _TopRankingsScreenState extends State<TopRankingsScreen> {
             child: Row(
               children: [
                 Expanded(
-                  child: Text(
-                    section.title,
-                    style: TextStyle(
-                      fontFamily: V2Typography.family,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: _kPrimary,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        section.title,
+                        style: TextStyle(
+                          fontFamily: V2Typography.family,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: _kPrimary,
+                        ),
+                      ),
+                      if (section.subtitle != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          section.subtitle!,
+                          style: TextStyle(fontSize: 11, color: _kSub),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
                 AnimatedRotation(
@@ -294,7 +360,11 @@ class _TopRankingsScreenState extends State<TopRankingsScreen> {
                               : Column(
                                 children:
                                     entries.map((entry) {
-                                      final percentage = entry.count / maxValue;
+                                      final percentage =
+                                          byRating
+                                              ? (entry.avgRating / maxRating)
+                                                  .clamp(0.0, 1.0)
+                                              : entry.count / maxValue;
                                       return Padding(
                                         padding: const EdgeInsets.symmetric(
                                           vertical: 5,
@@ -319,7 +389,21 @@ class _TopRankingsScreenState extends State<TopRankingsScreen> {
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                   ),
-                                                  if (entry.avgRating > 0)
+                                                  if (byRating)
+                                                    Text(
+                                                      AppLocalizations.of(
+                                                        context,
+                                                      )!.book_count_label(
+                                                        entry.count,
+                                                      ),
+                                                      style: TextStyle(
+                                                        fontSize: 10,
+                                                        color: _kSecondary,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                    )
+                                                  else if (entry.avgRating > 0)
                                                     Text(
                                                       '★ ${entry.avgRating.toStringAsFixed(1)}',
                                                       style: TextStyle(
@@ -336,7 +420,10 @@ class _TopRankingsScreenState extends State<TopRankingsScreen> {
                                             Expanded(
                                               child: _buildBar(
                                                 percentage: percentage,
-                                                value: '${entry.count}',
+                                                value:
+                                                    byRating
+                                                        ? '★ ${entry.avgRating.toStringAsFixed(1)}'
+                                                        : '${entry.count}',
                                                 barColor: section.color,
                                               ),
                                             ),
@@ -415,15 +502,22 @@ class _RankingEntry {
 class _RankingSection {
   final String key;
   final String title;
+  final String? subtitle;
   final Color color;
   final String Function(Book) extractor;
   final int topN;
 
+  /// Custom ranking; when set, bars show the average rating instead of the
+  /// book count.
+  final List<_RankingEntry> Function(int topN)? compute;
+
   _RankingSection({
     required this.key,
     required this.title,
+    this.subtitle,
     required this.color,
     required this.extractor,
     required this.topN,
+    this.compute,
   });
 }

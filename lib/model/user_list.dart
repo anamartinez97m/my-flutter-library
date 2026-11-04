@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum UserListType { book, author, saga, genre }
+enum UserListType { book, author, saga, genre, trope }
 
 extension UserListTypeDb on UserListType {
   String get dbValue => name;
@@ -124,8 +124,8 @@ class UserListEntry {
   /// Read books (status "Yes") for an author/genre/saga entry.
   final int readCount;
 
-  /// Up to `UserListRepository.maxEntryCovers` covers of an author's or
-  /// genre's books.
+  /// Up to `UserListRepository.maxEntryCovers` covers of an author's,
+  /// genre's or trope's books.
   final List<String> covers;
 
   const UserListEntry({
