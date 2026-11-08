@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
+import 'package:myrandomlibrary/helpers/library_tool_fields.dart';
 import 'package:myrandomlibrary/helpers/suggestion_engine.dart';
+import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/providers/role_provider.dart';
@@ -53,43 +55,93 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
     await prefs.setStringList(_rejectedSuggestionsKey, _rejectedIds.toList());
   }
 
-  String _getFieldLabel(String key) {
-    final l10n = AppLocalizations.of(context)!;
-    switch (key) {
-      case 'genre':
-        return l10n.genre;
-      case 'format':
-        return l10n.format;
-      case 'language':
-        return l10n.language;
-      case 'place':
-        return l10n.place;
-      case 'editorial':
-        return l10n.editorial;
-      case 'format_saga':
-        return l10n.format_saga;
-      default:
-        return key;
+  String _getFieldLabel(String key) =>
+      LibraryToolFields.label(AppLocalizations.of(context)!, key);
+
+  IconData _getFieldIcon(Suggestion suggestion) {
+    switch (suggestion.kind) {
+      case SuggestionKind.merge:
+        return Icons.merge_type;
+      case SuggestionKind.sagaNumbering:
+        return Icons.format_list_numbered;
+      case SuggestionKind.assign:
+        return LibraryToolFields.icon(suggestion.field);
     }
   }
 
-  IconData _getFieldIcon(String key) {
-    switch (key) {
-      case 'genre':
-        return Icons.category;
-      case 'format':
-        return Icons.book;
-      case 'language':
-        return Icons.language;
-      case 'place':
-        return Icons.place;
-      case 'editorial':
-        return Icons.business;
-      case 'format_saga':
-        return Icons.collections_bookmark;
-      default:
-        return Icons.label;
+  String _title(Suggestion suggestion, AppLocalizations l10n) {
+    final field = _getFieldLabel(suggestion.field);
+    switch (suggestion.kind) {
+      case SuggestionKind.merge:
+        return l10n.merge_variants_title(
+          suggestion.mergeFrom.map((v) => '"$v"').join(', '),
+          suggestion.value,
+          field,
+        );
+      case SuggestionKind.sagaNumbering:
+        if (suggestion.value == SuggestionEngine.numberingMissing) {
+          return l10n.saga_missing_number_title(
+            suggestion.groupName,
+            suggestion.bookIds.length,
+          );
+        }
+        return l10n.saga_duplicate_number_title(
+          suggestion.groupName,
+          suggestion.value.substring(
+            SuggestionEngine.numberingDuplicate.length + 1,
+          ),
+          suggestion.bookIds.length,
+        );
+      case SuggestionKind.assign:
+        return l10n.apply_value_to_books(
+          suggestion.value,
+          field,
+          suggestion.bookIds.length,
+        );
     }
+  }
+
+  String _description(Suggestion suggestion, AppLocalizations l10n) {
+    switch (suggestion.kind) {
+      case SuggestionKind.merge:
+        return l10n.suggestion_merge_desc(suggestion.bookIds.length);
+      case SuggestionKind.sagaNumbering:
+        return suggestion.value == SuggestionEngine.numberingMissing
+            ? l10n.suggestion_saga_numbering_desc
+            : l10n.suggestion_saga_duplicate_desc;
+      case SuggestionKind.assign:
+        if (suggestion.groupName.isEmpty) return suggestion.description;
+        final field = _getFieldLabel(suggestion.field);
+        return suggestion.groupIsSaga
+            ? l10n.suggestion_saga_peers_desc(
+              suggestion.dominantCount,
+              suggestion.groupSize,
+              suggestion.groupName,
+              suggestion.value,
+              field,
+            )
+            : l10n.suggestion_author_peers_desc(
+              suggestion.dominantCount,
+              suggestion.groupSize,
+              suggestion.groupName,
+              suggestion.value,
+              field,
+            );
+    }
+  }
+
+  void _openBook(int bookId) {
+    final provider = Provider.of<BookProvider?>(context, listen: false);
+    final matches = provider?.allBooks.where((b) => b.bookId == bookId);
+    if (matches == null || matches.isEmpty) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => NewBookDetailScreen(book: matches.first),
+      ),
+    ).then((_) {
+      if (mounted) _generateSuggestions();
+    });
   }
 
   Future<void> _generateSuggestions() async {
@@ -117,6 +169,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
 
   Future<void> _applySuggestion(int index) async {
     final suggestion = _suggestions[index];
+    if (suggestion.isWarning) return;
     final provider = Provider.of<BookProvider?>(context, listen: false);
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
@@ -125,11 +178,19 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
     try {
       final db = await DatabaseHelper.instance.database;
       final repository = BookRepository(db);
-      await repository.updateBooksField(
-        suggestion.bookIds,
-        suggestion.field,
-        suggestion.value,
-      );
+      if (suggestion.kind == SuggestionKind.merge) {
+        await repository.mergeFieldValues(
+          suggestion.field,
+          suggestion.mergeFrom,
+          suggestion.value,
+        );
+      } else {
+        await repository.updateBooksField(
+          suggestion.bookIds,
+          suggestion.field,
+          suggestion.value,
+        );
+      }
 
       await provider?.loadBooks();
 
@@ -178,25 +239,26 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
   }
 
   Future<void> _acceptAll() async {
-    final pending =
-        _suggestions.where((s) => !s.isApplied && !s.isRejected).toList();
+    final pending = _suggestions.where(_isPending).toList();
 
     if (pending.isEmpty) return;
 
     for (int i = 0; i < _suggestions.length; i++) {
-      if (!_suggestions[i].isApplied && !_suggestions[i].isRejected) {
+      if (_isPending(_suggestions[i])) {
         await _applySuggestion(i);
       }
     }
   }
+
+  bool _isPending(Suggestion s) =>
+      !s.isWarning && !s.isApplied && !s.isRejected;
 
   @override
   Widget build(BuildContext context) {
     if (!context.watch<RoleProvider>().isAdmin) return const Scaffold();
     final l10n = AppLocalizations.of(context)!;
 
-    final pendingCount =
-        _suggestions.where((s) => !s.isApplied && !s.isRejected).length;
+    final pendingCount = _suggestions.where(_isPending).length;
 
     return Scaffold(
       backgroundColor: _kBg,
@@ -308,8 +370,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
   Widget _buildSuggestionsList() {
     final l10n = AppLocalizations.of(context)!;
 
-    final pendingCount =
-        _suggestions.where((s) => !s.isApplied && !s.isRejected).length;
+    final pendingCount = _suggestions.where(_isPending).length;
 
     return Column(
       children: [
@@ -441,7 +502,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                   child: Icon(
                     suggestion.isApplied
                         ? Icons.check_rounded
-                        : _getFieldIcon(suggestion.field),
+                        : _getFieldIcon(suggestion),
                     color: statusColor,
                     size: 20,
                   ),
@@ -452,11 +513,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        l10n.apply_value_to_books(
-                          suggestion.value,
-                          _getFieldLabel(suggestion.field),
-                          suggestion.bookIds.length,
-                        ),
+                        _title(suggestion, l10n),
                         style: TextStyle(
                           fontFamily: V2Typography.family,
                           fontWeight: FontWeight.w600,
@@ -472,17 +529,21 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: _confidenceColor(
-                            suggestion.confidence,
-                          ).withValues(alpha: 0.1),
+                          color: _badgeColor(suggestion).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(999),
                         ),
                         child: Text(
-                          l10n.suggestion_confidence(suggestion.confidence),
+                          suggestion.kind == SuggestionKind.merge
+                              ? l10n.spelling_variants
+                              : suggestion.isWarning
+                              ? l10n.needs_review
+                              : l10n.suggestion_confidence(
+                                suggestion.confidence,
+                              ),
                           style: TextStyle(
                             fontFamily: V2Typography.family,
                             fontSize: 10,
-                            color: _confidenceColor(suggestion.confidence),
+                            color: _badgeColor(suggestion),
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -513,7 +574,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
-              suggestion.description,
+              _description(suggestion, l10n),
               style: TextStyle(
                 fontFamily: V2Typography.family,
                 fontSize: 12,
@@ -546,31 +607,42 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  ...suggestion.bookNames.map(
-                    (name) => Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.menu_book_outlined,
-                            size: 14,
-                            color: _kSecondary,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              name,
-                              style: TextStyle(
-                                fontFamily: V2Typography.family,
-                                fontSize: 12,
-                                color: _kText,
+                  for (var i = 0; i < suggestion.bookNames.length; i++)
+                    InkWell(
+                      onTap:
+                          i < suggestion.bookIds.length
+                              ? () => _openBook(suggestion.bookIds[i])
+                              : null,
+                      borderRadius: BorderRadius.circular(6),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.menu_book_outlined,
+                              size: 14,
+                              color: _kSecondary,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                suggestion.bookNames[i],
+                                style: TextStyle(
+                                  fontFamily: V2Typography.family,
+                                  fontSize: 12,
+                                  color: _kText,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                            Icon(
+                              Icons.chevron_right,
+                              size: 16,
+                              color: _kSubText,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -592,7 +664,7 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                       ),
                     ),
                     child: Text(
-                      l10n.reject,
+                      suggestion.isWarning ? l10n.dismiss : l10n.reject,
                       style: const TextStyle(
                         fontFamily: V2Typography.family,
                         fontWeight: FontWeight.w600,
@@ -600,22 +672,45 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  FilledButton.icon(
-                    onPressed: () => _applySuggestion(index),
-                    icon: const Icon(Icons.check, size: 16),
-                    label: Text(l10n.accept),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: _kPrimary,
-                      foregroundColor: V2Colors.onPrimary,
-                      textStyle: const TextStyle(
-                        fontFamily: V2Typography.family,
-                        fontWeight: FontWeight.w700,
+                  if (suggestion.isWarning)
+                    FilledButton.icon(
+                      onPressed: () {
+                        setState(() => _expandedIndices.add(index));
+                        if (suggestion.bookIds.length == 1) {
+                          _openBook(suggestion.bookIds.first);
+                        }
+                      },
+                      icon: const Icon(Icons.open_in_new, size: 16),
+                      label: Text(l10n.review_books),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: _kPrimary,
+                        foregroundColor: V2Colors.onPrimary,
+                        textStyle: const TextStyle(
+                          fontFamily: V2Typography.family,
+                          fontWeight: FontWeight.w700,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                    )
+                  else
+                    FilledButton.icon(
+                      onPressed: () => _applySuggestion(index),
+                      icon: const Icon(Icons.check, size: 16),
+                      label: Text(l10n.accept),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: _kPrimary,
+                        foregroundColor: V2Colors.onPrimary,
+                        textStyle: const TextStyle(
+                          fontFamily: V2Typography.family,
+                          fontWeight: FontWeight.w700,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -642,6 +737,11 @@ class _SmartSuggestionsScreenState extends State<SmartSuggestionsScreen> {
         ],
       ),
     );
+  }
+
+  Color _badgeColor(Suggestion suggestion) {
+    if (suggestion.isWarning) return const Color(0xFF8A5A22);
+    return _confidenceColor(suggestion.confidence);
   }
 
   Color _confidenceColor(int confidence) {
