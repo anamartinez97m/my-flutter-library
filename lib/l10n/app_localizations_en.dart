@@ -2015,6 +2015,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get search_or_add_genre => 'Type to search or add new genre';
 
   @override
+  String genres_added_from_series(String genres) {
+    return 'Added genres from the saga/universe: $genres';
+  }
+
+  @override
   String get original_publication_date =>
       'Original Publication Date (for notifications)';
 

@@ -193,6 +193,43 @@ class BookRepository {
     return result.map((row) => row['name'] as String).toList();
   }
 
+  /// Genres used by books in [saga] or [universe], most used first.
+  Future<List<String>> getGenresForSeries({
+    String? saga,
+    String? universe,
+    int? excludeBookId,
+  }) async {
+    final conditions = <String>[];
+    final args = <Object?>[];
+    if (saga != null && saga.trim().isNotEmpty) {
+      conditions.add('LOWER(TRIM(b.saga)) = LOWER(?)');
+      args.add(saga.trim());
+    }
+    if (universe != null && universe.trim().isNotEmpty) {
+      conditions.add('LOWER(TRIM(b.saga_universe)) = LOWER(?)');
+      args.add(universe.trim());
+    }
+    if (conditions.isEmpty) return [];
+
+    var where = '(${conditions.join(' OR ')})';
+    if (excludeBookId != null) {
+      where += ' AND b.book_id != ?';
+      args.add(excludeBookId);
+    }
+
+    final result = await db.rawQuery('''
+      SELECT g.name AS name, COUNT(DISTINCT b.book_id) AS uses
+      FROM book b
+      JOIN books_by_genre bbg ON bbg.book_id = b.book_id
+      JOIN genre g ON g.genre_id = bbg.genre_id
+      WHERE $where AND g.name IS NOT NULL AND TRIM(g.name) != ''
+      GROUP BY g.genre_id
+      ORDER BY uses DESC, g.name COLLATE NOCASE
+    ''', args);
+
+    return result.map((row) => row['name'] as String).toList();
+  }
+
   /// Get count of books marked as TBR
   Future<int> getTBRCount() async {
     final result = await db.rawQuery('''

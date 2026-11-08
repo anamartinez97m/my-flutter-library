@@ -930,6 +930,14 @@
   "select_publisher": "Select publisher",
   "genres": "Genre(s)",
   "search_or_add_genre": "Type to search or add new genre",
+  "genres_added_from_series": "Added genres from the saga/universe: {genres}",
+  "@genres_added_from_series": {
+    "placeholders": {
+      "genres": {
+        "type": "String"
+      }
+    }
+  },
   "original_publication_date": "Original Publication Date (for notifications)",
   "release_date": "Release Date",
   "select_release_date": "Select release date",
