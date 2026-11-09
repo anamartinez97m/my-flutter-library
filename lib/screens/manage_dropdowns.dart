@@ -1344,6 +1344,9 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
             ).replaceRefId(UserListType.genre, id, newId);
           } else if (_selectedTable == 'trope') {
             await _moveTropeLinks(db, id, newId);
+            await UserListRepository(
+              db,
+            ).replaceRefId(UserListType.trope, id, newId);
           } else if (_selectedTable == 'saga_universe' ||
               _selectedTable == 'saga') {
             // These are text fields, need special handling
@@ -1424,6 +1427,9 @@ class _ManageDropdownsScreenState extends State<ManageDropdownsScreen> {
               ).replaceRefId(UserListType.genre, id, newId);
             } else if (_selectedTable == 'trope') {
               await _moveTropeLinks(db, id, newId);
+              await UserListRepository(
+                db,
+              ).replaceRefId(UserListType.trope, id, newId);
             } else {
               // Update book table directly
               await db.rawUpdate(

@@ -8082,6 +8082,72 @@ abstract class AppLocalizations {
   /// **'Trope names can\'t contain commas'**
   String get trope_no_commas;
 
+  /// No description provided for @discovery_field_trope.
+  ///
+  /// In en, this message translates to:
+  /// **'trope'**
+  String get discovery_field_trope;
+
+  /// No description provided for @list_type_tropes.
+  ///
+  /// In en, this message translates to:
+  /// **'Tropes'**
+  String get list_type_tropes;
+
+  /// No description provided for @breakdown_tropes.
+  ///
+  /// In en, this message translates to:
+  /// **'Tropes'**
+  String get breakdown_tropes;
+
+  /// No description provided for @select_tropes.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Tropes'**
+  String get select_tropes;
+
+  /// No description provided for @search_tropes.
+  ///
+  /// In en, this message translates to:
+  /// **'Search tropes...'**
+  String get search_tropes;
+
+  /// No description provided for @popular_tropes.
+  ///
+  /// In en, this message translates to:
+  /// **'Popular Tropes'**
+  String get popular_tropes;
+
+  /// No description provided for @all_tropes.
+  ///
+  /// In en, this message translates to:
+  /// **'All Tropes'**
+  String get all_tropes;
+
+  /// No description provided for @and_all_tropes.
+  ///
+  /// In en, this message translates to:
+  /// **'AND: must have all selected tropes'**
+  String get and_all_tropes;
+
+  /// No description provided for @or_any_trope.
+  ///
+  /// In en, this message translates to:
+  /// **'OR: matches any selected trope'**
+  String get or_any_trope;
+
+  /// No description provided for @top_tropes_by_rating.
+  ///
+  /// In en, this message translates to:
+  /// **'Top Tropes by Rating'**
+  String get top_tropes_by_rating;
+
+  /// No description provided for @top_tropes_by_rating_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Read books only, at least 3 rated books per trope'**
+  String get top_tropes_by_rating_hint;
+
   /// No description provided for @reading_club.
   ///
   /// In en, this message translates to:

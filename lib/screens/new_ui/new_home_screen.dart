@@ -43,6 +43,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
   List<Map<String, dynamic>> _formatList = [];
   List<Map<String, dynamic>> _languageList = [];
   List<Map<String, dynamic>> _genreList = [];
+  List<Map<String, dynamic>> _tropeList = [];
   List<Map<String, dynamic>> _placeList = [];
   List<Map<String, dynamic>> _statusList = [];
   List<Map<String, dynamic>> _editorialList = [];
@@ -53,6 +54,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
   String? _selectedFormat,
       _selectedLanguage,
       _selectedGenre,
+      _selectedTrope,
       _selectedPlace,
       _selectedStatus,
       _selectedTitle,
@@ -77,6 +79,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
     'isbn',
     'author',
     'genre',
+    'trope',
     'editorial',
     'saga',
     'saga_universe',
@@ -119,6 +122,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
           _selectedFormat = p.currentFilters['format'];
           _selectedLanguage = p.currentFilters['language'];
           _selectedGenre = p.currentFilters['genre'];
+          _selectedTrope = p.currentFilters['trope'];
           _selectedPlace = p.currentFilters['place'];
           _selectedStatus = p.currentFilters['status'];
           _selectedTitle = p.currentFilters['title'];
@@ -165,6 +169,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
             'status',
             'format',
             'genre',
+            'trope',
             'language',
             'place',
             'editorial',
@@ -203,6 +208,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
       final format = await repo.getLookupValues('format');
       final language = await repo.getLookupValues('language');
       final genre = await repo.getLookupValues('genre');
+      final trope = await repo.getLookupValues('trope');
       final place = await repo.getLookupValues('place');
       final status = await repo.getLookupValues('status');
       final editorial = await repo.getLookupValues('editorial');
@@ -220,6 +226,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
         _formatList = format;
         _languageList = language;
         _genreList = genre;
+        _tropeList = trope;
         _placeList = place;
         _statusList = status;
         _editorialList = editorial;
@@ -388,7 +395,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
           setState(() => assign(v));
           v != null
               ? provider.filterBooks(filterKey, v)
-              : provider.filterBooks('all', null);
+              : provider.filterBooks(filterKey, null);
           setModalState(() {});
         },
       ),
@@ -426,7 +433,7 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
           setState(() => assign(v));
           v != null
               ? provider.filterBooks(filterKey, v)
-              : provider.filterBooks('all', null);
+              : provider.filterBooks(filterKey, null);
           setModalState(() {});
         },
       ),
@@ -755,12 +762,34 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                     withEmpty: true,
                                     extras:
                                         _genreList
-                                            .where((i) => i['value'] != null)
+                                            .where((i) => i['name'] != null)
                                             .map(
                                               (i) => DropdownMenuItem<String>(
-                                                value: i['value'] as String,
+                                                value: i['name'] as String,
                                                 child: Text(
-                                                  i['value'] as String,
+                                                  i['name'] as String,
+                                                ),
+                                              ),
+                                            )
+                                            .toList(),
+                                  ),
+                                  _filterDropdown(
+                                    ctx: ctx,
+                                    provider: provider,
+                                    setModalState: setModalState,
+                                    filterKey: 'trope',
+                                    label: l10n.trope,
+                                    value: _selectedTrope,
+                                    assign: (v) => _selectedTrope = v,
+                                    withEmpty: true,
+                                    extras:
+                                        _tropeList
+                                            .where((i) => i['name'] != null)
+                                            .map(
+                                              (i) => DropdownMenuItem<String>(
+                                                value: i['name'] as String,
+                                                child: Text(
+                                                  i['name'] as String,
                                                 ),
                                               ),
                                             )
@@ -807,12 +836,12 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                     withEmpty: true,
                                     extras:
                                         _editorialList
-                                            .where((i) => i['value'] != null)
+                                            .where((i) => i['name'] != null)
                                             .map(
                                               (i) => DropdownMenuItem<String>(
-                                                value: i['value'] as String,
+                                                value: i['name'] as String,
                                                 child: Text(
-                                                  i['value'] as String,
+                                                  i['name'] as String,
                                                 ),
                                               ),
                                             )
@@ -1006,24 +1035,25 @@ class _NewHomeScreenState extends State<NewHomeScreen> {
                                             _selectedFormat =
                                                 _selectedLanguage =
                                                     _selectedGenre =
-                                                        _selectedPlace =
-                                                            _selectedStatus =
-                                                                _selectedTitle =
-                                                                    _selectedIsbnAsin =
-                                                                        _selectedAuthor =
-                                                                            _selectedEditorial =
-                                                                                _selectedSaga =
-                                                                                    _selectedSagaUniverse =
-                                                                                        _selectedFormatSaga =
-                                                                                            _selectedPagesEmpty =
-                                                                                                _selectedIsBundle =
-                                                                                                    _selectedIsTandem =
-                                                                                                        _selectedSagaFormatWithoutSaga =
-                                                                                                            _selectedSagaFormatWithoutNSaga =
-                                                                                                                _selectedSagaWithoutFormatSaga =
-                                                                                                                    _selectedPublicationYearEmpty =
-                                                                                                                        _selectedRating =
-                                                                                                                            _selectedPrice = null;
+                                                        _selectedTrope =
+                                                            _selectedPlace =
+                                                                _selectedStatus =
+                                                                    _selectedTitle =
+                                                                        _selectedIsbnAsin =
+                                                                            _selectedAuthor =
+                                                                                _selectedEditorial =
+                                                                                    _selectedSaga =
+                                                                                        _selectedSagaUniverse =
+                                                                                            _selectedFormatSaga =
+                                                                                                _selectedPagesEmpty =
+                                                                                                    _selectedIsBundle =
+                                                                                                        _selectedIsTandem =
+                                                                                                            _selectedSagaFormatWithoutSaga =
+                                                                                                                _selectedSagaFormatWithoutNSaga =
+                                                                                                                    _selectedSagaWithoutFormatSaga =
+                                                                                                                        _selectedPublicationYearEmpty =
+                                                                                                                            _selectedRating =
+                                                                                                                                _selectedPrice = null;
                                           });
                                           provider.clearAllFilters();
                                           setModalState(() {});

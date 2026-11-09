@@ -285,7 +285,8 @@ class UserListCoverCollage extends StatelessWidget {
   }
 }
 
-/// Leading picture of a list entry: cover, author avatar or genre collage.
+/// Leading picture of a list entry: cover, author avatar or genre/trope
+/// collage.
 Widget userListEntryLeading(UserListType type, UserListEntry e) {
   switch (type) {
     case UserListType.book:
@@ -298,6 +299,7 @@ Widget userListEntryLeading(UserListType type, UserListEntry e) {
         total: e.bookCount,
       );
     case UserListType.genre:
+    case UserListType.trope:
       return UserListCoverCollage(covers: e.covers, type: type);
   }
 }
@@ -312,6 +314,8 @@ IconData userListTypeIcon(UserListType type) {
       return Icons.collections_bookmark_outlined;
     case UserListType.genre:
       return Icons.category_outlined;
+    case UserListType.trope:
+      return Icons.local_offer_outlined;
   }
 }
 
@@ -473,6 +477,8 @@ class _UserListDetailScreenState extends State<UserListDetailScreen> {
         screen = BooksByAuthorScreen(authors: [entry.title]);
       case UserListType.genre:
         screen = BooksByGenreScreen(genres: [entry.title]);
+      case UserListType.trope:
+        screen = BooksByGenreScreen(genres: [entry.title], tropes: true);
       case UserListType.saga:
         screen = BooksBySagaScreen(sagaName: entry.title);
     }
@@ -534,6 +540,7 @@ class _UserListDetailScreenState extends State<UserListDetailScreen> {
                       ),
                     ],
                     if (_list.type == UserListType.genre ||
+                        _list.type == UserListType.trope ||
                         _list.type == UserListType.saga) ...[
                       const SizedBox(height: 6),
                       UserListReadBar(read: e.readCount, total: e.bookCount),

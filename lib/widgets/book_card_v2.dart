@@ -123,6 +123,17 @@ class BookCardV2 extends StatelessWidget {
         book.genre!.isNotEmpty) {
       meta.add(_MetaItem(icon: Icons.category_outlined, text: book.genre!));
     }
+    if (enabledCardFields.contains('trope') &&
+        book.trope != null &&
+        book.trope!.isNotEmpty) {
+      meta.add(
+        _MetaItem(
+          icon: Icons.local_offer_outlined,
+          text: book.trope!.split(',').map((t) => t.trim()).join(', '),
+          fullWidth: true,
+        ),
+      );
+    }
     if (enabledCardFields.contains('editorial') &&
         book.editorialValue != null &&
         book.editorialValue!.isNotEmpty) {

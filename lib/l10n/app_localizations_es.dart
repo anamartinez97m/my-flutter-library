@@ -4579,6 +4579,40 @@ class AppLocalizationsEs extends AppLocalizations {
   String get trope_no_commas => 'Los tropes no pueden contener comas';
 
   @override
+  String get discovery_field_trope => 'trope';
+
+  @override
+  String get list_type_tropes => 'Tropes';
+
+  @override
+  String get breakdown_tropes => 'Tropes';
+
+  @override
+  String get select_tropes => 'Seleccionar tropes';
+
+  @override
+  String get search_tropes => 'Buscar tropes...';
+
+  @override
+  String get popular_tropes => 'Tropes populares';
+
+  @override
+  String get all_tropes => 'Todos los tropes';
+
+  @override
+  String get and_all_tropes => 'Y: debe tener todos los tropes seleccionados';
+
+  @override
+  String get or_any_trope => 'O: coincide con cualquier trope seleccionado';
+
+  @override
+  String get top_tropes_by_rating => 'Mejores tropes por valoración';
+
+  @override
+  String get top_tropes_by_rating_hint =>
+      'Solo libros leídos, al menos 3 libros valorados por trope';
+
+  @override
   String get reading_club => 'Club de lectura';
 
   @override

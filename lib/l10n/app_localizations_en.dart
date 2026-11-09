@@ -4526,6 +4526,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trope_no_commas => 'Trope names can\'t contain commas';
 
   @override
+  String get discovery_field_trope => 'trope';
+
+  @override
+  String get list_type_tropes => 'Tropes';
+
+  @override
+  String get breakdown_tropes => 'Tropes';
+
+  @override
+  String get select_tropes => 'Select Tropes';
+
+  @override
+  String get search_tropes => 'Search tropes...';
+
+  @override
+  String get popular_tropes => 'Popular Tropes';
+
+  @override
+  String get all_tropes => 'All Tropes';
+
+  @override
+  String get and_all_tropes => 'AND: must have all selected tropes';
+
+  @override
+  String get or_any_trope => 'OR: matches any selected trope';
+
+  @override
+  String get top_tropes_by_rating => 'Top Tropes by Rating';
+
+  @override
+  String get top_tropes_by_rating_hint =>
+      'Read books only, at least 3 rated books per trope';
+
+  @override
   String get reading_club => 'Reading club';
 
   @override

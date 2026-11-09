@@ -20,6 +20,8 @@ String userListTypeLabel(AppLocalizations l10n, UserListType type) {
       return l10n.list_type_sagas;
     case UserListType.genre:
       return l10n.list_type_genres;
+    case UserListType.trope:
+      return l10n.list_type_tropes;
   }
 }
 

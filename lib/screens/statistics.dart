@@ -844,6 +844,8 @@ class _UnifiedBreakdownCardState extends State<_UnifiedBreakdownCard> {
         return [cs.secondary, cs.primary, cs.tertiary, cs.primaryContainer];
       case 'genre':
         return [cs.error, cs.secondary, cs.tertiary, cs.primary];
+      case 'trope':
+        return [cs.tertiary, cs.error, cs.primary, cs.secondary];
       default:
         return [cs.primary, cs.secondary, cs.tertiary, cs.error];
     }
@@ -860,16 +862,19 @@ class _UnifiedBreakdownCardState extends State<_UnifiedBreakdownCard> {
       case 'language':
         return widget.languageCounts;
       case 'genre':
-        return _computeGenreCounts();
+        return _computeTagCounts((book) => book.genre);
+      case 'trope':
+        return _computeTagCounts((book) => book.trope);
       default:
         return widget.statusCounts;
     }
   }
 
-  Map<String, int> _computeGenreCounts() {
+  /// Counts books per value of a comma-joined field (genres, tropes).
+  Map<String, int> _computeTagCounts(String? Function(Book) valuesOf) {
     final Map<String, int> counts = {};
     for (var book in widget.books) {
-      final raw = book.genre ?? '';
+      final raw = valuesOf(book) ?? '';
       if (raw.isEmpty) continue;
       final multiplier =
           (book.isBundle == true &&
@@ -902,6 +907,8 @@ class _UnifiedBreakdownCardState extends State<_UnifiedBreakdownCard> {
         return l10n.books_by_language;
       case 'genre':
         return l10n.books_by_genre;
+      case 'trope':
+        return l10n.breakdown_tropes;
       default:
         return key;
     }
@@ -914,7 +921,14 @@ class _UnifiedBreakdownCardState extends State<_UnifiedBreakdownCard> {
     final total = data.values.fold<int>(0, (sum, v) => sum + v);
     final colors = _getPaletteColors(context, _selectedField);
 
-    final fieldOptions = ['status', 'format', 'place', 'language', 'genre'];
+    final fieldOptions = [
+      'status',
+      'format',
+      'place',
+      'language',
+      'genre',
+      'trope',
+    ];
 
     return Card(
       elevation: 2,
