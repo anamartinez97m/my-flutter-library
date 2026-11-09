@@ -4564,6 +4564,21 @@ class AppLocalizationsEs extends AppLocalizations {
   String get share_list_preparing => 'Preparando imagen…';
 
   @override
+  String get trope => 'Trope';
+
+  @override
+  String get tropes => 'Trope(s)';
+
+  @override
+  String get search_or_add_trope => 'Escribe para buscar o añadir trope';
+
+  @override
+  String get dropdown_tropes => 'Tropes';
+
+  @override
+  String get trope_no_commas => 'Los tropes no pueden contener comas';
+
+  @override
   String get reading_club => 'Club de lectura';
 
   @override

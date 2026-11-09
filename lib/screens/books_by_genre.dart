@@ -13,10 +13,16 @@ Color get _kDivider => V2Colors.divider;
 Color get _kText => V2Colors.textSubtle;
 Color get _kSub => V2Colors.textSecondary;
 
+/// Books with one of [genres]; with [tropes] set, the names are tropes.
 class BooksByGenreScreen extends StatelessWidget {
   final List<String> genres;
+  final bool tropes;
 
-  const BooksByGenreScreen({super.key, required this.genres});
+  const BooksByGenreScreen({
+    super.key,
+    required this.genres,
+    this.tropes = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +41,9 @@ class BooksByGenreScreen extends StatelessWidget {
             onPressed: () => Navigator.pop(context),
           ),
           title: Text(
-            AppLocalizations.of(context)!.genre,
+            tropes
+                ? AppLocalizations.of(context)!.trope
+                : AppLocalizations.of(context)!.genre,
             style: TextStyle(
               fontFamily: V2Typography.family,
               fontSize: 20,
@@ -76,18 +84,19 @@ class BooksByGenreScreen extends StatelessWidget {
             child: Divider(height: 1, thickness: 1, color: V2Colors.border),
           ),
         ),
-        body: _GenreContent(genreName: genres.first),
+        body: _GenreContent(genreName: genres.first, tropes: tropes),
       );
     }
 
-    return _MultiGenreScreen(genres: genres);
+    return _MultiGenreScreen(genres: genres, tropes: tropes);
   }
 }
 
 class _MultiGenreScreen extends StatefulWidget {
   final List<String> genres;
+  final bool tropes;
 
-  const _MultiGenreScreen({required this.genres});
+  const _MultiGenreScreen({required this.genres, required this.tropes});
 
   @override
   State<_MultiGenreScreen> createState() => _MultiGenreScreenState();
@@ -112,7 +121,9 @@ class _MultiGenreScreenState extends State<_MultiGenreScreen> {
               onPressed: () => Navigator.pop(context),
             ),
             title: Text(
-              AppLocalizations.of(context)!.genres,
+              widget.tropes
+                  ? AppLocalizations.of(context)!.dropdown_tropes
+                  : AppLocalizations.of(context)!.genres,
               style: TextStyle(
                 fontFamily: V2Typography.family,
                 fontSize: 20,
@@ -165,6 +176,7 @@ class _MultiGenreScreenState extends State<_MultiGenreScreen> {
             child: _GenreContent(
               key: ValueKey(widget.genres[_selectedIndex]),
               genreName: widget.genres[_selectedIndex],
+              tropes: widget.tropes,
             ),
           ),
         ],
@@ -175,8 +187,13 @@ class _MultiGenreScreenState extends State<_MultiGenreScreen> {
 
 class _GenreContent extends StatelessWidget {
   final String genreName;
+  final bool tropes;
 
-  const _GenreContent({super.key, required this.genreName});
+  const _GenreContent({
+    super.key,
+    required this.genreName,
+    required this.tropes,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -189,12 +206,10 @@ class _GenreContent extends StatelessWidget {
     // Filter books that contain this genre (comma-separated, case-insensitive)
     final filteredBooks =
         provider.allBooks.where((book) {
-          if (book.genre == null || book.genre!.isEmpty) return false;
+          final names = tropes ? book.trope : book.genre;
+          if (names == null || names.isEmpty) return false;
           final bookGenres =
-              book.genre!
-                  .split(',')
-                  .map((g) => g.trim().toLowerCase())
-                  .toList();
+              names.split(',').map((g) => g.trim().toLowerCase()).toList();
           return bookGenres.contains(genreName.toLowerCase());
         }).toList();
 

@@ -24,6 +24,7 @@ class Book {
   final String? createdAt;
   final String? author;
   final String? genre;
+  final String? trope;
   final String? dateReadInitial;
   final String? dateReadFinal;
   final int? readCount;
@@ -85,6 +86,7 @@ class Book {
     required this.createdAt,
     this.author,
     this.genre,
+    this.trope,
     this.dateReadInitial,
     this.dateReadFinal,
     this.readCount,
@@ -150,6 +152,7 @@ class Book {
       createdAt: map['created_at'] as String?,
       author: map['author'] as String?,
       genre: map['genre'] as String?,
+      trope: map['trope'] as String?,
       dateReadInitial: map['date_read_initial'] as String?,
       dateReadFinal: map['date_read_final'] as String?,
       readCount:
@@ -224,6 +227,7 @@ class Book {
       'createdAt': createdAt,
       'author': author,
       'genre': genre,
+      'trope': trope,
       'dateReadInitial': dateReadInitial,
       'dateReadFinal': dateReadFinal,
       'readCount': readCount,
@@ -260,6 +264,6 @@ class Book {
 
   @override
   String toString() {
-    return 'Book(bookId: $bookId, name: $name, author: $author, genre: $genre, saga: $saga, nSaga: $nSaga, sagaUniverse: $sagaUniverse, formatSagaValue: $formatSagaValue, isbn: $isbn, asin: $asin, pages: $pages, originalPublicationYear: $originalPublicationYear, loaned: $loaned, statusValue: $statusValue, editorialValue: $editorialValue, languageValue: $languageValue, placeValue: $placeValue, formatValue: $formatValue, createdAt: $createdAt, dateReadInitial: $dateReadInitial, dateReadFinal: $dateReadFinal, readCount: $readCount, myRating: $myRating, myReview: $myReview, isBundle: $isBundle, bundleCount: $bundleCount, bundleNumbers: $bundleNumbers, bundleStartDates: $bundleStartDates, bundleEndDates: $bundleEndDates, bundlePages: $bundlePages, orderWithinUniverse: $orderWithinUniverse)';
+    return 'Book(bookId: $bookId, name: $name, author: $author, genre: $genre, trope: $trope, saga: $saga, nSaga: $nSaga, sagaUniverse: $sagaUniverse, formatSagaValue: $formatSagaValue, isbn: $isbn, asin: $asin, pages: $pages, originalPublicationYear: $originalPublicationYear, loaned: $loaned, statusValue: $statusValue, editorialValue: $editorialValue, languageValue: $languageValue, placeValue: $placeValue, formatValue: $formatValue, createdAt: $createdAt, dateReadInitial: $dateReadInitial, dateReadFinal: $dateReadFinal, readCount: $readCount, myRating: $myRating, myReview: $myReview, isBundle: $isBundle, bundleCount: $bundleCount, bundleNumbers: $bundleNumbers, bundleStartDates: $bundleStartDates, bundleEndDates: $bundleEndDates, bundlePages: $bundlePages, orderWithinUniverse: $orderWithinUniverse)';
   }
 }

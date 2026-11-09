@@ -2015,6 +2015,11 @@
   "share_list": "Share list",
   "share_list_image": "Share image",
   "share_list_preparing": "Preparing image…",
+  "trope": "Trope",
+  "tropes": "Trope(s)",
+  "search_or_add_trope": "Type to search or add new trope",
+  "dropdown_tropes": "Tropes",
+  "trope_no_commas": "Trope names can't contain commas",
 
   "reading_club": "Reading club",
   "book_list_field": "List",

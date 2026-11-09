@@ -120,6 +120,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   // Autocomplete suggestions
   List<String> _authorSuggestions = [];
   List<String> _genreSuggestions = [];
+  List<String> _tropeSuggestions = [];
   List<String> _editorialSuggestions = [];
   List<String> _sagaSuggestions = [];
   List<String> _sagaUniverseSuggestions = [];
@@ -127,6 +128,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   // Multi-value fields
   List<String> _selectedAuthors = [];
   List<String> _selectedGenres = [];
+  List<String> _selectedTropes = [];
   late final _seriesGenreAutofill = SeriesGenreAutofill(
     saga: widget.book.saga,
     universe: widget.book.sagaUniverse,
@@ -316,6 +318,14 @@ class _EditBookScreenState extends State<EditBookScreen> {
               .where((g) => g.isNotEmpty)
               .toList();
     }
+    if (widget.book.trope != null && widget.book.trope!.isNotEmpty) {
+      _selectedTropes =
+          widget.book.trope!
+              .split(',')
+              .map((t) => t.trim())
+              .where((t) => t.isNotEmpty)
+              .toList();
+    }
     if (widget.book.editorialValue != null &&
         widget.book.editorialValue!.isNotEmpty) {
       _selectedEditorial = [widget.book.editorialValue!];
@@ -447,6 +457,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
       final format = await repository.getLookupValues('format');
       final authors = await repository.getLookupValues('author');
       final genres = await repository.getLookupValues('genre');
+      final tropes = await repository.getLookupValues('trope');
       final editorials = await repository.getLookupValues('editorial');
       final sagas = await repository.getDistinctSagas();
       final sagaUniverses = await repository.getDistinctSagaUniverses();
@@ -461,6 +472,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
         _authorSuggestions = authors.map((a) => a['name'] as String).toList();
         _genreSuggestions = genres.map((g) => g['name'] as String).toList();
+        _tropeSuggestions = tropes.map((t) => t['name'] as String).toList();
         _editorialSuggestions =
             editorials.map((e) => e['name'] as String).toList();
         _sagaSuggestions = sagas;
@@ -695,6 +707,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
         formatSagaValue: formatSagaValue,
         createdAt: widget.book.createdAt,
         genre: _selectedGenres.isEmpty ? null : _selectedGenres.join(', '),
+        trope: _selectedTropes.isEmpty ? null : _selectedTropes.join(', '),
         dateReadInitial: null,
         dateReadFinal: null,
         readCount: _readCount,
@@ -767,6 +780,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
         formatValue: updatedBook.formatValue,
         editorialValue: updatedBook.editorialValue,
         genre: updatedBook.genre,
+        trope: updatedBook.trope,
         loaned: updatedBook.loaned,
         createdAt: updatedBook.createdAt,
         readCount: updatedBook.readCount,
@@ -860,6 +874,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 createdAt: existingBook.createdAt,
                 author: bundleBookData.author,
                 genre: existingBook.genre,
+                trope: existingBook.trope,
                 dateReadInitial: existingBook.dateReadInitial,
                 dateReadFinal: existingBook.dateReadFinal,
                 readCount: existingBook.readCount,
@@ -953,6 +968,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
                         : _selectedAuthors.join(', ')),
                 genre:
                     _selectedGenres.isEmpty ? null : _selectedGenres.join(', '),
+                trope:
+                    _selectedTropes.isEmpty ? null : _selectedTropes.join(', '),
                 dateReadInitial: null,
                 dateReadFinal: null,
                 readCount: 0,
@@ -1814,6 +1831,21 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     onChanged: (values) {
                       setState(() {
                         _selectedGenres = values;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Trope field
+                  ChipAutocompleteField(
+                    labelText: AppLocalizations.of(context)!.tropes,
+                    prefixIcon: Icons.local_offer_outlined,
+                    suggestions: _tropeSuggestions,
+                    initialValues: _selectedTropes,
+                    hintText: AppLocalizations.of(context)!.search_or_add_trope,
+                    onChanged: (values) {
+                      setState(() {
+                        _selectedTropes = values;
                       });
                     },
                   ),

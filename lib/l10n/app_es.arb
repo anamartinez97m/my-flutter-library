@@ -1993,6 +1993,11 @@
   "share_list": "Compartir lista",
   "share_list_image": "Compartir imagen",
   "share_list_preparing": "Preparando imagen…",
+  "trope": "Trope",
+  "tropes": "Trope(s)",
+  "search_or_add_trope": "Escribe para buscar o añadir trope",
+  "dropdown_tropes": "Tropes",
+  "trope_no_commas": "Los tropes no pueden contener comas",
 
   "reading_club": "Club de lectura",
   "book_list_field": "Lista",

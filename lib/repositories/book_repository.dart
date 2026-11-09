@@ -64,7 +64,8 @@ class BookRepository {
         b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
         b.order_within_universe,
         GROUP_CONCAT(DISTINCT a.name) as author,
-        GROUP_CONCAT(DISTINCT g.name) as genre
+        GROUP_CONCAT(DISTINCT g.name) as genre,
+        (SELECT GROUP_CONCAT(t.name) FROM books_by_trope bbt JOIN trope t ON bbt.trope_id = t.trope_id WHERE bbt.book_id = b.book_id) as trope
       from book b 
       left join books_by_author bba on b.book_id = bba.book_id 
       left join author a on bba.author_id = a.author_id 
@@ -131,7 +132,8 @@ class BookRepository {
         b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
         b.order_within_universe,
         GROUP_CONCAT(DISTINCT a.name) as author,
-        GROUP_CONCAT(DISTINCT g.name) as genre
+        GROUP_CONCAT(DISTINCT g.name) as genre,
+        (SELECT GROUP_CONCAT(t.name) FROM books_by_trope bbt JOIN trope t ON bbt.trope_id = t.trope_id WHERE bbt.book_id = b.book_id) as trope
       from book b 
       left join books_by_author bba on b.book_id = bba.book_id 
       left join author a on bba.author_id = a.author_id
@@ -261,7 +263,8 @@ class BookRepository {
         b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
         b.order_within_universe,
         GROUP_CONCAT(DISTINCT a.name) as author,
-        GROUP_CONCAT(DISTINCT g.name) as genre
+        GROUP_CONCAT(DISTINCT g.name) as genre,
+        (SELECT GROUP_CONCAT(t.name) FROM books_by_trope bbt JOIN trope t ON bbt.trope_id = t.trope_id WHERE bbt.book_id = b.book_id) as trope
       from book b 
       left join books_by_author bba on b.book_id = bba.book_id 
       left join author a on bba.author_id = a.author_id
@@ -301,7 +304,8 @@ class BookRepository {
         b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
         b.order_within_universe,
         GROUP_CONCAT(DISTINCT a.name) as author,
-        GROUP_CONCAT(DISTINCT g.name) as genre
+        GROUP_CONCAT(DISTINCT g.name) as genre,
+        (SELECT GROUP_CONCAT(t.name) FROM books_by_trope bbt JOIN trope t ON bbt.trope_id = t.trope_id WHERE bbt.book_id = b.book_id) as trope
       from book b 
       left join books_by_author bba on b.book_id = bba.book_id 
       left join author a on bba.author_id = a.author_id
@@ -357,7 +361,8 @@ class BookRepository {
         b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
         b.order_within_universe,
         GROUP_CONCAT(DISTINCT a.name) as author,
-        GROUP_CONCAT(DISTINCT g.name) as genre
+        GROUP_CONCAT(DISTINCT g.name) as genre,
+        (SELECT GROUP_CONCAT(t.name) FROM books_by_trope bbt JOIN trope t ON bbt.trope_id = t.trope_id WHERE bbt.book_id = b.book_id) as trope
       from book b 
       left join books_by_author bba on b.book_id = bba.book_id 
       left join author a on bba.author_id = a.author_id
@@ -477,6 +482,25 @@ class BookRepository {
         // Link book to genre (avoid duplicates)
         await db.insert('books_by_genre', {
           'genre_id': genreId,
+          'book_id': bookId,
+        }, conflictAlgorithm: ConflictAlgorithm.ignore);
+      }
+    }
+  }
+
+  Future<void> _linkTropes(int bookId, String? tropesStr) async {
+    if (tropesStr == null || tropesStr.trim().isEmpty) return;
+
+    final tropes = tropesStr
+        .split(',')
+        .map((t) => t.trim())
+        .where((t) => t.isNotEmpty);
+
+    for (final tropeName in tropes) {
+      final tropeId = await _getOrInsertLookupId('trope', 'name', tropeName);
+      if (tropeId != null) {
+        await db.insert('books_by_trope', {
+          'trope_id': tropeId,
           'book_id': bookId,
         }, conflictAlgorithm: ConflictAlgorithm.ignore);
       }
@@ -791,6 +815,10 @@ class BookRepository {
       return 0;
     }
 
+    if (tableName == 'trope') {
+      await db.delete('books_by_trope', where: 'trope_id = ?', whereArgs: [id]);
+    }
+
     // format_saga table uses 'format_id' not 'format_saga_id'
     final idColumn =
         tableName == 'format_saga' ? 'format_id' : '${tableName}_id';
@@ -818,6 +846,11 @@ class BookRepository {
     );
     await db.delete(
       'books_by_genre',
+      where: 'book_id = ?',
+      whereArgs: [bookId],
+    );
+    await db.delete(
+      'books_by_trope',
       where: 'book_id = ?',
       whereArgs: [bookId],
     );
@@ -1129,6 +1162,17 @@ class BookRepository {
         newBook.genre!.isNotEmpty) {
       await _linkGenres(existingBookId, newBook.genre);
     }
+
+    final existingTropes = await db.query(
+      'books_by_trope',
+      where: 'book_id = ?',
+      whereArgs: [existingBookId],
+    );
+    if (existingTropes.isEmpty &&
+        newBook.trope != null &&
+        newBook.trope!.isNotEmpty) {
+      await _linkTropes(existingBookId, newBook.trope);
+    }
   }
 
   Future<int> addBook(Book book) async {
@@ -1239,6 +1283,11 @@ class BookRepository {
         where: 'book_id = ?',
         whereArgs: [bookId],
       );
+      await db.delete(
+        'books_by_trope',
+        where: 'book_id = ?',
+        whereArgs: [bookId],
+      );
     }
 
     // Link authors (many-to-many relationship)
@@ -1246,6 +1295,7 @@ class BookRepository {
 
     // Link genres (many-to-many relationship)
     await _linkGenres(bookId, book.genre);
+    await _linkTropes(bookId, book.trope);
 
     if (book.bundleParentId != null) {
       await _syncBundleCount(book.bundleParentId!);
@@ -1553,6 +1603,10 @@ class BookRepository {
         COALESCE(orig.order_within_universe, b.order_within_universe) as order_within_universe,
         COALESCE(orig_authors.author, authors.author) as author,
         COALESCE(orig_genres.genre, genres.genre) as genre,
+        COALESCE(
+          (SELECT GROUP_CONCAT(t.name) FROM books_by_trope bbt JOIN trope t ON bbt.trope_id = t.trope_id WHERE bbt.book_id = orig.book_id),
+          (SELECT GROUP_CONCAT(t.name) FROM books_by_trope bbt JOIN trope t ON bbt.trope_id = t.trope_id WHERE bbt.book_id = b.book_id)
+        ) as trope,
         MAX(rd.date_finished) as latest_read_date,
         rd.bundle_book_index
       FROM book b
@@ -1651,7 +1705,8 @@ class BookRepository {
         b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
         b.order_within_universe,
         GROUP_CONCAT(DISTINCT a.name) as author,
-        GROUP_CONCAT(DISTINCT g.name) as genre
+        GROUP_CONCAT(DISTINCT g.name) as genre,
+        (SELECT GROUP_CONCAT(t.name) FROM books_by_trope bbt JOIN trope t ON bbt.trope_id = t.trope_id WHERE bbt.book_id = b.book_id) as trope
       from book b 
       left join books_by_author bba on b.book_id = bba.book_id 
       left join author a on bba.author_id = a.author_id
@@ -1706,7 +1761,8 @@ class BookRepository {
         b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
         b.order_within_universe,
         GROUP_CONCAT(DISTINCT a.name) as author,
-        GROUP_CONCAT(DISTINCT g.name) as genre
+        GROUP_CONCAT(DISTINCT g.name) as genre,
+        (SELECT GROUP_CONCAT(t.name) FROM books_by_trope bbt JOIN trope t ON bbt.trope_id = t.trope_id WHERE bbt.book_id = b.book_id) as trope
       from book b 
       left join books_by_author bba on b.book_id = bba.book_id 
       left join author a on bba.author_id = a.author_id
@@ -2167,7 +2223,8 @@ class BookRepository {
         b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
         b.order_within_universe,
         GROUP_CONCAT(DISTINCT a.name) as author,
-        GROUP_CONCAT(DISTINCT g.name) as genre
+        GROUP_CONCAT(DISTINCT g.name) as genre,
+        (SELECT GROUP_CONCAT(t.name) FROM books_by_trope bbt JOIN trope t ON bbt.trope_id = t.trope_id WHERE bbt.book_id = b.book_id) as trope
       FROM book b 
       LEFT JOIN books_by_author bba ON b.book_id = bba.book_id 
       LEFT JOIN author a ON bba.author_id = a.author_id
@@ -2210,7 +2267,8 @@ class BookRepository {
         b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
         b.order_within_universe,
         GROUP_CONCAT(DISTINCT a.name) as author,
-        GROUP_CONCAT(DISTINCT g.name) as genre
+        GROUP_CONCAT(DISTINCT g.name) as genre,
+        (SELECT GROUP_CONCAT(t.name) FROM books_by_trope bbt JOIN trope t ON bbt.trope_id = t.trope_id WHERE bbt.book_id = b.book_id) as trope
       FROM book b 
       LEFT JOIN books_by_author bba ON b.book_id = bba.book_id 
       LEFT JOIN author a ON bba.author_id = a.author_id
@@ -2324,7 +2382,8 @@ class BookRepository {
         b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
         b.order_within_universe,
         GROUP_CONCAT(DISTINCT a.name) as author,
-        GROUP_CONCAT(DISTINCT g.name) as genre
+        GROUP_CONCAT(DISTINCT g.name) as genre,
+        (SELECT GROUP_CONCAT(t.name) FROM books_by_trope bbt JOIN trope t ON bbt.trope_id = t.trope_id WHERE bbt.book_id = b.book_id) as trope
       FROM book b 
       LEFT JOIN books_by_author bba ON b.book_id = bba.book_id 
       LEFT JOIN author a ON bba.author_id = a.author_id
@@ -2492,7 +2551,8 @@ class BookRepository {
         b.cover_url, b.description, b.metadata_source, b.metadata_fetched_at, b.acquired_date,
         b.order_within_universe,
         GROUP_CONCAT(DISTINCT a.name) as author,
-        GROUP_CONCAT(DISTINCT g.name) as genre
+        GROUP_CONCAT(DISTINCT g.name) as genre,
+        (SELECT GROUP_CONCAT(t.name) FROM books_by_trope bbt JOIN trope t ON bbt.trope_id = t.trope_id WHERE bbt.book_id = b.book_id) as trope
       FROM book b 
       LEFT JOIN books_by_author bba ON b.book_id = bba.book_id 
       LEFT JOIN author a ON bba.author_id = a.author_id
