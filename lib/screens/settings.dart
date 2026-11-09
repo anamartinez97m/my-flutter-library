@@ -81,6 +81,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     'status',
     'format',
     'genre',
+    'trope',
     'language',
     'place',
     'editorial',
@@ -103,6 +104,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     'isbn',
     'author',
     'genre',
+    'trope',
     'editorial',
     'saga',
     'saga_universe',
@@ -127,6 +129,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return l10n.filter_format;
       case 'genre':
         return l10n.filter_genre;
+      case 'trope':
+        return l10n.trope;
       case 'language':
         return l10n.filter_language;
       case 'place':
@@ -171,6 +175,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     'isbn',
     'pages',
     'genre',
+    'trope',
     'editorial',
     'publication_year',
     'publication_date',
@@ -202,6 +207,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return l10n.card_field_pages;
       case 'genre':
         return l10n.card_field_genre;
+      case 'trope':
+        return l10n.trope;
       case 'editorial':
         return l10n.card_field_editorial;
       case 'publication_year':

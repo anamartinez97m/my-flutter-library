@@ -153,6 +153,11 @@ class BookProvider extends ChangeNotifier {
                       return false;
                     }
                     break;
+                  case 'trope':
+                    if (book.trope != null && book.trope!.isNotEmpty) {
+                      return false;
+                    }
+                    break;
                   case 'place':
                     if (book.placeValue != null &&
                         book.placeValue!.isNotEmpty) {
@@ -215,6 +220,11 @@ class BookProvider extends ChangeNotifier {
                     if (!(book.genre?.contains(filterValue) ?? false)) {
                       return false;
                     }
+                    break;
+                  case 'trope':
+                    final tropes =
+                        book.trope?.split(',').map((t) => t.trim()) ?? [];
+                    if (!tropes.contains(filterValue)) return false;
                     break;
                   case 'place':
                     if (book.placeValue != filterValue) return false;

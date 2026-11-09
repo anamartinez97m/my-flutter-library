@@ -20,7 +20,7 @@ Decided in the thread:
 - Start with ~30 common tropes. She can rename or delete them.
 - The Tropes field goes **right after Genres** (Primary Info) in both Add Book and Edit Book.
 - In the Home top-row search, **"Genre" searches genres and tropes together**. There is no separate "Trope" search option.
-- The Home filter sheet's Genre dropdown stays genres only (not in scope for now).
+- The Home filter sheet's Genre dropdown stays genres only. Tropes get their own "Trope" dropdown next to it (added in phase 1), plus a "Trope" home card field.
 - Seeded tropes are in English.
 - Stats: books per trope + top tropes by average rating.
 - Hardcover tags that don't match a trope are shown unchecked as "New trope".
@@ -98,7 +98,7 @@ Seed list (30, English):
 ### 1.6 Home (`new_home_screen.dart`, `BookProvider`)
 
 - Top-row search, option **"Genre"** (`case 4` in `BookProvider`): matches if the normalized query is in `genre` **or** `trope`. Same accent-insensitive normalization. The label stays "Genre".
-- Filter sheet "Genre" dropdown: unchanged, genres only (decided: forget it for now).
+- Filter sheet "Genre" dropdown: unchanged, genres only. A separate "Trope" dropdown and a "Trope" card field were added later in phase 1 (Settings > Customize home filters / card fields).
 
 ### 1.7 Localization
 
@@ -186,7 +186,7 @@ One PR per phase.
 ## 7. Answered questions
 
 1. Seed language: **English**.
-2. Home filter sheet Genre dropdown listing tropes: **not for now**. Only the top-row "Genre" search matches tropes.
+2. Home filter sheet Genre dropdown listing tropes: **no**. Later asked for a separate "Trope" filter and card field instead (phase 1).
 3. Stats: **books per trope + top tropes by average rating** are good for now.
 4. Unmatched Hardcover tags: **shown unchecked as "New trope"**, added in one tap.
 5. Bulk Hardcover suggestions: **yes, in the Library Tools section**.
