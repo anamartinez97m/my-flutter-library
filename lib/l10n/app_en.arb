@@ -930,6 +930,14 @@
   "select_publisher": "Select publisher",
   "genres": "Genre(s)",
   "search_or_add_genre": "Type to search or add new genre",
+  "genres_added_from_series": "Added genres from the saga/universe: {genres}",
+  "@genres_added_from_series": {
+    "placeholders": {
+      "genres": {
+        "type": "String"
+      }
+    }
+  },
   "original_publication_date": "Original Publication Date (for notifications)",
   "release_date": "Release Date",
   "select_release_date": "Select release date",
@@ -2022,5 +2030,37 @@
   "and_all_tropes": "AND: must have all selected tropes",
   "or_any_trope": "OR: matches any selected trope",
   "top_tropes_by_rating": "Top Tropes by Rating",
-  "top_tropes_by_rating_hint": "Read books only, at least 3 rated books per trope"
+  "top_tropes_by_rating_hint": "Read books only, at least 3 rated books per trope",
+
+  "reading_club": "Reading club",
+  "book_list_field": "List",
+  "type_or_pick_value": "Type a new value or pick one",
+  "acquired_date_format_hint": "YYYY or YYYY-MM-DD",
+  "invalid_value": "Invalid value",
+  "tbr_bulk_over_limit": "This would leave {total} books in your TBR, over your limit of {limit}. Select fewer books or raise the limit.",
+  "@tbr_bulk_over_limit": {"placeholders": {"total": {"type": "int"}, "limit": {"type": "int"}}},
+  "other_books_in_saga_have": "Other books in this saga have: {values}",
+  "@other_books_in_saga_have": {"placeholders": {"values": {"type": "String"}}},
+  "fill_per_book_section": "Type a value per book",
+  "fill_per_book_hint": "For fields that are different for every book. You get the books with the field empty and type each value.",
+  "save_n_books": "Save {count} book(s)",
+  "@save_n_books": {"placeholders": {"count": {"type": "int"}}},
+  "merge_variants_title": "Merge {variants} into \"{value}\" ({field})",
+  "@merge_variants_title": {"placeholders": {"variants": {"type": "String"}, "value": {"type": "String"}, "field": {"type": "String"}}},
+  "suggestion_merge_desc": "These values only differ in accents, capital letters or punctuation. {count} book(s) will use the merged value.",
+  "@suggestion_merge_desc": {"placeholders": {"count": {"type": "int"}}},
+  "saga_duplicate_number_title": "Saga \"{saga}\": {count} books share number {number}",
+  "@saga_duplicate_number_title": {"placeholders": {"saga": {"type": "String"}, "number": {"type": "String"}, "count": {"type": "int"}}},
+  "saga_missing_number_title": "Saga \"{saga}\": {count} book(s) without a number",
+  "@saga_missing_number_title": {"placeholders": {"saga": {"type": "String"}, "count": {"type": "int"}}},
+  "suggestion_saga_numbering_desc": "The other books in the saga are numbered. Tap a book to open it and fix its number.",
+  "suggestion_author_peers_desc": "{count}/{total} books by {author} have \"{value}\" as {field}",
+  "@suggestion_author_peers_desc": {"placeholders": {"count": {"type": "int"}, "total": {"type": "int"}, "author": {"type": "String"}, "value": {"type": "String"}, "field": {"type": "String"}}},
+  "suggestion_saga_peers_desc": "{count}/{total} books in the saga \"{saga}\" have \"{value}\" as {field}",
+  "@suggestion_saga_peers_desc": {"placeholders": {"count": {"type": "int"}, "total": {"type": "int"}, "saga": {"type": "String"}, "value": {"type": "String"}, "field": {"type": "String"}}},
+  "suggestion_saga_duplicate_desc": "Two books in a saga shouldn't share a number. Tap a book to open it and fix its number.",
+  "spelling_variants": "Spelling variants",
+  "needs_review": "Needs review",
+  "dismiss": "Dismiss",
+  "review_books": "Review books"
 }
