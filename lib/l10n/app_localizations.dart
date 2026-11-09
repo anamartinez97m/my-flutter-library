@@ -3917,8 +3917,14 @@ abstract class AppLocalizations {
   /// No description provided for @timer_exit_confirm.
   ///
   /// In en, this message translates to:
-  /// **'The timer is still counting. Are you sure you want to exit without stopping it?'**
+  /// **'If you exit now, this reading time won\'t be saved and the timer will reset.'**
   String get timer_exit_confirm;
+
+  /// No description provided for @timer_discard_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard reading session?'**
+  String get timer_discard_title;
 
   /// No description provided for @exit_label.
   ///

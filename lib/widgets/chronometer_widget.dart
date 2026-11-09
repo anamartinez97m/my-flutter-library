@@ -343,6 +343,32 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
     }
   }
 
+  /// Exit from the X button: drops the timer and the active reading session
+  /// row so the chronometer starts from zero next time.
+  Future<void> _discardSession() async {
+    _isStopping = true;
+    _timer?.cancel();
+    WakelockPlus.disable();
+    await _clearSessionState();
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final repository = ReadingSessionRepository(db);
+      final session =
+          _activeSession ?? await repository.getActiveSession(widget.bookId);
+      if (session?.sessionId != null && session!.isActive) {
+        await repository.deleteSession(session.sessionId!);
+      }
+    } catch (e) {
+      debugPrint('Error discarding session: $e');
+    }
+    _isRunning = false;
+    _elapsedSeconds = 0;
+    _activeSession = null;
+    _sessionStartTime = null;
+    widget.onSessionComplete?.call();
+    NotificationService().refreshReadingReminders();
+  }
+
   Future<void> _createNewSession() async {
     try {
       final db = await DatabaseHelper.instance.database;
@@ -492,15 +518,19 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
                         ),
                         GestureDetector(
                           onTap: () async {
-                            if (_isRunning) {
+                            if (_hasSessionInProgress) {
                               final shouldClose = await showDialog<bool>(
                                 context: context,
                                 builder:
                                     (context) => AlertDialog(
                                       title: Text(
-                                        AppLocalizations.of(
-                                          context,
-                                        )!.timer_is_running,
+                                        _isRunning
+                                            ? AppLocalizations.of(
+                                              context,
+                                            )!.timer_is_running
+                                            : AppLocalizations.of(
+                                              context,
+                                            )!.timer_discard_title,
                                       ),
                                       content: Text(
                                         AppLocalizations.of(
@@ -537,8 +567,9 @@ class _ChronometerWidgetState extends State<ChronometerWidget>
                                       ],
                                     ),
                               );
-                              if (shouldClose == true && context.mounted) {
-                                Navigator.pop(context);
+                              if (shouldClose == true) {
+                                await _discardSession();
+                                if (context.mounted) Navigator.pop(context);
                               }
                             } else {
                               Navigator.pop(context);

@@ -2169,7 +2169,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get timer_exit_confirm =>
-      'The timer is still counting. Are you sure you want to exit without stopping it?';
+      'If you exit now, this reading time won\'t be saved and the timer will reset.';
+
+  @override
+  String get timer_discard_title => 'Discard reading session?';
 
   @override
   String get exit_label => 'Exit';

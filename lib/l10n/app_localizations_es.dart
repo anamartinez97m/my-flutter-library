@@ -2196,7 +2196,10 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get timer_exit_confirm =>
-      'El temporizador sigue contando. ¿Estás seguro de que quieres salir sin detenerlo?';
+      'Si sales ahora, este tiempo de lectura no se guardará y el temporizador se reiniciará.';
+
+  @override
+  String get timer_discard_title => '¿Descartar la sesión de lectura?';
 
   @override
   String get exit_label => 'Salir';
