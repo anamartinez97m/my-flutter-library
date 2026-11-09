@@ -4509,4 +4509,103 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get share_list_preparing => 'Preparing image…';
+
+  @override
+  String get reading_club => 'Reading club';
+
+  @override
+  String get book_list_field => 'List';
+
+  @override
+  String get type_or_pick_value => 'Type a new value or pick one';
+
+  @override
+  String get acquired_date_format_hint => 'YYYY or YYYY-MM-DD';
+
+  @override
+  String get invalid_value => 'Invalid value';
+
+  @override
+  String tbr_bulk_over_limit(int total, int limit) {
+    return 'This would leave $total books in your TBR, over your limit of $limit. Select fewer books or raise the limit.';
+  }
+
+  @override
+  String other_books_in_saga_have(String values) {
+    return 'Other books in this saga have: $values';
+  }
+
+  @override
+  String get fill_per_book_section => 'Type a value per book';
+
+  @override
+  String get fill_per_book_hint =>
+      'For fields that are different for every book. You get the books with the field empty and type each value.';
+
+  @override
+  String save_n_books(int count) {
+    return 'Save $count book(s)';
+  }
+
+  @override
+  String merge_variants_title(String variants, String value, String field) {
+    return 'Merge $variants into \"$value\" ($field)';
+  }
+
+  @override
+  String suggestion_merge_desc(int count) {
+    return 'These values only differ in accents, capital letters or punctuation. $count book(s) will use the merged value.';
+  }
+
+  @override
+  String saga_duplicate_number_title(String saga, String number, int count) {
+    return 'Saga \"$saga\": $count books share number $number';
+  }
+
+  @override
+  String saga_missing_number_title(String saga, int count) {
+    return 'Saga \"$saga\": $count book(s) without a number';
+  }
+
+  @override
+  String get suggestion_saga_numbering_desc =>
+      'The other books in the saga are numbered. Tap a book to open it and fix its number.';
+
+  @override
+  String suggestion_author_peers_desc(
+    int count,
+    int total,
+    String author,
+    String value,
+    String field,
+  ) {
+    return '$count/$total books by $author have \"$value\" as $field';
+  }
+
+  @override
+  String suggestion_saga_peers_desc(
+    int count,
+    int total,
+    String saga,
+    String value,
+    String field,
+  ) {
+    return '$count/$total books in the saga \"$saga\" have \"$value\" as $field';
+  }
+
+  @override
+  String get suggestion_saga_duplicate_desc =>
+      'Two books in a saga shouldn\'t share a number. Tap a book to open it and fix its number.';
+
+  @override
+  String get spelling_variants => 'Spelling variants';
+
+  @override
+  String get needs_review => 'Needs review';
+
+  @override
+  String get dismiss => 'Dismiss';
+
+  @override
+  String get review_books => 'Review books';
 }

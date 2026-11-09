@@ -4,6 +4,7 @@ import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/model/book_relation.dart';
 import 'package:myrandomlibrary/model/placeholder_relation.dart';
 import 'package:myrandomlibrary/model/read_date.dart';
+import 'package:myrandomlibrary/model/user_list.dart';
 import 'package:myrandomlibrary/model/universe_placeholder.dart';
 import 'package:myrandomlibrary/repositories/user_list_repository.dart';
 import 'package:myrandomlibrary/utils/book_fields_csv.dart';
@@ -1935,8 +1936,10 @@ class BookRepository {
   }
 
   /// Bulk update a field for multiple books
-  /// [field] can be: genre, author, format, language, place, editorial, format_saga, saga, saga_universe
-  /// For genre/author: adds the value (does not replace existing)
+  /// [field] can be: genre, author, format, language, place, editorial,
+  /// format_saga, saga, saga_universe, acquired_date, tbr, loaned (value
+  /// 'yes'/'no'), reading_club (club name) or user_list (list id)
+  /// For genre/author/reading_club/user_list: adds the value (does not replace existing)
   /// For lookup fields: sets the lookup ID
   /// For text fields: sets the text value
   Future<int> updateBooksField(
@@ -1984,13 +1987,69 @@ class BookRepository {
               updated++;
             }
           }
-        } else if (field == 'saga' || field == 'saga_universe') {
+        } else if (field == 'saga' ||
+            field == 'saga_universe' ||
+            field == 'acquired_date') {
           // Text fields in book table
           final placeholders = bookIds.map((_) => '?').join(',');
           updated = await txn.rawUpdate(
             'UPDATE book SET $field = ? WHERE book_id IN ($placeholders)',
             [value, ...bookIds],
           );
+        } else if (field == 'tbr' || field == 'loaned') {
+          final isYes = value == 'yes';
+          final dbValue =
+              field == 'tbr' ? (isYes ? 1 : 0) : (isYes ? 'yes' : 'no');
+          final placeholders = bookIds.map((_) => '?').join(',');
+          updated = await txn.rawUpdate(
+            'UPDATE book SET $field = ? WHERE book_id IN ($placeholders)',
+            [dbValue, ...bookIds],
+          );
+        } else if (field == 'reading_club') {
+          await txn.insert('reading_club_names', {
+            'club_name': value,
+          }, conflictAlgorithm: ConflictAlgorithm.ignore);
+          final existing = await txn.rawQuery(
+            'SELECT book_id FROM reading_clubs WHERE club_name = ?',
+            [value],
+          );
+          final members = existing.map((r) => r['book_id'] as int).toSet();
+          for (final bookId in bookIds) {
+            if (!members.add(bookId)) continue;
+            await txn.insert('reading_clubs', {
+              'book_id': bookId,
+              'club_name': value,
+              'reading_progress': 0,
+            });
+            updated++;
+          }
+        } else if (field == 'user_list') {
+          final listId = int.tryParse(value);
+          if (listId != null) {
+            final existing = await txn.rawQuery(
+              'SELECT ref_id, position FROM user_list_items WHERE list_id = ?',
+              [listId],
+            );
+            final members = existing.map((r) => r['ref_id'] as int?).toSet();
+            var next =
+                existing.fold<int>(
+                  -1,
+                  (m, r) =>
+                      ((r['position'] as num?)?.toInt() ?? 0) > m
+                          ? (r['position'] as num).toInt()
+                          : m,
+                ) +
+                1;
+            for (final bookId in bookIds) {
+              if (!members.add(bookId)) continue;
+              await txn.insert('user_list_items', {
+                'list_id': listId,
+                'ref_id': bookId,
+                'position': next++,
+              });
+              updated++;
+            }
+          }
         } else {
           // Lookup ID fields: format, language, place, editorial, format_saga
           final tableName = field;
@@ -2070,8 +2129,20 @@ class BookRepository {
     } else if (field == 'author') {
       // Books with no authors in junction table
       return _getBooksWithoutJunctionValue('books_by_author', 'author_id');
-    } else if (field == 'saga' || field == 'saga_universe') {
-      whereCondition = "(b.$field IS NULL OR b.$field = '')";
+    } else if (field == 'reading_club') {
+      return _getBooksWithoutJunctionValue('reading_clubs', 'club_name');
+    } else if (const {
+      'saga',
+      'saga_universe',
+      'acquired_date',
+      'isbn',
+      'asin',
+    }.contains(field)) {
+      whereCondition = "(b.$field IS NULL OR TRIM(b.$field) = '')";
+    } else if (field == 'pages' || field == 'original_publication_year') {
+      whereCondition = '(b.$field IS NULL OR b.$field <= 0)';
+    } else if (field == 'price') {
+      whereCondition = 'b.price IS NULL';
     } else if (field == 'format_saga') {
       whereCondition = 'b.format_saga_id IS NULL';
     } else {
@@ -2167,6 +2238,7 @@ class BookRepository {
     String value,
   ) async {
     String whereCondition;
+    final params = <Object>[];
 
     if (field == 'genre') {
       // Books that don't have this specific genre
@@ -2192,8 +2264,26 @@ class BookRepository {
       final authorId = authorResult.first['author_id'] as int;
       whereCondition =
           'b.book_id NOT IN (SELECT book_id FROM books_by_author WHERE author_id = $authorId)';
-    } else if (field == 'saga' || field == 'saga_universe') {
+    } else if (field == 'saga' ||
+        field == 'saga_universe' ||
+        field == 'acquired_date') {
       whereCondition = "(b.$field IS NULL OR b.$field != ?)";
+      params.add(value);
+    } else if (field == 'tbr') {
+      whereCondition = value == 'yes' ? 'COALESCE(b.tbr, 0) != 1' : 'b.tbr = 1';
+    } else if (field == 'loaned') {
+      whereCondition =
+          value == 'yes'
+              ? "LOWER(COALESCE(b.loaned, '')) != 'yes'"
+              : "LOWER(COALESCE(b.loaned, '')) = 'yes'";
+    } else if (field == 'reading_club') {
+      whereCondition =
+          'b.book_id NOT IN (SELECT book_id FROM reading_clubs WHERE club_name = ?)';
+      params.add(value);
+    } else if (field == 'user_list') {
+      whereCondition =
+          'b.book_id NOT IN (SELECT ref_id FROM user_list_items WHERE list_id = ? AND ref_id IS NOT NULL)';
+      params.add(int.tryParse(value) ?? -1);
     } else if (field == 'format_saga') {
       final fsResult = await db.rawQuery(
         "SELECT format_id FROM format_saga WHERE LOWER(value) = ?",
@@ -2216,9 +2306,6 @@ class BookRepository {
       final lookupId = lookupResult.first[idColumn] as int;
       whereCondition = '(b.$idColumn IS NULL OR b.$idColumn != $lookupId)';
     }
-
-    final params =
-        (field == 'saga' || field == 'saga_universe') ? [value] : <String>[];
 
     final result = await db.rawQuery('''
       SELECT b.book_id, s.value as statusValue, b.name, e.name as editorialValue, 
@@ -2256,6 +2343,131 @@ class BookRepository {
     ''', params);
 
     return result.map((row) => Book.fromMap(row)).toList();
+  }
+
+  /// Sets a different value per book for a plain column of `book`.
+  /// [field] can be: pages, original_publication_year, price, acquired_date,
+  /// isbn, asin.
+  Future<int> updateBookValues(String field, Map<int, Object> values) async {
+    const allowed = {
+      'pages',
+      'original_publication_year',
+      'price',
+      'acquired_date',
+      'isbn',
+      'asin',
+    };
+    if (!allowed.contains(field) || values.isEmpty) return 0;
+    var updated = 0;
+    await db.transaction((txn) async {
+      for (final entry in values.entries) {
+        updated += await txn.rawUpdate(
+          'UPDATE book SET $field = ? WHERE book_id = ?',
+          [entry.value, entry.key],
+        );
+      }
+    });
+    return updated;
+  }
+
+  /// Replaces every use of the [from] values of [field] with [into] and
+  /// removes the [from] values. Used to merge spelling variants.
+  /// [field] can be: genre, author, editorial, place, language, saga,
+  /// saga_universe.
+  Future<int> mergeFieldValues(
+    String field,
+    List<String> from,
+    String into,
+  ) async {
+    final sources = from.where((v) => v != into).toList();
+    if (sources.isEmpty || into.isEmpty) return 0;
+    var updated = 0;
+
+    await db.transaction((txn) async {
+      if (field == 'saga' || field == 'saga_universe') {
+        for (final value in sources) {
+          updated += await txn.rawUpdate(
+            'UPDATE book SET $field = ? WHERE $field = ?',
+            [into, value],
+          );
+          await txn.rawUpdate(
+            'UPDATE OR IGNORE dropdown_subtitle_metadata SET value = ? '
+            'WHERE category = ? AND value = ?',
+            [into, field, value],
+          );
+          await txn.delete(
+            'dropdown_subtitle_metadata',
+            where: 'category = ? AND value = ?',
+            whereArgs: [field, value],
+          );
+          if (field == 'saga') {
+            await UserListRepository(txn).renameSaga(value, into);
+          }
+        }
+        return;
+      }
+
+      if (!const {
+        'genre',
+        'author',
+        'editorial',
+        'place',
+        'language',
+      }.contains(field)) {
+        return;
+      }
+      final idColumn = '${field}_id';
+      final intoRows = await txn.query(
+        field,
+        columns: [idColumn],
+        where: 'name = ?',
+        whereArgs: [into],
+        limit: 1,
+      );
+      final intoId =
+          intoRows.isNotEmpty
+              ? intoRows.first[idColumn] as int
+              : await txn.insert(field, {'name': into});
+
+      for (final value in sources) {
+        final rows = await txn.query(
+          field,
+          columns: [idColumn],
+          where: 'name = ? AND $idColumn != ?',
+          whereArgs: [value, intoId],
+        );
+        for (final row in rows) {
+          final fromId = row[idColumn] as int;
+          if (field == 'genre' || field == 'author') {
+            final junction =
+                field == 'genre' ? 'books_by_genre' : 'books_by_author';
+            updated += await txn.rawUpdate(
+              'UPDATE OR IGNORE $junction SET $idColumn = ? WHERE $idColumn = ?',
+              [intoId, fromId],
+            );
+            await txn.delete(
+              junction,
+              where: '$idColumn = ?',
+              whereArgs: [fromId],
+            );
+            await UserListRepository(txn).replaceRefId(
+              field == 'genre' ? UserListType.genre : UserListType.author,
+              fromId,
+              intoId,
+            );
+          } else {
+            updated += await txn.rawUpdate(
+              'UPDATE book SET $idColumn = ? WHERE $idColumn = ?',
+              [intoId, fromId],
+            );
+          }
+          await txn.delete(field, where: '$idColumn = ?', whereArgs: [fromId]);
+        }
+      }
+    });
+
+    debugPrint('✅ Merged ${sources.join(', ')} into "$into" ($field)');
+    return updated;
   }
 
   // ==================== Universe Reading Order Methods ====================

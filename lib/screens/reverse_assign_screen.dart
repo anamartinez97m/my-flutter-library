@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:myrandomlibrary/db/database_helper.dart';
+import 'package:myrandomlibrary/helpers/library_tool_fields.dart';
 import 'package:myrandomlibrary/l10n/app_localizations.dart';
 import 'package:myrandomlibrary/model/book.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/providers/role_provider.dart';
+import 'package:myrandomlibrary/widgets/library_tool_value_input.dart';
+import 'package:myrandomlibrary/widgets/tbr_limit_setting.dart';
 import 'package:provider/provider.dart';
 import '../config/app_theme.dart';
 
@@ -28,7 +31,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
   int _currentStep = 0;
   String? _selectedField;
   String? _selectedValue;
-  List<Map<String, dynamic>> _fieldValues = [];
+  List<FieldOption> _fieldValues = [];
   List<Book> _candidateBooks = [];
   final Set<int> _selectedBookIds = {};
   bool _isLoading = false;
@@ -37,90 +40,44 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
   final TextEditingController _searchController = TextEditingController();
 
   final List<Map<String, String>> _availableFields = [
-    {'key': 'genre'},
-    {'key': 'format'},
-    {'key': 'language'},
-    {'key': 'place'},
-    {'key': 'editorial'},
-    {'key': 'format_saga'},
+    for (final key in LibraryToolFields.assignFields) {'key': key},
   ];
 
-  String _getFieldLabel(String key) {
-    final l10n = AppLocalizations.of(context)!;
-    switch (key) {
-      case 'genre':
-        return l10n.genre;
-      case 'format':
-        return l10n.format;
-      case 'language':
-        return l10n.language;
-      case 'place':
-        return l10n.place;
-      case 'editorial':
-        return l10n.editorial;
-      case 'format_saga':
-        return l10n.format_saga;
-      default:
-        return key;
-    }
-  }
+  String _getFieldLabel(String key) =>
+      LibraryToolFields.label(AppLocalizations.of(context)!, key);
 
-  IconData _getFieldIcon(String key) {
-    switch (key) {
-      case 'genre':
-        return Icons.category;
-      case 'format':
-        return Icons.book;
-      case 'language':
-        return Icons.language;
-      case 'place':
-        return Icons.place;
-      case 'editorial':
-        return Icons.business;
-      case 'format_saga':
-        return Icons.collections_bookmark;
-      default:
-        return Icons.label;
-    }
-  }
+  IconData _getFieldIcon(String key) => LibraryToolFields.icon(key);
 
-  String _getValueName(Map<String, dynamic> item) {
-    if (_selectedField == 'status' ||
-        _selectedField == 'format' ||
-        _selectedField == 'format_saga') {
-      return item['value'] as String;
-    }
-    return item['name'] as String;
-  }
+  String _getCurrentFieldValue(Book book) => LibraryToolFields.bookValue(
+    book,
+    _selectedField ?? '',
+    l10n: AppLocalizations.of(context)!,
+  );
 
-  String _getCurrentFieldValue(Book book) {
-    switch (_selectedField) {
-      case 'genre':
-        return book.genre ?? '';
-      case 'format':
-        return book.formatValue ?? '';
-      case 'language':
-        return book.languageValue ?? '';
-      case 'place':
-        return book.placeValue ?? '';
-      case 'editorial':
-        return book.editorialValue ?? '';
-      case 'format_saga':
-        return book.formatSagaValue ?? '';
-      default:
-        return '';
+  bool get _typesValue =>
+      _selectedField == 'acquired_date' ||
+      LibraryToolFields.freeTextFields.contains(_selectedField);
+
+  String get _selectedValueLabel {
+    for (final option in _fieldValues) {
+      if (option.value == _selectedValue) return option.label;
     }
+    return _selectedValue ?? '';
   }
 
   Future<void> _loadFieldValues() async {
     if (_selectedField == null) return;
 
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _isLoading = true);
 
     try {
       final db = await DatabaseHelper.instance.database;
-      final repository = BookRepository(db);
-      final values = await repository.getLookupValues(_selectedField!);
+      final values = await LibraryToolFields.loadOptions(
+        db,
+        _selectedField!,
+        l10n,
+      );
 
       setState(() {
         _fieldValues = values;
@@ -167,11 +124,36 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
+    final db = await DatabaseHelper.instance.database;
+    final repository = BookRepository(db);
+
+    if (_selectedField == 'tbr' && _selectedValue == 'yes') {
+      final limit = await getTBRLimit();
+      final current = await repository.getTBRCount();
+      final total = current + _selectedBookIds.length;
+      if (total > limit) {
+        if (!mounted) return;
+        await showDialog<void>(
+          context: context,
+          builder:
+              (dialogContext) => AlertDialog(
+                title: Text(l10n.tbr_limit_reached),
+                content: Text(l10n.tbr_bulk_over_limit(total, limit)),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(dialogContext),
+                    child: Text(l10n.ok),
+                  ),
+                ],
+              ),
+        );
+        return;
+      }
+    }
+
     setState(() => _isApplying = true);
 
     try {
-      final db = await DatabaseHelper.instance.database;
-      final repository = BookRepository(db);
       final count = await repository.updateBooksField(
         _selectedBookIds.toList(),
         _selectedField!,
@@ -443,7 +425,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
   }
 
   Widget _buildValueSelector(AppLocalizations l10n) {
-    if (_fieldValues.isEmpty) {
+    if (_fieldValues.isEmpty && !_typesValue) {
       return ListView(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
         children: [
@@ -476,42 +458,13 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
           ),
         ),
         const SizedBox(height: 20),
-        DropdownButtonFormField<String>(
-          key: ValueKey('selected_value_$_selectedValue'),
-          initialValue: _selectedValue,
-          style: TextStyle(
-            fontFamily: V2Typography.family,
-            fontSize: 14,
-            color: _kText,
-          ),
-          dropdownColor: _kBg,
-          iconEnabledColor: _kPrimary,
-          decoration: InputDecoration(
-            labelText: l10n.select_value,
-            labelStyle: TextStyle(
-              fontFamily: V2Typography.family,
-              color: _kSubText,
-            ),
-            prefixIcon: Icon(Icons.label_outline, color: _kSecondary),
-            filled: true,
-            fillColor: V2Colors.surface,
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: _kBorder),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: _kPrimary, width: 1.5),
-            ),
-          ),
-          items:
-              _fieldValues.map((item) {
-                final name = _getValueName(item);
-                return DropdownMenuItem(value: name, child: Text(name));
-              }).toList(),
-          onChanged: (value) {
-            setState(() => _selectedValue = value);
-          },
+        LibraryToolValueInput(
+          key: ValueKey('value_input_$_selectedField'),
+          field: _selectedField!,
+          options: _fieldValues,
+          value: _selectedValue,
+          label: l10n.select_value,
+          onChanged: (value) => setState(() => _selectedValue = value),
         ),
         const SizedBox(height: 24),
         _buildContinueButton(l10n),
@@ -806,7 +759,7 @@ class _ReverseAssignScreenState extends State<ReverseAssignScreen> {
           Expanded(
             child: Text(
               l10n.reverse_assign_info(
-                _selectedValue ?? '',
+                _selectedValueLabel,
                 _getFieldLabel(_selectedField ?? ''),
               ),
               style: TextStyle(
