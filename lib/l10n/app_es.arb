@@ -936,6 +936,7 @@
   "select_publisher": "Seleccionar editorial",
   "genres": "Género(s)",
   "search_or_add_genre": "Escribe para buscar o añadir género",
+  "genres_added_from_series": "Géneros añadidos de la saga/universo: {genres}",
   "original_publication_date": "Fecha de Publicación Original (para notificaciones)",
   "release_date": "Fecha de Lanzamiento",
   "select_release_date": "Seleccionar fecha de lanzamiento",

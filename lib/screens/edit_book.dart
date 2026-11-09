@@ -10,6 +10,7 @@ import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/repositories/book_rating_field_repository.dart';
 import 'package:myrandomlibrary/utils/format_saga_helper.dart';
+import 'package:myrandomlibrary/utils/series_genre_autofill.dart';
 import 'package:myrandomlibrary/utils/status_helper.dart';
 import 'package:myrandomlibrary/widgets/autocomplete_text_field.dart';
 import 'package:myrandomlibrary/widgets/bundle_input_widget_v2.dart';
@@ -126,6 +127,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
   // Multi-value fields
   List<String> _selectedAuthors = [];
   List<String> _selectedGenres = [];
+  late final _seriesGenreAutofill = SeriesGenreAutofill(
+    saga: widget.book.saga,
+    universe: widget.book.sagaUniverse,
+  );
   List<String> _selectedEditorial = []; // Single value but displayed as chip
 
   bool _isLoading = true;
@@ -394,6 +399,40 @@ class _EditBookScreenState extends State<EditBookScreen> {
     }
 
     // Old date fields removed - now using book_read_dates table
+  }
+
+  Future<void> _autoFillSeriesGenres() async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final seriesGenres = await _seriesGenreAutofill.genresToAdd(
+        repository: BookRepository(db),
+        saga: _sagaController.text,
+        universe: _sagaUniverseController.text,
+        current: _selectedGenres,
+        excludeBookId: widget.book.bookId,
+      );
+      if (seriesGenres.isEmpty || !mounted) return;
+      final added = SeriesGenreAutofill.missingGenres(
+        _selectedGenres,
+        seriesGenres,
+      );
+      if (added.isEmpty) return;
+      setState(() {
+        _selectedGenres = [..._selectedGenres, ...added];
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(
+              context,
+            )!.genres_added_from_series(added.join(', ')),
+          ),
+          backgroundColor: AppTheme.notificationColor,
+        ),
+      );
+    } catch (e) {
+      debugPrint('Error auto-filling genres from saga/universe: $e');
+    }
   }
 
   Future<void> _loadDropdownData() async {
@@ -1786,29 +1825,36 @@ class _EditBookScreenState extends State<EditBookScreen> {
                     const SizedBox(height: 16),
 
                   // Saga field
-                  AutocompleteTextField(
-                    controller: _sagaController,
-                    labelText: AppLocalizations.of(context)!.saga,
-                    prefixIcon: Icons.collections_bookmark,
-                    suggestions: _sagaSuggestions,
-                    textCapitalization: TextCapitalization.words,
-                    onSelected: (selectedSaga) async {
-                      // Auto-fill format saga from existing books with this saga
-                      try {
-                        final db = await DatabaseHelper.instance.database;
-                        final repository = BookRepository(db);
-                        final formatSagaId = await repository
-                            .getFormatSagaIdForSaga(selectedSaga);
-
-                        if (formatSagaId != null && mounted) {
-                          setState(() {
-                            _selectedFormatSagaId = formatSagaId;
-                          });
-                        }
-                      } catch (e) {
-                        debugPrint('Error auto-filling format saga: $e');
-                      }
+                  Focus(
+                    canRequestFocus: false,
+                    onFocusChange: (hasFocus) {
+                      if (!hasFocus) _autoFillSeriesGenres();
                     },
+                    child: AutocompleteTextField(
+                      controller: _sagaController,
+                      labelText: AppLocalizations.of(context)!.saga,
+                      prefixIcon: Icons.collections_bookmark,
+                      suggestions: _sagaSuggestions,
+                      textCapitalization: TextCapitalization.words,
+                      onSelected: (selectedSaga) async {
+                        _autoFillSeriesGenres();
+                        // Auto-fill format saga from existing books with this saga
+                        try {
+                          final db = await DatabaseHelper.instance.database;
+                          final repository = BookRepository(db);
+                          final formatSagaId = await repository
+                              .getFormatSagaIdForSaga(selectedSaga);
+
+                          if (formatSagaId != null && mounted) {
+                            setState(() {
+                              _selectedFormatSagaId = formatSagaId;
+                            });
+                          }
+                        } catch (e) {
+                          debugPrint('Error auto-filling format saga: $e');
+                        }
+                      },
+                    ),
                   ),
                   const SizedBox(height: 16),
 
@@ -1826,14 +1872,23 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   const SizedBox(height: 16),
 
                   // Saga Universe field
-                  AutocompleteTextField(
-                    controller: _sagaUniverseController,
-                    labelText: AppLocalizations.of(context)!.saga_universe,
-                    prefixIcon: Icons.public,
-                    suggestions: _sagaUniverseSuggestions,
-                    textCapitalization: TextCapitalization.words,
-                    onChanged: (_) => setState(() {}),
-                    onSelected: (_) => setState(() {}),
+                  Focus(
+                    canRequestFocus: false,
+                    onFocusChange: (hasFocus) {
+                      if (!hasFocus) _autoFillSeriesGenres();
+                    },
+                    child: AutocompleteTextField(
+                      controller: _sagaUniverseController,
+                      labelText: AppLocalizations.of(context)!.saga_universe,
+                      prefixIcon: Icons.public,
+                      suggestions: _sagaUniverseSuggestions,
+                      textCapitalization: TextCapitalization.words,
+                      onChanged: (_) => setState(() {}),
+                      onSelected: (_) {
+                        setState(() {});
+                        _autoFillSeriesGenres();
+                      },
+                    ),
                   ),
                   if (_sagaUniverseController.text.trim().isNotEmpty) ...[
                     const SizedBox(height: 16),

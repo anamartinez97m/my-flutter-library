@@ -2037,6 +2037,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get search_or_add_genre => 'Escribe para buscar o añadir género';
 
   @override
+  String genres_added_from_series(String genres) {
+    return 'Géneros añadidos de la saga/universo: $genres';
+  }
+
+  @override
   String get original_publication_date =>
       'Fecha de Publicación Original (para notificaciones)';
 

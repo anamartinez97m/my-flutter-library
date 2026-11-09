@@ -3632,6 +3632,12 @@ abstract class AppLocalizations {
   /// **'Type to search or add new genre'**
   String get search_or_add_genre;
 
+  /// No description provided for @genres_added_from_series.
+  ///
+  /// In en, this message translates to:
+  /// **'Added genres from the saga/universe: {genres}'**
+  String genres_added_from_series(String genres);
+
   /// No description provided for @original_publication_date.
   ///
   /// In en, this message translates to:
