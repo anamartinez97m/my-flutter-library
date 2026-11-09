@@ -11,6 +11,7 @@ import 'package:myrandomlibrary/providers/book_provider.dart';
 import 'package:myrandomlibrary/repositories/book_repository.dart';
 import 'package:myrandomlibrary/repositories/book_rating_field_repository.dart';
 import 'package:myrandomlibrary/utils/format_saga_helper.dart';
+import 'package:myrandomlibrary/utils/series_genre_autofill.dart';
 import 'package:myrandomlibrary/utils/status_helper.dart';
 import 'package:myrandomlibrary/widgets/autocomplete_text_field.dart';
 import 'package:myrandomlibrary/widgets/chip_autocomplete_field.dart';
@@ -118,6 +119,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   List<String> _selectedAuthors = [];
   List<String> _selectedGenres = [];
   List<String> _selectedTropes = [];
+  var _seriesGenreAutofill = SeriesGenreAutofill();
   List<String> _selectedEditorial = []; // Single value but displayed as chip
 
   bool _isLoading = true;
@@ -323,6 +325,39 @@ class _AddBookScreenState extends State<AddBookScreen> {
     }
   }
 
+  Future<void> _autoFillSeriesGenres() async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final seriesGenres = await _seriesGenreAutofill.genresToAdd(
+        repository: BookRepository(db),
+        saga: _sagaController.text,
+        universe: _sagaUniverseController.text,
+        current: _selectedGenres,
+      );
+      if (seriesGenres.isEmpty || !mounted) return;
+      final added = SeriesGenreAutofill.missingGenres(
+        _selectedGenres,
+        seriesGenres,
+      );
+      if (added.isEmpty) return;
+      setState(() {
+        _selectedGenres = [..._selectedGenres, ...added];
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(
+              context,
+            )!.genres_added_from_series(added.join(', ')),
+          ),
+          backgroundColor: AppTheme.notificationColor,
+        ),
+      );
+    } catch (e) {
+      debugPrint('Error auto-filling genres from saga/universe: $e');
+    }
+  }
+
   Future<void> _loadDropdownData() async {
     try {
       final db = await DatabaseHelper.instance.database;
@@ -356,6 +391,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
         _sagaUniverseSuggestions = sagaUniverses;
         _isLoading = false;
       });
+      if (widget.initialPlaceholder != null) {
+        final wasClean = !_hasUnsavedChanges;
+        await _autoFillSeriesGenres();
+        if (wasClean) _initialFormSnapshot = _formSnapshot();
+      }
     } catch (e) {
       debugPrint('Error loading dropdown data: $e');
       setState(() {
@@ -1013,6 +1053,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         _fetchedMetadataSource = null;
         _pagesFetchedFromApi = false;
       });
+      _seriesGenreAutofill = SeriesGenreAutofill();
       _initialFormSnapshot = _formSnapshot();
 
       debugPrint('✅ Form cleared. Controllers reset:');
@@ -1816,26 +1857,33 @@ class _AddBookScreenState extends State<AddBookScreen> {
   List<Widget> _v2Saga(BuildContext context, AppLocalizations l10n) {
     return [
       _v2SectionHeading(l10n.saga),
-      AutocompleteTextField(
-        controller: _sagaController,
-        labelText: l10n.saga,
-        prefixIcon: Icons.collections_bookmark,
-        suggestions: _sagaSuggestions,
-        textCapitalization: TextCapitalization.words,
-        onSelected: (selectedSaga) async {
-          try {
-            final db = await DatabaseHelper.instance.database;
-            final repo = BookRepository(db);
-            final id = await repo.getFormatSagaIdForSaga(selectedSaga);
-            if (id != null && mounted) {
-              setState(() {
-                _selectedFormatSagaId = id;
-              });
-            }
-          } catch (e) {
-            debugPrint('Error auto-filling format saga: $e');
-          }
+      Focus(
+        canRequestFocus: false,
+        onFocusChange: (hasFocus) {
+          if (!hasFocus) _autoFillSeriesGenres();
         },
+        child: AutocompleteTextField(
+          controller: _sagaController,
+          labelText: l10n.saga,
+          prefixIcon: Icons.collections_bookmark,
+          suggestions: _sagaSuggestions,
+          textCapitalization: TextCapitalization.words,
+          onSelected: (selectedSaga) async {
+            _autoFillSeriesGenres();
+            try {
+              final db = await DatabaseHelper.instance.database;
+              final repo = BookRepository(db);
+              final id = await repo.getFormatSagaIdForSaga(selectedSaga);
+              if (id != null && mounted) {
+                setState(() {
+                  _selectedFormatSagaId = id;
+                });
+              }
+            } catch (e) {
+              debugPrint('Error auto-filling format saga: $e');
+            }
+          },
+        ),
       ),
       const SizedBox(height: 10),
       TextFormField(
@@ -1845,14 +1893,23 @@ class _AddBookScreenState extends State<AddBookScreen> {
         decoration: _v2Deco(l10n.saga_number, Icons.format_list_numbered),
       ),
       const SizedBox(height: 10),
-      AutocompleteTextField(
-        controller: _sagaUniverseController,
-        labelText: l10n.saga_universe,
-        prefixIcon: Icons.public,
-        suggestions: _sagaUniverseSuggestions,
-        textCapitalization: TextCapitalization.words,
-        onChanged: (_) => setState(() {}),
-        onSelected: (_) => setState(() {}),
+      Focus(
+        canRequestFocus: false,
+        onFocusChange: (hasFocus) {
+          if (!hasFocus) _autoFillSeriesGenres();
+        },
+        child: AutocompleteTextField(
+          controller: _sagaUniverseController,
+          labelText: l10n.saga_universe,
+          prefixIcon: Icons.public,
+          suggestions: _sagaUniverseSuggestions,
+          textCapitalization: TextCapitalization.words,
+          onChanged: (_) => setState(() {}),
+          onSelected: (_) {
+            setState(() {});
+            _autoFillSeriesGenres();
+          },
+        ),
       ),
       if (_sagaUniverseController.text.trim().isNotEmpty) ...[
         const SizedBox(height: 10),

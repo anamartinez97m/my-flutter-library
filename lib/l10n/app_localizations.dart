@@ -3632,6 +3632,12 @@ abstract class AppLocalizations {
   /// **'Type to search or add new genre'**
   String get search_or_add_genre;
 
+  /// No description provided for @genres_added_from_series.
+  ///
+  /// In en, this message translates to:
+  /// **'Added genres from the saga/universe: {genres}'**
+  String genres_added_from_series(String genres);
+
   /// No description provided for @original_publication_date.
   ///
   /// In en, this message translates to:
@@ -8075,6 +8081,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Trope names can\'t contain commas'**
   String get trope_no_commas;
+
+  /// No description provided for @reading_club.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading club'**
+  String get reading_club;
+
+  /// No description provided for @book_list_field.
+  ///
+  /// In en, this message translates to:
+  /// **'List'**
+  String get book_list_field;
+
+  /// No description provided for @type_or_pick_value.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a new value or pick one'**
+  String get type_or_pick_value;
+
+  /// No description provided for @acquired_date_format_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'YYYY or YYYY-MM-DD'**
+  String get acquired_date_format_hint;
+
+  /// No description provided for @invalid_value.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid value'**
+  String get invalid_value;
+
+  /// No description provided for @tbr_bulk_over_limit.
+  ///
+  /// In en, this message translates to:
+  /// **'This would leave {total} books in your TBR, over your limit of {limit}. Select fewer books or raise the limit.'**
+  String tbr_bulk_over_limit(int total, int limit);
+
+  /// No description provided for @other_books_in_saga_have.
+  ///
+  /// In en, this message translates to:
+  /// **'Other books in this saga have: {values}'**
+  String other_books_in_saga_have(String values);
+
+  /// No description provided for @fill_per_book_section.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a value per book'**
+  String get fill_per_book_section;
+
+  /// No description provided for @fill_per_book_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'For fields that are different for every book. You get the books with the field empty and type each value.'**
+  String get fill_per_book_hint;
+
+  /// No description provided for @save_n_books.
+  ///
+  /// In en, this message translates to:
+  /// **'Save {count} book(s)'**
+  String save_n_books(int count);
+
+  /// No description provided for @merge_variants_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge {variants} into \"{value}\" ({field})'**
+  String merge_variants_title(String variants, String value, String field);
+
+  /// No description provided for @suggestion_merge_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'These values only differ in accents, capital letters or punctuation. {count} book(s) will use the merged value.'**
+  String suggestion_merge_desc(int count);
+
+  /// No description provided for @saga_duplicate_number_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Saga \"{saga}\": {count} books share number {number}'**
+  String saga_duplicate_number_title(String saga, String number, int count);
+
+  /// No description provided for @saga_missing_number_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Saga \"{saga}\": {count} book(s) without a number'**
+  String saga_missing_number_title(String saga, int count);
+
+  /// No description provided for @suggestion_saga_numbering_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'The other books in the saga are numbered. Tap a book to open it and fix its number.'**
+  String get suggestion_saga_numbering_desc;
+
+  /// No description provided for @suggestion_author_peers_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}/{total} books by {author} have \"{value}\" as {field}'**
+  String suggestion_author_peers_desc(
+    int count,
+    int total,
+    String author,
+    String value,
+    String field,
+  );
+
+  /// No description provided for @suggestion_saga_peers_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}/{total} books in the saga \"{saga}\" have \"{value}\" as {field}'**
+  String suggestion_saga_peers_desc(
+    int count,
+    int total,
+    String saga,
+    String value,
+    String field,
+  );
+
+  /// No description provided for @suggestion_saga_duplicate_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Two books in a saga shouldn\'t share a number. Tap a book to open it and fix its number.'**
+  String get suggestion_saga_duplicate_desc;
+
+  /// No description provided for @spelling_variants.
+  ///
+  /// In en, this message translates to:
+  /// **'Spelling variants'**
+  String get spelling_variants;
+
+  /// No description provided for @needs_review.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs review'**
+  String get needs_review;
+
+  /// No description provided for @dismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get dismiss;
+
+  /// No description provided for @review_books.
+  ///
+  /// In en, this message translates to:
+  /// **'Review books'**
+  String get review_books;
 }
 
 class _AppLocalizationsDelegate

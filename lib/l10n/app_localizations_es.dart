@@ -2037,6 +2037,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get search_or_add_genre => 'Escribe para buscar o añadir género';
 
   @override
+  String genres_added_from_series(String genres) {
+    return 'Géneros añadidos de la saga/universo: $genres';
+  }
+
+  @override
   String get original_publication_date =>
       'Fecha de Publicación Original (para notificaciones)';
 
@@ -4572,4 +4577,103 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get trope_no_commas => 'Los tropes no pueden contener comas';
+
+  @override
+  String get reading_club => 'Club de lectura';
+
+  @override
+  String get book_list_field => 'Lista';
+
+  @override
+  String get type_or_pick_value => 'Escribe un valor nuevo o elige uno';
+
+  @override
+  String get acquired_date_format_hint => 'AAAA o AAAA-MM-DD';
+
+  @override
+  String get invalid_value => 'Valor no válido';
+
+  @override
+  String tbr_bulk_over_limit(int total, int limit) {
+    return 'Esto dejaría $total libros en tu TBR, por encima de tu límite de $limit. Selecciona menos libros o sube el límite.';
+  }
+
+  @override
+  String other_books_in_saga_have(String values) {
+    return 'Otros libros de esta saga tienen: $values';
+  }
+
+  @override
+  String get fill_per_book_section => 'Escribir un valor por libro';
+
+  @override
+  String get fill_per_book_hint =>
+      'Para campos que son distintos en cada libro. Verás los libros con el campo vacío y podrás escribir cada valor.';
+
+  @override
+  String save_n_books(int count) {
+    return 'Guardar $count libro(s)';
+  }
+
+  @override
+  String merge_variants_title(String variants, String value, String field) {
+    return 'Unir $variants en \"$value\" ($field)';
+  }
+
+  @override
+  String suggestion_merge_desc(int count) {
+    return 'Estos valores solo cambian en tildes, mayúsculas o signos. $count libro(s) pasarán a usar el valor unificado.';
+  }
+
+  @override
+  String saga_duplicate_number_title(String saga, String number, int count) {
+    return 'Saga \"$saga\": $count libros tienen el número $number';
+  }
+
+  @override
+  String saga_missing_number_title(String saga, int count) {
+    return 'Saga \"$saga\": $count libro(s) sin número';
+  }
+
+  @override
+  String get suggestion_saga_numbering_desc =>
+      'El resto de libros de la saga tienen número. Toca un libro para abrirlo y corregir su número.';
+
+  @override
+  String suggestion_author_peers_desc(
+    int count,
+    int total,
+    String author,
+    String value,
+    String field,
+  ) {
+    return '$count/$total libros de $author tienen \"$value\" como $field';
+  }
+
+  @override
+  String suggestion_saga_peers_desc(
+    int count,
+    int total,
+    String saga,
+    String value,
+    String field,
+  ) {
+    return '$count/$total libros de la saga \"$saga\" tienen \"$value\" como $field';
+  }
+
+  @override
+  String get suggestion_saga_duplicate_desc =>
+      'Dos libros de una saga no deberían tener el mismo número. Toca un libro para abrirlo y corregir su número.';
+
+  @override
+  String get spelling_variants => 'Variantes de escritura';
+
+  @override
+  String get needs_review => 'Revisar';
+
+  @override
+  String get dismiss => 'Descartar';
+
+  @override
+  String get review_books => 'Revisar libros';
 }
