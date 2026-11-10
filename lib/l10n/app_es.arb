@@ -2032,5 +2032,11 @@
   "spelling_variants": "Variantes de escritura",
   "needs_review": "Revisar",
   "dismiss": "Descartar",
-  "review_books": "Revisar libros"
+  "review_books": "Revisar libros",
+  "club_daily_pages_percent": "{pages, plural, =1{1 página} other{{pages} páginas}} ({percent}%) al día",
+  "club_daily_percent": "{percent}% al día",
+  "club_days_left": "{count, plural, =1{Último día} other{Quedan {count} días}}",
+  "club_target_passed": "La fecha objetivo ya ha pasado",
+  "club_book_finished": "Libro terminado",
+  "club_add_target_hint": "Añade una fecha objetivo para ver tu meta diaria"
 }

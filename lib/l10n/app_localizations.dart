@@ -8297,6 +8297,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Review books'**
   String get review_books;
+
+  /// No description provided for @club_daily_pages_percent.
+  ///
+  /// In en, this message translates to:
+  /// **'{pages, plural, =1{1 page} other{{pages} pages}} ({percent}%) a day'**
+  String club_daily_pages_percent(int pages, String percent);
+
+  /// No description provided for @club_daily_percent.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% a day'**
+  String club_daily_percent(String percent);
+
+  /// No description provided for @club_days_left.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Last day} other{{count} days left}}'**
+  String club_days_left(int count);
+
+  /// No description provided for @club_target_passed.
+  ///
+  /// In en, this message translates to:
+  /// **'Target date passed'**
+  String get club_target_passed;
+
+  /// No description provided for @club_book_finished.
+  ///
+  /// In en, this message translates to:
+  /// **'Book finished'**
+  String get club_book_finished;
+
+  /// No description provided for @club_add_target_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a target date to see your daily goal'**
+  String get club_add_target_hint;
 }
 
 class _AppLocalizationsDelegate

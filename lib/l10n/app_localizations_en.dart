@@ -4660,4 +4660,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get review_books => 'Review books';
+
+  @override
+  String club_daily_pages_percent(int pages, String percent) {
+    String _temp0 = intl.Intl.pluralLogic(
+      pages,
+      locale: localeName,
+      other: '$pages pages',
+      one: '1 page',
+    );
+    return '$_temp0 ($percent%) a day';
+  }
+
+  @override
+  String club_daily_percent(String percent) {
+    return '$percent% a day';
+  }
+
+  @override
+  String club_days_left(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days left',
+      one: 'Last day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get club_target_passed => 'Target date passed';
+
+  @override
+  String get club_book_finished => 'Book finished';
+
+  @override
+  String get club_add_target_hint => 'Add a target date to see your daily goal';
 }
