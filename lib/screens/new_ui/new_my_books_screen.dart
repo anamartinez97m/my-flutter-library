@@ -604,11 +604,13 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    ReadingClubRepository.changes.addListener(_load);
     _load();
   }
 
   @override
   void dispose() {
+    ReadingClubRepository.changes.removeListener(_load);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }

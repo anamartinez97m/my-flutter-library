@@ -6,6 +6,7 @@ import 'package:myrandomlibrary/model/placeholder_relation.dart';
 import 'package:myrandomlibrary/model/read_date.dart';
 import 'package:myrandomlibrary/model/user_list.dart';
 import 'package:myrandomlibrary/model/universe_placeholder.dart';
+import 'package:myrandomlibrary/repositories/reading_club_repository.dart';
 import 'package:myrandomlibrary/repositories/user_list_repository.dart';
 import 'package:myrandomlibrary/utils/book_fields_csv.dart';
 import 'package:sqflite/sqflite.dart';
@@ -2131,6 +2132,9 @@ class BookRepository {
           }
         }
       });
+      if (field == 'reading_club' && updated > 0) {
+        ReadingClubRepository.notifyChanged();
+      }
 
       debugPrint('✅ Bulk updated $field to "$value" for $updated book(s)');
       return updated;
