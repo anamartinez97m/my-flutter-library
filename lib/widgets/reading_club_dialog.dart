@@ -26,7 +26,6 @@ class _ReadingClubDialogState extends State<ReadingClubDialog> {
 
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _clubNameController;
-  late TextEditingController _progressController;
   DateTime? _selectedDate;
   bool _isEditing = false;
 
@@ -36,9 +35,6 @@ class _ReadingClubDialogState extends State<ReadingClubDialog> {
     _isEditing = widget.existingClub != null;
     _clubNameController = TextEditingController(
       text: widget.existingClub?.clubName ?? '',
-    );
-    _progressController = TextEditingController(
-      text: widget.existingClub?.readingProgress.toString() ?? '0',
     );
     if (widget.existingClub?.targetDate != null) {
       try {
@@ -52,7 +48,6 @@ class _ReadingClubDialogState extends State<ReadingClubDialog> {
   @override
   void dispose() {
     _clubNameController.dispose();
-    _progressController.dispose();
     super.dispose();
   }
 
@@ -77,7 +72,7 @@ class _ReadingClubDialogState extends State<ReadingClubDialog> {
         bookId: widget.bookId,
         clubName: _clubNameController.text.trim(),
         targetDate: _selectedDate?.toIso8601String().split('T')[0],
-        readingProgress: int.tryParse(_progressController.text) ?? 0,
+        readingProgress: widget.existingClub?.readingProgress ?? 0,
       );
       Navigator.of(context).pop(club);
     }
@@ -220,39 +215,6 @@ class _ReadingClubDialogState extends State<ReadingClubDialog> {
                         ),
                     ],
                   ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Reading Progress Field
-              TextFormField(
-                controller: _progressController,
-                decoration: InputDecoration(
-                  labelText:
-                      AppLocalizations.of(context)!.reading_progress_percent,
-                  hintText: '0-100',
-                  border: const OutlineInputBorder(),
-                  prefixIcon: const Icon(Icons.trending_up),
-                  suffixText: '%',
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return AppLocalizations.of(context)!.please_enter_progress;
-                  }
-                  final progress = int.tryParse(value);
-                  if (progress == null || progress < 0 || progress > 100) {
-                    return AppLocalizations.of(context)!.progress_must_be_0_100;
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 8),
-              Text(
-                AppLocalizations.of(context)!.track_reading_progress,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontStyle: FontStyle.italic,
                 ),
               ),
             ],

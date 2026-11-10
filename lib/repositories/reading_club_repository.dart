@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:myrandomlibrary/model/reading_club.dart';
 
@@ -6,19 +7,27 @@ class ReadingClubRepository {
 
   ReadingClubRepository(this.db);
 
+  /// Bumped after every write to `reading_clubs`, so screens showing clubs
+  /// (e.g. My Books) can reload when a club changes elsewhere.
+  static final ValueNotifier<int> changes = ValueNotifier<int>(0);
+
+  static void notifyChanged() => changes.value++;
+
   // Add a new reading club entry
   Future<int> addReadingClub(ReadingClub club) async {
-    return await db.insert('reading_clubs', {
+    final result = await db.insert('reading_clubs', {
       'book_id': club.bookId,
       'club_name': club.clubName,
       'target_date': club.targetDate,
       'reading_progress': club.readingProgress,
     });
+    notifyChanged();
+    return result;
   }
 
   // Update an existing reading club entry
   Future<int> updateReadingClub(ReadingClub club) async {
-    return await db.update(
+    final result = await db.update(
       'reading_clubs',
       {
         'club_name': club.clubName,
@@ -28,15 +37,19 @@ class ReadingClubRepository {
       where: 'club_id = ?',
       whereArgs: [club.clubId],
     );
+    notifyChanged();
+    return result;
   }
 
   // Delete a reading club entry
   Future<int> deleteReadingClub(int clubId) async {
-    return await db.delete(
+    final result = await db.delete(
       'reading_clubs',
       where: 'club_id = ?',
       whereArgs: [clubId],
     );
+    notifyChanged();
+    return result;
   }
 
   // Get all reading clubs for a specific book
@@ -122,6 +135,7 @@ class ReadingClubRepository {
         whereArgs: [trimmedOld],
       );
     });
+    notifyChanged();
   }
 
   // Delete a managed club name and remove existing book associations
@@ -139,6 +153,7 @@ class ReadingClubRepository {
         whereArgs: [trimmedName],
       );
     });
+    notifyChanged();
   }
 
   // Get all reading clubs with book details
