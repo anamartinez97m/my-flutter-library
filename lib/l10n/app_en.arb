@@ -2063,5 +2063,20 @@
   "spelling_variants": "Spelling variants",
   "needs_review": "Needs review",
   "dismiss": "Dismiss",
-  "review_books": "Review books"
+  "review_books": "Review books",
+  "club_daily_pages_percent": "{pages, plural, =1{1 page} other{{pages} pages}} ({percent}%) a day",
+  "@club_daily_pages_percent": {
+    "placeholders": { "pages": { "type": "int" }, "percent": { "type": "String" } }
+  },
+  "club_daily_percent": "{percent}% a day",
+  "@club_daily_percent": {
+    "placeholders": { "percent": { "type": "String" } }
+  },
+  "club_days_left": "{count, plural, =1{Last day} other{{count} days left}}",
+  "@club_days_left": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "club_target_passed": "Target date passed",
+  "club_book_finished": "Book finished",
+  "club_add_target_hint": "Add a target date to see your daily goal"
 }
