@@ -35,8 +35,7 @@ import 'package:myrandomlibrary/repositories/tandem_repository.dart';
 import 'package:myrandomlibrary/screens/new_ui/tandem_create_screen.dart';
 import 'package:myrandomlibrary/screens/new_ui/tandem_reading_screen.dart';
 import 'package:myrandomlibrary/widgets/reading_club_dialog.dart';
-import 'package:intl/intl.dart';
-import 'package:myrandomlibrary/utils/club_daily_target.dart';
+import 'package:myrandomlibrary/widgets/club_daily_target_view.dart';
 import 'package:myrandomlibrary/services/book_metadata_service.dart';
 import 'package:myrandomlibrary/services/notification_service.dart';
 import 'package:myrandomlibrary/model/book_metadata.dart';
@@ -4916,82 +4915,6 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
     }
   }
 
-  Widget _buildDailyTarget(BuildContext context, ReadingClub club) {
-    final l10n = AppLocalizations.of(context)!;
-    final target = ClubDailyTarget.compute(
-      targetDate: club.targetDate,
-      readingProgress: widget.readingProgress,
-      progressType: widget.progressType,
-      pages: widget.pages,
-      isRead: widget.isRead,
-    );
-
-    if (target == null) {
-      return Text(
-        l10n.club_add_target_hint,
-        style: TextStyle(
-          fontSize: 13,
-          color: _kSub,
-          fontStyle: FontStyle.italic,
-        ),
-      );
-    }
-
-    if (target.finished || target.overdue) {
-      final color =
-          target.overdue ? Theme.of(context).colorScheme.error : _kPrimary;
-      return Row(
-        children: [
-          Icon(
-            target.overdue ? Icons.event_busy : Icons.check_circle,
-            size: 16,
-            color: color,
-          ),
-          const SizedBox(width: 6),
-          Text(
-            target.overdue ? l10n.club_target_passed : l10n.club_book_finished,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: color,
-            ),
-          ),
-        ],
-      );
-    }
-
-    final percent = NumberFormat(
-      '0.#',
-      Localizations.localeOf(context).toString(),
-    ).format(target.percentPerDay);
-    final goal =
-        target.pagesPerDay != null
-            ? l10n.club_daily_pages_percent(target.pagesPerDay!, percent)
-            : l10n.club_daily_percent(percent);
-
-    return Row(
-      children: [
-        Icon(Icons.auto_stories, size: 16, color: _kPrimary),
-        const SizedBox(width: 6),
-        Expanded(
-          child: Text(
-            goal,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: _kPrimary,
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          l10n.club_days_left(target.daysLeft),
-          style: TextStyle(fontSize: 12, color: _kSub),
-        ),
-      ],
-    );
-  }
-
   Future<void> _showEditClubDialog(ReadingClub club) async {
     final result = await showDialog<ReadingClub>(
       context: context,
@@ -5215,7 +5138,13 @@ class _NewBookClubsCardState extends State<_NewBookClubsCard> {
                           ),
                         ],
                         const SizedBox(height: 8),
-                        _buildDailyTarget(context, club),
+                        ClubDailyTargetView(
+                          targetDate: club.targetDate,
+                          readingProgress: widget.readingProgress,
+                          progressType: widget.progressType,
+                          pages: widget.pages,
+                          isRead: widget.isRead,
+                        ),
                       ],
                     ),
                   );

@@ -149,6 +149,8 @@ class ReadingClubRepository {
         b.name as book_name,
         s.value as statusValue,
         b.pages,
+        b.reading_progress as book_reading_progress,
+        b.progress_type as book_progress_type,
         (SELECT GROUP_CONCAT(a.name, ', ')
          FROM books_by_author ba
          INNER JOIN author a ON ba.author_id = a.author_id

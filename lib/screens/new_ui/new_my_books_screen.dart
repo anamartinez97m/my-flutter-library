@@ -10,6 +10,7 @@ import 'package:myrandomlibrary/screens/new_ui/new_book_detail.dart';
 import 'package:myrandomlibrary/screens/new_ui/user_list_detail_screen.dart';
 import 'package:myrandomlibrary/screens/new_ui/user_lists_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:myrandomlibrary/widgets/club_daily_target_view.dart';
 import 'package:myrandomlibrary/widgets/shimmer_loading.dart';
 
 Widget _cover(dynamic book) {
@@ -724,7 +725,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
               )
             else
               SizedBox(
-                height: 144,
+                height: 176,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   clipBehavior: Clip.none,
@@ -737,8 +738,10 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                     final bookName =
                         item['book_name'] as String? ?? l10n.unknown;
                     final author = item['author'] as String?;
-                    final prog = (item['reading_progress'] as int?) ?? 0;
                     final target = item['target_date'] as String?;
+                    final isRead =
+                        (item['statusValue'] as String?)?.toLowerCase() ==
+                        'yes';
                     return GestureDetector(
                       onTap:
                           () => _openBook((item['book_id'] as num?)?.toInt()),
@@ -799,36 +802,41 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                                   ),
                               ],
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                if (target != null)
+                                if (target != null) ...[
                                   Row(
                                     children: [
                                       Icon(
                                         Icons.calendar_today,
-                                        size: 9,
+                                        size: 11,
                                         color: V2Colors.textSecondary,
                                       ),
                                       const SizedBox(width: 4),
-                                      Text(
-                                        target,
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          color: V2Colors.textSecondary,
+                                      Expanded(
+                                        child: Text(
+                                          '${l10n.target}: $target',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: V2Colors.textSecondary,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
                                     ],
-                                  )
-                                else
-                                  const SizedBox.shrink(),
-                                Text(
-                                  '$prog%',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: V2Colors.primary,
                                   ),
+                                  const SizedBox(height: 6),
+                                ],
+                                ClubDailyTargetView(
+                                  targetDate: target,
+                                  readingProgress:
+                                      item['book_reading_progress'] as num?,
+                                  progressType:
+                                      item['book_progress_type'] as String?,
+                                  pages: (item['pages'] as num?)?.toInt(),
+                                  isRead: isRead,
+                                  compact: true,
                                 ),
                               ],
                             ),
