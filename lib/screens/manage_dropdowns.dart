@@ -2283,7 +2283,7 @@ class _DeleteOptionsDialogState extends State<_DeleteOptionsDialog> {
                             top: 8,
                           ),
                           child: DropdownButtonFormField<int>(
-                            value: _selectedReplacement,
+                            initialValue: _selectedReplacement,
                             decoration: InputDecoration(
                               labelText: l10n.select_replacement,
                               labelStyle: TextStyle(

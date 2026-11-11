@@ -1859,7 +1859,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           book.readCount?.toString() ?? '',
           book.myRating?.toString() ?? '',
           book.myReview ?? '',
-          book.isBundle == 'yes',
+          book.isBundle == true ? 'yes' : 'no',
           book.bundleCount?.toString() ?? '',
           book.bundleNumbers ?? '',
           book.bundleStartDates ?? '',
@@ -1868,17 +1868,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
           book.bundlePublicationYears ?? '',
           book.bundleTitles ?? '',
           book.bundleAuthors ?? '',
-          book.tbr == 'yes',
-          book.isTandem == 'yes',
+          book.tbr == true ? 'yes' : 'no',
+          book.isTandem == true ? 'yes' : 'no',
           book.originalBookId?.toString() ?? '',
-          book.notificationEnabled == 'yes',
+          book.notificationEnabled == true ? 'yes' : 'no',
           book.notificationDatetime ?? '',
           book.bundleParentId?.toString() ?? '',
           book.readingProgress?.toString() ?? '',
           book.progressType ?? '',
           book.notes ?? '',
           book.price?.toString() ?? '',
-          book.ratingOverride == 'yes',
+          book.ratingOverride == true ? 'yes' : 'no',
           book.releaseDate ?? '',
           book.coverUrl ?? '',
           book.description ?? '',
@@ -2725,7 +2725,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         Consumer<LocaleProvider>(
           builder: (context, localeProvider, _) {
             return DropdownButtonFormField<String>(
-              value: localeProvider.locale.languageCode,
+              initialValue: localeProvider.locale.languageCode,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 contentPadding: EdgeInsets.symmetric(
@@ -2993,7 +2993,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             setState(() => _readingReminderEnabled = val);
             _saveReadingReminderSettings(showFeedback: true);
           },
-          activeColor: _kV2Primary,
+          activeThumbColor: _kV2Primary,
           contentPadding: EdgeInsets.zero,
         ),
         if (_readingReminderEnabled) ...[
@@ -3035,29 +3035,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          RadioListTile<bool>(
-            title: Text(l10n.reminder_all_started),
-            subtitle: Text(l10n.reminder_all_started_subtitle),
-            value: true,
+          RadioGroup<bool>(
             groupValue: _readingReminderAllBooks,
             onChanged: (val) {
-              setState(() => _readingReminderAllBooks = val ?? true);
+              if (val == null) return;
+              setState(() => _readingReminderAllBooks = val);
               _saveReadingReminderSettings(showFeedback: true);
             },
-            contentPadding: EdgeInsets.zero,
-            dense: true,
-          ),
-          RadioListTile<bool>(
-            title: Text(l10n.reminder_last_started),
-            subtitle: Text(l10n.reminder_last_started_subtitle),
-            value: false,
-            groupValue: _readingReminderAllBooks,
-            onChanged: (val) {
-              setState(() => _readingReminderAllBooks = val ?? false);
-              _saveReadingReminderSettings(showFeedback: true);
-            },
-            contentPadding: EdgeInsets.zero,
-            dense: true,
+            child: Column(
+              children: [
+                RadioListTile<bool>(
+                  title: Text(l10n.reminder_all_started),
+                  subtitle: Text(l10n.reminder_all_started_subtitle),
+                  value: true,
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                ),
+                RadioListTile<bool>(
+                  title: Text(l10n.reminder_last_started),
+                  subtitle: Text(l10n.reminder_last_started_subtitle),
+                  value: false,
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                ),
+              ],
+            ),
           ),
         ],
         const Divider(height: 32),
@@ -3069,7 +3071,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             setState(() => _championshipReminderEnabled = val);
             _saveChampionshipReminderSettings();
           },
-          activeColor: _kV2Primary,
+          activeThumbColor: _kV2Primary,
           contentPadding: EdgeInsets.zero,
         ),
         if (_championshipReminderEnabled)
@@ -3152,7 +3154,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             setState(() => _showPriceStatistics = val);
             _savePriceSettings();
           },
-          activeColor: _kV2Primary,
+          activeThumbColor: _kV2Primary,
           contentPadding: EdgeInsets.zero,
         ),
         if (_showPriceStatistics) ...[
@@ -3494,62 +3496,60 @@ class _ImportChoiceDialogState extends State<_ImportChoiceDialog> {
       ),
       content: SizedBox(
         width: double.maxFinite,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            RadioListTile<bool>(
-              title: Text(AppLocalizations.of(context)!.import_all_books),
-              value: false,
-              groupValue: _importFromTag,
-              onChanged: (value) {
-                setState(() {
-                  _importFromTag = value!;
-                });
-              },
-              contentPadding: EdgeInsets.zero,
-            ),
-            if (widget.availableTags.isNotEmpty) ...[
+        child: RadioGroup<bool>(
+          groupValue: _importFromTag,
+          onChanged: (value) {
+            if (value == null) return;
+            setState(() => _importFromTag = value);
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               RadioListTile<bool>(
-                title: Text(AppLocalizations.of(context)!.import_from_tag),
-                value: true,
-                groupValue: _importFromTag,
-                onChanged: (value) {
-                  setState(() {
-                    _importFromTag = value!;
-                  });
-                },
+                title: Text(AppLocalizations.of(context)!.import_all_books),
+                value: false,
                 contentPadding: EdgeInsets.zero,
               ),
-              if (_importFromTag) ...[
-                const SizedBox(height: 8),
-                DropdownButtonFormField<String>(
-                  value: _selectedTag,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.select_tag,
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.tag),
-                    isDense: true,
-                  ),
-                  isExpanded: true,
-                  items:
-                      widget.availableTags
-                          .map(
-                            (tag) => DropdownMenuItem(
-                              value: tag,
-                              child: Text(tag, overflow: TextOverflow.ellipsis),
-                            ),
-                          )
-                          .toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedTag = value;
-                    });
-                  },
+              if (widget.availableTags.isNotEmpty) ...[
+                RadioListTile<bool>(
+                  title: Text(AppLocalizations.of(context)!.import_from_tag),
+                  value: true,
+                  contentPadding: EdgeInsets.zero,
                 ),
+                if (_importFromTag) ...[
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<String>(
+                    initialValue: _selectedTag,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.select_tag,
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.tag),
+                      isDense: true,
+                    ),
+                    isExpanded: true,
+                    items:
+                        widget.availableTags
+                            .map(
+                              (tag) => DropdownMenuItem(
+                                value: tag,
+                                child: Text(
+                                  tag,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            )
+                            .toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedTag = value;
+                      });
+                    },
+                  ),
+                ],
               ],
             ],
-          ],
+          ),
         ),
       ),
       actions: [

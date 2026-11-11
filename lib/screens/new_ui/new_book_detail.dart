@@ -67,7 +67,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
   int _bundleBooksKey = 0; // Key to force FutureBuilder rebuild
   bool _isDescriptionExpanded = false; // Track description expansion state
   bool _isFetchingMetadata = false; // Track if metadata is being fetched
-  bool _showAllSessions = false; // Track reading sessions expansion state
+  final bool _showAllSessions = false; // Track reading sessions expansion state
   String _currencySymbol = '€';
   Timer? _releaseCountdownTimer;
 
@@ -1969,7 +1969,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
     final details = readingTimeData['details'] as Map<String, dynamic>;
     final l10n = AppLocalizations.of(context)!;
 
-    Widget _detailRow(IconData icon, String text) {
+    Widget detailRow(IconData icon, String text) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 8),
         child: Row(
@@ -2048,7 +2048,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                _detailRow(
+                detailRow(
                   Icons.lightbulb_outline,
                   l10n.calculation_method(method),
                 ),
@@ -2068,19 +2068,19 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                     children: [
                       if (method == 'Time-based' &&
                           details.containsKey('total_hours')) ...[
-                        _detailRow(
+                        detailRow(
                           Icons.schedule,
                           'Total reading time: ${_formatReadingDuration(details['total_hours'] as double)}',
                         ),
                         if (details['days_with_time'] > 0)
-                          _detailRow(
+                          detailRow(
                             Icons.timer,
                             l10n.days_with_time_tracking(
                               details['days_with_time'],
                             ),
                           ),
                         if (details['days_with_didread_only'] > 0)
-                          _detailRow(
+                          detailRow(
                             Icons.bookmark_added,
                             l10n.days_with_reading_flag(
                               details['days_with_didread_only'],
@@ -2088,7 +2088,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                           ),
                       ] else if (method == 'DidRead-based' &&
                           details.containsKey('days_with_didread_only')) ...[
-                        _detailRow(
+                        detailRow(
                           Icons.bookmark_added,
                           l10n.days_marked_as_read(
                             details['days_with_didread_only'],
@@ -2096,11 +2096,11 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                         ),
                       ] else if (method == 'Date-based' &&
                           details.containsKey('start_date')) ...[
-                        _detailRow(
+                        detailRow(
                           Icons.calendar_today_outlined,
                           l10n.start_date_label(details['start_date']),
                         ),
-                        _detailRow(
+                        detailRow(
                           Icons.event_outlined,
                           l10n.end_date_label(details['end_date']),
                         ),
@@ -2108,7 +2108,7 @@ class _NewBookDetailScreenState extends State<NewBookDetailScreen> {
                       if (_currentBook.isBundle == true &&
                           details.containsKey('books_calculated')) ...[
                         const SizedBox(height: 4),
-                        _detailRow(
+                        detailRow(
                           Icons.collections_bookmark_outlined,
                           l10n.bundle_books_calculated(
                             details['books_calculated'],
