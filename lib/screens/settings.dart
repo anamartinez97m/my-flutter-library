@@ -2633,47 +2633,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: SegmentedButton<AppThemeMode>(
-                    segments: [
-                      for (final (mode, icon, label) in [
-                        (
-                          AppThemeMode.light,
-                          Icons.light_mode_outlined,
-                          l10n.theme_light,
-                        ),
-                        (
-                          AppThemeMode.dark,
-                          Icons.dark_mode_outlined,
-                          l10n.theme_dark,
-                        ),
-                        (
-                          AppThemeMode.system,
-                          Icons.brightness_auto_outlined,
-                          l10n.theme_system,
-                        ),
-                      ])
-                        ButtonSegment(
-                          value: mode,
-                          label: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(icon, size: 20),
-                                const SizedBox(height: 4),
-                                Text(
-                                  label,
-                                  textAlign: TextAlign.center,
-                                  maxLines: 2,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                    ],
-                    style: ButtonStyle(
+                Builder(
+                  builder: (context) {
+                    final selectedStyle = ButtonStyle(
                       foregroundColor: WidgetStateProperty.resolveWith(
                         (states) =>
                             states.contains(WidgetState.selected) &&
@@ -2681,13 +2643,56 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ? V2Colors.chipTextSelected
                                 : null,
                       ),
-                    ),
-                    selected: {themeProvider.themeMode},
-                    showSelectedIcon: false,
-                    onSelectionChanged:
-                        (selection) =>
-                            themeProvider.setThemeMode(selection.first),
-                  ),
+                    );
+                    void select(Set<AppThemeMode> selection) {
+                      if (selection.isEmpty) return;
+                      themeProvider.setThemeMode(selection.first);
+                    }
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SegmentedButton<AppThemeMode>(
+                          segments: [
+                            ButtonSegment(
+                              value: AppThemeMode.light,
+                              icon: const Icon(Icons.light_mode_outlined),
+                              label: Text(l10n.theme_light),
+                            ),
+                            ButtonSegment(
+                              value: AppThemeMode.dark,
+                              icon: const Icon(Icons.dark_mode_outlined),
+                              label: Text(l10n.theme_dark),
+                            ),
+                          ],
+                          style: selectedStyle,
+                          selected: {themeProvider.themeMode}
+                            ..remove(AppThemeMode.system),
+                          emptySelectionAllowed: true,
+                          showSelectedIcon: false,
+                          onSelectionChanged: select,
+                        ),
+                        const SizedBox(height: 8),
+                        SegmentedButton<AppThemeMode>(
+                          segments: [
+                            ButtonSegment(
+                              value: AppThemeMode.system,
+                              icon: const Icon(Icons.brightness_auto_outlined),
+                              label: Text(l10n.theme_system),
+                            ),
+                          ],
+                          style: selectedStyle,
+                          selected: {
+                            if (themeProvider.themeMode == AppThemeMode.system)
+                              AppThemeMode.system,
+                          },
+                          emptySelectionAllowed: true,
+                          showSelectedIcon: false,
+                          onSelectionChanged: select,
+                        ),
+                      ],
+                    );
+                  },
                 ),
                 const SizedBox(height: 16),
                 Text(
