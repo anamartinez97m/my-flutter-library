@@ -229,7 +229,7 @@
   "theme": "Tema",
   "theme_light": "Claro",
   "theme_dark": "Oscuro",
-  "theme_system": "Sistema",
+  "theme_system": "Según el sistema",
   
   "language": "Idioma",
   "english": "Inglés",

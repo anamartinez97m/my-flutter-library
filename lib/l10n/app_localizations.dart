@@ -713,7 +713,7 @@ abstract class AppLocalizations {
   /// No description provided for @theme_system.
   ///
   /// In en, this message translates to:
-  /// **'System'**
+  /// **'Set by system'**
   String get theme_system;
 
   /// No description provided for @language.

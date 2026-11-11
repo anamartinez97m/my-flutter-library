@@ -2017,7 +2017,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildThemePreview(
             context,
             names[family]!,
-            family.paletteFor(themeProvider.themeMode),
+            family.paletteFor(themeProvider.effectiveThemeMode),
             themeProvider.themeFamily == family,
             () => themeProvider.setThemeFamily(family),
           ),
@@ -2637,17 +2637,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   width: double.infinity,
                   child: SegmentedButton<AppThemeMode>(
                     segments: [
-                      ButtonSegment(
-                        value: AppThemeMode.light,
-                        icon: const Icon(Icons.light_mode_outlined),
-                        label: Text(l10n.theme_light),
-                      ),
-                      ButtonSegment(
-                        value: AppThemeMode.dark,
-                        icon: const Icon(Icons.dark_mode_outlined),
-                        label: Text(l10n.theme_dark),
-                      ),
+                      for (final (mode, icon, label) in [
+                        (
+                          AppThemeMode.light,
+                          Icons.light_mode_outlined,
+                          l10n.theme_light,
+                        ),
+                        (
+                          AppThemeMode.dark,
+                          Icons.dark_mode_outlined,
+                          l10n.theme_dark,
+                        ),
+                        (
+                          AppThemeMode.system,
+                          Icons.brightness_auto_outlined,
+                          l10n.theme_system,
+                        ),
+                      ])
+                        ButtonSegment(
+                          value: mode,
+                          label: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(icon, size: 20),
+                                const SizedBox(height: 4),
+                                Text(
+                                  label,
+                                  textAlign: TextAlign.center,
+                                  maxLines: 2,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                     ],
+                    style: ButtonStyle(
+                      foregroundColor: WidgetStateProperty.resolveWith(
+                        (states) =>
+                            states.contains(WidgetState.selected) &&
+                                    themeProvider.isDarkMode
+                                ? V2Colors.chipTextSelected
+                                : null,
+                      ),
+                    ),
                     selected: {themeProvider.themeMode},
                     showSelectedIcon: false,
                     onSelectionChanged:
