@@ -1859,7 +1859,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           book.readCount?.toString() ?? '',
           book.myRating?.toString() ?? '',
           book.myReview ?? '',
-          book.isBundle == 'yes',
+          book.isBundle == true ? 'yes' : 'no',
           book.bundleCount?.toString() ?? '',
           book.bundleNumbers ?? '',
           book.bundleStartDates ?? '',
@@ -1868,17 +1868,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
           book.bundlePublicationYears ?? '',
           book.bundleTitles ?? '',
           book.bundleAuthors ?? '',
-          book.tbr == 'yes',
-          book.isTandem == 'yes',
+          book.tbr == true ? 'yes' : 'no',
+          book.isTandem == true ? 'yes' : 'no',
           book.originalBookId?.toString() ?? '',
-          book.notificationEnabled == 'yes',
+          book.notificationEnabled == true ? 'yes' : 'no',
           book.notificationDatetime ?? '',
           book.bundleParentId?.toString() ?? '',
           book.readingProgress?.toString() ?? '',
           book.progressType ?? '',
           book.notes ?? '',
           book.price?.toString() ?? '',
-          book.ratingOverride == 'yes',
+          book.ratingOverride == true ? 'yes' : 'no',
           book.releaseDate ?? '',
           book.coverUrl ?? '',
           book.description ?? '',
@@ -2017,7 +2017,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildThemePreview(
             context,
             names[family]!,
-            family.paletteFor(themeProvider.themeMode),
+            family.paletteFor(themeProvider.effectiveThemeMode),
             themeProvider.themeFamily == family,
             () => themeProvider.setThemeFamily(family),
           ),
@@ -2633,27 +2633,66 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: SegmentedButton<AppThemeMode>(
-                    segments: [
-                      ButtonSegment(
-                        value: AppThemeMode.light,
-                        icon: const Icon(Icons.light_mode_outlined),
-                        label: Text(l10n.theme_light),
+                Builder(
+                  builder: (context) {
+                    final selectedStyle = ButtonStyle(
+                      foregroundColor: WidgetStateProperty.resolveWith(
+                        (states) =>
+                            states.contains(WidgetState.selected) &&
+                                    themeProvider.isDarkMode
+                                ? V2Colors.chipTextSelected
+                                : null,
                       ),
-                      ButtonSegment(
-                        value: AppThemeMode.dark,
-                        icon: const Icon(Icons.dark_mode_outlined),
-                        label: Text(l10n.theme_dark),
-                      ),
-                    ],
-                    selected: {themeProvider.themeMode},
-                    showSelectedIcon: false,
-                    onSelectionChanged:
-                        (selection) =>
-                            themeProvider.setThemeMode(selection.first),
-                  ),
+                    );
+                    void select(Set<AppThemeMode> selection) {
+                      if (selection.isEmpty) return;
+                      themeProvider.setThemeMode(selection.first);
+                    }
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SegmentedButton<AppThemeMode>(
+                          segments: [
+                            ButtonSegment(
+                              value: AppThemeMode.light,
+                              icon: const Icon(Icons.light_mode_outlined),
+                              label: Text(l10n.theme_light),
+                            ),
+                            ButtonSegment(
+                              value: AppThemeMode.dark,
+                              icon: const Icon(Icons.dark_mode_outlined),
+                              label: Text(l10n.theme_dark),
+                            ),
+                          ],
+                          style: selectedStyle,
+                          selected: {themeProvider.themeMode}
+                            ..remove(AppThemeMode.system),
+                          emptySelectionAllowed: true,
+                          showSelectedIcon: false,
+                          onSelectionChanged: select,
+                        ),
+                        const SizedBox(height: 8),
+                        SegmentedButton<AppThemeMode>(
+                          segments: [
+                            ButtonSegment(
+                              value: AppThemeMode.system,
+                              icon: const Icon(Icons.brightness_auto_outlined),
+                              label: Text(l10n.theme_system),
+                            ),
+                          ],
+                          style: selectedStyle,
+                          selected: {
+                            if (themeProvider.themeMode == AppThemeMode.system)
+                              AppThemeMode.system,
+                          },
+                          emptySelectionAllowed: true,
+                          showSelectedIcon: false,
+                          onSelectionChanged: select,
+                        ),
+                      ],
+                    );
+                  },
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -2686,7 +2725,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         Consumer<LocaleProvider>(
           builder: (context, localeProvider, _) {
             return DropdownButtonFormField<String>(
-              value: localeProvider.locale.languageCode,
+              initialValue: localeProvider.locale.languageCode,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 contentPadding: EdgeInsets.symmetric(
@@ -2954,7 +2993,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             setState(() => _readingReminderEnabled = val);
             _saveReadingReminderSettings(showFeedback: true);
           },
-          activeColor: _kV2Primary,
+          activeThumbColor: _kV2Primary,
           contentPadding: EdgeInsets.zero,
         ),
         if (_readingReminderEnabled) ...[
@@ -2996,29 +3035,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          RadioListTile<bool>(
-            title: Text(l10n.reminder_all_started),
-            subtitle: Text(l10n.reminder_all_started_subtitle),
-            value: true,
+          RadioGroup<bool>(
             groupValue: _readingReminderAllBooks,
             onChanged: (val) {
-              setState(() => _readingReminderAllBooks = val ?? true);
+              if (val == null) return;
+              setState(() => _readingReminderAllBooks = val);
               _saveReadingReminderSettings(showFeedback: true);
             },
-            contentPadding: EdgeInsets.zero,
-            dense: true,
-          ),
-          RadioListTile<bool>(
-            title: Text(l10n.reminder_last_started),
-            subtitle: Text(l10n.reminder_last_started_subtitle),
-            value: false,
-            groupValue: _readingReminderAllBooks,
-            onChanged: (val) {
-              setState(() => _readingReminderAllBooks = val ?? false);
-              _saveReadingReminderSettings(showFeedback: true);
-            },
-            contentPadding: EdgeInsets.zero,
-            dense: true,
+            child: Column(
+              children: [
+                RadioListTile<bool>(
+                  title: Text(l10n.reminder_all_started),
+                  subtitle: Text(l10n.reminder_all_started_subtitle),
+                  value: true,
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                ),
+                RadioListTile<bool>(
+                  title: Text(l10n.reminder_last_started),
+                  subtitle: Text(l10n.reminder_last_started_subtitle),
+                  value: false,
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                ),
+              ],
+            ),
           ),
         ],
         const Divider(height: 32),
@@ -3030,7 +3071,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             setState(() => _championshipReminderEnabled = val);
             _saveChampionshipReminderSettings();
           },
-          activeColor: _kV2Primary,
+          activeThumbColor: _kV2Primary,
           contentPadding: EdgeInsets.zero,
         ),
         if (_championshipReminderEnabled)
@@ -3113,7 +3154,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             setState(() => _showPriceStatistics = val);
             _savePriceSettings();
           },
-          activeColor: _kV2Primary,
+          activeThumbColor: _kV2Primary,
           contentPadding: EdgeInsets.zero,
         ),
         if (_showPriceStatistics) ...[
@@ -3447,62 +3488,60 @@ class _ImportChoiceDialogState extends State<_ImportChoiceDialog> {
       ),
       content: SizedBox(
         width: double.maxFinite,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            RadioListTile<bool>(
-              title: Text(AppLocalizations.of(context)!.import_all_books),
-              value: false,
-              groupValue: _importFromTag,
-              onChanged: (value) {
-                setState(() {
-                  _importFromTag = value!;
-                });
-              },
-              contentPadding: EdgeInsets.zero,
-            ),
-            if (widget.availableTags.isNotEmpty) ...[
+        child: RadioGroup<bool>(
+          groupValue: _importFromTag,
+          onChanged: (value) {
+            if (value == null) return;
+            setState(() => _importFromTag = value);
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               RadioListTile<bool>(
-                title: Text(AppLocalizations.of(context)!.import_from_tag),
-                value: true,
-                groupValue: _importFromTag,
-                onChanged: (value) {
-                  setState(() {
-                    _importFromTag = value!;
-                  });
-                },
+                title: Text(AppLocalizations.of(context)!.import_all_books),
+                value: false,
                 contentPadding: EdgeInsets.zero,
               ),
-              if (_importFromTag) ...[
-                const SizedBox(height: 8),
-                DropdownButtonFormField<String>(
-                  value: _selectedTag,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.select_tag,
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.tag),
-                    isDense: true,
-                  ),
-                  isExpanded: true,
-                  items:
-                      widget.availableTags
-                          .map(
-                            (tag) => DropdownMenuItem(
-                              value: tag,
-                              child: Text(tag, overflow: TextOverflow.ellipsis),
-                            ),
-                          )
-                          .toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedTag = value;
-                    });
-                  },
+              if (widget.availableTags.isNotEmpty) ...[
+                RadioListTile<bool>(
+                  title: Text(AppLocalizations.of(context)!.import_from_tag),
+                  value: true,
+                  contentPadding: EdgeInsets.zero,
                 ),
+                if (_importFromTag) ...[
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<String>(
+                    initialValue: _selectedTag,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.select_tag,
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.tag),
+                      isDense: true,
+                    ),
+                    isExpanded: true,
+                    items:
+                        widget.availableTags
+                            .map(
+                              (tag) => DropdownMenuItem(
+                                value: tag,
+                                child: Text(
+                                  tag,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            )
+                            .toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedTag = value;
+                      });
+                    },
+                  ),
+                ],
               ],
             ],
-          ],
+          ),
         ),
       ),
       actions: [

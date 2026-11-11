@@ -433,7 +433,6 @@ class _UserListsScreenState extends State<UserListsScreen> {
   }
 
   Future<void> _reorder(int oldIndex, int newIndex) async {
-    if (newIndex > oldIndex) newIndex--;
     setState(() {
       final moved = _lists.removeAt(oldIndex);
       _lists.insert(newIndex, moved);
@@ -471,7 +470,7 @@ class _UserListsScreenState extends State<UserListsScreen> {
                 padding: const EdgeInsets.fromLTRB(24, 8, 24, 96),
                 buildDefaultDragHandles: false,
                 itemCount: _lists.length,
-                onReorder: _reorder,
+                onReorderItem: _reorder,
                 itemBuilder: (ctx, i) {
                   final list = _lists[i];
                   return Container(

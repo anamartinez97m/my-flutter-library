@@ -223,7 +223,7 @@
   "theme": "Theme",
   "theme_light": "Light",
   "theme_dark": "Dark",
-  "theme_system": "System",
+  "theme_system": "Set by system",
   
   "language": "Language",
   "english": "English",

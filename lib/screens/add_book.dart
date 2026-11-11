@@ -1709,7 +1709,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
     return [
       _v2SectionHeading('Primary Info'),
       DropdownButtonFormField<int>(
-        value: _selectedStatusId,
+        initialValue: _selectedStatusId,
         decoration: _v2Deco(
           '${l10n.reading_status} *',
           Icons.check_circle_outline,
@@ -2101,7 +2101,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         ),
       const SizedBox(height: 10),
       DropdownButtonFormField<int>(
-        value: _selectedLanguageId,
+        initialValue: _selectedLanguageId,
         decoration: _v2Deco(l10n.language, Icons.language),
         dropdownColor: V2Colors.surface,
         style: TextStyle(fontFamily: V2Typography.family, color: _kPrimary),
@@ -2169,7 +2169,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
     return [
       _v2SectionHeading('Format'),
       DropdownButtonFormField<int>(
-        value: _selectedFormatId,
+        initialValue: _selectedFormatId,
         decoration: _v2Deco(l10n.format, Icons.import_contacts),
         dropdownColor: V2Colors.surface,
         style: TextStyle(fontFamily: V2Typography.family, color: _kPrimary),
@@ -2189,7 +2189,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       ),
       const SizedBox(height: 10),
       DropdownButtonFormField<int>(
-        value: _selectedFormatSagaId,
+        initialValue: _selectedFormatSagaId,
         decoration: _v2Deco(l10n.format_saga, Icons.format_shapes),
         dropdownColor: V2Colors.surface,
         style: TextStyle(fontFamily: V2Typography.family, color: _kPrimary),
@@ -2247,7 +2247,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       ),
       const SizedBox(height: 10),
       DropdownButtonFormField<int>(
-        value: _selectedPlaceId,
+        initialValue: _selectedPlaceId,
         decoration: _v2Deco(l10n.place, Icons.place),
         dropdownColor: V2Colors.surface,
         style: TextStyle(fontFamily: V2Typography.family, color: _kPrimary),
@@ -2267,7 +2267,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       ),
       const SizedBox(height: 10),
       DropdownButtonFormField<String>(
-        value: _selectedLoaned,
+        initialValue: _selectedLoaned,
         decoration: _v2Deco(l10n.loaned, Icons.swap_horiz),
         dropdownColor: V2Colors.surface,
         style: TextStyle(fontFamily: V2Typography.family, color: _kPrimary),
@@ -2416,7 +2416,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                               children: [
                                 Expanded(
                                   child: DropdownButtonFormField<String>(
-                                    value: field.fieldName,
+                                    initialValue: field.fieldName,
                                     decoration: InputDecoration(
                                       labelText: l10n.criterion,
                                       border: const OutlineInputBorder(),

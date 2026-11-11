@@ -4,7 +4,7 @@ import 'package:myrandomlibrary/config/themes/app_theme_palette.dart';
 import 'package:myrandomlibrary/config/v2_design_system.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum AppThemeMode { light, dark }
+enum AppThemeMode { light, dark, system }
 
 enum AppThemeFamily { main, ocean, warmEarth, royal }
 
@@ -39,18 +39,38 @@ extension AppThemeFamilyPalettes on AppThemeFamily {
       mode == AppThemeMode.dark ? darkPalette : lightPalette;
 }
 
-class ThemeProvider with ChangeNotifier {
-  AppThemeMode _themeMode = AppThemeMode.light;
+class ThemeProvider with ChangeNotifier, WidgetsBindingObserver {
+  AppThemeMode _themeMode = AppThemeMode.system;
   AppThemeFamily _themeFamily = AppThemeFamily.main;
 
+  /// The mode chosen in Settings, which can be [AppThemeMode.system].
   AppThemeMode get themeMode => _themeMode;
   AppThemeFamily get themeFamily => _themeFamily;
 
+  /// [AppThemeMode.light] or [AppThemeMode.dark]: [themeMode] with
+  /// [AppThemeMode.system] resolved against the device brightness.
+  AppThemeMode get effectiveThemeMode =>
+      _themeMode == AppThemeMode.system ? _platformThemeMode() : _themeMode;
+
+  bool get isDarkMode => effectiveThemeMode == AppThemeMode.dark;
+
   /// Palette of the active theme family in the active mode.
-  AppThemePalette get palette => _themeFamily.paletteFor(_themeMode);
+  AppThemePalette get palette => _themeFamily.paletteFor(effectiveThemeMode);
 
   ThemeProvider() {
+    WidgetsBinding.instance.addObserver(this);
     reloadFromPreferences();
+  }
+
+  @override
+  void didChangePlatformBrightness() {
+    if (_themeMode == AppThemeMode.system) _applyPalette();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   Future<void> reloadFromPreferences() async {
@@ -58,7 +78,7 @@ class ThemeProvider with ChangeNotifier {
     final themeModeString = prefs.getString('theme_mode');
     _themeMode = AppThemeMode.values.firstWhere(
       (mode) => mode.name == themeModeString,
-      orElse: _platformThemeMode,
+      orElse: () => AppThemeMode.system,
     );
 
     final themeFamilyString = prefs.getString('theme_family');

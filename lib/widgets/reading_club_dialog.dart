@@ -143,7 +143,7 @@ class _ReadingClubDialogState extends State<ReadingClubDialog> {
                   }
 
                   return DropdownButtonFormField<String>(
-                    value:
+                    initialValue:
                         _clubNameController.text.isEmpty ||
                                 !clubOptions.contains(_clubNameController.text)
                             ? null

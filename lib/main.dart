@@ -93,7 +93,7 @@ class MyApp extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final localeProvider = Provider.of<LocaleProvider>(context);
 
-    final isDarkMode = themeProvider.themeMode == AppThemeMode.dark;
+    final isDarkMode = themeProvider.isDarkMode;
     final v2Overlay = SystemUiOverlayStyle(
       statusBarColor: themeProvider.palette.background,
       statusBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
@@ -160,10 +160,7 @@ class MyApp extends StatelessWidget {
           bodySmall: darkTheme.textTheme.bodySmall?.copyWith(fontSize: 12),
         ),
       ),
-      themeMode:
-          themeProvider.themeMode == AppThemeMode.dark
-              ? ThemeMode.dark
-              : ThemeMode.light,
+      themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
       home: const _AutoBackupRunner(),
     );
 

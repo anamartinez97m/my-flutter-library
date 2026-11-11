@@ -369,7 +369,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get theme_dark => 'Oscuro';
 
   @override
-  String get theme_system => 'Sistema';
+  String get theme_system => 'Según el sistema';
 
   @override
   String get language => 'Idioma';
