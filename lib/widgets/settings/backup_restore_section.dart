@@ -29,7 +29,7 @@ class BackupRestoreSection extends StatelessWidget {
           DateTime.now().toIso8601String().replaceAll(':', '-').split('.')[0];
       final backupFileName = 'my_library_backup_$timestamp.db';
 
-      String? selectedDirectory = await FilePicker.platform.getDirectoryPath(
+      String? selectedDirectory = await FilePicker.getDirectoryPath(
         dialogTitle: 'Select folder to save backup',
       );
 
@@ -69,13 +69,13 @@ class BackupRestoreSection extends StatelessWidget {
 
   Future<void> _restoreBackup(BuildContext context) async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
+      final picked = await FilePicker.pickFile(
         type: FileType.custom,
         allowedExtensions: ['db'],
         dialogTitle: 'Select backup file to restore',
       );
 
-      if (result == null || result.files.single.path == null) {
+      if (picked == null || picked.path == null) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -117,7 +117,7 @@ class BackupRestoreSection extends StatelessWidget {
       final db = await dbHelper.database;
       final dbPath = db.path;
 
-      await File(result.files.single.path!).copy(dbPath);
+      await File(picked.path!).copy(dbPath);
 
       if (context.mounted) {
         final provider = Provider.of<BookProvider?>(context, listen: false);
