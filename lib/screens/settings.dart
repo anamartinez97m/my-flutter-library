@@ -2017,7 +2017,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildThemePreview(
             context,
             names[family]!,
-            family.paletteFor(themeProvider.themeMode),
+            family.paletteFor(themeProvider.effectiveThemeMode),
             themeProvider.themeFamily == family,
             () => themeProvider.setThemeFamily(family),
           ),
@@ -2633,27 +2633,66 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: SegmentedButton<AppThemeMode>(
-                    segments: [
-                      ButtonSegment(
-                        value: AppThemeMode.light,
-                        icon: const Icon(Icons.light_mode_outlined),
-                        label: Text(l10n.theme_light),
+                Builder(
+                  builder: (context) {
+                    final selectedStyle = ButtonStyle(
+                      foregroundColor: WidgetStateProperty.resolveWith(
+                        (states) =>
+                            states.contains(WidgetState.selected) &&
+                                    themeProvider.isDarkMode
+                                ? V2Colors.chipTextSelected
+                                : null,
                       ),
-                      ButtonSegment(
-                        value: AppThemeMode.dark,
-                        icon: const Icon(Icons.dark_mode_outlined),
-                        label: Text(l10n.theme_dark),
-                      ),
-                    ],
-                    selected: {themeProvider.themeMode},
-                    showSelectedIcon: false,
-                    onSelectionChanged:
-                        (selection) =>
-                            themeProvider.setThemeMode(selection.first),
-                  ),
+                    );
+                    void select(Set<AppThemeMode> selection) {
+                      if (selection.isEmpty) return;
+                      themeProvider.setThemeMode(selection.first);
+                    }
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SegmentedButton<AppThemeMode>(
+                          segments: [
+                            ButtonSegment(
+                              value: AppThemeMode.light,
+                              icon: const Icon(Icons.light_mode_outlined),
+                              label: Text(l10n.theme_light),
+                            ),
+                            ButtonSegment(
+                              value: AppThemeMode.dark,
+                              icon: const Icon(Icons.dark_mode_outlined),
+                              label: Text(l10n.theme_dark),
+                            ),
+                          ],
+                          style: selectedStyle,
+                          selected: {themeProvider.themeMode}
+                            ..remove(AppThemeMode.system),
+                          emptySelectionAllowed: true,
+                          showSelectedIcon: false,
+                          onSelectionChanged: select,
+                        ),
+                        const SizedBox(height: 8),
+                        SegmentedButton<AppThemeMode>(
+                          segments: [
+                            ButtonSegment(
+                              value: AppThemeMode.system,
+                              icon: const Icon(Icons.brightness_auto_outlined),
+                              label: Text(l10n.theme_system),
+                            ),
+                          ],
+                          style: selectedStyle,
+                          selected: {
+                            if (themeProvider.themeMode == AppThemeMode.system)
+                              AppThemeMode.system,
+                          },
+                          emptySelectionAllowed: true,
+                          showSelectedIcon: false,
+                          onSelectionChanged: select,
+                        ),
+                      ],
+                    );
+                  },
                 ),
                 const SizedBox(height: 16),
                 Text(
