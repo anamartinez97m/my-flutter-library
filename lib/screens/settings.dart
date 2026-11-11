@@ -977,7 +977,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       final backupFileName = 'my_library_backup_$timestamp.db';
 
       // Let user pick a directory
-      String? selectedDirectory = await FilePicker.platform.getDirectoryPath(
+      String? selectedDirectory = await FilePicker.getDirectoryPath(
         dialogTitle: 'Select folder to save backup',
       );
 
@@ -1077,16 +1077,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _importFromCsv(BuildContext context) async {
     try {
       // Pick CSV file
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
+      final picked = await FilePicker.pickFile(
         type: FileType.any,
         dialogTitle: 'Select CSV file',
       );
 
-      if (result == null || result.files.single.path == null) {
+      if (picked == null || picked.path == null) {
         return; // User canceled the picker
       }
 
-      final filePath = result.files.single.path!;
+      final filePath = picked.path!;
 
       // Validate it's a CSV file
       if (!filePath.toLowerCase().endsWith('.csv')) {
@@ -1674,16 +1674,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _importBackup(BuildContext context) async {
     try {
       // Pick database backup file
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
+      final picked = await FilePicker.pickFile(
         type: FileType.any,
         dialogTitle: AppLocalizations.of(context)!.select_backup_file,
       );
 
-      if (result == null || result.files.single.path == null) {
+      if (picked == null || picked.path == null) {
         return; // User canceled
       }
 
-      final backupPath = result.files.single.path!;
+      final backupPath = picked.path!;
 
       // Show confirmation dialog
       if (!context.mounted) return;
@@ -1762,7 +1762,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _downloadCsvImportTemplate(BuildContext context) async {
     try {
-      final selectedDirectory = await FilePicker.platform.getDirectoryPath(
+      final selectedDirectory = await FilePicker.getDirectoryPath(
         dialogTitle: AppLocalizations.of(context)!.select_folder_save_csv,
       );
       if (selectedDirectory == null) return;
@@ -1899,7 +1899,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       // Let user pick a directory
       if (!context.mounted) return;
-      String? selectedDirectory = await FilePicker.platform.getDirectoryPath(
+      String? selectedDirectory = await FilePicker.getDirectoryPath(
         dialogTitle: AppLocalizations.of(context)!.select_folder_save_csv,
       );
 
@@ -3270,7 +3270,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return;
       }
 
-      final directory = await FilePicker.platform.getDirectoryPath(
+      final directory = await FilePicker.getDirectoryPath(
         dialogTitle: l10n.select_folder_save_csv,
       );
       if (!context.mounted) return;
@@ -3300,17 +3300,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _importPricesGenres(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.any,
-        allowMultiple: false,
-        withData: true,
-      );
-      if (result == null || result.files.isEmpty) return;
-      final file = result.files.single;
-      final bytes =
-          file.bytes ??
-          (file.path != null ? await File(file.path!).readAsBytes() : null);
-      if (bytes == null) throw Exception('Could not read the file');
+      final file = await FilePicker.pickFile(type: FileType.any);
+      if (file == null) return;
+      final bytes = await file.readAsBytes();
 
       String text;
       try {
