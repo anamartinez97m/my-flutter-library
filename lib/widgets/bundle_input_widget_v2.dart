@@ -746,7 +746,7 @@ class _BundleInputWidgetV2State extends State<BundleInputWidgetV2> {
                           widget.statusOptions != null &&
                           widget.statusOptions!.isNotEmpty)
                         DropdownButtonFormField<String>(
-                          value: statusValue,
+                          initialValue: statusValue,
                           decoration: InputDecoration(
                             labelText: AppLocalizations.of(context)!.status,
                             border: const OutlineInputBorder(),

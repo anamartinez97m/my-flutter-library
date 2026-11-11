@@ -1653,7 +1653,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
                   // Status dropdown (required) - MOVED TO TOP
                   DropdownButtonFormField<int>(
-                    value: _selectedStatusId,
+                    initialValue: _selectedStatusId,
                     decoration: InputDecoration(
                       labelText:
                           '${AppLocalizations.of(context)!.reading_status} *',
@@ -2184,7 +2184,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
                   // Language dropdown
                   DropdownButtonFormField<int>(
-                    value: _selectedLanguageId,
+                    initialValue: _selectedLanguageId,
                     decoration: InputDecoration(
                       labelText: AppLocalizations.of(context)!.language,
                       border: const OutlineInputBorder(),
@@ -2273,7 +2273,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
                   // Format dropdown
                   DropdownButtonFormField<int>(
-                    value: _selectedFormatId,
+                    initialValue: _selectedFormatId,
                     decoration: InputDecoration(
                       labelText: AppLocalizations.of(context)!.format,
                       border: const OutlineInputBorder(),
@@ -2300,7 +2300,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
                   // Format Saga dropdown
                   DropdownButtonFormField<int>(
-                    value: _selectedFormatSagaId,
+                    initialValue: _selectedFormatSagaId,
                     decoration: InputDecoration(
                       labelText: AppLocalizations.of(context)!.format_saga,
                       border: OutlineInputBorder(),
@@ -2385,7 +2385,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
                   // Place dropdown
                   DropdownButtonFormField<int>(
-                    value: _selectedPlaceId,
+                    initialValue: _selectedPlaceId,
                     decoration: InputDecoration(
                       labelText: AppLocalizations.of(context)!.place,
                       border: const OutlineInputBorder(),
@@ -2412,7 +2412,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
                   // Loaned dropdown
                   DropdownButtonFormField<String>(
-                    value: _selectedLoaned,
+                    initialValue: _selectedLoaned,
                     decoration: InputDecoration(
                       labelText: AppLocalizations.of(context)!.loaned,
                       border: const OutlineInputBorder(),
@@ -2604,7 +2604,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                                               child: DropdownButtonFormField<
                                                 String
                                               >(
-                                                value: field.fieldName,
+                                                initialValue: field.fieldName,
                                                 decoration: InputDecoration(
                                                   labelText:
                                                       AppLocalizations.of(

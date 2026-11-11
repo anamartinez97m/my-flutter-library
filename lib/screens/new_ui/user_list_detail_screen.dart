@@ -377,7 +377,6 @@ class _UserListDetailScreenState extends State<UserListDetailScreen> {
   }
 
   Future<void> _reorder(int oldIndex, int newIndex) async {
-    if (newIndex > oldIndex) newIndex--;
     setState(() {
       final moved = _entries.removeAt(oldIndex);
       _entries.insert(newIndex, moved);
@@ -701,7 +700,7 @@ class _UserListDetailScreenState extends State<UserListDetailScreen> {
                 padding: const EdgeInsets.fromLTRB(24, 8, 24, 96),
                 buildDefaultDragHandles: false,
                 itemCount: _entries.length,
-                onReorder: _reorder,
+                onReorderItem: _reorder,
                 itemBuilder: (_, i) => _tile(l10n, _entries[i], i),
               )
               : ListView.builder(
