@@ -322,7 +322,7 @@ class _NewMyBooksScreenState extends State<NewMyBooksScreen> {
               indent: 40,
               endIndent: 40,
             ),
-            _ClubsCard(key: _clubsKey),
+            _ClubsCard(key: _clubsKey, library: provider.allBooks),
             const SizedBox(height: 80),
           ],
         ),
@@ -591,7 +591,10 @@ class _TBRCardState extends State<_TBRCard> with WidgetsBindingObserver {
 }
 
 class _ClubsCard extends StatefulWidget {
-  const _ClubsCard({super.key});
+  /// The provider's book list; a new instance means a book changed (e.g. its
+  /// reading progress), which changes the clubs' daily targets.
+  final Object library;
+  const _ClubsCard({super.key, required this.library});
   @override
   State<_ClubsCard> createState() => _ClubsCardState();
 }
@@ -606,6 +609,12 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     ReadingClubRepository.changes.addListener(_load);
     _load();
+  }
+
+  @override
+  void didUpdateWidget(covariant _ClubsCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.library, widget.library)) _load();
   }
 
   @override
