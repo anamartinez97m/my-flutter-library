@@ -601,7 +601,7 @@ class _ClubsCard extends StatefulWidget {
 
 class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
   List<Map<String, dynamic>> _clubs = [];
-  bool _loading = true, _exp = false;
+  bool _loading = true, _exp = false, _userToggled = false;
 
   @override
   void initState() {
@@ -639,6 +639,7 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
         setState(() {
           _clubs = all;
           _loading = false;
+          if (!_userToggled) _exp = all.isNotEmpty;
         });
       }
     } catch (e) {
@@ -690,7 +691,11 @@ class _ClubsCardState extends State<_ClubsCard> with WidgetsBindingObserver {
                 ],
               ),
               GestureDetector(
-                onTap: () => setState(() => _exp = !_exp),
+                onTap:
+                    () => setState(() {
+                      _userToggled = true;
+                      _exp = !_exp;
+                    }),
                 child: Icon(
                   _exp ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
                   color: V2Colors.textSecondary,
