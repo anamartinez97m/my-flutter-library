@@ -20,7 +20,12 @@ class NewRandomMoodScreen extends StatelessWidget {
         backgroundColor: _kBg,
         appBar: randomAppBar(context, l10n.random_mood),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+          padding: EdgeInsets.fromLTRB(
+            20,
+            8,
+            20,
+            24 + MediaQuery.paddingOf(context).bottom,
+          ),
           child: ThemeDiscoveryCard(
             bookFilter: (books) => filterBySagaOrder(books, books),
           ),
